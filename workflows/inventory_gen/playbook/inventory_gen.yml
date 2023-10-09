@@ -41,7 +41,13 @@
                           'series':item.series }]  }} "
       loop: "{{ all_devices }}"
 
-    - name: Yaml dump network device data with formatted output to file "{{ VARS_FILES_PATH }}/inv_network_devices.yml"
+    - name: Take inv files needed in inventory file
+      set_fact:
+        dnac_inv:  "{{ {'dnachosts':{ 'hosts': {'dnac1': {'dnac_host': dnac_host, 'dnac_username': dnac_username,\
+                   'dnac_password': dnac_password, 'dnac_verify': dnac_verify, 'dnac_port': dnac_port,\
+                   'dnac_version':dnac_version, 'dnac_debug':dnac_debug,'network_devices':network_devices1  }}}}  }} "
+        
+    - name: Yaml dump network device data with formatted output to file  inv_network_devices.yml
       copy:
-        content: "{{ {'network_devices': network_devices1} | to_nice_yaml }}"
-        dest: "{{ VARS_FILES_PATH }}/inv_network_devices.yml"
+        content: "{{ dnac_inv | to_nice_yaml }}"
+        dest: "../../../inv_network_devices.yml"
