@@ -65,21 +65,24 @@ Version 0.0.1 (Beta)
     ```
 
 How to Generate your hosts inventory from DNAC using inventory_gen playbook:
+
 10. If the DNAc is already configured with devices and the devices are in inventory, then automated inventory generation can be done through inventory_gen playbook. Follow the below Steps:
+
 i. Create a basic inventory file with DNAC Inputs in inventory folder. for example demo_inv.yml
   ---
-  #Inventory file for demo_lab
-  dnachosts:
-    hosts:
-      dnac1:
-      dnac_debug: false
-      dnac_host: <DNAC IP Address> #(Mandatory) DNAC Ip address
-      dnac_password: <DNAC UI admin Password> #(Mandatory) 
-      dnac_port: 443 #(Mandatory) 
-      dnac_username: <DNAC UI admin username> #(Mandatory) 
-      dnac_verify: false #(Mandatory) 
-      dnac_version: <DNAC Release version> #(Mandatory)  Example: 2.3.5.3
-
+  ```yaml
+    #Inventory file for demo_lab
+    dnachosts:
+        hosts:
+        dnac1:
+        dnac_debug: false
+        dnac_host: <DNAC IP Address> #(Mandatory) DNAC Ip address
+        dnac_password: <DNAC UI admin Password> #(Mandatory) 
+        dnac_port: 443 #(Mandatory) 
+        dnac_username: <DNAC UI admin username> #(Mandatory) 
+        dnac_verify: false #(Mandatory) 
+        dnac_version: <DNAC Release version> #(Mandatory)  Example: 2.3.5.3
+    ```
 ii. Run the workflows/inventory_gen/inventory_gen.yml playbook with thisinventory file with your DNAC cluster Inputs. From the code base execute:
     ```bash
         ansible-playbook -i ./inventory/demo_inv.yml ./workflows/inventory_gen/playbook/inventory_gen.yml  -vvvv
