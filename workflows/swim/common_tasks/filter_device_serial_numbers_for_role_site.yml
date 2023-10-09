@@ -1,0 +1,55 @@
+---
+  - name: DEBUG all_network_devices
+    ansible.builtin.debug:
+      msg: "{{ all_network_devices }}"
+      
+  - name: DEBUG filters_object
+    ansible.builtin.debug:
+      msg: "{{ filters_object }}"
+
+  - name: Get devices Serial Numbers for a given site dict filters_object
+    set_fact:
+      filtered_devices_list1:  "{{ filtered_devices_list1 | default([]) + [ item.serial_number ] }} "
+    loop: "{{ all_network_devices }}"
+    when: filters_object is defined and item.serial_number is defined and item.serial_number != "" and filters_object.siteName is defined and item.site == filters_object.siteName
+
+  - name: DEBUG filtered_devices_list1
+    ansible.builtin.debug:
+      msg: "{{ filtered_devices_list1 }}"
+    when: filtered_devices_list1 is defined
+
+  - name: Get devices Serial Numbers for a given role dict filters_object
+    set_fact:
+      filtered_devices_list2:  "{{ filtered_devices_list2 | default([]) + [ item.serial_number ] }} "
+    loop: "{{ all_network_devices }}"
+    when: filters_object is defined and item.serial_number is defined and item.serial_number != "" and filters_object.deviceRole is defined and item.inventory_role == filters_object.deviceRole
+  
+  - name: DEBUG filtered_devices_list2
+    ansible.builtin.debug:
+      msg: "{{ filtered_devices_list2 }}"
+    when: filtered_devices_list2 is defined
+
+  - name: Get devices Serial Numbers which are present in both filtered_devices_list1 and filtered_devices_list2
+    set_fact:
+      filtered_devices_list: "{{ filtered_devices_list1 | intersect(filtered_devices_list2) }}"
+    when: filtered_devices_list1 is defined and filtered_devices_list2 is defined
+
+  - name: DEBUG filtered_devices_list
+    ansible.builtin.debug:
+      msg: "{{ filtered_devices_list }}"
+    when: filtered_devices_list is defined
+
+  - name: Get devices Serial Numbers when filtered_devices_list1 is defined but filtered_devices_list2 is not defined
+    set_fact:
+      filtered_devices_list: "{{ filtered_devices_list1 }}"
+    when: filters_object is defined and filters_object.siteName is defined and filters_object.deviceRole is not defined and filtered_devices_list1 is defined
+
+  - name: Get devices Serial Numbers when filtered_devices_list2 is defined but filtered_devices_list1 is not defined
+    set_fact:
+      filtered_devices_list: "{{ filtered_devices_list2 }}"
+    when: filters_object is defined and filters_object.siteName is not defined and filters_object.deviceRole is defined and filtered_devices_list2 is defined
+
+  - name: DEBUG filtered_devices_list
+    ansible.builtin.debug:
+      msg: "{{ filtered_devices_list }}"
+    when: filtered_devices_list is defined

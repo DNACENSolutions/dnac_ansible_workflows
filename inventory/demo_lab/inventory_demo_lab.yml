@@ -1,0 +1,104 @@
+---
+#Inventory file for demo_lab
+isehosts:
+  hosts:
+    ise1:
+      ise_hostname: "xx.xx.xx.xx"
+      ise_username: xxxxxxx
+      ise_password: "xxxxxxxxxxx"
+      ise_verify: false
+      ise_debug: true
+dnachosts:
+  hosts:
+    dnac1:
+      dnac_debug: false
+      dnac_host: xx.xx.xx.xx
+      dnac_password: xxxxxxxxx
+      dnac_port: 443
+      dnac_username: xxxxxx
+      dnac_verify: false
+      dnac_version: 2.3.5.3
+      network_devices:
+      - device_discovery: Discovery
+        device_fqdn: ISBTE-TB3-9400.dummy.com
+        fabric_role: MAPSERVER,BORDERNODE,EDGENODE,INTERNAL,EXTERNAL,ECA,SDATRANSIT
+        family: ''
+        host_name: ISBTE-TB3-9400
+        inventory_role: ACCESS
+        ip_address: 204.101.16.1 #Dummy IP
+        mac_address: 5c:71:0d:xx:xx:xx
+        managed_ap_locations:
+        - Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1
+        managed_ap_secondary_locations: []
+        platform: ''
+        serial_number: FXS2343Q2T0 #Dummy Serial Number
+        series: ''
+        site: Global/USA/SAN JOSE/BLD23
+        software_image: ''
+        templates: []
+      - device_discovery: Discovery
+        device_fqdn: ISBTE-SDA-TransitSW.dummy.com
+        fabric_role: TRANSITSDA
+        family: ''
+        host_name: ISBTE-SDA-TransitSW
+        inventory_role: DISTRIBUTION
+        ip_address: 204.101.16.4 #Dummy IP
+        mac_address: 10:b3:c6:xx:xx:xx
+        managed_ap_locations: []
+        managed_ap_secondary_locations: []
+        platform: ''
+        serial_number: FJC2330E0HW #Dummy Serial Number
+        series: ''
+        site: Global/USA/SAN JOSE/BLD23
+        software_image: ''
+        templates: []
+      - device_discovery: Discovery
+        device_fqdn: ''
+        fabric_role: BORDERNODE,MAPSERVER,EXTERNAL,SDATRANSIT,NOIPTRANSIT
+        family: ''
+        host_name: ISBTE-TB3-Border1
+        inventory_role: ACCESS
+        ip_address: 204.101.16.2 #Dummy IP
+        mac_address: ''
+        managed_ap_locations: []
+        managed_ap_secondary_locations: []
+        platform: ''
+        serial_number: ''
+        series: ''
+        site: Global/USA/New York/BLDNYC
+        software_image: ''
+        templates: []
+      - device_discovery: Discovery
+        device_fqdn: ISBTE-TB3-Border2.dummy.com
+        fabric_role: BORDERNODE,MAPSERVER,EXTERNAL,SDATRANSIT,NOIPTRANSIT
+        family: ''
+        host_name: ISBTE-TB3-Border2
+        inventory_role: ACCESS
+        ip_address: 204.101.16.3 #Dummy IP
+        mac_address: 08:4f:f9:xx:xx:xx
+        managed_ap_locations: []
+        managed_ap_secondary_locations: []
+        platform: ''
+        serial_number: FJB2330B0R9 #Dummy Serial Number
+        series: ''
+        site: Global/USA/New York/BLDNYC
+        software_image: ''
+        templates: []
+      - device_discovery: Discovery
+        device_fqdn: ISBTE-TB3-WLC2.dummy.com
+        fabric_role: WLC
+        family: ''
+        host_name: ISBTE-TB3-WLC2
+        inventory_role: ACCESS
+        ip_address: 204.192.5.1 #Dummy IP
+        mac_address: 30:8b:b2:xx:xx:xx
+        managed_ap_locations:
+        - Global/USA/New York/BLDNYC/FLOOR1
+        managed_ap_secondary_locations: []
+        platform: ''
+        serial_number: FCW2333M067 #Dummy Serial Number
+        series: ''
+        site: Global/USA/New York/BLDNYC
+        software_image: ''
+        templates: []
+

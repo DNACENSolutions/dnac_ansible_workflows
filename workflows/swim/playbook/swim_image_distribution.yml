@@ -1,0 +1,74 @@
+---
+- name: Configure device credentials on Cisco DNA Center
+  hosts: dnachosts
+  connection: local
+  gather_facts: no
+  vars_files:
+    - "{{ VARS_FILES_PATH }}"
+  
+  vars:
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+
+  tasks:
+    - name: Set all_network_devices required by the filter
+      set_fact:
+        all_network_devices:  "{{ network_devices }}"
+    - name: Set filters_object required by the filter
+      set_fact:
+        filters_object:  "{{ imageDistributionDetails}}"
+    - import_tasks: ../common_tasks/filter_device_serial_numbers_for_role_site.yml
+
+    - name: Distribute image to selected devices
+      cisco.dnac.swim_intent:
+        <<: *dnac_login
+        config:
+        - imageDistributionDetails:
+            deviceSerialNumber: "{{ item }}"
+            imageName: "{{ imageDistributionDetails.imageName }}"
+      loop: "{{ filtered_devices_list }}"
+      when: imageDistributionDetails is defined
+      when: filtered_devices_list is defined
+      register: imageDistributionDetails_result
+
+    - name: Distribute image to selected devices if IP address is defined
+      cisco.dnac.swim_intent:
+        <<: *dnac_login
+        config:
+        - imageDistributionDetails:
+            deviceIPAddress: "{{ imageDistributionDetails.deviceIPAddress }}"
+            imageName: "{{ imageDistributionDetails.imageName }}"
+      when: imageDistributionDetails is defined and imageDistributionDetails.deviceIPAddress is defined and imageDistributionDetails.deviceIPAddress != none
+
+    - name: Distribute image to selected devices if hostname is defined
+      cisco.dnac.swim_intent:
+        <<: *dnac_login
+        config:
+        - imageDistributionDetails:
+            deviceHostname: "{{ imageDistributionDetails.deviceHostname }}"
+            imageName: "{{ imageDistributionDetails.imageName }}"
+      when: imageDistributionDetails is defined and imageDistributionDetails.deviceHostname is defined and imageDistributionDetails.deviceHostname != none
+
+    - name: DIstribute image to selected devices if deviceMacAddress is defined
+      cisco.dnac.swim_intent:
+        <<: *dnac_login
+        config:
+        - imageDistributionDetails:
+            deviceMacAddress: "{{ imageDistributionDetails.deviceMacAddress }}"
+            imageName: "{{ imageDistributionDetails.imageName }}"
+      when: imageDistributionDetails is defined and imageDistributionDetails.deviceMacAddress is defined and imageDistributionDetails.deviceMacAddress != none
+
+    - name: DIstribute image to selected devices if deviceSerialNumber is defined
+      cisco.dnac.swim_intent:
+        <<: *dnac_login
+        config:
+        - imageDistributionDetails:
+            deviceSerialNumber: "{{ imageDistributionDetails.deviceSerialNumber }}"
+            imageName: "{{ imageDistributionDetails.imageName }}"
+      when: imageDistributionDetails is defined and imageDistributionDetails.deviceSerialNumber is defined and imageDistributionDetails.deviceSerialNumber != none
