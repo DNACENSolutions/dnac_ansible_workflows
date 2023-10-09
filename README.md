@@ -70,19 +70,20 @@ How to Generate your hosts inventory from DNAC using inventory_gen playbook:
 
 i. Create a basic inventory file with DNAC Inputs in inventory folder. for example demo_inv.yml
   ---
-  ```yaml
-    #Inventory file for demo_lab
-    dnachosts:
-        hosts:
-        dnac1:
-        dnac_debug: false
-        dnac_host: <DNAC IP Address> #(Mandatory) DNAC Ip address
-        dnac_password: <DNAC UI admin Password> #(Mandatory) 
-        dnac_port: 443 #(Mandatory) 
-        dnac_username: <DNAC UI admin username> #(Mandatory) 
-        dnac_verify: false #(Mandatory) 
-        dnac_version: <DNAC Release version> #(Mandatory)  Example: 2.3.5.3
+    ```yaml
+        #Inventory file for demo_lab
+        dnachosts:
+            hosts:
+            dnac1:
+            dnac_debug: false
+            dnac_host: <DNAC IP Address> #(Mandatory) DNAC Ip address
+            dnac_password: <DNAC UI admin Password> #(Mandatory) 
+            dnac_port: 443 #(Mandatory) 
+            dnac_username: <DNAC UI admin username> #(Mandatory) 
+            dnac_verify: false #(Mandatory) 
+            dnac_version: <DNAC Release version> #(Mandatory)  Example: 2.3.5.3
     ```
+
 ii. Run the workflows/inventory_gen/inventory_gen.yml playbook with thisinventory file with your DNAC cluster Inputs. From the code base execute:
     ```bash
         ansible-playbook -i ./inventory/demo_inv.yml ./workflows/inventory_gen/playbook/inventory_gen.yml  -vvvv
@@ -91,12 +92,12 @@ ii. Run the workflows/inventory_gen/inventory_gen.yml playbook with thisinventor
         #==============
         #For successful run you will see:
         #==============
-TASK [Yaml dump network device data with formatted output to file  inv_network_devices.yml] *************************************************************************************************************************************************************
-task path: ./workflows/inventory_gen/playbook/inventory_gen.yml:50
+        TASK [Yaml dump network device data with formatted output to file  inv_network_devices.yml] *************************************************************************************************************************************************************
+        task path: ./workflows/inventory_gen/playbook/inventory_gen.yml:50
 
-....
-PLAY RECAP **********************************************************************************************************************************************************************************************************************************************
-dnac1                      : ok=5    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+        ....
+        PLAY RECAP **********************************************************************************************************************************************************************************************************************************************
+        dnac1                      : ok=5    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 
     ```
 iii. The network_devices inventory is stored inv_network_devices.yml
