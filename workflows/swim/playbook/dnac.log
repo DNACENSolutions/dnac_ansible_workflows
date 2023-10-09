@@ -1,0 +1,60 @@
+---- 2023-10-08T22:29:37 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:29:37 ---- 145@validate_list_of_dicts ---- {'type': 'url', 'urlDetails': {'payload': [{'sourceURL': 'http://172.21.236.183/swim/V1712_1_FC5/cat9k_lite_iosxe.17.12.01.SPA.bin', 'isThirdParty': False}]}} 
+---- 2023-10-08T22:29:37 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:37 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:37 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:39 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:29:40 ---- 145@validate_list_of_dicts ---- {'type': 'url', 'urlDetails': {'payload': [{'sourceURL': 'http://172.21.236.183/swim/V1712_20230427_143746/cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin'}, {'sourceURL': 'http://172.21.236.183/swim/V1712_20230427_143746/C9800-SW-iosxe-wlc.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin', 'isThirdParty': False}]}} 
+---- 2023-10-08T22:29:40 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:40 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:40 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:42 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:29:43 ---- 145@validate_list_of_dicts ---- {'type': 'url', 'urlDetails': {'payload': [{'sourceURL': 'http://172.21.236.183/swim/V1712_1_FC5/asr1000-universalk9.17.12.01.SPA.bin', 'isThirdParty': False}]}, 'device_role': 'ALL', 'device_family_name': 'Cisco ASR 1001-X Router'} 
+---- 2023-10-08T22:29:43 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:44 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:44 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:45 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:29:46 ---- 145@validate_list_of_dicts ---- {'type': 'url', 'urlDetails': {'payload': [{'sourceURL': 'http://172.21.236.183/swim/V1712_20230427_143746/isr4400-universalk9.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin', 'isThirdParty': False}]}} 
+---- 2023-10-08T22:29:46 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:46 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:46 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:47 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:29:48 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:48 ---- 145@validate_list_of_dicts ---- {'imageName': 'cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin', 'deviceRole': 'ALL', 'deviceFamilyName': 'Cisco Catalyst 9300 Switch', 'siteName': 'Global/USA/SAN JOSE/BLD23', 'tagging': True} 
+---- 2023-10-08T22:29:48 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:48 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:51 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:29:52 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:52 ---- 145@validate_list_of_dicts ---- {'imageName': 'cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin', 'deviceRole': 'ACCESS', 'deviceFamilyName': 'Cisco Catalyst 9407R Switch-Cisco Catalyst 9400X Supervisor Engine-2XL', 'siteName': 'Global/USA/SAN JOSE/BLD23', 'tagging': True} 
+---- 2023-10-08T22:29:52 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:29:52 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:07 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:31:08 ---- 145@validate_list_of_dicts ---- {'type': 'url', 'urlDetails': {'payload': [{'sourceURL': 'http://172.21.236.183/swim/V1712_1_FC5/cat9k_lite_iosxe.17.12.01.SPA.bin', 'isThirdParty': False}]}} 
+---- 2023-10-08T22:31:08 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:08 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:08 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:09 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:31:10 ---- 145@validate_list_of_dicts ---- {'type': 'url', 'urlDetails': {'payload': [{'sourceURL': 'http://172.21.236.183/swim/V1712_20230427_143746/cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin'}, {'sourceURL': 'http://172.21.236.183/swim/V1712_20230427_143746/C9800-SW-iosxe-wlc.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin', 'isThirdParty': False}]}} 
+---- 2023-10-08T22:31:10 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:10 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:10 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:12 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:31:13 ---- 145@validate_list_of_dicts ---- {'type': 'url', 'urlDetails': {'payload': [{'sourceURL': 'http://172.21.236.183/swim/V1712_1_FC5/asr1000-universalk9.17.12.01.SPA.bin', 'isThirdParty': False}]}, 'device_role': 'ALL', 'device_family_name': 'Cisco ASR 1001-X Router'} 
+---- 2023-10-08T22:31:13 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:13 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:13 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:14 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:31:15 ---- 145@validate_list_of_dicts ---- {'type': 'url', 'urlDetails': {'payload': [{'sourceURL': 'http://172.21.236.183/swim/V1712_20230427_143746/isr4400-universalk9.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin', 'isThirdParty': False}]}} 
+---- 2023-10-08T22:31:15 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:15 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:15 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:17 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:31:18 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:18 ---- 145@validate_list_of_dicts ---- {'imageName': 'cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin', 'deviceRole': 'ALL', 'deviceFamilyName': 'Cisco Catalyst 9300 Switch', 'siteName': 'Global/USA/SAN JOSE/BLD23', 'tagging': True} 
+---- 2023-10-08T22:31:18 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:18 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:21 ---- 283@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-08T22:31:21 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:21 ---- 145@validate_list_of_dicts ---- {'imageName': 'cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin', 'deviceRole': 'ACCESS', 'deviceFamilyName': 'Cisco Catalyst 9407R Switch-Cisco Catalyst 9400X Supervisor Engine-2XL', 'siteName': 'Global/USA/SAN JOSE/BLD23', 'tagging': True} 
+---- 2023-10-08T22:31:21 ---- 145@validate_list_of_dicts ---- None 
+---- 2023-10-08T22:31:21 ---- 145@validate_list_of_dicts ---- None 
