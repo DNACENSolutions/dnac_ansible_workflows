@@ -1,0 +1,47 @@
+
+---
+- name: Configure global credentials on Cisco DNA Center
+  hosts: dnachosts
+  connection: local
+  gather_facts: no
+
+  vars:
+    dnac_login: &dnac_login
+                
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+
+  tasks:
+    - name: Get all Network Device info
+      cisco.dnac.network_device_info:
+        <<: *dnac_login
+        offset: "{{ item }}"
+        limit: 500
+      register: network_device_info
+      when: network_device_info is not defined or network_device_info.dnac_response.response
+      loop: "{{ range(1, 20000, 500)|list }}"
+      
+    - name: Combinea all devices
+      set_fact:
+        all_devices:  "{{ all_devices | default([]) + item.dnac_response.response  }} "
+      loop: "{{ network_device_info.results }}"
+      when: item.dnac_response is defined  and item.dnac_response.response
+
+    - name: Take inv files needed in inventory file
+      set_fact:
+        network_devices1:  "{{ network_devices1 | default([]) + [{'serial_number':item.serialNumber,\
+                          'host_name': item.hostname, 'inventory_role':item.role,'site':item.location,\
+                          'ip_address':item.managementIpAddress, 'mac_address': item.macAddress,\
+                          'mac_address': item.macAddress,'platform':item.platformId,\
+                          'series':item.series }]  }} "
+      loop: "{{ all_devices }}"
+
+    - name: Yaml dump network device data with formatted output to file "{{ VARS_FILES_PATH }}/inv_network_devices.yml"
+      copy:
+        content: "{{ {'network_devices': network_devices1} | to_nice_yaml }}"
+        dest: "{{ VARS_FILES_PATH }}/inv_network_devices.yml"
