@@ -1,0 +1,36 @@
+---- 2023-10-09T06:43:12 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:13 ---- 145@validate_list_of_dicts ---- area 
+---- 2023-10-09T06:43:13 ---- 145@validate_list_of_dicts ---- {'area': {'name': 'USA', 'parentName': 'Global'}} 
+---- 2023-10-09T06:43:15 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:15 ---- 145@validate_list_of_dicts ---- area 
+---- 2023-10-09T06:43:15 ---- 145@validate_list_of_dicts ---- {'area': {'name': 'India', 'parentName': 'Global'}} 
+---- 2023-10-09T06:43:17 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:18 ---- 145@validate_list_of_dicts ---- area 
+---- 2023-10-09T06:43:18 ---- 145@validate_list_of_dicts ---- {'area': {'name': 'Mexico', 'parentName': 'Global'}} 
+---- 2023-10-09T06:43:19 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:20 ---- 145@validate_list_of_dicts ---- area 
+---- 2023-10-09T06:43:20 ---- 145@validate_list_of_dicts ---- {'area': {'name': 'Canada', 'parentName': 'Global'}} 
+---- 2023-10-09T06:43:21 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:22 ---- 145@validate_list_of_dicts ---- area 
+---- 2023-10-09T06:43:22 ---- 145@validate_list_of_dicts ---- {'area': {'name': 'SAN JOSE', 'parentName': 'Global/USA'}} 
+---- 2023-10-09T06:43:24 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:24 ---- 145@validate_list_of_dicts ---- area 
+---- 2023-10-09T06:43:24 ---- 145@validate_list_of_dicts ---- {'area': {'name': 'RTP', 'parentName': 'Global/USA'}} 
+---- 2023-10-09T06:43:26 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:26 ---- 145@validate_list_of_dicts ---- area 
+---- 2023-10-09T06:43:26 ---- 145@validate_list_of_dicts ---- {'area': {'name': 'BayAreaGuest', 'parentName': 'Global/USA'}} 
+---- 2023-10-09T06:43:28 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:28 ---- 145@validate_list_of_dicts ---- area 
+---- 2023-10-09T06:43:28 ---- 145@validate_list_of_dicts ---- {'area': {'name': 'Bangalore', 'parentName': 'Global/India'}} 
+---- 2023-10-09T06:43:30 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:31 ---- 145@validate_list_of_dicts ---- area 
+---- 2023-10-09T06:43:31 ---- 145@validate_list_of_dicts ---- {'area': {'name': 'New York', 'parentName': 'Global/USA'}} 
+---- 2023-10-09T06:43:32 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:33 ---- 145@validate_list_of_dicts ---- area 
+---- 2023-10-09T06:43:33 ---- 145@validate_list_of_dicts ---- {'area': {'name': 'SAN-FRANCISCO', 'parentName': 'Global/USA'}} 
+---- 2023-10-09T06:43:35 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:35 ---- 145@validate_list_of_dicts ---- area 
+---- 2023-10-09T06:43:35 ---- 145@validate_list_of_dicts ---- {'area': {'name': 'BERKELEY', 'parentName': 'Global/USA'}} 
+---- 2023-10-09T06:43:37 ---- 245@__init__ ---- {'dnac_host': '10.195.243.53', 'dnac_port': '443', 'dnac_username': 'admin', 'dnac_password': 'Maglev123', 'dnac_verify': False, 'dnac_debug': False, 'dnac_log': False} 
+---- 2023-10-09T06:43:38 ---- 145@validate_list_of_dicts ---- building 
+---- 2023-10-09T06:43:38 ---- 145@validate_list_of_dicts ---- {'building': {'name': 'Mantri Square', 'parentName': 'Global/India/Bangalore', 'address': 'Bengaluru, Karnataka, India', 'latitude': 12.96991, 'longitude': 77.59796, 'country': 'India'}} 
