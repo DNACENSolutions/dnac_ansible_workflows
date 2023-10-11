@@ -1,8 +1,8 @@
-  ---
-  #Inventory file for demo_lab
-  dnachosts:
-    hosts:
-      dnac1:
+---
+#Inventory file for demo_lab
+dnachosts:
+  hosts:
+    dnac1:
       dnac_debug: false
       dnac_host: <DNAC IP Address> #(Mandatory) DNAC Ip address
       dnac_password: <DNAC UI admin Password> #(Mandatory) 

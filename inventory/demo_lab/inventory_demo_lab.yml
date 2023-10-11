@@ -1,104 +1,91 @@
----
-#Inventory file for demo_lab
-isehosts:
-  hosts:
-    ise1:
-      ise_hostname: "xx.xx.xx.xx"
-      ise_username: xxxxxxx
-      ise_password: "xxxxxxxxxxx"
-      ise_verify: false
-      ise_debug: true
 dnachosts:
-  hosts:
-    dnac1:
-      dnac_debug: false
-      dnac_host: xx.xx.xx.xx
-      dnac_password: xxxxxxxxx
-      dnac_port: 443
-      dnac_username: xxxxxx
-      dnac_verify: false
-      dnac_version: 2.3.5.3
-      network_devices:
-      - device_discovery: Discovery
-        device_fqdn: ISBTE-TB3-9400.dummy.com
-        fabric_role: MAPSERVER,BORDERNODE,EDGENODE,INTERNAL,EXTERNAL,ECA,SDATRANSIT
-        family: ''
-        host_name: ISBTE-TB3-9400
-        inventory_role: ACCESS
-        ip_address: 204.101.16.1 #Dummy IP
-        mac_address: 5c:71:0d:xx:xx:xx
-        managed_ap_locations:
-        - Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1
-        managed_ap_secondary_locations: []
-        platform: ''
-        serial_number: FXS2343Q2T0 #Dummy Serial Number
-        series: ''
-        site: Global/USA/SAN JOSE/BLD23
-        software_image: ''
-        templates: []
-      - device_discovery: Discovery
-        device_fqdn: ISBTE-SDA-TransitSW.dummy.com
-        fabric_role: TRANSITSDA
-        family: ''
-        host_name: ISBTE-SDA-TransitSW
-        inventory_role: DISTRIBUTION
-        ip_address: 204.101.16.4 #Dummy IP
-        mac_address: 10:b3:c6:xx:xx:xx
-        managed_ap_locations: []
-        managed_ap_secondary_locations: []
-        platform: ''
-        serial_number: FJC2330E0HW #Dummy Serial Number
-        series: ''
-        site: Global/USA/SAN JOSE/BLD23
-        software_image: ''
-        templates: []
-      - device_discovery: Discovery
-        device_fqdn: ''
-        fabric_role: BORDERNODE,MAPSERVER,EXTERNAL,SDATRANSIT,NOIPTRANSIT
-        family: ''
-        host_name: ISBTE-TB3-Border1
-        inventory_role: ACCESS
-        ip_address: 204.101.16.2 #Dummy IP
-        mac_address: ''
-        managed_ap_locations: []
-        managed_ap_secondary_locations: []
-        platform: ''
-        serial_number: ''
-        series: ''
-        site: Global/USA/New York/BLDNYC
-        software_image: ''
-        templates: []
-      - device_discovery: Discovery
-        device_fqdn: ISBTE-TB3-Border2.dummy.com
-        fabric_role: BORDERNODE,MAPSERVER,EXTERNAL,SDATRANSIT,NOIPTRANSIT
-        family: ''
-        host_name: ISBTE-TB3-Border2
-        inventory_role: ACCESS
-        ip_address: 204.101.16.3 #Dummy IP
-        mac_address: 08:4f:f9:xx:xx:xx
-        managed_ap_locations: []
-        managed_ap_secondary_locations: []
-        platform: ''
-        serial_number: FJB2330B0R9 #Dummy Serial Number
-        series: ''
-        site: Global/USA/New York/BLDNYC
-        software_image: ''
-        templates: []
-      - device_discovery: Discovery
-        device_fqdn: ISBTE-TB3-WLC2.dummy.com
-        fabric_role: WLC
-        family: ''
-        host_name: ISBTE-TB3-WLC2
-        inventory_role: ACCESS
-        ip_address: 204.192.5.1 #Dummy IP
-        mac_address: 30:8b:b2:xx:xx:xx
-        managed_ap_locations:
-        - Global/USA/New York/BLDNYC/FLOOR1
-        managed_ap_secondary_locations: []
-        platform: ''
-        serial_number: FCW2333M067 #Dummy Serial Number
-        series: ''
-        site: Global/USA/New York/BLDNYC
-        software_image: ''
-        templates: []
-
+    hosts:
+        dnac1:
+            dnac_debug: false
+            dnac_host: 192.168.3.0
+            dnac_password: xxxxxxx
+            dnac_port: 443
+            dnac_username: xxxxxxx
+            dnac_verify: false
+            dnac_version: 2.3.5.3
+            network_devices:
+            -   collectionInterval: Global Default
+                family: Switches and Hubs
+                hostname: TB1-DM-eCA-BORDER.solutionsanity.com
+                id: ed520954-597b-49d0-8e95-ac3d7dc73121
+                macAddress: 78:02:b1:eb:b0:80
+                managementIpAddress: 192.168.0.1
+                platformId: C9300-48UXM
+                role: ACCESS
+                serialNumber: FJC2319T05U
+                series: Cisco Catalyst 9300 Series Switches
+                site: null
+                softwareType: IOS-XE
+                tagCount: '0'
+                type: Cisco Catalyst 9300 Switch
+            -   collectionInterval: Global Default
+                family: Switches and Hubs
+                hostname: TB1-DM-NF-Switch.solutionsanity.com
+                id: e80ec794-faa3-48d8-903f-8a4d111e15b8
+                macAddress: 78:02:b1:c2:d6:00
+                managementIpAddress: 192.168.0.2
+                platformId: C9300-48U
+                role: ACCESS
+                serialNumber: FJC2317T02L
+                series: Cisco Catalyst 9300 Series Switches
+                site: null
+                softwareType: IOS-XE
+                tagCount: '0'
+                type: Cisco Catalyst 9300 Switch
+            -   collectionInterval: Global Default
+                family: Wireless Controller
+                hostname: TB1-DM-WLC2
+                id: 858a413f-216a-48e3-b5ff-5a3428d784f4
+                macAddress: 6c:ab:05:87:da:37
+                managementIpAddress: 204.192.5.2
+                platformId: AIR-CT8540-K9
+                role: ACCESS
+                serialNumber: FCH2319V0QB
+                series: Cisco 8500 Series Wireless LAN Controller
+                site: null
+                softwareType: Cisco Controller
+                tagCount: '0'
+                type: Cisco 8540 Series Wireless Controllers
+            -   collectionInterval: Global Default
+                family: Wireless Controller
+                hostname: TB1-VEWLC.solutionsanity.com
+                id: a50bc179-ee03-463c-9cf2-3b8b00a8c704
+                macAddress: 00:50:56:a0:92:fa
+                managementIpAddress: 192.168.2.9
+                platformId: C9800-CL-K9
+                role: ACCESS
+                serialNumber: 9HJ2QSHVS3L
+                series: Cisco Catalyst 9800 Wireless Controllers for Cloud
+                site: null
+                softwareType: IOS-XE
+                tagCount: '0'
+                type: Cisco Catalyst 9800-CL Wireless Controller for Cloud
+            unified_access_points:
+            -   family: Unified AP
+                hostname: AP2C57.4154.4180
+                id: b6900306-761f-4623-9902-622a2e53fc07
+                macAddress: 14:16:9d:81:a1:a0
+                managementIpAddress: 192.168.013.208
+                platformId: C9130AXE-B
+                role: ACCESS
+                serialNumber: FJC24391EJP
+                series: Cisco Catalyst 9130AXE Series Unified Access Points
+                site: null
+                type: Cisco Catalyst 9130AXE Unified Access Point
+            -   family: Unified AP
+                hostname: AP502f.a857.cb08
+                id: a429eea7-3801-4a14-a66c-749dc72d635c
+                macAddress: 50:2f:a8:77:22:e0
+                managementIpAddress: 192.168.008.10
+                platformId: AIR-CAP3702E-B-K9
+                role: ACCESS
+                serialNumber: FJC2323M5VN
+                series: Cisco 3700E Series Unified Access Points
+                site: null
+                type: Cisco 3700E Unified Access Point
+            wireless_sensors: []

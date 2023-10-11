@@ -5,20 +5,20 @@ image_details:
       type: "url"
       urlDetails:
         payload:
-        - sourceURL: http://10.0.0.10/swim/V1712_1_FC5/cat9k_lite_iosxe.17.12.01.SPA.bin
+        - sourceURL: http://172.21.236.183/swim/V1712_1_FC5/cat9k_lite_iosxe.17.12.01.SPA.bin
           isThirdParty: false
   - importImageDetails:
       type: "url"
       urlDetails:
         payload:
-        - sourceURL: http://10.0.0.10/swim/V1712_20230427_143746/cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
-        - sourceURL: http://10.0.0.10/swim/V1712_20230427_143746/C9800-SW-iosxe-wlc.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
+        - sourceURL: http://172.21.236.183/swim/V1712_20230427_143746/cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
+        - sourceURL: http://172.21.236.183/swim/V1712_20230427_143746/C9800-SW-iosxe-wlc.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
           isThirdParty: false
   - importImageDetails:
       type: "url"
       urlDetails:
         payload:
-        - sourceURL: http://10.0.0.10/swim/V1712_1_FC5/asr1000-universalk9.17.12.01.SPA.bin
+        - sourceURL: http://172.21.236.183/swim/V1712_1_FC5/asr1000-universalk9.17.12.01.SPA.bin
           isThirdParty: false
       device_role: "ALL"
       device_family_name: "Cisco ASR 1001-X Router"
@@ -26,7 +26,7 @@ image_details:
       type: "url"
       urlDetails:
         payload:
-        - sourceURL: http://10.0.0.10/swim/V1712_20230427_143746/isr4400-universalk9.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
+        - sourceURL: http://172.21.236.183/swim/V1712_20230427_143746/isr4400-universalk9.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
           isThirdParty: false
           
 image_golden_tagging_details:
@@ -36,12 +36,12 @@ image_golden_tagging_details:
       deviceFamilyName: Cisco Catalyst 9300 Switch
       siteName: Global/USA/SAN JOSE/BLD23
       tagging: true
-  - taggingDetails:
-      imageName: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
-      deviceRole: ACCESS
-      deviceFamilyName: Cisco Catalyst 9407R Switch-Cisco Catalyst 9400X Supervisor Engine-2XL
-      siteName: Global/USA/SAN JOSE/BLD23
-      tagging: true
+  #- taggingDetails:
+  #    imageName: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
+  #    deviceRole: ACCESS
+  #    deviceFamilyName: Cisco Catalyst 9407R Switch-Cisco Catalyst 9400X Supervisor Engine-2XL
+  #    siteName: Global/USA/SAN JOSE/BLD23
+  #    tagging: true
 
 imageDistributionDetails:
     imageName: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
@@ -50,7 +50,7 @@ imageDistributionDetails:
     deviceSerialNumber: null
     deviceIPAddress: null
     deviceRole: ACCESS
-    siteName: Global/USA/SAN JOSE/BLD23
+    #siteName: Global/USA/SAN JOSE/BLD23
 
 imageActivationDetails:
     imageName: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
@@ -62,5 +62,5 @@ imageActivationDetails:
     deviceMacAddress: null
     deviceSerialNumber: null
     deviceIPAddress: null
-    siteName: Global/USA/SAN JOSE/BLD23
+    #siteName: Global/USA/SAN JOSE/BLD23
     deviceRole: ACCESS
