@@ -47,6 +47,7 @@
                           'macAddress': item.macAddress,'platformId': item.platformId, 'collectionInterval': item.collectionInterval,\
                           'series':item.series, 'family':item.family, 'type':item.type, 'id':item.id }]  }} "
       loop: "{{ all_devices }}"
+      when: all_devices is defined
 
     - name: Get all Network Device info
       cisco.dnac.network_device_info:
@@ -73,6 +74,7 @@
                           'macAddress': item.macAddress,'platformId':item.platformId,\
                           'series':item.series, 'family':item.family, 'type':item.type, 'id':item.id }]  }} "
       loop: "{{ all_devices_uap }}"
+      when: all_devices_uap is defined
 
     - name: Get all Network Device info for Wireless Sensors
       cisco.dnac.network_device_info:
