@@ -20,6 +20,7 @@
     - name: Set all_network_devices required by the filter
       set_fact:
         all_network_devices:  "{{ network_devices }}"
+      when: network_devices is defined
     - name: Set filters_object required by the filter
       set_fact:
         filters_object:  "{{ imageDistributionDetails}}"
