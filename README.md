@@ -56,7 +56,9 @@ Version 0.0.1 (Beta)
 
 8. Executing playbook (Sample)
     ```bash
-        ansible-playbook -i ./inventory/demo_lab/001-dnac_inventory.yml ./workflows/swim/playbook/swim.yml --extra-vars VARS_FILES_PATH=./../vars//input_swim.yml -vvvv
+        ansible-playbook -i <inventory_dir> <playbook> --extra-vars VARS_FILES_PATH=<relative var files location> -vvvv
+	Sample:
+        ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim.yml --extra-vars VARS_FILES_PATH=./../vars//input_swim.yml -vvvv
     ```
 9. requirments.txt
    all dependent python modules can be installed using requirmennts.txt
