@@ -4,6 +4,7 @@ __pycache__/
 .tmp
 .cache
 *.retry
+inventory/demo_lab/001-dnac_inventory.yml
 tests/test_playbooks/vars/server.yml
 __pycache__
 *.pyc
