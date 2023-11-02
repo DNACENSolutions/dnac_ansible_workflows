@@ -32,22 +32,37 @@
       register: network_device_info
       when: network_device_info is not defined or network_device_info.dnac_response.response
       loop: "{{ range(1, 20000, 500)|list }}"
-      
+
     - name: Combine all NW devices
       set_fact:
         all_devices:  "{{ all_devices | default([]) + item.dnac_response.response  }} "
       loop: "{{ network_device_info.results }}"
       when: item.dnac_response is defined  and item.dnac_response.response
 
+    - name: Get all Network Devices details
+      cisco.dnac.device_details_info:
+        <<: *dnac_login
+        searchBy: "{{ item.id }}"
+        identifier: uuid
+      register: device_details
+      when: all_devices is defined
+      loop: "{{  all_devices }}"
+
+    - debug:
+        msg: "{{ device_details.results }}"
+
     - name: Take inv data for Switches routers hubs and Wireless Controllers
       set_fact:
-        network_devices:  "{{ network_devices | default([]) + [{'serialNumber':item.serialNumber,\
-                          'hostname': item.hostname, 'role':item.role,'site':item.location,\
-                          'managementIpAddress':item.managementIpAddress,'softwareType': item.softwareType, 'tagCount': item.tagCount,\
-                          'macAddress': item.macAddress,'platformId': item.platformId, 'collectionInterval': item.collectionInterval,\
-                          'series':item.series, 'family':item.family, 'type':item.type, 'id':item.id }]  }} "
-      loop: "{{ all_devices }}"
-      when: all_devices is defined
+        network_devices:  "{{ network_devices | default([]) + [{'serialNumber':item.dnac_response.response.serialNumber,\
+                          'hostname': item.dnac_response.response.nwDeviceName, 'role':item.dnac_response.response.nwDeviceRole,'site':item.dnac_response.response.location,\
+                          'managementIpAddress':item.dnac_response.response.managementIpAddr,'tagIdList': item.dnac_response.response.tagIdList,\
+                          'macAddress': item.dnac_response.response.macAddress,'platformId': item.dnac_response.response.platformId, \
+                          'collectionInterval': item.item.collectionInterval,\
+                          'stackType':item.dnac_response.response.stackType,\
+                          'series':item.dnac_response.response.deviceSeries, 'family':item.dnac_response.response.nwDeviceFamily, 'type':item.dnac_response.response.nwDeviceType, \
+                          'nwDeviceId': item.dnac_response.response.nwDeviceId }]  }} "
+      loop: "{{ device_details.results }}"
+      when: item.dnac_response is defined  and item.dnac_response.response
 
     - name: Get all Network Device info
       cisco.dnac.network_device_info:
@@ -105,15 +120,47 @@
 
     - name: Combine all inventory to have a full inventory.
       set_fact:
-        dnac_inv:  "{{ {'dnachosts':{ 'hosts': {'dnac1': {'dnac_host': dnac_host, 'dnac_username': dnac_username,\
+        dnac_inv:  "{{ {'dnachosts':{ 'hosts': {inventory_hostname: {'dnac_host': dnac_host, 'dnac_username': dnac_username,\
                    'dnac_password': dnac_password, 'dnac_verify': dnac_verify, 'dnac_port': dnac_port,\
-                   'dnac_version':dnac_version, 'dnac_debug':dnac_debug,'network_devices':network_devices,\
-                   'unified_access_points':unified_aps,  'wireless_sensors':wireless_sensors }}}}  }} "
-        
-    - name: Yaml dump network device data with formatted output to file  inv_network_devices.yml
+                   'dnac_version':dnac_version, 'dnac_debug':dnac_debug }}}} }} "
+
+    - name: Create Hosts list.
+      set_fact:
+        dnac_hosts:  "{{ {'dnachosts':{ 'hosts': 'dnaccluster1' }} }} "
+
+    - name: Combine all inventory to have a full inventory.
+      set_fact:
+        host_vars:  "{{ {'network_devices':network_devices,\
+                   'unified_access_points':unified_aps,  'wireless_sensors':wireless_sensors} }} "
+    - name: Creates directory
+      file:
+        path: "../../../inventory_{{inventory_hostname}}"
+        state: directory
+    - name: Creates directory
+      file:
+        path: "../../../inventory_{{inventory_hostname}}/group_vars"
+        state: directory
+    - name: Creates directory
+      file:
+        path: "../../../inventory_{{inventory_hostname}}/host_vars"
+        state: directory
+    - name: Yaml dump hosts data to yaml file hosts.yaml
       copy:
         content: "{{ dnac_inv | to_nice_yaml }}"
-        dest: "../../../inv_network_devices.yml"
+        dest: "../../../inventory_{{inventory_hostname}}/hosts.yml"
+        force: yes
+    - name: Yaml dump network devices vars to host var file with hostname
+      copy:
+        content: "{{ host_vars | to_nice_yaml }}"
+        dest: "../../../inventory_{{inventory_hostname}}/host_vars/{{inventory_hostname}}.yml"
+        force: yes
+    - name: set fact to set group vars
+      set_fact:
+        group_vars:  "{{ { } }} "
+    - name: Yaml dump network device data with formatted output to file  inv_network_devices.yml
+      copy:
+        content: "{{ group_vars | to_nice_yaml }}"
+        dest: "../../../inventory_{{inventory_hostname}}/group_vars/all.yml"
         force: yes
 
     - debug:
