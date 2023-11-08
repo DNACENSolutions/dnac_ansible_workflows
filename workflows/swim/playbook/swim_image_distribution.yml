@@ -46,6 +46,7 @@
             deviceIPAddress: "{{ imageDistributionDetails.deviceIPAddress }}"
             imageName: "{{ imageDistributionDetails.imageName }}"
       when: imageDistributionDetails is defined and imageDistributionDetails.deviceIPAddress is defined and imageDistributionDetails.deviceIPAddress != none
+      when: filtered_devices_list is not defined
 
     - name: Distribute image to selected devices if hostname is defined
       cisco.dnac.swim_intent:
@@ -55,6 +56,7 @@
             deviceHostname: "{{ imageDistributionDetails.deviceHostname }}"
             imageName: "{{ imageDistributionDetails.imageName }}"
       when: imageDistributionDetails is defined and imageDistributionDetails.deviceHostname is defined and imageDistributionDetails.deviceHostname != none
+      when: filtered_devices_list is not defined
 
     - name: DIstribute image to selected devices if deviceMacAddress is defined
       cisco.dnac.swim_intent:
@@ -64,6 +66,7 @@
             deviceMacAddress: "{{ imageDistributionDetails.deviceMacAddress }}"
             imageName: "{{ imageDistributionDetails.imageName }}"
       when: imageDistributionDetails is defined and imageDistributionDetails.deviceMacAddress is defined and imageDistributionDetails.deviceMacAddress != none
+      when: filtered_devices_list is not defined
 
     - name: DIstribute image to selected devices if deviceSerialNumber is defined
       cisco.dnac.swim_intent:
@@ -73,3 +76,4 @@
             deviceSerialNumber: "{{ imageDistributionDetails.deviceSerialNumber }}"
             imageName: "{{ imageDistributionDetails.imageName }}"
       when: imageDistributionDetails is defined and imageDistributionDetails.deviceSerialNumber is defined and imageDistributionDetails.deviceSerialNumber != none
+      when: filtered_devices_list is not defined
