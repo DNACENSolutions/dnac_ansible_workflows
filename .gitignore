@@ -6,6 +6,8 @@ __pycache__/
 *.retry
 inventory/demo_lab/001-dnac_inventory.yml
 tests/test_playbooks/vars/server.yml
+inventory_*
+vars_*
 __pycache__
 *.pyc
 *.pyo

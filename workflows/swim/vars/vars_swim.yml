@@ -50,7 +50,10 @@ imageDistributionDetails:
     deviceSerialNumber: null
     deviceIPAddress: null
     deviceRole: ACCESS
-    #siteName: Global/USA/SAN JOSE/BLD23
+    siteName: Global/USA/SAN JOSE/BLD23
+    deviceFamilyName: Cisco Catalyst 9300 Switch
+    family: Switches and Hubs
+    deviceTag: null
 
 imageActivationDetails:
     imageName: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
@@ -62,5 +65,8 @@ imageActivationDetails:
     deviceMacAddress: null
     deviceSerialNumber: null
     deviceIPAddress: null
-    #siteName: Global/USA/SAN JOSE/BLD23
+    siteName: Global/USA/SAN JOSE/BLD23
     deviceRole: ACCESS
+    deviceFamilyName: Cisco Catalyst 9300 Switch
+    family: Switches and Hubs
+    deviceTag: null

@@ -1,0 +1,145 @@
+---
+- name: Export and Download Groups from DNA Center
+  hosts: dnachosts
+  connection: local
+  gather_facts: no
+  vars:
+    dnac_url: "https://{{ dnac_host }}:443"
+    credentials: "{{ dnac_username}}:{{dnac_password }}"
+    authentication: "Basic {{ credentials | b64encode }}"
+    
+  tasks:
+    - name: debug authentication
+      debug:
+        msg: "{{ authentication }}"
+    - name: Authenticate with DNA Center
+      uri:
+        url: "{{ dnac_url }}/dna/system/api/v1/auth/token"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+          Authorization: "{{authentication}}"
+        validate_certs: false
+        status_code: 200
+      register: auth_response
+
+    - name: Parse DNA Center Authentication Token
+      set_fact:
+        dnac_auth_token: "{{ auth_response.json.Token }}"
+
+    - name: POST /api/v1/group/file
+      uri:
+        url: "{{ dnac_url }}/api/v1/group/file"
+        method: POST
+        body_format: json
+        headers:
+          Content-Type: "application/json"
+          X-Auth-Token: "{{ dnac_auth_token }}"
+        body:
+          exportType: "group"
+          groupTypeList:
+            - "SITE"
+        validate_certs: false
+        status_code: 202
+      register: post_response
+
+    - name: Parse Task ID from POST response
+      set_fact:
+        task_id: "{{ post_response.json.response.taskId }}"
+
+    - name: GET /api/v1/task/{{ task_id }}
+      uri:
+        url: "{{ dnac_url }}/api/v1/task/{{ task_id }}"
+        method: GET
+        headers:
+          X-Auth-Token: "{{ dnac_auth_token }}"
+        validate_certs: false
+        status_code: 200
+      register: get_task_response
+      until: get_task_response.json.response.endTime is defined
+
+    - name: Parse File ID from GET task response
+      set_fact:
+        file_url: "{{ get_task_response.json.response.additionalStatusURL }}"
+
+    - name: GET /api/v1/file/onetimedownload/{{ file_id }}
+      uri:
+        url: "{{ dnac_url }}/api/v1{{ file_url }}"
+        method: GET
+        headers:
+          X-Auth-Token: "{{ dnac_auth_token }}"
+          Accept: application/json, text/plain, */*
+          Accept-Encoding: gzip, deflate, br
+          Accept-Language: en-US,en;q=0.9
+          Connection: keep-alive
+          Host: "{{ dnac_host }}"
+          Referer: "{{ dnac_url }}/dna/group"
+          Sec-Fetch-Dest: empty
+          Sec-Fetch-Mode: cors
+          Sec-Fetch-Site: same-origin
+          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+        validate_certs: false
+        return_content: yes
+        status_code: 200
+      register: download_response
+
+    # download the content of the file
+    - name: debug download response
+      debug:
+        msg: "{{ download_response }}"
+
+    - name: debug download response
+      debug:
+        msg: "{{ download_response.filename }}"
+        msg: "{{ download_response.content }}"
+    - name: Creates directory
+      file:
+        path: "../../../vars_{{inventory_hostname}}"
+        state: directory
+    - name: Creates directory
+      file:
+        path: "../../../vars_{{inventory_hostname}}/sites"
+        state: directory
+
+    - name: Save downloaded file
+      copy:
+        content: "{{ download_response.content }}"
+        dest: "../../../vars_{{inventory_hostname}}/sites/csv_file_{{ inventory_hostname }}.csv"
+
+    - name: Read the DNAC exported CSV file and parse the device details
+      community.general.read_csv:
+        path: "../../../vars_{{inventory_hostname}}/sites/csv_file_{{ inventory_hostname }}.csv"
+      register: site_details
+  
+    - name: debug site_details.list
+      debug:
+        msg: "{{ site_details.list }}"
+    
+    - name: Filter areas using json_query
+      set_fact:
+        areas_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'area') | json_query('[].{site: {area: {name: \"*GroupName\", parentName: ParentHierarchy}}, type: `area`}') }}"
+    - name: debug areas_site_details_formatted
+      debug:
+        msg: "{{ areas_site_details_formatted }}"
+
+    - name: Filter buildings using json_query
+      set_fact:
+        building_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'building') | json_query('[].{site: {building: {address: \"namespace:Location:address\", latitude: \"namespace:Location:latitude\", longitude: \"namespace:Location:longitude\", country: \"namespace:Location:country\", name: \"*GroupName\", parentName: ParentHierarchy}}, type: `building`}') }}"
+    - name: debug building_site_details_formatted
+      debug:
+        msg: "{{ building_site_details_formatted }}"
+    - name: Filter floors using json_query
+      set_fact:
+        floor_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'floor') | json_query('[].{site: {floor: {rfModel: \"namespace:mapsSummary:rfModel\", width: \"namespace:mapGeometry:width\", length: \"namespace:mapGeometry:length\", floorNumber: \"namespace:mapsSummary:floorIndex\",height: \"namespace:mapGeometry:height\", name: \"*GroupName\", parentName: ParentHierarchy}}, type: `floor`}') }}"
+    - name: debug floor_site_details_formatted
+      debug:
+        msg: "{{ floor_site_details_formatted }}"
+    - name: combine areas buildins and floors in one list
+      set_fact:
+        dnac_site_inv: "{{ areas_site_details_formatted + building_site_details_formatted + floor_site_details_formatted }}"
+    - name: Yaml dump sites data to yaml file hosts.yaml
+      copy:
+        content: "{{ dnac_site_inv | to_nice_yaml }}"
+        dest: "../../../vars_{{inventory_hostname}}/sites/sites_{{ inventory_hostname }}_areas_buildings_floors.yml"
+        force: yes
+  
