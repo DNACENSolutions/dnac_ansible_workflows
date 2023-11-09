@@ -4,7 +4,7 @@
   connection: local
   gather_facts: no
   vars:
-    dnac_url: "https://{{ dnac_host }}:443"
+    dnac_url: "https://{{ dnac_host }}"
     credentials: "{{ dnac_username}}:{{dnac_password }}"
     authentication: "Basic {{ credentials | b64encode }}"
     
@@ -112,10 +112,10 @@
 
     - name: Filter ipv6 ip pools using json_query
       set_fact:
-        global_ippools_list_ipv6: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*:.*') |json_query('[].{ipPoolName: ipPoolName, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv6` }') }}"
+        global_ippools_list_ipv6: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*:.*') |json_query('[].{ipPoolName: ipPoolName, type:`Generic`, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv6` }') }}"
     - name: Filter ipv6 ip pools using json_query
       set_fact:
-        global_ippools_list_ipv4: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*\\..*') |json_query('[].{ipPoolName: ipPoolName, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv4` }') }}"
+        global_ippools_list_ipv4: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*\\..*') |json_query('[].{ipPoolName: ipPoolName, type:`Generic`, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv4` }') }}"
 
     - name: debug global_ippools_list_ipv4
       debug:
@@ -132,3 +132,9 @@
         content: "{{ dnac_global_ippools_inv | to_nice_yaml }}"
         dest: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_csv_{{ inventory_hostname }}.yml"
         force: yes
+    - name: print dir location of the global Ip pools Data
+      debug:
+        msg: "Dir location: vars_{{inventory_hostname}}/ippools"
+    - name: print file location of the global Ip pools Data
+      debug:
+        msg: "File location: vars_{{inventory_hostname}}/ippools/global_ippools_csv_{{ inventory_hostname }}.yml"

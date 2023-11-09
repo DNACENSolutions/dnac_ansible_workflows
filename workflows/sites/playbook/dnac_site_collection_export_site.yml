@@ -129,7 +129,7 @@
       set_fact:
         # Site intent module issue soes not support floorNumber, once fixed, uncomment the below line and remove the the one which is active.
         #floor_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'floor') | json_query('[].{site: {floor: {rfModel: \"namespace:mapsSummary:rfModel\", width: \"namespace:mapGeometry:width\", length: \"namespace:mapGeometry:length\", floorNumber: \"namespace:mapsSummary:floorIndex\",height: \"namespace:mapGeometry:height\", name: \"*GroupName\", parentName: ParentHierarchy}}, type: `floor`}') }}"
-        floor_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'floor') | json_query('[].{site: {floor: {width: \"namespace:mapGeometry:width\", length: \"namespace:mapGeometry:length\", height: \"namespace:mapGeometry:height\", name: \"*GroupName\", parentName: ParentHierarchy}}, type: `floor`}') }}"
+        floor_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'floor') | json_query('[].{site: {floor: {rfModel: `Cubes And Walled Offices`, width: \"namespace:mapGeometry:width\", length: \"namespace:mapGeometry:length\", height: \"namespace:mapGeometry:height\", name: \"*GroupName\", parentName: ParentHierarchy}}, type: `floor`}') }}"
     - name: debug floor_site_details_formatted
       debug:
         msg: "{{ floor_site_details_formatted }}"
@@ -141,4 +141,7 @@
         content: "{{ dnac_site_inv | to_nice_yaml }}"
         dest: "../../../vars_{{inventory_hostname}}/sites/sites_{{ inventory_hostname }}_areas_buildings_floors.yml"
         force: yes
+    - name: print file location of the sites data
+      debug:
+        msg: "The file is saved in vars_{{inventory_hostname}}/sites/sites_{{ inventory_hostname }}_areas_buildings_floors.yml"
   
