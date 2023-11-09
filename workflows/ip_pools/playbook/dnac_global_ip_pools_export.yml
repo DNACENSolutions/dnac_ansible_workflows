@@ -1,5 +1,5 @@
 ---
-- name: Export and Download Groups from DNA Center
+- name: Export and Download global IP Pools from DNA Center
   hosts: dnachosts
   connection: local
   gather_facts: no
@@ -7,7 +7,7 @@
     dnac_url: "https://{{ dnac_host }}:443"
     credentials: "{{ dnac_username}}:{{dnac_password }}"
     authentication: "Basic {{ credentials | b64encode }}"
-
+    
   tasks:
     - name: debug authentication
       debug:
@@ -27,18 +27,16 @@
       set_fact:
         dnac_auth_token: "{{ auth_response.json.Token }}"
 
-    - name: POST /api/v1/group/file
+    - name: POST /api/v2/ippool/export
       uri:
-        url: "{{ dnac_url }}/api/v1/group/file"
+        url: "{{ dnac_url }}/api/v2/ippool/export"
         method: POST
         body_format: json
         headers:
           Content-Type: "application/json"
           X-Auth-Token: "{{ dnac_auth_token }}"
         body:
-          exportType: "group"
-          groupTypeList:
-            - "SITE"
+          parentUuid: root
         validate_certs: false
         status_code: 202
       register: post_response
@@ -60,11 +58,11 @@
 
     - name: Parse File ID from GET task response
       set_fact:
-        file_url: "{{ get_task_response.json.response.additionalStatusURL }}"
+        file_url: "{{ get_task_response.json.response.progress }}"
 
     - name: GET /api/v1/file/onetimedownload/{{ file_id }}
       uri:
-        url: "{{ dnac_url }}/api/v1{{ file_url }}"
+        url: "{{ dnac_url }}{{ file_url }}"
         method: GET
         headers:
           X-Auth-Token: "{{ dnac_auth_token }}"
@@ -98,48 +96,35 @@
         state: directory
     - name: Creates directory
       file:
-        path: "../../../vars_{{inventory_hostname}}/sites"
+        path: "../../../vars_{{inventory_hostname}}/ippools"
         state: directory
 
     - name: Save downloaded file
       copy:
         content: "{{ download_response.content }}"
-        dest: "../../../vars_{{inventory_hostname}}/sites/csv_file_{{ inventory_hostname }}.csv"
+        dest: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_csv_file_{{ inventory_hostname }}.csv"
 
     - name: Read the DNAC exported CSV file and parse the device details
       community.general.read_csv:
-        path: "../../../vars_{{inventory_hostname}}/sites/csv_file_{{ inventory_hostname }}.csv"
-      register: site_details
+        path: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_csv_file_{{ inventory_hostname }}.csv"
+      register: global_ippool_details
   
-    - name: debug site_details.list
+    - name: debug global_ippool_details.list
       debug:
-        msg: "{{ site_details.list }}"
-    
+        msg: "{{ global_ippool_details.list }}"
+
     - name: Filter areas using json_query
       set_fact:
-        areas_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'area') | json_query('[].{site: {area: {name: \"*GroupName\", parentName: ParentHierarchy}}, type: `area`}') }}"
-    - name: debug areas_site_details_formatted
+        global_ippools_list: "{{ global_ippool_details.list | json_query('[].{ipPoolName: ipPoolName, dnsServerIps: dnsServerIps,dhcpServerIps:dhcpServerIps,gateway:gateway,ipPoolCidr:ipPoolCidr  }') }}"
+    - name: debug global_ippools_list
       debug:
-        msg: "{{ areas_site_details_formatted }}"
+        msg: "{{ global_ippools_list }}"
 
-    - name: Filter buildings using json_query
-      set_fact:
-        building_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'building') | json_query('[].{site: {building: {address: \"namespace:Location:address\", latitude: \"namespace:Location:latitude\", longitude: \"namespace:Location:longitude\", country: \"namespace:Location:country\", name: \"*GroupName\", parentName: ParentHierarchy}}, type: `building`}') }}"
-    - name: debug building_site_details_formatted
-      debug:
-        msg: "{{ building_site_details_formatted }}"
-    - name: Filter floors using json_query
-      set_fact:
-        floor_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'floor') | json_query('[].{site: {floor: {rfModel: \"namespace:mapsSummary:rfModel\", width: \"namespace:mapGeometry:width\", length: \"namespace:mapGeometry:length\", floorNumber: \"namespace:mapsSummary:floorIndex\",height: \"namespace:mapGeometry:height\", name: \"*GroupName\", parentName: ParentHierarchy}}, type: `floor`}') }}"
-    - name: debug floor_site_details_formatted
-      debug:
-        msg: "{{ floor_site_details_formatted }}"
     - name: combine areas buildins and floors in one list
       set_fact:
-        dnac_site_inv: "{{ {'design_sites': areas_site_details_formatted + building_site_details_formatted + floor_site_details_formatted} }}"
+        dnac_global_ippools_inv: "{{ {'ippool': global_ippools_list} }}"
     - name: Yaml dump sites data to yaml file hosts.yaml
       copy:
-        content: "{{ dnac_site_inv | to_nice_yaml }}"
-        dest: "../../../vars_{{inventory_hostname}}/sites/sites_{{ inventory_hostname }}_areas_buildings_floors.yml"
+        content: "{{ dnac_global_ippools_inv | to_nice_yaml }}"
+        dest: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_csv_{{ inventory_hostname }}.yml"
         force: yes
-  
