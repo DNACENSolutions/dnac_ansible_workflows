@@ -7,7 +7,7 @@
     dnac_url: "https://{{ dnac_host }}:443"
     credentials: "{{ dnac_username}}:{{dnac_password }}"
     authentication: "Basic {{ credentials | b64encode }}"
-    
+
   tasks:
     - name: debug authentication
       debug:
@@ -136,7 +136,7 @@
         msg: "{{ floor_site_details_formatted }}"
     - name: combine areas buildins and floors in one list
       set_fact:
-        dnac_site_inv: "{{ areas_site_details_formatted + building_site_details_formatted + floor_site_details_formatted }}"
+        dnac_site_inv: "{{ {'design_sites': areas_site_details_formatted + building_site_details_formatted + floor_site_details_formatted} }}"
     - name: Yaml dump sites data to yaml file hosts.yaml
       copy:
         content: "{{ dnac_site_inv | to_nice_yaml }}"
