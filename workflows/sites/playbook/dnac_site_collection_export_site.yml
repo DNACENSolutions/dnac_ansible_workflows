@@ -9,9 +9,6 @@
     authentication: "Basic {{ credentials | b64encode }}"
 
   tasks:
-    - name: debug authentication
-      debug:
-        msg: "{{ authentication }}"
     - name: Authenticate with DNA Center
       uri:
         url: "{{ dnac_url }}/dna/system/api/v1/auth/token"
@@ -130,7 +127,9 @@
         msg: "{{ building_site_details_formatted }}"
     - name: Filter floors using json_query
       set_fact:
-        floor_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'floor') | json_query('[].{site: {floor: {rfModel: \"namespace:mapsSummary:rfModel\", width: \"namespace:mapGeometry:width\", length: \"namespace:mapGeometry:length\", floorNumber: \"namespace:mapsSummary:floorIndex\",height: \"namespace:mapGeometry:height\", name: \"*GroupName\", parentName: ParentHierarchy}}, type: `floor`}') }}"
+        # Site intent module issue soes not support floorNumber, once fixed, uncomment the below line and remove the the one which is active.
+        #floor_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'floor') | json_query('[].{site: {floor: {rfModel: \"namespace:mapsSummary:rfModel\", width: \"namespace:mapGeometry:width\", length: \"namespace:mapGeometry:length\", floorNumber: \"namespace:mapsSummary:floorIndex\",height: \"namespace:mapGeometry:height\", name: \"*GroupName\", parentName: ParentHierarchy}}, type: `floor`}') }}"
+        floor_site_details_formatted: "{{ site_details.list | selectattr(\"*namespace:Location:type\", 'equalto', 'floor') | json_query('[].{site: {floor: {width: \"namespace:mapGeometry:width\", length: \"namespace:mapGeometry:length\", height: \"namespace:mapGeometry:height\", name: \"*GroupName\", parentName: ParentHierarchy}}, type: `floor`}') }}"
     - name: debug floor_site_details_formatted
       debug:
         msg: "{{ floor_site_details_formatted }}"

@@ -9,9 +9,6 @@
     authentication: "Basic {{ credentials | b64encode }}"
     
   tasks:
-    - name: debug authentication
-      debug:
-        msg: "{{ authentication }}"
     - name: Authenticate with DNA Center
       uri:
         url: "{{ dnac_url }}/dna/system/api/v1/auth/token"
@@ -113,16 +110,23 @@
       debug:
         msg: "{{ global_ippool_details.list }}"
 
-    - name: Filter areas using json_query
+    - name: Filter ipv6 ip pools using json_query
       set_fact:
-        global_ippools_list: "{{ global_ippool_details.list | json_query('[].{ipPoolName: ipPoolName, dnsServerIps: dnsServerIps,dhcpServerIps:dhcpServerIps,gateway:gateway,ipPoolCidr:ipPoolCidr  }') }}"
-    - name: debug global_ippools_list
+        global_ippools_list_ipv6: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*:.*') |json_query('[].{ipPoolName: ipPoolName, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv6` }') }}"
+    - name: Filter ipv6 ip pools using json_query
+      set_fact:
+        global_ippools_list_ipv4: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*\\..*') |json_query('[].{ipPoolName: ipPoolName, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv4` }') }}"
+
+    - name: debug global_ippools_list_ipv4
       debug:
-        msg: "{{ global_ippools_list }}"
+        msg: "{{ global_ippools_list_ipv4 }}"
+    - name: debug global_ippools_list_ipv6
+      debug:
+        msg: "{{ global_ippools_list_ipv6 }}"
 
     - name: combine areas buildins and floors in one list
       set_fact:
-        dnac_global_ippools_inv: "{{ {'ippool': global_ippools_list} }}"
+        dnac_global_ippools_inv: "{{ {'global_ippools':{'ippool': global_ippools_list_ipv4 + global_ippools_list_ipv6}} }}"
     - name: Yaml dump sites data to yaml file hosts.yaml
       copy:
         content: "{{ dnac_global_ippools_inv | to_nice_yaml }}"
