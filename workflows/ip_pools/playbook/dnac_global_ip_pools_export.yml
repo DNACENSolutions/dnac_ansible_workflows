@@ -112,10 +112,11 @@
 
     - name: Filter ipv6 ip pools using json_query
       set_fact:
-        global_ippools_list_ipv6: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*:.*') |json_query('[].{ipPoolName: ipPoolName, type:`Generic`, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv6` }') }}"
+        #default([\"default_dns_ip\"], dnsServerIps)}
+        global_ippools_list_ipv6: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*:.*') | json_query('[].{ipPoolName: ipPoolName, type:`Generic`, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv6` }') }}"
     - name: Filter ipv6 ip pools using json_query
       set_fact:
-        global_ippools_list_ipv4: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*\\..*') |json_query('[].{ipPoolName: ipPoolName, type:`Generic`, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv4` }') }}"
+        global_ippools_list_ipv4: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*\\..*') | json_query('[].{ipPoolName: ipPoolName, type:`Generic`, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv4` }') }}"
 
     - name: debug global_ippools_list_ipv4
       debug:

@@ -361,3 +361,11 @@ design_sites:
         length: 100.00
         height: 10.00
     type: floor
+
+-   site:
+        floor:
+            height: '10'
+            length: '100'
+            name: L8
+            parentName: Global/Malaysia/Presint 1/Parcel C/C1
+            width: '100'
