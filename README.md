@@ -31,7 +31,7 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 
 
 1. Navigate to the project directory:
-
+    
     cd dnac_ansible_workflows
 
 2. Install the required dependencies:
@@ -68,9 +68,12 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 7. Platbook: 
         The playbooks can be directly used without change when inventory and var files created in the above templates.
 
-8. Executing playbook (Sample)
+8. Executing playbook (Sample):
+
         ansible-playbook -i <inventory_dir> <playbook> --extra-vars VARS_FILES_PATH=<relative var files location> -vvvv
+        
 	Sample:
+
         ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim.yml --extra-vars VARS_FILES_PATH=./../vars//input_swim.yml -vvvv
 
 ## Examples 
