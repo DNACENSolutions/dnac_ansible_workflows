@@ -134,25 +134,25 @@
                    'unified_access_points':unified_aps,  'wireless_sensors':wireless_sensors} }} "
     - name: Creates directory
       file:
-        path: "../../../inventory_{{inventory_hostname}}"
+        path: "../../../host_inventory_{{inventory_hostname}}"
         state: directory
     - name: Creates directory
       file:
-        path: "../../../inventory_{{inventory_hostname}}/group_vars"
+        path: "../../../host_inventory_{{inventory_hostname}}/group_vars"
         state: directory
     - name: Creates directory
       file:
-        path: "../../../inventory_{{inventory_hostname}}/host_vars"
+        path: "../../../host_inventory_{{inventory_hostname}}/host_vars"
         state: directory
     - name: Yaml dump hosts data to yaml file hosts.yaml
       copy:
         content: "{{ dnac_inv | to_nice_yaml }}"
-        dest: "../../../inventory_{{inventory_hostname}}/hosts.yml"
+        dest: "../../../host_inventory_{{inventory_hostname}}/hosts.yml"
         force: yes
     - name: Yaml dump network devices vars to host var file with hostname
       copy:
         content: "{{ host_vars | to_nice_yaml }}"
-        dest: "../../../inventory_{{inventory_hostname}}/host_vars/{{inventory_hostname}}.yml"
+        dest: "../../../host_inventory_{{inventory_hostname}}/host_vars/{{inventory_hostname}}.yml"
         force: yes
     - name: set fact to set group vars
       set_fact:
@@ -160,7 +160,7 @@
     - name: Yaml dump network device data with formatted output to file  inv_network_devices.yml
       copy:
         content: "{{ group_vars | to_nice_yaml }}"
-        dest: "../../../inventory_{{inventory_hostname}}/group_vars/all.yml"
+        dest: "../../../host_inventory_{{inventory_hostname}}/group_vars/all.yml"
         force: yes
 
     - debug:

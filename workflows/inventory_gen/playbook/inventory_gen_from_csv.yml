@@ -1,0 +1,125 @@
+# Read a CSV file without headers
+#run the playbook using: ansible-playbook -i inventory/demo_lab/001-dnac_inventory.yml workflows/inventory_gen/playbook/inventory_gen_from_csv.yml --extra-vars CSV_FILE_PATH=./../../../Devices-11-02-2023.csv 
+---
+- name: Configure global credentials on Cisco DNA Center
+  hosts: dnachosts
+  connection: local
+  gather_facts: true
+  strategy: free
+
+  vars:
+    wireless_sensors: []
+    unified_aps: []
+    network_devices: []
+    dnac_login: &dnac_login
+
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+
+  tasks:
+    - name: Record Start Time
+      set_fact:
+        start_time: "{{ ansible_date_time.epoch }}"
+      run_once: true
+    - name: debug start_time
+      debug:
+        var: start_time
+    - name: Read the DNAC exported CSV file and parse the device details
+      community.general.read_csv:
+        path: "{{CSV_FILE_PATH}}"
+      register: device_details
+  
+    - name: Create a list of device details 
+      set_fact:
+        device_details_list: "{{ device_details.list }}"
+
+    - name: Parse and Format switches and Hubs Device List
+      set_fact:
+        switches_and_hubs_devices: "{{ device_details_list | selectattr('Device Family', 'equalto', 'Switches and Hubs') | json_query('[].{hostname: \"Device Name\", role: \"Device Role\", managementIpAddress: \"IP Address\", site: Site, serialNumber: \"Serial Number\", macAddress: \"MAC Address\", family: \"Device Family\", platformId: Platform, collectionInterval: \"Resync Interval\", series: \"Device Series\", type: \"Device Series\", tags: Tags, sitetag: \"Site Tag\"}') }}"
+    - name: Parse and Format routers Device List
+      set_fact:
+        router_devices: "{{ device_details_list | selectattr('Device Family', 'equalto', 'Routers') | json_query('[].{hostname: \"Device Name\", role: \"Device Role\", managementIpAddress: \"IP Address\", site: Site, serialNumber: \"Serial Number\", macAddress: \"MAC Address\", family: \"Device Family\", platformId: Platform, collectionInterval: \"Resync Interval\", series: \"Device Series\", type: \"Device Series\", tags: Tags, sitetag: \"Site Tag\"}') }}"
+    - name: Parse and format Wireless Controller Device List
+      set_fact:
+        wireless_controller_devices: "{{ device_details_list | selectattr('Device Family', 'equalto', 'Wireless Controller') | json_query('[].{hostname: \"Device Name\", role: \"Device Role\", managementIpAddress: \"IP Address\", site: Site, serialNumber: \"Serial Number\", macAddress: \"MAC Address\", family: \"Device Family\", platformId: Platform, collectionInterval: \"Resync Interval\", series: \"Device Series\", type: \"Device Series\", tags: Tags, sitetag: \"Site Tag\"}') }}"
+    - name: Parse and format Wireless Sensors
+      set_fact:
+        wireless_sensors: "{{ device_details_list | selectattr('Device Family', 'equalto', 'Wireless Sensor') | json_query('[].{hostname: \"Device Name\", role: \"Device Role\", managementIpAddress: \"IP Address\", site: Site, serialNumber: \"Serial Number\", macAddress: \"MAC Address\", family: \"Device Family\", platformId: Platform, collectionInterval: \"Resync Interval\", series: \"Device Series\", type: \"Device Series\", tags: Tags, sitetag: \"Site Tag\"}') }}"
+    - name: Parse and format Unified APs
+      set_fact:
+        unified_aps: "{{ device_details_list | selectattr('Device Family', 'equalto', 'Unified AP') | json_query('[].{hostname: \"Device Name\", role: \"Device Role\", managementIpAddress: \"IP Address\", site: Site, serialNumber: \"Serial Number\", macAddress: \"MAC Address\", family: \"Device Family\", platformId: Platform, collectionInterval: \"Resync Interval\", series: \"Device Series\", type: \"Device Series\", tags: Tags, sitetag: \"Site Tag\"}') }}"
+    #Combine all the device lists
+    - name: Combine switches routers and wireless controllers
+      set_fact:
+        network_devices: "{{ switches_and_hubs_devices + router_devices + wireless_controller_devices}}"
+    - name: Create Hosts list.
+      set_fact:
+        dnac_hosts:  "{{ {'dnachosts':{ 'hosts': 'dnaccluster1' }} }} "
+
+    - name: Combine all inventory to have a full inventory.
+      set_fact:
+        dnac_inv:  "{{ {'dnachosts':{ 'hosts': {inventory_hostname: {'dnac_host': dnac_host, 'dnac_username': dnac_username,\
+                   'dnac_password': dnac_password, 'dnac_verify': dnac_verify, 'dnac_port': dnac_port,\
+                   'dnac_version':dnac_version, 'dnac_debug':dnac_debug }}}} }} "
+    - name: Combine all inventory to have a full inventory.
+      set_fact:
+        host_vars:  "{{ {'network_devices':network_devices,\
+                   'unified_access_points':unified_aps,  'wireless_sensors':wireless_sensors} }} "
+    - name: Creates directory
+      file:
+        path: "../../../host_inventory_{{inventory_hostname}}"
+        state: directory
+    - name: Creates directory
+      file:
+        path: "../../../host_inventory_{{inventory_hostname}}/group_vars"
+        state: directory
+    - name: Creates directory
+      file:
+        path: "../../../host_inventory_{{inventory_hostname}}/host_vars"
+        state: directory
+    - name: Yaml dump hosts data to yaml file hosts.yaml
+      copy:
+        content: "{{ dnac_inv | to_nice_yaml }}"
+        dest: "../../../host_inventory_{{inventory_hostname}}/hosts.yml"
+        force: yes
+    - name: Yaml dump network devices vars to host var file with hostname
+      copy:
+        content: "{{ host_vars | to_nice_yaml }}"
+        dest: "../../../host_inventory_{{inventory_hostname}}/host_vars/{{inventory_hostname}}.yml"
+        force: yes
+    - name: set fact to set group vars
+      set_fact:
+        group_vars:  "{{ { } }} "
+    - name: Yaml dump network device data with formatted output to file  inv_network_devices.yml
+      copy:
+        content: "{{ group_vars | to_nice_yaml }}"
+        dest: "../../../host_inventory_{{inventory_hostname}}/group_vars/all.yml"
+        force: yes
+    - debug:
+        msg: Inventory file created successfully, No of Network Devices {{ network_devices.__len__() }},
+             No of Unified APs {{ unified_aps.__len__() }},   No of Wireless Sensors {{ wireless_sensors.__len__() }}
+    
+    - name: print inventory file path
+      debug:
+        msg: "Inventory file path: host_inventory_{{inventory_hostname}}/hosts.yml"
+    - name: set completion_time
+      set_fact:
+        completion_time: "{{ ansible_date_time.epoch }}"
+      run_once: true
+    - name: debug completion_time
+      debug:
+        var: completion_time
+    - name: Calculate Runtime
+      set_fact:
+        playbook_runtime_seconds: "{{ completion_time | int - start_time | int }}"
+      run_once: true
+    - name: Print Playbook Runtime
+      debug:
+        msg: "Playbook Runtime: {{ playbook_runtime_seconds }} seconds"
+      run_once: true
+...
