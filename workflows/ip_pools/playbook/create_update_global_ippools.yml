@@ -1,5 +1,5 @@
 ---
-- name: Configure device credentials on Cisco DNA Center
+- name: Create global IP Pools in Catalyst Center
   hosts: dnachosts
   connection: local
   gather_facts: no
