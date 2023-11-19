@@ -1,92 +1,49 @@
 ---
-- name: Export and Download global IP Pools from DNA Center
+- name: Configure global credentials on Cisco DNA Center
   hosts: dnachosts
   connection: local
   gather_facts: no
+
   vars:
-    dnac_url: "https://{{ dnac_host }}"
-    credentials: "{{ dnac_username}}:{{dnac_password }}"
-    authentication: "Basic {{ credentials | b64encode }}"
-    
+    dnac_login: &dnac_login
+                
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+
   tasks:
-    - name: Authenticate with DNA Center
-      uri:
-        url: "{{ dnac_url }}/dna/system/api/v1/auth/token"
-        method: POST
-        headers:
-          Content-Type: "application/json"
-          Authorization: "{{authentication}}"
-        validate_certs: false
-        status_code: 200
-      register: auth_response
-
-    - name: Parse DNA Center Authentication Token
+    - name: Get all global ip pools info
+      cisco.dnac.global_pool_info:
+        <<: *dnac_login
+        offset: "{{ item }}"
+        limit: 500
+      register: global_ip_pools
+      when: global_ip_pools is not defined or global_ip_pools.dnac_response.response
+      loop: "{{ range(1, 10000, 500)|list }}"
+    
+    - name: Combine all gobal ip pools
       set_fact:
-        dnac_auth_token: "{{ auth_response.json.Token }}"
+        all_global_ip_pools:  "{{ all_global_ip_pools | default([]) + item.dnac_response.response  }} "
+      loop: "{{ global_ip_pools.results }}"
+      when: item.dnac_response is defined  and item.dnac_response.response
 
-    - name: POST /api/v2/ippool/export
-      uri:
-        url: "{{ dnac_url }}/api/v2/ippool/export"
-        method: POST
-        body_format: json
-        headers:
-          Content-Type: "application/json"
-          X-Auth-Token: "{{ dnac_auth_token }}"
-        body:
-          parentUuid: root
-        validate_certs: false
-        status_code: 202
-      register: post_response
-
-    - name: Parse Task ID from POST response
+    - name: Read all ipv4 pools with only infor needed for create or update.
       set_fact:
-        task_id: "{{ post_response.json.response.taskId }}"
-
-    - name: GET /api/v1/task/{{ task_id }}
-      uri:
-        url: "{{ dnac_url }}/api/v1/task/{{ task_id }}"
-        method: GET
-        headers:
-          X-Auth-Token: "{{ dnac_auth_token }}"
-        validate_certs: false
-        status_code: 200
-      register: get_task_response
-      until: get_task_response.json.response.endTime is defined
-
-    - name: Parse File ID from GET task response
+        global_ippools_list_ipv4: "{{ all_global_ip_pools | selectattr('ipv6', 'equalto', false) | json_query(query) }}"
+      vars:
+        #query: "[].{ipPoolName: ipPoolName, type: ipPoolType, ipPoolCidr: ipPoolCidr, gateway: gateways[0], dhcpServerIps: dhcpServerIps, dnsServerIps: dnsServerIps, IpAddressSpace: `IPv4`}"
+        #Issue with type returned generic in stead of generic
+        query: "[].{ipPoolName: ipPoolName, type: `Generic`, ipPoolCidr: ipPoolCidr, gateway: gateways[0], dhcpServerIps: dhcpServerIps, dnsServerIps: dnsServerIps, IpAddressSpace: `IPv4`}"
+    - name: Read all ipv6 pools with only infor needed for create or update.
       set_fact:
-        file_url: "{{ get_task_response.json.response.progress }}"
+        global_ippools_list_ipv6: "{{ all_global_ip_pools | selectattr('ipv6', 'equalto', true) | json_query(query) }}"
+      vars:
+        query: "[].{ipPoolName: ipPoolName, type: `Generic`, ipPoolCidr: ipPoolCidr, gateway: gateways[0], dhcpServerIps: dhcpServerIps, dnsServerIps: dnsServerIps, IpAddressSpace: `IPv6`}"
 
-    - name: GET /api/v1/file/onetimedownload/{{ file_id }}
-      uri:
-        url: "{{ dnac_url }}{{ file_url }}"
-        method: GET
-        headers:
-          X-Auth-Token: "{{ dnac_auth_token }}"
-          Accept: application/json, text/plain, */*
-          Accept-Encoding: gzip, deflate, br
-          Accept-Language: en-US,en;q=0.9
-          Connection: keep-alive
-          Host: "{{ dnac_host }}"
-          Referer: "{{ dnac_url }}/dna/group"
-          Sec-Fetch-Dest: empty
-          Sec-Fetch-Mode: cors
-          Sec-Fetch-Site: same-origin
-          User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
-        validate_certs: false
-        return_content: yes
-        status_code: 200
-      register: download_response
-
-    # download the content of the file
-    - name: debug download response
-      debug:
-        msg: "{{ download_response }}"
-
-    - name: debug download response
-      debug:
-        msg: "{{ download_response.filename }}"
-        msg: "{{ download_response.content }}"
     - name: Creates directory
       file:
         path: "../../../vars_{{inventory_hostname}}"
@@ -96,46 +53,18 @@
         path: "../../../vars_{{inventory_hostname}}/ippools"
         state: directory
 
-    - name: Save downloaded file
-      copy:
-        content: "{{ download_response.content }}"
-        dest: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_csv_file_{{ inventory_hostname }}.csv"
-
-    - name: Read the DNAC exported CSV file and parse the device details
-      community.general.read_csv:
-        path: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_csv_file_{{ inventory_hostname }}.csv"
-      register: global_ippool_details
-  
-    - name: debug global_ippool_details.list
-      debug:
-        msg: "{{ global_ippool_details.list }}"
-
-    - name: Filter ipv6 ip pools using json_query
-      set_fact:
-        #default([\"default_dns_ip\"], dnsServerIps)}
-        global_ippools_list_ipv6: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*:.*') | json_query('[].{ipPoolName: ipPoolName, type:`Generic`, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv6` }') }}"
-    - name: Filter ipv6 ip pools using json_query
-      set_fact:
-        global_ippools_list_ipv4: "{{ global_ippool_details.list | selectattr('ipPoolCidr', 'match', '.*\\..*') | json_query('[].{ipPoolName: ipPoolName, type:`Generic`, dnsServerIps: [dnsServerIps],dhcpServerIps:[dhcpServerIps],gateway:gateway,ipPoolCidr:ipPoolCidr,IpAddressSpace:`IPv4` }') }}"
-
-    - name: debug global_ippools_list_ipv4
-      debug:
-        msg: "{{ global_ippools_list_ipv4 }}"
-    - name: debug global_ippools_list_ipv6
-      debug:
-        msg: "{{ global_ippools_list_ipv6 }}"
-
     - name: combine areas buildins and floors in one list
       set_fact:
         dnac_global_ippools_inv: "{{ {'global_ippools':{'ippool': global_ippools_list_ipv4 + global_ippools_list_ipv6}} }}"
+
     - name: Yaml dump sites data to yaml file hosts.yaml
       copy:
         content: "{{ dnac_global_ippools_inv | to_nice_yaml }}"
-        dest: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_csv_{{ inventory_hostname }}.yml"
+        dest: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_{{ inventory_hostname }}.yml"
         force: yes
     - name: print dir location of the global Ip pools Data
       debug:
         msg: "Dir location: vars_{{inventory_hostname}}/ippools"
     - name: print file location of the global Ip pools Data
       debug:
-        msg: "File location: vars_{{inventory_hostname}}/ippools/global_ippools_csv_{{ inventory_hostname }}.yml"
+        msg: "File location: vars_{{inventory_hostname}}/ippools/global_ippools_{{ inventory_hostname }}.yml"
