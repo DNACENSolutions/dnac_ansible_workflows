@@ -1,0 +1,39 @@
+---
+- name: Create global IP Pools in Catalyst Center
+  hosts: dnachosts
+  connection: local
+  gather_facts: no
+  no_log: false
+  
+  vars_files:
+    - "{{ VARS_FILES_PATH }}"
+
+  vars:
+    STATE: "merged"
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+
+  tasks:
+    - name: print global_ippools
+      debug:
+        msg: "{{ global_ippools }}"
+
+    - name: Create Global IP Pools
+      cisco.dnac.network_settings_intent:
+        <<: *dnac_login
+        state: "{{ STATE }}"
+        config:
+        - GlobalPoolDetails:
+            settings:
+              ippool: global_ippools.ippool
+      register: global_ippools_result
+    
+    - name: print global_ippools_result
+      debug:
+        msg: "{{ global_ippools_result }}"
