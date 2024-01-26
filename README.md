@@ -1,4 +1,5 @@
-# DNAC Ansible Workflows
+# dnac_ansible_workflows
+Sample workflows to automate Cisco Catalyst Center configurations through cisco.dnac ansible workflow modules. This include Playbooks, Sample inputs and Sample Inventory files.
 
 ![DNAC Ansible Workflows](https://github.com/DNACENSolutions/dnac_ansible_workflows)
 
@@ -70,31 +71,28 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 
 8. Executing playbook (Sample):
 
-        ansible-playbook -i <inventory_dir> <playbook> --extra-vars VARS_FILES_PATH=<relative var files location> -vvvv
-        
-	Sample:
-
-        ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim.yml --extra-vars VARS_FILES_PATH=./../vars//input_swim.yml -vvvv
-
-## Examples 
-How to Generate your hosts inventory from DNAC using inventory_gen playbook:
+How to Generate your hosts inventory from Cisco Catalyst Center using inventory_gen playbook:
 
 For brownfield Catalyst Cennter (Network already discovered in Catalyst Center) with devices are in inventory, then automated inventory generation can be performed through inventory_gen playbook. Following the below Steps:
 
-1. Create a basic inventory file with DNAC Inputs in inventory folder. for example demo_inv.yml
+i. Create a basic inventory file with Cisco Catalyst Center Inputs in inventory folder. for example demo_inv.yml
+  ---
+    ```yaml
         #Inventory file for demo_lab
         dnachosts:
             hosts:
             dnac1:
             dnac_debug: false
-            dnac_host: <DNAC IP Address> #(Mandatory) DNAC Ip address
-            dnac_password: <DNAC UI admin Password> #(Mandatory) 
+            dnac_host: <Cisco Catalyst Center IP Address> #(Mandatory) Cisco Catalyst Center Ip address
+            dnac_password: <Cisco Catalyst Center UI admin Password> #(Mandatory) 
             dnac_port: 443 #(Mandatory) 
-            dnac_username: <DNAC UI admin username> #(Mandatory) 
+            dnac_username: <Cisco Catalyst Center UI admin username> #(Mandatory) 
             dnac_verify: false #(Mandatory) 
-            dnac_version: <DNAC Release version> #(Mandatory)  Example: 2.3.5.3
+            dnac_version: <Cisco Catalyst Center Release version> #(Mandatory)  Example: 2.3.5.3
+    ```
 
-2. Run the workflows/inventory_gen/inventory_gen.yml playbook with thisinventory file with your DNAC cluster Inputs. From the code base execute:
+ii. Run the workflows/inventory_gen/inventory_gen.yml playbook with thisinventory file with your Cisco Catalyst Center cluster Inputs. From the code base execute:
+    ```bash
         ansible-playbook -i ./inventory/demo_inv.yml ./workflows/inventory_gen/playbook/inventory_gen.yml  -vvvv
         #==============
         #For successful run you will see:
