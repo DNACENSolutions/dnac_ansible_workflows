@@ -1,10 +1,15 @@
 ---
+<<<<<<< HEAD
 - name: Configure global credentials on Cisco DNA Center
+=======
+- name: Export and Download global IP Pools from CatalystCenter Center
+>>>>>>> 2bf74da (fixed IP Pool geeting and creating)
   hosts: dnachosts
   connection: local
   gather_facts: no
 
   vars:
+<<<<<<< HEAD
     dnac_login: &dnac_login
                 
       dnac_host: "{{ dnac_host }}"
@@ -26,11 +31,32 @@
       loop: "{{ range(1, 10000, 500)|list }}"
     
     - name: Combine all gobal ip pools
+=======
+    dnac_url: "https://{{ dnac_host }}"
+    credentials: "{{ dnac_username}}:{{dnac_password }}"
+    authentication: "Basic {{ credentials | b64encode }}"
+    limit: 25
+    ip_pools : []
+  tasks:
+    - name: Authenticate with CatalystCenter Center
+      uri:
+        url: "{{ dnac_url }}/dna/system/api/v1/auth/token"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+          Authorization: "{{authentication}}"
+        validate_certs: false
+        status_code: 200
+      register: auth_response
+
+    - name: Parse CatalystCenter Center Authentication Token
+>>>>>>> 2bf74da (fixed IP Pool geeting and creating)
       set_fact:
         all_global_ip_pools:  "{{ all_global_ip_pools | default([]) + item.dnac_response.response  }} "
       loop: "{{ global_ip_pools.results }}"
       when: item.dnac_response is defined  and item.dnac_response.response
 
+<<<<<<< HEAD
     - name: Read all ipv4 pools with only infor needed for create or update.
       set_fact:
         global_ippools_list_ipv4: "{{ all_global_ip_pools | selectattr('ipv6', 'equalto', false) | json_query(query) }}"
@@ -61,10 +87,61 @@
       copy:
         content: "{{ dnac_global_ippools_inv | to_nice_yaml }}"
         dest: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_{{ inventory_hostname }}.yml"
+=======
+    - name: Retrieve all IP Pools
+      uri:
+        url: "{{ dnac_url }}/dna/intent/api/v1/global-pool?offset={{ item }}&limit={{ limit }}"
+        method: GET
+        headers:
+          Content-Type: "application/json"
+          X-Auth-Token: "{{ dnac_auth_token }}"
+        validate_certs: false
+        status_code: 200
+      register: ip_pools_response
+      with_sequence: start=1 end=1000 stride=25
+      when: ip_pools_response.json.response is not defined or ip_pools_response.json.response|length == limit
+
+    - name: debug ip_pools_response
+      debug:
+        msg: "{{ ip_pools_response}}"
+
+    - name: Append IP Pools to list
+      set_fact:
+        ip_pools: "{{ ip_pools + item.json.response }}"
+      loop: "{{ ip_pools_response.results }}"
+      when: item.json.response is defined
+
+    - name: debug global_ippools_list
+      debug:
+        msg: "{{ ip_pools }}"
+    - name: Get only the required fields from the global ip pools for IPv4 pools
+      set_fact:
+        cc_global_ippools_ipv4:  "{{ ip_pools |selectattr('ipv6', 'equalto', false) |json_query('[].{ipPoolCidr:ipPoolCidr, gateway:gateways[0], IpAddressSpace:`IPv4`, type:`Generic`, ipPoolName:ipPoolName, dhcpServerIps:dhcpServerIps, dnsServerIps:dnsServerIps}') }}"
+      when: ip_pools is defined
+
+    - name: Get only the required fields from the global ip pools for IPv6 pools
+      set_fact:
+        cc_global_ippools_ipv6:  "{{ ip_pools |selectattr('ipv6', 'equalto', true) |json_query('[].{ipPoolCidr:ipPoolCidr, gateway:gateways[0], IpAddressSpace:`IPv6`, type:`Generic`, ipPoolName:ipPoolName, dhcpServerIps:dhcpServerIps, dnsServerIps:dnsServerIps}') }}"
+      when: ip_pools is defined
+   
+    - name: set global ip pool for format global_ippools
+      set_fact:
+        cc_global_ippools:  
+          global_ippools: 
+            ippool: "{{ cc_global_ippools_ipv4 + cc_global_ippools_ipv6 }}"
+    - name: Yaml dump sites data to yaml file hosts.yaml
+      copy:
+        content: "{{ cc_global_ippools | to_nice_yaml }}"
+        dest: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_list_{{ inventory_hostname }}.yml"
+>>>>>>> 2bf74da (fixed IP Pool geeting and creating)
         force: yes
     - name: print dir location of the global Ip pools Data
       debug:
         msg: "Dir location: vars_{{inventory_hostname}}/ippools"
     - name: print file location of the global Ip pools Data
       debug:
+<<<<<<< HEAD
         msg: "File location: vars_{{inventory_hostname}}/ippools/global_ippools_{{ inventory_hostname }}.yml"
+=======
+        msg: "File location: vars_{{inventory_hostname}}/ippools/global_ippools_list_{{ inventory_hostname }}.yml"
+>>>>>>> 2bf74da (fixed IP Pool geeting and creating)

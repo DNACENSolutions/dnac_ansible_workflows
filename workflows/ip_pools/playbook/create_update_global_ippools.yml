@@ -1,5 +1,9 @@
 ---
+<<<<<<< HEAD:workflows/ip_pools/playbook/create_update_global_ippools.yml
 - name: Create global IP Pools in Catalyst Center
+=======
+- name: Configure device credentials on Cisco Catalyst Center Center
+>>>>>>> 2bf74da (fixed IP Pool geeting and creating):workflows/ip_pools/playbook/create_update_global_ippools.yaml
   hosts: dnachosts
   connection: local
   gather_facts: no
