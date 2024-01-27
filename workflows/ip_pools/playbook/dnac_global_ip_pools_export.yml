@@ -1,37 +1,10 @@
 ---
-<<<<<<< HEAD
 - name: Configure global credentials on Cisco DNA Center
-=======
-- name: Export and Download global IP Pools from CatalystCenter Center
->>>>>>> 2bf74da (fixed IP Pool geeting and creating)
   hosts: dnachosts
   connection: local
   gather_facts: no
 
   vars:
-<<<<<<< HEAD
-    dnac_login: &dnac_login
-                
-      dnac_host: "{{ dnac_host }}"
-      dnac_username: "{{ dnac_username }}"
-      dnac_password: "{{ dnac_password }}"
-      dnac_verify: "{{ dnac_verify }}"
-      dnac_port: "{{ dnac_port }}"
-      dnac_version: "{{ dnac_version }}"
-      dnac_debug: "{{ dnac_debug }}"
-
-  tasks:
-    - name: Get all global ip pools info
-      cisco.dnac.global_pool_info:
-        <<: *dnac_login
-        offset: "{{ item }}"
-        limit: 500
-      register: global_ip_pools
-      when: global_ip_pools is not defined or global_ip_pools.dnac_response.response
-      loop: "{{ range(1, 10000, 500)|list }}"
-    
-    - name: Combine all gobal ip pools
-=======
     dnac_url: "https://{{ dnac_host }}"
     credentials: "{{ dnac_username}}:{{dnac_password }}"
     authentication: "Basic {{ credentials | b64encode }}"
@@ -49,45 +22,16 @@
         status_code: 200
       register: auth_response
 
+    - name: Parse DNA Center Authentication Token
+      set_fact:
+        dnac_auth_token: "{{ auth_response.json.Token }}"
+
     - name: Parse CatalystCenter Center Authentication Token
->>>>>>> 2bf74da (fixed IP Pool geeting and creating)
       set_fact:
         all_global_ip_pools:  "{{ all_global_ip_pools | default([]) + item.dnac_response.response  }} "
       loop: "{{ global_ip_pools.results }}"
       when: item.dnac_response is defined  and item.dnac_response.response
 
-<<<<<<< HEAD
-    - name: Read all ipv4 pools with only infor needed for create or update.
-      set_fact:
-        global_ippools_list_ipv4: "{{ all_global_ip_pools | selectattr('ipv6', 'equalto', false) | json_query(query) }}"
-      vars:
-        #query: "[].{ipPoolName: ipPoolName, type: ipPoolType, ipPoolCidr: ipPoolCidr, gateway: gateways[0], dhcpServerIps: dhcpServerIps, dnsServerIps: dnsServerIps, IpAddressSpace: `IPv4`}"
-        #Issue with type returned generic in stead of generic
-        query: "[].{ipPoolName: ipPoolName, type: `Generic`, ipPoolCidr: ipPoolCidr, gateway: gateways[0], dhcpServerIps: dhcpServerIps, dnsServerIps: dnsServerIps, IpAddressSpace: `IPv4`}"
-    - name: Read all ipv6 pools with only infor needed for create or update.
-      set_fact:
-        global_ippools_list_ipv6: "{{ all_global_ip_pools | selectattr('ipv6', 'equalto', true) | json_query(query) }}"
-      vars:
-        query: "[].{ipPoolName: ipPoolName, type: `Generic`, ipPoolCidr: ipPoolCidr, gateway: gateways[0], dhcpServerIps: dhcpServerIps, dnsServerIps: dnsServerIps, IpAddressSpace: `IPv6`}"
-
-    - name: Creates directory
-      file:
-        path: "../../../vars_{{inventory_hostname}}"
-        state: directory
-    - name: Creates directory
-      file:
-        path: "../../../vars_{{inventory_hostname}}/ippools"
-        state: directory
-
-    - name: combine areas buildins and floors in one list
-      set_fact:
-        dnac_global_ippools_inv: "{{ {'global_ippools':{'ippool': global_ippools_list_ipv4 + global_ippools_list_ipv6}} }}"
-
-    - name: Yaml dump sites data to yaml file hosts.yaml
-      copy:
-        content: "{{ dnac_global_ippools_inv | to_nice_yaml }}"
-        dest: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_{{ inventory_hostname }}.yml"
-=======
     - name: Retrieve all IP Pools
       uri:
         url: "{{ dnac_url }}/dna/intent/api/v1/global-pool?offset={{ item }}&limit={{ limit }}"
@@ -129,19 +73,22 @@
         cc_global_ippools:  
           global_ippools: 
             ippool: "{{ cc_global_ippools_ipv4 + cc_global_ippools_ipv6 }}"
-    - name: Yaml dump sites data to yaml file hosts.yaml
+    - name: Creates directory
+      file:
+        path: "../../../vars_{{inventory_hostname}}"
+        state: directory
+    - name: Creates directory for ip pools
+      file:
+        path: "../../../vars_{{inventory_hostname}}/ippools"
+        state: directory
+    - name: Yaml dump ippools data to yaml file hosts.yaml
       copy:
         content: "{{ cc_global_ippools | to_nice_yaml }}"
         dest: "../../../vars_{{inventory_hostname}}/ippools/global_ippools_list_{{ inventory_hostname }}.yml"
->>>>>>> 2bf74da (fixed IP Pool geeting and creating)
         force: yes
     - name: print dir location of the global Ip pools Data
       debug:
         msg: "Dir location: vars_{{inventory_hostname}}/ippools"
     - name: print file location of the global Ip pools Data
       debug:
-<<<<<<< HEAD
-        msg: "File location: vars_{{inventory_hostname}}/ippools/global_ippools_{{ inventory_hostname }}.yml"
-=======
         msg: "File location: vars_{{inventory_hostname}}/ippools/global_ippools_list_{{ inventory_hostname }}.yml"
->>>>>>> 2bf74da (fixed IP Pool geeting and creating)
