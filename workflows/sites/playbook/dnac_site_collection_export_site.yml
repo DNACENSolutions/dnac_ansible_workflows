@@ -87,8 +87,9 @@
 
     - name: debug download response
       debug:
-        msg: "{{ download_response.filename }}"
-        msg: "{{ download_response.content }}"
+        msg: 
+          - "{{ download_response.filename }}"
+          - "{{ download_response.content }}"
     - name: Creates directory
       file:
         path: "../../../vars_{{inventory_hostname}}"

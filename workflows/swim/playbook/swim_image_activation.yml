@@ -37,8 +37,7 @@
             deviceUpgradeMode: "{{ imageActivationDetails.deviceUpgradeMode }}"
             scheduleValidate: "{{ imageActivationDetails.scheduleValidate }}"
       loop: "{{ filtered_devices_list }}"
-      when: imageActivationDetails is defined
-      when: filtered_devices_list is defined
+      when: imageActivationDetails is defined and filtered_devices_list is defined
       register: imageActivationDetails_result
 
     - name: Distribute image to selected devices if IP address is defined
