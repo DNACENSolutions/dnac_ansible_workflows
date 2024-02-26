@@ -2,7 +2,7 @@
 #run the playbook using: ansible-playbook -i inventory/demo_lab/001-dnac_inventory.yml workflows/inventory_gen/playbook/inventory_gen_from_csv.yml --extra-vars CSV_FILE_PATH=./../../../Devices-11-02-2023.csv 
 ---
 - name: Configure global credentials on Cisco DNA Center
-  hosts: dnachosts
+  hosts: catalyst_cennter_hosts
   connection: local
   gather_facts: true
   strategy: free
@@ -59,11 +59,11 @@
         network_devices: "{{ switches_and_hubs_devices + router_devices + wireless_controller_devices}}"
     - name: Create Hosts list.
       set_fact:
-        dnac_hosts:  "{{ {'dnachosts':{ 'hosts': 'dnaccluster1' }} }} "
+        dnac_hosts:  "{{ {'catalyst_cennter_hosts':{ 'hosts': 'dnaccluster1' }} }} "
 
     - name: Combine all inventory to have a full inventory.
       set_fact:
-        dnac_inv:  "{{ {'dnachosts':{ 'hosts': {inventory_hostname: {'dnac_host': dnac_host, 'dnac_username': dnac_username,\
+        dnac_inv:  "{{ {'catalyst_cennter_hosts':{ 'hosts': {inventory_hostname: {'dnac_host': dnac_host, 'dnac_username': dnac_username,\
                    'dnac_password': dnac_password, 'dnac_verify': dnac_verify, 'dnac_port': dnac_port,\
                    'dnac_version':dnac_version, 'dnac_debug':dnac_debug }}}} }} "
     - name: Combine all inventory to have a full inventory.
