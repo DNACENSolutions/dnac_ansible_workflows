@@ -1,0 +1,141 @@
+discovery_details:
+  cdp:
+    - ip_address_list:
+      - 204.101.16.1
+      devices_list: []
+      discovery_type: CDP
+      protocol_order: ssh
+      state: merged
+      discovery_name: CDP Based Discovery1
+      enable_password_list: 
+        - Cisco#123
+      retry: 2
+  single:
+    - ip_address_list:
+      - 204.101.16.1
+      devices_list: []
+      discovery_type: SINGLE
+      protocol_order: ssh
+      discovery_name: Single IP Discovery1
+      discovery_specific_credentials:
+        cli_credentials_list:
+            - username: wlcaccess
+              password: Lablab#123
+              enable_password: Cisco#123
+            - username: cisco
+              password: Cisco#123
+              enable_password: Cisco#123
+        http_read_credential:
+            username: wlcaccess
+            password: Lablab#123
+            port: 443
+            secure: true
+        http_write_credential:
+            username: wlcaccess
+            password: Lablab#123
+            port: 443
+            secure: true
+        snmp_v2_read_credential:
+            description: snmpV2 Sample 1
+            community: public
+        snmp_v2_write_credential:
+            description: snmpV2 Sample 1
+            community: public
+        snmp_v3_credential:
+            description: snmpv3Credentials
+            username: wlcaccess
+            snmp_mode: AUTHPRIV
+            auth_password: Lablab#123
+            auth_type: SHA
+            privacy_type: AES128
+            privacy_password: Lablab#123
+      net_conf_port: 430
+      enable_password_list: 
+        - Cisco#123
+      retry: 2
+  range:
+    - ip_address_list:
+      - 204.101.16.2-204.101.16.2
+      discovery_type: RANGE
+      protocol_order: ssh
+      discovery_name: Range IP Discovery1
+      discovery_specific_credentials:
+        cli_credentials_list:
+            - username: wlcaccess
+              password: Lablab#123
+              enable_password: Cisco#123
+            - username: cisco
+              password: Cisco#123
+              enable_password: Cisco#123
+        http_read_credential:
+            username: wlcaccess
+            password: Lablab#123
+            port: 443
+            secure: true
+        http_write_credential:
+            username: wlcaccess
+            password: Lablab#123
+            port: 443
+            secure: true
+        snmp_v2_read_credential:
+            description: snmpV2 Sample 1
+            community: public
+        snmp_v2_write_credential:
+            description: snmpV2 Sample 1
+            community: public
+        snmp_v3_credential:
+            description: snmpV3 Sample 1
+            username: wlcaccess
+            snmp_mode: AUTHPRIV
+            auth_password: Lablab#123
+            auth_type: SHA
+            privacy_type: AES128
+            privacy_password: Lablab#123
+      net_conf_port: 430
+      enable_password_list: 
+        - Cisco#123
+      retry: 2
+  multi_range:
+    - ip_address_list:
+      - 204.101.16.2-204.101.16.3
+      - 204.101.16.4-204.101.16.4
+      discovery_type: MULTI RANGE
+      protocol_order: ssh
+      discovery_name: Multi Range Discovery 1
+      discovery_specific_credentials:
+        cli_credentials_list:
+            - username: wlcaccess
+              password: Lablab#123
+              enable_password: Cisco#123
+            - username: cisco
+              password: Cisco#123
+              enable_password: Cisco#123
+        http_read_credential:
+            username: wlcaccess
+            password: Lablab#123
+            port: 443
+            secure: true
+        http_write_credential:
+            username: wlcaccess
+            password: Lablab#123
+            port: 443
+            secure: true
+        snmp_v2_read_credential:
+            description: snmpV2 Sample 1
+            community: public
+        snmp_v2_write_credential:
+            description: snmpV2 Sample 1
+            community: public
+        snmp_v3_credential:
+            description: snmpV3 Sample 1
+            username: wlcaccess
+            snmp_mode: AUTHPRIV
+            auth_password: Lablab#123
+            auth_type: SHA
+            privacy_type: AES128
+            privacy_password: Lablab#123
+      net_conf_port: 430
+      enable_password_list: 
+        - Cisco#123
+      retry: 2
+

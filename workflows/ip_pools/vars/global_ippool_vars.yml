@@ -1,0 +1,21 @@
+---
+global_ippools:
+    ippool:
+    -   IpAddressSpace: IPv4
+        dhcpServerIps:
+        - 204.192.3.40
+        dnsServerIps:
+        - 171.70.168.183
+        gateway: 204.1.112.1
+        ipPoolCidr: 204.1.112.0/20
+        ipPoolName: 112net
+        type: Generic
+    -   IpAddressSpace: IPv4
+        dhcpServerIps:
+        - 204.192.3.40
+        dnsServerIps:
+        - 171.70.168.183
+        gateway: 204.1.64.1
+        ipPoolCidr: 204.1.64.0/20
+        ipPoolName: 64net
+        type: Generic

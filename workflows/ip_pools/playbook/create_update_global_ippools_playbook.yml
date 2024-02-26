@@ -1,12 +1,12 @@
 ---
 - name: Configure device credentials on Cisco Catalyst Center Center
-  hosts: dnachosts
+  hosts: catalyst_cennter_hosts
   connection: local
   gather_facts: no
   no_log: false
   
   vars_files:
-    - "{{ VARS_FILES_PATH }}"
+    - "{{ VARS_FILE_PATH }}"
 
   vars:
     STATE: "present"
@@ -24,7 +24,7 @@
       debug:
         msg: "{{ global_ippools }}"
 
-    - name: Create Global IP Pools
+    - name: Create Global IP Pools from the list provided in file path "{{ VARS_FILE_PATH }}"
       cisco.dnac.global_pool:
         <<: *dnac_login
         state: "{{ STATE }}"
@@ -40,6 +40,9 @@
     - name: Print Global IP Pools Success Count
       debug:
         msg: "{{ global_ippools_result.results | selectattr('failed', 'equalto', False) | list | count }}"
+
     - name: Print Global IP Pools Failure Count
       debug:
         msg: "{{ global_ippools_result.results | selectattr('failed', 'equalto', True) | list | count }}"
+
+  
