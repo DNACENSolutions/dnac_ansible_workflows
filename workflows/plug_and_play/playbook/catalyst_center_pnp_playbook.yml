@@ -1,0 +1,29 @@
+---
+- name: Playbook to manage Cisco Catalyst Center Plug and Play, add pnp devices, bulk import, delete, update, claim routing, switching devices and wirelesss controllers. 
+  hosts: catalyst_cennter_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+  vars:
+    state: merged
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+
+  tasks:
+    - name: Add/Update/assig to site/Provision or delete devices provided in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.inventory_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config:
+          - "{{ item }}"
+      loop: "{{ pnp_details.network_devices }}"
+      when: pnp_details.network_devices is defined
+

@@ -1,0 +1,67 @@
+---
+- name: This playbook manages uploading of devices software images, golden tags and image distribution and activation on the devices
+  hosts: catalyst_cennter_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_debug: "{{dnac_debug}}"
+      dnac_log_level: "{{dnac_log_level}}"
+      dnac_log: "{{dnac_log}}"
+  tasks:
+    #Import an image from a URL
+    - name: Import an image from an URL or from Local disc provided in import_images in file {{ VARS_FILE_PATH }}
+      cisco.dnac.swim_workflow_manager:
+        <<: *dnac_login
+        config:
+        - "{{ item }}"
+      loop: "{{ swim_details.import_images }}"
+      when: swim_details.import_images is defined
+
+    #Golden tag images on Catalyst Center sites
+    - name: Golden tag images on Catalyst Center sites input provided in golden_tag_images in file {{ VARS_FILE_PATH }}
+      cisco.dnac.swim_workflow_manager:
+        <<: *dnac_login
+        config:
+        - "{{ item }}"
+      loop: "{{ swim_details.golden_tag_images }}"
+      when: swim_details.golden_tag_images is defined
+
+    #Distribution of images on Catalyst Center sites
+    - name: Distribution of images on Catalyst Center sites input provided in distribute_images in file {{ VARS_FILE_PATH }}
+      cisco.dnac.swim_workflow_manager:
+        <<: *dnac_login
+        config:
+        - "{{ item }}"
+      loop: "{{ swim_details.distribute_images }}"
+      when: swim_details.distribute_images is defined
+
+    #Activate an image on Catalyst Center sites
+    - name: Activate an image on Catalyst Center sites input provided in activate_images in file {{ VARS_FILE_PATH }}
+      cisco.dnac.swim_workflow_manager:
+        <<: *dnac_login
+        config:
+        - "{{ item }}"
+      loop: "{{ swim_details.activate_images }}"
+      when: swim_details.activate_images is defined
+
+    #SWIM Full workflow Import an image from a URL, tag it as golden and load it on device
+    - name: Import an image from a URL, tag it as golden and load it on device for details provided in {{ VARS_FILE_PATH }}
+      cisco.dnac.swim_workflow_manager:
+        <<: *dnac_login
+        config:
+        - "{{ item }}"
+      loop: "{{ swim_details.upload_tag_dis_activate_images }}"
+      when: swim_details.upload_tag_dis_activate_images is defined
+

@@ -3,98 +3,27 @@ design_sites:
   - site:
       area:
         name: USA
-        parentName: Global
-    type: area
-  - site:
-      area:
-        name: India
-        parentName: Global
-    type: area
-  - site:
-      area:
-        name: Mexico
-        parentName: Global
-    type: area
-  - site:
-      area:
-        name: Canada
-        parentName: Global
+        parent_name: Global
     type: area
   - site:
       area:
         name: SAN JOSE
-        parentName: Global/USA
+        parent_name: Global/USA
     type: area
   - site:
       area:
         name: RTP
-        parentName: Global/USA
+        parent_name: Global/USA
     type: area
   - site:
       area:
         name: BayAreaGuest
-        parentName: Global/USA
+        parent_name: Global/USA
     type: area
-  - site:
-      area:
-        name: Bangalore
-        parentName: Global/India
-    type: area
-  - site:
-      area:
-        name: New York
-        parentName: Global/USA
-    type: area
-  - site:
-      area:
-        name: SAN-FRANCISCO
-        parentName: Global/USA
-    type: area
-  - site:
-      area:
-        name: BERKELEY
-        parentName: Global/USA
-    type: area
-  - site:
-      building:
-        name: Mantri Square
-        parentName: Global/India/Bangalore
-        address: Bengaluru, Karnataka, India
-        latitude: 12.969910
-        longitude: 77.597960
-        country: India
-    type: building
-  - site:
-      building:
-        name: BLD10
-        parentName: Global/USA/RTP
-        address: Ev Chargers Bldg 10, 7200-10 Kit Creek Rd, Morrisville, North Carolina 27560, United States
-        latitude: 35.85992111421487
-        longitude: -78.8829258991226
-        country: United States
-    type: building
-  - site:
-      building:
-        name: BLD11
-        parentName: Global/USA/RTP
-        address: Cisco Systems, 7200 Kit Creek Rd, Morrisville, North Carolina 27560, United States
-        latitude: 35.86059627310624
-        longitude: -78.88105620286412
-        country: United States
-    type: building
-  - site:
-      building:
-        name: BLD12
-        parentName: Global/USA/RTP
-        address: Cisco Systems, 7200-12 Kit Creek Rd, Morrisville, North Carolina 27560, United States
-        latitude: 35.8611847591779
-        longitude: -78.88217248318003
-        country: United States
-    type: building
   - site:
       building:
         name: BLD23
-        parentName: Global/USA/SAN JOSE
+        parent_name: Global/USA/SAN JOSE
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -103,7 +32,7 @@ design_sites:
   - site:
       building:
         name: BLD20
-        parentName: Global/USA/SAN JOSE
+        parent_name: Global/USA/SAN JOSE
         address: 725 Alder Drive, Milpitas, California 95035, United States
         latitude: 37.415947
         longitude: -121.916327
@@ -112,7 +41,7 @@ design_sites:
   - site:
       building:
         name: BLD_GB
-        parentName: Global/USA/BayAreaGuest
+        parent_name: Global/USA/BayAreaGuest
         address: 725 Alder Drive, Milpitas, California 95035, United States
         latitude: 37.415947
         longitude: -121.916327
@@ -121,7 +50,7 @@ design_sites:
   - site:
       building:
         name: BLDNYC
-        parentName: Global/USA/New York
+        parent_name: Global/USA/New York
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -130,7 +59,7 @@ design_sites:
   - site:
       building:
         name: BLD_SF
-        parentName: Global/USA/SAN-FRANCISCO
+        parent_name: Global/USA/SAN-FRANCISCO
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -139,7 +68,7 @@ design_sites:
   - site:
       building:
         name: BLD_SF1
-        parentName: Global/USA/SAN-FRANCISCO
+        parent_name: Global/USA/SAN-FRANCISCO
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -148,7 +77,7 @@ design_sites:
   - site:
       building:
         name: BLDBERK
-        parentName: Global/USA/BERKELEY
+        parent_name: Global/USA/BERKELEY
         address: 725 Alder Drive, Milpitas, California 95035, United States
         latitude: 37.415947
         longitude: -121.916327
@@ -157,7 +86,7 @@ design_sites:
   - site:
       floor:
         name: BLD10_FLOOR1
-        parentName: Global/USA/RTP/BLD10
+        parent_name: Global/USA/RTP/BLD10
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -166,7 +95,7 @@ design_sites:
   - site:
       floor:
         name: BLD10_FLOOR2
-        parentName: Global/USA/RTP/BLD10
+        parent_name: Global/USA/RTP/BLD10
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -175,7 +104,7 @@ design_sites:
   - site:
       floor:
         name: BLD10_FLOOR3
-        parentName: Global/USA/RTP/BLD10
+        parent_name: Global/USA/RTP/BLD10
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -184,7 +113,7 @@ design_sites:
   - site:
       floor:
         name: BLD11_FLOOR1
-        parentName: Global/USA/RTP/BLD11
+        parent_name: Global/USA/RTP/BLD11
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -193,7 +122,7 @@ design_sites:
   - site:
       floor:
         name: BLD11_FLOOR2
-        parentName: Global/USA/RTP/BLD11
+        parent_name: Global/USA/RTP/BLD11
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -202,7 +131,7 @@ design_sites:
   - site:
       floor:
         name: BLD11_FLOOR3
-        parentName: Global/USA/RTP/BLD11
+        parent_name: Global/USA/RTP/BLD11
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -211,7 +140,7 @@ design_sites:
   - site:
       floor:
         name: BLD12_FLOOR1
-        parentName: Global/USA/RTP/BLD12
+        parent_name: Global/USA/RTP/BLD12
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -220,7 +149,7 @@ design_sites:
   - site:
       floor:
         name: BLD12_FLOOR2
-        parentName: Global/USA/RTP/BLD12
+        parent_name: Global/USA/RTP/BLD12
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -229,7 +158,7 @@ design_sites:
   - site:
       floor:
         name: BLD12_FLOOR3
-        parentName: Global/USA/RTP/BLD12
+        parent_name: Global/USA/RTP/BLD12
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -238,7 +167,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR1_LEVEL1
-        parentName: Global/USA/SAN JOSE/BLD23
+        parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -247,7 +176,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR1_LEVEL2
-        parentName: Global/USA/SAN JOSE/BLD23
+        parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -256,7 +185,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR1_LEVEL3
-        parentName: Global/USA/SAN JOSE/BLD23
+        parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -265,7 +194,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR1_LEVEL4
-        parentName: Global/USA/SAN JOSE/BLD23
+        parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -274,7 +203,7 @@ design_sites:
   - site:
       floor:
         name: BLD20_FLOOR1
-        parentName: Global/USA/SAN JOSE/BLD20
+        parent_name: Global/USA/SAN JOSE/BLD20
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -283,7 +212,7 @@ design_sites:
   - site:
       floor:
         name: BLD20_FLOOR2
-        parentName: Global/USA/SAN JOSE/BLD20
+        parent_name: Global/USA/SAN JOSE/BLD20
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -292,7 +221,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR1
-        parentName: Global/USA/New York/BLDNYC
+        parent_name: Global/USA/New York/BLDNYC
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -301,7 +230,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR2
-        parentName: Global/USA/New York/BLDNYC
+        parent_name: Global/USA/New York/BLDNYC
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -310,7 +239,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR1
-        parentName: Global/USA/SAN-FRANCISCO/BLD_SF
+        parent_name: Global/USA/SAN-FRANCISCO/BLD_SF
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -319,7 +248,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR2
-        parentName: Global/USA/SAN-FRANCISCO/BLD_SF
+        parent_name: Global/USA/SAN-FRANCISCO/BLD_SF
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -328,7 +257,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR1
-        parentName: Global/USA/SAN-FRANCISCO/BLD_SF1
+        parent_name: Global/USA/SAN-FRANCISCO/BLD_SF1
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -337,7 +266,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR2
-        parentName: Global/USA/SAN-FRANCISCO/BLD_SF1
+        parent_name: Global/USA/SAN-FRANCISCO/BLD_SF1
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -346,7 +275,7 @@ design_sites:
   - site:
       floor:
         name: Floor1
-        parentName: Global/India/Bangalore/Mantri Square
+        parent_name: Global/India/Bangalore/Mantri Square
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -355,17 +284,9 @@ design_sites:
   - site:
       floor:
         name: FLOOR1_LEVEL1
-        parentName: Global/USA/BERKELEY/BLDBERK
+        parent_name: Global/USA/BERKELEY/BLDBERK
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
         height: 10.00
     type: floor
-
--   site:
-        floor:
-            height: '10'
-            length: '100'
-            name: L8
-            parentName: Global/Malaysia/Presint 1/Parcel C/C1
-            width: '100'
