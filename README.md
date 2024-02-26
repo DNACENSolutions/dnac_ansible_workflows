@@ -19,7 +19,7 @@ This repository contains a collection of Ansible workflows for automating Cataly
 Before using these Ansible workflows, ensure that you have the following prerequisites:
 
 - Ansible installed on your machine
-- Access to a Cisco DNA Center instance
+- Access to a Cisco Catalyst Center instance
 - Proper network connectivity to interact with the Catalyst Center APIs
 
 
@@ -41,7 +41,7 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 
 3. Install the collection (Galaxy link):
 
-    ansible-galaxy collection install cisco.dnac
+    ansible-galaxy collection install cisco.dnac --force
 
 4.  Create your inventory
     a. Inventory:
@@ -57,10 +57,7 @@ Before using these Ansible workflows, ensure that you have the following prerequ
         Example:
             workflows/swim
             playbooks/
-                swim.yml
-                swim_image_upload_golden_tag.yml
-                swim_image_distribution.yml
-                swim_image_activation.yml
+                swim_workflow_playbook.yml
             vars/
                 vars_swim.yml
 
@@ -79,9 +76,9 @@ i. Create a basic inventory file with Cisco Catalyst Center Inputs in inventory 
   ---
     ```yaml
         #Inventory file for demo_lab
-        dnachosts:
+        catalyst_cennter_hosts:
             hosts:
-            dnac1:
+            <dnac hostname >:
             dnac_debug: false
             dnac_host: <Cisco Catalyst Center IP Address> #(Mandatory) Cisco Catalyst Center Ip address
             dnac_password: <Cisco Catalyst Center UI admin Password> #(Mandatory) 
@@ -91,36 +88,16 @@ i. Create a basic inventory file with Cisco Catalyst Center Inputs in inventory 
             dnac_version: <Cisco Catalyst Center Release version> #(Mandatory)  Example: 2.3.5.3
     ```
 
-ii. Run the workflows/inventory_gen/inventory_gen.yml playbook with thisinventory file with your Cisco Catalyst Center cluster Inputs. From the code base execute:
-    ```bash
-        ansible-playbook -i ./inventory/demo_inv.yml ./workflows/inventory_gen/playbook/inventory_gen.yml  -vvvv
-        #==============
-        #For successful run you will see:
-        #==============
-        TASK [Yaml dump network device data with formatted output to file  inv_network_devices.yml] *************************************************************************************************************************************************************
-        task path: ./workflows/inventory_gen/playbook/inventory_gen.yml:50
-
-        ....
-        PLAY RECAP **********************************************************************************************************************************************************************************************************************************************
-        dnac1                      : ok=5    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-
-
-3. The network_devices inventory is stored inventory_<clusterhostname>
-
 
 Here are a few examples of Ansible workflows available in this repository:
 
-Example 1: Swim upgrade, this include uploading the images, golden tagging the image filtered location and device family and distributed and activating images on the networkk devices. The filtering is controlled using var_file: input_swim.yml
+Example 1: Swim upgrade, this include uploading the images, golden tagging the image filtered location and device family and distributed and activating images on the networkk devices.
 
-    ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim.yml --extra-vars VARS_FILES_PATH=./../vars/input_swim.yml -vvvv
+    ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=< Vars File PATH (Full Path or relative path from playbook)> -vvvv
 
-Example 2: Create Sites, buildings floors using playbook : site_hierarchy.yml
+Example 2: Create Sites, buildings floors using playbook : workflows/sites/playbook/site_hierarchy_playbook.yml
 
-    ansible-playbook -i ./inventory_dnaccluster ./workflows/sites/playbook/site_hierarchy.yml --extra-vars VARS_FILES_PATH=./../vars/input_design_sites.yml
-
-Example 3: Create Global IP Pools, using playbooks create_update_global_ippools.yaml
-
-    ansible-playbook -i ./inventory_dnaccluster ./workflows/ip_pools/playbook/create_update_global_ippools.yaml --extra-vars VARS_FILES_PATH=/vars/input_design_global_ip_pools.yml
+    ansible-playbook -i ./inventory_dnaccluster ./workflows/sites/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILES_PATH=./../vars/site_hierarchy_design_vars_.yml
 
 Feel free to explore the playbooks/ directory for more examples and use cases.
 
