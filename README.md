@@ -47,14 +47,14 @@ Before using these Ansible workflows, ensure that you have the following prerequ
     ```
 4.  Create your inventory
     a. Inventory:
-        This folder contains inventory file for your dev, lab, sandbox or production env which will be utilised by swim playbooks.
-        
-        Create your inventory file in below template format to utilize the swim playbooks.
-        
-        The template for the inventory file is:
-        ```bash
-            cat inventory/demo_lab/001-dnac_inventory_template.yml
-        ```
+     This folder contains inventory file for your dev, lab, sandbox or production env which will be utilised by swim playbooks.
+     
+     Create your inventory file in below template format to utilize the swim playbooks.
+     
+     The template for the inventory file is:
+     ```bash
+         cat inventory/demo_lab/001-dnac_inventory_template.yml
+     ```
     b. Hairarchical variable files for inputs
 
         The second folder of the workflows contains playbook and var files for workflows.
@@ -111,16 +111,19 @@ Getting the latest/nightly collection build
 
 Clone the dnacenter-ansible repository.
     ```bash
-    git clone git@github.com:DNACENSolutions/dnac_ansible_workflows.git
+       git clone git@github.com:DNACENSolutions/dnac_ansible_workflows.git
     ```
+    
 Go to the dnacenter-ansible directory
     ```bash
-    cd dnac_ansible_workflows
-    ```bash
+       cd dnac_ansible_workflows
+    ```
+    
 Pull the latest master from the repo
      ```bash
     git pull origin master
-    ```bash
+    ```
+    
 ## Contributing
 Contributions are welcome! To contribute to this project, follow these steps:
 
