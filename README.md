@@ -29,20 +29,22 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 
    ```bash
    git clone https://github.com/DNACENSolutions/dnac_ansible_workflows.git
+   ```
 
 
 1. Navigate to the project directory:
     
+    ```bash
     cd dnac_ansible_workflows
-
+    ```
 2. Install the required dependencies:
-
+   ```bash
     pip install -r requirements.txt
-
+    ```
 3. Install the collection (Galaxy link):
-
-    ansible-galaxy collection install cisco.dnac --force
-
+    ```bash
+    ansible-galaxy collection install cisco.dnac:6.11.0 --force
+    ```
 4.  Create your inventory
     a. Inventory:
         This folder contains inventory file for your dev, lab, sandbox or production env which will be utilised by swim playbooks.
@@ -50,10 +52,12 @@ Before using these Ansible workflows, ensure that you have the following prerequ
         Create your inventory file in below template format to utilize the swim playbooks.
         
         The template for the inventory file is:
+        ```bash
             cat inventory/demo_lab/001-dnac_inventory_template.yml
+        ```
     b. Hairarchical variable files for inputs
 
-        The seconf folder workflows contains playbook and var files for workflows.
+        The second folder of the workflows contains playbook and var files for workflows.
         Example:
             workflows/swim
             playbooks/
@@ -63,8 +67,8 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 
 6. Var files:
             Update var file with your  details and parameter to control playbook
-7. Platbook: 
-        The playbooks can be directly used without change when inventory and var files created in the above templates.
+7. Playbook: 
+        The playbooks can be directly used without any change when inventory and var files created in the above templates.
 
 8. Executing playbook (Sample):
 
@@ -92,13 +96,13 @@ i. Create a basic inventory file with Cisco Catalyst Center Inputs in inventory 
 Here are a few examples of Ansible workflows available in this repository:
 
 Example 1: Swim upgrade, this include uploading the images, golden tagging the image filtered location and device family and distributed and activating images on the networkk devices.
-
+    ```bash
     ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=< Vars File PATH (Full Path or relative path from playbook)> -vvvv
-
+    ```
 Example 2: Create Sites, buildings floors using playbook : workflows/sites/playbook/site_hierarchy_playbook.yml
-
+    ```bash
     ansible-playbook -i ./inventory_dnaccluster ./workflows/sites/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILES_PATH=./../vars/site_hierarchy_design_vars_.yml
-
+    ```
 Feel free to explore the playbooks/ directory for more examples and use cases.
 
 
@@ -106,14 +110,17 @@ Feel free to explore the playbooks/ directory for more examples and use cases.
 Getting the latest/nightly collection build
 
 Clone the dnacenter-ansible repository.
+    ```bash
     git clone git@github.com:DNACENSolutions/dnac_ansible_workflows.git
-
+    ```
 Go to the dnacenter-ansible directory
+    ```bash
     cd dnac_ansible_workflows
-
+    ```bash
 Pull the latest master from the repo
+     ```bash
     git pull origin master
-
+    ```bash
 ## Contributing
 Contributions are welcome! To contribute to this project, follow these steps:
 

@@ -1,0 +1,57 @@
+---
+pnp_details
+  claim_ewlc_devices:
+      - site_name: Global/USA/SAN JOSE/BLD23
+        project_name: Onboarding Configuration
+        image_name: C9800-40-universalk9_wlc.17.12.02.SPA.bin
+        template_name: PnP-Devices_SJ-EWLC_No-Vars
+        state: merged
+        device_info:
+          - serial_number: FOX2639PAYD
+            hostname: SJ-EWLC-1
+            state: Unclaimed
+            pid: C9800-40-K9
+        pnp_type: catalyst_wlc
+        static_ip: 204.192.50.200
+        subnet_mask: 255.255.255.0
+        gateway: 204.192.50.1
+        ip_interface_name: TenGigabitEthernet0/0/2
+        vlan_id: 2050
+
+    claim_switching_devices:
+      - site_name: Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL4
+        project_name: Onboarding Configuration
+        template_name: PnP-Devices_No-Vars
+        image_name: cat9k_iosxe.17.09.04a.SPA.bin
+        state: merged
+        device_info:
+          serial_number: FJC271925Q1
+          add_device_method: Single
+          hostname: SJ-EN-9300
+          state: Unclaimed
+          pid: C9300-48UXM
+
+      - site_name: Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL4
+        project_name: Onboarding Configuration
+        template_name: PnP-Devices_No-Vars
+        image_name: cat9k_iosxe.17.12.01.SPA.bin
+        state: merged
+        device_info:
+          serial_number: FJC271924D9
+          add_device_method: Single
+          hostname: Test
+          state: Unclaimed
+          pid: C9300-48UXM
+
+    claim_router_devices:
+      - site_name: Global/USA/SAN-FRANCISCO/BLD_SF1
+        project_name: Onboarding Configuration
+        template_name: PnP-Devices_SF-ISR_No-Vars
+        image_name: isr4400-universalk9.17.12.02.SPA.bin
+        state: merged
+        device_info:
+          serial_number: FJC2402A0TX
+          add_device_method: Single
+          hostname: SF-BN-ISR
+          state: Unclaimed
+          pid: ISR4451-X/K9
