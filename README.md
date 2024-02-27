@@ -78,7 +78,7 @@ For brownfield Catalyst Cennter (Network already discovered in Catalyst Center) 
 
 i. Create a basic inventory file with Cisco Catalyst Center Inputs in inventory folder. for example demo_inv.yml
   ---
-    ```yaml
+    ```bash
         #Inventory file for demo_lab
         catalyst_cennter_hosts:
             hosts:
@@ -99,10 +99,12 @@ Example 1: Swim upgrade, this include uploading the images, golden tagging the i
     ```bash
     ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=< Vars File PATH (Full Path or relative path from playbook)> -vvvv
     ```
+    
 Example 2: Create Sites, buildings floors using playbook : workflows/sites/playbook/site_hierarchy_playbook.yml
     ```bash
     ansible-playbook -i ./inventory_dnaccluster ./workflows/sites/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILES_PATH=./../vars/site_hierarchy_design_vars_.yml
     ```
+    
 Feel free to explore the playbooks/ directory for more examples and use cases.
 
 
