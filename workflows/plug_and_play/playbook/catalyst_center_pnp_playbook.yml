@@ -19,11 +19,46 @@
 
   tasks:
     - name: Add/Update/assig to site/Provision or delete devices provided in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
-      cisco.dnac.inventory_workflow_manager:
+      cisco.dnac.pnp_workflow_manager::
         <<: *dnac_login
         state: "{{ state }}"
         config:
           - "{{ item }}"
-      loop: "{{ pnp_details.network_devices }}"
-      when: pnp_details.network_devices is defined
+      loop: "{{ pnp_details.add_network_devices }}"
+      when: pnp_details.add_network_devices is defined
 
+    - name: Claim Wireless Controller 98XX EWLC devices through PnP
+      cisco.dnac.pnp_workflow_manager::
+        <<: *dnac_login
+        state: merged
+        config:
+        - "{{ item }}"
+      loop: "{{ pnp_details.claim_ewlc_devices }}"
+      when: pnp_details.claim_ewlc_devices is defined
+
+    - name: Claim Routing devices through PnP
+      cisco.dnac.pnp_workflow_manager::
+        <<: *dnac_login
+        state: merged
+        config:
+        - "{{ item }}"
+      loop: "{{ pnp_details.claim_router_devices }}"
+      when: pnp_details.claim_router_devices is defined
+
+    - name: Claim Switching devices through PnP
+      cisco.dnac.pnp_workflow_manager::
+        <<: *dnac_login
+        state: merged
+        config:
+        - "{{ item }}"
+      loop: "{{ pnp_details.claim_switching_devices }}"
+      when: pnp_details.claim_switching_devices is defined
+
+    - name: Claim Access Point devices through PnP
+      cisco.dnac.pnp_workflow_manager::
+        <<: *dnac_login
+        state: merged
+        config:
+        - "{{ item }}"
+      loop: "{{ pnp_details.claim_ap_devices }}"
+      when: pnp_details.claim_ap_devices is defined
