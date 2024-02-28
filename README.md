@@ -98,14 +98,16 @@ i. Create a basic inventory file with Cisco Catalyst Center Inputs in inventory 
 Here are a few examples of Ansible workflows available in this repository:
 
 Example 1: Swim upgrade, this include uploading the images, golden tagging the image filtered location and device family and distributed and activating images on the networkk devices.
-    ```bash
-    ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=< Vars File PATH (Full Path or relative path from playbook)> -vvvv
-    ```
+    
+```bash
+ ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=< Vars File PATH (Full Path or relative path from playbook)> -vvvv
+```
     
 Example 2: Create Sites, buildings floors using playbook : workflows/sites/playbook/site_hierarchy_playbook.yml
-    ```bash
-    ansible-playbook -i ./inventory_dnaccluster ./workflows/sites/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILES_PATH=./../vars/site_hierarchy_design_vars_.yml
-    ```
+    
+```bash
+ ansible-playbook -i ./inventory_dnaccluster ./workflows/sites/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILES_PATH=./../vars/site_hierarchy_design_vars_.yml
+```
     
 Feel free to explore the playbooks/ directory for more examples and use cases.
 
@@ -114,19 +116,19 @@ Feel free to explore the playbooks/ directory for more examples and use cases.
 Getting the latest/nightly collection build
 
 Clone the dnacenter-ansible repository.
-    ```bash
-       git clone git@github.com:DNACENSolutions/dnac_ansible_workflows.git
-    ```
+```bash
+ git clone git@github.com:DNACENSolutions/dnac_ansible_workflows.git
+```
     
 Go to the dnacenter-ansible directory
-    ```bash
-       cd dnac_ansible_workflows
-    ```
+```bash
+ cd dnac_ansible_workflows
+```
     
 Pull the latest master from the repo
-     ```bash
+```bash
     git pull origin master
-    ```
+```
     
 ## Contributing
 Contributions are welcome! To contribute to this project, follow these steps:
