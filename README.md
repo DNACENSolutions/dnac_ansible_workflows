@@ -57,6 +57,9 @@ Before using these Ansible workflows, ensure that you have the following prerequ
      ```bash
          cat inventory/demo_lab/001-dnac_inventory_template.yml
      ```
+
+    Setup up your ansible python interpretor following suitable method for your environment : https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
+    
     b. Hairarchical variable files for inputs
 
         The second folder of the workflows contains playbook and var files for workflows.
