@@ -114,7 +114,8 @@ Example 2: Create Sites, buildings floors using playbook : workflows/sites/playb
     
 Feel free to explore the playbooks/ directory for more examples and use cases.
 
-Attention macOS users
+## Attention macOS users:
+
 If you're using macOS you may receive this error when running your playbook:
 objc[34120]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
 objc[34120]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called. We cannot safely call it or ignore it in the fork() child process. Crashing instead. Set a breakpoint on objc_initializeAfterForkError to debug.
