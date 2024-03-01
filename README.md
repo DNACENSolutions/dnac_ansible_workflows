@@ -114,6 +114,16 @@ Example 2: Create Sites, buildings floors using playbook : workflows/sites/playb
     
 Feel free to explore the playbooks/ directory for more examples and use cases.
 
+Attention macOS users
+If you're using macOS you may receive this error when running your playbook:
+objc[34120]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
+objc[34120]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called. We cannot safely call it or ignore it in the fork() child process. Crashing instead. Set a breakpoint on objc_initializeAfterForkError to debug.
+ERROR! A worker was found in a dead state
+If that's the case try setting this environment variable:
+
+```bash
+    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+```
 
 ## Update
 Getting the latest/nightly collection build
