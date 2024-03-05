@@ -1,6 +1,6 @@
 dnachosts:
     hosts:
-        dnac1:
+        catalyst_cennter_hosts:
             dnac_debug: false
             dnac_host: 192.168.3.0
             dnac_password: xxxxxxx
