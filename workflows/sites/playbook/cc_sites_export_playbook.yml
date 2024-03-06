@@ -1,6 +1,6 @@
 ---
 - name: Export and Download Groups from DNA Center
-  hosts: dnachosts
+  hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
   vars:

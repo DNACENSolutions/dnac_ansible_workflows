@@ -1,0 +1,15 @@
+
+---
+#DHCP Server Configuration
+dhcp_servers:
+  - dhcp_pool_name: dhcp_pnp_pool
+    hostname: "10.195.243.30" #dummy hostname
+    ssh_username: "cisco" #dummy username
+    ssh_password: "cisco" #dummy password
+    pool_name: "Global/USA/SAN JOSE/BLD23"
+    network: "204.1.3.0"
+    subnet_mask: "255.255.255.0"
+    gateway: "204.1.3.1"
+    dns_server: "204.192.3.40"
+    pnp_server: "85.1.1.2"
+      

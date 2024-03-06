@@ -1,6 +1,6 @@
 ---
 - name: Configure Sites on Cisco DNA Center which includes Areas, Buildings, and Floors
-  hosts: dnachosts
+  hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
 
