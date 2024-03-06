@@ -1,6 +1,6 @@
 ---
 - name: Playbook to manage Cisco Catalyst Center Plug and Play, add pnp devices, bulk import, delete, update, claim routing, switching devices and wirelesss controllers. 
-  hosts: catalyst_cennter_hosts
+  hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
 

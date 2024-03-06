@@ -1,0 +1,29 @@
+
+
+---
+- name: Configure DHCP Server on Cisco IOS
+  hosts: dhcp_server  
+  gather_facts: false   
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  tasks:
+    - name: Create DHCP Pool
+      cisco.ios.ios_config:
+        host: "{{ item.hostname }}"
+        username: "{{ item.ssh_username }}"
+        password: "{{ item.ssh_password }}"
+        lines:
+          - interface Vlan1
+          - ip address "{{ item.gateway}}" "{{ item.subnet_mask}}"
+          - ip dhcp pool "{{ item.dhcp_pool_name }}""
+          - ip dhcp pool nw_orchestration_pool
+          - network "{{ item.network}}" "{{ item.subnet_mask}}"
+          -  option 43 ascii "5A1D;B2;K4;I{{item.pnp_server}};J80;"
+          -  default-router {{ item.gateway}}
+          -  dns-server {{ item.dns_server}}
+      loop: "{{ dhcp_servers }}"
+      when: item.dhcp_pool_name is defined
+
+

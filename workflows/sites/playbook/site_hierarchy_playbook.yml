@@ -1,6 +1,6 @@
 ---
 - name: Configure Sites on Cisco Catalyst Center which includes Areas, Buildings, and Floors
-  hosts: catalyst_cennter_hosts
+  hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
   vars_files:
