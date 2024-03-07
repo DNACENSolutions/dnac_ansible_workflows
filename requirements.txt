@@ -1,5 +1,6 @@
 ansible
 ansible-runner
 ciscoisesdk
+dnacentersdk
 requests
 jinja2
