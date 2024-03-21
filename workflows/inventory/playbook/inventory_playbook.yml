@@ -1,6 +1,6 @@
 ---
 - name: Playbook to manage Cisco Catalyst Center Device Inventory
-  hosts: catalyst_cennter_hosts
+  hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
 
@@ -18,11 +18,6 @@
       dnac_debug: "{{ dnac_debug }}"
 
   tasks:
-    - name: Set state with default value merged,  read from env variable ENV_VAR_STATE
-      debug:
-        msg: "state : {{ lookup('env', 'ENV_VAR_STATE') }}"
-      when: lookup('env', 'ENV_VAR_STATE') is defined
-
     - name: Add/Update/assig to site/Provision or delete devices provided in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       cisco.dnac.inventory_workflow_manager:
         <<: *dnac_login
