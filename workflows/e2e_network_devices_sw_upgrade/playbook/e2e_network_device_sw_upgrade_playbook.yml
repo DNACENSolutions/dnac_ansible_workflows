@@ -1,6 +1,6 @@
 ---
 - name: This playbook manages uploading of devices software images, golden tags and image distribution and activation on the devices
-  hosts: catalyst_cennter_hosts
+  hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
 

@@ -15,7 +15,7 @@
 # The playbook is executed with the following command
 # ansible-playbook -i inventory/hosts configure_sites.yml --extra-vars "VARS_FILES_PATH=inventory/group_vars/e2e_vars_catalyst_center.yml"
 - name: Configure Sites on Cisco Catalyst Center which includes Areas, Buildings, and Floors
-  hosts: catalyst_cennter_hosts
+  hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
 

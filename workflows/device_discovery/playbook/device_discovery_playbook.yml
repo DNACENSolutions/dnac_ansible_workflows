@@ -1,6 +1,6 @@
 ---
 - name: Playbook to manage Cisco Catalyst Center Device Discovery
-  hosts: catalyst_cennter_hosts
+  hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
 
