@@ -1,7 +1,7 @@
 
 ---
 - name: Configure global credentials on Cisco DNA Center
-  hosts: catalyst_cennter_hosts
+  hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
 
