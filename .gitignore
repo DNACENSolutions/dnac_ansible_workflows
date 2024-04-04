@@ -5,7 +5,7 @@ __pycache__/
 .cache
 *.retry
 inventory/demo_lab/001-dnac_inventory.yml
-tests/test_playbooks/vars/server.yml
+tests/*
 host_inventory_*
 vars_*
 __pycache__
