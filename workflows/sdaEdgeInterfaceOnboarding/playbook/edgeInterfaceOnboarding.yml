@@ -1,0 +1,125 @@
+---
+- name: Playbook to manage Cisco Catalyst Center Device Inventory
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+
+  tasks:
+    - name: Hostonboarding interface onboarding
+      set_fact:
+        long_op_start: "{{ now() }}"
+
+    - name: print inputs
+      debug: 
+        msg: "{{edgeDetails.hostName}}"
+
+    #- include_vars: "{{ VARS_FILE_PATH }}"
+    #  when: hostName is undefined
+    # Get Network Devices info using hostname
+    - name: Get device mgmt IP address
+      cisco.dnac.network_device_info:
+        <<: *dnac_login
+        hostname: "{{edgeDetails.hostName}}"
+      register: network_devices_result
+      when: deviceManagementIpAddress is undefined
+
+    - set_fact:
+        __deviceManagementIpAddress: "{{deviceManagementIpAddress}}"
+      when: deviceManagementIpAddress is defined
+
+    #find ip address from device info output
+    - set_fact:
+        __deviceManagementIpAddress: "{{ network_devices_result.dnac_response.response.0.managementIpAddress }}"
+      when: deviceManagementIpAddress is undefined
+
+    - name: Device Managment IP
+      debug:
+        var: __deviceManagementIpAddress
+
+    - name: Get fabricSiteNameHierarchy for fabric Edge Device
+      cisco.dnac.sda_fabric_edge_device_info:
+        <<: *dnac_login
+        deviceManagementIpAddress: "{{__deviceManagementIpAddress}}"
+      register: edge_result
+      when: siteNameHierarchy is undefined
+
+    - set_fact:
+        __siteNameHierarchy: "{{  siteNameHierarchy }}"
+      when: siteNameHierarchy is defined
+
+    #find ip address from device info output
+    - set_fact:
+        __siteNameHierarchy: "{{  edge_result.dnac_response.fabricSiteNameHierarchy }}"
+      when: siteNameHierarchy is undefined
+
+    - name: Site Hierarchy for device
+      debug:
+        var: __siteNameHierarchy
+
+    # creat port assignment
+    - name: Create port assignment for user device
+      cisco.dnac.sda_port_assignment_for_user_device:
+        <<: *dnac_login
+        state: present
+        authenticateTemplateName: "{{ edgeDetails.authenticateTemplateName }}"
+        dataIpAddressPoolName: "{{ edgeDetails.dataIpAddressPoolName }}"
+        deviceManagementIpAddress: "{{ __deviceManagementIpAddress }}"
+        interfaceDescription: "{{ edgeDetails.interfaceDescription }}"
+        interfaceName: "{{ edgeDetails.interfaceName }}"
+        #scalableGroupName: "{{ edgeDetails.scalableGroupName }}"
+        siteNameHierarchy: "{{ __siteNameHierarchy }}"
+        #voiceIpAddressPoolName: "{{ edgeDetails.voiceIpAddressPoolName }}"
+      register: port_result
+
+    - name: RESULT port creation result
+      debug:
+        var: port_result
+
+    - name: Verify Current Sda Port Assignment For User Device
+      cisco.dnac.sda_port_assignment_for_user_device_info:
+        <<: *dnac_login
+        deviceManagementIpAddress: "{{__deviceManagementIpAddress}}"
+        interfaceName: "{{ edgeDetails.interfaceName }}"
+      register: verify_result
+      when: port_result.changed
+
+    - name: verify port result info
+      debug:
+        var: verify_result
+      when: port_result.changed
+
+    - debug:
+        msg: 'RESULT: port created successfully, configuration matches input'
+      when:
+        - port_result.changed
+        - verify_result.dnac_response.dataIpAddressPoolName == edgeDetails.dataIpAddressPoolName
+        #- verify_result.dnac_response.voiceIpAddressPoolName == edgeDetails.voiceIpAddressPoolName
+        - verify_result.dnac_response.interfaceDescription == edgeDetails.interfaceDescription
+        - verify_result.dnac_response.authenticateTemplateName == edgeDetails.authenticateTemplateName
+
+    - name: Hostonboarding complete end
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print execution time
+      debug:
+        msg: "Hostonboarding operation start: {{ long_op_start }}, end: {{ long_op_end }}"
+
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
