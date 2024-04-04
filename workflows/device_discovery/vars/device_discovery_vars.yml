@@ -16,7 +16,7 @@ discovery_details:
       devices_list: []
       discovery_type: SINGLE
       protocol_order: ssh
-      discovery_name: Single IP Discovery1
+      discovery_name: Single IP Discovery11
       discovery_specific_credentials:
         cli_credentials_list:
             - username: wlcaccess
@@ -58,7 +58,7 @@ discovery_details:
       - 204.101.16.2-204.101.16.2
       discovery_type: RANGE
       protocol_order: ssh
-      discovery_name: Range IP Discovery1
+      discovery_name: Range IP Discovery11
       discovery_specific_credentials:
         cli_credentials_list:
             - username: wlcaccess
@@ -101,7 +101,7 @@ discovery_details:
       - 204.101.16.4-204.101.16.4
       discovery_type: MULTI RANGE
       protocol_order: ssh
-      discovery_name: Multi Range Discovery 1
+      discovery_name: Multi Range Discovery 11
       discovery_specific_credentials:
         cli_credentials_list:
             - username: wlcaccess

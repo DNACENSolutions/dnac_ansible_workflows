@@ -12,7 +12,7 @@ design_sites:
     type: area
   - site:
       area:
-        name: RTP
+        name: RTP1
         parent_name: Global/USA
     type: area
   - site:
