@@ -230,68 +230,44 @@ discovery_details:
 #Inventory details
 inventory_details:
   network_devices:
-    - ip_address:
-      - 204.101.16.1
-      provision_wired_device:
-        site_name: Global/USA/SAN JOSE/BLD23
-      device_resync: true
-      force_sync: true
-    - ip_address:
-      - 204.101.16.4
-      provision_wired_device:
-        site_name: Global/USA/SAN JOSE/BLD23
-      device_resync: true
-      force_sync: true
-    - ip_address:
-      - 204.101.48.2
-      provision_wired_device:
-        site_name: Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1
-      cli_transport: SSH
-      compute_device: false
-      enable_password: Lablab#123
-      http_password: Lablab#123
-      http_secure: true
-      http_username: wlcaccess
-      netconf_port: 430
-      password: Lablab#123
-      snmp_auth_passphrase: "hp!x6px&#@2xi5"
-      snmp_auth_protocol: SHA
-      snmp_mode: AUTHPRIV
-      snmp_priv_passphrase: "ai7tpci3j@*j5g"
-      snmp_priv_protocol: AES128
-      snmp_retry: 3
-      snmp_timeout: 5
-      snmp_username: wlcaccess
-      snmp_version: 3
-      device_added: true
-      username: wlcaccess
-      force_sync: true
-      device_resync: true
-    - ip_address:
-      - 204.101.16.3
-      provision_wired_device:
-        site_name: Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1
-      cli_transport: SSH
-      compute_device: false
-      enable_password: Lablab#123
-      http_password: Lablab#123
-      http_secure: true
-      http_username: wlcaccess
-      netconf_port: 430
-      password: Lablab#123
-      snmp_auth_passphrase: "hp!x6px&#@2xi5"
-      snmp_auth_protocol: SHA
-      snmp_mode: AUTHPRIV
-      snmp_priv_passphrase: "ai7tpci3j@*j5g"
-      snmp_priv_protocol: AES128
-      snmp_retry: 3
-      snmp_timeout: 5
-      snmp_username: wlcaccess
-      snmp_version: 3
-      device_added: true
-      username: wlcaccess
-      force_sync: true
-      device_resync: true
-
+  - ip_address_list: ["204.101.16.1"]
+    add_user_defined_field:
+    - name: Test123
+      description: "Added first udf for testing"
+      value: "value123"
+    role: ACCESS
+    provision_wired_device:
+    - device_ip: "204.101.16.1"
+      site_name: "Global/USA/SAN JOSE/BLD23"
+    resync_retry_count: 200
+    resync_interval: 2
+    device_resync: true
+    update_interface_details:
+      description: "Voice Interface"
+      admin_status: "UP"
+      vlan_id: 23
+      voice_vlan_id: 24
+      deployment_mode: "Deploy"
+      interface_name: ["GigabitEthernet5/0/11", "GigabitEthernet5/0/12"]
+      clear_mac_address_table: True
+  - ip_address_list: ["204.101.16.2"]
+    add_user_defined_field:
+    - name: Test123
+      description: "Added first udf for testing"
+      value: "value123"
+    role: BORDER ROUTER
+    provision_wired_device:
+    - device_ip: "204.101.16.1"
+      site_name: "Global/USA/SAN JOSE/BLD23"
+    resync_retry_count: 200
+    resync_interval: 2
+    device_resync: true
+    update_interface_details:
+      description: "uplink Interface"
+      admin_status: "UP"
+      deployment_mode: "Deploy"
+      interface_name: ["GigabitEthernet1/0/11", "GigabitEthernet1/0/12"]
+      clear_mac_address_table: True
+      
 
 
