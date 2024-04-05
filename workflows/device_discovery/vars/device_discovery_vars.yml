@@ -41,6 +41,34 @@ discovery_details:
         snmp_v2_write_credential:
             description: snmpV2 Sample 1
             community: public
+      net_conf_port: 430
+      enable_password_list: 
+        - Cisco#123
+      retry: 2
+    - ip_address_list:
+      - 204.101.16.2
+      devices_list: []
+      discovery_type: SINGLE
+      protocol_order: ssh
+      discovery_name: Single IP Discovery11
+      discovery_specific_credentials:
+        cli_credentials_list:
+            - username: wlcaccess
+              password: Lablab#123
+              enable_password: Cisco#123
+            - username: cisco
+              password: Cisco#123
+              enable_password: Cisco#123
+        http_read_credential:
+            username: wlcaccess
+            password: Lablab#123
+            port: 443
+            secure: true
+        http_write_credential:
+            username: wlcaccess
+            password: Lablab#123
+            port: 443
+            secure: true
         snmp_v3_credential:
             description: snmpv3Credentials
             username: wlcaccess
@@ -77,12 +105,6 @@ discovery_details:
             password: Lablab#123
             port: 443
             secure: true
-        snmp_v2_read_credential:
-            description: snmpV2 Sample 1
-            community: public
-        snmp_v2_write_credential:
-            description: snmpV2 Sample 1
-            community: public
         snmp_v3_credential:
             description: snmpV3 Sample 1
             username: wlcaccess
@@ -120,12 +142,6 @@ discovery_details:
             password: Lablab#123
             port: 443
             secure: true
-        snmp_v2_read_credential:
-            description: snmpV2 Sample 1
-            community: public
-        snmp_v2_write_credential:
-            description: snmpV2 Sample 1
-            community: public
         snmp_v3_credential:
             description: snmpV3 Sample 1
             username: wlcaccess
@@ -135,6 +151,7 @@ discovery_details:
             privacy_type: AES128
             privacy_password: Lablab#123
       net_conf_port: 430
+      timeout: 30
       enable_password_list: 
         - Cisco#123
       retry: 2
