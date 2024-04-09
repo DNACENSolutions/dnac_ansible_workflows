@@ -22,6 +22,7 @@
     - name: Lan Automation start time
       set_fact:
         long_op_start: "{{ now() }}"
+      tags: mgmtIpUpdate , start , provision
     - name: Authenticate with DNA Center
       uri:
         url: "{{ dnac_url }}/dna/system/api/v1/auth/token"
@@ -32,9 +33,12 @@
         validate_certs: "{{ dnac_verify}}"
         status_code: 200
       register: auth_response
+      tags: mgmtIpUpdate , start
     - name: Parse DNA Center Authentication Token
       set_fact:
         dnac_auth_token: "{{ auth_response.json.Token }}"
+      tags: mgmtIpUpdate , start
+
     - name: Start LAN Automation Session
       uri:
         url: "{{ dnac_url }}/dna/intent/api/v2/lan-automation"
@@ -101,6 +105,67 @@
     - name: Print execution time
       debug:
         msg: "LAN Automation operation start: {{ long_op_start }}, end: {{ long_op_end }}"
+
+    #/dna/intent/api/v1/lan-automation/updateDevice?feature=LOOPBACK0_IPADDRESS_UPDATE
+    - name: Update Seed deviced management IP to a Loopback IP
+      uri:
+        url: "{{ dnac_url }}/dna/intent/api/v1/lan-automation/updateDevice?feature=LOOPBACK0_IPADDRESS_UPDATE"
+        method: PUT
+        headers:
+          Content-Type: "application/json"
+          X-Auth-Token: "{{ dnac_auth_token }}"
+        body_format: json
+        body: "{{ seed_mgmt_ip_update }}"
+        validate_certs: "{{ dnac_verify}}"
+        status_code: 202
+      register: mgmt_update_response
+      tags: mgmtIpUpdate
+
+    - name: Print LAN Automation Session ID
+      debug:
+        msg: "LAN Automation Session ID: {{ mgmt_update_response.json.response.taskId }}"
+      tags: mgmtIpUpdate
+    #Check till task is complete with wait time 10 seconds
+    - name: Get all Task Tree
+      cisco.dnac.task_tree_info:
+        <<: *dnac_login
+        taskId: "{{ mgmt_update_response.json.response.taskId }}"
+      register: task_tree_info
+      until: task_tree_info.dnac_response.response[0].endTime is defined
+      retries: 600
+      delay: 30
+      tags: mgmtIpUpdate
+
+    - name: LAN Automation mgmt ip update complete
+      set_fact:
+        long_op_end: "{{ now() }}"
+      tags: mgmtIpUpdate
+      
+    - name: Print execution time
+      debug:
+        msg: "LAN Automation mgmt ip update Start: {{ long_op_start }}, end: {{ long_op_end }}"
+      tags: mgmtIpUpdate
+
+    - name: Update device roles to ACCESS
+      cisco.dnac.inventory_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ update_devices_role }}"
+      when: update_devices_role is defined
+      tags: provision
+
+    - name: Assign devices to sites and Provision devices
+      cisco.dnac.inventory_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ provision_devices }}"
+      when: provision_devices is defined
+      tags: provision
+
   post_tasks:
     - name: run command module to find python version
       ansible.builtin.command: which python
