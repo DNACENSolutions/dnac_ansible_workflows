@@ -166,7 +166,7 @@ design_sites:
     type: floor
   - site:
       floor:
-        name: FLOOR1_LEVEL1
+        name: FLOOR1
         parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -175,7 +175,7 @@ design_sites:
     type: floor
   - site:
       floor:
-        name: FLOOR1_LEVEL2
+        name: FLOOR2
         parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -184,7 +184,7 @@ design_sites:
     type: floor
   - site:
       floor:
-        name: FLOOR1_LEVEL3
+        name: FLOOR3
         parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -193,7 +193,7 @@ design_sites:
     type: floor
   - site:
       floor:
-        name: FLOOR1_LEVEL4
+        name: FLOOR4
         parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -202,7 +202,7 @@ design_sites:
     type: floor
   - site:
       floor:
-        name: BLD20_FLOOR1
+        name: FLOOR1
         parent_name: Global/USA/SAN JOSE/BLD20
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -211,7 +211,7 @@ design_sites:
     type: floor
   - site:
       floor:
-        name: BLD20_FLOOR2
+        name: FLOOR2
         parent_name: Global/USA/SAN JOSE/BLD20
         rfModel: Cubes And Walled Offices
         width: 100.00

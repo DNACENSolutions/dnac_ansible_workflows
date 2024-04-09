@@ -26,6 +26,8 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 
 
 ## Installation
+    Python 3.7+ is required to install iac-validate. Don't have Python 3.7 or later? 
+    See Python 3 Installation & Setup Guide https://realpython.com/installing-python/
 
 1. Clone this repository to your local machine:
 
