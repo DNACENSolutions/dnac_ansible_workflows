@@ -1,0 +1,109 @@
+---
+- name: Playbook to run LanautomationV2 Session on Catalyst Center Applicable for CC 2.3.7.5
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+  vars:
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+    # For using APIs directly in the playbook
+    dnac_url: "https://{{ dnac_host }}:443"
+    credentials: "{{ dnac_username}}:{{dnac_password }}"
+    authentication: "Basic {{ credentials | b64encode }}"
+  tasks:
+    - name: Lan Automation start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: Authenticate with DNA Center
+      uri:
+        url: "{{ dnac_url }}/dna/system/api/v1/auth/token"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+          Authorization: "{{authentication}}"
+        validate_certs: "{{ dnac_verify}}"
+        status_code: 200
+      register: auth_response
+    - name: Parse DNA Center Authentication Token
+      set_fact:
+        dnac_auth_token: "{{ auth_response.json.Token }}"
+    - name: Start LAN Automation Session
+      uri:
+        url: "{{ dnac_url }}/dna/intent/api/v2/lan-automation"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+          X-Auth-Token: "{{ dnac_auth_token }}"
+        body_format: json
+        body: "{{ lan_automation }}"
+        validate_certs: "{{ dnac_verify}}"
+        status_code: 202
+      register: lan_automation_response
+      tags: start
+    - name: Print LAN Automation Session ID
+      debug:
+        msg: "LAN Automation Session ID: {{ lan_automation_response.json.response.taskId }}"
+      tags: start
+    #Check till task is complete with wait time 10 seconds
+    - name: Get all Task Tree
+      cisco.dnac.task_tree_info:
+        <<: *dnac_login
+        taskId: "{{ lan_automation_response.json.response.taskId }}"
+      register: task_tree_info
+      until: task_tree_info.dnac_response.response[0].endTime is defined
+      retries: 600
+      delay: 30
+      tags: start
+    - name: Validate that there is no active session once LAN automation is complete
+      uri:
+        url: "{{ dnac_url }}/dna/intent/api/v1/lan-automation/sessions"
+        method: GET
+        headers:
+          Content-Type: "application/json"
+          X-Auth-Token: "{{ dnac_auth_token }}"
+        body_format: json
+        validate_certs: "{{ dnac_verify}}"
+        status_code: 200
+      register: lan_automation_active_sessions
+    - name: Print LAN Automation Active Sessions
+      debug:
+        msg: "LAN Automation Session ID: {{ lan_automation_active_sessions.json.response }}"
+    #/dna/intent/api/v1/lan-automation/status
+    - name: Get LAN Automation Status
+      uri:
+        url: "{{ dnac_url }}/dna/intent/api/v1/lan-automation/status"
+        method: GET
+        headers:
+          Content-Type: "application/json"
+          X-Auth-Token: "{{ dnac_auth_token }}"
+        body_format: json
+        body:
+          offset: 1
+          limit: 1
+        validate_certs: "{{ dnac_verify}}"
+        status_code: 200
+      register: lan_automation_status
+      until: lan_automation_status.json.response[0].status | regex_search("^Completed") is match
+    - name: Print LAN Automation lan_automation_status
+      debug:
+        msg: "LAN Automation lan_automation_status: {{ lan_automation_status.json.response[0].discoveredDeviceList }}"
+    - name: LAN Automation complete
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print execution time
+      debug:
+        msg: "LAN Automation operation start: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
