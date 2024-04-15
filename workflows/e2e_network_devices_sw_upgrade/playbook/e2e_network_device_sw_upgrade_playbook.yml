@@ -18,8 +18,10 @@
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
       dnac_log_level: "{{ dnac_log_level }}"
-  
   tasks:
+    - name: Swim Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
     #Import an image from a URL
     - name: Import an image from an URL or from Local disc provided in import_images in file {{ SWIM_VARS_FILE_PATH }}
       cisco.dnac.swim_intent:
@@ -28,7 +30,7 @@
         - "{{ item }}"
       loop: "{{ swim_details.import_images }}"
       when: swim_details.import_images is defined
-
+      tags: import
     #Golden tag images on Catalyst Center sites
     - name: Golden tag images on Catalyst Center sites input provided in golden_tag_images in file {{ SWIM_VARS_FILE_PATH }}
       cisco.dnac.swim_intent:
@@ -37,7 +39,7 @@
         - "{{ item }}"
       loop: "{{ swim_details.golden_tag_images }}"
       when: swim_details.golden_tag_images is defined
-
+      tags: goldentag
     #Distribution of images on Catalyst Center sites
     - name: Distribution of images on Catalyst Center sites input provided in distribute_images in file {{ SWIM_VARS_FILE_PATH }}
       cisco.dnac.swim_intent:
@@ -46,7 +48,7 @@
         - "{{ item }}"
       loop: "{{ swim_details.distribute_images }}"
       when: swim_details.distribute_images is defined
-
+      tags: distribute
     #Activate an image on Catalyst Center sites
     - name: Activate an image on Catalyst Center sites input provided in activate_images in file {{ SWIM_VARS_FILE_PATH }}
       cisco.dnac.swim_intent:
@@ -55,7 +57,7 @@
         - "{{ item }}"
       loop: "{{ swim_details.activate_images }}"
       when: swim_details.activate_images is defined
-
+      tags: activate
     #SWIM Full workflow Import an image from a URL, tag it as golden and load it on device
     - name: Import an image from a URL, tag it as golden and load it on device for details provided in {{ SWIM_VARS_FILE_PATH }}
       cisco.dnac.swim_intent:
@@ -64,3 +66,21 @@
         - "{{ item }}"
       loop: "{{ swim_details.upload_tag_dis_activate_images }}"
       when: swim_details.upload_tag_dis_activate_images is defined
+      tags: fullflow
+
+    - name: SWIM playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+      tags: mgmtIpUpdate
+
+    - name: Print execution time
+      debug:
+        msg: "Time taken by SWIM playbook run: {{ long_op_start }}, end: {{ long_op_end }}"
+      tags: mgmtIpUpdate
+
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

@@ -1,4 +1,9 @@
 ---
+#This Playbook is to perform a complete LAN Automation from defining the site to devices onboarded and Provisioned.
+#The Playbooks can be run in full mode or specific group like discovery only using the --tag option in the command. 
+#The corresponding inoput should be defined in the Vars file for script to run fully.
+#Provide the Absolute path to the variable files using option --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/e2e_lan_automationed_site_bringup/vars/lan_automation_site_bringup_vars.yml
+#Sample Command Run: ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/e2e_lan_automationed_site_bringup/playbook/lan_automation_site_bringup.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/e2e_lan_automationed_site_bringup/vars/lan_automation_site_bringup_vars.yml -vvvv --tags site
 - name: Playbook to run LanautomationV2 Session on Catalyst Center Applicable for CC 2.3.7.5
   hosts: catalyst_center_hosts
   connection: local
@@ -15,10 +20,55 @@
       dnac_version: "{{ dnac_version }}"
       dnac_debug: "{{ dnac_debug }}"
     # For using APIs directly in the playbook
+    state: merged
     dnac_url: "https://{{ dnac_host }}:443"
     credentials: "{{ dnac_username}}:{{dnac_password }}"
     authentication: "Basic {{ credentials | b64encode }}"
   tasks:
+    - name: LAN Automation Script start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+    #Create sites required to onboard your devices using LAN Automation
+    - name: Create sites from design_sites config
+      cisco.dnac.site_workflow_manager:
+        <<: *dnac_login
+        state: "{{state}}"
+        config:
+          - "{{ item }}"
+      loop: "{{ design_sites }}"
+      tags: site
+    # Create or Update existing Credentials with provided details in 
+    - name: Create or Update existing Credentials with provided details in "{{ VARS_FILE_PATH }}"
+      cisco.dnac.device_credential_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config:
+        - "{{ item }}"
+      loop: "{{ device_credentials.credentials_details }}"
+      when: device_credentials.credentials_details is defined
+      tags: credential
+    # Assign Credentials to sites if defined in 
+    - name: Assign Credentials to sites for credentials and sites maps in variables file "{{ VARS_FILE_PATH }}"
+      cisco.dnac.device_credential_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config:
+        - "{{ item }}"
+      with_list: "{{ device_credentials.credentials_site_assignment }}"
+      when: device_credentials.credentials_site_assignment is defined
+      tags: credential
+
+    # Discovery Seed devices
+    - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH }}"
+      cisco.dnac.discovery_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config:
+        - "{{ item }}"
+      loop: "{{ discovery_details.multi_range }}"
+      when: discovery_details.multi_range is defined
+      tags: discovery
+    #Start LAN Automation Here
     - name: Lan Automation start time
       set_fact:
         long_op_start: "{{ now() }}"
@@ -165,6 +215,16 @@
       loop: "{{ provision_devices }}"
       when: provision_devices is defined
       tags: provision
+
+    - name: LAN Automation device provision end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+      tags: mgmtIpUpdate
+
+    - name: Print execution time
+      debug:
+        msg: "LAN Automation provision time: {{ long_op_start }}, end: {{ long_op_end }}"
+      tags: mgmtIpUpdate
 
   post_tasks:
     - name: run command module to find python version
