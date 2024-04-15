@@ -36,6 +36,9 @@
       dnac_log_level: "{{ dnac_log_level }}"
 
   tasks:
+    - name: Sites and Inventry playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
     # Create sites, building and floors in catalyst center from the design_sites config
     - name: Create sites from design_sites config
       cisco.dnac.site_workflow_manager:
@@ -44,6 +47,7 @@
         config:
           - "{{ item }}"
       loop: "{{ design_sites }}"
+      tags: site
     # Create or Update existing Credentials with provided details in "{{ VARS_FILES_PATH }}"
     - name: Create or Update existing Credentials with provided details in "{{ VARS_FILE_PATH }}"
       cisco.dnac.device_credential_workflow_manager:
@@ -53,6 +57,7 @@
         - "{{ item }}"
       loop: "{{ device_credentials.credentials_details }}"
       when: device_credentials.credentials_details is defined
+      tags: credential
     # Assign Credentials to sites if defined in "{{ VARS_FILES_PATH }}"
     - name: Assign Credentials to sites for credentials and sites maps in variables file "{{ VARS_FILE_PATH }}"
       cisco.dnac.device_credential_workflow_manager:
@@ -62,6 +67,7 @@
         - "{{ item }}"
       with_list: "{{ device_credentials.credentials_site_assignment }}"
       when: device_credentials.credentials_site_assignment is defined
+      tags: credential
     - name: Discover a singe device IP Address for a list of discoveries from "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
         <<: *dnac_login
@@ -70,7 +76,7 @@
         - "{{ item }}"
       loop: "{{ discovery_details.single }}"
       when: discovery_details.single is defined
-
+      tags: discovery
     - name: Discover devices for an IP Address Range if defined in file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
         <<: *dnac_login
@@ -79,7 +85,7 @@
         - "{{ item }}"
       loop: "{{ discovery_details.range }}"
       when: discovery_details.range is defined
-
+      tags: discovery
     - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
         <<: *dnac_login
@@ -88,7 +94,7 @@
         - "{{ item }}"
       loop: "{{ discovery_details.multi_range }}"
       when: discovery_details.multi_range is defined
-
+      tags: discovery
     - name: Discover devices from a CDP seed if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
         <<: *dnac_login
@@ -97,7 +103,7 @@
         - "{{ item }}"
       loop: "{{ discovery_details.cdp }}"
       when: discovery_details.cdp is defined
-
+      tags: discovery
     - name: Discover devices from an LLDP seed if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
         <<: *dnac_login
@@ -106,7 +112,7 @@
         - "{{ item }}"
       loop: "{{ discovery_details.lldp }}"
       when: discovery_details.lldp is defined
-
+      tags: discovery
     - name: Configure and run an CIDR Discovery if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
         <<: *dnac_login
@@ -115,6 +121,7 @@
         - "{{ item }}"
       loop: "{{ discovery_details.cidr }}"
       when: discovery_details.cidr is defined
+      tags: discovery
     - name: Add/Update/assig to site/Provision or delete devices provided in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       cisco.dnac.inventory_workflow_manager:
         <<: *dnac_login
@@ -123,3 +130,21 @@
           - "{{ item }}"
       loop: "{{ inventory_details.network_devices }}"
       when: inventory_details.network_devices is defined
+      tags: inventory
+
+    - name: Network Discovery playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+      tags: mgmtIpUpdate
+
+    - name: Print execution time
+      debug:
+        msg: "Network Discovery playbook time: {{ long_op_start }}, end: {{ long_op_end }}"
+      tags: mgmtIpUpdate
+
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

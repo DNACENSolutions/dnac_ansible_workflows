@@ -1,4 +1,144 @@
 ---
+# This is Variables file for your LAN Automation, you are allowed to take a copy of the file and update with yuour inputs
+# Each section should be defined for best run results. The input are grouped in easy to understand order starting from Sites to Device Provision
+# Sequence: Sites->Credentials->Discovery->Inventory->LAN Automation->Inventory
+# Below inputs are real input from LAN Automation Demo session
+# Desig your Site Heirarchy for onboarding LAN Automation
+design_sites:
+  - site:
+      area:
+        name: USA
+        parent_name: Global
+    type: area
+  - site:
+      area:
+        name: SAN JOSE
+        parent_name: Global/USA
+    type: area
+  - site:
+      building:
+        name: BLD23
+        parent_name: Global/USA/SAN JOSE
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      building:
+        name: BLD20
+        parent_name: Global/USA/SAN JOSE
+        address: 725 Alder Drive, Milpitas, California 95035, United States
+        latitude: 37.415947
+        longitude: -121.916327
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: FLOOR1
+        parent_name: Global/USA/SAN JOSE/BLD23
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parent_name: Global/USA/SAN JOSE/BLD23
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parent_name: Global/USA/SAN JOSE/BLD20
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parent_name: Global/USA/SAN JOSE/BLD20
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+#Define and Assign your credentials required for LAN Automation and Device Management
+device_credentials:
+  credentials_details: #Create multiple credentials for the same protocol
+  - global_credential_details: #Create global credentials for the device list
+      cli_credential: #Create CLI credentials list
+      - description: WLC
+        username: wlcaccess
+        password: Lablab#123
+        enable_password: Cisco#123
+      snmp_v3: #Create SNMPv3 credentials list
+      - description: SNMPv3-credentials
+        auth_password: "Lablab#123@123"
+        auth_type: SHA
+        snmp_mode: AUTHPRIV
+        privacy_password: "Lablab#123123@123"
+        privacy_type: AES128
+        username: admin
+      https_read: #Create HTTPS Read credentials list
+      - description: http_read
+        username: admin
+        password: "Lablab#123123@123"
+        port: 443
+      https_write: #Create HTTPS Write credentials list
+      - description: httpwrite
+        username: admin
+        password: "Lablab#123123@123"
+        port: 443
+  credentials_site_assignment: #Assign credentials to sites list of all sites mappings
+  - assign_credentials_to_site: # Assign device credentials to sites
+      cli_credential: #Assign CLI credentials to sites
+        description: WLC
+        username:  wlcaccess
+      snmp_v3: #Assign SNMPv3 credentials to sites
+        description: SNMPv3-credentials
+      https_read: #Assign HTTPS Read credentials to sites
+        username: admin
+        description: http_read
+      https_write: #Assign HTTPS Write credentials to sites
+        username: admin
+        description: httpwrite
+      site_name: #Sites  to which the credentials are assigned
+      - Global/USA/SAN JOSE #Full Site Heirarchy Path from Global to Site
+      - Global
+#Define your Seed Devices Discovery
+discovery_details:
+  multi_range:
+    - ip_address_list:
+      - 91.1.1.2-91.1.1.2
+      - 91.1.1.6-91.1.1.6
+      discovery_type: MULTI RANGE
+      protocol_order: ssh
+      discovery_name: MultiRange_Seed_Devices_Discovery
+      global_credentials:
+        cli_credentials_list:
+            - description: WLC
+              username: wlcaccess
+        http_read_credential_list:
+            - description: http_read
+              username: admin
+        http_write_credential_list:
+            - description: httpwrite
+              username: admin
+        snmp_v3_credential_list:
+          - description: SNMPv3-credentials
+      net_conf_port: 430
+      timeout: 30
+      enable_password_list: 
+        - Cisco#123
+      retry: 2
+#Define your LAN Automation and bringup all the desvices with assigned ip address and hostname
 lan_automation:
   - discoveredDeviceSiteNameHierarchy: Global/USA/SAN JOSE
     peerDeviceManagmentIPAddress: 91.1.1.2
@@ -50,14 +190,14 @@ lan_automation:
         deviceHostName: SR-LAN-9200CX-AEN1
         deviceManagementIPAddress: 204.1.1.16
         deviceSiteNameHierarchy: Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1
-
+#Define the Device Update for Seed devices connected interface to Loopback interface if required.
 seed_mgmt_ip_update:
   loopbackUpdateDeviceList:
   - deviceManagementIPAddress: 91.1.1.6
     newLoopback0IPAddress: 204.1.1.3
   - deviceManagementIPAddress: 91.1.1.2
     newLoopback0IPAddress: 204.1.1.4
-
+# Update devices to desired role
 update_devices_role:
   - ip_address_list: 
     - 204.1.1.3
@@ -72,7 +212,7 @@ update_devices_role:
     - 204.1.1.15
     - 204.1.1.16
     role: ACCESS
-
+#Assign the discovered devices to site and provision
 provision_devices:
   - provision_wired_device:
     - device_ip: 204.1.1.3
@@ -95,3 +235,5 @@ provision_devices:
       site_name: Global/USA/SAN JOSE/BLD20/BLD20_FLOOR1
     resync_retry_count: 200
     resync_interval: 2
+
+

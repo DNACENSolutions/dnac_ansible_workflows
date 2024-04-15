@@ -1,0 +1,74 @@
+---
+#This Playbook is to configure the network setting on site_details.
+# The network settings includes servers (i.e. DHCP, NTP, Client AAA, Network AAA, etc), 
+# Banners, Device controllability settings, and snmp and logging servers etc.
+# This Playbook also lets you configure Global IP pool snd reserv the IP Pools at Site level
+#Sample Command Run: ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/e2e_lan_automationed_site_bringup/playbook/lan_automation_site_bringup.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/e2e_lan_automationed_site_bringup/vars/lan_automation_site_bringup_vars.yml -vvvv --tags site
+- name: Playbook to run LanautomationV2 Session on Catalyst Center Applicable for CC 2.3.7.5
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+  vars:
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+    # For using APIs directly in the playbook
+    state: merged
+    dnac_url: "https://{{ dnac_host }}:443"
+    credentials: "{{ dnac_username}}:{{dnac_password }}"
+    authentication: "Basic {{ credentials | b64encode }}"
+  tasks:
+    - name: Start timer for calculating the total run time of the playbook
+      set_fact:
+        long_op_start: "{{ now() }}"
+    #Create Global Pools 
+    - name: Create Global IP Pools
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *dnac_login
+        state: "{{state}}"
+        config: "{{ network_settings.global_ip_pools }}"
+      when: network_settings.global_ip_pools is defined
+      tags: globalpool
+
+    #Create reserv subpools
+    - name: Reserve Subpools on sites
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *dnac_login
+        state: "{{state}}"
+        config: 
+          "{{ network_settings.sub_pools }}"
+      when: network_settings.sub_pools is defined
+      tags: subpools
+
+    #Update Network Settings for the sites
+    - name: Creating networksettings for sites
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *dnac_login
+        state: "{{state}}"
+        config: "{{ network_settings.network_servers }}"
+          #- "{{ item }}"
+      #loop: "{{ network_settings.network_servers }}"
+      when: network_settings.network_servers is defined
+      tags: servers
+
+    - name: Network Settings playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+
+    - name: Print execution time
+      debug:
+        msg: "Network Settings playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
