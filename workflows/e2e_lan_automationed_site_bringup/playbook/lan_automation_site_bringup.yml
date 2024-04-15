@@ -57,6 +57,33 @@
       with_list: "{{ device_credentials.credentials_site_assignment }}"
       when: device_credentials.credentials_site_assignment is defined
       tags: credential
+    #Create Global Pools 
+    - name: Create Global IP Pools
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *dnac_login
+        state: "{{state}}"
+        config: "{{ network_settings.global_ip_pools }}"
+      when: network_settings.global_ip_pools is defined
+      tags: globalpool, networksettings
+
+    #Create reserv subpools
+    - name: Reserve Subpools on sites
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *dnac_login
+        state: "{{state}}"
+        config: 
+          "{{ network_settings.sub_pools }}"
+      when: network_settings.sub_pools is defined
+      tags: subpools, networksettings
+
+    #Update Network Settings for the sites
+    - name: Creating networksettings for sites
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *dnac_login
+        state: "{{state}}"
+        config: "{{ network_settings.network_servers }}"
+      when: network_settings.network_servers is defined
+      tags: servers, networksettings
 
     # Discovery Seed devices
     - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH }}"

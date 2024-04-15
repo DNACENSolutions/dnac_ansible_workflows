@@ -1,5 +1,5 @@
 ---
-# Sites design input pariables.
+# Network Settings an IP Pools design.
 network_settings: 
   global_ip_pools:
     - global_pool_details:
