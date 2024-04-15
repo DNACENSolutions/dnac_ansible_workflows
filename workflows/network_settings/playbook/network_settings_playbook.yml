@@ -53,8 +53,6 @@
         <<: *dnac_login
         state: "{{state}}"
         config: "{{ network_settings.network_servers }}"
-          #- "{{ item }}"
-      #loop: "{{ network_settings.network_servers }}"
       when: network_settings.network_servers is defined
       tags: servers
 
