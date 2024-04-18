@@ -12,6 +12,11 @@ design_sites:
     type: area
   - site:
       area:
+        name: SAN-FRANCISCO
+        parent_name: Global/USA
+    type: area
+  - site:
+      area:
         name: RTP1
         parent_name: Global/USA
     type: area
