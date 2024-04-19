@@ -1,0 +1,157 @@
+---
+- name: Playbook for SWIM Workflow Manager
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+  tasks:
+    - name: Includes SWIM info
+      include_vars:
+        file: "{{ INPUT_FILE }}"
+        name: vars_map
+      tags: always
+
+    - name: SWIM task - import
+      cisco.dnac.swim_workflow_manager:
+        <<: *common_config
+        config:
+        - "{{ item }}"
+      loop: "{{ vars_map.swim_task.import }}"
+      tags: import
+
+    - name: SWIM task - tag
+      cisco.dnac.swim_workflow_manager:
+        <<: *common_config
+        config:
+        - "{{ item }}"
+      loop: "{{ vars_map.swim_task.tag }}"
+      tags: tag
+
+    - name: SWIM task - untag
+      cisco.dnac.swim_workflow_manager:
+        <<: *common_config
+        config:
+        - "{{ item }}"
+      loop: "{{ vars_map.swim_task.untag }}"
+      tags: untag
+
+    - name: SWIM task - tag again 
+      cisco.dnac.swim_workflow_manager:
+        <<: *common_config
+        config:
+        - "{{ item }}"
+      loop: "{{ vars_map.swim_task.tag }}"
+      tags: tag
+
+    - name: SWIM task - distribute
+      cisco.dnac.swim_workflow_manager:
+        <<: *common_config
+        config:
+        - "{{ item }}"
+      loop: "{{ vars_map.swim_task.distribute }}"
+      tags: distribute
+
+    - name: SWIM task - distribute stack
+      cisco.dnac.swim_workflow_manager:
+        <<: *common_config
+        config:
+        - "{{ item }}"
+      loop: "{{ vars_map.swim_task.distribute_stack }}"
+      tags: distribute_stack
+
+    - name: SWIM task - activate
+      cisco.dnac.swim_workflow_manager:
+        <<: *common_config
+        config:
+        - "{{ item }}"
+      loop: "{{ vars_map.swim_task.activate }}"
+      tags: activate
+
+    - name: SWIM an EWLC HA end-to-end
+      cisco.dnac.swim_workflow_manager:
+        <<: *common_config
+        config:
+        - import_image_details:
+            type: remote
+            url_details:
+              payload:
+                - source_url: http://10.4.23.100/swim/V1713_1_CCO/C9800-40-universalk9_wlc.17.13.01.SPA.bin
+                  is_third_party: False
+        - tagging_details:
+            image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+            device_role: ACCESS
+            site_name: Global/USA/New York
+            device_image_family_name: Cisco Catalyst 9800-40 Wireless Controller
+            tagging: True
+
+        - image_distribution_details:
+            image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+            device_role: ACCESS
+            site_name: Global/USA/New York
+            device_family_name: Wireless Controller
+            device_hostname: NY-EWLC-1.cisco.local
+
+        - image_activation_details:
+            image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+            device_role: ACCESS
+            site_name: Global/USA/New York
+            device_hostname: NY-EWLC-1.cisco.local
+            activate_lower_image_version: true
+            distribute_if_needed: true
+            schedule_validate: false
+      tags: device_ewlc_ha
+
+    - name: SWIM a device end-to-end
+      cisco.dnac.swim_workflow_manager:
+        <<: *common_config
+        config:
+        - "{{ item }}"
+      loop: "{{ vars_map.device_e2e }}"
+      tags: device_e2e
+
+    - name: SWIM a filtered devices list end-to-end
+      cisco.dnac.swim_workflow_manager:
+        <<: *common_config
+        config:
+        - import_image_details:
+            type: remote
+            url_details:
+              payload:
+                - source_url: http://10.4.23.100/swim/V1713_1_CCO/cat9k_iosxe.17.13.01.SPA.bin
+                  is_third_party: False
+        - tagging_details:
+            image_name: cat9k_iosxe.17.13.01.SPA.bin
+            device_role: ACCESS
+            site_name: Global/USA/San Jose
+            device_image_family_name: Cisco Catalyst 9300 Switch
+            tagging: True
+
+        - image_distribution_details:
+            image_name: cat9k_iosxe.17.13.01.SPA.bin
+            device_role: ACCESS
+            site_name: Global/USA/San Jose
+            device_family_name: Switches and Hubs
+            device_hostname: SJ-EN-9300-2.cisco.local
+
+        - image_activation_details:
+            image_name: cat9k_iosxe.17.13.01.SPA.bin
+            device_role: ACCESS
+            site_name: Global/USA/San Jose
+            activate_lower_image_version: true
+            distribute_if_needed: true
+            schedule_validate: false
+      tags: filter_e2e
+

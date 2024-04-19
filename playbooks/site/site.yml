@@ -1,0 +1,116 @@
+---
+- name: Playbook for Site Workflow Manager
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - ./../cc_config.yml
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+  tasks:
+    - name: Create sites
+      cisco.dnac.site_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - site:
+              area:
+                name: USA
+                parentName: Global
+            type: area
+          - site:
+              area:
+                name: RTP
+                parentName: Global/USA
+            type: area
+          - site:
+              building:
+                name: RTP_BLD10
+                parentName: Global/USA/RTP
+                address: 7200-10 Kit Creek Rd, Morrisville, North Carolina 27560, United States
+                latitude: 35.85992111421487
+                longitude: -78.8829258991226
+                country: United States
+            type: building
+          - site:
+              floor:
+                name: FLOOR1
+                parentName: Global/USA/RTP/RTP_BLD10
+                rfModel: Cubes And Walled Offices
+                width: 100.00
+                length: 100.00
+                height: 10.00
+            type: floor
+      tags: create
+
+    - name: Delete sites
+      cisco.dnac.site_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - site:
+              area:
+                name: RTP
+                parentName: Global/USA
+            type: area
+          - site:
+              building:
+                name: RTP_BLD10
+                parentName: Global/USA/RTP
+            type: building
+          - site:
+              floor:
+                name: FLOOR1
+                parentName: Global/USA/RTP/RTP_BLD10
+            type: floor
+      tags: delete
+
+    - name: Includes sites info
+      include_vars:
+        file: "{{ site_input_file }}"
+        name: vars_map
+      tags: always
+
+    - name: Create sites from design_sites config
+      cisco.dnac.site_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      with_list: "{{ vars_map.design_sites }}"
+      tags: create2
+
+    - name: Delete sites from design_sites config
+      cisco.dnac.site_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - site:
+              area:
+                name: Canada
+                parentName: Global
+            type: area
+          - site:
+              area:
+                name: India
+                parentName: Global
+            type: area
+          - site:
+              area:
+                name: Mexico
+                parentName: Global
+            type: area
+      tags: delete2

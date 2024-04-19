@@ -1,0 +1,169 @@
+---
+# tasks file for templates
+- name: Includes templates info
+  include_vars:
+    file: "{{ templates_input_file }}"
+    name: vars_map
+  tags: always
+
+- name: Create templates - PnP-Upstream-SW
+  cisco.dnac.template_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  with_list: "{{ vars_map.template_pnp_upstream_sw }}"
+  tags: pnp_upstream_sw
+
+- name: Create templates - PnP-Devices-SW
+  cisco.dnac.template_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  with_list: "{{ vars_map.template_pnp_devices_sw }}"
+  tags: pnp_devices_sw
+
+- name: Create templates - PnP-Upstream-AP
+  cisco.dnac.template_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  with_list: "{{ vars_map.template_pnp_upstream_ap }}"
+  tags: pnp_upstream_ap
+
+- name: Create templates - PnP_Upstream_SF_EWLC_No-Vars
+  cisco.dnac.template_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  with_list: "{{ vars_map.template_pnp_upstream_sf_ewlc }}"
+  tags: pnp_upstream_sf_ewlc
+
+- name: Create templates - PnP-Devices_SF-EWLC
+  cisco.dnac.template_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  with_list: "{{ vars_map.template_pnp_devices_sf_ewlc }}"
+  tags: pnp_devices_sf_ewlc
+
+- name: Create templates - PnP_Upstream_NY_EWLC_No-Vars
+  cisco.dnac.template_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  with_list: "{{ vars_map.template_pnp_upstream_ny_ewlc }}"
+  tags: pnp_upstream_ny_ewlc
+
+- name: Create templates - PnP-Devices_NY-EWLC_No-Vars
+  cisco.dnac.template_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  with_list: "{{ vars_map.template_pnp_devices_ny_ewlc }}"
+  tags: pnp_devices_ny_ewlc
+
+- name: Template version Control
+  cisco.dnac.template_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  with_list: "{{ vars_map.template_version_control }}"
+  tags: version_control
+
+- name: Delete templates
+  cisco.dnac.template_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: deleted
+    config:
+      - "{{ item }}"
+  with_list: "{{ vars_map.template_details }}"
+  tags: deleted
