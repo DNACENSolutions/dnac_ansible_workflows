@@ -1,0 +1,260 @@
+---
+- name: Playbook for Inventory Workflow Manager
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+  tasks:
+    - name: Add new device
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+        - ip_address_list:
+            - 204.1.2.3
+            - 204.1.2.4
+          ipv6Enabled: false
+          type: NETWORK_DEVICE
+          cli_transport: ssh
+          username: wlcaccess
+          password: Lablab#123
+          enable_password: Cisco#123
+          snmp_version: v3
+          snmp_username: v3Public
+          snmp_mode: AUTHPRIV
+          snmp_auth_protocol: SHA
+          snmp_auth_passphrase: Cisco#123456789
+          snmp_priv_protocol: AES128
+          snmp_priv_passphrase: Cisco#1234567890
+          snmp_retry: 3
+          snmp_timeout: 5
+          netconf_port: 830
+          device_added: true
+      tags: add
+
+    - name: Update Device
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+        - ip_address_list:
+            - 204.1.2.11 
+          device_updated: true
+          update_device_role:
+            role: DISTRIBUTION
+        - ip_address_list:
+            - 204.1.2.12
+          device_updated: true
+          update_device_role:
+            role: ACCESS
+      tags: update_device
+
+    - name: Update Interface details
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          update_device_interface:
+            - ip_address_list:
+                - 204.1.2.22
+              device_updated: true
+              update_interface_details:
+                description: Deploy in Gi1/0/23
+                admin_status: UP
+                vlan_id: 202
+                voice_vlan_id: 201
+                deployment_mode: Deploy
+                interface_name: ["GigabitEthernet1/0/23"]
+
+            - ip_address_list:
+                - 204.1.2.22
+              device_updated: true
+              update_interface_details:
+                description: Deploy in Gi1/0/22
+                admin_status: DOWN
+                vlan_id: 1
+                voice_vlan_id: 1
+                deployment_mode: Deploy
+                interface_name: ["GigabitEthernet1/0/22"]
+      tags: update_device
+
+    - name: Delete device
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+        - ip_address_list: 
+          - 204.1.2.21
+          clean_config: False
+
+        - ip_address_list: 
+          - 5.5.5.5
+          clean_config: True
+      tags: deleted
+
+    - name: Resync device
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+        - ip_address_list: 
+          - 204.1.2.12
+          device_resync: true
+          force_sync: false
+
+        - ip_address_list: 
+          - 204.1.2.21
+          device_resync: true
+          force_sync: true
+      tags: resync
+
+    - name: Reboot device
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+        - ip_address_list: 
+          - 204.192.101.10
+          reboot_device: true
+
+        - ip_address_list: 
+          - 204.192.101.11
+          reboot_device: true
+      tags: reboot
+
+    - name: Export Device Details to a CSV file
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+        - ip_address_list:
+            - 204.192.12.205
+            - 204.192.12.201
+            - 204.192.101.10
+            - 204.1.2.21
+          export_device_list:
+            password: Cisco123
+            operation_enum: 1
+            parameters:
+              - hostname
+              - managementIpAddress
+      tags: export
+
+    - name: Provision/Reprovision wired devices
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+        - provision_wired_device:
+            - device_ip: 204.1.2.3
+              site_name: Global/USA/San Jose/SJ_BLD22
+            - device_ip: 204.1.2.4
+              site_name: Global/USA/New York/NY_BLD1
+        - reprovision_wired_device:
+            - device_ip: 204.1.2.3
+              site_name: Global/USA/San Jose/SJ_BLD22
+            - device_ip: 204.1.2.4
+              site_name: Global/USA/New York/NY_BLD1
+      tags: provision
+
+    - name: Reprovision wired devices
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.network_device.reprovision }}"
+      tags: reprovision
+
+    - name: Provision wireless devices
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+        - device_ip: 10.4.218.250
+          site_name: Global/USA/SAN-FRANCISCO/SF_BLD2
+          managed_ap_locations:
+            - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+            - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+            - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
+          dynamic_interfaces:
+            - interface_ip_address: 10.4.218.250
+              interface_netmask_in_cidr: 28
+              interface_gateway: 10.4.218.241
+              vlan_id: 2015
+              interface_name: TenGigabitEthernet0/0/0
+      tags: provision_wireless
+
+    - name: Add devices to the inventory, assign to site and then provision
+      block:
+        - name: Add devices to the inventory
+          cisco.dnac.inventory_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              - "{{ item }}"
+          loop: "{{ vars_map.network_device.add }}"
+        - name: Associate devices to site and provision it
+          cisco.dnac.inventory_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              - "{{ item }}"
+          loop: "{{ vars_map.network_device.provision }}"
+        - name: Reprovision in case the device is already provisioned
+          cisco.dnac.inventory_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              - "{{ item }}"
+          loop: "{{ vars_map.network_device.reprovision }}"
+      tags: associate
+
+    - name: Add wireless devices to the inventory, assign to site and then provision
+      block:
+        - name: Add devices to the inventory
+          cisco.dnac.inventory_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              - "{{ item }}"
+          loop: "{{ vars_map.wireless_network_device.add }}"
+        - name: Associate devices to site and provision it
+          cisco.dnac.inventory_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              - "{{ item }}"
+          loop: "{{ vars_map.wireless_network_device.provision }}"
+        - name: Reprovision in case the device is already provisioned
+          cisco.dnac.inventory_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              - "{{ item }}"
+          loop: "{{ vars_map.wireless_network_device.reprovision }}"
+      tags: wireless_associate
+
+    - name: Get devices information from the inventory
+      block:
+        - name: Get Network Device info
+          cisco.dnac.network_device_info:
+            <<: *common_config
+          register: result
+        - name: Debug Network Device info
+          debug:
+            var: result
+      tags: get

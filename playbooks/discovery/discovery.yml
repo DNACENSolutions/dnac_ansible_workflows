@@ -1,0 +1,89 @@
+---
+- name: Playbook for Discovery Workflow Manager
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+      dnac_api_task_timeout: 3600
+      dnac_task_poll_interval: 2
+
+  tasks:
+    - name: Delete discovery by name
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - discovery_name: "Multi Range Discovery 1"
+      tags: delete
+
+    - name: Delete all discovery
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - delete_all: True
+      tags: delete_all
+
+    - name: Discovery using Preferred Management Ip(s)
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - ip_address_list:
+              - 204.192.3.40
+              - 10.22.40.244
+              - 204.1.1.14
+              - 204.1.100.1
+              - 204.192.50.1
+            preferred_mgmt_ip_method: UseLoopBack
+            discovery_type: MULTI RANGE
+            protocol_order: ssh
+            state: merged
+            discovery_name: Discovery using preferred management ip(s)
+
+    - name: Discovery using job specific credentials
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: "merged"
+        config:
+          - ip_address_list:
+              - 204.192.3.40
+              - 10.22.40.244
+            discovery_type: MULTI RANGE
+            protocol_order: ssh
+            discovery_specific_credentials:
+              cli_credentials_list:
+                - username: cisco
+                  password: Cisco123
+                  enable_password: Cisco123
+
+
+    - name: Create new discovery to edit
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: "merged"
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.edit_discovery.create }}"
+      tags: edit
+
+    - name: Edit existing discovery
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: "merged"
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.edit_discovery.edit }}"
+      tags: edit

@@ -1,0 +1,21 @@
+# Copyright 2024 Cisco Systems, Inc. and its affiliates
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+# Objectives: This playbook manages network hierarchy design, credentials, device discovery,
+# device provisioning, and device onboarding through PnP.
+
+- name: E2E Solution
+  hosts: dnac
+  connection: local
+  gather_facts: false
+  vars_files:
+    ./cc_config.yml
+  tasks:
+  roles:
+    - site # Creates Network Hierarchy
+    - credentials # Creates Device Credentials and Assigns to Global
+    - discovery # Discovers Devices
+    - templates # Creates CLI Templates
+    - inventory # Provision devices to sites
+    - pnp # Onboards devices through PnP
+    - swim # Updates Software

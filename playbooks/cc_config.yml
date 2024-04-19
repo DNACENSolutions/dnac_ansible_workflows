@@ -1,0 +1,23 @@
+# Copyright 2024 Cisco Systems, Inc. and its affiliates
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+# Network Hierarchy Design, common for all testbeds / inventories
+site_input_file: ./../configs/input_design_sites.yml
+
+# Device Credentials, common for all testbeds / inventories
+credentials_input_file: ./../configs/input_global_credentials.yml
+
+# Device Discovery, unique to each testbed / inventory
+discovery_input_file: ./../configs/{{ dnac_host }}/input_discovery.yml
+
+# CLI Templates: unique to each testbed / inventory
+templates_input_file: ./../configs/{{ dnac_host }}/input_templates.yml
+
+# Inventory / Provision: unique to each testbed / inventory
+inventory_input_file: ./../configs/{{ dnac_host }}/input_inventory.yml
+
+# Software Updates: unique to each testbed / inventory
+swim_input_file: ./../configs/{{ dnac_host }}/input_swim.yml
+
+# PnP Claim: unique to each testbed / inventory
+pnp_input_file: ./../configs/{{ dnac_host }}/input_pnp.yml

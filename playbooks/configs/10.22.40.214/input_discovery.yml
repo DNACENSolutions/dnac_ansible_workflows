@@ -1,0 +1,64 @@
+---
+single:
+  - ip_address_list:
+      - 204.1.2.5
+    discovery_type: SINGLE
+    protocol_order: ssh
+    state: merged
+    discovery_name: Single IP Discovery
+
+cdp:
+  - ip_address_list:
+      - 204.1.2.1
+    discovery_type: CDP
+    cdp_level: 1
+    protocol_order: ssh
+    state: merged
+    discovery_name: CDP Discovery
+
+lldp:
+  - ip_address_list:
+      - 204.1.2.1
+    discovery_type: LLDP
+    protocol_order: ssh
+    state: merged
+    discovery_name: LLDP Discovery
+
+range:
+  - ip_address_list:
+      - 204.1.2.1-204.1.2.5
+    discovery_type: RANGE
+    protocol_order: ssh
+    state: merged
+    discovery_name: Single Range Discovery 1
+  - ip_address_list:
+      - 204.192.3.40
+    discovery_type: RANGE
+    protocol_order: ssh
+    state: merged
+    discovery_name: Single Range Discovery 2
+
+multi_range:
+  - ip_address_list:
+      - 204.192.3.40
+      - 204.1.2.5
+      - 204.1.2.4
+      - 204.1.2.3
+    discovery_type: MULTI RANGE
+    protocol_order: ssh
+    global_credentials:
+      snmp_v3_credential_list:
+        - description: SNMPv3-credentials
+          username: v3Public
+      snmp_v2_write_credential_list:
+        - description: snmpWrite
+    state: merged
+    discovery_name: Multi Range Discovery
+
+cidr:
+  - ip_address_list:
+      - 204.1.2.0/24
+    discovery_type: CIDR
+    protocol_order: ssh
+    state: merged
+    discovery_name: CIDR Discovery
