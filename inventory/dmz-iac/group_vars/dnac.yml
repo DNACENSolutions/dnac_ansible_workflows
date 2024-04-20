@@ -1,8 +1,5 @@
 ---
 dnac_port: 443
-dnac_username: admin
-dnac_password: Maglev123
-dnac_version: 2.3.5.3
 dnac_verify: false
 dnac_debug: true
 dnac_log: true

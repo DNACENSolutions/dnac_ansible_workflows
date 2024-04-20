@@ -5,7 +5,7 @@
   gather_facts: no
 
   vars_files:
-    - ./../cc_config.yml
+    - ./cc_config.yml
 
   vars:
     common_config: &common_config
