@@ -4,6 +4,9 @@
   connection: local
   gather_facts: no
 
+  vars_files:
+    - ./cc_config.yml
+
   vars:
     common_config: &common_config
       dnac_host: "{{ dnac_host }}"
@@ -20,12 +23,57 @@
       dnac_task_poll_interval: 2
 
   tasks:
+    - name: Discovery Multi IP Address Ranges
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - ip_address_list:
+              - 204.1.2.1-204.1.2.5
+              - 204.192.3.40
+              - 204.192.4.200
+              - 204.1.2.6
+              - 204.1.2.7
+              - 204.1.2.8
+            discovery_specific_credentials:
+              net_conf_port: 830
+            discovery_type: MULTI RANGE
+            protocol_order: ssh
+            discovery_name: Multi Range Discovery
+      tags: multi_range
+
+    - name: Discovery devices from a CDP seed
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: "merged"
+        config:
+          - ip_address_list:
+              - 204.1.2.3
+            discovery_type: CDP
+            cdp_level: 1
+            protocol_order: ssh
+            discovery_name: CDP Discovery with filters
+            ip_filter_list:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+            global_credentials:
+              cli_credentials_list:
+                - username: cisco
+                  description: cli
+              snmp_v3_credential_list:
+                - username: cisco
+                  description: SNMPv3-credentials
+              net_conf_port_list:
+                - net_conf_port: 830
+                  description: Netconf
+      tags: cdp
+
     - name: Delete discovery by name
       cisco.dnac.discovery_workflow_manager:
         <<: *common_config
         state: deleted
         config:
-          - discovery_name: "Multi Range Discovery 1"
+          - discovery_name: "Multi Range Discovery"
       tags: delete
 
     - name: Delete all discovery
@@ -69,6 +117,124 @@
                   password: Cisco123
                   enable_password: Cisco123
 
+    - name: Includes Discovery info
+      include_vars:
+        file: "{{ discovery_input_file }}"
+        name: vars_map
+      tags: always
+
+    - name: Discovery a single IP Address
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.single }}"
+      tags: single
+
+    - name: Discovery an IP Address Range
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.range }}"
+      tags: range
+
+    - name: Discovery Multi IP Address Ranges
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.multi_range }}"
+      tags: multi_range
+
+    - name: Discovery devices from a CDP seed
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: "merged"
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.cdp }}"
+      tags: cdp
+
+    - name: Discovery devices from an LLDP seed
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: "merged"
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.lldp }}"
+      tags: lldp
+
+    - name: CIDR Discovery
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: "merged"
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.cidr }}"
+      tags: cidr
+
+    - name: Add new item with "preferred_mgmt_ip_method"
+      set_fact:
+        vars_map_preferred_mgmt: "{{ vars_map_preferred_mgmt | combine({item + '_preferred_mgmt': vars_map[item] | map('combine', {'preferred_mgmt_ip_method': 'UseLoopBack'}) | map('combine', {'discovery_name': vars_map[item][0]['discovery_name'] + ' - preferred_mgmt' }) | list}) }}"
+      loop: "{{ vars_map.keys() }}"
+      tags: multiple_discoveries
+
+    - name: Set vars_map_multiple
+      set_fact:
+        vars_map_multiple: "{{ vars_map | combine(vars_map_preferred_mgmt) }}"
+      tags: multiple_discoveries
+
+    - name: Print the updated vars_map_multiple
+      debug:
+        var: vars_map_multiple
+      tags: multiple_discoveries
+
+    - name: Create multiple Discoveries
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ vars_map_multiple[item][0] }}"
+      with_items: "{{ vars_map_multiple }}"
+      tags: multiple_discoveries
+
+    - name: Delete disovery by name
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - discovery_name: "Single Range Discovery 1"
+      tags: delete_all
+
+    - name: Delete all discovery
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - delete_all: True
+      tags: delete_all
+
+    - name: Re-discovery using Preferred Management Ip(s)
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.rediscovery.preferred_management_ip }}"
+      tags: rediscovery_preferred_management_ip
+
+    - name: Re-discovery using different credentials
+      cisco.dnac.discovery_workflow_manager:
+        <<: *common_config
+        state: "merged"
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.rediscovery.different_credentials }}"
+      tags: rediscovery_different_credentials
 
     - name: Create new discovery to edit
       cisco.dnac.discovery_workflow_manager:

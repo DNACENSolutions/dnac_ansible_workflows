@@ -4,6 +4,9 @@
   connection: local
   gather_facts: no
 
+  vars_files:
+    - ./cc_config.yml
+
   vars:
     common_config: &common_config
       dnac_host: "{{ dnac_host }}"
@@ -18,88 +21,34 @@
       config_verify: True
 
   tasks:
-    - name: Includes PnP info
-      include_vars:
-        file: "{{ INPUT_FILE }}"
-        name: vars_map
-      tags: always
-
-    - name: Claim EWLC
-      cisco.dnac.pnp_workflow_manager:
-        <<: *common_config
-        state: merged
-        config:
-        - site_name: Global/USA/SAN JOSE/BLD23
-          project_name: Onboarding Configuration
-          image_name: C9800-40-universalk9_wlc.17.12.02.SPA.bin
-          template_name: PnP-Devices_SJ-EWLC
-          template_params:
-            MGMT_IP: 10.22.40.244
-            MGMT_SUBNET: 255.255.255.0
-            NTP_SERVER_IP: 171.68.38.66
-          device_info:
-            - serial_number: FOX2639PAYD
-              hostname: SJ-EWLC-1
-              state: Unclaimed
-              pid: C9800-40-K9
-          pnp_type: CatalystWLC
-          static_ip: 204.192.50.200
-          subnet_mask: 255.255.255.0
-          gateway: 204.192.50.1
-          ip_interface_name: TenGigabitEthernet0/0/2
-          vlan_id: 2050
-
-
-    - name: Claim PnP device - EWLC - HA
-      cisco.dnac.pnp_workflow_manager:
-        <<: *common_config
-        state: merged
-        config:
-          - "{{ item }}"
-      loop: "{{ vars_map.pnp_claim.ewlc_ha }}"
-      tags: claim_ewlc_ha
-
-    - name: Reset an Error PnP device - EWLC type
-      cisco.dnac.pnp_workflow_manager:
-        <<: *common_config
-        state: merged
-        config:
-        - site_name: Global/USA/SAN JOSE/BLD23
-          project_name: Onboarding Configuration
-          template_name: PnP-Devices_SJ-EWLC_No-Vars
-          device_info:
-            - serial_number: FOX2639PAYD
-              hostname: SJ-EWLC-1
-              state: Error
-              pid: C9800-40-K9
-
     - name: Claim Cat9K switch
       cisco.dnac.pnp_workflow_manager:
         <<: *common_config
         state: merged
         config:
-        - site_name: Global/USA/SAN JOSE/SJ_BLD23
-          project_name: Onboarding Configuration
-          template_name: PnP-Devices-SW
-          image_name: cat9k_iosxe.17.13.01.SPA.bin
-          template_params:
-            PNP_VLAN_ID: 2000
-            LOOPBACK_IP: 10.4.213.2
-          device_info:
-            - serial_number: FJC27161BCN
-              hostname: SJ-EN-9300-2
-              state: Unclaimed
-              pid: C9300-48UXM
+          - site_name: Global/USA/SAN JOSE/SJ_BLD23
+            project_name: Onboarding Configuration
+            template_name: PnP-Devices-SW
+            image_name: cat9k_iosxe.17.14.01.SPA.bin
+            template_params:
+              PNP_VLAN_ID: 2000
+              LOOPBACK_IP: 10.4.213.2
+            device_info:
+              - serial_number: FJC27161BCN
+                hostname: SJ-EN-9300-2
+                state: Unclaimed
+                pid: C9300-48UXM
+      tags: claim_cat9k
 
     - name: Claim Cat9K switches stack
       cisco.dnac.pnp_workflow_manager:
         <<: *common_config
         state: merged
         config:
-          - site_name: Global/USA/New York/BLDNYC1
+          - site_name: Global/USA/New York/NY_BLD4
             project_name: Onboarding Configuration
             template_name: PnP-Devices-SW
-            image_name: cat9k_iosxe.17.12.02.SPA.bin
+            image_name: cat9k_iosxe.17.14.01.SPA.bin
             template_params:
               PNP_VLAN_ID: 2005
               LOOPBACK_IP: 204.1.2.2
@@ -109,6 +58,100 @@
                 state: Unclaimed
                 pid: C9300-48UXM
             pnp_type: StackSwitch
+      tags: claim_cat9k_stack
+
+    - name: Claim a single EWLC
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - site_name: Global/USA/SAN JOSE/SJ_BLD21
+            project_name: Onboarding Configuration
+            image_name: C9800-40-universalk9_wlc.17.12.02.SPA.bin
+            template_name: PnP-Devices_SJ-EWLC
+            template_params:
+              MGMT_IP: 10.22.40.244
+              MGMT_SUBNET: 255.255.255.0
+              NTP_SERVER_IP: 171.68.38.66
+            device_info:
+              - serial_number: FOX2639PAYD
+                hostname: SJ-EWLC-1
+                state: Unclaimed
+                pid: C9800-40-K9
+            pnp_type: CatalystWLC
+            static_ip: 204.192.50.200
+            subnet_mask: 255.255.255.0
+            gateway: 204.192.50.1
+            ip_interface_name: TenGigabitEthernet0/0/2
+            vlan_id: 2050
+      tags: claim_ewlc
+
+    - name: Claim two EWLC devices for HA
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - site_name: Global/USA/New York/NY_BLD2
+            project_name: Onboarding Configuration
+            image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+            template_name: PnP-Devices_NY-EWLC_No-Vars
+            device_info:
+              - serial_number: TTM2737020R
+                hostname: NY-EWLC-1
+                state: Unclaimed
+                pid: C9800-40-K9
+            pnp_type: CatalystWLC
+            static_ip: 10.4.218.230
+            subnet_mask: 255.255.255.240
+            gateway: 10.4.218.225
+            ip_interface_name: TenGigabitEthernet0/0/1
+            vlan_id: 2014
+          - site_name: Global/USA/New York/NY_BLD2
+            project_name: Onboarding Configuration
+            image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+            template_name: PnP-Devices_NY-EWLC_No-Vars
+            device_info:
+              - serial_number: TTM2737021L
+                hostname: NY-EWLC-1
+                state: Unclaimed
+                pid: C9800-40-K9
+            pnp_type: CatalystWLC
+            static_ip: 10.4.218.232
+            subnet_mask: 255.255.255.240
+            gateway: 10.4.218.225
+            ip_interface_name: TenGigabitEthernet0/0/1
+            vlan_id: 2014
+      tags: claim_ewlc_ha
+
+    - name: Reset an Error PnP device - EWLC type
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - site_name: Global/USA/SAN JOSE/BLD23
+            project_name: Onboarding Configuration
+            template_name: PnP-Devices_SJ-EWLC_No-Vars
+            device_info:
+              - serial_number: FOX2639PAYD
+                hostname: SJ-EWLC-1
+                state: Error
+                pid: C9800-40-K9
+      tags: reset_ewlc
+
+    - name: Claim AP
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - site_name: Global/USA/New York/NY_BLD2/FLOOR1
+            rf_profile: HIGH
+            device_info:
+              - serial_number: FGL2402LCYH
+                hostname: NY-AP1-C9120AXE
+                state: Unclaimed
+                pid: C9120AXE-E
+            pnp_type: AccessPoint
+      tags: claim_ap
 
     - name: Adding devices but not claiming
       cisco.dnac.pnp_workflow_manager:
@@ -133,35 +176,107 @@
         <<: *common_config
         state: "merged"
         config:
-        - device_info:
-          - serial_number: FOX2639PAYD
-            hostname: SJ-EWLC-1
-            state: Unclaimed
-            pid: C9800-40-K9
-          - serial_number: FJC271924D9
-            hostname: SJ-EN-9300
-            state: Unclaimed
-            pid: C9300-48UXM
-          - serial_number: FJC271925Q1
-            hostname: NY-EN-9300
-            state: Unclaimed
-            pid: C9300-48UXM
-          - serial_number: FJC2402A0TX
-            hostname: SF-BN-ISR
-            state: Unclaimed
-            pid: ISR4451-X/K9
+          - device_info:
+              - serial_number: FOX2639PAYD
+                hostname: SJ-EWLC-1
+                state: Unclaimed
+                pid: C9800-40-K9
+              - serial_number: FJC271924D9
+                hostname: SJ-EN-9300
+                state: Unclaimed
+                pid: C9300-48UXM
+              - serial_number: FJC271925Q1
+                hostname: NY-EN-9300
+                state: Unclaimed
+                pid: C9300-48UXM
+              - serial_number: FJC2402A0TX
+                hostname: SF-BN-ISR
+                state: Unclaimed
+                pid: ISR4451-X/K9
 
-    - name: Claim AP
+    - name: Includes PnP info
+      include_vars:
+        file: "{{ pnp_input_file }}"
+        name: vars_map
+      tags: always
+
+    - name: Claim PnP device - EWLC type
       cisco.dnac.pnp_workflow_manager:
         <<: *common_config
         state: merged
         config:
-        - site_name: Global/USA/New York/NY_BLD2/FLOOR1
-          rf_profile: HIGH
-          device_info:
-            - serial_number: FGL2402LCYH
-              hostname: NY-AP1-C9120AXE
-              state: Unclaimed
-              pid: C9120AXE-E
-          pnp_type: AccessPoint
+          - "{{ item }}"
+      loop: "{{ vars_map.pnp_claim.ewlc }}"
+      tags: claim_ewlc2
 
+    - name: Claim PnP device - EWLC - HA
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.pnp_claim.ewlc_ha }}"
+      tags: claim_ewlc_ha2
+
+    - name: Reset an Error PnP device - EWLC type
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.pnp_reset.ewlc }}"
+      tags: reset_ewlc2
+
+    - name: Add and Claim PnP devices - Cat9K switch
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.pnp_claim.cat9k }}"
+      tags: claim_cat9k2
+
+    - name: Add and Claim PnP devices - Cat9K switches stack
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.pnp_claim.cat9k_stack }}"
+      tags: claim_cat9k_stack2
+
+    - name: Adding devices but not claiming
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.pnp_delete.add }}"
+      tags: delete2
+
+    - name: Delete PnP devices
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.pnp_delete.delete }}"
+      tags: delete2
+
+    - name: Adding PnP devices in Bulk
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: "merged"
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.bulk.add }}"
+      tags: bulk_add2
+
+    - name: Claim PnP device - AP
+      cisco.dnac.pnp_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.pnp_claim.ap }}"
+      tags: claim_ap2
