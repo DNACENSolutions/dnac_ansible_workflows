@@ -29,13 +29,13 @@
           - site_name: Global/USA/SAN JOSE/SJ_BLD23
             project_name: Onboarding Configuration
             template_name: PnP-Devices-SW
-            image_name: cat9k_iosxe.17.14.01.SPA.bin
+            image_name: cat9k_iosxe.17.12.02.SPA.bin
             template_params:
               PNP_VLAN_ID: 2000
-              LOOPBACK_IP: 10.4.213.2
+              LOOPBACK_IP: 204.1.2.1
             device_info:
-              - serial_number: FJC27161BCN
-                hostname: SJ-EN-9300-2
+              - serial_number: FJC271924D9
+                hostname: SJ-EN-9300
                 state: Unclaimed
                 pid: C9300-48UXM
       tags: claim_cat9k

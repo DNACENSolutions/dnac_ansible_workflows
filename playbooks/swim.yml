@@ -4,6 +4,9 @@
   connection: local
   gather_facts: no
 
+  vars_files:
+    - ./cc_config.yml
+
   vars:
     common_config: &common_config
       dnac_host: "{{ dnac_host }}"
@@ -18,9 +21,47 @@
       config_verify: True
 
   tasks:
-    - name: Includes SWIM info
+    - name: SWIM a device end-to-end
+      cisco.dnac.swim_workflow_manager:
+        <<: *common_config
+        config:
+          - import_image_details:
+              type: remote
+              url_details:
+                payload:
+                  - source_url: http://172.21.236.183/swim/V1714_1PRD12_FC1/cat9k_iosxe.17.14.01prd12.SPA.bin
+                    is_third_party: False
+
+          - tagging_details:
+              image_name: cat9k_iosxe.17.14.01prd12.SPA.bin
+              device_role: ACCESS
+              site_name: Global/USA/San Jose
+              device_image_family_name: Cisco Catalyst 9300 Switch
+              tagging: True
+
+          - image_distribution_details:
+              image_name: cat9k_iosxe.17.14.01prd12.SPA.bin
+              device_role: ACCESS
+              site_name: Global/USA/San Jose
+              device_family_name: Switches and Hubs
+              device_serial_number: FJC272121AG
+              device_hostname: SJ-BN-9300.cisco.local
+
+          - image_activation_details:
+              image_name: cat9k_iosxe.17.14.01prd12.SPA.bin
+              device_role: ACCESS
+              site_name: Global/USA/San Jose
+              device_serial_number: FJC272121AG
+              device_hostname: SJ-BN-9300.cisco.local
+              activate_lower_image_version: true
+              distribute_if_needed: true
+              schedule_validate: false
+
+      tags: device_e2e
+
+    - name: Includes sites info
       include_vars:
-        file: "{{ INPUT_FILE }}"
+        file: "{{ swim_input_file }}"
         name: vars_map
       tags: always
 
@@ -112,6 +153,7 @@
             activate_lower_image_version: true
             distribute_if_needed: true
             schedule_validate: false
+
       tags: device_ewlc_ha
 
     - name: SWIM a device end-to-end
@@ -120,7 +162,7 @@
         config:
         - "{{ item }}"
       loop: "{{ vars_map.device_e2e }}"
-      tags: device_e2e
+      tags: device_e2e2
 
     - name: SWIM a filtered devices list end-to-end
       cisco.dnac.swim_workflow_manager:

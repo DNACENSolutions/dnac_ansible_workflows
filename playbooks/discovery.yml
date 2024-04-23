@@ -148,7 +148,7 @@
         config:
           - "{{ item }}"
       loop: "{{ vars_map.multi_range }}"
-      tags: multi_range
+      tags: multi_range2
 
     - name: Discovery devices from a CDP seed
       cisco.dnac.discovery_workflow_manager:

@@ -4,6 +4,9 @@
   connection: local
   gather_facts: no
 
+  vars_files:
+    - ./cc_config.yml
+
   vars:
     common_config: &common_config
       dnac_host: "{{ dnac_host }}"
@@ -197,6 +200,12 @@
               vlan_id: 2015
               interface_name: TenGigabitEthernet0/0/0
       tags: provision_wireless
+
+    - name: Includes Inventory info
+      include_vars:
+        file: "{{ inventory_input_file }}"
+        name: vars_map
+      tags: always
 
     - name: Add devices to the inventory, assign to site and then provision
       block:

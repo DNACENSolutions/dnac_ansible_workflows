@@ -4,6 +4,9 @@
   connection: local
   gather_facts: no
 
+  vars_files:
+    - ./cc_config.yml
+
   vars:
     common_config: &common_config
       dnac_host: "{{ dnac_host }}"
@@ -20,7 +23,7 @@
   tasks:
     - name: Includes templates info
       include_vars:
-        file: "{{ INPUT_FILE }}"
+        file: "{{ templates_input_file }}"
         name: vars_map
       tags: always
 
