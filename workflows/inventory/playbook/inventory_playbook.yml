@@ -24,8 +24,6 @@
       cisco.dnac.inventory_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
-        config:
-          - "{{ item }}"
-      loop: "{{ inventory_details.network_devices }}"
+        config: "{{ inventory_details.network_devices }}" 
       when: inventory_details.network_devices is defined
 

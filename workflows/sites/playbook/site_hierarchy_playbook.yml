@@ -22,6 +22,5 @@
       cisco.dnac.site_workflow_manager:
         <<: *dnac_login
         state: "{{state}}"
-        config:
-          - "{{ item }}"
-      loop: "{{ design_sites }}"
+        config: "{{design_sites}}"
+      #loop: "{{ design_sites }}"
