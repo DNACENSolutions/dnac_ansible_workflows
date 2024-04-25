@@ -81,13 +81,13 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 
 How to Generate your hosts inventory from Cisco Catalyst Center using inventory_gen playbook:
 
-For brownfield Catalyst Cennter (Network already discovered in Catalyst Center) with devices are in inventory, then automated inventory generation can be performed through inventory_gen playbook. Following the below Steps:
+For brownfield Catalyst Center (Network already discovered in Catalyst Center) with devices are in inventory, then automated inventory generation can be performed through inventory_gen playbook. Following the below Steps:
 
 i. Create a basic inventory file with Cisco Catalyst Center Inputs in inventory folder. for example demo_inv.yml
   ---
     ```bash
         #Inventory file for demo_lab
-        catalyst_cennter_hosts:
+        catalyst_center_hosts:
             hosts:
             <dnac hostname >:
             dnac_debug: false
@@ -120,7 +120,7 @@ Feel free to explore the playbooks/ directory for more examples and use cases.
 
 If you're using macOS you may receive this error when running your playbook:
 objc[34120]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
-objc[34120]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called. We cannot safely call it or ignore it in the fork() child process. Crashing instead. Set a breakpoint on objc_initializeAfterForkError to debug.
+objc[34120]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called. We can't safely call it or ignore it in the fork() child process. Crashing instead. Set a breakpoint on objc_initializeAfterForkError to debug.
 ERROR! A worker was found in a dead state
 If that's the case try setting this environment variable:
 

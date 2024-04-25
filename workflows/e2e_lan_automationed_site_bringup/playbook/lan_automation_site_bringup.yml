@@ -41,6 +41,8 @@
     - name: Create or Update existing Credentials with provided details in "{{ VARS_FILE_PATH }}"
       cisco.dnac.device_credential_workflow_manager:
         <<: *dnac_login
+        dnac_log_level: INFO
+        dnac_log: true
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -51,6 +53,8 @@
     - name: Assign Credentials to sites for credentials and sites maps in variables file "{{ VARS_FILE_PATH }}"
       cisco.dnac.device_credential_workflow_manager:
         <<: *dnac_login
+        dnac_log_level: INFO
+        dnac_log: true
         state: "{{ state }}"
         config:
         - "{{ item }}"
