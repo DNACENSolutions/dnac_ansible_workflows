@@ -17,7 +17,7 @@ design_sites:
     type: area
   - site:
       area:
-        name: RTP1
+        name: RTP
         parent_name: Global/USA
     type: area
   - site:
@@ -89,6 +89,24 @@ design_sites:
         country: United States
     type: building
   - site:
+      building:
+        name: BLD10
+        parent_name: Global/USA/RTP
+        address: 725 Alder Drive, Milpitas, California 95035, United States
+        latitude: 37.415947
+        longitude: -121.916327
+        country: United States
+    type: building
+  - site:
+      building:
+        name: BLD11
+        parent_name: Global/USA/RTP
+        address: 725 Alder Drive, Milpitas, California 95035, United States
+        latitude: 37.415947
+        longitude: -121.916327
+        country: United States
+    type: building
+  - site:
       floor:
         name: BLD10_FLOOR1
         parent_name: Global/USA/RTP/BLD10
@@ -135,35 +153,8 @@ design_sites:
     type: floor
   - site:
       floor:
-        name: BLD11_FLOOR3
-        parent_name: Global/USA/RTP/BLD11
-        rfModel: Cubes And Walled Offices
-        width: 100.00
-        length: 100.00
-        height: 10.00
-    type: floor
-  - site:
-      floor:
-        name: BLD12_FLOOR1
-        parent_name: Global/USA/RTP/BLD12
-        rfModel: Cubes And Walled Offices
-        width: 100.00
-        length: 100.00
-        height: 10.00
-    type: floor
-  - site:
-      floor:
-        name: BLD12_FLOOR2
-        parent_name: Global/USA/RTP/BLD12
-        rfModel: Cubes And Walled Offices
-        width: 100.00
-        length: 100.00
-        height: 10.00
-    type: floor
-  - site:
-      floor:
         name: BLD12_FLOOR3
-        parent_name: Global/USA/RTP/BLD12
+        parent_name: Global/USA/RTP/BLD11
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00

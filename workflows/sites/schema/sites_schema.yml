@@ -1,0 +1,29 @@
+#https://github.com/23andMe/Yamale
+design_sites: list( include('site_type'), min=0, max=6000)
+---
+site_type: 
+  site: any(include('area_type'), include('building_type'), include('floor_type'))
+  type: str()
+
+area_type:
+  area:
+    name: str()
+    parent_name: str()
+
+building_type:
+  building:
+    name: str()
+    parent_name: str()
+    address: str()
+    latitude: num()
+    longitude: num()
+    country: str()
+
+floor_type:
+  floor:
+    name: str()
+    parent_name: str()
+    rfModel: str()
+    width: num()
+    length: num()
+    height: num()
