@@ -1,0 +1,7 @@
+---
+design_sites:  
+  - site:
+      area:
+        name: China
+        parent_name: Global
+    type: area
