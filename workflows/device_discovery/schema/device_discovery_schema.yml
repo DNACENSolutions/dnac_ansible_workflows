@@ -1,0 +1,129 @@
+discovery_details:
+  cdp: include('cdp_discovery_type', required=False)
+  single: include('single_discovery_type', required=False)
+  range: include('range_discovery_type', required=False)
+  multi_range: include('multi_range_discovery_type', required=False)
+
+---
+cdp_discovery_type: list(include('cdp_discovery_type_type', min=1, max=100), required=False)
+cdp_discovery_type_type:
+    ip_address_list: list(str(), min=1, max=100)
+    devices_list: list(str())
+    discovery_type: enum('CDP')
+    protocol_order: enum('ssh', 'telnet')
+    discovery_name: str()
+    discovery_specific_credentials: include('discovery_specific_credentials_type', required=False)
+    global_credentials: include('global_credential_details_type', required=False)
+    enable_password_list: list(str(),required=False)
+    retry: int()
+
+single_discovery_type: list(include('single_discovery_type_type', min=1, max=100), required=False)
+single_discovery_type_type:
+    ip_address_list: list(str(), min=1, max=100)
+    devices_list: list(str())
+    discovery_type: enum('SINGLE')
+    protocol_order: enum('ssh', 'telnet')
+    discovery_name: str()
+    discovery_specific_credentials: include('discovery_specific_credentials_type', required=False)
+    global_credentials: include('global_credential_details_type', required=False)
+    net_conf_port: int()
+    enable_password_list: list(str(),required=False)
+    retry: int()
+
+range_discovery_type: list(include('range_discovery_type_type', min=1, max=100), required=False)
+range_discovery_type_type:
+    ip_address_list: list(str(), min=1, max=100)
+    discovery_type: enum('RANGE')
+    protocol_order: enum('ssh', 'telnet')
+    discovery_name: str()
+    discovery_specific_credentials: include('discovery_specific_credentials_type', required=False)
+    global_credentials: include('global_credential_details_type', required=False)
+    net_conf_port: int()
+    enable_password_list: list(str(),required=False)
+    retry: int()
+
+multi_range_discovery_type: list(include('multi_range_discovery_type_type', min=1, max=100), required=False)
+multi_range_discovery_type_type:
+    ip_address_list: list(str(), min=1, max=100)
+    discovery_type: enum('MULTI RANGE')
+    protocol_order: enum('ssh', 'telnet')
+    discovery_name: str()
+    discovery_specific_credentials: include('discovery_specific_credentials_type', required=False)
+    global_credentials: include('global_credential_details_type', required=False)
+    net_conf_port: int()
+    timeout: int()
+    enable_password_list: list(str(),required=False)
+    retry: int()
+
+discovery_specific_credentials_type:
+    cli_credentials_list: list(include('cli_credential_type', min=1, max=100, required=False), required=False)
+    http_read_credential: include('https_read_type', required=False)
+    http_write_credential: include('https_write_type', required=False)
+    snmp_v3_credential: include('snmp_v3_type', required=False)
+    snmp_v2_read_credential: include('snmp_v2c_read_type', required=False)
+    snmp_v2_write_credential: include('snmp_v2c_write_type', required=False)
+    net_conf_port: int(required=False)
+
+cli_credential_type:
+    description: str(required=False)
+    username: str()
+    password: str()
+    enable_password: str()
+snmp_v3_type:
+    description: str(required=False)
+    auth_password: str()
+    auth_type: str()
+    snmp_mode: str()
+    privacy_password: str()
+    privacy_type: str()
+    username: str()
+https_read_type:
+    description: str(required=False)
+    username: str()
+    password: str()
+    port: int(required=False)
+    secure: bool(required=False)
+https_write_type:
+    description: str(required=False)
+    username: str()
+    password: str()
+    port: int(required=False)
+    secure: bool(required=False)
+snmp_v2c_write_type:
+    description: str(required=False)
+    community: str(required=False)
+snmp_v2c_read_type:
+    description: str(required=False)
+    community: str(required=False)
+
+global_credential_details_type:
+    cli_credentials_list: list(include('gl_cli_credential_type', required=False), min=0, max=100, required=False)
+    snmp_v3_credential_list: list(include('gl_snmp_v3_type', required=False), min=0, max=100, required=False)
+    snmp_v2_read_credential_list: list(include('gl_snmp_v2c_read_type', required=False), min=0, max=100, required=False)
+    snmp_v2_write_credential_list: list(include('gl_snmp_v2c_write_type', required=False), min=0, max=100, required=False)
+    http_read_credential_list: list(include('gl_https_read_type', required=False), min=0, max=100, required=False)
+    http_write_credential_list: list(include('gl_https_write_type', required=False), min=0, max=100, required=False)
+    net_conf_port_list: list(include('gl_conf_port_list_type', required=False), min=0, max=100, required=False)
+
+gl_cli_credential_type:
+    description: str(required=False)
+    username: str()
+gl_snmp_v3_type:
+    description: str(required=False)
+    username: str()
+gl_https_read_type:
+    description: str(required=False)
+    username: str()
+gl_https_write_type:
+    description: str(required=False)
+    username: str()
+gl_snmp_v2c_write_type:
+    description: str(required=False)
+    community: str(required=False)
+gl_snmp_v2c_read_type:
+    description: str(required=False)
+    community: str(required=False)
+gl_conf_port_list_type:
+    #This should be only intenger port list not description
+    description: str(required=False)
+
