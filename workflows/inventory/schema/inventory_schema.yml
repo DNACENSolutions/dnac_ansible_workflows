@@ -78,5 +78,4 @@ update_interface_details_type:
 update_mgmt_ipaddresslist_type:
   exist_mgmt_ipaddress: str(required=True)
   new_mgmt_ipaddress: str(required=True)
-
 # end
