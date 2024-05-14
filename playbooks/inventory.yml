@@ -29,19 +29,18 @@
         - ip_address_list:
             - 204.1.2.3
             - 204.1.2.4
-          ipv6Enabled: false
           type: NETWORK_DEVICE
           cli_transport: ssh
-          username: wlcaccess
-          password: Lablab#123
-          enable_password: Cisco#123
+          username: cisco
+          password: Public#123
+          enable_password: Public#123
           snmp_version: v3
-          snmp_username: v3Public
+          snmp_username: cisco
           snmp_mode: AUTHPRIV
           snmp_auth_protocol: SHA
-          snmp_auth_passphrase: Cisco#123456789
+          snmp_auth_passphrase: Public#123456789
           snmp_priv_protocol: AES128
-          snmp_priv_passphrase: Cisco#1234567890
+          snmp_priv_passphrase: Public#1234567890
           snmp_retry: 3
           snmp_timeout: 5
           netconf_port: 830
@@ -54,15 +53,11 @@
         state: merged
         config:
         - ip_address_list:
-            - 204.1.2.11 
-          device_updated: true
-          update_device_role:
-            role: DISTRIBUTION
+            - 204.1.2.3
+          role: ACCESS
         - ip_address_list:
-            - 204.1.2.12
-          device_updated: true
-          update_device_role:
-            role: ACCESS
+            - 204.192.3.40
+          role: CORE
       tags: update_device
 
     - name: Update Interface details
@@ -70,29 +65,16 @@
         <<: *common_config
         state: merged
         config:
-          update_device_interface:
-            - ip_address_list:
-                - 204.1.2.22
-              device_updated: true
-              update_interface_details:
-                description: Deploy in Gi1/0/23
-                admin_status: UP
-                vlan_id: 202
-                voice_vlan_id: 201
-                deployment_mode: Deploy
-                interface_name: ["GigabitEthernet1/0/23"]
-
-            - ip_address_list:
-                - 204.1.2.22
-              device_updated: true
-              update_interface_details:
-                description: Deploy in Gi1/0/22
-                admin_status: DOWN
-                vlan_id: 1
-                voice_vlan_id: 1
-                deployment_mode: Deploy
-                interface_name: ["GigabitEthernet1/0/22"]
-      tags: update_device
+          - ip_address_list:
+              - 204.1.2.3
+            update_interface_details:
+              description: Configured by IaC
+              admin_status: UP
+              vlan_id: 200
+              voice_vlan_id: 201
+              deployment_mode: Deploy
+              interface_name: ["GigabitEthernet1/0/11"]
+      tags: update_interface
 
     - name: Delete device
       cisco.dnac.inventory_workflow_manager:
