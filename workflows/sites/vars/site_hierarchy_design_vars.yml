@@ -17,6 +17,16 @@ design_sites:
     type: area
   - site:
       area:
+        name: New York
+        parent_name: Global/USA
+    type: area
+  - site:
+      area:
+        name: BERKELEY
+        parent_name: Global/USA
+    type: area
+  - site:
+      area:
         name: RTP
         parent_name: Global/USA
     type: area
@@ -263,15 +273,6 @@ design_sites:
       floor:
         name: FLOOR2
         parent_name: Global/USA/SAN-FRANCISCO/BLD_SF1
-        rfModel: Cubes And Walled Offices
-        width: 100.00
-        length: 100.00
-        height: 10.00
-    type: floor
-  - site:
-      floor:
-        name: Floor1
-        parent_name: Global/India/Bangalore/Mantri Square
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00

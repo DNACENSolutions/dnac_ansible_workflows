@@ -53,7 +53,7 @@ Before using these Ansible workflows, ensure that you have the following prerequ
     ```
 3. Install the collection (Galaxy link):
     ```bash
-    ansible-galaxy collection install cisco.dnac:6.11.0 --force
+    ansible-galaxy collection install cisco.dnac --force
     ```
 4.  Create your inventory
     a. Inventory:
