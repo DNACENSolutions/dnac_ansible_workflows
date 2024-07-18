@@ -36,6 +36,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR1
+        floor_number: 1
         parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -45,6 +46,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR2
+        floor_number: 2
         parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -54,6 +56,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR1
+        floor_number: 1
         parent_name: Global/USA/SAN JOSE/BLD20
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -63,6 +66,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR2
+        floor_number: 2
         parent_name: Global/USA/SAN JOSE/BLD20
         rfModel: Cubes And Walled Offices
         width: 100.00
