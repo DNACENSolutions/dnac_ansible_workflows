@@ -9,7 +9,6 @@ full_upload_type:
   import_image_details:
     type: enum('remote', 'local')
     url_details: any(include('url_details_type'))
-
   tagging_details:
     image_name: str()
     device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN')
@@ -17,7 +16,6 @@ full_upload_type:
     device_image_family_name: str()
     site_name: str()
     tagging: bool()
-
   image_distribution_details:
     image_name: str()
     device_hostname: str(required=False)
@@ -29,7 +27,6 @@ full_upload_type:
     #          'Network Management', 'Cisco Interfaces and Modules', 'Wireless Controller', 'Wireless Sensor')
     device_family_name: str(required=False)
     device_serial_number: str(required=False)
-
   image_activation_details:
     activate_lower_image_version: bool(required=False)
     #Sample: ('NFVIS', 'Routers', 'Switches and Hubs', 'Security and VPN', 'Voice and Telephony',
