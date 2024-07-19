@@ -1,0 +1,12 @@
+edgeDetails: any(include('edgeDetails_type'))
+---
+edgeDetails_type:
+  hostName: str()
+  authenticateTemplateName: str()
+  dataIpAddressPoolName: str()
+  deviceManagementIpAddress: str(required=False)
+  interfaceDescription: str(required=False)
+  interfaceName: str()
+  scalableGroupName: str()
+  siteNameHierarchy: str(required=False)
+  voiceIpAddressPoolName: str(required=False)
