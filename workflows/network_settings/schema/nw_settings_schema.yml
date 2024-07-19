@@ -1,0 +1,102 @@
+network_settings:
+  global_ip_pools: list(include('global_pool_details_type'), min=1, max=100, required=False)
+  sub_pools: list(include('reserve_pool_details_type'), min=1, max=100, required=False)
+  network_servers: list(include('network_management_details_type'), min=1, max=100, required=False)
+---
+global_pool_details_type:
+  global_pool_details:
+    settings:
+      ip_pool: list(include('ip_pool_details_type'), min=1, max=100, required=False)
+
+reserve_pool_details_type:
+  reserve_pool_details:
+    ipv4_global_pool: str(required=False)
+    ipv4_global_pool_name: str(required=False)
+    ipv4_dhcp_servers: list(str(), required=False)
+    ipv4_dns_servers: list(str(), required=False)
+    ipv4_prefix: bool(required=False)
+    ipv4_prefix_length: int(required=False)
+    ipv4_subnet: str(required=False)
+    ipv4_gateway: str(required=False)
+    ipv4_total_host: int(required=False)
+    name: str(required=False)
+    site_name: str(required=False)
+    slaac_support: bool(required=False)
+    pool_type: enum('Generic', 'LAN', 'Management', 'Service', 'WAN', required=False)
+    ipv6_address_space: bool(required=False)
+    ipv6_prefix: bool(required=False)
+    ipv6_prefix_length: int(required=False)
+    ipv6_global_pool: str(required=False)
+    ipv6_global_pool_name: str(required=False)
+    ipv6_subnet: str(required=False)
+    ipv6_gateway: str(required=False)
+    ipv6_dhcp_servers: list(str(), required=False)
+    ipv6_dns_servers: list(str(), required=False)
+    ipv6_total_host: int(required=False)
+    prev_name: str(required=False)
+
+
+ip_pool_details_type:
+  name: str(required=False)
+  gateway: str(required=False)
+  ip_address_space: enum('IPv4', 'IPv6', required=False)
+  cidr: str(required=False)
+  pool_type: enum('Generic', 'Tunnel', required=False)
+  dhcp_server_ips: list(str(), min=0, max=100, required=False)
+  dns_server_ips: list(str(), min=0, max=100, required=False)
+  prev_name: str(required=False)
+
+network_management_details_type:
+  network_management_details:
+    settings: include('network_management_settings_type')
+    site_name: str(required=False)
+
+network_management_settings_type:
+  dhcp_server: list(str(), required=False)
+  dns_server: include('dns_server_type', required=False)
+  client_and_endpoint_aaa: include('client_and_endpoint_aaa_type', required=False)
+  message_of_the_day: include('message_of_the_day_type')
+  netflow_collector: include('netflow_collector_type')
+  network_aaa: include('network_aaa_type')
+  ntp_server: list(str(), min=1, max=1, required=False)
+  snmp_server: include('snmp_server_type')
+  syslog_server: include('syslog_server_type')
+  timezone: str(required=False)
+
+dns_server_type:
+  domain_name: str(required=False)
+  primary_ip_address: str(required=False)
+  secondary_ip_address: str(required=False)
+
+client_and_endpoint_aaa_type:
+  shared_secret: str(required=False)
+  pan_address: str(required=False)
+  primary_server_address: str(required=False)
+  secondary_server_address: str(required=False)
+  server_type: enum('AAA', 'ISE', required=False)
+  protocol: enum('RADIUS', 'TACACS', required=False)
+
+
+message_of_the_day_type:
+  banner_message: str(required=False)
+  retain_existing_banner: bool(required=False)
+
+netflow_collector_type:
+  ip_address: str(required=False)
+  port: int(required=False)
+
+network_aaa_type:
+  shared_secret: str(required=False)
+  pan_address: str(required=False)
+  primary_server_address: str(required=False)
+  secondary_server_address: str(required=False)
+  server_type: enum('AAA', 'ISE', required=False)
+  protocol: enum('RADIUS', 'TACACS', required=False)
+
+snmp_server_type:
+  configure_dnac_ip: bool(required=False)
+  ip_addresses: list(str(), required=False)
+
+syslog_server_type:
+  configure_dnac_ip: bool(required=False)
+  ip_addresses: list(str(), min=1, max=100, required=False)

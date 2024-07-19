@@ -45,7 +45,6 @@ swim_details:
         image_name: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
         device_hostname: null
         device_mac_address: null
-        deviceSerialNumber: null
         device_ip_address: null
         device_role: ACCESS
         site_name: Global/USA/SAN JOSE/BLD23
@@ -96,7 +95,6 @@ swim_details:
           site_name: Global/USA/SAN JOSE/BLD23
           tagging: true
       image_distribution_details:
-        image_distribution_details:
         image_name: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
         device_hostname: null
         device_mac_address: null
@@ -104,7 +102,6 @@ swim_details:
         device_role: ACCESS
         site_name: Global/USA/SAN JOSE/BLD23
         device_family_name: Switches and Hubs
-        family: Switches and Hubs
         device_serial_number: null
       image_activation_details:
         activate_lower_image_version: false
