@@ -117,7 +117,7 @@ Example 1: Swim upgrade, this include uploading the images, golden tagging the i
 Example 2: Create Sites, buildings floors using playbook : workflows/sites/playbook/site_hierarchy_playbook.yml
     
 ```bash
- ansible-playbook -i ./inventory_dnaccluster ./workflows/sites/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILES_PATH=./../vars/site_hierarchy_design_vars_.yml
+ ansible-playbook -i ./inventory_dnaccluster ./workflows/sites/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/site_hierarchy_design_vars_.yml
 ```
     
 Feel free to explore the playbooks/ directory for more examples and use cases.

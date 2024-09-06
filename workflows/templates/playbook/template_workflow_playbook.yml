@@ -1,0 +1,46 @@
+---
+- name: This playbook manages creating and updating the templates projects and templates on Cisco Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log_level: "{{dnac_log_level}}"
+      dnac_log: "{{dnac_log}}"
+  tasks:
+    - name: Templates Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+
+    #Import an image from a URL
+    cisco.dnac.template_workflow_manager:
+      <<: *dnac_login
+      config: {{ template_details }}
+      state: merged
+      when: template_details is defined
+
+    - name: Templates playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+
+    - name: Print Templates Playbook execution time
+      debug:
+        msg: "Templates playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
