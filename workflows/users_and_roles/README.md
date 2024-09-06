@@ -4,7 +4,7 @@ This workflow playbook is supported from Catalyst Center Release version 2.3.7.6
 
 user_details  defines the login, password, and role (permissions) of a user.
 
-roledetails defines the accesss destails for the role.
+role_details defines the accesss destails for the role.
 
 To define the details you can refer the full workflow specification: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/user_role_workflow_manager/
 
