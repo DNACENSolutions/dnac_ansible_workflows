@@ -1,0 +1,27 @@
+  template_details: list(include('configuration_templates_type'), min=0, max=100, required=False) 
+---
+configuration_templates_type:
+  configuration_templates:
+    author: str(required=False)
+    composite: bool(required=False)
+    custom_params_order: bool(required=False)
+    description: str(required=True)
+    device_types: list(include('device_types_type'), min=0, max=100, required=False)
+    failure_policy: enum('ABORT_TARGET_ON_ERROR',required=False)
+    id: (required=False)
+    language: enum('VELOCITY', 'JINJA', required=True)
+    name: str(required=True)
+    project_name: str(required=True)
+    project_description: str(required=False)
+    software_type: enum('IOS', 'IOS-XE', 'IOS-XR', 'NX-OS', 'Cisco Controller', 'Wide Area Application Services', 'Adaptive Security Appliance', 'NFV-OS', 'Others', required=False)
+    software_version: str(required=False)
+    tags: list(include('tags_type'), min=0, max=100, required=False)
+    template_content: str(required=True)
+    version: str(required=False)
+tags_type:
+    id: str(required=False)
+    name: str(required=True)
+device_types_type:
+  product_family: enum('Cisco Cloud Services Platform', 'Cisco Interfaces and Modules', 'Content Networking', 'Network Management', 'NFV-ThirdParty Devices', 'NFVIS', 'Routers', 'Security and VPN', 'Storage Networking', 'Switches and Hubs', 'Voice and Telephony', 'Wireless Controller', required=False)
+  product_series: str(required=False)
+  product_type: str(required=False)
