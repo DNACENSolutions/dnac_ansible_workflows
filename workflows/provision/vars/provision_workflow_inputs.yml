@@ -1,0 +1,19 @@
+---
+provision_details:
+# Define the devices for assigning devices on sites and provisioning
+#Wireless controller provisioning
+  - site_name_hierarchy: Global/USA/SAN JOSE/BLD23
+    management_ip_address: 204.192.4.2
+    managed_ap_locations:
+      - Global/USA/SAN JOSE/BLD23
+      - Global/USA/SAN JOSE/BLD20
+  #Switches and Hubs provisioning
+  - site_name_hierarchy: Global/USA/SAN JOSE/BLD23
+    management_ip_address: 204.1.2.1
+  # Assigned the devices to the sites without provioning
+  - site_name_hierarchy: Global/USA/New York/BLDNYC
+    management_ip_address: 204.1.2.2
+    provisioning: False
+  #Switches and Hubs provisioning
+  - site_name_hierarchy: Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1
+    management_ip_address: 204.1.2.4
