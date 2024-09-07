@@ -92,7 +92,7 @@ TASK [Network Compliance devices on Cisco Catalyst Center] *********************
 task path: /Users/pawansi/dnac_ansible_workflows/workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml:26
 ok: [catalyst_center220] => {
     "ansible_facts": {
-        "long_op_start": "2024-09-06 22:22:18.229560"
+        "long_op_start": "2024-09-06 22:48:39.695965"
     },
     "changed": false
 }
@@ -102,22 +102,244 @@ TASK [Network Compliance devices on Cisco Catalyst Center] *********************
 task path: /Users/pawansi/dnac_ansible_workflows/workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml:29
 <catalyst_center220> ESTABLISH LOCAL CONNECTION FOR USER: pawansi
 <catalyst_center220> EXEC /bin/sh -c 'echo ~pawansi && sleep 0'
-<catalyst_center220> EXEC /bin/sh -c '( umask 77 && mkdir -p "` echo /Users/pawansi/.ansible/tmp `"&& mkdir "` echo /Users/pawansi/.ansible/tmp/ansible-tmp-1725686538.312991-77255-136033103198596 `" && echo ansible-tmp-1725686538.312991-77255-136033103198596="` echo /Users/pawansi/.ansible/tmp/ansible-tmp-1725686538.312991-77255-136033103198596 `" ) && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c '( umask 77 && mkdir -p "` echo /Users/pawansi/.ansible/tmp `"&& mkdir "` echo /Users/pawansi/.ansible/tmp/ansible-tmp-1725688119.775716-79455-122732002162610 `" && echo ansible-tmp-1725688119.775716-79455-122732002162610="` echo /Users/pawansi/.ansible/tmp/ansible-tmp-1725688119.775716-79455-122732002162610 `" ) && sleep 0'
 <catalyst_center220> Attempting python interpreter discovery
 <catalyst_center220> EXEC /bin/sh -c 'echo PLATFORM; uname; echo FOUND; command -v '"'"'python3.11'"'"'; command -v '"'"'python3.10'"'"'; command -v '"'"'python3.9'"'"'; command -v '"'"'python3.8'"'"'; command -v '"'"'python3.7'"'"'; command -v '"'"'python3.6'"'"'; command -v '"'"'python3.5'"'"'; command -v '"'"'/usr/bin/python3'"'"'; command -v '"'"'/usr/libexec/platform-python'"'"'; command -v '"'"'python2.7'"'"'; command -v '"'"'/usr/bin/python'"'"'; command -v '"'"'python'"'"'; echo ENDFOUND && sleep 0'
 <catalyst_center220> Python interpreter discovery fallback (unsupported platform for extended discovery: darwin)
 Using module file /Users/pawansi/.ansible/collections/ansible_collections/cisco/dnac/plugins/modules/network_compliance_workflow_manager.py
-<catalyst_center220> PUT /Users/pawansi/.ansible/tmp/ansible-local-77251po1mpkhx/tmpsuycx0i1 TO /Users/pawansi/.ansible/tmp/ansible-tmp-1725686538.312991-77255-136033103198596/AnsiballZ_network_compliance_workflow_manager.py
-<catalyst_center220> EXEC /bin/sh -c 'chmod u+x /Users/pawansi/.ansible/tmp/ansible-tmp-1725686538.312991-77255-136033103198596/ /Users/pawansi/.ansible/tmp/ansible-tmp-1725686538.312991-77255-136033103198596/AnsiballZ_network_compliance_workflow_manager.py && sleep 0'
-<catalyst_center220> EXEC /bin/sh -c '/Users/pawansi/workspace/dnac_auto/pyats/bin/python3.11 /Users/pawansi/.ansible/tmp/ansible-tmp-1725686538.312991-77255-136033103198596/AnsiballZ_network_compliance_workflow_manager.py && sleep 0'
-<catalyst_center220> EXEC /bin/sh -c 'rm -f -r /Users/pawansi/.ansible/tmp/ansible-tmp-1725686538.312991-77255-136033103198596/ > /dev/null 2>&1 && sleep 0'
+<catalyst_center220> PUT /Users/pawansi/.ansible/tmp/ansible-local-79449tduyx5w8/tmp8tjct_x3 TO /Users/pawansi/.ansible/tmp/ansible-tmp-1725688119.775716-79455-122732002162610/AnsiballZ_network_compliance_workflow_manager.py
+<catalyst_center220> EXEC /bin/sh -c 'chmod u+x /Users/pawansi/.ansible/tmp/ansible-tmp-1725688119.775716-79455-122732002162610/ /Users/pawansi/.ansible/tmp/ansible-tmp-1725688119.775716-79455-122732002162610/AnsiballZ_network_compliance_workflow_manager.py && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c '/Users/pawansi/workspace/dnac_auto/pyats/bin/python3.11 /Users/pawansi/.ansible/tmp/ansible-tmp-1725688119.775716-79455-122732002162610/AnsiballZ_network_compliance_workflow_manager.py && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c 'rm -f -r /Users/pawansi/.ansible/tmp/ansible-tmp-1725688119.775716-79455-122732002162610/ > /dev/null 2>&1 && sleep 0'
 [WARNING]: Platform darwin on host catalyst_center220 is using the discovered Python interpreter at /Users/pawansi/workspace/dnac_auto/pyats/bin/python3.11, but future installation of another Python interpreter could change the meaning of that
 path. See https://docs.ansible.com/ansible-core/2.15/reference_appendices/interpreter_discovery.html for more information.
-ok: [catalyst_center220] => {
+changed: [catalyst_center220] => {
     "ansible_facts": {
         "discovered_interpreter_python": "/Users/pawansi/workspace/dnac_auto/pyats/bin/python3.11"
     },
-    "changed": false,
+    "changed": true,
+    "data": {
+        "204.1.2.1": [
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "complianceType": "RUNNING_CONFIG",
+                "deviceUuid": "a2038454-9581-4ce1-a1b7-c3754061b69e",
+                "lastSyncTime": 1725687776235,
+                "lastUpdateTime": 1725688125876,
+                "remediationSupported": true,
+                "sourceInfoList": [
+                    {
+                        "ackStatus": "UNACKNOWLEDGED",
+                        "appName": "RUNNING_CONFIG",
+                        "count": 1,
+                        "diffList": [
+                            {
+                                "ackStatus": "UNACKNOWLEDGED",
+                                "businessKey": null,
+                                "configuredValue": "cf89c4c8-3fbc-4be0-a174-605f41f3d871",
+                                "diffModelName": null,
+                                "displayName": "76137062",
+                                "extendedAttributes": {},
+                                "hierarchy": null,
+                                "instanceUUID": "37c14b42-9ef2-42bf-bc51-0435deb092bb",
+                                "intendedValue": "bd24529a-d4db-441e-ad8e-d870a66e0d2d",
+                                "moveFromPath": null,
+                                "op": "replace",
+                                "path": "NA"
+                            }
+                        ],
+                        "name": "ConfigVesion",
+                        "sourceEnum": "RUNNING_CONFIG",
+                        "type": "RUNNING_CONFIG"
+                    }
+                ],
+                "state": "SUCCESS",
+                "status": "NON_COMPLIANT"
+            },
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "additionalDataURL": "/api/v2/device-image/device?id=a2038454-9581-4ce1-a1b7-c3754061b69e",
+                "complianceType": "IMAGE",
+                "deviceUuid": "a2038454-9581-4ce1-a1b7-c3754061b69e",
+                "lastSyncTime": 1725084338541,
+                "lastUpdateTime": 1725688125903,
+                "message": "Golden image is not available",
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "NOT_APPLICABLE"
+            },
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "complianceType": "PSIRT",
+                "deviceUuid": "a2038454-9581-4ce1-a1b7-c3754061b69e",
+                "lastSyncTime": 1725084335040,
+                "lastUpdateTime": 1725688126277,
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "COMPLIANT"
+            }
+        ],
+        "204.1.2.2": [
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "complianceType": "RUNNING_CONFIG",
+                "deviceUuid": "0ee91efd-019d-4ce8-8c42-57dfdcf17b9d",
+                "lastSyncTime": 1725084352522,
+                "lastUpdateTime": 1725688125876,
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "COMPLIANT"
+            },
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "additionalDataURL": "/api/v2/device-image/device?id=0ee91efd-019d-4ce8-8c42-57dfdcf17b9d",
+                "complianceType": "IMAGE",
+                "deviceUuid": "0ee91efd-019d-4ce8-8c42-57dfdcf17b9d",
+                "lastSyncTime": 1725084358562,
+                "lastUpdateTime": 1725688125900,
+                "message": "Golden image is not available",
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "NOT_APPLICABLE"
+            },
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "complianceType": "PSIRT",
+                "deviceUuid": "0ee91efd-019d-4ce8-8c42-57dfdcf17b9d",
+                "lastSyncTime": 1725084350319,
+                "lastUpdateTime": 1725688126278,
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "COMPLIANT"
+            }
+        ],
+        "204.1.2.3": [
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "complianceType": "RUNNING_CONFIG",
+                "deviceUuid": "38c65987-3d6b-4e60-a020-61836c1f0df8",
+                "lastSyncTime": 1725084338109,
+                "lastUpdateTime": 1725688125800,
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "COMPLIANT"
+            },
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "additionalDataURL": "/api/v2/device-image/device?id=38c65987-3d6b-4e60-a020-61836c1f0df8",
+                "complianceType": "IMAGE",
+                "deviceUuid": "38c65987-3d6b-4e60-a020-61836c1f0df8",
+                "lastSyncTime": 1725084338503,
+                "lastUpdateTime": 1725688125834,
+                "message": "Golden image is not available",
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "NOT_APPLICABLE"
+            },
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "complianceType": "PSIRT",
+                "deviceUuid": "38c65987-3d6b-4e60-a020-61836c1f0df8",
+                "lastSyncTime": 1725084334726,
+                "lastUpdateTime": 1725688125977,
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "COMPLIANT"
+            }
+        ],
+        "204.1.2.4": [
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "complianceType": "RUNNING_CONFIG",
+                "deviceUuid": "84e967a0-2149-464c-88fe-98526cb47b59",
+                "lastSyncTime": 1725084349447,
+                "lastUpdateTime": 1725688125876,
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "COMPLIANT"
+            },
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "additionalDataURL": "/api/v2/device-image/device?id=84e967a0-2149-464c-88fe-98526cb47b59",
+                "complianceType": "IMAGE",
+                "deviceUuid": "84e967a0-2149-464c-88fe-98526cb47b59",
+                "lastSyncTime": 1725084348559,
+                "lastUpdateTime": 1725688125900,
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "COMPLIANT"
+            },
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "complianceType": "PSIRT",
+                "deviceUuid": "84e967a0-2149-464c-88fe-98526cb47b59",
+                "lastSyncTime": 1725084347265,
+                "lastUpdateTime": 1725688126181,
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "COMPLIANT"
+            }
+        ],
+        "204.192.4.2": [
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "complianceType": "NETWORK_PROFILE",
+                "deviceUuid": "69f4d234-ef93-4bb4-94a0-8dd3767b3e99",
+                "lastSyncTime": 1725687007162,
+                "lastUpdateTime": 1725688142768,
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "COMPLIANT"
+            },
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "complianceType": "RUNNING_CONFIG",
+                "deviceUuid": "69f4d234-ef93-4bb4-94a0-8dd3767b3e99",
+                "lastSyncTime": 1725084215347,
+                "lastUpdateTime": 1725688125849,
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "NOT_APPLICABLE"
+            },
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "additionalDataURL": "/api/v2/device-image/device?id=69f4d234-ef93-4bb4-94a0-8dd3767b3e99",
+                "complianceType": "IMAGE",
+                "deviceUuid": "69f4d234-ef93-4bb4-94a0-8dd3767b3e99",
+                "lastSyncTime": 1725084198387,
+                "lastUpdateTime": 1725688125891,
+                "message": "Golden image is not available",
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "NOT_APPLICABLE"
+            },
+            {
+                "ackStatus": "UNACKNOWLEDGED",
+                "complianceType": "PSIRT",
+                "deviceUuid": "69f4d234-ef93-4bb4-94a0-8dd3767b3e99",
+                "lastSyncTime": 1725084194679,
+                "lastUpdateTime": 1725688126174,
+                "remediationSupported": false,
+                "sourceInfoList": [],
+                "state": "SUCCESS",
+                "status": "COMPLIANT"
+            }
+        ]
+    },
     "diff": [],
     "invocation": {
         "module_args": {
@@ -126,7 +348,10 @@ ok: [catalyst_center220] => {
                     "ip_address_list": [
                         "204.1.2.2",
                         "204.1.2.1",
-                        "204.1.2.4"
+                        "204.1.2.3",
+                        "204.1.2.4",
+                        "204.192.4.2",
+                        "204.1.2.10"
                     ],
                     "run_compliance": true,
                     "run_compliance_categories": [
@@ -157,9 +382,12 @@ ok: [catalyst_center220] => {
             "validate_response_schema": true
         }
     },
-    "msg": "Device(s) with IP address(es): 204.192.4.2, 204.1.2.1, 204.1.2.4, 204.1.2.2 are already compliant with the RUNNING_CONFIG compliance type. Therefore, the task 'Sync Device Configuration' is not required.",
-    "response": [],
-    "status": "ok"
+    "msg": "Sync Device Configuration has completed successfully on 1 device(s): 204.1.2.1",
+    "response": {
+        "taskId": "0191cb07-d687-7389-92e7-0d371c78dda7",
+        "url": "/api/v1/task/0191cb07-d687-7389-92e7-0d371c78dda7"
+    },
+    "status": "success"
 }
 Read vars_file '{{ VARS_FILE_PATH }}'
 
@@ -170,12 +398,237 @@ ok: [catalyst_center220] => {
         "ansible_facts": {
             "discovered_interpreter_python": "/Users/pawansi/workspace/dnac_auto/pyats/bin/python3.11"
         },
-        "changed": false,
+        "changed": true,
+        "data": {
+            "204.1.2.1": [
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "complianceType": "RUNNING_CONFIG",
+                    "deviceUuid": "a2038454-9581-4ce1-a1b7-c3754061b69e",
+                    "lastSyncTime": 1725687776235,
+                    "lastUpdateTime": 1725688125876,
+                    "remediationSupported": true,
+                    "sourceInfoList": [
+                        {
+                            "ackStatus": "UNACKNOWLEDGED",
+                            "appName": "RUNNING_CONFIG",
+                            "count": 1,
+                            "diffList": [
+                                {
+                                    "ackStatus": "UNACKNOWLEDGED",
+                                    "businessKey": null,
+                                    "configuredValue": "cf89c4c8-3fbc-4be0-a174-605f41f3d871",
+                                    "diffModelName": null,
+                                    "displayName": "76137062",
+                                    "extendedAttributes": {},
+                                    "hierarchy": null,
+                                    "instanceUUID": "37c14b42-9ef2-42bf-bc51-0435deb092bb",
+                                    "intendedValue": "bd24529a-d4db-441e-ad8e-d870a66e0d2d",
+                                    "moveFromPath": null,
+                                    "op": "replace",
+                                    "path": "NA"
+                                }
+                            ],
+                            "name": "ConfigVesion",
+                            "sourceEnum": "RUNNING_CONFIG",
+                            "type": "RUNNING_CONFIG"
+                        }
+                    ],
+                    "state": "SUCCESS",
+                    "status": "NON_COMPLIANT"
+                },
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "additionalDataURL": "/api/v2/device-image/device?id=a2038454-9581-4ce1-a1b7-c3754061b69e",
+                    "complianceType": "IMAGE",
+                    "deviceUuid": "a2038454-9581-4ce1-a1b7-c3754061b69e",
+                    "lastSyncTime": 1725084338541,
+                    "lastUpdateTime": 1725688125903,
+                    "message": "Golden image is not available",
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "NOT_APPLICABLE"
+                },
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "complianceType": "PSIRT",
+                    "deviceUuid": "a2038454-9581-4ce1-a1b7-c3754061b69e",
+                    "lastSyncTime": 1725084335040,
+                    "lastUpdateTime": 1725688126277,
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "COMPLIANT"
+                }
+            ],
+            "204.1.2.2": [
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "complianceType": "RUNNING_CONFIG",
+                    "deviceUuid": "0ee91efd-019d-4ce8-8c42-57dfdcf17b9d",
+                    "lastSyncTime": 1725084352522,
+                    "lastUpdateTime": 1725688125876,
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "COMPLIANT"
+                },
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "additionalDataURL": "/api/v2/device-image/device?id=0ee91efd-019d-4ce8-8c42-57dfdcf17b9d",
+                    "complianceType": "IMAGE",
+                    "deviceUuid": "0ee91efd-019d-4ce8-8c42-57dfdcf17b9d",
+                    "lastSyncTime": 1725084358562,
+                    "lastUpdateTime": 1725688125900,
+                    "message": "Golden image is not available",
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "NOT_APPLICABLE"
+                },
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "complianceType": "PSIRT",
+                    "deviceUuid": "0ee91efd-019d-4ce8-8c42-57dfdcf17b9d",
+                    "lastSyncTime": 1725084350319,
+                    "lastUpdateTime": 1725688126278,
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "COMPLIANT"
+                }
+            ],
+            "204.1.2.3": [
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "complianceType": "RUNNING_CONFIG",
+                    "deviceUuid": "38c65987-3d6b-4e60-a020-61836c1f0df8",
+                    "lastSyncTime": 1725084338109,
+                    "lastUpdateTime": 1725688125800,
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "COMPLIANT"
+                },
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "additionalDataURL": "/api/v2/device-image/device?id=38c65987-3d6b-4e60-a020-61836c1f0df8",
+                    "complianceType": "IMAGE",
+                    "deviceUuid": "38c65987-3d6b-4e60-a020-61836c1f0df8",
+                    "lastSyncTime": 1725084338503,
+                    "lastUpdateTime": 1725688125834,
+                    "message": "Golden image is not available",
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "NOT_APPLICABLE"
+                },
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "complianceType": "PSIRT",
+                    "deviceUuid": "38c65987-3d6b-4e60-a020-61836c1f0df8",
+                    "lastSyncTime": 1725084334726,
+                    "lastUpdateTime": 1725688125977,
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "COMPLIANT"
+                }
+            ],
+            "204.1.2.4": [
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "complianceType": "RUNNING_CONFIG",
+                    "deviceUuid": "84e967a0-2149-464c-88fe-98526cb47b59",
+                    "lastSyncTime": 1725084349447,
+                    "lastUpdateTime": 1725688125876,
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "COMPLIANT"
+                },
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "additionalDataURL": "/api/v2/device-image/device?id=84e967a0-2149-464c-88fe-98526cb47b59",
+                    "complianceType": "IMAGE",
+                    "deviceUuid": "84e967a0-2149-464c-88fe-98526cb47b59",
+                    "lastSyncTime": 1725084348559,
+                    "lastUpdateTime": 1725688125900,
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "COMPLIANT"
+                },
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "complianceType": "PSIRT",
+                    "deviceUuid": "84e967a0-2149-464c-88fe-98526cb47b59",
+                    "lastSyncTime": 1725084347265,
+                    "lastUpdateTime": 1725688126181,
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "COMPLIANT"
+                }
+            ],
+            "204.192.4.2": [
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "complianceType": "NETWORK_PROFILE",
+                    "deviceUuid": "69f4d234-ef93-4bb4-94a0-8dd3767b3e99",
+                    "lastSyncTime": 1725687007162,
+                    "lastUpdateTime": 1725688142768,
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "COMPLIANT"
+                },
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "complianceType": "RUNNING_CONFIG",
+                    "deviceUuid": "69f4d234-ef93-4bb4-94a0-8dd3767b3e99",
+                    "lastSyncTime": 1725084215347,
+                    "lastUpdateTime": 1725688125849,
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "NOT_APPLICABLE"
+                },
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "additionalDataURL": "/api/v2/device-image/device?id=69f4d234-ef93-4bb4-94a0-8dd3767b3e99",
+                    "complianceType": "IMAGE",
+                    "deviceUuid": "69f4d234-ef93-4bb4-94a0-8dd3767b3e99",
+                    "lastSyncTime": 1725084198387,
+                    "lastUpdateTime": 1725688125891,
+                    "message": "Golden image is not available",
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "NOT_APPLICABLE"
+                },
+                {
+                    "ackStatus": "UNACKNOWLEDGED",
+                    "complianceType": "PSIRT",
+                    "deviceUuid": "69f4d234-ef93-4bb4-94a0-8dd3767b3e99",
+                    "lastSyncTime": 1725084194679,
+                    "lastUpdateTime": 1725688126174,
+                    "remediationSupported": false,
+                    "sourceInfoList": [],
+                    "state": "SUCCESS",
+                    "status": "COMPLIANT"
+                }
+            ]
+        },
         "diff": [],
         "failed": false,
-        "msg": "Device(s) with IP address(es): 204.192.4.2, 204.1.2.1, 204.1.2.4, 204.1.2.2 are already compliant with the RUNNING_CONFIG compliance type. Therefore, the task 'Sync Device Configuration' is not required.",
-        "response": [],
-        "status": "ok",
+        "msg": "Sync Device Configuration has completed successfully on 1 device(s): 204.1.2.1",
+        "response": {
+            "taskId": "0191cb07-d687-7389-92e7-0d371c78dda7",
+            "url": "/api/v1/task/0191cb07-d687-7389-92e7-0d371c78dda7"
+        },
+        "status": "success",
         "warnings": [
             "Platform darwin on host catalyst_center220 is using the discovered Python interpreter at /Users/pawansi/workspace/dnac_auto/pyats/bin/python3.11, but future installation of another Python interpreter could change the meaning of that path. See https://docs.ansible.com/ansible-core/2.15/reference_appendices/interpreter_discovery.html for more information."
         ]
@@ -187,7 +640,7 @@ TASK [Network Compliance devices playbook end time] ****************************
 task path: /Users/pawansi/dnac_ansible_workflows/workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml:38
 ok: [catalyst_center220] => {
     "ansible_facts": {
-        "long_op_end": "2024-09-06 22:22:26.036856"
+        "long_op_end": "2024-09-06 22:49:44.336194"
     },
     "changed": false
 }
@@ -196,7 +649,7 @@ Read vars_file '{{ VARS_FILE_PATH }}'
 TASK [Print Network Compliance devices playbook execution time] *****************************************************************************************************************************************************************************************
 task path: /Users/pawansi/dnac_ansible_workflows/workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml:41
 ok: [catalyst_center220] => {
-    "msg": "Network Compliance devices playbook run time: 2024-09-06 22:22:18.229560, end: 2024-09-06 22:22:26.036856"
+    "msg": "Network Compliance devices playbook run time: 2024-09-06 22:48:39.695965, end: 2024-09-06 22:49:44.336194"
 }
 Read vars_file '{{ VARS_FILE_PATH }}'
 Read vars_file '{{ VARS_FILE_PATH }}'
@@ -207,23 +660,23 @@ task path: /Users/pawansi/dnac_ansible_workflows/workflows/network_compliance/pl
 Read vars_file '{{ VARS_FILE_PATH }}'
 <catalyst_center_hosts> ESTABLISH LOCAL CONNECTION FOR USER: pawansi
 <catalyst_center_hosts> EXEC /bin/sh -c 'echo ~pawansi && sleep 0'
-<catalyst_center_hosts> EXEC /bin/sh -c '( umask 77 && mkdir -p "` echo /Users/pawansi/.ansible/tmp `"&& mkdir "` echo /Users/pawansi/.ansible/tmp/ansible-tmp-1725686546.153583-77282-13787995213969 `" && echo ansible-tmp-1725686546.153583-77282-13787995213969="` echo /Users/pawansi/.ansible/tmp/ansible-tmp-1725686546.153583-77282-13787995213969 `" ) && sleep 0'
+<catalyst_center_hosts> EXEC /bin/sh -c '( umask 77 && mkdir -p "` echo /Users/pawansi/.ansible/tmp `"&& mkdir "` echo /Users/pawansi/.ansible/tmp/ansible-tmp-1725688184.457744-79572-204480087596265 `" && echo ansible-tmp-1725688184.457744-79572-204480087596265="` echo /Users/pawansi/.ansible/tmp/ansible-tmp-1725688184.457744-79572-204480087596265 `" ) && sleep 0'
 <catalyst_center220> Attempting python interpreter discovery
 <catalyst_center_hosts> EXEC /bin/sh -c 'echo PLATFORM; uname; echo FOUND; command -v '"'"'python3.11'"'"'; command -v '"'"'python3.10'"'"'; command -v '"'"'python3.9'"'"'; command -v '"'"'python3.8'"'"'; command -v '"'"'python3.7'"'"'; command -v '"'"'python3.6'"'"'; command -v '"'"'python3.5'"'"'; command -v '"'"'/usr/bin/python3'"'"'; command -v '"'"'/usr/libexec/platform-python'"'"'; command -v '"'"'python2.7'"'"'; command -v '"'"'/usr/bin/python'"'"'; command -v '"'"'python'"'"'; echo ENDFOUND && sleep 0'
 <catalyst_center220> Python interpreter discovery fallback (unsupported platform for extended discovery: darwin)
 Using module file /Users/pawansi/workspace/dnac_auto/pyats/lib/python3.11/site-packages/ansible/modules/command.py
-<catalyst_center_hosts> PUT /Users/pawansi/.ansible/tmp/ansible-local-77251po1mpkhx/tmpsn3ed7wm TO /Users/pawansi/.ansible/tmp/ansible-tmp-1725686546.153583-77282-13787995213969/AnsiballZ_command.py
-<catalyst_center_hosts> EXEC /bin/sh -c 'chmod u+x /Users/pawansi/.ansible/tmp/ansible-tmp-1725686546.153583-77282-13787995213969/ /Users/pawansi/.ansible/tmp/ansible-tmp-1725686546.153583-77282-13787995213969/AnsiballZ_command.py && sleep 0'
-<catalyst_center_hosts> EXEC /bin/sh -c '/Users/pawansi/workspace/dnac_auto/pyats/bin/python3.11 /Users/pawansi/.ansible/tmp/ansible-tmp-1725686546.153583-77282-13787995213969/AnsiballZ_command.py && sleep 0'
-<catalyst_center_hosts> EXEC /bin/sh -c 'rm -f -r /Users/pawansi/.ansible/tmp/ansible-tmp-1725686546.153583-77282-13787995213969/ > /dev/null 2>&1 && sleep 0'
+<catalyst_center_hosts> PUT /Users/pawansi/.ansible/tmp/ansible-local-79449tduyx5w8/tmpf6o6u95m TO /Users/pawansi/.ansible/tmp/ansible-tmp-1725688184.457744-79572-204480087596265/AnsiballZ_command.py
+<catalyst_center_hosts> EXEC /bin/sh -c 'chmod u+x /Users/pawansi/.ansible/tmp/ansible-tmp-1725688184.457744-79572-204480087596265/ /Users/pawansi/.ansible/tmp/ansible-tmp-1725688184.457744-79572-204480087596265/AnsiballZ_command.py && sleep 0'
+<catalyst_center_hosts> EXEC /bin/sh -c '/Users/pawansi/workspace/dnac_auto/pyats/bin/python3.11 /Users/pawansi/.ansible/tmp/ansible-tmp-1725688184.457744-79572-204480087596265/AnsiballZ_command.py && sleep 0'
+<catalyst_center_hosts> EXEC /bin/sh -c 'rm -f -r /Users/pawansi/.ansible/tmp/ansible-tmp-1725688184.457744-79572-204480087596265/ > /dev/null 2>&1 && sleep 0'
 changed: [catalyst_center220 -> catalyst_center_hosts] => {
     "changed": true,
     "cmd": [
         "which",
         "python"
     ],
-    "delta": "0:00:00.010597",
-    "end": "2024-09-06 22:22:26.739389",
+    "delta": "0:00:00.007466",
+    "end": "2024-09-06 22:49:44.999933",
     "invocation": {
         "module_args": {
             "_raw_params": "which python",
@@ -240,7 +693,7 @@ changed: [catalyst_center220 -> catalyst_center_hosts] => {
     },
     "msg": "",
     "rc": 0,
-    "start": "2024-09-06 22:22:26.728792",
+    "start": "2024-09-06 22:49:44.992467",
     "stderr": "",
     "stderr_lines": [],
     "stdout": "/Users/pawansi/workspace/dnac_auto/pyats/bin/python",
@@ -252,6 +705,5 @@ Read vars_file '{{ VARS_FILE_PATH }}'
 Read vars_file '{{ VARS_FILE_PATH }}'
 
 PLAY RECAP **********************************************************************************************************************************************************************************************************************************************
-catalyst_center220         : ok=6    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-
+catalyst_center220         : ok=6    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 ```
