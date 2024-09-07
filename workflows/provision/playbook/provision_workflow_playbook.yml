@@ -28,7 +28,7 @@
       set_fact:
         long_op_start: "{{ now() }}"
     - name: Provision devices on Cisco Catalyst Center
-      cisco.dnac.user_role_workflow_manager:
+      cisco.dnac.provision_workflow_manager:
         <<: *dnac_login
         state: merged
         #config: "{{provision_details}}"
