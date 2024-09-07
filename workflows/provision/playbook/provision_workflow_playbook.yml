@@ -31,7 +31,6 @@
       cisco.dnac.provision_workflow_manager:
         <<: *dnac_login
         state: merged
-        #config: "{{provision_details}}"
         config: "{{provision_details}}"
       register: provision_output
     - name: Print the Provision devices output
