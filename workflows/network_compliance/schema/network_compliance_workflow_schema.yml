@@ -159,11 +159,10 @@ network_compliance_details: list(include('network_compliance_details_type'), min
 
 ---
 network_compliance_details_type:
-  ip_address_list: list(str(), required=False,min=0, max=1000, required=False)
+  ip_address_list: list(str, required=False)
   run_compliance: bool(required=False)
   run_compliance_batch_size: int(required=False)
-  #['INTENT', 'RUNNING_CONFIG', 'IMAGE', 'PSIRT', 'EOX', 'NETWORK_SETTINGS']
-  run_compliance_categories: list(str(), include(['INTENT', 'RUNNING_CONFIG', 'IMAGE', 'PSIRT', 'EOX', 'NETWORK_SETTINGS']),min=0, max=1000, required=False)
+  run_compliance_categories: list(str, required=False)
   site_name: str(required=False)
   sync_device_config: bool(required=False)
 
