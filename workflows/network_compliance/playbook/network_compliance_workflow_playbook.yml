@@ -32,6 +32,7 @@
         state: merged
         config: "{{network_compliance_details}}"
       register: network_compliance_output
+      when: network_compliance_details is defined
     - name: Print the Network Compliance devices output
       debug:
         msg: "{{network_compliance_output}}"

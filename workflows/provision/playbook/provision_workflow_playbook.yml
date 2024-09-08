@@ -33,6 +33,7 @@
         state: merged
         config: "{{provision_details}}"
       register: provision_output
+      when: provision_details is defined
     - name: Print the Provision devices output
       debug:
         msg: "{{provision_output}}"
