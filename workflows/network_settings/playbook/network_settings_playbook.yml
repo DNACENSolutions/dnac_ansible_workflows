@@ -19,42 +19,36 @@
       dnac_port: "{{ dnac_port }}"
       dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
       dnac_debug: "{{ dnac_debug }}"
-    # For using APIs directly in the playbook
-    state: merged
-    dnac_url: "https://{{ dnac_host }}:443"
-    credentials: "{{ dnac_username}}:{{dnac_password }}"
-    authentication: "Basic {{ credentials | b64encode }}"
   tasks:
     - name: Start timer for calculating the total run time of the playbook
       set_fact:
         long_op_start: "{{ now() }}"
-    #Create Global Pools 
-    - name: Create Global IP Pools
+    #Create Global Pools, and Network Settings etc 
+    - name: Create/Update Global Pools, Subpools and Network Settings etc 
       cisco.dnac.network_settings_workflow_manager:
         <<: *dnac_login
-        state: "{{state}}"
-        config: "{{ network_settings.global_ip_pools }}"
-      when: network_settings.global_ip_pools is defined
-      tags: globalpool
+        state: merged
+        config: "{{ network_settings_details }}"
+      when: network_settings_details is defined
 
-    #Create reserv subpools
-    - name: Reserve Subpools on sites
-      cisco.dnac.network_settings_workflow_manager:
-        <<: *dnac_login
-        state: "{{state}}"
-        config: 
-          "{{ network_settings.sub_pools }}"
-      when: network_settings.sub_pools is defined
-      tags: subpools
+    # #Create reserv subpools
+    # - name: Reserve Subpools on sites
+    #   cisco.dnac.network_settings_workflow_manager:
+    #     <<: *dnac_login
+    #     state: "{{state}}"
+    #     config: 
+    #       "{{ network_settings_details.sub_pools }}"
+    #   when: network_settings_details.sub_pools is defined
+    #   tags: subpools
 
-    #Update Network Settings for the sites
-    - name: Creating networksettings for sites
-      cisco.dnac.network_settings_workflow_manager:
-        <<: *dnac_login
-        state: "{{state}}"
-        config: "{{ network_settings.network_servers }}"
-      when: network_settings.network_servers is defined
-      tags: servers
+    # #Update Network Settings for the sites
+    # - name: Creating networksettings for sites
+    #   cisco.dnac.network_settings_workflow_manager:
+    #     <<: *dnac_login
+    #     state: "{{state}}"
+    #     config: "{{ network_settings_details.network_servers }}"
+    #   when: network_settings_details.network_servers is defined
+    #   tags: servers
 
     - name: Network Settings playbook end time
       set_fact:
