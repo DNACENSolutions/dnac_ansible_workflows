@@ -593,6 +593,7 @@
 # Required for user create, update and delete operations.
 
 # #=======================================================================================================================
+catalyst_center_version: str(required=False)
 roles_users_details: 
     role_details: list(include('roles_details_type'), min=0, max=500, required=False)
     user_details: list(include('users_details_type'), min=0, max=500, required=False)
@@ -697,14 +698,3 @@ ssid_type:
   ssid: str(required=True)
   overall: enum('deny', 'read', 'write', required=False)
   security: list(include('security_type'), required=False)
-
-
-
-
-  
-
-
-  
-
-
-  

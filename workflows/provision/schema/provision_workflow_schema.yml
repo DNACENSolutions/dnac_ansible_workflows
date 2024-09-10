@@ -176,6 +176,7 @@
 # Flag for Cisco Catalyst Center SDK to enable the validation of request bodies against a JSON schema.
 # #=======================================================================================================================
 provision_details:  list(include('provision_details_type'), min=0, max=1000, required=False)
+catalyst_center_version: str(required=False)
 ---
 provision_details_type:
   site_name_hierarchy: str(required=False)

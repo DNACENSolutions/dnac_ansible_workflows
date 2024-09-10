@@ -1,4 +1,6 @@
 ---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
 provision_details:
 # Define the devices for assigning devices on sites and provisioning
 #Wireless controller provisioning

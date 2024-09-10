@@ -156,7 +156,7 @@
 # # Schema for the network compliance details
 # #=======================================================================================================================
 network_compliance_details: list(include('network_compliance_details_type'), min=0, max=1000, required=False)
-
+catalyst_center_version: str(required=False)
 ---
 network_compliance_details_type:
   ip_address_list: list(str, required=False)

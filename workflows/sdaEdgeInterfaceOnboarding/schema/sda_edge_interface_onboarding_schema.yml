@@ -1,4 +1,5 @@
 edgeDetails: any(include('edgeDetails_type'))
+catalyst_center_version: str(required=False)
 ---
 edgeDetails_type:
   hostName: str()

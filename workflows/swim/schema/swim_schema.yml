@@ -4,6 +4,7 @@ swim_details:
   distribute_images: list(include('distribute_images_type'), min=0, max=100, required=False)
   activate_images: list(include('activate_images_type'), min=0, max=100, required=False)
   upload_tag_dis_activate_images: list(include('full_upload_type'), min=0, max=100, required=False)
+catalyst_center_version: str(required=False)
 ---
 full_upload_type:
   import_image_details:

@@ -15,13 +15,14 @@
 
   vars:
     state: merged
+    
     dnac_login: &dnac_login
       dnac_host: "{{ dnac_host }}"
       dnac_username: "{{ dnac_username }}"
       dnac_password: "{{ dnac_password }}"
       dnac_verify: "{{ dnac_verify }}"
       dnac_port: "{{ dnac_port }}"
-      dnac_version: "{{ dnac_version }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
       dnac_log_level: "{{ dnac_log_level }}"
@@ -32,6 +33,7 @@
     - name: Authentication and Policy Servers configurations on Cisco Catalyst Center
       cisco.dnac.ise_radius_integration_workflow_manager:
         <<: *dnac_login
+        #dnac_version: "{{ catalyst_center_version }}"
         state: merged
         config: "{{ise_radius_integration_details}}"
       register: ise_radius_integration_output

@@ -211,6 +211,7 @@
 # # Schema for the network compliance details
 # #=======================================================================================================================
 ise_radius_integration_details: list(include('ise_radius_integration_details_type'), min=0, max=20, required=False)
+catalyst_center_version: str(required=False)
 ---
 ise_radius_integration_details_type:
   authentication_policy_server: list(include('authentication_policy_server_type'), required=False)

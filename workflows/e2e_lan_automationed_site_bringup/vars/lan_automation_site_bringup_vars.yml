@@ -4,6 +4,7 @@
 # Sequence: Sites->Credentials->Discovery->Inventory->LAN Automation->Inventory
 # Below inputs are real input from LAN Automation Demo session
 # Desig your Site Heirarchy for onboarding LAN Automation
+catalyst_center_version: 2.3.7.6
 design_sites:
   - site:
       area:

@@ -2,6 +2,7 @@ network_settings:
   global_ip_pools: list(include('global_pool_details_type'), min=1, max=100, required=False)
   sub_pools: list(include('reserve_pool_details_type'), min=1, max=100, required=False)
   network_servers: list(include('network_management_details_type'), min=1, max=100, required=False)
+catalyst_center_version: str(required=False)
 ---
 global_pool_details_type:
   global_pool_details:

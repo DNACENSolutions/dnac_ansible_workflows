@@ -2,6 +2,7 @@ pnp_details:
   claim_ewlc_devices: list(include('claim_ewlc_device_type'), min=0, max=100, required=False)
   claim_switching_devices: list(include('claim_switching_device_type'), min=0, max=100, required=False)
   claim_router_devices: list(include('claim_router_device_type'), min=0, max=100, required=False)
+catalyst_center_version: str(required=False)
 ---
 claim_ewlc_device_type:
   site_name: str(required=False)
