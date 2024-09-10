@@ -10,9 +10,12 @@ To define the details you can refer the full workflow specification: https://gal
 
 To run this workflow, you follow the README.md 
 
-##Example run:
+#Example run:
+## Configure or Update Authentication and Policy Servers
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml --e VARS_FILE_PATH=../vars/ise_radius_integration_workflow_input.yml -vvvv
 
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml --e VARS_FILE_PATH=../vars/network_compliance_workflow_input.yml -vvvv
+## Delete Authentication and Policy Servers
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/delete_ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml --e VARS_FILE_PATH=../vars/ise_radius_integration_workflow_input.yml -vvvv
 
 ##The Sample host_inventory_dnac1/hosts.yml
 
