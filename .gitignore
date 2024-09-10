@@ -17,6 +17,7 @@ __pycache__
 .pytest_cache/
 .mypy_cache/
 venv/
+*/tmp/*
 /build/
 docs/plugins/
 docs/_build/
