@@ -15,7 +15,7 @@ To run this workflow, you follow the README.md
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml --e VARS_FILE_PATH=../vars/ise_radius_integration_workflow_input.yml -vvvv
 
 ## Delete Authentication and Policy Servers
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/delete_ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml --e VARS_FILE_PATH=../vars/ise_radius_integration_workflow_input.yml -vvvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integration/playbook/delete_ise_radius_integration_workflow_playbook.yml --e VARS_FILE_PATH=../vars/ise_radius_integration_workflow_input.yml -vvvv
 
 ##The Sample host_inventory_dnac1/hosts.yml
 
@@ -38,7 +38,12 @@ User Inputs for Users and roles are stored in  workflows/network compliance/vars
 
 ##Validate user input before running though ansible
 ```bash
-(pyats) dnac_ansible_workflows % ./tools/validate.sh -s workflows/network_compliance/schema/network_compliance_workflow_schema.yml -d workflows/network_compliance/vars/network_compliance_workflow_input.yml 
+(pyats) pawansi@PAWANSI-M-81A3 dnac_ansible_workflows % ./tools/validate.sh -s workflows/ise_radius_integration/schema/ise_radius_integration_workflow_schema.yml -d workflows/ise_radius_integration/vars/ise_radius_integration_workflow_input.yml 
+workflows/ise_radius_integration/schema/ise_radius_integration_workflow_schema.yml
+workflows/ise_radius_integration/vars/ise_radius_integration_workflow_input.yml
+yamale   -s workflows/ise_radius_integration/schema/ise_radius_integration_workflow_schema.yml  workflows/ise_radius_integration/vars/ise_radius_integration_workflow_input.yml
+Validating /Users/pawansi/dnac_ansible_workflows/workflows/ise_radius_integration/vars/ise_radius_integration_workflow_input.yml...
+Validation success! 👍
 
 ```
 
