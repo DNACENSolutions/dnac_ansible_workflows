@@ -11,9 +11,14 @@ To define the details you can refer the full workflow specification: https://gal
 
 To run this workflow, you follow the README.md 
 
-##Example run:
+##Example run: (Create and Update users and ROle)
 
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
+
+##Example run: Delete Users and Role
+
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/delete_users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
+
 
 
 ##The Sample host_inventory_dnac1/hosts.yml
