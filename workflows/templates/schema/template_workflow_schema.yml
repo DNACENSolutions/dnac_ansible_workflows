@@ -1,4 +1,5 @@
-  template_details: list(include('configuration_templates_type'), min=0, max=100, required=False) 
+template_details: list(include('configuration_templates_type'), min=0, max=100, required=False) 
+catalyst_center_version: str(required=False)
 ---
 configuration_templates_type:
   configuration_templates:
