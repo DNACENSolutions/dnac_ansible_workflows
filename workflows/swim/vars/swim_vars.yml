@@ -1,4 +1,6 @@
 ---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
 swim_details:
   # List of images and sub packages to be imported to the Cisco Catalyst Center
   import_images:

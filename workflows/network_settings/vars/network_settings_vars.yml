@@ -1,4 +1,6 @@
 ---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
 # Network Settings an IP Pools design.
 network_settings: 
   global_ip_pools:

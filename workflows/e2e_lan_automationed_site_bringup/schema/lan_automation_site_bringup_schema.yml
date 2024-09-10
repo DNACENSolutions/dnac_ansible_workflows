@@ -17,7 +17,7 @@ seed_mgmt_ip_update:
   loopbackUpdateDeviceList: list(include('loopback_update_device_type'), min=1, max=100, required=False)
 update_devices_role: list(include('update_device_role_type'), min=1, max=100, required=False)
 provision_devices: list(include('provision_device_type'), min=1, max=100, required=False)
-
+catalyst_center_version: str(required=False)
 ---
 site_type:
   site: any(include('area_type'), include('building_type'), include('floor_type'))

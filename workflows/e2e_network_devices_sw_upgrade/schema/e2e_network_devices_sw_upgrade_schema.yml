@@ -1,3 +1,4 @@
+catalyst_center_version: str(required=False)
 swim_details:
   import_images: list(include('import_image_details_type'), min=0, max=100, required=False)
   golden_tag_images: list(include('tagging_details_type'), min=0, max=100, required=False)
