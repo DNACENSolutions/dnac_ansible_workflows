@@ -19,6 +19,8 @@
       dnac_port: "{{ dnac_port }}"
       dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
       dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
   tasks:
     - name: Start timer for calculating the total run time of the playbook
       set_fact:
