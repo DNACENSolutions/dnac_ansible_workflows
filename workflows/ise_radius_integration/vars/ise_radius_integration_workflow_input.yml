@@ -33,4 +33,4 @@ ise_radius_integration_details:
           ip_address: 10.195.243.31
           description: Cisco ISE
         trusted_server: True
-        ise_integration_wait_time: 120
+        ise_integration_wait_time: 20
