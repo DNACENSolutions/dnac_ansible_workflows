@@ -1,68 +1,28 @@
-# User Profile Roles and Permissions
-Catalyst Center supports role-based access control (RBAC). The roles assigned to a user profile define the capabilities that a user has permission to perform. Catalyst Center has three main default user roles:
-SUPER-ADMIN-ROLE
-NETWORK-ADMIN-ROLE
-OBSERVER-ROLE
-The SUPER-ADMIN-ROLE gives users broad capabilities and permits them to perform all actions in the Catalyst Center GUI, including creating custom roles and assigning them to user profiles. The NETWORK-ADMIN-ROLE and the OBSERVER-ROLE have more limited and restricted capabilities in the Catalyst Center GUI.
-# Configure Role-Based Access Control
-Catalyst Center supports role-based access control (RBAC), which enables a user with SUPER-ADMIN-ROLE privileges to define custom roles that permit or restrict user access to certain Catalyst Center functions.
+# User Profile Roles and Permissions in Catalyst Center
 
-Use this procedure to define a custom role and then assign a user to that role.
+Catalyst Center utilizes Role-Based Access Control (RBAC) to manage user permissions. User roles determine the actions a user can perform within the system.
 
-## Before you begin
-Only a user with SUPER-ADMIN-ROLE permissions can perform this procedure.
+## Default Roles
 
-## Procedure
-### Step 1 Define a custom role.
-In role_details Section define the custome roles with necessary permissions.
-for Reference check sample inputs at vars/users_and_roles_workflow_inputs.yml
-```bash
-  role_details:
-    - role_name: Assurance-role
-      description: With write access overall
-      assurance:
-        - overall: write
-          monitoring_and_troubleshooting: read
+* **SUPER-ADMIN-ROLE:** Grants full access to all Catalyst Center features, including creating custom roles.
+* **NETWORK-ADMIN-ROLE:** Provides limited access for network administration tasks.
+* **OBSERVER-ROLE:** Restricts access to view-only capabilities.
 
-```
-### Step 2 To assign a user to the custom role you just created
-Under users details add your users with role list give the list of all roles listed.
-```bash
-  user_details:
-    - username: xxxxxxx
-      first_name: Pawan
-      last_name: Singh
-      email: xxxxxxw@example.com
-      password: xxxxx@123!45
-      role_list: 
-        - Admin_customized_role
-        - Assurance-role
-```
-# USERS AND ROLES Workflow
-Workflow Playbook for configuring and updating Role based access control
-This workflow playbook is supported from Catalyst Center Release version 2.3.7.6
+## Custom Role Creation
 
-user_details  defines the login, password, and role (permissions) of a user.
+Users with the SUPER-ADMIN-ROLE can create custom roles to fine-tune access permissions.
 
-role_details defines the accesss destails for the role.
+# Procedure
+1. ## Prepare your Ansible environment:
 
-To define the details you can refer the full workflow specification: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/user_role_workflow_manager/
+Install Ansible if you haven't already
+Ensure you have network connectivity to your Catalyst Center instance.
+Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
 
-To run this workflow, you follow the README.md 
+2. ## Configure Host Inventory:
 
-##Example run: (Create and Update users and ROle)
-
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
-
-##Example run: Delete Users and Role
-
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/delete_users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
-
-# Modify Roles and Users
-## Allowed to make changed to users and roles, like changing the passwords of the users to apply password policy, providing more permission to users or revoling some permissions etc, On the role side enabling certail read or write addess for the custom roles. 
-### Procedure
-Make amendment to your roles and users and rerun the input and through the workflow playbook. The Modification will reflect in the Catalyst Cennter Post success full workflow playbook execution.
-
+The host_inventory_dnac1/hosts.yml file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
+Make sure the dnac_version in this file matches your actual Catalyst Center version.
 ##The Sample host_inventory_dnac1/hosts.yml
 
 ```bash
@@ -80,8 +40,40 @@ catalyst_center_hosts:
             dnac_log_level: INFO
             dnac_log: true
 ```
+3. ## Define User and Role Data:
+The workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml file stores the user and role details you want to configure.
+Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/user_role_workflow_manager/
+### Define the Custom Role
 User Inputs for Users and roles are stored in  workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml
 
+Use the `role_details` section in your YAML configuration to define the role's name, description, and specific permissions.
+   **Example:**
+```yaml
+role_details:
+    - role_name: Assurance-role
+    description: With write access overall
+    assurance:
+        - overall: write
+        monitoring_and_troubleshooting: read
+```
+assign roles to the users
+### Assign Users to the Role
+    In the user_details section, add users and specify their assigned roles in the role_list.
+   **Example:**
+```yaml
+user_details:
+- username: xxxxxxx
+    first_name: Pawan
+    last_name: Singh
+    email: xxxxxxw@example.com
+    password: xxxxx@123!45
+    role_list: 
+    - Admin_customized_role
+    - Assurance-role
+```
+
+
+## Validate Your Input:
 ##Validate user input before running though ansible
 ```bash
     (pyats)  dnac_ansible_workflows % ./tools/validate.sh -s workflows/users_and_roles/schema/users_and_roles_workflow_schema.yml -d workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml                             
@@ -90,5 +82,12 @@ User Inputs for Users and roles are stored in  workflows/users_and_roles/vars/us
     yamale   -s workflows/users_and_roles/schema/users_and_roles_workflow_schema.yml  workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml
     Validating /Users/pawansi/dnac_ansible_workflows/workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml...
     Validation success! 👍
+```
+
+Use the provided validation script to ensure your YAML input file adheres to the required schema.
+## Execute the Playbook:
+Run the Playbook
+```bash
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
 ```
 
