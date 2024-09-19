@@ -11,6 +11,8 @@
 
   vars:
     state: merged
+    default_catalyst_center_task_timeout: 1200
+    default_catalyst_center_task_poll_interval: 60
     
     dnac_login: &dnac_login
       dnac_host: "{{ dnac_host }}"
@@ -33,6 +35,8 @@
         config: "{{device_configs_backup_details}}"
       register: device_configs_backup_output
       when: device_configs_backup_details is defined
+      async: "{{ catalyst_center_task_timeout  | default(default_catalyst_center_task_timeout) }}"
+      poll: "{{ catalyst_center_task_poll_interval  | default(default_catalyst_center_task_poll_interval) }}"
     - name: Print the Device configuration backup  output
       debug:
         msg: "{{device_configs_backup_output}}"

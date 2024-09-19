@@ -60,6 +60,8 @@
 # #=======================================================================================================================
 device_configs_backup_details: list(include('device_configs_backup_details_type'), min=0, max=1000, required=False)
 catalyst_center_version: str(required=False)
+catalyst_center_task_timeout: int(required=False)
+catalyst_center_task_poll_interval: int(required=False)
 ---
 device_configs_backup_details_type:
   collection_status: str(required=False)
