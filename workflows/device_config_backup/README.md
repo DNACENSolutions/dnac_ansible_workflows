@@ -1,21 +1,24 @@
-# Device Config backup Workflow Playbook
-Workflow Playbook for Device Config backup the devices in Inventory. 
-This workflow playbook is supported from Catalyst Center Release version 2.3.7.6
+# Workflow Playbook for Device Config Backup
+This Ansible playbook automates the process of backing up device configurations in your network inventory. It is designed to work with Catalyst Center Release version 2.3.7.6 or later.
 
-device_configs_backup_details  defines the list of devices and devices details for the devices to be run rough the playbooks
+# Key Points:
+## Supported Catalyst Center Version: 
+2.3.7.6 and above
+## Workflow Definition: 
+device_configs_backup_details specifies the devices and their details to include in the backup.
+## Full Workflow Specification: 
+Refer to the official documentation for detailed information on defining workflows: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/device_configs_backup_workflow_manager
 
+# Procedure
+1. ## Prepare your Ansible environment:
+Install Ansible if you haven't already
+Ensure you have network connectivity to your Catalyst Center instance.
+Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
 
-To define the details you can refer the full workflow specification: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network compliance_workflow_manager/
-
-
-To run this workflow, you follow the README.md 
-
-#Example run:
-## Configure or Update Authentication and Policy Servers
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_config_backup/playbook/device_config_backup_workflow_playbook.yml --e VARS_FILE_PATH=../vars/device_config_backup_workflow_input.yml -vvvv
-
-##The Sample host_inventory_dnac1/hosts.yml
-
+2. ## Configure Host Inventory:
+The host_inventory_dnac1/hosts.yml file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
+Make sure the dnac_version in this file matches your actual Catalyst Center version.
+## The Sample host_inventory_dnac1/hosts.yml
 ```bash
 catalyst_center_hosts:
     hosts:
@@ -31,19 +34,25 @@ catalyst_center_hosts:
             dnac_log_level: INFO
             dnac_log: true
 ```
-User Inputs for Users and roles are stored in  workflows/network compliance/vars/network_compliance_workflow_inputs.yml
+3. ## Generate your Input:
+The workflows/device_config_backup/vars/device_config_backup_workflow_input.yml file should be configured with device details
+Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/device_configs_backup_workflow_manager
 
-##Validate user input before running though ansible
+
+4. ## Validate Input (Recommended):
+Validate the input with schema using yamale
 ```bash
-workflows/device_config_backup/schema/device_config_backup_workflow_schema.yml
-workflows/device_config_backup/vars/device_config_backup_workflow_input.yml
-yamale   -s workflows/device_config_backup/schema/device_config_backup_workflow_schema.yml  workflows/device_config_backup/vars/device_config_backup_workflow_input.yml
-Validating /Users/pawansi/dnac_ansible_workflows/workflows/device_config_backup/vars/device_config_backup_workflow_input.yml...
-Validation success! 👍
+yamale -s workflows/device_config_backup/schema/device_config_backup_workflow_schema.yml workflows/device_config_backup/vars/device_config_backup_workflow_input.yml
 ```
 
-
-# Execution Reference Logs
+#Example run:
+5. ## Collect device running configurations through Catalyst Center APIs.
 ```bash
-
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_config_backup/playbook/device_config_backup_workflow_playbook.yml --e VARS_FILE_PATH=../vars/device_config_backup_workflow_input.yml -vvvv
 ```
+
+# Important Notes:
+1. Ensure the Catalyst Center version is compatible.
+2. Carefully configure inventory and input variables.
+3. Validate input using yamale to prevent errors.
+4. Review execution logs for troubleshooting.

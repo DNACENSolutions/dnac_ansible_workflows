@@ -86,8 +86,16 @@ user_details:
 
 Use the provided validation script to ensure your YAML input file adheres to the required schema.
 ## Execute the Playbook:
-Run the Playbook
+Run the create Playbook
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
 ```
+Post the user and the roles will start reflecting in the catalyst center.
 
+## Deleting the users and the roles
+Playbook can be used to delete roles and users
+Run the delete Playbook
+```bash
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/delete_users_and_roles/playbook/users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
+```
+Roles and Users will get deleted from the Catalyst Center
