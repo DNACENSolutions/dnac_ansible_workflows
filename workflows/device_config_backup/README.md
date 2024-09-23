@@ -45,7 +45,7 @@ Validate the input with schema using yamale
 yamale -s workflows/device_config_backup/schema/device_config_backup_workflow_schema.yml workflows/device_config_backup/vars/device_config_backup_workflow_input.yml
 ```
 
-#Example run:
+# Example run:
 5. ## Collect device running configurations through Catalyst Center APIs.
 ```bash
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_config_backup/playbook/device_config_backup_workflow_playbook.yml --e VARS_FILE_PATH=../vars/device_config_backup_workflow_input.yml -vvvv
