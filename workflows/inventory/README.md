@@ -66,5 +66,4 @@ Validation success! 👍
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/delete_inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_vars.yml
 ```
 ##  Important Notes
-* The current location is Livermore, California, United States.
 * Always refer to the detailed input specification for comprehensive information on available options and their structure.
