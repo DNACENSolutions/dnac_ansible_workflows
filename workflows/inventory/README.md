@@ -54,7 +54,7 @@ Validation success! 👍
 *  How to Delete Existing Devices from inventory
 *  Run the Delete Playbook:
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/delete_inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_vars.yml
+    ansible-playbook -i host_inventory_dnac10_195_227_14/hosts.yml workflows/inventory/playbook/delete_inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_delete_devices.yml
 ```
 ##  Important Notes
 * Always refer to the detailed input specification for comprehensive information on available options and their structure.

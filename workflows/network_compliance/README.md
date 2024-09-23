@@ -1,15 +1,39 @@
 # Network Compliance Workflow Playbook
-Workflow Playbook for Assigning devices to sites network complianceing, Re-network complianceing and Deleteing the devices in Inventory. 
-This workflow playbook is supported from Catalyst Center Release version 2.3.7.6
 
-network_compliance_details  defines the list of devices and devices details for the devices to be run rough the playbooks
+This Ansible playbook streamlines the management of device compliance within your network, offering capabilities to:
 
+* Assign devices to sites for compliance assessment.
+* Re-evaluate compliance for existing devices.
+* Remove devices from compliance tracking.
 
-To define the details you can refer the full workflow specification: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network compliance_workflow_manager/
+## Compatibility
 
+* Catalyst Center Release version 2.3.7.6 and later
 
-To run this workflow, you follow the README.md 
+## Key Concepts
 
+* `network_compliance_details`: This section in your YAML input file defines the list of devices and their associated details to be processed by the playbook.
+
+## Workflow Specification
+
+For comprehensive details on input options and structure, refer to the full workflow specification: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network_compliance_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network_compliance_workflow_manager/)
+
+## Running the Playbook
+
+1. **Configure Host Inventory**
+
+   * The `host_inventory_dnac1/hosts.yml` file contains connection details (IP, credentials) for your Catalyst Center instance.
+   * Ensure the `dnac_version` matches your Catalyst Center version.
+
+2. **Prepare Input Data**
+
+   * User inputs are stored in `workflows/network_compliance/vars/network_compliance_workflow_inputs.yml`.
+
+3. **Validate Input**
+
+```bash
+   (pyats) dnac_ansible_workflows % ./tools/validate.sh -s workflows/network_compliance/schema/network_compliance_workflow_schema.yml -d workflows/network_compliance/vars/network_compliance_workflow_input.yml
+```
 ##Example run:
 
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml --e VARS_FILE_PATH=../vars/network_compliance_workflow_input.yml -vvvv

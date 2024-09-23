@@ -1,0 +1,44 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the inventory workflow
+inventory_details:
+  network_devices:
+  - ip_address_list: ["204.101.16.1"]
+    add_user_defined_field:
+    - name: Test123
+      description: "Added first udf for testing"
+      value: "value123"
+    role: ACCESS
+    provision_wired_device:
+    - device_ip: "204.101.16.1"
+      site_name: "Global/USA/SAN JOSE/BLD23"
+    resync_retry_count: 200
+    resync_interval: 2
+    device_resync: true
+    update_interface_details:
+      description: "Voice Interface"
+      admin_status: "UP"
+      vlan_id: 23
+      voice_vlan_id: 24
+      deployment_mode: "Deploy"
+      interface_name: ["GigabitEthernet5/0/11", "GigabitEthernet5/0/12"]
+      clear_mac_address_table: True
+  - ip_address_list: ["204.101.16.2"]
+    add_user_defined_field:
+    - name: Test123
+      description: "Added first udf for testing"
+      value: "value123"
+    role: BORDER ROUTER
+    provision_wired_device:
+    - device_ip: "204.101.16.1"
+      site_name: "Global/USA/SAN JOSE/BLD23"
+    resync_retry_count: 200
+    resync_interval: 2
+    device_resync: true
+    update_interface_details:
+      description: "uplink Interface"
+      admin_status: "UP"
+      deployment_mode: "Deploy"
+      interface_name: ["GigabitEthernet1/0/11", "GigabitEthernet1/0/12"]
+      clear_mac_address_table: True
