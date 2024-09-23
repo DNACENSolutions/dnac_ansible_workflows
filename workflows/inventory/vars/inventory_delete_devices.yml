@@ -1,0 +1,8 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the inventory workflow
+inventory_details:
+  network_devices:
+  - ip_address_list: ["204.101.16.1","204.101.16.2"]
+    clean_config: False
