@@ -2,16 +2,16 @@
 
 This Ansible playbook streamlines the management of device compliance within your network, offering capabilities to:
 
-* Assign devices to sites for compliance assessment.
-* Re-evaluate compliance for existing devices.
-* Remove devices from compliance tracking.
+* Perform compliance checks or sync configurations on reachable devices using IP Address(s) or Site.
+* Perform full compliance checks or specific category checks on reachable device(s).
+* Sync device configuration on device(s), running_configuration with Startup_config, if the they are our of sync.
 
 ## Compatibility
 
 * Catalyst Center Release version 2.3.7.6 and later
 
 ## Key Concepts
-
+Device inputs can be provided through the input file network_compliance_workflow_input.yml
 * `network_compliance_details`: This section in your YAML input file defines the list of devices and their associated details to be processed by the playbook.
 
 ## Workflow Specification
@@ -66,6 +66,10 @@ yamale   -s workflows/network_compliance/schema/network_compliance_workflow_sche
 Validating /Users/pawansi/dnac_ansible_workflows/workflows/network_compliance/vars/network_compliance_workflow_input.yml...
 Validation success! 👍
 ```
+## Important Notes
+*  Always validate your input YAML file before running the playbook.
+*  Refer to the full input specification for detailed information and examples.
+*  If you face issues, review the Ansible playbook output and consult Catalyst Center documentation or support.
 
 
 # Execution Reference Logs
