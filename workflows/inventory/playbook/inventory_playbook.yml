@@ -20,10 +20,33 @@
       dnac_log_level: "{{ dnac_log_level }}"
 
   tasks:
-    - name: Add/Update/assig to site/Provision or delete devices provided in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+    - name: print VARS_FILE_PATH
+      debug:
+        msg: "Input file selected {{ VARS_FILE_PATH }}"
+    - name: Playbook start time for the inventory playbook
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: Add/Update/assig to site/Provision in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       cisco.dnac.inventory_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
         config: "{{ inventory_details.network_devices }}" 
+      register: inventory_output
       when: inventory_details.network_devices is defined
+    - name: Print the Inventory devices output
+      debug:
+        msg: "{{inventory_output}}"
+    - name: Playbook end time for the inventory playbook
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print Inventory devices playbook execution time
+      debug:
+        msg: "Inventory devices playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
+  
 
