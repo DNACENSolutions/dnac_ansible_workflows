@@ -7,7 +7,7 @@
   vars_files:
     - "{{ VARS_FILE_PATH }}"
   vars:
-    state: merged
+    state: deleted
     dnac_login: &dnac_login
       dnac_host: "{{ dnac_host }}"
       dnac_username: "{{ dnac_username }}"
@@ -26,16 +26,12 @@
     - name: Playbook start time for the inventory playbook
       set_fact:
         long_op_start: "{{ now() }}"
-    - name: Add/Update/assig to site/Provision in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+    - name: Delete devices provided in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       cisco.dnac.inventory_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
         config: "{{ inventory_details.network_devices }}" 
-      register: inventory_output
       when: inventory_details.network_devices is defined
-    - name: Print the Inventory devices output
-      debug:
-        msg: "{{inventory_output}}"
     - name: Playbook end time for the inventory playbook
       set_fact:
         long_op_end: "{{ now() }}"
@@ -48,5 +44,4 @@
       register: ansible_play_path
       delegate_to: catalyst_center_hosts
       connection: local
-  
 
