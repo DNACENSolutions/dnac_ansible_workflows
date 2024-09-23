@@ -12,10 +12,6 @@ Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/modul
 
 * Add User-Defined Fields to a Device
 * Add Network Device
-* Claim Device
-
-### Additional Capabilities
-
 * Change the Device Role in inventory
 * Update Computed Device Credentials
 * Update a Device's Management IP Address
@@ -23,9 +19,7 @@ Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/modul
 * Delete a Network Device
 * Manage Port Details
 * Provision Device (assign devices to sites and provision wired/wireless devices)
-
-## Manage Port Details
-
+* Manage Port Details
 * **To manage the port's admin status:**
     * **Port Shut:** To shut down the port and change its admin status to Down.
     * **Port No Shut:** To enable the port.
@@ -40,9 +34,6 @@ Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/modul
 | Voice VLAN   | Provide a voice VLAN                                                                                                                               |
 | Port Description | Enter or modify the port description. Delete the description by providing an empty port description.                                                                      |
 
-## Provision Device
-
-You can assign devices to sites and provision wired and wireless devices in the inventory. The devices should already be in the inventory and reachable.
 
 ## How to Validate Input
 
