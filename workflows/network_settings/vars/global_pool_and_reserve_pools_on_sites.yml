@@ -11,36 +11,36 @@ network_settings_details:
           ip_address_space: IPv4
           cidr: 204.1.1.0/24
           pool_type: Generic
-          dhcpServerIps:
+          dhcp_server_ips:
             - 204.192.3.40
-          dnsServerIps:
+          dns_server_ips:
             - 171.70.168.183
         - name:  underlay1
           gateway: 204.1.2.1
           ip_address_space: IPv4
           cidr: 204.1.2.0/24
           pool_type: Generic
-          dhcpServerIps:
+          dhcp_server_ips:
             - 204.192.3.40
-          dnsServerIps:
+          dns_server_ips:
             - 171.70.168.183
         - name:  SENSORPool
           gateway: 204.1.48.1
           ip_address_space: IPv4
           cidr: 204.1.48.0/20
           pool_type: Generic
-          dhcpServerIps:
+          dhcp_server_ips:
             - 204.192.3.40
-          dnsServerIps:
+          dns_server_ips:
             - 171.70.168.183
         - name:  SENSORPool_V6
           gateway: 2004:1:48::1
           ip_address_space: IPv6
           cidr: 2004:1:48::/64
           pool_type: Generic
-          dhcpServerIps:
+          dhcp_server_ips:
             - 204.192.3.40
-          dnsServerIps:
+          dns_server_ips:
             - 171.70.168.183
   - reserve_pool_details:
     - ipv6_address_space: False
