@@ -18,120 +18,18 @@
       dnac_port: "{{ dnac_port }}"
       dnac_version: "{{ dnac_version }}"
       dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log | }}"
+      dnac_log_level: "{{ dnac_log_level | default('INFO') }}"
 
   tasks:
-    - name: Get all Network Device info
-      cisco.dnac.network_device_info:
-        <<: *dnac_login
-        offset: "{{ item }}"
-        limit: 500
-        family:
-          - Switches and Hubs
-          - Routers
-          - Wireless Controller
-      register: network_device_info
-      when: network_device_info is not defined or network_device_info.dnac_response.response
-      loop: "{{ range(1, 20000, 500)|list }}"
-
-    - name: Combine all NW devices
-      set_fact:
-        all_devices:  "{{ all_devices | default([]) + item.dnac_response.response  }} "
-      loop: "{{ network_device_info.results }}"
-      when: item.dnac_response is defined  and item.dnac_response.response
-
-    - name: Get all Network Devices details
-      cisco.dnac.device_details_info:
-        <<: *dnac_login
-        searchBy: "{{ item.id }}"
-        identifier: uuid
-      register: device_details
-      when: all_devices is defined
-      loop: "{{  all_devices }}"
-
-    - debug:
-        msg: "{{ device_details.results | default('not available') }}"
-
-    - name: Take inv data for Switches routers hubs and Wireless Controllers
-      set_fact:
-        network_devices:  "{{ network_devices | default([]) + [{'serialNumber':item.dnac_response.response.serialNumber,\
-                          'hostname': item.dnac_response.response.nwDeviceName, 'role':item.dnac_response.response.nwDeviceRole,'site':item.dnac_response.response.location,\
-                          'managementIpAddress':item.dnac_response.response.managementIpAddr,'tagIdList': item.dnac_response.response.tagIdList,\
-                          'macAddress': item.dnac_response.response.macAddress,'platformId': item.dnac_response.response.platformId, \
-                          'collectionInterval': item.item.collectionInterval,\
-                          'stackType':item.dnac_response.response.stackType,\
-                          'series':item.dnac_response.response.deviceSeries, 'family':item.dnac_response.response.nwDeviceFamily, 'type':item.dnac_response.response.nwDeviceType, \
-                          'nwDeviceId': item.dnac_response.response.nwDeviceId }]  }} "
-      loop: "{{ device_details.results }}"
-      when: item.dnac_response is defined  and item.dnac_response.response
-
-    - name: Get all Network Device info
-      cisco.dnac.network_device_info:
-        <<: *dnac_login
-        offset: "{{ item }}"
-        limit: 500
-        family:
-          - Unified AP
-      register: network_device_info_aps
-      when: network_device_info_aps is not defined or network_device_info_aps.dnac_response.response
-      loop: "{{ range(1, 20000, 500)|list }}"
-      
-    - name: Combine all NW devices Unified APs
-      set_fact:
-        all_devices_uap:  "{{ all_devices_uap | default([]) + item.dnac_response.response  }} "
-      loop: "{{ network_device_info_aps.results }}"
-      when: item.dnac_response is defined  and item.dnac_response.response
-
-    - name: Collect inventory for the unified access points
-      set_fact:
-        unified_aps:  "{{ unified_aps | default([]) + [{'serialNumber':item.serialNumber,\
-                          'hostname': item.hostname, 'role':item.role,'site':item.location,\
-                          'managementIpAddress':item.managementIpAddress,\
-                          'macAddress': item.macAddress,'platformId':item.platformId,\
-                          'series':item.series, 'family':item.family, 'type':item.type, 'id':item.id }]  }} "
-      loop: "{{ all_devices_uap }}"
-      when: all_devices_uap is defined
-
-    - name: Get all Network Device info for Wireless Sensors
-      cisco.dnac.network_device_info:
-        <<: *dnac_login
-        offset: "{{ item }}"
-        limit: 500
-        family:
-          - Wireless Sensor
-      register: network_device_info_ws
-      when: network_device_info_ws is not defined or network_device_info_ws.dnac_response.response
-      loop: "{{ range(1, 20000, 500)|list }}"
-      
-    - name: Combine all NW devices Wireless Sensor
-      set_fact:
-        all_devices_ws:  "{{ all_devices_ws | default([]) + item.dnac_response.response  }} "
-      loop: "{{ network_device_info_ws.results }}"
-      when: item.dnac_response is defined  and item.dnac_response.response
-
-    - name: Collect inventory for the the Wireless Sensor
-      set_fact:
-        wireless_sensors:  "{{ wireless_sensors | default([]) + [{'serialNumber':item.serialNumber,\
-                          'hostname': item.hostname, 'role':item.role,'site':item.location,\
-                          'managementIpAddress':item.managementIpAddress,\
-                          'macAddress': item.macAddress,'platformId':item.platformId,\
-                          'series':item.series, 'family':item.family, 'type':item.type, 'id':item.id }]  }} "
-      loop: "{{ all_devices_ws }}"
-      when: all_devices_ws is defined
-
     - name: Combine all inventory to have a full inventory.
       set_fact:
-        dnac_inv:  "{{ {'catalyst_cennter_hosts':{ 'hosts': {inventory_hostname: {'dnac_host': dnac_host, 'dnac_username': dnac_username,\
+        dnac_inv:  "{{ {'catalyst_center_hosts':{ 'hosts': {inventory_hostname: {'dnac_host': dnac_host, 'dnac_username': dnac_username,\
                    'dnac_password': dnac_password, 'dnac_verify': dnac_verify, 'dnac_port': dnac_port,\
                    'dnac_version':dnac_version, 'dnac_debug':dnac_debug }}}} }} "
-
     - name: Create Hosts list.
       set_fact:
-        dnac_hosts:  "{{ {'catalyst_cennter_hosts':{ 'hosts': 'dnaccluster1' }} }} "
-
-    - name: Combine all inventory to have a full inventory.
-      set_fact:
-        host_vars:  "{{ {'network_devices':network_devices,\
-                   'unified_access_points':unified_aps,  'wireless_sensors':wireless_sensors} }} "
+        dnac_hosts:  "{{ {'catalyst_center_hosts':{ 'hosts': 'dnaccluster1' }} }} "
     - name: Creates directory
       file:
         path: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}"
@@ -140,19 +38,10 @@
       file:
         path: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}/group_vars"
         state: directory
-    - name: Creates directory
-      file:
-        path: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}/host_vars"
-        state: directory
     - name: Yaml dump hosts data to yaml file hosts.yaml
       copy:
         content: "{{ dnac_inv | to_nice_yaml }}"
         dest: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}/hosts.yml"
-        force: yes
-    - name: Yaml dump network devices vars to host var file with hostname
-      copy:
-        content: "{{ host_vars | to_nice_yaml }}"
-        dest: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}/host_vars/{{inventory_hostname}}_{{dnac_host}}.yml"
         force: yes
     - name: set fact to set group vars
       set_fact:
@@ -162,8 +51,4 @@
         content: "{{ group_vars | to_nice_yaml }}"
         dest: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}/group_vars/all.yml"
         force: yes
-
-    - debug:
-        msg: Inventory file created successfully, No of Network Devices {{ network_devices.__len__() }},
-             No of Unified APs {{ unified_aps.__len__() }},   No of Wireless Sensors {{ wireless_sensors.__len__() }}
 ...
