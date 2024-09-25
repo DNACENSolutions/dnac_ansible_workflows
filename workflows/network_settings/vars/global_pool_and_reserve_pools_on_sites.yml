@@ -39,9 +39,9 @@ network_settings_details:
           cidr: 2004:1:48::/64
           pool_type: Generic
           dhcp_server_ips:
-            - 204.192.3.40
+            - 2004:192:3::40
           dns_server_ips:
-            - 171.70.168.183
+            - 2006:1:1::1
   - reserve_pool_details:
     - ipv6_address_space: False
       ipv4_global_pool: 204.1.1.0
