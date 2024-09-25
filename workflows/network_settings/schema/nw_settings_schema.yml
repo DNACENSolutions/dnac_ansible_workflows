@@ -448,13 +448,13 @@ network_management_settings_type:
   netflow_collector: include('netflow_collector_type', required=False)
   network_aaa: include('network_aaa_type', required=False)
   ntp_server: list(str(), min=1, max=2, required=False)
-  snmp_server: include('snmp_server_type')
-  syslog_server: include('syslog_server_type')
+  snmp_server: include('snmp_server_type', required=False)
+  syslog_server: include('syslog_server_type', required=False)
   timezone: str(required=False)
 
 dns_server_type:
-  domain_name: str(required=False)
-  primary_ip_address: str(required=False)
+  domain_name: str(required=True)
+  primary_ip_address: str(required=True)
   secondary_ip_address: str(required=False)
 
 client_and_endpoint_aaa_type:
