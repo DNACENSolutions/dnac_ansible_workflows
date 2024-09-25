@@ -17,16 +17,12 @@
       dnac_verify: "{{ dnac_verify }}"
       dnac_port: "{{ dnac_port }}"
       dnac_version: "{{ dnac_version }}"
-      dnac_debug: "{{ dnac_debug }}"
-      dnac_log: "{{ dnac_log | }}"
-      dnac_log_level: "{{ dnac_log_level | default('INFO') }}"
-
   tasks:
     - name: Combine all inventory to have a full inventory.
       set_fact:
         dnac_inv:  "{{ {'catalyst_center_hosts':{ 'hosts': {inventory_hostname: {'dnac_host': dnac_host, 'dnac_username': dnac_username,\
                    'dnac_password': dnac_password, 'dnac_verify': dnac_verify, 'dnac_port': dnac_port,\
-                   'dnac_version':dnac_version, 'dnac_debug':dnac_debug }}}} }} "
+                   'dnac_version':dnac_version, 'dnac_debug':dnac_debug,'dnac_log': true ,'dnac_log_level':'DEBUG' }}}} }} "
     - name: Create Hosts list.
       set_fact:
         dnac_hosts:  "{{ {'catalyst_center_hosts':{ 'hosts': 'dnaccluster1' }} }} "
