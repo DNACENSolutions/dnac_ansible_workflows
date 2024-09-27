@@ -605,6 +605,7 @@ users_details_type:
   password: str(required=True)
   role_list: list(str(), required=False)
   username: str(required=True)
+  password_update: bool(required=False)
 roles_details_type:
   role_name: str(required=True)
   description: str(required=False)
