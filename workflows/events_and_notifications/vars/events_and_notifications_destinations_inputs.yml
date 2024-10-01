@@ -1,0 +1,30 @@
+---
+catalyst_center_version: 2.3.7.6
+config_verify: false
+events_notifications_destination_and_subscription_details:
+  - email_destination:
+      sender_email: "test@cisco.com"
+      recipient_email: "demo@cisco.com"
+      subject: "Ansible testing"
+      primary_smtp_config:
+        server_address: "outbound.cisco.com"
+        port: "25"
+        smtp_type: "DEFAULT"
+  - syslog_destination:
+      name: Syslog test
+      description: "Adding syslog destination"
+      server_address: "10.30.0.90"
+      protocol: "TCP"
+      port: 6553
+  - snmp_destination:
+      name: Snmp test
+      description: "Adding snmp destination for testing."
+      server_address: "10.30.0.90"
+      port: "25"
+      snmp_version: "V3"
+      username: cisco
+      mode: AUTH_PRIVACY
+      auth_type: SHA
+      auth_password: authpass123
+      privacy_type: AES128
+      privacy_password: privacy123
