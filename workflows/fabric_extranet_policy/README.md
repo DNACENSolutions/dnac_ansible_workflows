@@ -45,11 +45,11 @@ Playbook: workflows/fabric_extranet_policy/playbook/fabric_extranet_policy_playb
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/fabric_extranet_policy/playbook/fabric_extranet_policy_playbook.yml --e VARS_FILE_PATH=<your input file>
 ```
-###  To create or update the fabroc sites and zones example
+###  To create or update the fabroc extranet Policy
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/fabric_extranet_policy/playbook/fabric_extranet_policy_playbook.yml --e VARS_FILE_PATH=../vars/fabric_extranet_policy_inputs.yml
 ```
-###  To delete existing discoveries:
+###  To delete existing extranet policy:
 ```bash
  ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/fabric_extranet_policy/playbook/delete_fabric_extranet_policy_playbook.yml --e VARS_FILE_PATH=../vars/fabric_extranet_policy_inputs.yml
 ```
