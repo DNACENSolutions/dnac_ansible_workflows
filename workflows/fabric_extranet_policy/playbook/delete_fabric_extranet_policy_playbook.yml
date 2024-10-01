@@ -1,0 +1,61 @@
+#sda_extranet_policies_workflow_manager
+# Manage extranet policy operations such as delete existing policies.
+# API for deletion of an existing extranet policy using the policy name.
+#Requirements: cisco.dnac > 6.19.0
+#  requirements:
+#    - cisco.dnac >= 6.19.0
+---
+- name: Playbook to delete Cisco Catalyst Center extranet policies
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  # pre_tasks:
+  #   - name: Verify Ansible meets Catalyst Center requirements
+  #     assert:
+  #       that: "cisco.dnac is version_compare('6.19.0', '>=')"
+  #       msg: >
+  #         "You must update ansible collection to version 6.19.0 or later to use this playbook."
+  vars:
+    state: deleted
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+  tasks:
+  #write tasks for extranet policies creations
+    - name: Playbook start time for the delete SDA Extranet Policies playbook
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: Delete SDA Extranet Policies for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.sda_extranet_policies_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config: "{{ extranet_policies }}" 
+      register: extranet_policies_output
+      when: extranet_policies is defined
+    - name: Print the SDA Extranet Policies output
+      debug:
+        msg: "{{extranet_policies_output}}"
+    - name: SDA Extranet Policies playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print SDA Extranet Policies playbook execution time
+      debug:
+        msg: "SDA Extranet Policies playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
+
