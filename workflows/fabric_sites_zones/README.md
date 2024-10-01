@@ -50,7 +50,6 @@ You can create a fabric site only if IP Device Tracking (IPDT) is already config
    yamale -s workflows/fabric_sites_zones/schema/fabric_sites_zones_schema.yml workflows/fabric_sites_zones/vars/fabric_sites_zones_inputs.yml
 ```
 2. **Execute the Playbook**
-[Title](playbook/fabric_sites_zones_playbook.yml)
 User inputs: ./workflows/fabric_sites_zones/vars/fabric_sites_zones_inputs.yml
 Playbook: workflows/fabric_sites_zones/playbook/fabric_extranet_policy_playbook.yml
 ```bash
