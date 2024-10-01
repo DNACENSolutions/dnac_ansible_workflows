@@ -1,0 +1,65 @@
+#sda_extranet_policies_workflow_manager
+# Manage extranet policy operations such as add/update.
+# API to create a new extranet policy.
+# API to update an existing or edit an existing extranet policy.
+#Requirements: cisco.dnac > 6.19.0
+#  requirements:
+#    - cisco.dnac >= 6.19.0
+---
+- name: Playbook to manage Cisco Catalyst Center Device Inventory
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: merged
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+  # pre_tasks:
+  #   - name: Gather the package facts
+  #     ansible.builtin.package_facts:
+  #       manager: auto
+
+  #   - name: Print the package facts
+  #     ansible.builtin.debug:
+  #       var: ansible_facts.packages
+
+  tasks:
+  #write tasks for extranet policies creations
+    - name: Playbook start time for the SDA Extranet Policies playbook
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: Add Update SDA Extranet Policies for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.sda_extranet_policies_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config: "{{ extranet_policies }}" 
+      register: extranet_policies_output
+      when: extranet_policies is defined
+    - name: Print the SDA Extranet Policies output
+      debug:
+        msg: "{{extranet_policies_output}}"
+    - name: SDA Extranet Policies playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print SDA Extranet Policies playbook execution time
+      debug:
+        msg: "SDA Extranet Policies playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
+
