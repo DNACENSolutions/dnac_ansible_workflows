@@ -1,0 +1,27 @@
+# Schema for the fabric extranet policy workflow.
+# Parameters
+# Parameter	Choices/Defaults	Comments
+# config
+# list / elements =dictionary / required
+# List of Extranet Policy Details for Creating, Updating, or Deleting Operations.
+# 	extranet_policy_name
+# string
+# Name of the SDA Extranet Policy. This parameter allows you to specify the desired name when creating a new extranet policy. The same name can be used to update or delete the policy. Note - This parameter is required when creating, updating or deleting extranet policy.
+# 	fabric_sites
+# list / elements =string
+# Specifies the Fabric Site(s) where this Extranet Policy will be applied. The Provider Virtual Network must be added to a Fabric Site before applying the policy. Fabric Site(s) connected to the same SD-Access Transit must have consistent Extranet Policies. Selecting a Fabric Site connected to an SD-Access Transit will automatically select all other Sites connected to that Transit.
+# 	provider_virtual_network
+# string
+# Specifies the Provider Virtual Network containing shared services resources that subscribers need to access. If a virtual network is already defined as a Provider, it cannot be assigned as a provider again. Ensure the default route is present in the Global Routing Table if INFRA_VN is defined as the Provider. For Subscriber Virtual Networks with multiple Providers having overlapping routes, traffic will be load-balanced across those Provider Virtual Networks. This parameter is required when creating or updating extranet policy.
+# 	subscriber_virtual_networks
+# list / elements =string
+# Specifies a list of Subscriber Virtual Networks that require access to the Provider Virtual Network containing shared services resources. A Virtual Network previously defined as a Provider cannot be selected as a subscriber. This parameter is required when creating or updating extranet policy.
+catalyst_center_version: str(required=False)
+extranet_policies: list(include('extranet_policies_type'), min=0, max=1000, required=False)
+# Schema for the fabric extranet policy details.
+---
+extranet_policies_type:
+  extranet_policy_name: str(required=True)
+  fabric_sites: list(str, required=False)
+  provider_virtual_network: str(required=True)
+  subscriber_virtual_networks: list(str, required=True)
