@@ -1,0 +1,10 @@
+---
+passwords_details:
+- password_key: testuser1password
+  password_value: 'testuser1@123'
+- password_key: testuser2password
+  password_value: 'testuser2@123'
+- password_key: testuser3password
+  password_value: 'testuser3@123'
+- password_key: testuser4password
+  password_value: 'testuser4@123'
