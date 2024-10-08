@@ -70,6 +70,11 @@ user_details:
     role_list: 
     - Admin_customized_role
     - Assurance-role
+- username: "ajithandrewj"
+    first_name: "ajith"
+    last_name: "andrew"
+    email: "ajith.andrew@example.com"
+    role_list: ["SUPER-ADMIN-ROLE"]
 ```
 
 
@@ -89,8 +94,55 @@ Use the provided validation script to ensure your YAML input file adheres to the
 Run the create Playbook
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
+
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --ask-vault-pass --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
 ```
 Post the user and the roles will start reflecting in the catalyst center.
+
+## Running playbook with passowrd in Ansible vault. 
+Create your password file in folder: valted_passwords/<filename>
+write your password in yaml format there example
+
+---
+test_password: sample123
+
+### Generate encrypt the password file
+```bash
+    ansible-vault encrypt valted_passwords/<filename>
+```
+It will ask valt password, setup and remember it
+in jinja template in jinja_template folder update your valt passowrd file
+passwords_file: ../../../valted_passwords/mypasswordfile.yaml
+
+### Run playbook with jinja template and Valt password
+```bash
+    dnac_ansible_workflows % ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --ask-vault-pass --e VARS_FILE_PATH=../jinja_template/template_users_and_roles_workflow_inputs.j2 -vvvv
+```
+it will prompt for valt password. Enter the val password which was used to encrypt the password. 
+Alternatively:
+1. Create valt password hidden file:
+~/.vault_secret.sh
+
+## file content:
+```bash
+#!/bin/bash
+echo password
+```
+2. Add permissions to execute:
+```bash
+chmod 711 ~/.vault_secret.sh
+```
+
+3. Add to ansible.cfg: 
+```bash
+vi ~/.ansible.cfg
+[defaults]
+vault_password_file=~/.vault_secret.sh
+```
+4. Execute:
+```bash
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../jinja_template/template_users_and_roles_workflow_inputs.j2 -vvvv
+```
 
 ## Deleting the users and the roles
 Playbook can be used to delete roles and users
