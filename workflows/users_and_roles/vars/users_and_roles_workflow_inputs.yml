@@ -68,8 +68,9 @@ roles_users_details:
       first_name: ajith
       last_name: Andrew1
       email: ajith_andrew@example.com
-      password: 1Ajith@123!45
-      #password_update: True
+      #Password Restrictions: Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character, no white spaces, no more than 2 identical characters in a row, no more than 3 consecutive characters,
+      password: "Lablab#!234@56"
+      #password_update: true
       role_list: 
         - Admin_customized_role
         - Assurance-role
