@@ -67,9 +67,9 @@ roles_users_details:
     - username: testuser1
       first_name: ajith
       last_name: Andrew1
-      email: ajith.andrew@example.com
+      email: ajith_andrew@example.com
       password: 1Ajith@123!45
-      password_update: True
+      #password_update: True
       role_list: 
         - Admin_customized_role
         - Assurance-role

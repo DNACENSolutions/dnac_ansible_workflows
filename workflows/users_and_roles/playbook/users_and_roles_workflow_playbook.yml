@@ -30,12 +30,12 @@
     - name: load password file
       include_vars:
         file: ../../../valted_passwords/mypasswordfile.yaml
-      when: jinjatemplate and passwords_file is defined
+      when: jinjatemplate is defined and jinjatemplate is true and passwords_file is defined
     - name: Create Template
       template: 
         src: "{{ VARS_FILE_PATH }}"
         dest: ../tmp/template_generated_file.yaml
-      when: jinjatemplate
+      when:  jinjatemplate is defined and jinjatemplate is true 
 
     - name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
       include_vars:
