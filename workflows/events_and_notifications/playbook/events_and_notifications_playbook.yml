@@ -38,13 +38,13 @@
       when: events_notifications_destination_and_subscription_details is defined
     - name: Print the Events and Notifications output
       debug:
-        msg: "{{extranet_policies_output}}"
+        msg: "{{events_notifications_destination_and_subscription_output}}"
     - name: Events and Notifications playbook end time
       set_fact:
         long_op_end: "{{ now() }}"
     - name: Print Events and Notifications playbook execution time
       debug:
-        msg: "SDA Extranet Policies playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+        msg: "Events and Notifications playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
   post_tasks:
     - name: run command module to find python version
       ansible.builtin.command: which python
