@@ -11,8 +11,10 @@ This Ansible playbook streamlines the management of device compliance within you
 * Catalyst Center Release version 2.3.7.6 and later
 
 ## Key Concepts
-Device inputs can be provided through the input file network_compliance_workflow_input.yml
-* `network_compliance_details`: This section in your YAML input file defines the list of devices and their associated details to be processed by the playbook.
+
+Device inputs can be provided through the input file **network_compliance_workflow_input.yml**
+
+* **network_compliance_details**: This section in your YAML input file defines the list of devices and their associated details to be processed by the playbook.
 
 ## Workflow Specification
 
@@ -20,27 +22,31 @@ For comprehensive details on input options and structure, refer to the full work
 
 ## Running the Playbook
 
-1. **Configure Host Inventory**
+### Configure Host Inventory
 
-   * The `host_inventory_dnac1/hosts.yml` file contains connection details (IP, credentials) for your Catalyst Center instance.
-   * Ensure the `dnac_version` matches your Catalyst Center version.
+- The **host_inventory_dnac1/hosts.yml** file contains connection details (IP, credentials) for your Catalyst Center instance.
+- Ensure the **dnac_version** matches your Catalyst Center version.
 
-2. **Prepare Input Data**
+### Prepare Input Data
 
-   * User inputs are stored in `workflows/network_compliance/vars/network_compliance_workflow_inputs.yml`.
+- User inputs are stored in **workflows/network_compliance/vars/network_compliance_workflow_inputs.yml**.
 
-3. **Validate Input**
+### Validate Input
 
 ```bash
    (pyats) dnac_ansible_workflows % ./tools/validate.sh -s workflows/network_compliance/schema/network_compliance_workflow_schema.yml -d workflows/network_compliance/vars/network_compliance_workflow_input.yml
 ```
-##Example run:
 
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml --e VARS_FILE_PATH=../vars/network_compliance_workflow_input.yml -vvvv
-
-##The Sample host_inventory_dnac1/hosts.yml
+### Example run
 
 ```bash
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml --e VARS_FILE_PATH=../vars/network_compliance_workflow_input.yml -vvvv
+```
+
+### The Sample
+- **host_inventory_dnac1/hosts.yml**
+
+```yaml
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
@@ -55,9 +61,11 @@ catalyst_center_hosts:
             dnac_log_level: INFO
             dnac_log: true
 ```
-User Inputs for Users and roles are stored in  workflows/network compliance/vars/network_compliance_workflow_inputs.yml
 
-##Validate user input before running though ansible
+- User Inputs for Users and roles are stored in **workflows/network compliance/vars/network_compliance_workflow_inputs.yml**
+
+### Validate user input before running though ansible
+
 ```bash
 (pyats) dnac_ansible_workflows % ./tools/validate.sh -s workflows/network_compliance/schema/network_compliance_workflow_schema.yml -d workflows/network_compliance/vars/network_compliance_workflow_input.yml 
 workflows/network_compliance/schema/network_compliance_workflow_schema.yml
@@ -66,13 +74,15 @@ yamale   -s workflows/network_compliance/schema/network_compliance_workflow_sche
 Validating /Users/pawansi/dnac_ansible_workflows/workflows/network_compliance/vars/network_compliance_workflow_input.yml...
 Validation success! 👍
 ```
-## Important Notes
-*  Always validate your input YAML file before running the playbook.
-*  Refer to the full input specification for detailed information and examples.
-*  If you face issues, review the Ansible playbook output and consult Catalyst Center documentation or support.
+
+### Important Notes
+- Always validate your input YAML file before running the playbook.
+- Refer to the full input specification for detailed information and examples.
+- If you face issues, review the Ansible playbook output and consult Catalyst Center documentation or support.
 
 
-# Execution Reference Logs
+## Execution Reference Logs
+
 ```bash
 (pyats) pawansi@PAWANSI-M-81A3 dnac_ansible_workflows % ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml --e VARS_FILE_PATH=../vars/network_compliance_workflow_input.yml -vvvv
 ansible-playbook [core 2.15.3]
