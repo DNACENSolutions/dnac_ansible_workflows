@@ -64,14 +64,65 @@ workflow/sites/jinja_template/site_generation_template.j2 template can be used t
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/site_hierarchy_design_vars.yml -vvv
 ```
+## Creating Bulk Site confiogurations using JINJA template and using the playbook
 
-4. Execute with Jinja template:
+Create a Jinja template for your desired inopout, Example Jinja template for sites is as below
+This Example create 3 Areas and in Each Areas create 3 buildings and in each building it creates 3 floors. 
+This example can be reused and customized to your requirement and increase the requirement scale.
+
+```bash
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+design_sites:
+  - site:
+      area:
+        name: USA
+        parent_name: Global
+    type: area
+{% for i in range(1, 4) %}
+  - site:
+      area:
+        name: AREA{{i}}
+        parent_name: Global/USA
+    type: area
+{% for j in range(1, 4) %}
+  - site:
+      building:
+        name: AREA{{i}} BLD{{j}}
+        parent_name: Global/USA/AREA{{i}}
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+{% for l in range(1, 4) %}
+  - site:
+      floor:
+        name: AREA{{i}} BLD{{j}} FLOOR{{l}}
+        parent_name: Global/USA/AREA{{i}}/AREA{{i}} BLD{{j}}
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+{% endfor %}
+{% endfor %}
+{% endfor %}
+```
+
+# Template Created sites example
+![Alt text](./images/template_created_sites.png)
+
+Use the input var file: jinja_template_site_hierarchy_design_vars.yml and secify the name of you Jinja template in the input vars file.
+
+5. Execute with Jinja template:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/jinja_template_site_hierarchy_design_vars.yml -vvv
 ```
 ## Deleting the sites
 Playbook can be used to delete roles and users
-Run the delete Playbook
+6. Run the delete Playbook
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/delete_site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/delete_site_hierarchy_design_vars.yml -vvv
 ```
