@@ -156,7 +156,7 @@ Use the input var file: jinja_template_site_hierarchy_design_vars.yml and secify
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/jinja_template_site_hierarchy_design_vars.yml -vvv
 ```
 
-# Template Created sites example
+### Template Created sites example
 Figure 2: Jinja Template created site design
 ![Alt text](./images/template_created_sites.png)
 
