@@ -10,6 +10,7 @@ To define the details you can refer the full workflow specification: https://gal
 To run this workflow, you follow the README.md 
 
 ## Example run: (Create network settings)
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_settings/playbook/network_settings_playbook.yml --e VARS_FILE_PATH=../vars/network_settings_vars.yml -vvv 
 
 ## Example run: (Create IP Pools and Reserve IP pools on sites)
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_settings/playbook/network_settings_playbook.yml --e VARS_FILE_PATH=../vars/global_pool_and_reserve_pools_on_sites.yml -vvv 
