@@ -20,7 +20,7 @@ Floors (Floor icon in network hierarchy tree): Floors reside under buildings. Yo
 
 You can change the site hierarchy for unprovisioned devices while preserving AP locations on floor maps. Note, however, that you can't move an existing floor to a different building.
 
-## RMAC access to create and modify sites
+## RBAC access to create and modify sites
 Users with the SUPER-ADMIN-ROLE, NETWORK-ADMIN-ROLE can create,update, delete sites
 Users with custome role with access to network design can create,update, delete sites
 
@@ -52,9 +52,48 @@ catalyst_center_hosts:
             dnac_log_level: INFO
             dnac_log: true
 ```
-3. ## Define User and Role Data:
+3. ## Define Playbook input:
 The workflow/sites/vars/site_hierarchy_design_vars.yaml file stores the sites details you want to configure.
 Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/site_workflow_manager/
+
+To create a Area, SAN JOSE under existing Area USA, and Defining the building BLD23 and FLOOR1 under Building 23. You can define the inputs like this.
+```bash
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+# Provide the Catalyst Center Version
+catalyst_center_version: 2.3.7.6
+# Sites Inputs a list 
+design_sites:
+  - site:
+      area:
+        name: USA
+        parent_name: Global
+    type: area
+  - site:
+      area:
+        name: SAN JOSE
+        parent_name: Global/USA
+    type: area
+  - site:
+      building:
+        name: BLD23
+        parent_name: Global/USA/SAN JOSE
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: FLOOR1
+        parent_name: Global/USA/SAN JOSE/BLD23
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+```
+You can organize by putting all teh sites togather i.e. all fllor under one building next to the building.
 
 ### Creating bulk sites with jinja template
 workflow/sites/jinja_template/site_generation_template.j2 template can be used to customize the template and generate bulk sites.
