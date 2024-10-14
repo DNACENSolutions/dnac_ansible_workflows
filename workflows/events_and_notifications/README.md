@@ -1,4 +1,4 @@
-# Catalyst Center Events and Notification Destination and Deubcriptions Manager workflow
+# Catalyst Center Events and Notification Destination and Events Subscriptions Manager workflow
 
 ## Events and Notification Overview
 
