@@ -13,26 +13,52 @@
       dnac_password: "{{ dnac_password }}"
       dnac_verify: "{{ dnac_verify }}"
       dnac_port: "{{ dnac_port }}"
-      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
       dnac_debug: "{{ dnac_debug }}"
   tasks:
+    # Include the variables file {{ VARS_FILE_PATH }} for the playbook
     - name: Site Playbook start time
       set_fact:
         long_op_start: "{{ now() }}"
-
+    # load site template jinja file
+    - name: Create Template
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined
+    # Include the variables file {{ VARS_FILE_PATH }} for the playbook
+    - name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
+      include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when: jinjatemplate is not defined or jinjatemplate is false or jinjatemplate_file is not defined
+    # set the dnac_version
+    - set_fact:
+        dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+    # create sites from design_sites config
     - name: Create sites from design_sites config
       cisco.dnac.site_workflow_manager:
         <<: *dnac_login
         state: "{{state}}"
         config: "{{design_sites}}"
-
+      register: site_output
+      when: design_sites is defined and design_sites | length > 0
+    # Print the sites creation output
+    - name: Print the sites creation output
+      debug:
+        msg: "{{site_output}}"
+    # Sites playbook end time
     - name: Sites playbook end time
       set_fact:
         long_op_end: "{{ now() }}"
-
+    # Print sites execution time
     - name: Print sites execution time
       debug:
         msg: "Sites playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  # run command module to find python version
   post_tasks:
     - name: run command module to find python version
       ansible.builtin.command: which python

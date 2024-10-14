@@ -7,3 +7,8 @@ design_sites:
         name: China
         parent_name: Global
     type: area
+  - site:
+      area:
+        name: AREA1
+        parent_name: Global/USA
+    type: area
