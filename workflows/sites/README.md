@@ -7,7 +7,7 @@ You can name hierarchical elements to help you identify where to apply design se
 The hierarchical elements that you can create have rules that dictate under which elements they can reside and which elements can reside under them. See the following figure and descriptions:
 
 Network Hierarchy
-Figure 3: Network Hierarchy table, displaying Global, Area, Site, Building, and Floor.
+Figure 1: Network Hierarchy table, displaying Global, Area, Site, Building, and Floor.
 ![Alt text](./images/site_image1.png)
 
 Global: Default element under which all other hierarchical elements reside. Areas or sites are the only elements that can reside directly under Global.
@@ -111,15 +111,32 @@ design_sites:
 {% endfor %}
 ```
 
-# Template Created sites example
-![Alt text](./images/template_created_sites.png)
-
 Use the input var file: jinja_template_site_hierarchy_design_vars.yml and secify the name of you Jinja template in the input vars file.
 
 5. Execute with Jinja template:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/jinja_template_site_hierarchy_design_vars.yml -vvv
 ```
+
+# Template Created sites example
+Figure 2: Jinja Template created site design
+![Alt text](./images/template_created_sites.png)
+
+Deleting sites delete all teh sites under the site provided.
+
+With the belo input the delete playbooks Delete all the floors and building under the site hierarchy Global/USA/AREA1 and site AREA1.
+```bash
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+design_sites:  
+  - site:
+      area:
+        name: AREA1
+        parent_name: Global/USA
+    type: area
+```
+
 ## Deleting the sites
 Playbook can be used to delete roles and users
 6. Run the delete Playbook
