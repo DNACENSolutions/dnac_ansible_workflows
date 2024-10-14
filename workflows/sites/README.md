@@ -95,11 +95,7 @@ design_sites:
 ```
 You can organize by putting all teh sites togather i.e. all fllor under one building next to the building.
 
-### Creating bulk sites with jinja template
-workflow/sites/jinja_template/site_generation_template.j2 template can be used to customize the template and generate bulk sites.
-
-
-4. Execute:
+4. Execute: Execute the playbooks with your inputs and Inventory, specify your input file using the --e variable VARS_FILE_PATH
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/site_hierarchy_design_vars.yml -vvv
 ```
@@ -108,6 +104,9 @@ workflow/sites/jinja_template/site_generation_template.j2 template can be used t
 Create a Jinja template for your desired inopout, Example Jinja template for sites is as below
 This Example create 3 Areas and in Each Areas create 3 buildings and in each building it creates 3 floors. 
 This example can be reused and customized to your requirement and increase the requirement scale.
+
+### Creating bulk sites with jinja template
+workflow/sites/jinja_template/site_generation_template.j2 template can be used to customize the template and generate bulk sites.
 
 ```bash
 ---
