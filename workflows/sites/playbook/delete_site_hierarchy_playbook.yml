@@ -15,16 +15,22 @@
       dnac_password: "{{ dnac_password }}"
       dnac_verify: "{{ dnac_verify }}"
       dnac_port: "{{ dnac_port }}"
-      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
       dnac_debug: "{{ dnac_debug }}"
 
   tasks:
     - name: Site Playbook start time
       set_fact:
         long_op_start: "{{ now() }}"
+    - set_fact:
+        dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+    - set_fact:
+        dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+        
     - name: Delete sites from design_sites config
       cisco.dnac.site_workflow_manager:
         <<: *dnac_login
+        dnac_version: "{{ dnac_version }}"
+        dnac_verify: "{{ dnac_verify }}"
         state: "{{state}}"
         config: "{{design_sites}}"
     - name: Sites delete playbook end time

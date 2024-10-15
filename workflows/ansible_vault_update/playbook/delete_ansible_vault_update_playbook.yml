@@ -1,0 +1,104 @@
+---
+# This playbook is used to delete the variable/passwords from the vault encrypted file
+# ansible-playbook -i inventory/hosts.yml workflows/ansible_vault_update/playbook/delete_ansible_vault_update_playbook.yml --extra-vars "VARS_FILE_PATH=../vars/ansible_vault_update_inputs.yml"
+- name: Manage operation related to taking the backup of running config on  Cisco Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars:
+    state: absent
+
+  tasks:
+    - name: Read the data from the file, encrypt it and write it to destination file
+      include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when: VARS_FILE_PATH is defined
+  
+    - name: Create output file
+      copy:
+        content: ""
+        dest: ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml
+
+    - name: Print key:value pairs to output file
+      lineinfile:
+        path: ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml
+        line: "{{ item.key }}: {{ item.value }}"
+      loop: "{{ passwords_details }}"
+
+    # Read the tmp file content of tmp_mypasswordfile.yaml
+    - name: Read the file content of temp_mypasswordfile.yaml
+      include_vars:
+        file: ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml
+        name: dst_data_content
+      when: VARS_FILE_PATH is defined
+    # Check if the vault file exist
+    - name: Check if the file exists
+      stat:
+        path: ../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml
+      register: stat_result
+
+    - name: Create the file, if it doesnt exist already
+      copy: 
+        dest: ../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml
+        content: |
+          ---
+          dummypass: dummy
+      when: not stat_result.stat.exists
+
+    - name: encrypt the file
+      ansible.builtin.command: ansible-vault encrypt ../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml
+      when: not stat_result.stat.exists
+
+    # copy the encrypted valt encrypted file to a tmp file
+    - name: copy the encrypted file to a tmp file
+      ansible.builtin.command: cp ../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml ../../../ansible_vault_encrypted_inputs/tmp_orig_mypasswordfile.yaml
+
+    - name: decrypt the file
+      ansible.builtin.command: ansible-vault decrypt ../../../ansible_vault_encrypted_inputs/tmp_orig_mypasswordfile.yaml
+
+    - name: Read the original file content of _mypasswordfile.yaml
+      include_vars:
+        file: ../../../ansible_vault_encrypted_inputs/tmp_orig_mypasswordfile.yaml
+        name: orig_data_content
+      when: VARS_FILE_PATH is defined
+    - debug:
+        var: dst_data_content
+    - name: Determine keys to remove
+      set_fact:
+        keys_to_remove: "{{ dst_data_content.keys() | list }}"
+      when: state == 'absent'
+
+    - name: Remove keys and values from source data
+      loop: "{{ keys_to_remove }}"
+      vars:
+        key_to_remove: "{{ item }}"
+      set_fact:
+        orig_data_content: "{{ orig_data_content | dict2items | rejectattr('key', 'eq', key_to_remove) | items2dict }}"
+      when: state == 'absent'
+
+    - name: Print the keys of the final data after removing the entries
+      debug:
+        msg: "{{ orig_data_content.keys() }}"
+
+    - name: Write merged data to destination file
+      copy:
+        content: "{{ orig_data_content | to_nice_yaml }}"
+        dest: ../../../ansible_vault_encrypted_inputs/tmp_combined_mypasswordfile.yaml
+
+    - name: encrypt the file
+      ansible.builtin.command: ansible-vault encrypt ../../../ansible_vault_encrypted_inputs/tmp_combined_mypasswordfile.yaml
+    
+    - name: copy the encrypted file to the original file
+      ansible.builtin.command: cp ../../../ansible_vault_encrypted_inputs/tmp_combined_mypasswordfile.yaml ../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml
+
+    - name: delete the tmp files
+      ansible.builtin.command: rm ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml ../../../ansible_vault_encrypted_inputs/tmp_orig_mypasswordfile.yaml ../../../ansible_vault_encrypted_inputs/tmp_combined_mypasswordfile.yaml
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
+
+
