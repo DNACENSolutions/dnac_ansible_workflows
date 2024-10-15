@@ -131,6 +131,80 @@ Validation success! 👍
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_credentials/playbook/device_credentials_playbook.yml --e VARS_FILE_PATH=../vars/device_credentials_vars.yml -vvvv
 ```
 
+## running through Jinja template with credentials picked up from ansible Vault
+You can define your input as  jinja template where you can use the variables from ansible vault and run using the same playbooks
+
+Defining the jinja template example: workflows/device_credentials/jinja_template/device_credentials_template.j2
+
+while defining the template maintain the structure and the variable name: device_credentials: which is a dictionary having two keys: credentials_details and credentials_site_assignment and follow the workflow spec for the rest as below example.
+
+```yaml
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+device_credentials:
+  credentials_details: #Create multiple credentials for the same protocol
+  - global_credential_details: #Create global credentials for the device list
+      cli_credential: #Create CLI credentials list
+      - description: switchandwlc credentials
+        username: wlcaccess
+        password: {{ wlcaccess_password }}
+        enable_password: {{ wlcaccess_enable_password }}
+      snmp_v3: #Create SNMPv3 credentials list
+      - description: snmpV3 Sample 1 
+        auth_password: {{ snmpV3_Sample_1_auth_password }}
+        auth_type: SHA
+        snmp_mode: AUTHPRIV
+        privacy_password: {{ snmpV3_Sample_1_privacy_password }}
+        privacy_type: AES128
+        username: admin
+      https_read: #Create HTTPS Read credentials list
+      - description: httpsRead Sample 1
+        username: admin
+        password: {{ httpsRead_Sample_1_password }}
+        port: 443
+      https_write: #Create HTTPS Write credentials list
+      - description: httpsWrite Sample 1
+        username: admin
+        password: {{ httpsWrite_Sample_1_password }}
+        port: 443
+  credentials_site_assignment: #Assign credentials to sites list of all sites mappings
+  - assign_credentials_to_site: # Assign device credentials to sites
+      cli_credential: #Assign CLI credentials to sites
+        description: switchandwlc credentials
+        username:  wlcaccess
+      snmp_v3: #Assign SNMPv3 credentials to sites
+        description: snmpV3 Sample 1 
+        username: admin
+      https_read: #Assign HTTPS Read credentials to sites
+        username: admin
+        description: httpsRead Sample 1
+      https_write: #Assign HTTPS Write credentials to sites
+        username: admin
+        description: httpsWrite Sample 1
+      site_name: #Sites  to which the credentials are assigned
+        - Global/USA
+```
+### Create playbook input file which contains path to jinja template
+Create file jinja_template_device_credentials_input.yml (example name)
+```yaml
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+catalyst_center_verify: false
+jinjatemplate: true
+#Provide the path to the jinja template file
+jinjatemplate_file: ../jinja_template/device_credentials_template.j2
+# device_credentials could be empty or have a list of device credentials, if jinjatemplate  is true device_credentials value is taken from jinja template
+device_credentials: []
+```
+
+The variables used in the template should be already added to ansible vault. 
+Refer workflow ansible_vault_update workflow to add the variable to your ansible vault.
+
+## Execute credentials with jinja template:
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_credentials/playbook/device_credentials_playbook.yml --e VARS_FILE_PATH=../vars/jinja_template_device_credentials_input.yml -vvvv
+
+
 ## Important Notes:
 - Ensure the Catalyst Center version is compatible.
 - Carefully configure inventory and input variables.
