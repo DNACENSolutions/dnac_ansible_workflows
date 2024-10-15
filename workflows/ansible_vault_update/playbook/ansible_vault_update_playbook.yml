@@ -1,6 +1,6 @@
 ---
-#the following playbook is used to Manage operation related to taking the backup of running config, static config and vlan.dat.bat
-# ansible-playbook -i inventory/hosts.yml workflows/ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/ise_radius_integration_workflow_input.yml"
+# This playbook is used to update the vault encrypted file with the new data
+# ansible-playbook -i inventory/hosts.yml workflows/ansible_vault_update/playbook/ansible_vault_update_playbook.yml --extra-vars "VARS_FILE_PATH=../vars/ansible_vault_update_inputs.yml"
 - name: Manage operation related to taking the backup of running config on  Cisco Catalyst Center
   hosts: catalyst_center_hosts
   connection: local
@@ -12,23 +12,31 @@
         file: "{{ VARS_FILE_PATH }}"
       when: VARS_FILE_PATH is defined
   
+  - name: set the key:value pairs to output file
+      set_fact:
+        #dst_data_formatted: " {{ dst_data_formatted | default({}) + {'key': item.key, 'value': item.value} }}"
+        passwords_details: "{{ passwords_details | default([]) + [{item.key:item.value}] }}"
+      loop: "{{ passwords_details }}"
+      when: VARS_FILE_PATH is defined
+
     - name: Create output file
       copy:
         content: ""
         dest: ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml
 
-    - name: Print key:value pairs to output file
+    - name: set the key:value pairs to output file
       lineinfile:
         path: ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml
-        line: "{{ item.password_key }}: {{ item.password_value }}"
+        line: "{{ item.key }}: {{ item.value }}"
       loop: "{{ passwords_details }}"
 
     # Read the tmp file content of tmp_mypasswordfile.yaml
     - name: Read the file content of temp_mypasswordfile.yaml
-      set_fact:
-        tmp_data_content: "{{ lookup('file', '../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml') }}"
+      include_vars:
+        file: ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml
+        name: dst_data_content
       when: VARS_FILE_PATH is defined
-
+    # Check if the vault file exist
     - name: Check if the file exists
       stat:
         path: ../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml
@@ -54,20 +62,30 @@
       ansible.builtin.command: ansible-vault decrypt ../../../ansible_vault_encrypted_inputs/tmp_orig_mypasswordfile.yaml
 
     - name: Read the original file content of _mypasswordfile.yaml
-      set_fact:
-        orig_data_content: "{{ lookup('file', '../../../ansible_vault_encrypted_inputs/tmp_orig_mypasswordfile.yaml') }}"
+      include_vars:
+        file: ../../../ansible_vault_encrypted_inputs/tmp_orig_mypasswordfile.yaml
+        name: orig_data_content
+      when: VARS_FILE_PATH is defined
 
-    - name: Combine lines
-      set_fact:
-        combined_data: "{{ orig_data_content | split('\n') | unique + tmp_data_content | split('\n') | unique }}"
+    - name: Print the keys of the original data
+      debug:
+        msg: "{{ orig_data_content.keys() }}"
 
-    - name: Remove Duplicate lines
-      set_fact:
-        combined_data: "{{ combined_data | unique }}"
+    - name: Print the keys of the destination data
+      debug:
+        msg: "{{ dst_data_content.keys() }}"
 
-    - name: Write the combined data to the original file
+    - name: Merge YAML files (replace duplicates)
+      set_fact:
+        merged_data: "{{ orig_data_content | combine(dst_data_content, recursive=True) }}"
+
+    - name: Print the keys of the merged data
+      debug:
+        msg: "{{ merged_data.keys() }}"
+
+    - name: Write merged data to destination file
       copy:
-        content: "{{ combined_data | join('\n') }}"
+        content: "{{ merged_data | to_nice_yaml }}"
         dest: ../../../ansible_vault_encrypted_inputs/tmp_combined_mypasswordfile.yaml
 
     - name: encrypt the file

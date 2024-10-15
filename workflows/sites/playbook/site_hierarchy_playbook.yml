@@ -11,7 +11,6 @@
       dnac_host: "{{ dnac_host }}"
       dnac_username: "{{ dnac_username }}"
       dnac_password: "{{ dnac_password }}"
-      dnac_verify: "{{ dnac_verify }}"
       dnac_port: "{{ dnac_port }}"
       dnac_debug: "{{ dnac_debug }}"
   tasks:
@@ -38,10 +37,15 @@
     # set the dnac_version
     - set_fact:
         dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+    # set the dnac_verify
+    - set_fact:
+        dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
     # create sites from design_sites config
     - name: Create sites from design_sites config
       cisco.dnac.site_workflow_manager:
         <<: *dnac_login
+        dnac_version: "{{ dnac_version }}"
+        dnac_verify: "{{ dnac_verify }}"
         state: "{{state}}"
         config: "{{design_sites}}"
       register: site_output
