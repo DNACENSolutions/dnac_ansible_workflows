@@ -30,16 +30,16 @@
         file: ../tmp/template_generated_file.yaml
       when: jinjatemplate is defined
     # Include the variables file {{ VARS_FILE_PATH }} for the playbook
-    - name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
-      include_vars:
-        file: "{{ VARS_FILE_PATH }}"
-      when: jinjatemplate is not defined or jinjatemplate is false or jinjatemplate_file is not defined
+    #- name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
+    #  include_vars:
+    #    file: "{{ VARS_FILE_PATH }}"
+    #  when: jinjatemplate is not defined or jinjatemplate is false or jinjatemplate_file is not defined
     # set the dnac_version
-    - set_fact:
-        dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+    #- set_fact:
+    #    dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
     # set the dnac_verify
-    - set_fact:
-        dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+    #- set_fact:
+    #    dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
     # create sites from design_sites config
     - name: Create sites from design_sites config
       cisco.dnac.site_workflow_manager:
