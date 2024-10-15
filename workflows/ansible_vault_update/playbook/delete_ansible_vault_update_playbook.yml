@@ -1,10 +1,13 @@
 ---
-# This playbook is used to update the vault encrypted file with the new data
-# ansible-playbook -i inventory/hosts.yml workflows/ansible_vault_update/playbook/ansible_vault_update_playbook.yml --extra-vars "VARS_FILE_PATH=../vars/ansible_vault_update_inputs.yml"
+# This playbook is used to delete the variable/passwords from the vault encrypted file
+# ansible-playbook -i inventory/hosts.yml workflows/ansible_vault_update/playbook/delete_ansible_vault_update_playbook.yml --extra-vars "VARS_FILE_PATH=../vars/ansible_vault_update_inputs.yml"
 - name: Manage operation related to taking the backup of running config on  Cisco Catalyst Center
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
+
+  vars:
+    state: absent
 
   tasks:
     - name: Read the data from the file, encrypt it and write it to destination file
@@ -12,19 +15,12 @@
         file: "{{ VARS_FILE_PATH }}"
       when: VARS_FILE_PATH is defined
   
-  - name: set the key:value pairs to output file
-      set_fact:
-        #dst_data_formatted: " {{ dst_data_formatted | default({}) + {'key': item.key, 'value': item.value} }}"
-        passwords_details: "{{ passwords_details | default([]) + [{item.key:item.value}] }}"
-      loop: "{{ passwords_details }}"
-      when: VARS_FILE_PATH is defined
-
     - name: Create output file
       copy:
         content: ""
         dest: ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml
 
-    - name: set the key:value pairs to output file
+    - name: Print key:value pairs to output file
       lineinfile:
         path: ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml
         line: "{{ item.key }}: {{ item.value }}"
@@ -66,26 +62,28 @@
         file: ../../../ansible_vault_encrypted_inputs/tmp_orig_mypasswordfile.yaml
         name: orig_data_content
       when: VARS_FILE_PATH is defined
+    - debug:
+        var: dst_data_content
+    - name: Determine keys to remove
+      set_fact:
+        keys_to_remove: "{{ dst_data_content.keys() | list }}"
+      when: state == 'absent'
 
-    - name: Print the keys of the original data
+    - name: Remove keys and values from source data
+      loop: "{{ keys_to_remove }}"
+      vars:
+        key_to_remove: "{{ item }}"
+      set_fact:
+        orig_data_content: "{{ orig_data_content | dict2items | rejectattr('key', 'eq', key_to_remove) | items2dict }}"
+      when: state == 'absent'
+
+    - name: Print the keys of the final data after removing the entries
       debug:
         msg: "{{ orig_data_content.keys() }}"
 
-    - name: Print the keys of the destination data
-      debug:
-        msg: "{{ dst_data_content.keys() }}"
-
-    - name: Merge YAML files (replace duplicates)
-      set_fact:
-        merged_data: "{{ orig_data_content | combine(dst_data_content, recursive=True) }}"
-
-    - name: Print the keys of the merged data
-      debug:
-        msg: "{{ merged_data.keys() }}"
-
     - name: Write merged data to destination file
       copy:
-        content: "{{ merged_data | to_nice_yaml }}"
+        content: "{{ orig_data_content | to_nice_yaml }}"
         dest: ../../../ansible_vault_encrypted_inputs/tmp_combined_mypasswordfile.yaml
 
     - name: encrypt the file

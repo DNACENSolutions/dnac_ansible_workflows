@@ -1,6 +1,7 @@
 ---
 #Select Catalyst Cennter version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
+catalyst_center_verify: false
 design_sites:  
   - site:
       area:

@@ -1,10 +1,14 @@
 ---
 passwords_details:
-- password_key: testuser1password
-  password_value: 'testuser1@123'
-- password_key: testuser2password
-  password_value: 'testuser2@123'
-- password_key: testuser3password
-  password_value: 'testuser3@123'
-- password_key: testuser4password
-  password_value: 'testuser4@123'
+- key: testuser1password
+  value: 'testuser1@123'
+- key: testuser2password
+  value: 'testuser2@123'
+- key: testuser3password
+  value: 'testuser3@123'
+- key: testuser4password
+  value: 'testuser4@123'
+- key: testuser5password
+  value: 'testuser5@123'
+- key: testuser6password
+  value: 'testuser6@123'
