@@ -11,19 +11,13 @@
       include_vars:
         file: "{{ VARS_FILE_PATH }}"
       when: VARS_FILE_PATH is defined
-  
-  - name: set the key:value pairs to output file
-      set_fact:
-        #dst_data_formatted: " {{ dst_data_formatted | default({}) + {'key': item.key, 'value': item.value} }}"
-        passwords_details: "{{ passwords_details | default([]) + [{item.key:item.value}] }}"
-      loop: "{{ passwords_details }}"
-      when: VARS_FILE_PATH is defined
-
+    # Create output file
     - name: Create output file
       copy:
         content: ""
         dest: ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml
 
+    # Print key:value pairs to output file
     - name: set the key:value pairs to output file
       lineinfile:
         path: ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml

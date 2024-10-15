@@ -594,6 +594,10 @@
 
 # #=======================================================================================================================
 catalyst_center_version: str(required=False)
+jinjatemplate_file: str(required=False)
+jinjatemplate: bool(required=False)
+passwords_file: str(required=False)
+catalyst_center_verify: bool(required=False)
 roles_users_details: 
     role_details: list(include('roles_details_type'), min=0, max=500, required=False)
     user_details: list(include('users_details_type'), min=0, max=500, required=False)
