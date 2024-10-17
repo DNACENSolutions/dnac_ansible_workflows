@@ -12,7 +12,10 @@
       dnac_username: "{{ dnac_username }}"
       dnac_password: "{{ dnac_password }}"
       dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
       dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
   tasks:
     # Include the variables file {{ VARS_FILE_PATH }} for the playbook
     - name: Site Playbook start time
