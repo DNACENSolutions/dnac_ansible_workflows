@@ -46,6 +46,10 @@
 #     false
 # A boolean value indicating whether the Wake-on-LAN feature is enabled. Wake-on-LAN allows the network to remotely wake up devices that are in a low-power state.
 catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+jinjatemplate: bool(required=False)
+jinjatemplate_file: str(required=False)
+passwords_file: str(required=False)
 
 fabric_sites_and_zones: list(include('fabric_sites_and_zones_type'), min=0, max=1000, required=False)
 # Schema for the fabric sites and zones details.
@@ -53,7 +57,7 @@ fabric_sites_and_zones: list(include('fabric_sites_and_zones_type'), min=0, max=
 fabric_sites_and_zones_type: 
   fabric_sites: list( include('fabric_sites_type'), min=0, max=1000, required=False)
 fabric_sites_type:
-    authentication_profile: str(required=True)
+    authentication_profile: enum('Closed Authentication', 'Low Impact', 'No Authentication', 'Open Authentication', required=True)
     fabric_type: str(required=True)
     is_pub_sub_enabled: bool(required=False)
     site_name: str(required=True)
