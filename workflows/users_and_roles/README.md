@@ -146,6 +146,6 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/pla
 Playbook can be used to delete roles and users
 Run the delete Playbook
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/delete_users_and_roles/playbook/users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/delete_playbook/users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
 ```
 Roles and Users will get deleted from the Catalyst Center

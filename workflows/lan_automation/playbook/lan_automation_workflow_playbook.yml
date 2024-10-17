@@ -1,0 +1,51 @@
+# Playbook for lan_automation_workflow_manager from cisco.dnac module
+- name: Playbook to manage LAN Automation in Cisco Catalyst Center.
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: merged
+    
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+  tasks:
+    - name: Playbook start time for the LAN Automation workflow playbook
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: LAN Automation workflow playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: Run Lan autom
+      cisco.dnac.lan_automation_workflow_manager:
+        <<: *dnac_login
+        state: deleted
+        config: "{{ise_radius_integration_details}}"
+      register: ise_radius_integration_output
+      #when: ise_radius_integration_details is defined
+    - name: Print the Authentication and Policy Servers deletion output
+      debug:
+        msg: "{{ise_radius_integration_output}}"
+    - name: Authentication and Policy Servers deletion playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print Authentication and Policy Servers deletion playbook execution time
+      debug:
+        msg: "Authentication and Policy Servers deletion playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
