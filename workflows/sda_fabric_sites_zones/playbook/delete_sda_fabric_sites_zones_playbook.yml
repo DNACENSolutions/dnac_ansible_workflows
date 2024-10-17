@@ -1,13 +1,14 @@
-# Playbook to Manage fabric site(s)/zone(s) and update the authentication profile template in Cisco Catalyst Center.
+# Playbook to delete fabric site(s)/zone(s).
 # Creating fabric site(s) for the SDA operation in Cisco Catalyst Center.
 # Updating fabric site(s) for the SDA operation in Cisco Catalyst Center.
 # Creating fabric zone(s) for the SDA operation in Cisco Catalyst Center.
 # Updating fabric zone(s) for the SDA operation in Cisco Catalyst Center.
 # module: fabric_sites_zones_workflow_manager
 # requirements:
-#   - cisco.dnac >= 6.19.0
+#   - cisco.dnac >= 6.21.0
+#   - Catalyst Center >= 2.3.7.6
 ---
-- name: Playbook to manage fabric site(s)/zone(s) and update the authentication profile template in Cisco Catalyst Center
+- name: Playbook to delete fabric site(s)/zone(s) in Cisco Catalyst Center
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -16,7 +17,7 @@
     - "{{ VARS_FILE_PATH }}"
 
   vars:
-    state: merged
+    state: deleted
     dnac_login: &dnac_login
       dnac_host: "{{ dnac_host }}"
       dnac_username: "{{ dnac_username }}"
@@ -33,8 +34,8 @@
     - name: Playbook start time for the fabric site(s)/zone(s) playbook
       set_fact:
         long_op_start: "{{ now() }}"
-    - name: Add/Update fabric site(s) and zone(s) for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
-      cisco.dnac.fabric_sites_zones_workflow_manager:
+    - name: Delete fabric site(s) and zone(s) for inputs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.sda_fabric_sites_zones_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
         config: "{{ fabric_sites_and_zones }}" 
@@ -48,7 +49,7 @@
         long_op_end: "{{ now() }}"
     - name: Print fabric site(s)/zone(s) playbook execution time
       debug:
-        msg: "Fabric site(s)/zone(s) playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+        msg: "Delete Fabric site(s)/zone(s) playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
   post_tasks:
     - name: run command module to find python version
       ansible.builtin.command: which python
