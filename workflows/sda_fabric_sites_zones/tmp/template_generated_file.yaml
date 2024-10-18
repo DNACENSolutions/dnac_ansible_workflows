@@ -1,0 +1,56 @@
+
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+fabric_sites_and_zones:
+    - fabric_sites:
+        - fabric_type: fabric_site
+          site_name: Global/USA/AREA1/AREA1 BLD1
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+        - fabric_type: fabric_zone
+          site_name: Global/USA/AREA1/AREA1 BLD1/AREA1 BLD1 FLOOR1
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+        - fabric_type: fabric_zone
+          site_name: Global/USA/AREA1/AREA1 BLD1/AREA1 BLD1 FLOOR2
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+        - fabric_type: fabric_zone
+          site_name: Global/USA/AREA1/AREA1 BLD1/AREA1 BLD1 FLOOR3
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+    - fabric_sites:
+        - fabric_type: fabric_site
+          site_name: Global/USA/AREA2/AREA2 BLD2
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+        - fabric_type: fabric_zone
+          site_name: Global/USA/AREA2/AREA2 BLD2/AREA2 BLD2 FLOOR1
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+        - fabric_type: fabric_zone
+          site_name: Global/USA/AREA2/AREA2 BLD2/AREA2 BLD2 FLOOR2
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+        - fabric_type: fabric_zone
+          site_name: Global/USA/AREA2/AREA2 BLD2/AREA2 BLD2 FLOOR3
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+    - fabric_sites:
+        - fabric_type: fabric_site
+          site_name: Global/USA/AREA3/AREA3 BLD3
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+        - fabric_type: fabric_zone
+          site_name: Global/USA/AREA3/AREA3 BLD3/AREA3 BLD3 FLOOR1
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+        - fabric_type: fabric_zone
+          site_name: Global/USA/AREA3/AREA3 BLD3/AREA3 BLD3 FLOOR2
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+        - fabric_type: fabric_zone
+          site_name: Global/USA/AREA3/AREA3 BLD3/AREA3 BLD3 FLOOR3
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
