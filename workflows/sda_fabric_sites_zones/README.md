@@ -111,7 +111,7 @@ Figure 6 Post Creation UI View
 ![Alt text](./images/Fabric_site_and_zones.png)
 
 
-###  To create or update the fabroc sites and zones example
+###  To create or update the fabric sites and zones example
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_sites_zones/playbook/sda_fabric_sites_zones_playbook.yml --e VARS_FILE_PATH=../vars/sda_fabric_sites_zones_inputs.yml
 ```
