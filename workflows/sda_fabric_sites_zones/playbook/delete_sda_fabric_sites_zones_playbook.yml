@@ -34,6 +34,17 @@
     - name: Playbook start time for the fabric site(s)/zone(s) playbook
       set_fact:
         long_op_start: "{{ now() }}"
+    # load site template jinja file
+    - name: Load template file to delete fabric site(s)/zone(s)
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     - name: Delete fabric site(s) and zone(s) for inputs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       cisco.dnac.sda_fabric_sites_zones_workflow_manager:
         <<: *dnac_login
@@ -44,6 +55,10 @@
     - name: Print the fabric site(s)/zone(s) output
       debug:
         msg: "{{fabric_sites_and_zones_output}}"
+    # delete the template file
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     - name: Fabric site(s)/zone(s) playbook end time
       set_fact:
         long_op_end: "{{ now() }}"

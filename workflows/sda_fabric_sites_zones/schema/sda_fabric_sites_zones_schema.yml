@@ -61,7 +61,8 @@ fabric_sites_type:
     fabric_type: str(required=True)
     is_pub_sub_enabled: bool(required=False)
     site_name: str(required=True)
-    update_authentication_profile:
+    update_authentication_profile: include('update_authentication_profile_type', required=False)
+update_authentication_profile_type:
       authentication_order: str(required=False)
       dot1x_fallback_timeout: int(required=False)
       enable_bpu_guard: bool(required=False)

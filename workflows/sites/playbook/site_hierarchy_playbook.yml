@@ -31,19 +31,7 @@
     - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
       include_vars:
         file: ../tmp/template_generated_file.yaml
-      when: jinjatemplate is defined
-    # Include the variables file {{ VARS_FILE_PATH }} for the playbook
-    #- name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
-    #  include_vars:
-    #    file: "{{ VARS_FILE_PATH }}"
-    #  when: jinjatemplate is not defined or jinjatemplate is false or jinjatemplate_file is not defined
-    # set the dnac_version
-    #- set_fact:
-    #    dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
-    # set the dnac_verify
-    #- set_fact:
-    #    dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
-    # create sites from design_sites config
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     - name: Create sites from design_sites config
       cisco.dnac.site_workflow_manager:
         <<: *dnac_login
@@ -57,6 +45,10 @@
     - name: Print the sites creation output
       debug:
         msg: "{{site_output}}"
+    # delete the template file
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     # Sites playbook end time
     - name: Sites playbook end time
       set_fact:

@@ -119,6 +119,71 @@ Figure 6 Post Creation UI View
 ```bash
  ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_sites_zones/playbook/delete_sda_fabric_sites_zones_playbook.yml --e VARS_FILE_PATH=../vars/sda_fabric_sites_zones_inputs.yml
 ```
+## Creating Bulk Site confiogurations using JINJA template and using the playbook
+
+Create a Jinja template for your desired inopout, Example Jinja template for sites is as below
+This Example create 3 Areas and in Each Areas create 3 buildings and in each building it creates 3 floors. 
+This example can be reused and customized to your requirement and increase the requirement scale.
+
+### Creating bulk sites with jinja template
+workflow/sites/jinja_template/site_generation_template.j2 template can be used to customize the template and generate bulk sites.
+
+```bash
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+fabric_sites_and_zones:
+{% for i in range(1, 4) %}
+    - fabric_sites:
+        - fabric_type: fabric_site
+          site_name: Global/USA/AREA{{i}}/AREA{{i}} BLD{{i}}
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+{% for j in range(1, 4) %}
+        - fabric_type: fabric_zone
+          site_name: Global/USA/AREA{{i}}/AREA{{i}} BLD{{i}}/AREA{{i}} BLD{{i}} FLOOR{{j}}
+          authentication_profile: No Authentication
+          is_pub_sub_enabled: true
+{% endfor %}
+{% endfor %}
+```
+
+Use the input var file: jinja_template_site_hierarchy_design_vars.yml and secify the name of you Jinja template in the input vars file.
+
+5. Execute with Jinja template:
+```bash
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_sites_zones/playbook/sda_fabric_sites_zones_playbook.yml --e VARS_FILE_PATH=../vars/sda_j2_template_fabric_sites_input.yml
+
+TASK [Print the fabric site(s)/zone(s) output] *************************************************************************************************************************************************************************************************************
+ok: [catalyst_center220] => {
+    "msg": {
+        "changed": true,
+        "diff": [],
+        "failed": false,
+        "response": "Fabric site(s) '['Global/USA/AREA2/AREA2 BLD2', 'Global/USA/AREA3/AREA3 BLD3']' created successfully in Cisco Catalyst Center. Fabric site(s) '['Global/USA/AREA1/AREA1 BLD1']' need no update in Cisco Catalyst Center. Fabric zone(s) '['Global/USA/AREA2/AREA2 BLD2/AREA2 BLD2 FLOOR1', 'Global/USA/AREA2/AREA2 BLD2/AREA2 BLD2 FLOOR2', 'Global/USA/AREA2/AREA2 BLD2/AREA2 BLD2 FLOOR3', 'Global/USA/AREA3/AREA3 BLD3/AREA3 BLD3 FLOOR1', 'Global/USA/AREA3/AREA3 BLD3/AREA3 BLD3 FLOOR2', 'Global/USA/AREA3/AREA3 BLD3/AREA3 BLD3 FLOOR3']' created successfully in Cisco Catalyst Center. Fabric zone(s) '['Global/USA/AREA1/AREA1 BLD1/AREA1 BLD1 FLOOR1', 'Global/USA/AREA1/AREA1 BLD1/AREA1 BLD1 FLOOR2', 'Global/USA/AREA1/AREA1 BLD1/AREA1 BLD1 FLOOR3']' need no update in Cisco Catalyst Center."
+    }
+}
+#=========run logs================================
+TASK [Delete the template file] ****************************************************************************************************************************************************************************************************************************
+changed: [catalyst_center220]
+
+TASK [Fabric site(s)/zone(s) playbook end time] ************************************************************************************************************************************************************************************************************
+ok: [catalyst_center220]
+
+TASK [Print fabric site(s)/zone(s) playbook execution time] ************************************************************************************************************************************************************************************************
+ok: [catalyst_center220] => {
+    "msg": "Fabric site(s)/zone(s) playbook run time: 2024-10-17 17:07:33.629001, end: 2024-10-17 17:08:46.419055"
+}
+
+TASK [run command module to find python version] ***********************************************************************************************************************************************************************************************************
+changed: [catalyst_center220 -> catalyst_center_hosts]
+
+PLAY RECAP *************************************************************************************************************************************************************************************************************************************************
+catalyst_center220         : ok=9    changed=3    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+```
+Figure 5 Jinja created fabric sites
+![Alt text](./images/fabric_sites_with_jinja.png)
+
 ## Important Notes
 ### Refer to the Catalyst Center documentation for detailed instructions on configuring fabric sites and fabric zones and using the Ansible playbooks.
 ### Consider backing up your configuration before running the playbooks, especially the delete playbook.
