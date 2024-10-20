@@ -22,7 +22,7 @@ This repository contains a collection of Ansible workflows for automating Cataly
 - [Catalyst Center Hite Hierarchy and Floor Maps Design] (workflows/sites/#readme)
 - [Catalyst Center Device Credentials configuration and assignment] (workflows/device_credentials/#readme)
 - [Catalyst Center Devces Discovery] (workflows/device_discovery/#readme)
-- [Catalyst Center Device Inventory and Device Management] (workflows/inventory/#readme)
+- [Catalyst Center Device Inventory and Device Management] (https://github.com/DNACENSolutions/dnac_ansible_workflows/tree/main/workflows/inventory#readme)
 
 
 
