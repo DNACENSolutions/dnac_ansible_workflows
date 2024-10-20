@@ -1,0 +1,68 @@
+#rma_workflow_manager
+#This playbook is used to replace faulty devices with new devices.
+- name: Manage operation related to replacing faulty devices with new devices
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+  vars:
+    state: deleted
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+  tasks: 
+    - name: Device Replacement Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+    # load device replacement template jinja file
+    - name: Create Template
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Replace devices from design_devices config
+    - name: Replace devices from design_devices config
+      cisco.dnac.rma_workflow_manager:
+        <<: *dnac_login
+        dnac_version: "{{ dnac_version }}"
+        dnac_verify: "{{ dnac_verify }}"
+        state: "{{state}}"
+        config: "{{rma_devices}}"
+      register: rma_devices_output
+      when: rma_devices is defined and rma_devices | length > 0
+    # Print the devices replacement output
+    - name: Print the devices replacement output
+      debug:
+        msg: "{{rma_devices_output}}"
+    # delete the template file
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Device Replacement playbook end time
+    - name: Device Replacement playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    # Print Device Replacement execution time
+    - name: Print Device Replacement execution time
+      debug:
+        msg: "Device Replacement playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  # run command module to find python version
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
