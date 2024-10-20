@@ -31,7 +31,7 @@
       set_fact:
         long_op_start: "{{ now() }}"
     - name: Add/Update fabric transits for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
-      cisco.dnac.fabric_transits_workflow_manager:
+      cisco.dnac.sda_fabric_transits_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
         config: "{{ fabric_transits }}" 

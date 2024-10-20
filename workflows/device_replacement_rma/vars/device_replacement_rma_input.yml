@@ -1,0 +1,15 @@
+# Description: This file contains the input variables for the device replacement RMA workflow.
+---
+catalyst_center_version: 2.3.7.6
+rma_devices: 
+  - faulty_device_serial_number: "KWC224709LV"
+    replacement_device_serial_number: "KWC2333037V"
+  
+  # - faulty_device_name: "SJ-EN-9300.cisco.local"
+  #   replacement_device_name: "SJ-EN-9300.cisco-1.local"
+  #   faulty_device_serial_number: "FJC2327U0S2"
+  #   replacement_device_serial_number: "FCW2225C020"
+  # - faulty_device_ip_address: "204.192.3.40"
+  #   replacement_device_ip_address: "204.1.2.5"
+
+

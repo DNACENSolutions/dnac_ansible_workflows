@@ -1,0 +1,9 @@
+---
+- name:  Create Sites on Cisco Catalyst Center, includes Areas, Buildings, and Floors
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+- import_playbook: ./../workflows/sites/playbook/site_hierarchy_playbook.yml
+
+
+
