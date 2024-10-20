@@ -18,11 +18,11 @@ This repository contains a collection of Ansible workflows for automating Cataly
 
 ## Table of Contents for Cisco Validated Playbooks usage guide
 ## Day0 Configurations
-- [Catalyst Center ISE Integration] (#workflows/ise_radius_integration/README.md)
-- [Catalyst Center Hite Hierarchy and Floor Maps Design] (#workflows/sites/README.md)
-- [Catalyst Center Device Credentials configuration and assignment] (#workflows/device_credentials/README.md)
-- [Catalyst Center Devces Discovery] (#workflows/device_discovery/README.md)
-- [Catalyst Center Device Inventory and Device Management] (#workflows/inventory/README.md)
+- [Catalyst Center ISE Integration] (workflows/ise_radius_integration/#readme)
+- [Catalyst Center Hite Hierarchy and Floor Maps Design] (workflows/sites/#readme)
+- [Catalyst Center Device Credentials configuration and assignment] (workflows/device_credentials/#readme)
+- [Catalyst Center Devces Discovery] (workflows/device_discovery/#readme)
+- [Catalyst Center Device Inventory and Device Management] (workflows/inventory/#readme)
 
 
 
