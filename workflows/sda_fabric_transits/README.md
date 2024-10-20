@@ -23,27 +23,27 @@ Few things to know:
 3. To create SD-Access Transit atleast one Transit CP device must be provided. 
 
 ## Create an Fabric transits: Running the Playbook
-Playbook: workflows/fabric_transits/playbook/playbook/fabric_transits_workflow_playbook.yml
-Schema: workflows/fabric_transits/schema/fabric_transits_workflow_schema.yml
-Input Variables: [Title](vars/fabric_transits_workflow_inputs.yml)
+Playbook: workflows/sda_fabric_transits/playbook/playbook/sda_fabric_transits_workflow_playbook.yml
+Schema: workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_schema.yml
+Input Variables: [Title](vars/sda_fabric_transits_workflow_inputs.yml)
 1. **Validate Your Input:**
 
 ```bash
-   yamale -s workflows/fabric_transits/schema/fabric_transits_workflow_schema.yml workflows/fabric_transits/vars/fabric_transits_workflow_inputs.yml
+   yamale -s workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_schema.yml workflows/sda_fabric_transits/vars/sda_fabric_transits_workflow_inputs.yml
 ```
 2. **Execute the Playbook**
-User inputs: ./workflows/fabric_transits/vars/fabric_sites_zones_inputs.yml
-Playbook: workflows/fabric_transits/playbook/fabric_extranet_policy_playbook.yml
+User inputs: ./workflows/sda_fabric_transits/vars/fabric_sites_zones_inputs.yml
+Playbook: workflows/sda_fabric_transits/playbook/fabric_extranet_policy_playbook.yml
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/fabric_transits/playbook/fabric_transits_workflow_playbook.yml --e VARS_FILE_PATH=<your input file>
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_transits/playbook/sda_fabric_transits_workflow_playbook.yml --e VARS_FILE_PATH=<your input file>
 ```
 ###  To create or update the fabroc transits and zones example
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/fabric_transits/playbook/fabric_transits_workflow_playbook.yml --e VARS_FILE_PATH=../vars/fabric_transits_workflow_inputs.yml
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_transits/playbook/sda_fabric_transits_workflow_playbook.yml --e VARS_FILE_PATH=../vars/sda_fabric_transits_workflow_inputs.yml
 ```
 ###  To delete existing fabric transits:
 ```bash
- ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/fabric_transits/playbook/delete_fabric_transits_workflow_playbook.yml --e VARS_FILE_PATH=../vars/fabric_transits_workflow_inputs.yml
+ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_transits/playbook/delete_sda_fabric_transits_workflow_playbook.yml --e VARS_FILE_PATH=../vars/sda_fabric_transits_workflow_inputs.yml
 ```
 ## Important Notes
 Refer to the Catalyst Center documentation for detailed instructions on configuring fabric sites and fabric transits and using the Ansible playbooks.
