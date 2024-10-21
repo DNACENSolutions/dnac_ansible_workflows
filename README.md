@@ -19,17 +19,21 @@ This repository contains a collection of Ansible workflows for automating Cataly
 # Table of Contents for Cisco Validated Playbooks usage guide
 
 ## Day0 Configurations
-- ![Catalyst Center Role Based Access and Users Management](./workflows/users_and_roles/README.md)
-- ![Catalyst Center ISE Integration](./workflows/ise_radius_integration/#readme)
+- ![Catalyst Center Role Based Access Control and Users Management](./workflows/users_and_roles/README.md)
+- ![Catalyst Center ISE and AAA Servers Integration](./workflows/ise_radius_integration/#readme)
 
 ## Day1 Operations
-- ![Catalyst Center Hite Hierarchy and Floor Maps design](./workflows/sites/#readme)
-- ![Catalyst Center Device Credentials configuration and assignment](./workflows/device_credentials/#readme)
-- ![Catalyst Center Network Settings, Servers, Telemetry, IP Pool Management](./workflows/network_settings/#readme)
+- ![Catalyst Center Site Hierarchy and Floor Maps design](./workflows/sites/#readme)
+- ![Catalyst Center Device Credentials configurations and assignment](./workflows/device_credentials/#readme)
+- ![Catalyst Center Network Settings (Servers, Banners, TZ, SNMP, Logging, Telemetry Management](./workflows/network_settings/#readme)
+- ![Catalyst Center Network Settings Global Ip Pools and Site Pools reservation Management](./workflows/network_settings/#readme)
 - ![Catalyst Center Devces Discovery](./workflows/device_discovery/#readme)
 - ![Catalyst Center Device Inventory and device management](./workflows/inventory#readme)
+- ![Catalyst Center Plug and Play Device Onboarding](./workflows/plug_and_play/README.md)
+- ![Catalyst Center Device Provisioning and Re-Provisioning Management](./workflows/provision/README.md)
 
 ## Day2 Configuration
+- ![Catalyst Cennter Underlay Automation (LAN Automation) Management](./workflows/lan_automation/#readme)
 - ![Catalyst Center SDA Fabric Site and Fabric Zones](./workflows/sda_fabric_sites_zones/README.md)
 - ![Catalyst Center SDA Fabric Transits (IP and SDA) Management](./workflows/sda_fabric_transits/README.md)
 - ![Catalyst Center Virtual Networks and L3 Anycast Gateways and L2 Vlans](./workflows/sda_virtual_networks_gateways/README.md)
@@ -42,6 +46,7 @@ This repository contains a collection of Ansible workflows for automating Cataly
 - ![Catalyst Center Device compliance and remidiation](./workflows/network_compliance/README.md)
 - ![Catalyst Center Notification Destination and Events Subscription](./workflows/events_and_notifications/README.md)
 - ![Catalyst Center Devices Replacement Management](./workflows/device_replacement_rma/README.md)
+- ![Catalyst Center Access Point Provisioning and Access Point Configuration Management](./workflows/wireless_ap_config/README.md)
 
 ## Prerequisites
 Before using these Ansible workflows, ensure that you have the following prerequisites:
