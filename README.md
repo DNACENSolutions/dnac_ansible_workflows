@@ -2,20 +2,24 @@
 [![Run in Cisco Cloud IDE](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-runable-icon.svg)](https://developer.cisco.com/codeexchange/devenv/DNACENSolutions/dnac_ansible_workflows/)
 
 # Catalyst Center Cisco Validated Playbooks
-![DNAC Ansible Workflows](https://github.com/DNACENSolutions/dnac_ansible_workflows)
-
-This repository provides Cisco-validated Ansible playbooks to automate Catalyst Center configurations, accelerating your network automation journey. It includes:
+This repository provides Cisco-validated Ansible playbooks to automate Catalyst Center configurations, accelerating your network automation journey. 
+It includes:
 
 ## Ready-to-use playbooks: 
-Simplify Catalyst Center provisioning.
+    Simplify Catalyst Center provisioning.
+
 ## Input validation schemas: 
-Ensure playbook accuracy.
+    Ensure playbook accuracy.
 ## Comprehensive guides: 
-Detailed instructions for idempotent configurations and Git-based management.
-Sample inputs: Get started quickly with pre-populated examples.
+    Detailed instructions for idempotent configurations and Git-based management.
+
+## Sample inputs: 
+    Get started quickly with pre-populated examples.
+
+## Sample Jinja Based template:
+    Playbooks are enabled to take inputs as simple yaml files and also Jinja template to ease scaling of configuration 
 
 This package empowers you to manage your network as code, using Git as the single source of truth for your configurations.
-
 
 # Table of Contents
 - [Prerequisites](#prerequisites)
@@ -66,96 +70,93 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 - Proper network connectivity to interact with the Catalyst Center APIs
 
 
-## Installation
-    Python 3.7+ is required to install iac-validate. Don't have Python 3.7 or later? 
-    See Python 3 Installation & Setup Guide https://realpython.com/installing-python/
-    Create your python virtual environment using commend:
-    ```bash
-        python3 -m venv python3env --prompt "AnsiblePython3 VENV"
-        source python3env
-   ```
-
-
-1. Clone this repository to your local machine:
-
-   ```bash
-   git clone https://github.com/DNACENSolutions/dnac_ansible_workflows.git
-   ```
-
-
-1. Navigate to the project directory:
-    
-    ```bash
-    cd dnac_ansible_workflows
-    ```
-2. Install the required dependencies:
-   ```bash
-    pip install -r requirements.txt
-    ```
-3. Install the collection (Galaxy link):
-    ```bash
-    ansible-galaxy collection install cisco.dnac --force
-    ```
-4.  Create your inventory
-    a. Inventory:
-     This folder contains inventory file for your dev, lab, sandbox or production env which will be utilised by swim playbooks.
-     
-     Create your inventory file in below template format to utilize the swim playbooks.
-     
-     The template for the inventory file is:
-     ```bash
-         cat inventory/demo_lab/001-dnac_inventory_template.yml
-     ```
-
-    Setup up your ansible python interpretor following suitable method for your environment : https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
-    
-    b. Hairarchical variable files for inputs
-
-        The second folder of the workflows contains playbook and var files for workflows.
-        Example:
-            workflows/swim
-            playbooks/
-                swim_workflow_playbook.yml
-            vars/
-                vars_swim.yml
-
-6. Var files:
-            Update var file with your  details and parameter to control playbook
-7. Playbook: 
-        The playbooks can be directly used without any change when inventory and var files created in the above templates.
-
-8. Executing playbook (Sample):
-
-How to Generate your hosts inventory from Cisco Catalyst Center using inventory_gen playbook:
-
-For brownfield Catalyst Center (Network already discovered in Catalyst Center) with devices are in inventory, then automated inventory generation can be performed through inventory_gen playbook. Following the below Steps:
-
-i. Create a basic inventory file with Cisco Catalyst Center Inputs in inventory folder. for example demo_inv.yml
-  ---
-    ```bash
-        #Inventory file for demo_lab
-        catalyst_center_hosts:
-            hosts:
-            <dnac hostname >:
-            dnac_debug: false
-            dnac_host: <Cisco Catalyst Center IP Address> #(Mandatory) Cisco Catalyst Center Ip address
-            dnac_password: <Cisco Catalyst Center UI admin Password> #(Mandatory) 
-            dnac_port: 443 #(Mandatory) 
-            dnac_username: <Cisco Catalyst Center UI admin username> #(Mandatory) 
-            dnac_verify: false #(Mandatory) 
-            dnac_version: <Cisco Catalyst Center Release version> #(Mandatory)  Example: 2.3.5.3
-    ```
-
-
-Here are a few examples of Ansible workflows available in this repository:
-
-Example 1: Swim upgrade, this include uploading the images, golden tagging the image filtered location and device family and distributed and activating images on the networkk devices.
-    
+# Installation
+Python 3.7+ is required to install iac-validate. Don't have Python 3.7 or later? 
+See Python 3 Installation & Setup Guide https://realpython.com/installing-python/
+Create your python virtual environment using commend:
 ```bash
- ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=< Vars File PATH (Full Path or relative path from playbook)> -vvvv
+    python3 -m venv python3env --prompt "AnsiblePython3 VENV"
+    source python3env
+```
+
+## Clone this repository to your local machine:
+Clone the repo or pull a branch and use directly
+```bash
+    git clone https://github.com/DNACENSolutions/dnac_ansible_workflows.git
+```
+
+
+## Navigate to the project directory:    
+```bash
+    cd dnac_ansible_workflows
+```
+
+## Install the required dependencies:
+```bash
+    pip install -r requirements.txt
+```
+## Install the collection (Galaxy link):
+```bash
+    ansible-galaxy collection install cisco.dnac --force
+```
+## Create your inventory
+### Inventory:
+This folder contains inventory file for your dev, lab, sandbox or production env which will be utilised by swim playbooks.
+
+Create your inventory file in below template format to utilize the swim playbooks.
+
+The template for the inventory file is:
+```bash
+    cat inventory/demo_lab/001-dnac_inventory_template.yml
+```
+
+Setup up your ansible python interpretor following suitable method for your environment : https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
+    
+### Hairarchical variable files for inputs
+
+The second folder of the workflows contains playbook and var files for workflows.
+Example:
+```bash
+    workflows/swim
+    playbooks/
+        swim_workflow_playbook.yml
+    vars/
+        vars_swim.yml
+```
+### Var files:
+    Update var file with your  details and parameter to control playbook
+
+### Playbook: 
+    The playbooks can be directly used without any change when inventory and var files created in the above templates.
+
+# Executing playbook (Sample):
+
+## Create a basic inventory file with Cisco Catalyst Center Inputs in inventory folder. for example demo_inv.yml
+```yaml
+---
+#Inventory file for demo_lab
+catalyst_center_hosts:
+    hosts:
+    <dnac hostname >:
+    dnac_debug: false
+    dnac_host: <Cisco Catalyst Center IP Address> #(Mandatory) Cisco Catalyst Center Ip address
+    dnac_password: <Cisco Catalyst Center UI admin Password> #(Mandatory) 
+    dnac_port: 443 #(Mandatory) 
+    dnac_username: <Cisco Catalyst Center UI admin username> #(Mandatory) 
+    dnac_verify: false #(Mandatory) 
+    dnac_version: <Cisco Catalyst Center Release version> #(Mandatory)  Example: 2.3.5.3
+```
+
+Here are a few examples of Cisco Validated Playbooks in the repo. For details documentation of the playbook usage refer the guide inside the corresponding module.
+
+## Example 1: 
+Swim upgrade, this include uploading the images, golden tagging the image filtered location and device family and distributed and activating images on the networkk devices.
+```bash
+    ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=< Vars File PATH (Full Path or relative path from playbook)> -vvvv
 ```
     
-Example 2: Create Sites, buildings floors using playbook : workflows/sites/playbook/site_hierarchy_playbook.yml
+## Example 2: 
+Create Sites, buildings floors using playbook : workflows/sites/playbook/site_hierarchy_playbook.yml
     
 ```bash
  ansible-playbook -i ./inventory_dnaccluster ./workflows/sites/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/site_hierarchy_design_vars_.yml
@@ -163,7 +164,7 @@ Example 2: Create Sites, buildings floors using playbook : workflows/sites/playb
     
 Feel free to explore the playbooks/ directory for more examples and use cases.
 
-## Attention macOS users:
+# Attention macOS users:
 
 If you're using macOS you may receive this error when running your playbook:
 objc[34120]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
@@ -175,7 +176,7 @@ If that's the case try setting this environment variable:
     export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 ```
 
-## Update
+# Update
 Getting the latest/nightly collection build
 
 Clone the dnacenter-ansible repository.
@@ -193,19 +194,16 @@ Pull the latest master from the repo
     git pull origin master
 ```
     
-## Contributing
+# Contributing
 Contributions are welcome! To contribute to this project, follow these steps:
-
     Fork the repository.
     Create a new branch for your feature or bug fix.
     Make your changes and commit them with descriptive commit messages.
     Push your changes to your fork.
     Submit a pull request to the main branch of this repository.
 
-Code of Conduct
-
+# Code of Conduct
 This collection follows the Ansible project's Code of Conduct. Please read and familiarize yourself with this document.
 
-Releasing, Versioning and Deprecation:
+# Releasing, Versioning and Deprecation:
  Version (Beta) : More enhancement might follow based on usage feedback
-
