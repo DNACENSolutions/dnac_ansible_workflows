@@ -1,0 +1,70 @@
+---
+#cisco.dnac.sda_host_port_onboarding_workflow_manager:
+- name: Playbook to manage Cisco Catalyst Center clear Hosts onboarding on SD Access Edge devices
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: deleted
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(dnac_debug) }}"
+      dnac_log: "{{ catalyst_center_log | default(dnac_log) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default(dnac_log_level) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+
+  tasks:
+    - name: SDA Host Onboarding Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+    # load sda host onboarding template jinja file
+    - name: Create Template
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Onboard hosts from design_hosts config
+    - name: Onboard hosts from design_hosts config
+      cisco.dnac.sda_host_port_onboarding_workflow_manager:
+        <<: *dnac_login
+        dnac_version: "{{ dnac_version }}"
+        dnac_verify: "{{ dnac_verify }}"
+        state: "{{state}}"
+        config: "{{sda_host_onboarding_details}}"
+      register: sda_host_output
+      when: sda_host_onboarding_details is defined and sda_host_onboarding_details | length > 0
+    # Print the hosts onboarding output
+    - name: Print the hosts onboarding output
+      debug:
+        msg: "{{sda_host_output}}"
+    # delete the template file
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # SDA Host Onboarding playbook end time
+    - name: SDA Host Onboarding playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    # Print SDA Host Onboarding execution time
+    - name: Print SDA Host Onboarding execution time
+      debug:
+        msg: "SDA Host Onboarding playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

@@ -1,0 +1,6 @@
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+catalyst_center_verify: false
+jinjatemplate: true
+jinjatemplate_file: ../jinja_template/sda_host_onboarding_jinja_template.yml
+sda_host_onboarding_details: []
