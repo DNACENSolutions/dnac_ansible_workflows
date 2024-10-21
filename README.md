@@ -38,11 +38,11 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 - [License](#license)
 - Cisco Validated Playbooks usage guides
 
-## Day0 Configurations
+## Day0 Configurations (Access and Integrations)
 - ![Catalyst Center Role Based Access Control and Users Management](./workflows/users_and_roles/README.md)
 - ![Catalyst Center ISE and AAA Servers Integration](./workflows/ise_radius_integration/#readme)
 
-## Day1 Operations
+## Day1 Configurations (Design and Discovery)
 - ![Catalyst Center Site Hierarchy and Floor Maps design](./workflows/sites/#readme)
 - ![Catalyst Center Device Credentials configurations and assignment](./workflows/device_credentials/#readme)
 - ![Catalyst Center Network Settings (Servers, Banners, TZ, SNMP, Logging, Telemetry Management](./workflows/network_settings/#readme)
@@ -52,7 +52,7 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 - ![Catalyst Center Plug and Play Device Onboarding](./workflows/plug_and_play/README.md)
 - ![Catalyst Center Device Provisioning and Re-Provisioning Management](./workflows/provision/README.md)
 
-## Day2 Configuration
+## Day2 Configurations (Underlay automation and SD Access fabric)
 - ![Catalyst Cennter Underlay Automation (LAN Automation) Management](./workflows/lan_automation/#readme)
 - ![Catalyst Center SDA Fabric Site and Fabric Zones](./workflows/sda_fabric_sites_zones/README.md)
 - ![Catalyst Center SDA Fabric Transits (IP and SDA) Management](./workflows/sda_fabric_transits/README.md)
@@ -61,7 +61,7 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 - ![Catalyst Center SDA Fabric Devices and Host Onboarding](./workflows/sda_fabric_hosts_onboarding/README.md)
 - ![Catalyst Center SDA Extranet Policies Management](./workflows/sda_fabric_extranet_policy/README.md)
 
-## DayN Operation
+## DayN Operation (Software Upgrade, Compliance, Events, Provisioning, backups and Assurance)
 - ![Catalyst Center Devces Software image management (SWIM)](./workflows/swim/README.md)
 - ![Catalyst Center Device compliance and remidiation](./workflows/network_compliance/README.md)
 - ![Catalyst Center Notification Destination and Events Subscription](./workflows/events_and_notifications/README.md)
