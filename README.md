@@ -6,18 +6,18 @@ This repository provides Cisco-validated Ansible playbooks to automate Catalyst 
 It includes:
 
 ## Ready-to-use playbooks: 
-    Simplify Catalyst Center provisioning.
+Simplify Catalyst Center provisioning.
 
 ## Input validation schemas: 
-    Ensure playbook accuracy.
+Ensure playbook accuracy.
 ## Comprehensive guides: 
-    Detailed instructions for idempotent configurations and Git-based management.
+Detailed instructions for idempotent configurations and Git-based management.
 
 ## Sample inputs: 
-    Get started quickly with pre-populated examples.
+Get started quickly with pre-populated examples.
 
 ## Sample Jinja Based template:
-    Playbooks are enabled to take inputs as simple yaml files and also Jinja template to ease scaling of configuration 
+Playbooks are enabled to take inputs as simple yaml files and also Jinja template to ease scaling of configuration 
 
 This package empowers you to manage your network as code, using Git as the single source of truth for your configurations.
 
