@@ -1,0 +1,70 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+sda_host_onboarding_details: 
+  - ip_address: "204.1.2.2"
+    port_assignment_details:
+      - interface_name: "FortyGigabitEthernet1/1/1"
+        connected_device_type: "TRUNKING_DEVICE"
+      - interface_name: "FortyGigabitEthernet1/1/2"
+        connected_device_type: "TRUNKING_DEVICE"
+        authentication_template_name: "No Authentication"
+        interface_description: "Trunk Port"
+      - interface_name: "FortyGigabitEthernet2/1/1"
+        connected_device_type: "ACCESS_POINT"
+        data_vlan_name: "AG_23"
+      - interface_name: "FortyGigabitEthernet2/1/2"
+        connected_device_type: "ACCESS_POINT"
+        data_vlan_name: "AG_23"
+        authentication_template_name: "No Authentication"
+        interface_description: "Access Point Port"
+    port_channel_details:
+      - interface_names: ["TenGigabitEthernet1/0/37", "TenGigabitEthernet1/0/38", "TenGigabitEthernet1/0/39"]
+        connected_device_type: "TRUNK"
+      - interface_names: ["TenGigabitEthernet1/0/43", "TenGigabitEthernet1/0/44"]
+        connected_device_type: "TRUNK"
+        protocol: "ON"
+      - interface_names: ["TenGigabitEthernet1/0/45", "TenGigabitEthernet1/0/46", "TenGigabitEthernet1/0/47", "TenGigabitEthernet1/0/48"]
+        connected_device_type: "TRUNK"
+        protocol: "LACP"
+      - interface_names: ["TenGigabitEthernet1/1/2", "TenGigabitEthernet1/1/3", "TenGigabitEthernet1/1/4"]
+        connected_device_type: "TRUNK"
+        protocol: "PAGP"
+        port_channel_description: "Trunk port channel"
+      - interface_names: ["TenGigabitEthernet1/1/7", "TenGigabitEthernet1/1/8"]
+        connected_device_type: "EXTENDED_NODE"
+        protocol: "PAGP"
+        port_channel_description: "extended node port channel"
+  - hostname: "DC-T-9300.cisco.local"
+    port_assignment_details:
+      - interface_name: "FortyGigabitEthernet1/1/1"
+        connected_device_type: "TRUNKING_DEVICE"
+      - interface_name: "FortyGigabitEthernet1/1/2"
+        connected_device_type: "TRUNKING_DEVICE"
+        authentication_template_name: "No Authentication"
+        interface_description: "Trunk Port"
+      - interface_name: "FortyGigabitEthernet2/1/1"
+        connected_device_type: "ACCESS_POINT"
+        data_vlan_name: "AG_23"
+      - interface_name: "FortyGigabitEthernet2/1/2"
+        connected_device_type: "ACCESS_POINT"
+        data_vlan_name: "AG_23"
+        authentication_template_name: "No Authentication"
+        interface_description: "Access Point Port"
+    port_channel_details:
+      - interface_names: ["TenGigabitEthernet1/0/37", "TenGigabitEthernet1/0/38", "TenGigabitEthernet1/0/39"]
+        connected_device_type: "TRUNK"
+      - interface_names: ["TenGigabitEthernet1/0/43", "TenGigabitEthernet1/0/44"]
+        connected_device_type: "TRUNK"
+        protocol: "ON"
+      - interface_names: ["TenGigabitEthernet1/0/45", "TenGigabitEthernet1/0/46", "TenGigabitEthernet1/0/47", "TenGigabitEthernet1/0/48"]
+        connected_device_type: "TRUNK"
+        protocol: "LACP"
+      - interface_names: ["TenGigabitEthernet1/1/2", "TenGigabitEthernet1/1/3", "TenGigabitEthernet1/1/4"]
+        connected_device_type: "TRUNK"
+        protocol: "PAGP"
+        port_channel_description: "Trunk port channel"
+      - interface_names: ["TenGigabitEthernet1/1/7", "TenGigabitEthernet1/1/8"]
+        connected_device_type: "EXTENDED_NODE"
+        protocol: "PAGP"
+        port_channel_description: "extended node port channel"

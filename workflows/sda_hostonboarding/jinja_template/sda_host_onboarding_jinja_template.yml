@@ -1,0 +1,30 @@
+
+---
+
+# Select Catalyst Cennter version, this one overwrite the default version from host file
+#Jinja template to specify interface with rang of interfaces
+sda_host_onboarding_details: 
+{% for i in range(2, 4) %}  
+  - ip_address: "204.1.2.{{i}}"
+    port_assignment_details:
+{% for j in range(1, 10) %}  
+      - interface_name: "TenGigabitEthernet1/0/{{j}}"
+        connected_device_type: "ACCESS_POINT"
+        authentication_template_name: "No Authentication"
+        interface_description: "USER_DEVICE Port {{j}}"
+{% endfor %}
+{% for k in range(11, 10) %}  
+      - interface_name: "TenGigabitEthernet1/0/{{k}}"
+        connected_device_type: "TRUNKING_DEVICE"
+        authentication_template_name: "No Authentication"
+        interface_description: "Trunk Port"
+{% endfor %}
+{% for k in range(21, 10) %}  
+      - interface_name: "TenGigabitEthernet1/0/{{j}}"
+        connected_device_type: "USER_DEVICE"
+        authentication_template_name: "No Authentication"
+        data_vlan_name: "AG_23"
+        interface_description: "USER_DEVICE Port {{j}}"
+{% endfor %}
+{% endfor %}
+
