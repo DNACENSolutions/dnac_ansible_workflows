@@ -20,7 +20,7 @@ Jumpstart your automation journey with sample input files that demonstrate prope
 ## Sample Jinja Based template:
 Enhance scalability and flexibility with Jinja-based template support.  These templates empower you to dynamically generate input configurations, adapting to various deployments with ease.  Simplify complex configurations and streamline repetitive tasks by leveraging the power of Jinja templating within your Ansible playbooks.
 
-Embrace infrastructure as code and manage your entire Catalyst Center configuration through Git. This repository provides the tools and guidance to make Git your single source of truth, ensuring:
+### Embrace infrastructure as code and manage your entire Catalyst Center configuration through Git. This repository provides the tools and guidance to make Git your single source of truth, ensuring:
 
 Complete version control: Track every change and easily revert to previous states.
 Increased collaboration: Simplify teamwork with a centralized and transparent platform.
