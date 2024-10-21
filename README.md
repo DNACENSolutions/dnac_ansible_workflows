@@ -68,8 +68,9 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 - ![Catalyst Center Notification Destination and Events Subscription](./workflows/events_and_notifications/README.md)
 - ![Catalyst Center Devices Replacement Management](./workflows/device_replacement_rma/README.md)
 - ![Catalyst Center Access Point Provisioning and Access Point Configuration Management](./workflows/wireless_ap_config/README.md)
+- ![Device Configuration Customization using Catalyst Center Templates](./workflows/device_templates/README.md)
 
-## Prerequisites
+# Prerequisites
 Before using these Ansible workflows, ensure that you have the following prerequisites:
 
 - Ansible installed on your machine
