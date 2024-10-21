@@ -36,8 +36,7 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 - [Update](#update)
 - [Contributing](#contributing)
 - [License](#license)
-
-# Table of Contents for Cisco Validated Playbooks usage guide
+- Cisco Validated Playbooks usage guides
 
 ## Day0 Configurations
 - ![Catalyst Center Role Based Access Control and Users Management](./workflows/users_and_roles/README.md)
