@@ -1,11 +1,17 @@
 [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/DNACENSolutions/dnac_ansible_workflows)
 [![Run in Cisco Cloud IDE](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-runable-icon.svg)](https://developer.cisco.com/codeexchange/devenv/DNACENSolutions/dnac_ansible_workflows/)
-# dnac_ansible_workflows
-Sample workflows to automate Cisco Catalyst Center configurations through cisco.dnac ansible workflow modules. This include Playbooks, Sample inputs and Sample Inventory files.
 
+# Catalyst Center Cisco Validated Playbooks
 ![DNAC Ansible Workflows](https://github.com/DNACENSolutions/dnac_ansible_workflows)
 
-This repository contains a collection of Ansible workflows for automating Catalyst Center workflows. These workflows help streamline network provisioning, configuration, and management by leveraging the power of Ansible automation.
+This repository provides Cisco-validated Ansible playbooks to automate Catalyst Center configurations, accelerating your network automation journey. It includes:
+
+Ready-to-use playbooks: Simplify Catalyst Center provisioning.
+Input validation schemas: Ensure playbook accuracy.
+Comprehensive guides: Detailed instructions for idempotent configurations and Git-based management.
+Sample inputs: Get started quickly with pre-populated examples.
+This package empowers you to manage your network as code, using Git as the single source of truth for your configurations.
+
 
 # Table of Contents
 - [Prerequisites](#prerequisites)
