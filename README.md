@@ -58,7 +58,7 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 - ![Catalyst Center SDA Fabric Transits (IP and SDA) Management](./workflows/sda_fabric_transits/README.md)
 - ![Catalyst Center Virtual Networks and L3 Anycast Gateways and L2 Vlans](./workflows/sda_virtual_networks_gateways/README.md)
 - ![Catalyst Center SDA Fabric Device assignment to fabric sites and zones](./workflows/sda_fabric_device_roles/README.md)
-- ![Catalyst Center SDA Fabric Devices and Host Onboarding](./workflows/sda_hostonboarding/README.md
+- ![Catalyst Center SDA Fabric Devices and Host Onboarding](./workflows/sda_hostonboarding/README.md)
 - ![Catalyst Center SDA Extranet Policies Management](./workflows/sda_fabric_extranet_policy/README.md)
 
 ## DayN Operation (Software Upgrade, Compliance, Events, Provisioning, backups and Assurance)
