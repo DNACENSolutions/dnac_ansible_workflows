@@ -1,0 +1,463 @@
+# Parameters
+# Parameter	Choices/Defaults	Comments
+# config
+# list / elements =dictionary / required
+# A list of SDA fabric device configurations associated with fabric sites.
+
+# Each entry in the list represents the configurations for devices within a fabric site.
+
+# fabric_devices
+# dictionary
+# Configuration details for SDA fabric devices associated with a fabric site.
+
+# device_config
+# list / elements =dictionary / required
+# A list of devices with their respective border settings, L2 handoff, L3 handoff with SDA transit, and L3 handoff with IP transit.
+
+# borders_settings
+# dictionary
+# Effective only when the 'device_roles' contains BORDER_NODE.
+
+# This parameter is required when adding the device to a fabric site with the `BORDER_NODE` role.
+
+# Updates to `borders_settings` are allowed after the initial configuration.
+
+# Border type can be Layer2 or Layer3.
+
+# Border type can be Layer2 or Layer3, identified based on the presence of L2 Handoff or L3 Handoff with IP or SDA transit.
+
+# layer2_handoff
+# list / elements =dictionary
+# Adds layer 2 handoffs in fabric devices.
+
+# This parameter cannots be updated.
+
+# Configured while transferring a device's data traffic at Layer 2 (Data Link layer).
+
+# If 'layer2_handoff' is set, the border type will be considered as Layer2.
+
+# external_vlan_id
+# integer
+# Represents to the VLAN identifier used for traffic that exits the fabric to external networks.
+
+# Should be unique across the entire fabric site settings.
+
+# This parameter is required for all operations in 'layer2_handoff'.
+
+# The 'external_vlan_id' can range from 1 to 4094, excluding 1, 1002-1005, 2046, and 4094.
+
+# interface_name
+# string
+# Refers to the specific network interface in the border device.
+
+# This parameter is required for all operations in L2 Handoff.
+
+# The 'interface_name' cannot be updated.
+
+# internal_vlan_id
+# integer
+# Represents the VLAN identifier used within the fabric for traffic segmentation among devices.
+
+# Should be unique across the entire fabric site settings.
+
+# This parameter is required for all operations in layer2_handoff.
+
+# The 'internal_vlan_id' can range from 1 to 4094, excluding 1, 1002-1005, 2046, and 4094.
+
+# layer3_handoff_ip_transit
+# list / elements =dictionary
+# Adds layer 3 handoffs with ip transit in fabric devices.
+
+# Configured when IP traffic is routed from the SDA fabric to external networks.
+
+# If 'layer3_handoff_ip_transit' is set, border type will be considered as Layer3.
+
+# external_connectivity_ip_pool_name
+# string
+# Denotes the IP address range allocated for communication between the SDA fabric and external networks.
+
+# This parameter is required for adding the L3 Handoff with IP transit.
+
+# The IP pool must be reserved in the fabric site.
+
+# If `external_connectivity_ip_pool_name` is specified, there is no need to set the local and remote addresses.
+
+# Specifying `external_connectivity_ip_pool_name` will automatically configure the local and remote addresses.
+
+# If both are set, `external_connectivity_ip_pool_name` takes precedence.
+
+# Updating IP addresses is not permitted.
+
+# interface_name
+# string
+# Refers to the specific network interface in the border device.
+
+# This parameter is required for all operations in L3 Handoff with IP transit.
+
+# This parameter cannot be updated after being set.
+
+# local_ip_address
+# string
+# IP address assigned to a device's interface within the fabric.
+
+# The 'local_ip_address' is for IPv4.
+
+# Both 'local_ip_address' and 'remote_ip_address' must fall within the same subnet.
+
+# Either local and remote addresses or `external_connectivity_ip_pool_name` is required.
+
+# If local and remote addresses are provided with 'external_connectivity_ip_pool_name', `external_connectivity_ip_pool_name` takes precedence.
+
+# local_ipv6_address
+# string
+# IP address assigned to a device's interface within the fabric.
+
+# The local_ipv6_address is for IPv6.
+
+# Both 'local_ipv6_address' and 'remote_ipv6_address' must fall within the same subnet.
+
+# If 'remote_ipv6_address' is provided, then 'local_ipv6_address' is required.
+
+# If local and remote addresses are provided with 'external_connectivity_ip_pool_name', `external_connectivity_ip_pool_name` takes precedence.
+
+# remote_ip_address
+# string
+# IP address of a device located outside the fabric network, often used for BGP peering.
+
+# The 'remote_ip_address' is for IPv4.
+
+# Both 'local_ip_address' and 'remote_ip_address' must fall within the same subnet.
+
+# Either local and remote addresses or `external_connectivity_ip_pool_name` is required.
+
+# If local and remote addresses are provided with 'external_connectivity_ip_pool_name', `external_connectivity_ip_pool_name` takes precedence.
+
+# remote_ipv6_address
+# string
+# IP address of a device located outside the fabric network, often used for BGP peering.
+
+# The 'remote_ipv6_address' is for IPv6.
+
+# Both 'local_ipv6_address' and 'remote_ipv6_address' must fall within the same subnet.
+
+# If 'local_ipv6_address' is provided, then 'remote_ipv6_address' is required.
+
+# If local and remote addresses are provided with 'external_connectivity_ip_pool_name', `external_connectivity_ip_pool_name` takes precedence.
+
+# tcp_mss_adjustment
+# integer
+# Allows the modification of the Maximum Segment Size in TCP packets.
+
+# The 'tcp_mss_adjustment' can be set from 500 to 1440.
+
+# This parameter can be updated after being initially set.
+
+# transit_network_name
+# string
+# Network that connects multiple SDA fabrics or networks.
+
+# Required for all operations in L3 Handoff with IP transit.
+
+# It is not possible to update `transit_network_name` after initial configuration.
+
+# virtual_network_name
+# string
+# Refers to the logical segmentation of the network, grouping devices into isolated virtual networks.
+
+# Either `virtual_network_name` or `vlan_id` is required for all operations in L3 Handoff with IP transit.
+
+# vlan_id
+# integer
+# Unique identifier assigned to a Virtual Local Area Network (VLAN).
+
+# Should be unique across the entire fabric site settings.
+
+# The 'vlan_id' can range from 1 to 4094, excluding 1, 1002-1005, 2046, and 4094.
+
+# Either `virtual_network_name` or `vlan_id` is required for all operations in L3 Handoff with IP transit.
+
+# This parameter cannot be updated once set.
+
+# layer3_handoff_sda_transit
+# dictionary
+# Adds layer 3 handoffs with SDA transit in fabric devices.
+
+# Configured when routing traffic is routed from the SDA fabric to external networks.
+
+# If 'layer3_handoff_sda_transit' is set, border type will be considered as Layer3.
+
+# affinity_id_decider
+# integer
+# If the 'affinity_id_prime' value is the same, the 'affinity_id_decider' value is used as a tiebreaker.
+
+# The lower the relative value of 'affinity_id_decider', the higher the preference.
+
+# The 'affinity_id_decider' ranges from 0 to 2147483647.
+
+# The 'affinity_id_decider' can be updated.
+
+# affinity_id_prime
+# integer
+# It supersedes the border priority to determine border node preference.
+
+# The lower the relative value of 'affinity_id_prime', the higher the preference.
+
+# Resources with the same affinity ID are treated similarly and affinity_id_decider decides the priority.
+
+# The 'affinity_id_prime' ranges from 0 to 2147483647.
+
+# The 'affinity_id_prime' can be updated.
+
+# connected_to_internet
+# boolean
+# Choices:
+# true
+# false  ←
+# Set this true to allow associated site to provide internet access to other sites through SDA.
+
+# Default value is false.
+
+# This parameter can be updated.
+
+# is_multicast_over_transit_enabled
+# boolean
+# Choices:
+# true
+# false  ←
+# Set this true to configure native multicast over multiple sites that are connected to an SDA transit.
+
+# Default value is false.
+
+# This parameter can be updated.
+
+# transit_network_name
+# string
+# Network that connects multiple SDA fabrics or networks.
+
+# This parameter is required for all operations in L3 Handoff with SDA transit.
+
+# The transit_network_name cannot be updated.
+
+# layer3_settings
+# list / elements =dictionary
+# Configures a device with a Layer3 border type.
+
+# border_priority
+# integer
+# Default:10	
+# Sets the preference level for this Border Node when multiple border nodes are present.
+
+# Higher-priority nodes are favored for routing traffic to external networks.
+
+# Acceptable range is from 1 to 9. If not set, the default value is 10.
+
+# This parameter can be updated.
+
+# import_external_routes
+# boolean
+# Choices:
+# true  ←
+# false
+# Determines whether routes from external networks are imported into the fabric.
+
+# Enhances security by limiting route usage to internal routes.
+
+# The 'import_external_routes' can be updated.
+
+# is_default_exit
+# boolean
+# Choices:
+# true  ←
+# false
+# Indicates whether this Border Node serves as the default gateway for traffic exiting the virtual network.
+
+# The `is_default_exit` can be updated.
+
+# local_autonomous_system_number
+# string
+# Identifies the local autonomous system in BGP routing.
+
+# This parameter is required when adding a device with the `BORDER_NODE` role.
+
+# The `local_autonomous_system_number` cannot be updated once set.
+
+# Acceptable range is from 1 to 4,294,967,295.
+
+# Dot notation (1.0 to 65535.65535) is also allowed. For example, 65534.65535.
+
+# prepend_autonomous_system_count
+# integer
+# Default:0	
+# Increases the AS path length artificially when advertising routes via BGP.
+
+# It makes the route less attractive to external peers.
+
+# Acceptable range is from 1 to 10. If not set, the default value is 0.
+
+# This parameter can be updated.
+
+# delete_fabric_device
+# boolean
+# Choices:
+# true
+# false
+# Effective only when the state is deleted.
+
+# Set to true to delete the device from the fabric site, or false to retain it.
+
+# device_ip
+# string / required
+# IP address of the device to be added to the fabric site.
+
+# Mandatory parameter for all operations under fabric_devices.
+
+# Device must be provisioned to the site prior to configuration.
+
+# device_roles
+# list / elements =string
+# Choices:
+# CONTROL_PLANE_NODE
+# EDGE_NODE
+# BORDER_NODE
+# WIRELESS_CONTROLLER_NODE
+# Specifies the role(s) of the device within the fabric site.
+
+# This parameter is required when adding the device to the fabric site.
+
+# The device roles cannot be updated once assigned.
+
+# At least one device must be a CONTROL_PLANE_NODE to assign roles to other devices.
+
+# Available roles, - CONTROL_PLANE_NODE - Manages the mapping of endpoint IP addresses to their location within the network using LISP, enabling mobility. - EDGE_NODE - Connects endpoints to the SDA network, handling policy enforcement, segmentation, and communication with the control plane. - BORDER_NODE - Acts as the gateway between the fabric and external networks, managing traffic entering or exiting the SDA environment. - WIRELESS_CONTROLLER_NODE - Manages and controls wireless access points and devices within the network.
+
+# fabric_name
+# string / required
+# Name of the SDA fabric site.
+
+# Mandatory parameter for all operations under fabric_devices.
+
+# The fabric site must already be created before configuring devices.
+
+# A Fabric Site is composed of networking devices operating in SD-Access Fabric roles.
+
+# A fabric site consists of networking devices in SD-Access Fabric roles, including Border Nodes, Control Plane Nodes, and Edge Nodes.
+
+# A Fabric sites may also include Fabric Wireless LAN Controllers and Fabric Wireless Access Points.
+
+# config_verify
+# boolean
+# Choices:
+# true
+# false  ←
+# Set to True to verify the Cisco Catalyst Center after applying the playbook config.
+
+# dnac_api_task_timeout
+# integer
+# Default:1200	
+# Defines the timeout in seconds for API calls to retrieve task details. If the task details are not received within this period, the process will end, and a timeout notification will be logged.
+
+# dnac_debug
+# boolean
+# Choices:
+# true
+# false  ←
+# Indicates whether debugging is enabled in the Cisco Catalyst Center SDK.
+
+# dnac_host
+# string / required
+# The hostname of the Cisco Catalyst Center.
+
+# dnac_log
+# boolean
+# Choices:
+# true
+# false  ←
+# Flag to enable/disable playbook execution logging.
+
+# When true and dnac_log_file_path is provided, - Create the log file at the execution location with the specified name.
+
+# When true and dnac_log_file_path is not provided, - Create the log file at the execution location with the name 'dnac.log'.
+
+# When false, - Logging is disabled.
+
+# If the log file doesn't exist, - It is created in append or write mode based on the "dnac_log_append" flag.
+
+# If the log file exists, - It is overwritten or appended based on the "dnac_log_append" flag.
+
+# dnac_log_append
+# boolean
+# Choices:
+# true  ←
+# false
+# Determines the mode of the file. Set to True for 'append' mode. Set to False for 'write' mode.
+
+# dnac_log_file_path
+# string
+# Default:dnac.log	
+# Governs logging. Logs are recorded if dnac_log is True.
+
+# If path is not specified, - When 'dnac_log_append' is True, 'dnac.log' is generated in the current Ansible directory; logs are appended. - When 'dnac_log_append' is False, 'dnac.log' is generated; logs are overwritten.
+
+# If path is specified, - When 'dnac_log_append' is True, the file opens in append mode. - When 'dnac_log_append' is False, the file opens in write (w) mode. - In shared file scenarios, without append mode, content is overwritten after each module execution. - For a shared log file, set append to False for the 1st module (to overwrite); for subsequent modules, set append to True.
+
+# dnac_log_level
+# string
+# Default:WARNING	
+# Sets the threshold for log level. Messages with a level equal to or higher than this will be logged. Levels are listed in order of severity [CRITICAL, ERROR, WARNING, INFO, DEBUG].
+
+# CRITICAL indicates serious errors halting the program. Displays only CRITICAL messages.
+
+# ERROR indicates problems preventing a function. Displays ERROR and CRITICAL messages.
+
+# WARNING indicates potential future issues. Displays WARNING, ERROR, CRITICAL messages.
+
+# INFO tracks normal operation. Displays INFO, WARNING, ERROR, CRITICAL messages.
+
+# DEBUG provides detailed diagnostic info. Displays all log messages.
+
+# dnac_password
+# string
+# The password for authentication at the Cisco Catalyst Center.
+
+# dnac_port
+# string
+# Default:443	
+# Specifies the port number associated with the Cisco Catalyst Center.
+
+# dnac_task_poll_interval
+# integer
+# Default:2	
+# Specifies the interval in seconds between successive calls to the API to retrieve task details.
+
+# dnac_username
+# string
+# Default:admin	
+# The username for authentication at the Cisco Catalyst Center.
+
+# aliases: user
+# dnac_verify
+# boolean
+# Choices:
+# true  ←
+# false
+# Flag to enable or disable SSL certificate verification.
+
+# dnac_version
+# string
+# Default:2.2.3.3	
+# Specifies the version of the Cisco Catalyst Center that the SDK should use.
+
+# state
+# string
+# Choices:
+# merged  ←
+# deleted
+# The state of Cisco Catalyst Center after module completion.
+
+# validate_response_schema
+# boolean
+# Choices:
+# true  ←
+# false
+# Flag for Cisco Catalyst Center SDK to enable the validation of request bodies against a JSON schema.
+
