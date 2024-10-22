@@ -1,0 +1,28 @@
+---
+catalyst_center_version: 2.3.7.6
+fabric_devices_details  :
+  - fabric_devices:
+    fabric_name: Global/USA/SAN-JOSE
+    device_config:
+      - device_ip: 10.0.0.1
+        device_roles: [CONTROL_PLANE_NODE]
+      - device_ip: 10.0.0.1
+        device_roles: [CONTROL_PLANE_NODE, BORDER_NODE, EDGE_NODE]
+        borders_settings:
+          layer3_settings:
+            local_autonomous_system_number: 1234
+            is_default_exit: true
+            import_external_routes: true
+            border_priority: 2
+            prepend_autonomous_system_count: 2
+          layer2_handoff:
+            - interface_name: FortyGigabitEthernet1/1/1
+              internal_vlan_id: 550
+              external_vlan_id: 551
+          layer3_handoff_ip_transit:
+            - transit_network_name: IP_TRANSIT_1
+              interface_name: FortyGigabitEthernet1/1/1
+              external_connectivity_ip_pool_name: Reserved_sda_test_1
+              virtual_network_name: L3VN1
+              vlan_id: 440
+              tcp_mss_adjustment: 2
