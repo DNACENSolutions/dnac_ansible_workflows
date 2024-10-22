@@ -308,7 +308,7 @@ catalyst_center_task_poll_interval: int(required=False, default=2)
 catalyst_center_verify: bool(required=False)
 jinjatemplate: bool(required=False)
 jinjatemplate_file: str(required=False)
-sda_fabric_virtual_networks_details: list(include('sda_virtual_networks_l2_l3_gateways_type'),min=1,max=100,required=True)
+sda_fabric_virtual_networks_details: list(include('sda_virtual_networks_l2_l3_gateways_type'),min=0,max=1000,required=True)
 ---
 sda_virtual_networks_l2_l3_gateways_type:
   fabric_vlan: list(include('fabric_vlan_type'),min=1,max=100,required=False)
