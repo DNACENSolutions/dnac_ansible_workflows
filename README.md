@@ -1,4 +1,3 @@
-$${\color{black}Black}$$
 [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/DNACENSolutions/dnac_ansible_workflows)
 [![Run in Cisco Cloud IDE](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-runable-icon.svg)](https://developer.cisco.com/codeexchange/devenv/DNACENSolutions/dnac_ansible_workflows/)
 
@@ -63,13 +62,13 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 - ![Catalyst Center SDA Extranet Policies Management](./workflows/sda_fabric_extranet_policy/README.md)
 
 ## DayN Operation (Software Upgrade, Compliance, Events, Provisioning, backups and Assurance)
-- ![Catalyst Center Devces Software image management (SWIM)](./workflows/swim/README.md)
-- ![Catalyst Center Device compliance and remidiation](./workflows/network_compliance/README.md)
-- ![Catalyst Center Notification Destination and Events Subscription](./workflows/events_and_notifications/README.md)
-- ![Catalyst Center Devices Replacement Management](./workflows/device_replacement_rma/README.md)
-- ![Catalyst Center Access Point Provisioning and Access Point Configuration Management](./workflows/wireless_ap_config/README.md)
-- ![Device Configuration Customization using Catalyst Center Templates](./workflows/device_templates/README.md)
-- ![Catalyst Center managed network devices configurations backup management](./workflows/device_config_backup/README.md)
+- [Catalyst Center Devces Software image management (SWIM)](./workflows/swim/README.md)
+- [Catalyst Center Device compliance and remidiation](./workflows/network_compliance/README.md)
+- [Catalyst Center Notification Destination and Events Subscription](./workflows/events_and_notifications/README.md)
+- [Catalyst Center Devices Replacement Management](./workflows/device_replacement_rma/README.md)
+- [Catalyst Center Access Point Provisioning and Access Point Configuration Management](./workflows/wireless_ap_config/README.md)
+- [Device Configuration Customization using Catalyst Center Templates](./workflows/device_templates/README.md)
+- [Catalyst Center managed network devices configurations backup management](./workflows/device_config_backup/README.md)
 
 # Prerequisites
 Before using these Ansible workflows, ensure that you have the following prerequisites:
