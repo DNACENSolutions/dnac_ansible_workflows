@@ -1,0 +1,42 @@
+
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+jinjatemplate: true
+passwords_file: ../../../valted_passwords/mypasswordfile.yaml
+jinjatemplate_file: ../sites_generation_template/sites_generation_template.j2
+design_sites:
+  - site:
+      area:
+        name: USA
+        parent_name: Global
+    type: area
+{% for i in range(1, 4) %}
+  - site:
+      area:
+        name: AREA{{i}}
+        parent_name: Global/USA
+    type: area
+{% for j in range(1, 4) %}
+  - site:
+      building:
+        name: AREA{{i}} BLD{{j}}
+        parent_name: Global/USA/AREA{{i}}
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+{% for l in range(1, 4) %}
+  - site:
+      floor:
+        name: AREA{{i}} BLD{{j}} FLOOR{{l}}
+        parent_name: Global/USA/AREA{{i}}/AREA{{i}} BLD{{j}}
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+{% endfor %}
+{% endfor %}
+{% endfor %}
