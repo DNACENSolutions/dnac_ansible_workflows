@@ -1,0 +1,111 @@
+---
+swim_task:
+  import:
+    - import_image_details:
+        type: remote
+        url_details:
+          payload:
+            - source_url: http://172.21.236.183/swim/V1712_2_CCO/cat9k_iosxe.17.12.02.SPA.bin
+            - source_url: http://172.21.236.183/swim/V1712_2_CCO/C9800-SW-iosxe-wlc.17.12.02.SPA.bin
+              is_third_party: False
+    - import_image_details:
+        type: remote
+        url_details:
+          payload:
+            - source_url: http://172.21.236.183/swim/V1712_2_CCO/C9800-40-universalk9_wlc.17.12.02.SPA.bin
+              is_third_party: False
+
+  tag:
+    - tagging_details:
+        image_name: cat9k_iosxe.17.12.02.SPA.bin
+        device_role: ALL
+        site_name: Global/USA/SAN JOSE/BLD23
+        device_image_family_name: Cisco Catalyst 9300 Switch
+        tagging: True
+    - tagging_details:
+        image_name: cat9k_iosxe.17.12.02.SPA.bin
+        device_role: ACCESS
+        site_name: Global/USA/SAN JOSE/BLD23
+        device_image_family_name: Cisco Catalyst 9407R Switch-Cisco Catalyst 9400X Supervisor Engine-2XL
+        tagging: True
+
+  distribute:
+    - image_distribution_details:
+        image_name: cat9k_iosxe.17.12.02.SPA.bin
+        device_role: ACCESS
+        site_name: Global/USA/San Jose
+        device_serial_number: null
+        device_hostname: null
+        device_mac_address: null
+        device_ip_address: null
+
+  activate:
+    - image_activation_details:
+        image_name: cat9k_iosxe.17.12.02.SPA.bin
+        device_role: ACCESS
+        site_name: Global/USA/SAN JOSE/BLD23
+        device_serial_number: null
+        device_hostname: null
+        activate_lower_image_version: false
+        distribute_if_needed: true
+        schedule_validate: false
+        device_mac_address: null
+        device_ip_address: null
+        device_upgrade_mode: currentlyExists
+
+device_e2e:
+  - import_image_details:
+      type: remote
+      url_details:
+        payload:
+          - source_url: http://172.21.236.183/swim/V1712_2_CCO/cat9k_iosxe.17.12.02.SPA.bin
+
+  - tagging_details:
+      image_name: cat9k_iosxe.17.12.02.SPA.bin
+      device_role: ALL
+      site_name: Global/USA/SAN JOSE/BLD23
+      device_image_family_name: Cisco Catalyst 9300 Switch
+      tagging: True
+
+  - image_distribution_details:
+      image_name: cat9k_iosxe.17.12.02.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/San Jose
+
+  - image_activation_details:
+      image_name: cat9k_iosxe.17.12.02.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/SAN JOSE/BLD23
+      activate_lower_image_version: false
+      distribute_if_needed: true
+      schedule_validate: false
+      device_upgrade_mode: currentlyExists
+
+filter_e2e:
+  - import_image_details:
+      type: remote
+      url_details:
+        payload:
+          - source_url: http://172.21.236.183/swim/V1712_2_CCO/cat9k_iosxe.17.12.02.SPA.bin
+            is_third_party: False
+
+  - tagging_details:
+      image_name: cat9k_iosxe.17.12.02.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/San Jose
+      device_image_family_name: Cisco Catalyst 9300 Switch
+      tagging: True
+
+  - image_distribution_details:
+      image_name: cat9k_iosxe.17.12.02.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/San Jose
+      device_family_name: Switches and Hubs
+
+  - image_activation_details:
+      image_name: cat9k_iosxe.17.12.02.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/San Jose
+      activate_lower_image_version: true
+      distribute_if_needed: true
+      schedule_validate: false
