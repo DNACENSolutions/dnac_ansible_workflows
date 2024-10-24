@@ -1,0 +1,15 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+catalyst_center_verify: false
+design_sites:  
+  - site:
+      area:
+        name: China
+        parent_name: Global
+    type: area
+  - site:
+      area:
+        name: AREA1
+        parent_name: Global/USA
+    type: area
