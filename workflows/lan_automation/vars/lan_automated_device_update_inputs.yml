@@ -1,0 +1,33 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the LAN Automated device update
+
+lan_automation_details:  
+  device_update:
+    - lan_automated_device_update:
+        hostname_update_devices:
+          - device_management_ip_address: "204.1.1.7"
+            new_host_name: "SR-LAN-9400X-EDGE1.cisco.com"
+
+    - lan_automated_device_update:
+        loopback_update_device_list:
+          - device_management_ip_address: "204.1.2.93"
+            new_loopback0_ip_address: "204.1.1.200"
+          - device_management_ip_address: "204.1.1.191"
+            new_loopback0_ip_address: "204.1.1.119"
+
+    - lan_automated_device_update:
+        link_add:
+            source_device_management_ip_address: "204.1.1.110"
+            source_device_interface_name: "TwoGigabitEthernet1/0/20"
+            destination_device_management_ip_address: "204.1.1.152"
+            destination_device_interface_name: "GigabitEthernet1/0/20"
+            ip_pool_name: "underlay_sub"
+
+    - lan_automated_device_update:
+        link_delete:
+          source_device_management_ip_address: "91.1.1.2"
+          source_device_interface_name: "TwoGigabitEthernet1/0/2"
+          destination_device_management_ip_address: "91.1.1.6"
+          destination_device_interface_name: "GigabitEthernet1/0/5"
