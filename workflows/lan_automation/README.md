@@ -120,8 +120,8 @@ lan_automation_details:
         launch_and_wait: false
 ```
 Note:
-    
-For comprehensive instructions on the available options and the respective structure, refer to the full workflow specification at: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/lan_automation_workflow_manager
+    For comprehensive instructions on the available options and the respective structure, refer to the full workflow specification at:                 
+    https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/lan_automation_workflow_manager
 
 ### 4. Execute the playbook
 
