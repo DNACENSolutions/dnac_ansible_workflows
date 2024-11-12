@@ -5,7 +5,7 @@
 # API to create Authentication and Policy Server Access Configuration.
 # API to update Authentication and Policy Server Access Configuration.
 # ansible-playbook -i inventory/hosts.yml workflows/ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/ise_radius_integration_workflow_input.yml"
-- name: Network Compliance on  Cisco Catalyst Center
+- name: ISE Integration on  Cisco Catalyst Center
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -15,7 +15,6 @@
 
   vars:
     state: merged
-    
     dnac_login: &dnac_login
       dnac_host: "{{ dnac_host }}"
       dnac_username: "{{ dnac_username }}"
@@ -26,10 +25,33 @@
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
       dnac_log_level: "{{ dnac_log_level }}"
+  # Tasks including jinja templates to create the ise_radius_integration_details
   tasks:
     - name: Playbook start time for Authentication and Policy Servers configuration on Cisco Catalyst Center
       set_fact:
         long_op_start: "{{ now() }}"
+
+    - name: set the password file path
+      set_fact:
+        passwords_file: "{{ passwords_file  | default('../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml') }}"
+      when: jinjatemplate is defined and jinjatemplate is true 
+
+    - name: load password file
+      include_vars:
+        file: "{{ passwords_file }}"
+      when: jinjatemplate is defined and jinjatemplate is true and passwords_file is defined
+
+    # load ise_radius_integration_details template jinja file
+    - name: Load template file to create Authentication and Policy Servers
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     - name: Authentication and Policy Servers configurations on Cisco Catalyst Center
       cisco.dnac.ise_radius_integration_workflow_manager:
         <<: *dnac_login
@@ -37,10 +59,15 @@
         state: merged
         config: "{{ise_radius_integration_details}}"
       register: ise_radius_integration_output
-      #when: ise_radius_integration_details is defined
+      when: ise_radius_integration_details is defined and ise_radius_integration_details | length > 0
     - name: Print the Authentication and Policy Servers configuration output
       debug:
         msg: "{{ise_radius_integration_output}}"
+      when: ise_radius_integration_output is defined
+    # delete the template file
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     - name: Authentication and Policy Servers configuration playbook end time
       set_fact:
         long_op_end: "{{ now() }}"
@@ -53,3 +80,4 @@
       register: ansible_play_path
       delegate_to: catalyst_center_hosts
       connection: local
+
