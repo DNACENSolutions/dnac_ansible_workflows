@@ -35,4 +35,13 @@ passwords_details:
 # for users and role module
 - key: testuser1_vault_password
   value: 'Lablab#!23@45'
-
+- key: ise_admin_password
+  value: 'Maglev#123'
+- key: aaa_shared_secret
+  value: 'Lablab#123'
+- key: ise_encryption_key
+  value: 'Lablab#123'
+- key: ise_message_authenticator_code_key
+  value: 'Lablab#123'
+- key: ai_users_vaule_password
+  value: 'Lablab#12Ai'

@@ -1,0 +1,7 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+catalyst_center_verify: False
+jinjatemplate: True
+jinjatemplate_file: "../jinja_template/ise_radius_inegration_jinja_template.j2"
+ise_radius_integration_details: []
