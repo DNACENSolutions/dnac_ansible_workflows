@@ -2,7 +2,7 @@
 # This playbook is used to update the vault encrypted file with the new data
 # ansible-playbook -i inventory/hosts.yml workflows/ansible_vault_update/playbook/ansible_vault_update_playbook.yml --extra-vars "VARS_FILE_PATH=../vars/ansible_vault_update_inputs.yml"
 - name: Manage operation related to taking the backup of running config on  Cisco Catalyst Center
-  hosts: catalyst_center_hosts
+  hosts: localhost
   connection: local
   gather_facts: no
 

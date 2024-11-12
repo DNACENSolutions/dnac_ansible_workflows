@@ -17,6 +17,57 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integrat
 ## Delete Authentication and Policy Servers
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integration/playbook/delete_ise_radius_integration_workflow_playbook.yml --e VARS_FILE_PATH=../vars/ise_radius_integration_workflow_input.yml -vvvv
 
+## Authentication and Policy Server with Jinja Template and passwords from Ansible Vault.
+### Jinja Template file: ise_radius_inegration_jinja_template.j2
+```yaml
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+ise_radius_integration_details:
+    - authentication_policy_server:
+      - server_type: AAA
+        server_ip_address: 10.0.0.1
+        shared_secret: {{ aaa_shared_secret }}
+        protocol: RADIUS_TACACS
+        authentication_port: 1812
+        accounting_port: 1813
+        retries: 3
+        timeout: 4
+        role: secondary
+      - server_type: ISE
+        server_ip_address: 10.195.243.31
+        shared_secret: {{ ise_shared_secret }}
+        protocol: RADIUS_TACACS
+        #encryption_scheme: KEYWRAP
+        #encryption_key: {{ ise_encryption_key }}"
+        #message_authenticator_code_key: {{ ise_message_authenticator_code_key }}
+        authentication_port: 1812
+        accounting_port: 1813
+        retries: 3
+        timeout: 4
+        role: primary
+        use_dnac_cert_for_pxgrid: False
+        pxgrid_enabled: True
+        cisco_ise_dtos:
+        - user_name: admin
+          password: {{ ise_admin_password }}
+          fqdn: IBSTE-ISE1.cisco.com
+          ip_address: 10.195.243.31
+          description: Cisco ISE
+        trusted_server: True
+        ise_integration_wait_time: 20
+```
+### Jinja file selection
+
+
+### Eecution of playbook with jinja inputs
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml --e VARS_FILE_PATH=../vars/ise_radius_integration_workflow_jinja_input.yml -vvv
+
+### Deletion with Jinja Template
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml --e VARS_FILE_PATH=../vars/ise_radius_integration_workflow_jinja_input.yml -vvv
+
+
+
 ##The Sample host_inventory_dnac1/hosts.yml
 
 ```bash

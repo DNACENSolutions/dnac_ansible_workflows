@@ -26,7 +26,8 @@ Complete version control: Track every change and easily revert to previous state
 Increased collaboration: Simplify teamwork with a centralized and transparent platform.
 Improved reliability: Reduce errors and ensure consistent configurations across your network.
 Simplified deployments: Automate updates and rollbacks with confidence.
-
+# Enterprise Usecases
+![Alt text](./images/enterpriseUsecases.png)
 
 # Table of Contents
 - [Prerequisites](#prerequisites)
