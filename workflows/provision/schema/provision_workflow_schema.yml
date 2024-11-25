@@ -1,0 +1,200 @@
+# create schema for the following spec
+# Parameters
+# Parameter	Choices/Defaults	Comments
+# config
+# list / elements =dictionary / required
+# List of details of device being managed.
+
+# dynamic_interfaces
+# list / elements =dictionary
+# Interface details of the controller
+
+# interface_gateway
+# string
+# Ip Address allocated to the interface
+
+# interface_ip_address
+# string
+# Ip Address allocated to the interface
+
+# interface_name
+# string
+# Ip Address allocated to the interface
+
+# interface_netmask_in_c_i_d_r
+# integer
+# Ip Address allocated to the interface
+
+# lag_or_port_number
+# integer
+# Ip Address allocated to the interface
+
+# vlan_id
+# integer
+# Ip Address allocated to the interface
+
+# managed_ap_locations
+# list / elements =string
+# Location of the sites allocated for the APs.
+
+# This is mandatory for provisioning of wireless devices.
+
+# management_ip_address
+# string / required
+# Management Ip Address of the device.
+
+# provisioning
+# boolean
+# Choices:
+# true  ←
+# false
+# Specifies whether the user intends to perform site assignment only or full provisioning for a wired device.
+
+# Set to 'False' to carry out site assignment only.
+
+# Set to 'True' to proceed with provisioning to a site.
+
+# site_name_hierarchy
+# string
+# Name of site where the device needs to be added.
+
+# config_verify
+# boolean
+# Choices:
+# true
+# false  ←
+# Set to True to verify the Cisco Catalyst Center config after applying the playbook config.
+
+# dnac_api_task_timeout
+# integer
+# Default:1200	
+# Defines the timeout in seconds for API calls to retrieve task details. If the task details are not received within this period, the process will end, and a timeout notification will be logged.
+
+# dnac_debug
+# boolean
+# Choices:
+# true
+# false  ←
+# Indicates whether debugging is enabled in the Cisco Catalyst Center SDK.
+
+# dnac_host
+# string / required
+# The hostname of the Cisco Catalyst Center.
+
+# dnac_log
+# boolean
+# Choices:
+# true
+# false  ←
+# Flag to enable/disable playbook execution logging.
+
+# When true and dnac_log_file_path is provided, - Create the log file at the execution location with the specified name.
+
+# When true and dnac_log_file_path is not provided, - Create the log file at the execution location with the name 'dnac.log'.
+
+# When false, - Logging is disabled.
+
+# If the log file doesn't exist, - It is created in append or write mode based on the "dnac_log_append" flag.
+
+# If the log file exists, - It is overwritten or appended based on the "dnac_log_append" flag.
+
+# dnac_log_append
+# boolean
+# Choices:
+# true  ←
+# false
+# Determines the mode of the file. Set to True for 'append' mode. Set to False for 'write' mode.
+
+# dnac_log_file_path
+# string
+# Default:dnac.log	
+# Governs logging. Logs are recorded if dnac_log is True.
+
+# If path is not specified, - When 'dnac_log_append' is True, 'dnac.log' is generated in the current Ansible directory; logs are appended. - When 'dnac_log_append' is False, 'dnac.log' is generated; logs are overwritten.
+
+# If path is specified, - When 'dnac_log_append' is True, the file opens in append mode. - When 'dnac_log_append' is False, the file opens in write (w) mode. - In shared file scenarios, without append mode, content is overwritten after each module execution. - For a shared log file, set append to False for the 1st module (to overwrite); for subsequent modules, set append to True.
+
+# dnac_log_level
+# string
+# Default:WARNING	
+# Sets the threshold for log level. Messages with a level equal to or higher than this will be logged. Levels are listed in order of severity [CRITICAL, ERROR, WARNING, INFO, DEBUG].
+
+# CRITICAL indicates serious errors halting the program. Displays only CRITICAL messages.
+
+# ERROR indicates problems preventing a function. Displays ERROR and CRITICAL messages.
+
+# WARNING indicates potential future issues. Displays WARNING, ERROR, CRITICAL messages.
+
+# INFO tracks normal operation. Displays INFO, WARNING, ERROR, CRITICAL messages.
+
+# DEBUG provides detailed diagnostic info. Displays all log messages.
+
+# dnac_password
+# string
+# The password for authentication at the Cisco Catalyst Center.
+
+# dnac_port
+# string
+# Default:443	
+# Specifies the port number associated with the Cisco Catalyst Center.
+
+# dnac_task_poll_interval
+# integer
+# Default:2	
+# Specifies the interval in seconds between successive calls to the API to retrieve task details.
+
+# dnac_username
+# string
+# Default:admin	
+# The username for authentication at the Cisco Catalyst Center.
+
+# aliases: user
+# dnac_verify
+# boolean
+# Choices:
+# true  ←
+# false
+# Flag to enable or disable SSL certificate verification.
+
+# dnac_version
+# string
+# Default:2.2.3.3	
+# Specifies the version of the Cisco Catalyst Center that the SDK should use.
+
+# state
+# string
+# Choices:
+# merged  ←
+# deleted
+# The state of Cisco Catalyst Center after module completion.
+
+# validate_response_schema
+# boolean
+# Choices:
+# true  ←
+# false
+# Flag for Cisco Catalyst Center SDK to enable the validation of request bodies against a JSON schema.
+# #=======================================================================================================================
+provision_details:  list(include('provision_details_type'), min=0, max=1000, required=False)
+catalyst_center_version: str(required=False)
+---
+provision_details_type:
+  site_name_hierarchy: str(required=False)
+  management_ip_address: str(required=True)
+  provisioning: bool(default=True, required=False)
+  managed_ap_locations: list(str, required=False)
+  dynamic_interfaces: list(include('dynamic_interfaces_type'), required=False)
+
+dynamic_interfaces_type:
+  interface_gateway: str(required=False)
+  interface_ip_address: str(required=False)
+  interface_name: str(required=False)
+  interface_netmask_in_c_i_d_r: int(required=False)
+  lag_or_port_number: int(required=False)
+  vlan_id: int(required=False)
+  
+
+  
+
+
+  

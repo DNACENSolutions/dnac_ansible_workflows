@@ -1,0 +1,78 @@
+#Module Spec, the Schema is defined under it.
+# Parameters
+# Parameter	Choices/Defaults	Comments
+# config
+# list / elements =dictionary / required
+# List of details regarding the device configuration backups being taken
+
+# Alteast one of the paramters mentioned in the suboptions must be passed in config
+
+# collection_status
+# string
+# Specifies the collection status of the device(s) on the GUI of Cisco Catalyst Center
+
+# family
+# string
+# Family of the device(s) as displayed on the inventory GUI of Cisco Catalyst Center
+
+# file_password
+# string
+# Optional file password for zipping and unzipping the config file.
+
+# Minimum password length is 8 and it should contain atleast one lower case letter, one uppercase letter, one digit and one special characters from -=\\\\\\\\;,./~!@$%^&*()_+{}[]|:?"
+
+# file_path
+# string
+# Default:tmp	
+# Location of the path or folder where the configs need to be exported in local system.
+
+# If the file_path is not provided, the backup file(s) will be stored in a directory named "tmp" in the same directory as the playbook.
+
+# hostname
+# string
+# Hostname of the device as displayed on the inventory GUI of Cisco Catalyst Center
+
+# mac_address
+# string
+# Mac address of the device as displayed on the inventory GUI of Cisco Catalyst Center
+
+# management_ip_address
+# string
+# IP address of the device as displayed on the inventory GUI of Cisco Catalyst Center
+
+# serial_number
+# string
+# Serial number of the device as displayed on the inventory GUI of Cisco Catalyst Center
+
+# series
+# string
+# Specifies the series of the device(s) from the type, like Cisco Catalyst 9300 Series Switches
+
+# site
+# string
+# Name of the site to which the device is assigned
+
+# type
+# string
+# Specifies the type of the device(s) from the family, like Cisco Catalyst 9300 Switch or Cisco Catalyst 9500 Switch
+# #=======================================================================================================================
+# # Schema for the device config backup details
+# #=======================================================================================================================
+device_configs_backup_details: list(include('device_configs_backup_details_type'), min=0, max=1000, required=False)
+catalyst_center_version: str(required=False)
+catalyst_center_task_timeout: int(required=False)
+catalyst_center_task_poll_interval: int(required=False)
+---
+device_configs_backup_details_type:
+  collection_status: str(required=False)
+  family: str(required=False)
+  file_password: str(required=False)
+  file_path: str(required=False)
+  hostname: str(required=False)
+  mac_address: str(required=False)
+  management_ip_address: str(required=False)
+  serial_number: str(required=False)
+  series: str(required=False)
+  site: str(required=False)
+  type: str(required=False)
+# #=======================================================================================================================

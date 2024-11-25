@@ -1,0 +1,491 @@
+
+#=========================================================================
+# Schema for Network Settings Inputs
+# This schema is used to validate the inputs for the Network Settings Workflow
+# to run the Validate use the validate tool
+# (pyats) pawansi@PAWANSI-M-81A3 dnac_ansible_workflows % ./tools/validate.sh -s workflows/network_settings/schema/nw_settings_schema.yml -d workflows/network_settings/vars/network_settings_vars.yml
+# workflows/network_settings/schema/nw_settings_schema.yml
+# workflows/network_settings/vars/network_settings_vars.yml
+# yamale   -s workflows/network_settings/schema/nw_settings_schema.yml  workflows/network_settings/vars/network_settings_vars.yml
+# Validating /Users/pawansi/dnac_ansible_workflows/workflows/network_settings/vars/network_settings_vars.yml...
+# Validation success! 👍
+#=========================================================================
+# Parameters
+# Parameter	Choices/Defaults	Comments
+# config
+# list / elements =dictionary / required
+# List of details of global pool, reserved pool, network being managed.
+
+# global_pool_details
+# dictionary
+# Manages IPv4 and IPv6 IP pools in the global level.
+
+# settings
+# dictionary
+# Global Pool's settings.
+
+# ip_pool
+# list / elements =dictionary
+# Contains a list of global IP pool configurations.
+
+# cidr
+# string
+# Defines the IP pool's Classless Inter-Domain Routing block, enabling systematic IP address distribution within a network.
+
+# dhcp_server_ips
+# list / elements =string
+# The DHCP server IPs responsible for automatically assigning IP addresses and network configuration parameters to devices on a local network.
+
+# dns_server_ips
+# list / elements =string
+# Responsible for translating domain names into corresponding IP addresses.
+
+# gateway
+# string
+# Serves as an entry or exit point for data traffic between networks.
+
+# ip_address_space
+# string
+# IP address space either IPv4 or IPv6.
+
+# name
+# string
+# Specifies the name assigned to the Global IP Pool.
+
+# Required for the operations in the Global IP Pool.
+
+# Length should be less than or equal to 100.
+
+# Only letters, numbers and -_./ characters are allowed.
+
+# pool_type
+# string
+# Choices:
+# Generic  ←
+# Tunnel
+# Includes both the Generic Ip Pool and Tunnel Ip Pool. Generic - Used for general purpose within the network such as device management or communication between the network devices. Tunnel - Designated for the tunnel interfaces to encapsulate packets within the network protocol. It is used in VPN connections, GRE tunnels, or other types of overlay networks.
+
+# prev_name
+# string
+# The former identifier for the global pool. It should be used exclusively when you need to update the global pool's name.
+
+# network_management_details
+# list / elements =dictionary
+# Set default network settings for the site
+
+# settings
+# dictionary
+# Network management details settings.
+
+# client_and_endpoint_aaa
+# dictionary
+# Manages AAA (Authentication Authorization Accounting) for clients and endpoints.
+
+# pan_address
+# string
+# PAN IP address for the ISE server.
+
+# For example, 1.1.1.1.
+
+# primary_server_address
+# string
+# Primary IP address for the ISE/AAA server.
+
+# For example, 1.1.1.2.
+
+# protocol
+# string
+# Choices:
+# RADIUS  ←
+# TACACS
+# Protocol for AAA or ISE server.
+
+# secondary_server_address
+# string
+# Secondary IP address for the AAA server.
+
+# For example, 1.1.1.3.
+
+# server_type
+# string
+# Choices:
+# AAA
+# ISE
+# Server type for managing AAA for client and endpoints.
+
+# shared_secret
+# string
+# Shared secret for ISE Server.
+
+# Length of the shared secret should be atleast 4 characters.
+
+# dhcp_server
+# list / elements =string
+# DHCP Server IP address (eg 1.1.1.4).
+
+# dns_server
+# dictionary
+# DNS server details of the network under a specific site.
+
+# domain_name
+# string
+# Domain Name of DHCP (eg; cisco.com, cisco.net).
+
+# primary_ip_address
+# string
+# Primary IP Address for DHCP (eg 2.2.2.2).
+
+# secondary_ip_address
+# string
+# Secondary IP Address for DHCP (eg 3.3.3.3).
+
+# message_of_the_day
+# dictionary
+# Banner details under a specific site.
+
+# banner_message
+# string
+# Message for the banner (eg; Good day).
+
+# retain_existing_banner
+# boolean
+# Choices:
+# true
+# false
+# Retain existing banner message.
+
+# netflow_collector
+# dictionary
+# Netflow collector details under a specific site.
+
+# ip_address
+# string
+# IP Address for NetFlow collector (eg 3.3.3.1).
+
+# port
+# integer
+# Port for NetFlow Collector (eg; 443).
+
+# network_aaa
+# dictionary
+# Manages AAA (Authentication Authorization Accounting) for network devices.
+
+# pan_address
+# string
+# PAN IP address for the ISE server.
+
+# For example, 1.1.1.1.
+
+# primary_server_address
+# string
+# Primary IP address for the ISE/AAA server.
+
+# For example, 1.1.1.2.
+
+# protocol
+# string
+# Choices:
+# RADIUS  ←
+# TACACS
+# Protocol for AAA or ISE server.
+
+# secondary_server_address
+# string
+# Secondary IP address for the AAA server.
+
+# For example, 1.1.1.3.
+
+# server_type
+# string
+# Choices:
+# AAA
+# ISE
+# Server type for managing AAA for network devices.
+
+# shared_secret
+# string
+# Shared secret for ISE Server.
+
+# Length of the shared secret should be atleast 4 characters.
+
+# ntp_server
+# list / elements =string
+# IP address for NTP server under a specific site (eg 1.1.1.2).
+
+# snmp_server
+# dictionary
+# Snmp Server details under a specific site.
+
+# configure_dnac_ip
+# boolean
+# Choices:
+# true
+# false
+# Configuration Cisco Catalyst Center IP for SNMP Server (eg true).
+
+# ip_addresses
+# list / elements =string
+# IP Address for SNMP Server (eg 4.4.4.1).
+
+# syslog_server
+# dictionary
+# syslog Server details under a specific site.
+
+# configure_dnac_ip
+# boolean
+# Choices:
+# true
+# false
+# Configuration Cisco Catalyst Center IP for syslog server (eg true).
+
+# ip_addresses
+# list / elements =string
+# IP Address for syslog server (eg 4.4.4.4).
+
+# timezone
+# string
+# Time zone of a specific site. (eg Africa/Abidjan/GMT).
+
+# site_name
+# string
+# The name of the site provided as a path parameter, used to specify where the IP sub-pool will be reserved. (eg Global/Chennai/Trill)
+
+# reserve_pool_details
+# dictionary
+# Reserved IP subpool details from the global pool.
+
+# ipv4_dhcp_servers
+# list / elements =string
+# Specifies the IPv4 addresses for DHCP servers, for example, "1.1.1.1".
+
+# ipv4_dns_servers
+# list / elements =string
+# Specifies the IPv4 addresses for DNS servers, for example, "4.4.4.4".
+
+# ipv4_gateway
+# string
+# Provides the gateway's IPv4 address, for example, "175.175.0.1".
+
+# ipv4_global_pool
+# string
+# IP v4 Global pool address with cidr, example 175.175.0.0/16.
+
+# If both 'ipv6_global_pool' and 'ipv4_global_pool_name' are provided, the 'ipv4_global_pool' will be given priority.
+
+# ipv4_global_pool_name
+# string
+# Specifies the name to be associated with the IPv4 Global IP Pool.
+
+# If both 'ipv4_global_pool' and 'ipv4_global_pool_name' are provided, the 'ipv4_global_pool' will be given priority.
+
+# ipv4_prefix
+# boolean
+# Choices:
+# true
+# false
+# ip4 prefix length is enabled or ipv4 total Host input is enabled
+
+# ipv4_prefix_length
+# integer
+# The ipv4 prefix length is required when ipv4_prefix value is true.
+
+# ipv4_subnet
+# string
+# Indicates the IPv4 subnet address, for example, "175.175.0.0".
+
+# ipv4_total_host
+# integer
+# The total number of hosts for IPv4, required when the 'ipv4_prefix' is set to false.
+
+# ipv6_address_space
+# boolean
+# Choices:
+# true
+# false
+# Determines whether both IPv6 and IPv4 inputs are required. If set to false, only IPv4 inputs are required. If set to true, both IPv6 and IPv4 inputs are required.
+
+# ipv6_dhcp_servers
+# list / elements =string
+# Specifies the IPv6 addresses for DHCP servers in the format. For example, "2001:0db8:0123:4567:89ab:cdef:0001:0001".
+
+# ipv6_dns_servers
+# list / elements =string
+# Specifies the IPv6 addresses for DNS servers. For example, "2001:0db8:0123:4567:89ab:cdef:0002:0002".
+
+# ipv6_gateway
+# string
+# Provides the gateway's IPv6 address. For example, "2001:0db8:0123:4567:89ab:cdef:0003:0003".
+
+# ipv6_global_pool
+# string
+# The ipv6_global_pool is a required when the ipv6_address_space is set to true.
+
+# It specifies the global IPv6 address pool using CIDR notation, such as "2001:db8:85a3::/64".
+
+# In cases where both ipv6_global_pool and ipv6_global_pool_name are specified, ipv6_global_pool will take precedence.
+
+# ipv6_global_pool_name
+# string
+# Specifies the name assigned to the Ip v6 Global IP Pool.
+
+# If both 'ipv6_global_pool' and 'ipv6_global_pool_name' are provided, the 'ipv6_global_pool' will be given priority.
+
+# ipv6_prefix
+# boolean
+# Choices:
+# true
+# false
+# Determines whether to enable the 'ipv6_prefix_length' or 'ipv6_total_host' input field. If IPv6 prefix value is true, the IPv6 prefix length input field is required, If it is false ipv6 total Host input is required.
+
+# ipv6_prefix_length
+# integer
+# Specifies the IPv6 prefix length. Required when 'ipv6_prefix' is set to true.
+
+# ipv6_subnet
+# string
+# IPv6 Subnet address, example 2001:db8:85a3:0:100.
+
+# ipv6_total_host
+# integer
+# Specifies the total number of IPv6 hosts. Required when 'ipv6_prefix' is set to false.
+
+# Must specify a number of IPv6 IP addresses that is less than 256.
+
+# name
+# string
+# Name of the reserve IP subpool.
+
+# Required for the operations in the Reserve IP Pool.
+
+# Length should be less than or equal to 100.
+
+# Only letters, numbers and -_./ characters are allowed.
+
+# pool_type
+# string
+# Choices:
+# Generic  ←
+# LAN
+# Management
+# Service
+# WAN
+# Type of the reserve ip sub pool. Generic - Used for general purpose within the network such as device management or communication between the network devices. LAN - Used for the devices and the resources within the Local Area Network such as device connectivity, internal communication, or services. Management - Used for the management purposes such as device management interfaces, management access, or other administrative functions. Service - Used for the network services and application such as DNS (Domain Name System), DHCP (Dynamic Host Configuration Protocol), NTP (Network Time Protocol). WAN - Used for the devices and resources with the Wide Area Network such as remote sites interconnection with other network or services hosted within WAN.
+
+# prev_name
+# string
+# The former name associated with the reserved IP sub-pool.
+
+# site_name
+# string
+# The name of the site provided as a path parameter, used to specify where the IP sub-pool will be reserved.
+
+# slaac_support
+# boolean
+# Choices:
+# true
+# false
+# Allows devices on IPv6 networks to self-configure their IP addresses autonomously, eliminating the need for manual setup.
+
+
+network_settings_details: list(include('network_settings_details_type'), min=1, max=1000, required=False)
+catalyst_center_version: str(required=False)
+---
+network_settings_details_type:
+  global_pool_details: include('global_pool_details_type', required=False)
+  reserve_pool_details: list(include('reserve_pool_details_type'), min=1, max=1000, required=False)
+  network_management_details: list(include('network_management_details_type'), min=1, max=500, required=False)
+
+global_pool_details_type:
+    settings:
+      ip_pool: list(include('ip_pool_details_type'), min=1, max=1000, required=False)
+
+reserve_pool_details_type:
+    ipv4_global_pool: str(required=False)
+    ipv4_global_pool_name: str(required=False)
+    ipv4_dhcp_servers: list(str(), required=False)
+    ipv4_dns_servers: list(str(), required=False)
+    ipv4_prefix: bool(required=False)
+    ipv4_prefix_length: int(required=False)
+    ipv4_subnet: str(required=False)
+    ipv4_gateway: str(required=False)
+    ipv4_total_host: int(required=False)
+    name: str(required=False)
+    site_name: str(required=False)
+    slaac_support: bool(required=False)
+    pool_type: enum('Generic', 'LAN', 'Management', 'Service', 'WAN', default='Generic', required=False)
+    ipv6_address_space: bool(required=False)
+    ipv6_prefix: bool(required=False)
+    ipv6_prefix_length: int(required=False)
+    ipv6_global_pool: str(required=False)
+    ipv6_global_pool_name: str(required=False)
+    ipv6_subnet: str(required=False)
+    ipv6_gateway: str(required=False)
+    ipv6_dhcp_servers: list(str(), required=False)
+    ipv6_dns_servers: list(str(), required=False)
+    ipv6_total_host: int(required=False)
+    prev_name: str(required=False)
+
+
+ip_pool_details_type:
+  name: str(required=False)
+  gateway: str(required=False)
+  ip_address_space: enum('IPv4', 'IPv6', required=False)
+  cidr: str(required=False)
+  pool_type: enum('Generic', required=False)
+  dhcp_server_ips: list(str(), min=0, max=100, required=False)
+  dns_server_ips: list(str(), min=0, max=100, required=False)
+  prev_name: str(required=False)
+
+network_management_details_type:
+  settings: include('network_management_settings_type')
+  site_name: str(required=False)
+
+network_management_settings_type:
+  dhcp_server: list(str(), required=False)
+  dns_server: include('dns_server_type', required=False)
+  client_and_endpoint_aaa: include('client_and_endpoint_aaa_type', required=False)
+  message_of_the_day: include('message_of_the_day_type', required=False)
+  netflow_collector: include('netflow_collector_type', required=False)
+  network_aaa: include('network_aaa_type', required=False)
+  ntp_server: list(str(), min=1, max=2, required=False)
+  snmp_server: include('snmp_server_type', required=False)
+  syslog_server: include('syslog_server_type', required=False)
+  timezone: str(required=False)
+
+dns_server_type:
+  domain_name: str(required=True)
+  primary_ip_address: str(required=True)
+  secondary_ip_address: str(required=False)
+
+client_and_endpoint_aaa_type:
+  shared_secret: str(required=False)
+  pan_address: str(required=False)
+  primary_server_address: str(required=False)
+  secondary_server_address: str(required=False)
+  server_type: enum('AAA', 'ISE', required=False)
+  protocol: enum('RADIUS', 'TACACS', required=False)
+
+
+message_of_the_day_type:
+  banner_message: str(required=False)
+  retain_existing_banner: bool(required=False)
+
+netflow_collector_type:
+  ip_address: str(required=False)
+  port: int(required=False)
+
+network_aaa_type:
+  shared_secret: str(required=False)
+  pan_address: str(required=False)
+  primary_server_address: str(required=False)
+  secondary_server_address: str(required=False)
+  server_type: enum('AAA', 'ISE', required=False)
+  protocol: enum('RADIUS', 'TACACS', default='RADIUS', required=False)
+
+snmp_server_type:
+  configure_dnac_ip: bool(required=False)
+  ip_addresses: list(str(), required=False)
+
+syslog_server_type:
+  configure_dnac_ip: bool(required=False)
+  ip_addresses: list(str(), min=1, max=100, required=False)

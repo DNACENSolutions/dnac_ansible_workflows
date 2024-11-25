@@ -1,0 +1,76 @@
+#sda_fabric_virtual_networks_workflow_manager
+# Delete layer2 Fabric VLAN(s) for SDA operations in Cisco Catalyst Center.
+#cisco.dnac.sda_fabric_virtual_networks_workflow_manager
+# Requirements:
+#   - Cisco Catalyst Center (DNAC) version: 2.3.7.6 (minimum version)
+---
+- name: Playbook to manage Cisco Catalyst Center Fabric Virtual Networks and layer2 and L3 Gateways
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: merged
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_port: "{{ dnac_port }}"
+      #dnac_version: "{{ catalyst_center_version }}"
+      dnac_debug: "{{ catalyst_center_debug }}"
+      dnac_log: "{{ catalyst_center_log | default(dnac_log) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default(dnac_log_level) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+
+  tasks:
+    - name: SDA Fabric Virtual Networks and L2/L3 Gateways Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+    # load sda fabric virtual networks and l2/l3 gateways template jinja file
+    - debug:
+        msg: "version: {{ catalyst_center_version }}"
+    - name: Create Template
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Create, update, or delete layer2 Fabric VLAN(s) for SDA operations in Cisco Catalyst Center
+    - name: Create, update, Fabric VLAN(s) for SDA operations in Cisco Catalyst Center
+      cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+        <<: *dnac_login
+        dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+        dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
+        state: "{{state}}"
+        config: "{{sda_fabric_virtual_networks_details}}"
+      register: sda_fabric_virtual_networks_output
+      when: sda_fabric_virtual_networks_details is defined and sda_fabric_virtual_networks_details | length > 0
+    # Print the layer2 Fabric VLAN(s) creation output
+    - name: Print the layer2 Fabric VLAN(s) creation output
+      debug:
+        msg: "{{sda_fabric_virtual_networks_output}}"
+    # delete the template file
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # SDA Fabric Virtual Networks and L2/L3 Gateways playbook end time
+    - name: SDA Fabric Virtual Networks and L2/L3 Gateways playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    # Print SDA Fabric Virtual Networks and L2/L3 Gateways execution time
+    - name: Print SDA Fabric Virtual Networks and L2/L3 Gateways execution time
+      debug:
+        msg: "SDA Fabric Virtual Networks and L2/L3 Gateways playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

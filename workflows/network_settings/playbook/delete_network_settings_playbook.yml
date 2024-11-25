@@ -1,0 +1,48 @@
+---
+#This Playbook is to delete the network setting on site_details.
+# The network settings includes servers (i.e. DHCP, NTP, Client AAA, Network AAA, etc), 
+# Banners, Device controllability settings, and snmp and logging servers etc.
+# This Playbook also lets you configure Global IP pool snd reserv the IP Pools at Site level
+#Sample Command Run: ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/e2e_lan_automationed_site_bringup/playbook/lan_automation_site_bringup.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/e2e_lan_automationed_site_bringup/vars/lan_automation_site_bringup_vars.yml -vvvv --tags site
+- name: Playbook to run LanautomationV2 Session on Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+  vars:
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+  tasks:
+    - name: Start timer for calculating the total run time of the playbook
+      set_fact:
+        long_op_start: "{{ now() }}"
+    #Create Global Pools, and Network Settings etc 
+    - name: Create/Update Global Pools, Subpools and Network Settings etc 
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *dnac_login
+        state: deleted
+        config: "{{ network_settings_details }}"
+      when: network_settings_details is defined
+    - name: Network Settings playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+
+    - name: Print execution time
+      debug:
+        msg: "Network Settings playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

@@ -1,0 +1,70 @@
+# Parameters
+# Parameter	Choices/Defaults	Comments
+# config
+# list / elements =dictionary / required
+# A list containing detailed configurations for creating, updating, or deleting fabric sites or zones in a Software-Defined Access (SDA) environment. It also includes specifications for updating the authentication profile template for these sites. Each element in the list represents a specific operation to be performed on the SDA infrastructure, such as the addition, modification, or removal of fabric sites/zones, and modifications to authentication profiles.
+# 	fabric_sites
+# dictionary
+# A dictionary containing detailed configurations for managing REST Endpoints that will receive Audit log and Events from the Cisco Catalyst Center Platform. This dictionary is essential for specifying attributes and parameters required for the lifecycle management of fabric sites, zones, and associated authentication profiles.
+# 		authentication_profile
+# string
+# The authentication profile applied to the specified fabric. This profile determines the security posture and controls for network access within the site. Possible values include 'Closed Authentication', 'Low Impact', 'No Authentication', and 'Open Authentication'. This setting is critical when creating or updating a fabric site or updating the authentication profile template.
+# 		fabric_type
+# string / required
+# Specifies the type of site to be managed within the SDA environment. The acceptable values are 'fabric_site' and 'fabric_zone'. The default value is 'fabric_site', indicating the configuration of a broader network area, whereas 'fabric_zone' typically refers to a more specific segment within the site.
+# 		is_pub_sub_enabled
+# boolean
+# Choices:
+#     true
+#     false
+# A boolean flag that indicates whether the pub/sub mechanism is enabled for control nodes in the fabric site. This feature is relevant only when creating or updating fabric sites, not fabric zones. When set to True, pub/sub facilitates more efficient communication and control within the site. The default is True for fabric sites, and this setting is not applicable for fabric zones.
+# 		site_name
+# string / required
+# This name uniquely identifies the site for operations such as creating, updating, or deleting fabric sites or zones, as well as for updating the authentication profile template. This parameter is mandatory for any fabric site/zone management operation.
+# 		update_authentication_profile
+# dictionary
+# A dictionary containing the specific details required to update the authentication profile template associated with the fabric site. This includes advanced settings that fine-tune the authentication process and security controls within the site.
+# 			authentication_order
+# string
+# Specifies the primary method of authentication for the site. The available methods are 'dot1x' (IEEE 802.1X) and 'mac' (MAC-based authentication). This setting determines the order in which authentication mechanisms are attempted.
+# 			dot1x_fallback_timeout
+# integer
+# The timeout duration, in seconds, for falling back from 802.1X authentication. This value must be within the range of 3 to 120 seconds. It defines the period a device waits before attempting an alternative authentication method if 802.1X fails.
+# 			enable_bpu_guard
+# boolean
+# Choices:
+#     true
+#     false
+# A boolean setting that enables or disables BPDU Guard. BPDU Guard provides a security mechanism by disabling a port when a BPDU (Bridge Protocol Data Unit) is received, protecting against potential network loops. This setting defaults to true and is applicable only when the authentication profile is set to "Closed Authentication".
+# 			number_of_hosts
+# string
+# Specifies the number of hosts allowed per port. The available options are 'Single' for one device per port or 'Unlimited' for multiple devices. This setting helps in controlling the network access and maintaining security.
+# 			wake_on_lan
+# boolean
+# Choices:
+#     true
+#     false
+# A boolean value indicating whether the Wake-on-LAN feature is enabled. Wake-on-LAN allows the network to remotely wake up devices that are in a low-power state.
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+jinjatemplate: bool(required=False)
+jinjatemplate_file: str(required=False)
+passwords_file: str(required=False)
+
+fabric_sites_and_zones: list(include('fabric_sites_and_zones_type'), min=0, max=1000, required=False)
+# Schema for the fabric sites and zones details.
+---
+fabric_sites_and_zones_type: 
+  fabric_sites: list( include('fabric_sites_type'), min=0, max=1000, required=False)
+fabric_sites_type:
+    authentication_profile: enum('Closed Authentication', 'Low Impact', 'No Authentication', 'Open Authentication', required=True)
+    fabric_type: str(required=True)
+    is_pub_sub_enabled: bool(required=False)
+    site_name: str(required=True)
+    update_authentication_profile: include('update_authentication_profile_type', required=False)
+update_authentication_profile_type:
+      authentication_order: str(required=False)
+      dot1x_fallback_timeout: int(required=False)
+      enable_bpu_guard: bool(required=False)
+      number_of_hosts: str(required=False)
+      wake_on_lan: bool(required=False)

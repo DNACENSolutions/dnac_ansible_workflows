@@ -1,0 +1,6 @@
+---
+catalyst_center_version: "2.3.7.6"
+catalyst_center_verify: false
+jinjatemplate: true
+jinjatemplate_file: ../jinja_template/sda_vn_l2_l3_gateways_jinja_template.yml
+sda_fabric_virtual_networks_details: []

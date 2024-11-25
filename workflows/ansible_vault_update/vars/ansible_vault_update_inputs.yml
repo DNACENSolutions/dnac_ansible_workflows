@@ -1,0 +1,47 @@
+---
+passwords_details:
+- key: testuser1password
+  value: 'testuser1@123'
+- key: testuser2password
+  value: 'testuser2@123'
+- key: testuser3password
+  value: 'testuser3@123'
+- key: testuser4password
+  value: 'testuser4@123'
+- key: testuser5password
+  value: 'testuser5@123'
+- key: testuser6password
+  value: 'testuser6@123'
+- key: cli-1_password
+  value: '5!meh'
+- key: cli-1_enable_password
+  value: 'q4^t^'
+- key: cli-2_password
+  value: 'sbs2@'
+- key: cli-2_enable_password
+  value: '8b!rn'
+- key: snmpV3_Sample_1_auth_password
+  value: 'hp!x6px&#@2xi5'
+- key: snmpV3_Sample_1_privacy_password
+  value: 'ai7tpci3j@*j5g'
+- key: httpsRead_Sample_1_password
+  value: '2!x88yvqz*7'
+- key: httpsWrite_Sample_1_password
+  value: 'j@5wgm%s2g%'
+- key: wlcaccess_password
+  value: 'Lablab#123'
+- key: wlcaccess_enable_password
+  value: 'Cisco#123'
+# for users and role module
+- key: testuser1_vault_password
+  value: 'Lablab#!23@45'
+- key: ise_admin_password
+  value: 'Maglev#123'
+- key: aaa_shared_secret
+  value: 'Lablab#123'
+- key: ise_encryption_key
+  value: 'Lablab#123'
+- key: ise_message_authenticator_code_key
+  value: 'Lablab#123'
+- key: ai_users_vaule_password
+  value: 'Lablab#12Ai'

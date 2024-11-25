@@ -1,0 +1,352 @@
+
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+jinjatemplate: true
+passwords_file: ../../../valted_passwords/mypasswordfile.yaml
+jinjatemplate_file: ../sites_generation_template/sites_generation_template.j2
+design_sites:
+  - site:
+      area:
+        name: USA
+        parent_name: Global
+    type: area
+  - site:
+      area:
+        name: AREA1
+        parent_name: Global/USA
+    type: area
+  - site:
+      building:
+        name: AREA1 BLD1
+        parent_name: Global/USA/AREA1
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: AREA1 BLD1 FLOOR1
+        parent_name: Global/USA/AREA1/AREA1 BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA1 BLD1 FLOOR2
+        parent_name: Global/USA/AREA1/AREA1 BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA1 BLD1 FLOOR3
+        parent_name: Global/USA/AREA1/AREA1 BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      building:
+        name: AREA1 BLD2
+        parent_name: Global/USA/AREA1
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: AREA1 BLD2 FLOOR1
+        parent_name: Global/USA/AREA1/AREA1 BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA1 BLD2 FLOOR2
+        parent_name: Global/USA/AREA1/AREA1 BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA1 BLD2 FLOOR3
+        parent_name: Global/USA/AREA1/AREA1 BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      building:
+        name: AREA1 BLD3
+        parent_name: Global/USA/AREA1
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: AREA1 BLD3 FLOOR1
+        parent_name: Global/USA/AREA1/AREA1 BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA1 BLD3 FLOOR2
+        parent_name: Global/USA/AREA1/AREA1 BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA1 BLD3 FLOOR3
+        parent_name: Global/USA/AREA1/AREA1 BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      area:
+        name: AREA2
+        parent_name: Global/USA
+    type: area
+  - site:
+      building:
+        name: AREA2 BLD1
+        parent_name: Global/USA/AREA2
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: AREA2 BLD1 FLOOR1
+        parent_name: Global/USA/AREA2/AREA2 BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA2 BLD1 FLOOR2
+        parent_name: Global/USA/AREA2/AREA2 BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA2 BLD1 FLOOR3
+        parent_name: Global/USA/AREA2/AREA2 BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      building:
+        name: AREA2 BLD2
+        parent_name: Global/USA/AREA2
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: AREA2 BLD2 FLOOR1
+        parent_name: Global/USA/AREA2/AREA2 BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA2 BLD2 FLOOR2
+        parent_name: Global/USA/AREA2/AREA2 BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA2 BLD2 FLOOR3
+        parent_name: Global/USA/AREA2/AREA2 BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      building:
+        name: AREA2 BLD3
+        parent_name: Global/USA/AREA2
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: AREA2 BLD3 FLOOR1
+        parent_name: Global/USA/AREA2/AREA2 BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA2 BLD3 FLOOR2
+        parent_name: Global/USA/AREA2/AREA2 BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA2 BLD3 FLOOR3
+        parent_name: Global/USA/AREA2/AREA2 BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      area:
+        name: AREA3
+        parent_name: Global/USA
+    type: area
+  - site:
+      building:
+        name: AREA3 BLD1
+        parent_name: Global/USA/AREA3
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: AREA3 BLD1 FLOOR1
+        parent_name: Global/USA/AREA3/AREA3 BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA3 BLD1 FLOOR2
+        parent_name: Global/USA/AREA3/AREA3 BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA3 BLD1 FLOOR3
+        parent_name: Global/USA/AREA3/AREA3 BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      building:
+        name: AREA3 BLD2
+        parent_name: Global/USA/AREA3
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: AREA3 BLD2 FLOOR1
+        parent_name: Global/USA/AREA3/AREA3 BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA3 BLD2 FLOOR2
+        parent_name: Global/USA/AREA3/AREA3 BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA3 BLD2 FLOOR3
+        parent_name: Global/USA/AREA3/AREA3 BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      building:
+        name: AREA3 BLD3
+        parent_name: Global/USA/AREA3
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: AREA3 BLD3 FLOOR1
+        parent_name: Global/USA/AREA3/AREA3 BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA3 BLD3 FLOOR2
+        parent_name: Global/USA/AREA3/AREA3 BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: AREA3 BLD3 FLOOR3
+        parent_name: Global/USA/AREA3/AREA3 BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor

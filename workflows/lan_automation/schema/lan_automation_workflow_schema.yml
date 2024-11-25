@@ -1,0 +1,67 @@
+#https://github.com/23andMe/Yamale
+
+lan_automation_details:
+  lan_automation_session: list(include('lan_automation_type'), min=0, max=100, required=False)
+  device_update: list(include('device_update_type'), min=0, max=100, required=False)
+catalyst_center_version: str(required=False)
+
+---
+
+lan_automation_type:
+  lan_automation:
+    discovered_device_site_name_hierarchy: str(required=True)
+    peer_device_management_ip_address: str(required=False)
+    primary_device_management_ip_address: str(required=True)
+    primary_device_interface_names: list(str(), min=1, max=100, required=True)
+    ip_pools: list(include('ip_pools_type'), min=1, max=100, required=True)
+    multicast_enabled: bool(required=False)
+    redistribute_isis_to_bgp: bool(required=False)
+    host_name_prefix: str(required=False)
+    isis_domain_pwd: str(required=False)
+    discovery_level: int(min=1, max=5, required=False)
+    discovery_timeout: int(required=False)
+    discovery_devices: list(include('discovery_device_type'), min=0, max=100, required=False)
+    launch_and_wait: bool(required=False)
+    pnp_authorization: bool(required=False)
+    device_serial_number_authorization: list(str(), min=0, max=100, required=False)
+
+ip_pools_type:
+  ip_pool_name: str(required=True)
+  ip_pool_role: enum('MAIN_POOL', 'PHYSICAL_LINK_POOL', required=True)
+
+discovery_device_type:
+  device_serial_number: str(required=True)
+  device_host_name: str(required=False)
+  device_site_name_hierarchy: str(required=False)
+  device_management_ip_address: str(required=False)
+
+device_update_type:
+  lan_automated_device_update: include('lan_automated_device_update_type', required=True)
+
+lan_automated_device_update_type:
+  hostname_update_devices: list(include('hostname_update_type'), min=0, max=100, required=False)
+  loopback_update_device_list: list(include('loopback_update_type'), min=0, max=100, required=False)
+  link_add: include('link_add_type', required=False)
+  link_delete: include('link_delete_type', required=False)
+
+hostname_update_type:
+  device_management_ip_address: str(required=True)
+  new_host_name: str(required=True)
+
+loopback_update_type:
+  device_management_ip_address: str(required=True)
+  new_loopback0_ip_address: str(required=True)
+
+link_add_type:
+  source_device_management_ip_address: str(required=True)
+  source_device_interface_name: str(required=True)
+  destination_device_management_ip_address: str(required=True)
+  destination_device_interface_name: str(required=True)
+  ip_pool_name: str(required=True)
+
+link_delete_type:
+  source_device_management_ip_address: str(required=True)
+  source_device_interface_name: str(required=True)
+  destination_device_management_ip_address: str(required=True)
+  destination_device_interface_name: str(required=True)
+

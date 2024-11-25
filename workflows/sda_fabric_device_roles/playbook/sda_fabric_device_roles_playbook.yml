@@ -1,0 +1,5 @@
+#sda_fabric_devices_workflow_manager
+# Perform operations on SDA fabric devices, including adding, updating, and deleting fabric devices.
+# Manage L2 handoffs for fabric devices, including adding and deleting configurations.
+# Manage L3 handoffs for fabric devices with IP transit, including adding, updating, and deleting configurations.
+# Manage L3 handoffs for fabric devices with SDA transit, including adding, updating, and deleting configurations.

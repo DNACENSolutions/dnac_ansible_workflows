@@ -1,0 +1,10 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+jinjatemplate: true
+passwords_file: ../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml
+#Provide the path to the jinja template file
+jinjatemplate_file: ../jinja_template/template_users_and_roles_workflow_inputs.j2
+# roles_users_details could be empty or have a list of roles and users, if jinjatemplate  is true roles_users_details value is taken from jinja template
+roles_users_details: {}
+

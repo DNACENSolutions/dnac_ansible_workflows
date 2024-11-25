@@ -1,0 +1,76 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+roles_users_details:
+  # Define roles and users to be created or updated, and their permissions
+  # Assign users with customed roles
+  role_details:
+    - role_name: Admin_customized_role
+      description: This role is created for Ansible module testing
+      assurance:
+        - monitoring_and_troubleshooting: write
+          monitoring_settings: read
+          troubleshooting_tools: deny
+      network_analytics:
+        - data_access: write
+      network_design:
+        - advanced_network_settings: deny
+          image_repository: deny
+          #network_hierarchy: deny
+          network_profiles: write
+          network_settings: write
+          virtual_network: read
+      network_provision:
+        - compliance: deny
+          eox: read
+          image_update: write
+          inventory_management:
+            - device_configuration: write
+              discovery: deny
+              network_device: read
+              port_management: write
+              topology: write
+          license: write
+          network_telemetry: write
+          pnp: deny
+          provision: read
+      network_services:
+        - app_hosting: deny
+          bonjour: write
+          stealthwatch: read
+          umbrella: deny
+      platform:
+        - apis: write
+          bundles: write
+          events: write
+          reports: read
+      security:
+        - group_based_policy: read
+          ip_based_access_control: write
+          security_advisories: write
+      system:
+        - machine_reasoning: read
+          system_management: write
+      utilities:
+        - audit_log: read
+          event_viewer: deny
+          network_reasoner: write
+          remote_device_support: read
+          scheduler: read
+          search: write
+    - role_name: Assurance-role
+      description: With write access overall
+      assurance:
+        - overall: write
+          monitoring_and_troubleshooting: read
+  user_details:
+    - username: testuser1
+      first_name: ajith
+      last_name: Andrew1
+      email: ajith_andrew@example.com
+      #Password Restrictions: Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character, no white spaces, no more than 2 identical characters in a row, no more than 3 consecutive characters,
+      password: "Lablab#!12345"
+      password_update: true
+      role_list: 
+        - Admin_customized_role
+        - Assurance-role

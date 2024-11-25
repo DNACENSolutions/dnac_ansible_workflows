@@ -1,0 +1,95 @@
+---
+- name: Playbook to manage Cisco Catalyst Center Device Discovery
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+  vars:
+    state: deleted
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+
+  tasks:
+    - name: print VARS_FILE_PATH
+      debug:
+        msg: "Input file selected {{ VARS_FILE_PATH }}"
+    - name: Playbook start time for the discoveries
+      set_fact:
+        long_op_start: "{{ now() }}"
+
+    - name: Discover a singe device IP Address for a list of discoveries from "{{ VARS_FILE_PATH }}"
+      cisco.dnac.discovery_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config:
+        - "{{ item }}"
+      loop: "{{ discovery_details.single }}"
+      when: discovery_details.single is defined
+
+    - name: Discover devices for an IP Address Range if defined in file "{{ VARS_FILE_PATH }}"
+      cisco.dnac.discovery_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config:
+        - "{{ item }}"
+      loop: "{{ discovery_details.range }}"
+      when: discovery_details.range is defined
+
+    - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH }}"
+      cisco.dnac.discovery_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config:
+        - "{{ item }}"
+      loop: "{{ discovery_details.multi_range }}"
+      when: discovery_details.multi_range is defined
+
+    - name: Discover devices from a CDP seed if defined in the file "{{ VARS_FILE_PATH }}"
+      cisco.dnac.discovery_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config:
+        - "{{ item }}"
+      loop: "{{ discovery_details.cdp }}"
+      when: discovery_details.cdp is defined
+
+    - name: Discover devices from an LLDP seed if defined in the file "{{ VARS_FILE_PATH }}"
+      cisco.dnac.discovery_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config:
+        - "{{ item }}"
+      loop: "{{ discovery_details.lldp }}"
+      when: discovery_details.lldp is defined
+
+    - name: Configure and run an CIDR Discovery if defined in the file "{{ VARS_FILE_PATH }}"
+      cisco.dnac.discovery_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config:
+        - "{{ item }}"
+      loop: "{{ discovery_details.cidr }}"
+      when: discovery_details.cidr is defined
+    - name: Discovery playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print Discovery playbook execution time
+      debug:
+        msg: "Discovery playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
+

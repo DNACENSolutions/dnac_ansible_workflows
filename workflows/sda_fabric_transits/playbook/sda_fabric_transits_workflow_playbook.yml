@@ -1,0 +1,56 @@
+# Manage operations on SDA fabric transits.
+# API to create transit networks.
+# API to update transit networks.
+# module: fabric_transits_workflow_manager
+# requirements:
+#   - cisco.dnac >= 6.19.0
+---
+- name: Playbook to manage fabric site(s)/zone(s) and update the authentication profile template in Cisco Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: merged
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: "{{ config_verify | default(False) }}"
+
+  tasks:
+  #write tasks for fabric site(s)/zone(s) creations
+    - name: Playbook start time for the fabric transits playbook
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: Add/Update fabric transits for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.sda_fabric_transits_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config: "{{ fabric_transits }}" 
+      register: fabric_transits_output
+      when: fabric_transits is defined
+    - name: Print the fabric transits output
+      debug:
+        msg: "{{fabric_transits_output}}"
+    - name: Fabric transits playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print fabric transit playbook execution time
+      debug:
+        msg: "Fabric transit playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

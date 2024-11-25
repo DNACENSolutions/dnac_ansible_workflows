@@ -14,53 +14,87 @@
       dnac_password: "{{ dnac_password }}"
       dnac_verify: "{{ dnac_verify }}"
       dnac_port: "{{ dnac_port }}"
-      dnac_version: "{{ dnac_version }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
       dnac_log_level: "{{ dnac_log_level }}"
 
   tasks:
-    - name: Add/Update/assig to site/Provision or delete devices provided in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
-      cisco.dnac.pnp_workflow_manager::
+    - name: Network Plug and Play devices on Cisco Catalyst Center
+      set_fact:
+        long_op_start: "{{ now() }}"
+
+    - name: Add pnp devices to Cisco Catalyst Center
+      cisco.dnac.pnp_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
-        config:
-          - "{{ item }}"
-      loop: "{{ pnp_details.add_network_devices }}"
+        config: "{{ pnp_details.add_network_devices }}"
+      register: pnp_output
       when: pnp_details.add_network_devices is defined
-
+    - name: Print the Network Plug and Play devices output
+      debug:
+        msg: "{{pnp_output}}"
+      when: pnp_output is defined
     - name: Claim Wireless Controller 98XX EWLC devices through PnP
-      cisco.dnac.pnp_workflow_manager::
+      cisco.dnac.pnp_workflow_manager:
         <<: *dnac_login
         state: merged
         config:
         - "{{ item }}"
       loop: "{{ pnp_details.claim_ewlc_devices }}"
+      register: pnp_output
       when: pnp_details.claim_ewlc_devices is defined
-
+    - name: print the output of the claim_ewlc_devices
+      debug:
+        msg: "{{pnp_output}}"
+      when: pnp_output is defined
     - name: Claim Routing devices through PnP
-      cisco.dnac.pnp_workflow_manager::
+      cisco.dnac.pnp_workflow_manager:
         <<: *dnac_login
         state: merged
         config:
         - "{{ item }}"
       loop: "{{ pnp_details.claim_router_devices }}"
+      register: pnp_output
       when: pnp_details.claim_router_devices is defined
-
+    - name: print the output of the claim_router_devices
+      debug:
+        msg: "{{pnp_output}}"
+      when: pnp_output is defined
     - name: Claim Switching devices through PnP
-      cisco.dnac.pnp_workflow_manager::
+      cisco.dnac.pnp_workflow_manager:
         <<: *dnac_login
         state: merged
         config:
         - "{{ item }}"
       loop: "{{ pnp_details.claim_switching_devices }}"
+      register: pnp_output
       when: pnp_details.claim_switching_devices is defined
-
+    - name: print the output of the claim_switching_devices
+      debug:
+        msg: "{{pnp_output}}"
+      when: pnp_output is defined
     - name: Claim Access Point devices through PnP
-      cisco.dnac.pnp_workflow_manager::
+      cisco.dnac.pnp_workflow_manager:
         <<: *dnac_login
         state: merged
         config:
         - "{{ item }}"
       loop: "{{ pnp_details.claim_ap_devices }}"
+      register: pnp_output
       when: pnp_details.claim_ap_devices is defined
+    - name: Print the Network Plug and Play devices output
+      debug:
+        msg: "{{pnp_output}}"
+    - name: Network Plug and Play devices playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print Network Plug and Play devices playbook execution time
+      debug:
+        msg: "Network Plug and Play devices playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

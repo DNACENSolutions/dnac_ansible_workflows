@@ -1,3 +1,4 @@
+catalyst_center_version: 2.3.7.6
 discovery_details:
   cdp:
     - ip_address_list:
@@ -5,7 +6,6 @@ discovery_details:
       devices_list: []
       discovery_type: CDP
       protocol_order: ssh
-      state: merged
       discovery_name: CDP Based Discovery1
       enable_password_list: 
         - Cisco#123

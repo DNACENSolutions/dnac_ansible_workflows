@@ -1,0 +1,89 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# Network Settings an IP Pools design.
+network_settings_details: 
+  - global_pool_details:
+      settings:
+        ip_pool:
+        - name:  underlay
+          gateway: 204.1.1.1
+          ip_address_space: IPv4
+          cidr: 204.1.1.0/24
+          pool_type: Generic
+          dhcp_server_ips:
+            - 204.192.3.40
+          dns_server_ips:
+            - 171.70.168.183
+        - name:  underlay1
+          gateway: 204.1.2.1
+          ip_address_space: IPv4
+          cidr: 204.1.2.0/24
+          pool_type: Generic
+          dhcp_server_ips:
+            - 204.192.3.40
+          dns_server_ips:
+            - 171.70.168.183
+        - name:  SENSORPool
+          gateway: 204.1.48.1
+          ip_address_space: IPv4
+          cidr: 204.1.48.0/20
+          pool_type: Generic
+          dhcp_server_ips:
+            - 204.192.3.40
+          dns_server_ips:
+            - 171.70.168.183
+        - name:  SENSORPool_V6
+          gateway: 2004:1:48::1
+          ip_address_space: IPv6
+          cidr: 2004:1:48::/64
+          pool_type: Generic
+          dhcp_server_ips:
+            - 2004:192:3::40
+          dns_server_ips:
+            - 2006:1:1::1
+  - reserve_pool_details:
+    - ipv6_address_space: False
+      ipv4_global_pool: 204.1.1.0
+      ipv4_prefix: True
+      ipv4_prefix_length: 25
+      ipv4_subnet: 204.1.1.0
+      ipv4_gateway: 204.1.1.1
+      name: underlay_sub
+      site_name: Global/USA/SAN JOSE
+      slaac_support: False
+      pool_type: LAN
+    - ipv6_address_space: False
+      ipv4_global_pool:  204.1.1.0
+      ipv4_prefix: True
+      ipv4_prefix_length: 25
+      ipv4_subnet: 204.1.1.128
+      ipv4_gateway: 204.1.1.129
+      name: underlay_sub_small
+      site_name: Global/USA/SAN JOSE
+      slaac_support: False
+      pool_type: LAN
+    - ipv6_address_space: True
+      ipv4_global_pool: 204.1.48.0
+      ipv4_prefix: True
+      ipv4_prefix_length: 24
+      ipv4_subnet: 204.1.48.0/24
+      ipv4_gateway: 204.1.48.1
+      ipv4_dhcp_servers:
+        - 204.192.3.40
+      ipv4_dns_servers:
+        - 204.192.3.40
+      name: SENSORPool_sub
+      ipv6_prefix: True
+      ipv6_prefix_length: 112
+      ipv6_global_pool: 2004:1:48::/64
+      ipv6_subnet: 2004:1:48::1:0
+      ipv6_gateway: 2004:1:48::1:1
+      ipv6_dhcp_servers: 
+        - 2004:192:3::40
+      ipv6_dns_servers: 
+        - 2006:1:1::1
+      site_name: Global/USA/SAN JOSE
+      slaac_support: False
+      pool_type: Generic
+  

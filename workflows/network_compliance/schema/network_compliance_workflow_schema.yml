@@ -1,0 +1,170 @@
+#Module Spec, the Schema is defined under it.
+# Parameters
+# Parameter	Choices/Defaults	Comments
+# config
+# list / elements =dictionary / required
+# List of device details for running a compliance check or synchronizing device configuration.
+
+# ip_address_list
+# list / elements =string
+# List of IP addresses of devices to run a compliance check on or synchronize device configurations. Either "ip_address_list" or "site_name" is required for module to execute. If both "site_name" and "ip_address_list" are provided, operations are performed on devices that are present in both the "ip_address_list" and the specified site. (e.g. ["204.1.2.2", "204.1.2.5", "204.1.2.4"])
+
+# run_compliance
+# boolean
+# Choices:
+# true  ←
+# false
+# Determines if a full compliance check should be triggered on the devices specified in the "ip_address_list" and/or "site_name". if it is True then compliance will be triggered for all categories. If it is False then compliance will be not be triggered even if run_compliance categories are provided. Note - This operation cannot be performed on Access Points (APs) and if APs are provided, they will be skipped.
+
+# run_compliance_batch_size
+# integer
+# Default:100	
+# Specifies the number of devices to be included in a single batch for compliance operations. This parameter is crucial for optimizing performance during large-scale compliance checks. By processing devices in manageable batches, the system can enhance the speed and efficiency of the operation, reducing the overall time required and minimizing the risk of overloading system resources. Adjusting this parameter allows for a balance between throughput and resource utilization, ensuring smooth and effective compliance management. Note - Having a higher value for run_compliance_batch_size may cause errors due to the increased load on the system.
+
+# run_compliance_categories
+# list / elements =string
+# Specifying compliance categories allows you to trigger compliance checks only for the mentioned categories. Category can have one or more values from among the options "INTENT", "RUNNING_CONFIG", "IMAGE", "PSIRT", "EOX", "NETWORK_SETTINGS". Category "INTENT" is mapped to compliance types "NETWORK_SETTINGS", "NETWORK_PROFILE", "WORKFLOW", "FABRIC", "APPLICATION_VISIBILITY". If "run_compliance" is False then compliance will be not be triggered even if "run_compliance_categories" are provided. (e.g. ["INTENT", "RUNNING_CONFIG", "IMAGE", "PSIRT", "EOX", "NETWORK_SETTINGS"])
+
+# site_name
+# string
+# When "site_name" is specified, the module executes the operation on all the devices located within the specified site. This is a string value that should represent the complete hierarchical path of the site. Either "site_name" or "ip_address_list" is required for module to execute. If both "site_name" and "ip_address_list" are provided, operations are performed on devices that are present in both the "ip_address_list" and the specified site. (e.g. "Global/USA/San Francisco/Building_2/floor_1")
+
+# sync_device_config
+# boolean
+# Choices:
+# true
+# false  ←
+# Determines whether to synchronize the device configuration on the devices specified in the "ip_address_list" and/or "site_name". Sync device configuration, primarily addresses the status of the `RUNNING_CONFIG`. If set to True, and if `RUNNING_CONFIG` status is non-compliant this operation would commit device running configuration to startup by issuing "write memory" to device. Note - This operation cannot be performed on Access Points (APs) and if APs are provided, they will be skipped.
+
+# config_verify
+# boolean
+# Choices:
+# true
+# false  ←
+# Set to True to verify the Cisco Catalyst Center config after applying the playbook config.
+
+# dnac_api_task_timeout
+# integer
+# Default:1200	
+# Defines the timeout in seconds for API calls to retrieve task details. If the task details are not received within this period, the process will end, and a timeout notification will be logged.
+
+# dnac_debug
+# boolean
+# Choices:
+# true
+# false  ←
+# Indicates whether debugging is enabled in the Cisco Catalyst Center SDK.
+
+# dnac_host
+# string / required
+# The hostname of the Cisco Catalyst Center.
+
+# dnac_log
+# boolean
+# Choices:
+# true
+# false  ←
+# Flag to enable/disable playbook execution logging.
+
+# When true and dnac_log_file_path is provided, - Create the log file at the execution location with the specified name.
+
+# When true and dnac_log_file_path is not provided, - Create the log file at the execution location with the name 'dnac.log'.
+
+# When false, - Logging is disabled.
+
+# If the log file doesn't exist, - It is created in append or write mode based on the "dnac_log_append" flag.
+
+# If the log file exists, - It is overwritten or appended based on the "dnac_log_append" flag.
+
+# dnac_log_append
+# boolean
+# Choices:
+# true  ←
+# false
+# Determines the mode of the file. Set to True for 'append' mode. Set to False for 'write' mode.
+
+# dnac_log_file_path
+# string
+# Default:dnac.log	
+# Governs logging. Logs are recorded if dnac_log is True.
+
+# If path is not specified, - When 'dnac_log_append' is True, 'dnac.log' is generated in the current Ansible directory; logs are appended. - When 'dnac_log_append' is False, 'dnac.log' is generated; logs are overwritten.
+
+# If path is specified, - When 'dnac_log_append' is True, the file opens in append mode. - When 'dnac_log_append' is False, the file opens in write (w) mode. - In shared file scenarios, without append mode, content is overwritten after each module execution. - For a shared log file, set append to False for the 1st module (to overwrite); for subsequent modules, set append to True.
+
+# dnac_log_level
+# string
+# Default:WARNING	
+# Sets the threshold for log level. Messages with a level equal to or higher than this will be logged. Levels are listed in order of severity [CRITICAL, ERROR, WARNING, INFO, DEBUG].
+
+# CRITICAL indicates serious errors halting the program. Displays only CRITICAL messages.
+
+# ERROR indicates problems preventing a function. Displays ERROR and CRITICAL messages.
+
+# WARNING indicates potential future issues. Displays WARNING, ERROR, CRITICAL messages.
+
+# INFO tracks normal operation. Displays INFO, WARNING, ERROR, CRITICAL messages.
+
+# DEBUG provides detailed diagnostic info. Displays all log messages.
+
+# dnac_password
+# string
+# The password for authentication at the Cisco Catalyst Center.
+
+# dnac_port
+# string
+# Default:443	
+# Specifies the port number associated with the Cisco Catalyst Center.
+
+# dnac_task_poll_interval
+# integer
+# Default:2	
+# Specifies the interval in seconds between successive calls to the API to retrieve task details.
+
+# dnac_username
+# string
+# Default:admin	
+# The username for authentication at the Cisco Catalyst Center.
+
+# aliases: user
+# dnac_verify
+# boolean
+# Choices:
+# true  ←
+# false
+# Flag to enable or disable SSL certificate verification.
+
+# dnac_version
+# string
+# Default:2.2.3.3	
+# Specifies the version of the Cisco Catalyst Center that the SDK should use.
+
+# state
+# string
+# Choices:
+# merged  ←
+# State of Cisco Catalyst Center after module completion.
+
+# validate_response_schema
+# boolean
+# Choices:
+# true  ←
+# false
+# Flag for Cisco Catalyst Center SDK to enable the validation of request bodies against a JSON schema.
+#Module Spec, the Schema is defined under it.
+# #=======================================================================================================================
+# # Schema for the network compliance details
+# #=======================================================================================================================
+network_compliance_details: list(include('network_compliance_details_type'), min=0, max=1000, required=False)
+catalyst_center_version: str(required=False)
+---
+network_compliance_details_type:
+  ip_address_list: list(str, required=False)
+  run_compliance: bool(required=False)
+  run_compliance_batch_size: int(required=False)
+  run_compliance_categories: list(str, required=False)
+  site_name: str(required=False)
+  sync_device_config: bool(required=False)
+
+
+

@@ -5,6 +5,7 @@ __pycache__/
 .cache
 *.retry
 inventory/demo_lab/001-dnac_inventory.yml
+ansible_vault_encrypted_inputs
 tests/*
 host_inventory_*
 vars_*
@@ -17,6 +18,7 @@ __pycache__
 .pytest_cache/
 .mypy_cache/
 venv/
+*/tmp/*
 /build/
 docs/plugins/
 docs/_build/

@@ -1,0 +1,119 @@
+catalyst_center_version: str(required=False)
+swim_details:
+  import_images: list(include('import_image_details_type'), min=0, max=100, required=False)
+  golden_tag_images: list(include('tagging_details_type'), min=0, max=100, required=False)
+  distribute_images: list(include('distribute_images_type'), min=0, max=100, required=False)
+  activate_images: list(include('activate_images_type'), min=0, max=100, required=False)
+  upload_tag_dis_activate_images: list(include('full_upload_type'), min=0, max=100, required=False)
+---
+full_upload_type:
+  import_image_details:
+    type: enum('remote', 'local')
+    url_details: any(include('url_details_type'))
+  tagging_details:
+    image_name: str()
+    device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN')
+    #Sample('Cisco Catalyst 9300 Switch', 'Cisco Catalyst 9407R Switch', Cisco Catalyst 9400X Supervisor Engine-2XL')
+    device_image_family_name: str()
+    site_name: str()
+    tagging: bool()
+  image_distribution_details:
+    image_name: str()
+    device_hostname: str(required=False)
+    device_mac_address: str(required=False)
+    device_ip_address: str(required=False)
+    device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN', required=False)
+    site_name: str(required=False)
+    #Sample: ('NFVIS', 'Routers', 'Switches and Hubs', 'Security and VPN', 'Voice and Telephony',
+    #          'Network Management', 'Cisco Interfaces and Modules', 'Wireless Controller', 'Wireless Sensor')
+    device_family_name: str(required=False)
+    device_serial_number: str(required=False)
+  image_activation_details:
+    activate_lower_image_version: bool(required=False)
+    #Sample: ('NFVIS', 'Routers', 'Switches and Hubs', 'Security and VPN', 'Voice and Telephony',
+    #          'Network Management', 'Cisco Interfaces and Modules', 'Wireless Controller', 'Wireless Sensor')
+    device_family_name: str(required=False)
+    device_hostname: str(required=False)
+    device_ip_address: str(required=False)
+    device_mac_address: str(required=False)
+    device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN', required=False)
+    device_serial_number: str(required=False)
+    device_series_name: str(required=False)
+    device_upgrade_mode: enum('install', 'bundle', 'currentlyExists', required=False)
+    distribute_if_needed: bool(required=False)
+    image_name: str(required=False)
+    schedule_validate: bool(required=False)
+    site_name: str(required=False)
+
+import_images_type:
+  import_images: list(include('import_image_details_type'))
+
+import_image_details_type:
+  import_image_details:
+    type: enum('remote', 'local')
+    url_details: any(include('url_details_type'), required=False)
+    local_image_details: any(include('local_image_details_type'), required=False)
+
+local_image_details_type:
+  local_image_details:
+    file_path: str()
+    is_third_party: bool(required=False)
+    third_party_application_type: enum('WLC', 'LINUX', 'FIREWALL', 'WINDOWS', 'LOADBALANCER', 'THIRDPARTY', 'NAM', 'WAN Optimization', 'Unknown', 'Router', required=False)
+    third_party_image_family: enum('PALOALTO', 'RIVERBED', 'FORTINET', 'CHECKPOINT', 'SILVERPEAK', required=False)
+    third_party_vendor: str(required=False)
+
+url_details_type:
+  payload: list(include('payload_type'), min=1, max=100)
+  schedule_at: str(required=False)
+  schedule_desc: str(required=False)
+  schedule_origin: str(required=False)
+
+payload_type:
+  source_url: str()
+  third_party: bool(required=False)
+  file_path: str(required=False)
+  third_party_application_type: enum('WLC', 'LINUX', 'FIREWALL', 'WINDOWS', 'LOADBALANCER', 'THIRDPARTY', 'NAM', 'WAN Optimization', 'Unknown', 'Router', required=False)
+  third_party_image_family: enum('PALOALTO', 'RIVERBED', 'FORTINET', 'CHECKPOINT', 'SILVERPEAK', required=False)
+  third_party_vendor: str(required=False)
+
+tagging_details_type:
+  tagging_details:
+    image_name: str()
+    device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN', required=False)
+    #Sample('Cisco Catalyst 9300 Switch', 'Cisco Catalyst 9407R Switch', Cisco Catalyst 9400X Supervisor Engine-2XL')
+    device_image_family_name: str(required=False)
+    site_name: str(required=False)
+    tagging: bool(required=False)
+
+distribute_images_type:
+  image_distribution_details:
+    image_name: str(required=True)
+    device_hostname: str(required=False)
+    device_mac_address: str(required=False)
+    device_ip_address: str(required=False)
+    device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN', required=False)
+    site_name: str(required=False)
+    #Sample: ('NFVIS', 'Routers', 'Switches and Hubs', 'Security and VPN', 'Voice and Telephony',
+    #          'Network Management', 'Cisco Interfaces and Modules', 'Wireless Controller', 'Wireless Sensor')
+    device_family_name: str(required=False)
+    device_serial_number: str(required=False)
+    device_series_name: str(required=False)
+
+
+activate_images_type:
+  image_activation_details:
+    activate_lower_image_version: bool(required=False)
+    #Sample: ('NFVIS', 'Routers', 'Switches and Hubs', 'Security and VPN', 'Voice and Telephony',
+    #          'Network Management', 'Cisco Interfaces and Modules', 'Wireless Controller', 'Wireless Sensor')
+    device_family_name: str(required=False)
+    device_series_name: str(required=False)
+    device_hostname: str(required=False)
+    device_ip_address: str(required=False)
+    device_mac_address: str(required=False)
+    device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN', required=False)
+    device_serial_number: str(required=False)
+    device_upgrade_mode: enum('install', 'bundle', 'currentlyExists', required=False)
+    distribute_if_needed: bool(required=False)
+    image_name: str(required=False)
+    schedule_validate: bool(required=False)
+    site_name: str(required=False)

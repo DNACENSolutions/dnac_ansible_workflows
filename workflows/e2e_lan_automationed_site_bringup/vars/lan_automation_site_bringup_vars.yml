@@ -4,6 +4,7 @@
 # Sequence: Sites->Credentials->Discovery->Inventory->LAN Automation->Inventory
 # Below inputs are real input from LAN Automation Demo session
 # Desig your Site Heirarchy for onboarding LAN Automation
+catalyst_center_version: 2.3.7.6
 design_sites:
   - site:
       area:
@@ -36,6 +37,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR1
+        floor_number: 1
         parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -45,6 +47,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR2
+        floor_number: 2
         parent_name: Global/USA/SAN JOSE/BLD23
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -54,6 +57,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR1
+        floor_number: 1
         parent_name: Global/USA/SAN JOSE/BLD20
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -63,6 +67,7 @@ design_sites:
   - site:
       floor:
         name: FLOOR2
+        floor_number: 2
         parent_name: Global/USA/SAN JOSE/BLD20
         rfModel: Cubes And Walled Offices
         width: 100.00
@@ -101,8 +106,10 @@ device_credentials:
       cli_credential: #Assign CLI credentials to sites
         description: WLC
         username:  wlcaccess
-      snmp_v3: #Assign SNMPv3 credentials to sites
+      snmp_v3:
+        #Assign SNMPv3 credentials to sites
         description: SNMPv3-credentials
+        username: admin
       https_read: #Assign HTTPS Read credentials to sites
         username: admin
         description: http_read
@@ -111,7 +118,7 @@ device_credentials:
         description: httpwrite
       site_name: #Sites  to which the credentials are assigned
       - Global/USA/SAN JOSE #Full Site Heirarchy Path from Global to Site
-      - Global
+      #- Global
 # Network Settings an IP Pools design.
 network_settings: 
   global_ip_pools:
@@ -291,6 +298,7 @@ discovery_details:
               username: admin
         snmp_v3_credential_list:
           - description: SNMPv3-credentials
+            username: admin
       net_conf_port: 430
       timeout: 30
       enable_password_list: 
@@ -352,14 +360,14 @@ lan_automation:
 seed_mgmt_ip_update:
   loopbackUpdateDeviceList:
   - deviceManagementIPAddress: 91.1.1.6
-    newLoopback0IPAddress: 204.1.1.3
+    newLoopback0IPAddress: 204.1.1.5
   - deviceManagementIPAddress: 91.1.1.2
-    newLoopback0IPAddress: 204.1.1.4
+    newLoopback0IPAddress: 204.1.1.6
 # Update devices to desired role
 update_devices_role:
   - ip_address_list: 
-    - 204.1.1.3
-    - 204.1.1.4
+    - 204.1.1.5
+    - 204.1.1.6
     role: BORDER ROUTER
   - ip_address_list: 
     - 204.1.1.10
@@ -373,9 +381,9 @@ update_devices_role:
 #Assign the discovered devices to site and provision
 provision_devices:
   - provision_wired_device:
-    - device_ip: 204.1.1.3
+    - device_ip: 204.1.1.5
       site_name: Global/USA/SAN JOSE/BLD23
-    - device_ip: 204.1.1.4
+    - device_ip: 204.1.1.6
       site_name: Global/USA/SAN JOSE/BLD20
     - device_ip: 204.1.1.10
       site_name: Global/USA/SAN JOSE/BLD23

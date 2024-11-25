@@ -1,0 +1,73 @@
+# Playbook to delete fabric site(s)/zone(s).
+# Creating fabric site(s) for the SDA operation in Cisco Catalyst Center.
+# Updating fabric site(s) for the SDA operation in Cisco Catalyst Center.
+# Creating fabric zone(s) for the SDA operation in Cisco Catalyst Center.
+# Updating fabric zone(s) for the SDA operation in Cisco Catalyst Center.
+# module: fabric_sites_zones_workflow_manager
+# requirements:
+#   - cisco.dnac >= 6.21.0
+#   - Catalyst Center >= 2.3.7.6
+---
+- name: Playbook to delete fabric site(s)/zone(s) in Cisco Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: deleted
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+
+  tasks:
+  #write tasks for fabric site(s)/zone(s) creations
+    - name: Playbook start time for the fabric site(s)/zone(s) playbook
+      set_fact:
+        long_op_start: "{{ now() }}"
+    # load site template jinja file
+    - name: Load template file to delete fabric site(s)/zone(s)
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    - name: Delete fabric site(s) and zone(s) for inputs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.sda_fabric_sites_zones_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config: "{{ fabric_sites_and_zones }}" 
+      register: fabric_sites_and_zones_output
+      when: fabric_sites_and_zones is defined
+    - name: Print the fabric site(s)/zone(s) output
+      debug:
+        msg: "{{fabric_sites_and_zones_output}}"
+    # delete the template file
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    - name: Fabric site(s)/zone(s) playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print fabric site(s)/zone(s) playbook execution time
+      debug:
+        msg: "Delete Fabric site(s)/zone(s) playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

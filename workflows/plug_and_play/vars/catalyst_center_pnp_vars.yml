@@ -1,5 +1,7 @@
 ---
-pnp_details
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+pnp_details:
   claim_ewlc_devices:
       - site_name: Global/USA/SAN JOSE/BLD23
         project_name: Onboarding Configuration
@@ -11,14 +13,14 @@ pnp_details
             hostname: SJ-EWLC-1
             state: Unclaimed
             pid: C9800-40-K9
-        pnp_type: catalyst_wlc
+        pnp_type: CatalystWLC
         static_ip: 204.192.50.200
         subnet_mask: 255.255.255.0
         gateway: 204.192.50.1
         ip_interface_name: TenGigabitEthernet0/0/2
         vlan_id: 2050
 
-    claim_switching_devices:
+  claim_switching_devices:
       - site_name: Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL4
         project_name: Onboarding Configuration
         template_name: PnP-Devices_No-Vars
@@ -43,7 +45,7 @@ pnp_details
           state: Unclaimed
           pid: C9300-48UXM
 
-    claim_router_devices:
+  claim_router_devices:
       - site_name: Global/USA/SAN-FRANCISCO/BLD_SF1
         project_name: Onboarding Configuration
         template_name: PnP-Devices_SF-ISR_No-Vars

@@ -1,0 +1,80 @@
+---
+#the following playbook is used to configure roles with specific permissions and users with the specific roles on Cisco Catalyst Center
+# The user need to be having super-admin access to run this playbook to create or update roles or users.
+# The roles should be created before creating the users to assign the roles to the users.
+# The playbook is executed with the following command
+# ansible-playbook -i inventory/hosts users_and_roles_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/users_and_roles_inputs.yml"
+- name: Configure and Update Roles and Users with given roles on Cisco Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars:
+    state: merged
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+
+  tasks:
+    - name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
+      include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+    - name: set the password file path
+      set_fact:
+        passwords_file: "{{ passwords_file  | default('../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml') }}"
+      when: jinjatemplate is defined and jinjatemplate is true 
+
+    - name: load password file
+      include_vars:
+        file: "{{ passwords_file }}"
+      when: jinjatemplate is defined and jinjatemplate is true and passwords_file is defined
+
+    - name: Create Template
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+
+    - name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined
+    - name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
+      include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when: jinjatemplate is not defined or jinjatemplate is false
+    - set_fact:
+        dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+    - debug:
+        msg: "Catalyst Center version: {{ dnac_version }}"
+    - name: Create or Update the roles and users on Cisco Catalyst Center
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: Create the given roles and users on Cisco Catalyst Center
+      cisco.dnac.user_role_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config: "{{roles_users_details}}"
+      register: role_user_output
+    - name: Print the roles and users creation output
+      debug:
+        msg: "{{role_user_output}}"
+    - name: Roles and Users playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print Roles and Users playbook execution time
+      debug:
+        msg: "Roles and Users playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

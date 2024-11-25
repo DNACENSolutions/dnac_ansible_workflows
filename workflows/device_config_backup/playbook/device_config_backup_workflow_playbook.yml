@@ -1,0 +1,54 @@
+---
+#the following playbook is used to Manage operation related to taking the backup of running config, static config and vlan.dat.bat
+# ansible-playbook -i inventory/hosts.yml workflows/ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/ise_radius_integration_workflow_input.yml"
+- name: Manage operation related to taking the backup of running config on  Cisco Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: merged
+    default_catalyst_center_task_timeout: 1200
+    default_catalyst_center_task_poll_interval: 60
+    
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+  tasks:
+    - name: Playbook start time for Device configuration backup through Cisco Catalyst Center
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: Manage operation related to taking the backup of running config on Cisco Catalyst Center
+      cisco.dnac.device_configs_backup_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config: "{{device_configs_backup_details}}"
+      register: device_configs_backup_output
+      when: device_configs_backup_details is defined
+      async: "{{ catalyst_center_task_timeout  | default(default_catalyst_center_task_timeout) }}"
+      poll: "{{ catalyst_center_task_poll_interval  | default(default_catalyst_center_task_poll_interval) }}"
+    - name: Print the Device configuration backup  output
+      debug:
+        msg: "{{device_configs_backup_output}}"
+    - name: Device configuration backup  playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print Device configuration backup  playbook execution time
+      debug:
+        msg: "Device configuration backup  playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

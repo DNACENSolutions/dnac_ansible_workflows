@@ -1,0 +1,52 @@
+---
+- name: Configure Sites on Cisco DNA Center which includes Areas, Buildings, and Floors
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: deleted
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+
+  tasks:
+    - name: Site Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - set_fact:
+        dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+    - set_fact:
+        dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+        
+    - name: Delete sites from design_sites config
+      cisco.dnac.site_workflow_manager:
+        <<: *dnac_login
+        dnac_version: "{{ dnac_version }}"
+        dnac_verify: "{{ dnac_verify }}"
+        state: "{{state}}"
+        config: "{{design_sites}}"
+    - name: Sites delete playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+
+    - name: Print sites execution time
+      debug:
+        msg: "Sites playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

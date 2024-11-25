@@ -1,0 +1,63 @@
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+template_details:
+  # List of templates to be uploaded to the Cisco Catalyst Center
+  - configuration_templates:
+      author: Pawan Singh
+      composite: false
+      custom_params_order: true
+      description: Template to configure Access Vlan n Access Interfaces
+      device_types:
+      - product_family: Switches and Hubs
+        product_series: Cisco Catalyst 9300 Series Switches
+        #product_type: Cisco Catalyst 9300 Switch
+      failure_policy: ABORT_TARGET_ON_ERROR
+      language: VELOCITY
+      name: access_van_template_9300_switches
+      project_name: access_van_template_9300_switches
+      project_description: This project contains all the templates for Access Switches
+      software_type: IOS-XE
+      software_version: null
+      template_name: PnP-Upstream-SW
+      #tags:
+      #  name: string
+      template_content: |
+        vlan $vlan
+        interface $interface
+        switchport access vlan $vlan
+        switchport mode access
+        description $interface_description
+      version: "1.0"
+  - configuration_templates:
+      name: PnP-Upstream-SW
+      template_name: PnP-Upstream-SW
+      project_name: Onboarding Configuration
+      tags: []
+      author: admin
+      device_types:
+        - product_family: Switches and Hubs
+          product_series: Cisco Catalyst 9500 Series Switches
+        - product_family: Switches and Hubs
+          product_series: Cisco Catalyst 9300 Series Switches
+      software_type: IOS-XE
+      language: VELOCITY
+      template_content: 
+        vlan $vlan
+        interface $interface
+        switchport access vlan $vlan
+        switchport mode access
+        description $interface_description
+
+deploy_device_details:
+    - host_name: SJC-Switch-1
+      management_ip: 10.1.1.1
+      site_name: Global/USA/SAN JOSE/BLD23
+      device_role: ACCESS
+      device_tag: all_9300_Access_tag1
+      device_template_params:
+          - param_name: "vlan"
+            param_value: "100"
+          - param_name: "interface"
+            param_value: "TwoGigabitEthernet1/0/2"
+          - param_name: "interface_description"
+            param_value: "Access Port"

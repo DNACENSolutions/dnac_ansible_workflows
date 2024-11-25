@@ -1,0 +1,36 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+ise_radius_integration_details:
+    - authentication_policy_server:
+      - server_type: AAA
+        server_ip_address: 10.0.0.1
+        shared_secret: "12345"
+        protocol: RADIUS_TACACS
+        authentication_port: 1812
+        accounting_port: 1813
+        retries: 3
+        timeout: 4
+        role: secondary
+      - server_type: ISE
+        server_ip_address: 10.195.243.31
+        shared_secret: "Labab123"
+        protocol: RADIUS_TACACS
+        #encryption_scheme: KEYWRAP
+        #encryption_key: "1234567890123456"
+        #message_authenticator_code_key: asdfghjklasdfghjklas
+        authentication_port: 1812
+        accounting_port: 1813
+        retries: 3
+        timeout: 4
+        role: primary
+        use_dnac_cert_for_pxgrid: False
+        pxgrid_enabled: True
+        cisco_ise_dtos:
+        - user_name: admin
+          password: "Maglev#123"
+          fqdn: IBSTE-ISE1.cisco.com
+          ip_address: 10.195.243.31
+          description: Cisco ISE
+        trusted_server: True
+        ise_integration_wait_time: 20

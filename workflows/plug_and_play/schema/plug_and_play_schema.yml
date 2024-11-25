@@ -1,0 +1,44 @@
+pnp_details:
+  claim_ewlc_devices: list(include('claim_ewlc_device_type'), min=0, max=100, required=False)
+  claim_switching_devices: list(include('claim_switching_device_type'), min=0, max=100, required=False)
+  claim_router_devices: list(include('claim_router_device_type'), min=0, max=100, required=False)
+catalyst_center_version: str(required=False)
+---
+claim_ewlc_device_type:
+  site_name: str(required=False)
+  project_name: str(required=False)
+  image_name: str(required=False)
+  template_name: str(required=False)
+  template_params: str(required=False)
+  state: enum('merged', 'deleted', required=False)
+  device_info: list(include('device_info_type'), required=True)
+  pnp_type: enum('Default', 'CatalystWLC', 'AccessPoint', 'StackSwitch', required=False)
+  rf_profile: enum('HIGH', 'LOW', 'TYPICAL', required=False)
+  static_ip: str(required=False)
+  subnet_mask: str(required=False)
+  gateway: str(required=False)
+  ip_interface_name: str(required=False)
+  vlan_id: any(str, int, required=False)
+
+claim_switching_device_type:
+  site_name: str(required=False)
+  project_name: str(required=False)
+  template_name: str(required=False)
+  image_name: str(required=False)
+  state: enum('merged', 'deleted', required=False)
+  device_info: include('device_info_type', required=False)
+
+claim_router_device_type:
+  site_name: str(required=False)
+  project_name: str(required=False)
+  template_name: str(required=False)
+  image_name: str(required=False)
+  state: enum('merged', 'deleted', required=False)
+  device_info: include('device_info_type', required=False)
+
+device_info_type:
+  serial_number: str(required=True)
+  hostname: str(required=True)
+  state: enum('Unclaimed', 'Claimed', 'Provisioned')
+  pid: str(required=True)
+  add_device_method: str(required=False)

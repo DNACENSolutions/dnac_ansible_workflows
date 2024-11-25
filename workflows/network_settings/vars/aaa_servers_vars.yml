@@ -1,0 +1,29 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# Network Settings an IP Pools design.
+network_settings_details: 
+- network_management_details:
+  - site_name: Global
+    settings:
+      network_aaa:
+        server_type: ISE
+        shared_secret: Maglev123
+        # Wrong to be fixed with bug fix: CSCwm65781
+        #pan_address: "10.195.243.31"
+        pan_address: "82.2.2.3"
+        # Wrong to be fixed with bug fix: CSCwm65781
+        #primary_server_address: "82.2.2.3"
+        primary_server_address: "10.195.243.31"
+        protocol: RADIUS
+      client_and_endpoint_aaa:
+        server_type: ISE
+        shared_secret: Maglev123
+        # Wrong to be fixed with bug fix: CSCwm65781
+        #pan_address: "10.195.243.31"
+        pan_address: "82.2.2.3"
+        # Wrong to be fixed with bug fix: CSCwm65781
+        #primary_server_address: "82.2.2.3"
+        primary_server_address: "10.195.243.31"
+        protocol: RADIUS
+  

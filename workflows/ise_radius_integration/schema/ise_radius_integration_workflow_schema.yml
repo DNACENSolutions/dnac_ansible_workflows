@@ -1,0 +1,243 @@
+#Module Spec, the Schema is defined under it.
+# Parameters
+# Parameter	Choices/Defaults	Comments
+# config
+# list / elements =dictionary / required
+# List of details of Authentication and Policy Servers being managed.
+
+# authentication_policy_server
+# list / elements =dictionary
+# Manages the Authentication and Policy Servers.
+
+# accounting_port
+# integer
+# Default:1813	
+# Accounting port of RADIUS server.
+
+# Updation of accounting port is not possible.
+
+# Accounting port should be from 1 to 65535.
+
+# authentication_port
+# integer
+# Default:1812	
+# Authentication port of RADIUS server.
+
+# Updation of authentication port is not possible.
+
+# Authentication port should be from 1 to 65535.
+
+# cisco_ise_dtos
+# list / elements =dictionary
+# List of Cisco ISE Data Transfer Objects (DTOs).
+
+# Required when server_type is set to ISE.
+
+# description
+# string
+# Description about the Cisco ISE server.
+
+# fqdn
+# string
+# Fully-qualified domain name of the Cisco ISE server.
+
+# Required for passing the cisco_ise_dtos.
+
+# ip_address
+# string
+# IP Address of the Cisco ISE Server.
+
+# Required for passing the cisco_ise_dtos.
+
+# password
+# string
+# Password of the Cisco ISE server.
+
+# Password must have 4 to 127 characters with no spaces or the following characters - "<".
+
+# Required for passing the cisco_ise_dtos.
+
+# ssh_key
+# string
+# SSH key of the Cisco ISE server.
+
+# user_name
+# string
+# User name of the Cisco ISE server.
+
+# Required for passing the cisco_ise_dtos.
+
+# encryption_key
+# string
+# Encryption key used to encrypt shared secret.
+
+# Updation of encryption scheme is not possible.
+
+# Required when encryption_scheme is provided.
+
+# When ASCII format is selected, Encryption Key may contain alphanumeric and special characters. Key must be 16 char long.
+
+# encryption_scheme
+# string
+# Choices:
+# KEYWRAP
+# RADSEC
+# Type of encryption scheme for additional security.
+
+# If encryption scheme is given, then message authenticator code and encryption keys need to be required.
+
+# Updation of encryption scheme is not possible.
+
+# KEYWRAP is used for securely wrapping and unwrapping encryption keys, ensuring their confidentiality during transmission or storage.
+
+# RADSEC is an extension of RADIUS that provides secure communication between RADIUS clients and servers over TLS/SSL. Enhances enhancing the confidentiality and integrity of authentication and accounting data exchange.
+
+# external_cisco_ise_ip_addr_dtos
+# list / elements =dictionary
+# External Cisco ISE IP address data transfer objects for future use.
+
+# external_cisco_ise_ip_addresses
+# list / elements =dictionary
+# External Cisco ISE IP addresses.
+
+# external_ip_address
+# string
+# External Cisco ISE IP address.
+
+# ise_type
+# string
+# Type of the Authentication and Policy Server.
+
+# ise_integration_wait_time
+# integer
+# Default:20	
+# Indicates the sleep time after initiating the Cisco ISE integration process.
+
+# Maximum sleep time should be less or equal to 120 seconds.
+
+# message_authenticator_code_key
+# string
+# Message key used to encrypt shared secret.
+
+# Updation of message key is not possible.
+
+# Required when encryption_scheme is provided.
+
+# Message Authentication Code Key may contain alphanumeric and special characters. Key must be 20 char long.
+
+# protocol
+# string
+# Choices:
+# TACACS
+# RADIUS  ←
+# RADIUS_TACACS
+# Type of protocol for authentication and policy server.
+
+# RADIUS provides centralized services (AAA) for users in remote access scenarios.
+
+# TACACS focuses on access control and administrative authentication for network devices.
+
+# pxgrid_enabled
+# boolean
+# Choices:
+# true  ←
+# false
+# Set True to enable the Pxgrid and False to disable the Pxgrid.
+
+# Pxgrid is available only for the Cisco ISE Servers.
+
+# PxGrid facilitates seamless integration and information sharing across products, enhancing threat detection and response capabilities within the network ecosystem.
+
+# retries
+# integer
+# Default:3	
+# Number of communication retries between devices and authentication and policy server.
+
+# Retries should be from 1 to 3.
+
+# role
+# string
+# Default:secondary	
+# Role of authentication and policy server.
+
+# Updation of role is not possible
+
+# server_ip_address
+# string / required
+# IP Address of the Authentication and Policy Server.
+
+# server_type
+# string
+# Choices:
+# AAA  ←
+# ISE
+# Type of the Authentication and Policy Server.
+
+# ISE for Cisco ISE servers.
+
+# AAA for Non-Cisco ISE servers.
+
+# shared_secret
+# string
+# Shared secret between devices and authentication and policy server.
+
+# Shared secret must have 4 to 100 characters with no spaces or the following characters - ["<", "?"].
+
+# Shared secret is a Read-Only parameter.
+
+# timeout
+# integer
+# Default:4	
+# Number of seconds before timing out between devices and authentication and policy server.
+
+# Timeout should be from 2 to 20.
+
+# trusted_server
+# boolean
+# Choices:
+# true  ←
+# false
+# Indicates whether the certificate is trustworthy for the server.
+
+# Serves as a validation of its authenticity and reliability in secure connections.
+
+# use_dnac_cert_for_pxgrid
+# boolean
+# Choices:
+# true
+# false  ←
+# Set True to use the Cisco Catalyst Center certificate for the Pxgrid.
+# #=======================================================================================================================
+# # Schema for the network compliance details
+# #=======================================================================================================================
+ise_radius_integration_details: list(include('ise_radius_integration_details_type'), min=0, max=20, required=False)
+catalyst_center_version: str(required=False)
+---
+ise_radius_integration_details_type:
+  authentication_policy_server: list(include('authentication_policy_server_type'), required=False)
+authentication_policy_server_type:
+  server_type: enum('AAA', 'ISE')
+  server_ip_address: str()
+  shared_secret: str(required=False)
+  protocol: enum('RADIUS', 'TACACS', 'RADIUS_TACACS')
+  encryption_scheme: enum('KEYWRAP', 'RADSEC',required=False)
+  encryption_key: str(required=False)
+  message_authenticator_code_key: str(  required=False)
+  authentication_port: int(default=1812)
+  accounting_port: int(default=1813)
+  retries: int(required=False)
+  timeout: int(required=False)
+  role: enum('primary', 'secondary', default='primary', required=False)
+  use_dnac_cert_for_pxgrid: bool(required=False)
+  pxgrid_enabled: bool(required=False)
+  cisco_ise_dtos: list(include('cisco_ise_dtos_type'), required=False)
+  trusted_server: bool(required=False)
+  ise_integration_wait_time: int(default=60, required=False)
+cisco_ise_dtos_type:
+  user_name: str()
+  password: str()
+  fqdn: str()
+  ip_address: str()
+  description: str()
+# End of the schema definition
+# #=======================================================================================================================

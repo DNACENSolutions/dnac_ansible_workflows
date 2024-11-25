@@ -1,0 +1,52 @@
+#module: events_and_notifications_workflow_manager
+#Configure various types of destinations to deliver event notifications from Cisco Catalyst Center Platform.
+#requirements:
+#  - cisco.dnac >= 6.19.0
+---
+- name: Playbook to manage Cisco Catalyst Center events and notifications configurations and Subscription
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: merged
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: "{{ config_verify | default(False) }}"
+  tasks:
+  #write tasks for extranet policies creations
+    - name: Playbook start time for the Events and Notifications playbook
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: Add Update Events and Notifications for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config: "{{ events_notifications_destination_and_subscription_details }}" 
+      register: events_notifications_destination_and_subscription_output
+      when: events_notifications_destination_and_subscription_details is defined
+    - name: Print the Events and Notifications output
+      debug:
+        msg: "{{events_notifications_destination_and_subscription_output}}"
+    - name: Events and Notifications playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print Events and Notifications playbook execution time
+      debug:
+        msg: "Events and Notifications playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts

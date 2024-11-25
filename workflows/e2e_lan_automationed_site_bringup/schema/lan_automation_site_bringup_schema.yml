@@ -1,0 +1,360 @@
+design_sites: list(include('site_type'), min=0, max=6000, required=False)
+credentials_site_assignment: list(include('assign_credentials_to_site_type'), min=0, max=100, required=False)
+network_settings:
+  global_ip_pools: list(include('global_pool_details_type'), min=1, max=100, required=False)
+  sub_pools: list(include('reserve_pool_details_type'), min=1, max=100, required=False)
+  network_servers: list(include('network_management_details_type'), min=1, max=100, required=False)
+device_credentials:
+  credentials_details: list(include('global_credential_details_type_t', required=False), min=0, max=100, required=False)
+  credentials_site_assignment: list(include('assign_credentials_to_site_type', required=False), min=0, max=100, required=False)
+discovery_details:
+  cdp: include('cdp_discovery_type', required=False)
+  single: include('single_discovery_type', required=False)
+  range: include('range_discovery_type', required=False)
+  multi_range: include('multi_range_discovery_type', required=False)
+lan_automation: list(include('lan_automation_type'), min=0, max=100, required=False)
+seed_mgmt_ip_update:
+  loopbackUpdateDeviceList: list(include('loopback_update_device_type'), min=1, max=100, required=False)
+update_devices_role: list(include('update_device_role_type'), min=1, max=100, required=False)
+provision_devices: list(include('provision_device_type'), min=1, max=100, required=False)
+catalyst_center_version: str(required=False)
+---
+site_type:
+  site: any(include('area_type'), include('building_type'), include('floor_type'))
+  type: str(required=False)
+
+area_type:
+  area:
+    name: str()
+    parent_name: str()
+
+building_type:
+  building:
+    name: str()
+    parent_name: str()
+    address: str()
+    latitude: num()
+    longitude: num()
+    country: str()
+
+floor_type:
+  floor:
+    name: str()
+    floor_number: int()
+    parent_name: str()
+    rfModel: str()
+    width: num()
+    length: num()
+    height: num()
+
+
+assign_credentials_to_site_type:
+  assign_credentials_to_site:
+    cli_credential: include('site_cli_credential_type', required=False)
+    snmp_v3: include('site_snmp_v3_type', required=False)
+    snmp_v2c_read: str(required=False)
+    snmp_v2c_write: str(required=False)
+    https_read: include('site_https_read_type', required=False)
+    https_write: include('site_https_write_type', required=False)
+    site_name: list(str(), min=1, max=1000)
+
+site_cli_credential_type:
+  description: str()
+  username: str(exclude=' <>')
+  id: str(required=False)
+
+site_snmp_v3_type:
+  description: str()
+  username: str(exclude=' <>')
+  id: str(required=False)
+
+site_https_read_type:
+  description: str(required=False)
+  username: str(exclude=' <>', required=False)
+  id: str(required=False)
+
+site_https_write_type:
+  description: str(required=False)
+  username: str(exclude=' <>', required=False)
+  id: str(required=False)
+
+global_pool_details_type:
+  global_pool_details:
+    settings:
+      ip_pool: list(include('ip_pool_details_type'), min=1, max=100, required=False)
+
+reserve_pool_details_type:
+  reserve_pool_details:
+    ipv6_address_space: bool(required=False)
+    ipv4_global_pool: str(required=False)
+    ipv4_prefix: bool(required=False)
+    ipv4_prefix_length: int(required=False)
+    ipv4_subnet: str(required=False)
+    ipv4_gateway: str(required=False)
+    name: str(required=False)
+    site_name: str(required=False)
+    slaac_support: bool(required=False)
+    pool_type: str(required=False)
+    ipv4_dhcp_servers: list(str(), required=False)
+    ipv4_dns_servers: list(str(), required=False)
+    ipv6_prefix: bool(required=False)
+    ipv6_prefix_length: int(required=False)
+    ipv6_global_pool: str(required=False)
+    ipv6_subnet: str(required=False)
+    ipv6_gateway: str(required=False)
+    ipv6_dhcp_servers: list(str(), required=False)
+    ipv6_dns_servers: list(str(), required=False)
+
+ip_pool_details_type:
+  name: str(required=False)
+  gateway: str(required=False)
+  ip_address_space: enum('IPv4', 'IPv6', required=False)
+  cidr: str(required=False)
+  pool_type: str(required=False)
+  dhcp_server_ips: list(str(), min=0, max=100, required=False)
+  dns_server_ips: list(str(), min=0, max=100, required=False)
+
+network_management_details_type:
+  network_management_details:
+    settings: include('network_management_settings_type')
+    site_name: str(required=False)
+
+network_management_settings_type:
+  dhcp_server: list(str(), min=2, max=2, required=False)
+  dns_server: include('dns_server_type')
+  client_and_endpoint_aaa: include('client_and_endpoint_aaa_type')
+  message_of_the_day: include('message_of_the_day_type')
+  netflow_collector: include('netflow_collector_type')
+  network_aaa: include('network_aaa_type')
+  ntp_server: list(str(), min=1, max=1, required=False)
+  snmp_server: include('snmp_server_type')
+  syslog_server: include('syslog_server_type')
+  timezone: str(required=False)
+
+dns_server_type:
+  domain_name: str(required=False)
+  primary_ip_address: str(required=False)
+  secondary_ip_address: str(required=False)
+
+client_and_endpoint_aaa_type:
+  network: str(required=False)
+  protocol: str(required=False)
+  servers: str(required=False)
+  ip_address: str(required=False)
+  shared_secret: str(required=False)
+
+message_of_the_day_type:
+  banner_message: str(required=False)
+  retain_existing_banner: bool(required=False)
+
+netflow_collector_type:
+  ip_address: str(required=False)
+  port: int(required=False)
+
+network_aaa_type:
+  network: str(required=False)
+  ip_address: str(required=False)
+  protocol: str(required=False)
+  servers: str(required=False)
+  shared_secret: str(required=False)
+
+snmp_server_type:
+  configure_dnac_ip: bool(required=False)
+  ip_addresses: list(str(), min=1, max=100, required=False)
+
+syslog_server_type:
+  configure_dnac_ip: bool(required=False)
+  ip_addresses: list(str(), min=1, max=100, required=False)
+
+vlan_type:
+  vlan:
+    id: num(required=False)
+    name: str(required=False)
+    description: str(required=False)
+
+cdp_discovery_type: list(include('cdp_discovery_type_type', min=1, max=100), required=False)
+cdp_discovery_type_type:
+    ip_address_list: list(str(), min=1, max=100)
+    devices_list: list(str())
+    discovery_type: enum('CDP')
+    protocol_order: enum('ssh', 'telnet')
+    discovery_name: str()
+    discovery_specific_credentials: include('discovery_specific_credentials_type', required=False)
+    global_credentials: include('global_credential_details_type', required=False)
+    enable_password_list: list(str(),required=False)
+    retry: int()
+
+single_discovery_type: list(include('single_discovery_type_type', min=1, max=100), required=False)
+single_discovery_type_type:
+    ip_address_list: list(str(), min=1, max=100)
+    devices_list: list(str())
+    discovery_type: enum('SINGLE')
+    protocol_order: enum('ssh', 'telnet')
+    discovery_name: str()
+    discovery_specific_credentials: include('discovery_specific_credentials_type', required=False)
+    global_credentials: include('global_credential_details_type', required=False)
+    net_conf_port: int()
+    enable_password_list: list(str(),required=False)
+    retry: int()
+
+range_discovery_type: list(include('range_discovery_type_type', min=1, max=100), required=False)
+range_discovery_type_type:
+    ip_address_list: list(str(), min=1, max=100)
+    discovery_type: enum('RANGE')
+    protocol_order: enum('ssh', 'telnet')
+    discovery_name: str()
+    discovery_specific_credentials: include('discovery_specific_credentials_type', required=False)
+    global_credentials: include('global_credential_details_type', required=False)
+    net_conf_port: int()
+    enable_password_list: list(str(),required=False)
+    retry: int()
+
+multi_range_discovery_type: list(include('multi_range_discovery_type_type', min=1, max=100), required=False)
+multi_range_discovery_type_type:
+    ip_address_list: list(str(), min=1, max=100)
+    discovery_type: enum('MULTI RANGE')
+    protocol_order: enum('ssh', 'telnet')
+    discovery_name: str()
+    discovery_specific_credentials: include('discovery_specific_credentials_type', required=False)
+    global_credentials: include('global_credential_details_type', required=False)
+    net_conf_port: int()
+    timeout: int()
+    enable_password_list: list(str(),required=False)
+    retry: int()
+
+discovery_specific_credentials_type:
+    cli_credentials_list: list(include('cli_credential_type', min=1, max=100, required=False), required=False)
+    http_read_credential: include('https_read_type', required=False)
+    http_write_credential: include('https_write_type', required=False)
+    snmp_v3_credential: include('snmp_v3_type', required=False)
+    snmp_v2_read_credential: include('snmp_v2c_read_type', required=False)
+    snmp_v2_write_credential: include('snmp_v2c_write_type', required=False)
+    net_conf_port: int(required=False)
+
+cli_credential_type:
+    description: str(required=False)
+    username: str()
+    password: str()
+    enable_password: str()
+snmp_v3_type:
+    description: str(required=False)
+    auth_password: str()
+    auth_type: str()
+    snmp_mode: str()
+    privacy_password: str()
+    privacy_type: str()
+    username: str()
+https_read_type:
+    description: str(required=False)
+    username: str()
+    password: str()
+    port: int(required=False)
+    secure: bool(required=False)
+https_write_type:
+    description: str(required=False)
+    username: str()
+    password: str()
+    port: int(required=False)
+    secure: bool(required=False)
+snmp_v2c_write_type:
+    description: str(required=False)
+    community: str(required=False)
+snmp_v2c_read_type:
+    description: str(required=False)
+    community: str(required=False)
+
+global_credential_details_type_t:
+  global_credential_details:
+    cli_credential: list(include('cli_credential_type', required=False), min=0, max=100, required=False)
+    snmp_v3: list(include('snmp_v3_type', required=False), min=0, max=100,  required=False)
+    snmp_v2c_read: list(include('snmp_v2c_read_type', required=False), min=0, max=100, required=False)
+    snmp_v2c_write: list(include('snmp_v2c_write_type', required=False), min=0, max=100, required=False)
+    https_read: list(include('https_read_type', required=False), min=0, max=100,  required=False)
+    https_write: list(include('https_write_type', required=False), min=0, max=100, required=False)
+
+global_credential_details_type:
+    cli_credentials_list: list(include('gl_cli_credential_type', required=False), min=0, max=100, required=False)
+    snmp_v3_credential_list: list(include('gl_snmp_v3_type', required=False), min=0, max=100, required=False)
+    snmp_v2_read_credential_list: list(include('gl_snmp_v2c_read_type', required=False), min=0, max=100, required=False)
+    snmp_v2_write_credential_list: list(include('gl_snmp_v2c_write_type', required=False), min=0, max=100, required=False)
+    http_read_credential_list: list(include('gl_https_read_type', required=False), min=0, max=100, required=False)
+    http_write_credential_list: list(include('gl_https_write_type', required=False), min=0, max=100, required=False)
+    net_conf_port_list: list(include('gl_conf_port_list_type', required=False), min=0, max=100, required=False)
+
+gl_cli_credential_type:
+    description: str(required=False)
+    username: str()
+gl_snmp_v3_type:
+    description: str(required=False)
+    username: str()
+gl_https_read_type:
+    description: str(required=False)
+    username: str()
+gl_https_write_type:
+    description: str(required=False)
+    username: str()
+gl_snmp_v2c_write_type:
+    description: str(required=False)
+    community: str(required=False)
+gl_snmp_v2c_read_type:
+    description: str(required=False)
+    community: str(required=False)
+gl_conf_port_list_type:
+    #This should be only intenger port list not description
+    description: int(required=False)
+
+global_credential_type:
+  global_credentials:
+    cli_credentials_list: list(include('cli_credential_type', required=False), min=0, max=100, required=False)
+    http_read_credential_list: list(include('https_read_type', required=False), min=0, max=100, required=False)
+    http_write_credential_list: list(include('https_write_type', required=False), min=0, max=100, required=False)
+    snmp_v3_credential_list: list(include('snmp_v3_type', required=False), min=0, max=100, required=False)
+
+lan_automation_type:
+  discoveredDeviceSiteNameHierarchy: str(required=False)
+  peerDeviceManagmentIPAddress: str(required=False)
+  primaryDeviceManagmentIPAddress: str(required=False)
+  primaryDeviceInterfaceNames: list(str(), min=1, max=100, required=False)
+  ipPools: list(include('ip_pools_details_type'), min=1, max=100, required=False)
+  multicastEnabled: bool(required=False)
+  redistributeIsisToBgp: bool(required=False)
+  hostNamePrefix: str(required=False)
+  hostNameFileId: str(required=False)
+  isisDomainPwd: str(required=False)
+  discoveryLevel: int(required=False)
+  discoveryTimeout: int(required=False)
+  discoveryDevices: list(include('discovery_devices_details_type'), min=1, max=100, required=False)
+
+ip_pools_details_type:
+  ipPoolName: str(required=False)
+  ipPoolRole: str(required=False)
+
+discovery_devices_details_type:
+  deviceSerialNumber: str(required=False)
+  deviceHostName: str(required=False)
+  deviceSiteNameHierarchy: str(required=False)
+  deviceManagementIPAddress: str(required=False)
+
+
+discovery_device_type:
+  deviceSerialNumber: str(required=False)
+  deviceHostName: str(required=False)
+  deviceSiteNameHierarchy: str(required=False)
+  deviceManagementIPAddress: str(required=False)
+
+loopback_update_device_type:
+  deviceManagementIPAddress: str(required=False)
+  newLoopback0IPAddress: str(required=False)
+
+update_device_role_type:
+  ip_address_list: list(str(), min=1, max=100, required=False)
+  role: str(required=False)
+
+provision_device_type:
+  provision_wired_device: list(include('provision_wired_device_type'), min=1, max=100, required=False)
+  resync_retry_count: int(required=False)
+  resync_interval: int(required=False)
+
+provision_wired_device_type:
+  device_ip: str(required=False)
+  site_name: str(required=False)

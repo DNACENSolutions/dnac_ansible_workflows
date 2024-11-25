@@ -1,0 +1,52 @@
+---
+#the following playbook is used to delete Authentication and Policy Servers  on Cisco Catalyst Center
+# The playbook is executed with the following command
+# Manage operations on Authentication and Policy Servers.
+# API to delete Authentication and Policy Server Access Configuration.
+# ansible-playbook -i inventory/hosts.yml workflows/ise_radius_integration/playbook/delete_ise_radius_integration_workflow_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/ise_radius_integration_workflow_input.yml"
+- name: Network Compliance on  Cisco Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: deleted
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+  tasks:
+    - name: Playbook start time for Authentication and Policy Servers deletion on Cisco Catalyst Center
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: Authentication and Policy Servers deletion on Cisco Catalyst Center
+      cisco.dnac.ise_radius_integration_workflow_manager:
+        <<: *dnac_login
+        state: deleted
+        config: "{{ise_radius_integration_details}}"
+      register: ise_radius_integration_output
+      #when: ise_radius_integration_details is defined
+    - name: Print the Authentication and Policy Servers deletion output
+      debug:
+        msg: "{{ise_radius_integration_output}}"
+    - name: Authentication and Policy Servers deletion playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print Authentication and Policy Servers deletion playbook execution time
+      debug:
+        msg: "Authentication and Policy Servers deletion playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

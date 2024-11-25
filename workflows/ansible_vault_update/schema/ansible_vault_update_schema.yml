@@ -1,0 +1,5 @@
+passwords_details: list(include('passwords_details_type', min=1, max=100), required=False)
+---
+passwords_details_type:
+  key: str(required=True)
+  value: str(required=True)
