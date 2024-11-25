@@ -1,0 +1,80 @@
+---
+# tasks file for inventory
+
+- name: Includes inventory info
+  include_vars:
+    file: "{{ inventory_input_file }}"
+    name: vars_map
+  tags: always
+
+- name: Add devices to the inventory, assign to site and then provision
+  block:
+    - name: Add devices to the inventory
+      cisco.dnac.inventory_workflow_manager:
+        dnac_host: "{{ dnac_host }}"
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        dnac_verify: "{{ dnac_verify }}"
+        dnac_port: "{{ dnac_port }}"
+        dnac_version: "{{ dnac_version }}"
+        dnac_debug: "{{ dnac_debug }}"
+        dnac_log: "{{ dnac_log }}"
+        dnac_log_level: "{{ dnac_log_level }}"
+        config_verify: True
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.network_device.add }}"
+    - name: Associate devices to site and provision it
+      cisco.dnac.inventory_workflow_manager:
+        dnac_host: "{{ dnac_host }}"
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        dnac_verify: "{{ dnac_verify }}"
+        dnac_port: "{{ dnac_port }}"
+        dnac_version: "{{ dnac_version }}"
+        dnac_debug: "{{ dnac_debug }}"
+        dnac_log: "{{ dnac_log }}"
+        dnac_log_level: "{{ dnac_log_level }}"
+        config_verify: True
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.network_device.provision }}"
+    - name: Reprovision in case the device is already provisioned
+      cisco.dnac.inventory_workflow_manager:
+        dnac_host: "{{ dnac_host }}"
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        dnac_verify: "{{ dnac_verify }}"
+        dnac_port: "{{ dnac_port }}"
+        dnac_version: "{{ dnac_version }}"
+        dnac_debug: "{{ dnac_debug }}"
+        dnac_log: "{{ dnac_log }}"
+        dnac_log_level: "{{ dnac_log_level }}"
+        config_verify: True
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.network_device.reprovision }}"
+  tags: provision
+
+- name: Get devices information from the inventory
+  block:
+    - name: Get Network Device info
+      cisco.dnac.network_device_info:
+        dnac_host: "{{ dnac_host }}"
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        dnac_verify: "{{ dnac_verify }}"
+        dnac_port: "{{ dnac_port }}"
+        dnac_version: "{{ dnac_version }}"
+        dnac_debug: "{{ dnac_debug }}"
+        dnac_log: "{{ dnac_log }}"
+        dnac_log_level: "{{ dnac_log_level }}"
+        config_verify: True
+      register: result
+    - name: Debug Network Device info
+      debug:
+        var: result
+  tags: debug

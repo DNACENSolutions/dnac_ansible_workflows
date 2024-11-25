@@ -1,0 +1,42 @@
+---
+# tasks file for site
+
+- name: Includes sites info
+  include_vars:
+    file: "{{ site_input_file }}"
+    name: vars_map
+  tags: always
+
+- name: Create sites
+  cisco.dnac.site_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  loop: "{{ vars_map.design_sites }}"
+  tags: create_site
+
+- name: Delete sites
+  cisco.dnac.site_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    state: deleted
+    config_verify: True
+    config:
+      - "{{ item }}"
+  loop: "{{ vars_map.design_sites }}"
+  tags: delete_site
