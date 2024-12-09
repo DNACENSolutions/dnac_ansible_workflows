@@ -15,13 +15,13 @@ design_sites:
   - site:
       area:
         name: AREA{{i}}
-        parent_name: Global/USA
+        parent_name: Global/IAC_Dev
     type: area
 {% for j in range(1, 4) %}
   - site:
       building:
         name: AREA{{i}} BLD{{j}}
-        parent_name: Global/USA/AREA{{i}}
+        parent_name: Global/IAC_Dev/AREA{{i}}
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -31,7 +31,7 @@ design_sites:
   - site:
       floor:
         name: AREA{{i}} BLD{{j}} FLOOR{{l}}
-        parent_name: Global/USA/AREA{{i}}/AREA{{i}} BLD{{j}}
+        parent_name: Global/IAC_Dev/AREA{{i}}/AREA{{i}} BLD{{j}}
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00

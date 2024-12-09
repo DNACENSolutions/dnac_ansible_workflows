@@ -14,12 +14,12 @@ design_sites:
   - site:
       area:
         name: AREA1
-        parent_name: Global/USA
+        parent_name: Global/IAC_Dev
     type: area
   - site:
       building:
         name: AREA1 BLD1
-        parent_name: Global/USA/AREA1
+        parent_name: Global/IAC_Dev/AREA1
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -28,7 +28,7 @@ design_sites:
   - site:
       floor:
         name: AREA1 BLD1 FLOOR1
-        parent_name: Global/USA/AREA1/AREA1 BLD1
+        parent_name: Global/IAC_Dev/AREA1/AREA1 BLD1
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -37,7 +37,7 @@ design_sites:
   - site:
       floor:
         name: AREA1 BLD1 FLOOR2
-        parent_name: Global/USA/AREA1/AREA1 BLD1
+        parent_name: Global/IAC_Dev/AREA1/AREA1 BLD1
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -46,7 +46,7 @@ design_sites:
   - site:
       floor:
         name: AREA1 BLD1 FLOOR3
-        parent_name: Global/USA/AREA1/AREA1 BLD1
+        parent_name: Global/IAC_Dev/AREA1/AREA1 BLD1
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -55,7 +55,7 @@ design_sites:
   - site:
       building:
         name: AREA1 BLD2
-        parent_name: Global/USA/AREA1
+        parent_name: Global/IAC_Dev/AREA1
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -64,7 +64,7 @@ design_sites:
   - site:
       floor:
         name: AREA1 BLD2 FLOOR1
-        parent_name: Global/USA/AREA1/AREA1 BLD2
+        parent_name: Global/IAC_Dev/AREA1/AREA1 BLD2
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -73,7 +73,7 @@ design_sites:
   - site:
       floor:
         name: AREA1 BLD2 FLOOR2
-        parent_name: Global/USA/AREA1/AREA1 BLD2
+        parent_name: Global/IAC_Dev/AREA1/AREA1 BLD2
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -82,7 +82,7 @@ design_sites:
   - site:
       floor:
         name: AREA1 BLD2 FLOOR3
-        parent_name: Global/USA/AREA1/AREA1 BLD2
+        parent_name: Global/IAC_Dev/AREA1/AREA1 BLD2
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -91,7 +91,7 @@ design_sites:
   - site:
       building:
         name: AREA1 BLD3
-        parent_name: Global/USA/AREA1
+        parent_name: Global/IAC_Dev/AREA1
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -100,7 +100,7 @@ design_sites:
   - site:
       floor:
         name: AREA1 BLD3 FLOOR1
-        parent_name: Global/USA/AREA1/AREA1 BLD3
+        parent_name: Global/IAC_Dev/AREA1/AREA1 BLD3
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -109,7 +109,7 @@ design_sites:
   - site:
       floor:
         name: AREA1 BLD3 FLOOR2
-        parent_name: Global/USA/AREA1/AREA1 BLD3
+        parent_name: Global/IAC_Dev/AREA1/AREA1 BLD3
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -118,7 +118,7 @@ design_sites:
   - site:
       floor:
         name: AREA1 BLD3 FLOOR3
-        parent_name: Global/USA/AREA1/AREA1 BLD3
+        parent_name: Global/IAC_Dev/AREA1/AREA1 BLD3
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -127,12 +127,12 @@ design_sites:
   - site:
       area:
         name: AREA2
-        parent_name: Global/USA
+        parent_name: Global/IAC_Dev
     type: area
   - site:
       building:
         name: AREA2 BLD1
-        parent_name: Global/USA/AREA2
+        parent_name: Global/IAC_Dev/AREA2
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -141,7 +141,7 @@ design_sites:
   - site:
       floor:
         name: AREA2 BLD1 FLOOR1
-        parent_name: Global/USA/AREA2/AREA2 BLD1
+        parent_name: Global/IAC_Dev/AREA2/AREA2 BLD1
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -150,7 +150,7 @@ design_sites:
   - site:
       floor:
         name: AREA2 BLD1 FLOOR2
-        parent_name: Global/USA/AREA2/AREA2 BLD1
+        parent_name: Global/IAC_Dev/AREA2/AREA2 BLD1
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -159,7 +159,7 @@ design_sites:
   - site:
       floor:
         name: AREA2 BLD1 FLOOR3
-        parent_name: Global/USA/AREA2/AREA2 BLD1
+        parent_name: Global/IAC_Dev/AREA2/AREA2 BLD1
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -168,7 +168,7 @@ design_sites:
   - site:
       building:
         name: AREA2 BLD2
-        parent_name: Global/USA/AREA2
+        parent_name: Global/IAC_Dev/AREA2
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -177,7 +177,7 @@ design_sites:
   - site:
       floor:
         name: AREA2 BLD2 FLOOR1
-        parent_name: Global/USA/AREA2/AREA2 BLD2
+        parent_name: Global/IAC_Dev/AREA2/AREA2 BLD2
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -186,7 +186,7 @@ design_sites:
   - site:
       floor:
         name: AREA2 BLD2 FLOOR2
-        parent_name: Global/USA/AREA2/AREA2 BLD2
+        parent_name: Global/IAC_Dev/AREA2/AREA2 BLD2
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -195,7 +195,7 @@ design_sites:
   - site:
       floor:
         name: AREA2 BLD2 FLOOR3
-        parent_name: Global/USA/AREA2/AREA2 BLD2
+        parent_name: Global/IAC_Dev/AREA2/AREA2 BLD2
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -204,7 +204,7 @@ design_sites:
   - site:
       building:
         name: AREA2 BLD3
-        parent_name: Global/USA/AREA2
+        parent_name: Global/IAC_Dev/AREA2
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -213,7 +213,7 @@ design_sites:
   - site:
       floor:
         name: AREA2 BLD3 FLOOR1
-        parent_name: Global/USA/AREA2/AREA2 BLD3
+        parent_name: Global/IAC_Dev/AREA2/AREA2 BLD3
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -222,7 +222,7 @@ design_sites:
   - site:
       floor:
         name: AREA2 BLD3 FLOOR2
-        parent_name: Global/USA/AREA2/AREA2 BLD3
+        parent_name: Global/IAC_Dev/AREA2/AREA2 BLD3
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -231,7 +231,7 @@ design_sites:
   - site:
       floor:
         name: AREA2 BLD3 FLOOR3
-        parent_name: Global/USA/AREA2/AREA2 BLD3
+        parent_name: Global/IAC_Dev/AREA2/AREA2 BLD3
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -240,12 +240,12 @@ design_sites:
   - site:
       area:
         name: AREA3
-        parent_name: Global/USA
+        parent_name: Global/IAC_Dev
     type: area
   - site:
       building:
         name: AREA3 BLD1
-        parent_name: Global/USA/AREA3
+        parent_name: Global/IAC_Dev/AREA3
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -254,7 +254,7 @@ design_sites:
   - site:
       floor:
         name: AREA3 BLD1 FLOOR1
-        parent_name: Global/USA/AREA3/AREA3 BLD1
+        parent_name: Global/IAC_Dev/AREA3/AREA3 BLD1
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -263,7 +263,7 @@ design_sites:
   - site:
       floor:
         name: AREA3 BLD1 FLOOR2
-        parent_name: Global/USA/AREA3/AREA3 BLD1
+        parent_name: Global/IAC_Dev/AREA3/AREA3 BLD1
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -272,7 +272,7 @@ design_sites:
   - site:
       floor:
         name: AREA3 BLD1 FLOOR3
-        parent_name: Global/USA/AREA3/AREA3 BLD1
+        parent_name: Global/IAC_Dev/AREA3/AREA3 BLD1
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -281,7 +281,7 @@ design_sites:
   - site:
       building:
         name: AREA3 BLD2
-        parent_name: Global/USA/AREA3
+        parent_name: Global/IAC_Dev/AREA3
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -290,7 +290,7 @@ design_sites:
   - site:
       floor:
         name: AREA3 BLD2 FLOOR1
-        parent_name: Global/USA/AREA3/AREA3 BLD2
+        parent_name: Global/IAC_Dev/AREA3/AREA3 BLD2
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -299,7 +299,7 @@ design_sites:
   - site:
       floor:
         name: AREA3 BLD2 FLOOR2
-        parent_name: Global/USA/AREA3/AREA3 BLD2
+        parent_name: Global/IAC_Dev/AREA3/AREA3 BLD2
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -308,7 +308,7 @@ design_sites:
   - site:
       floor:
         name: AREA3 BLD2 FLOOR3
-        parent_name: Global/USA/AREA3/AREA3 BLD2
+        parent_name: Global/IAC_Dev/AREA3/AREA3 BLD2
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -317,7 +317,7 @@ design_sites:
   - site:
       building:
         name: AREA3 BLD3
-        parent_name: Global/USA/AREA3
+        parent_name: Global/IAC_Dev/AREA3
         address: McCarthy Blvd, San Jose, California 95131, United States
         latitude: 37.398188
         longitude: -121.912974
@@ -326,7 +326,7 @@ design_sites:
   - site:
       floor:
         name: AREA3 BLD3 FLOOR1
-        parent_name: Global/USA/AREA3/AREA3 BLD3
+        parent_name: Global/IAC_Dev/AREA3/AREA3 BLD3
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -335,7 +335,7 @@ design_sites:
   - site:
       floor:
         name: AREA3 BLD3 FLOOR2
-        parent_name: Global/USA/AREA3/AREA3 BLD3
+        parent_name: Global/IAC_Dev/AREA3/AREA3 BLD3
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00
@@ -344,7 +344,7 @@ design_sites:
   - site:
       floor:
         name: AREA3 BLD3 FLOOR3
-        parent_name: Global/USA/AREA3/AREA3 BLD3
+        parent_name: Global/IAC_Dev/AREA3/AREA3 BLD3
         rfModel: Cubes And Walled Offices
         width: 100.00
         length: 100.00

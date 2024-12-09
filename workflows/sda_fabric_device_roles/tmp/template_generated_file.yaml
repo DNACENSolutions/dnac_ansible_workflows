@@ -1,0 +1,257 @@
+---
+catalyst_center_version: 2.3.7.6
+fabric_devices_details:
+  - fabric_devices:
+      fabric_name: Global/USA
+      device_config:
+        - device_ip: "204.1.2.3"
+          device_roles: [CONTROL_PLANE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.4"
+          device_roles: [CONTROL_PLANE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.5"
+          device_roles: [CONTROL_PLANE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.6"
+          device_roles: [CONTROL_PLANE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.7"
+          device_roles: [CONTROL_PLANE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.8"
+          device_roles: [CONTROL_PLANE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+
+        - device_ip: "204.1.2.20"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.21"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.22"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.23"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.24"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.25"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.26"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.27"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.28"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.29"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.30"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.31"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.32"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.33"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.34"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.35"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.36"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.37"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.38"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.39"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.40"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.41"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.42"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.43"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.44"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.45"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.46"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.47"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.48"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.49"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.50"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.51"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.52"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.53"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.54"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.55"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.56"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.57"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.58"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.59"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+        - device_ip: "204.1.2.60"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+
+        - device_ip: "204.1.2.6"
+          device_roles: [BORDER_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+          borders_settings:
+            layer3_settings:
+              local_autonomous_system_number: 65001
+              is_default_exit: true
+              import_external_routes: true
+              border_priority: 1
+              prepend_autonomous_system_count: 2
+            layer2_handoff:
+              - interface_name: "GigabitEthernet0/0/2"
+                internal_vlan_id: 101
+                external_vlan_id: 201
+              - interface_name: "GigabitEthernet0/0/3"
+                internal_vlan_id: 102
+                external_vlan_id: 202
+            layer3_handoff_ip_transit:
+              - transit_network_name: "iptransit201"
+                interface_name: "GigabitEthernet0/0/4"
+                external_connectivity_ip_pool_name: "Reserved_sda_test_201"
+                virtual_network_name: "TransitVN201"
+                vlan_id: 201
+                tcp_mss_adjustment: 1460
+              - transit_network_name: "iptransit202"
+                interface_name: "GigabitEthernet0/0/5"
+                external_connectivity_ip_pool_name: "Reserved_sda_test_202"
+                virtual_network_name: "TransitVN202"
+                vlan_id: 202
+                tcp_mss_adjustment: 1420
+            layer3_handoff_sda_transit:
+              transit_network_name: "SDATransit"
+              affinity_id_prime: 1
+              affinity_id_decider: 2
+              connected_to_internet: true
+              is_multicast_over_transit_enabled: true
+        - device_ip: "204.1.2.7"
+          device_roles: [BORDER_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+          borders_settings:
+            layer3_settings:
+              local_autonomous_system_number: 65001
+              is_default_exit: true
+              import_external_routes: true
+              border_priority: 1
+              prepend_autonomous_system_count: 2
+            layer2_handoff:
+              - interface_name: "GigabitEthernet0/0/2"
+                internal_vlan_id: 101
+                external_vlan_id: 201
+              - interface_name: "GigabitEthernet0/0/3"
+                internal_vlan_id: 102
+                external_vlan_id: 202
+            layer3_handoff_ip_transit:
+              - transit_network_name: "iptransit201"
+                interface_name: "GigabitEthernet0/0/4"
+                external_connectivity_ip_pool_name: "Reserved_sda_test_201"
+                virtual_network_name: "TransitVN201"
+                vlan_id: 201
+                tcp_mss_adjustment: 1460
+              - transit_network_name: "iptransit202"
+                interface_name: "GigabitEthernet0/0/5"
+                external_connectivity_ip_pool_name: "Reserved_sda_test_202"
+                virtual_network_name: "TransitVN202"
+                vlan_id: 202
+                tcp_mss_adjustment: 1420
+            layer3_handoff_sda_transit:
+              transit_network_name: "SDATransit"
+              affinity_id_prime: 1
+              affinity_id_decider: 2
+              connected_to_internet: true
+              is_multicast_over_transit_enabled: true
+        - device_ip: "204.1.2.8"
+          device_roles: [BORDER_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+          borders_settings:
+            layer3_settings:
+              local_autonomous_system_number: 65001
+              is_default_exit: true
+              import_external_routes: true
+              border_priority: 1
+              prepend_autonomous_system_count: 2
+            layer2_handoff:
+              - interface_name: "GigabitEthernet0/0/2"
+                internal_vlan_id: 101
+                external_vlan_id: 201
+              - interface_name: "GigabitEthernet0/0/3"
+                internal_vlan_id: 102
+                external_vlan_id: 202
+            layer3_handoff_ip_transit:
+              - transit_network_name: "iptransit201"
+                interface_name: "GigabitEthernet0/0/4"
+                external_connectivity_ip_pool_name: "Reserved_sda_test_201"
+                virtual_network_name: "TransitVN201"
+                vlan_id: 201
+                tcp_mss_adjustment: 1460
+              - transit_network_name: "iptransit202"
+                interface_name: "GigabitEthernet0/0/5"
+                external_connectivity_ip_pool_name: "Reserved_sda_test_202"
+                virtual_network_name: "TransitVN202"
+                vlan_id: 202
+                tcp_mss_adjustment: 1420
+            layer3_handoff_sda_transit:
+              transit_network_name: "SDATransit"
+              affinity_id_prime: 1
+              affinity_id_decider: 2
+              connected_to_internet: true
+              is_multicast_over_transit_enabled: true
