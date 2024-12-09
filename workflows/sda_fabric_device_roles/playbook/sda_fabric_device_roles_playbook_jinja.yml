@@ -1,0 +1,88 @@
+---
+- name: This playbook manages operations on SDA fabric devices, including adding and updating fabric devices on Cisco Catalyst Center.
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: merged
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(dnac_debug) }}"
+      dnac_log: "{{ catalyst_center_log | default(dnac_log) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default(dnac_log_level) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+
+  tasks:
+    - name: SDA Fabric Device Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+
+    # Create a Jinja-based template file if enabled
+    - name: Create Template
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate | bool and jinjatemplate_file is defined
+
+    # Include variables from the generated template file
+    - name: Include the variables file ../tmp/template_generated_file.yaml
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate | bool and jinjatemplate_file is defined
+
+    # Set DNAC version if not already defined
+    - name: Set DNAC version
+      set_fact:
+        dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
+
+    # Debug Catalyst Center version
+    - name: Debug Catalyst Center version
+      debug:
+        msg: "Catalyst Center version: {{ dnac_version }}"
+
+    # Manage SDA fabric devices
+    - name: Manage SDA fabric devices
+      cisco.dnac.sda_fabric_devices_workflow_manager:
+        <<: *dnac_login
+        dnac_version: "{{ dnac_version }}"
+        dnac_verify: "{{ dnac_verify }}"
+        state: "{{ state }}"
+        config: "{{ fabric_devices_details }}"
+      register: sda_fabric_output
+      when: fabric_devices_details is defined and fabric_devices_details | length > 0
+
+    # Print SDA Fabric Devices Output
+    - name: Print SDA Fabric Devices Output
+      debug:
+        msg: "{{ sda_fabric_output }}"
+      when: sda_fabric_output is defined
+
+    # Delete the template file after use
+    # - name: Delete the template file
+    #   ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+    #   when: jinjatemplate is defined and jinjatemplate | bool and jinjatemplate_file is defined
+
+    # Record the playbook end time
+    - name: SDA Fabric Device Playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+
+    # Display Playbook Execution Time
+    - name: Display Playbook Execution Time
+      debug:
+        msg: "SDA Fabric Device Role playbook runtime: Start {{ long_op_start }}, End {{ long_op_end }}"
+
+  post_tasks:
+    - name: Verify Python version on Catalyst Center host
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

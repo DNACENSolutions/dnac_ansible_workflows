@@ -7,7 +7,7 @@ lan_automation_details:
   lan_automation_session:
     - lan_automation:
         discovered_device_site_name_hierarchy: "Global/USA/SAN-FRANCISCO/BLD_SF"
-        peer_device_management_ip_address: "91.1.1.6"
+        peer_device_management_ip_address: "91.1.1.2"
         primary_device_management_ip_address: "91.1.1.6"
         primary_device_interface_names:
           - "HundredGigE1/0/2"
