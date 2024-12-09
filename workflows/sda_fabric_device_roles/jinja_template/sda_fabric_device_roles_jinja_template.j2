@@ -1,0 +1,56 @@
+---
+catalyst_center_version: 2.3.7.6
+fabric_devices_details:
+  - fabric_devices:
+      fabric_name: Global/USA
+      device_config:
+{% for ip in range(3, 9) %}
+        - device_ip: "204.1.2.{{ ip }}"
+          device_roles: [CONTROL_PLANE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+{% endfor %}
+
+{% for ip in range(20, 61) %}
+        - device_ip: "204.1.2.{{ ip }}"
+          device_roles: [EDGE_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+{% endfor %}
+
+{% for ip in [6, 7, 8] %}
+        - device_ip: "204.1.2.{{ ip }}"
+          device_roles: [BORDER_NODE]
+          route_distribution_protocol: LISP_PUB_SUB
+          borders_settings:
+            layer3_settings:
+              local_autonomous_system_number: 65001
+              is_default_exit: true
+              import_external_routes: true
+              border_priority: 1
+              prepend_autonomous_system_count: 2
+            layer2_handoff:
+              - interface_name: "GigabitEthernet0/0/2"
+                internal_vlan_id: 101
+                external_vlan_id: 201
+              - interface_name: "GigabitEthernet0/0/3"
+                internal_vlan_id: 102
+                external_vlan_id: 202
+            layer3_handoff_ip_transit:
+              - transit_network_name: "iptransit201"
+                interface_name: "GigabitEthernet0/0/4"
+                external_connectivity_ip_pool_name: "Reserved_sda_test_201"
+                virtual_network_name: "TransitVN201"
+                vlan_id: 201
+                tcp_mss_adjustment: 1460
+              - transit_network_name: "iptransit202"
+                interface_name: "GigabitEthernet0/0/5"
+                external_connectivity_ip_pool_name: "Reserved_sda_test_202"
+                virtual_network_name: "TransitVN202"
+                vlan_id: 202
+                tcp_mss_adjustment: 1420
+            layer3_handoff_sda_transit:
+              transit_network_name: "SDATransit"
+              affinity_id_prime: 1
+              affinity_id_decider: 2
+              connected_to_internet: true
+              is_multicast_over_transit_enabled: true
+{% endfor %}
