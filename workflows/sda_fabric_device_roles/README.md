@@ -47,11 +47,11 @@ If you update the device configuration as a part of problem resolution, ensure t
 From **Provision > Fabric Sites** in Catalyst Center, select the fabric site to add a device.
 Next, click a device from the **List** view under the **Fabric Infrastructure** tab and edit Fabric Role under **More Actions**.
 
-![Alt text](./images/Select Device in Fabric.png)
+![Alt text](./images/Select-Device-in-Fabric.png)
 
 Add Control Plane Role for the device and select LISP Pub/Sub as a route distribution protocol in Catalyst Center UI.
 
-![Alt text](./images/Add Control Plane.png)
+![Alt text](./images/Add-Control-Plane.png)
 
 ##### Add Control Plane Role using Playbook
 
@@ -67,7 +67,7 @@ fabric_devices_details:
 
 ##### Enable Control Plane - Border Node - Edge Node on Catalyst Center using UI and playbook:
 
-![Alt text](./images/Fabric CP Border Edge.png)
+![Alt text](./images/Fabric-CP-Border-Edge.png)
 
 ```bash
 fabric_devices_details:
@@ -88,7 +88,7 @@ fabric_devices_details:
 
 ##### Update Border Node and add L2 Handoff using Catalyst Center UI and playbook:
 
-![Alt text](./images/Border Node and L2 Handoff.png)
+![Alt text](./images/Border-Node-and-L2-Handoff.png)
 
 ```bash
 fabric_devices_details:
@@ -113,7 +113,7 @@ fabric_devices_details:
 
 ##### Add Layer 3 Handoff with SDA Transit through Catalyst Center UI and playbook:
 
-![Alt text](./images/L3 with SDA.png)
+![Alt text](./images/L3-with-SDA.png)
 
 ```bash
 fabric_devices_details:
@@ -132,7 +132,7 @@ fabric_devices_details:
 
 ##### Add Layer 3 Handoff with IP Transit using Catalyst Center and sample playbook:
 
-![Alt text](./images/L3 with IP Transit.png)
+![Alt text](./images/L3-with-IP-Transit.png)
 
 ```bash
 fabric_devices_details:
