@@ -67,7 +67,7 @@ fabric_devices_details:
 
 ##### Enable Control Plane - Border Node - Edge Node on Catalyst Center using UI and playbook:
 
-![Alt text](./images/Fabric-CP-Border-Edge.png)
+![Alt text](./images/Fabric-CP-Border-Edge.jpeg)
 
 ```bash
 fabric_devices_details:
