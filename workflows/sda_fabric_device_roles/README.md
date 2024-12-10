@@ -88,7 +88,7 @@ fabric_devices_details:
 
 ##### Update Border Node and add L2 Handoff using Catalyst Center UI and playbook:
 
-![Alt text](./images/Border-Node-and-L2-Handoff.png)
+![Alt text](./images/Border-Node-and-L2-Handoff.jpeg)
 
 ```bash
 fabric_devices_details:
@@ -113,7 +113,7 @@ fabric_devices_details:
 
 ##### Add Layer 3 Handoff with SDA Transit through Catalyst Center UI and playbook:
 
-![Alt text](./images/L3-with-SDA.png)
+![Alt text](./images/L3-with-SDA.jpeg)
 
 ```bash
 fabric_devices_details:
