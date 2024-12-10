@@ -1,4 +1,4 @@
-# Catalyst Center SDA Fabric Device Roles Playbooks
+# Catalyst Center SDA Fabric Device Roles Playbook
 
 ### Fabric Devices
 
