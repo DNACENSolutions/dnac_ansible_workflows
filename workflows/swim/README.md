@@ -19,4 +19,4 @@ The SWIM protocol provides a standardized way to manage and upgrade software ima
 * **Software Image:** The desired Cisco IOS XE software image file (.bin).
 
 ## Demo Video
-[![LAN Automation Execution Demo](./images/swimdemo.png)](http://3.136.0.140/iac_demos/swim/SWIMDEMO.mp4)
+[![Device Software Upgrade Demo](./swimdemo.png)](http://3.136.0.140/iac_demos/swim/SWIMDEMO.mp4)
