@@ -17,7 +17,9 @@ Once these steps are complete, you can utilize the playbook below to **initiate 
 - **Updating Device Configurations:** Effortlessly update configurations for LAN automated devices, including loopback addresses, hostnames, and link settings, ensuring your network remains efficient and up-to-date.
 
 ## Demo Video
-![LAN Automation Execution Demo(./images/Lan_Automation_demo.png)](./images/LAN_Automation_Workflow_Manager_Demo.mp4)
+[![LAN Automation Execution Demo](./images/Lan_Automation_demo.png)](./images/LAN_Automation_Workflow_Manager_Demo.mp4)
+
+[![Video Title](Thumbnail Image URL)](Video URL)
 
 By leveraging this playbook, you can ensure a robust, efficient, and fully integrated network environment.
 
