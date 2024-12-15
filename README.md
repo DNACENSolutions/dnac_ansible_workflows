@@ -72,7 +72,7 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 - [Catalyst Center managed network devices configurations backup management](./workflows/device_config_backup/README.md)
 
 ## Demo Videos
-[![IaC Demo Videos](./images/Lan_Automation_demo.png)](http://3.136.0.140/iac_demos/lan_auto/LAN_Automation_Workflow_Manager_Demo.mp4)
+![IaC Demo Videos](http://3.136.0.140/index.html)
 
 # Prerequisites
 Before using these Ansible workflows, ensure that you have the following prerequisites:
