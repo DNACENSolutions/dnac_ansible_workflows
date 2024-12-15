@@ -20,6 +20,7 @@ __pycache__
 venv/
 */tmp/*
 /build/
+ansible_vault_encrypted_inputs/*
 docs/plugins/
 docs/_build/
 changelogs/.plugin-cache.yaml
