@@ -1,0 +1,74 @@
+---
+- name: Playbook for Device Configs Backup
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars_files:
+      - ../cc_config.yml
+      - "{{ config_backup }}"
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+  tasks:
+    - name: Includes inventory info
+      include_vars:
+        file: "{{ input_file }}"
+        name: vars_map
+      tags: always
+
+    - name: Take backup using hostname
+      cisco.dnac.device_configs_backup_workflow_manager:
+        <<: *common_config
+        state: merged
+        validate_response_schema: True
+        config:
+          "{{ vars_map.hostname}}"
+      tags: hostname
+
+    - name: Take backup without defined passwords
+      cisco.dnac.device_configs_backup_workflow_manager:
+        <<: *common_config
+        state: merged
+        validate_response_schema: True
+        config:
+          "{{ vars_map.no_password}}"
+      tags: no_password
+
+    - name: Take backup passwords contains backslash
+      cisco.dnac.device_configs_backup_workflow_manager:
+        <<: *common_config
+        state: merged
+        validate_response_schema: True
+        config:
+          "{{ vars_map.backslash}}"
+      ignore_errors: true
+      tags: backslash
+
+    - name: Take backup for all devices
+      cisco.dnac.device_configs_backup_workflow_manager:
+        <<: *common_config
+        state: merged
+        validate_response_schema: True
+        config:
+          - file_password: qsaA12!asdasd
+      tags: all_devices
+
+    - name: Take backup using site name
+      cisco.dnac.device_configs_backup_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.site}}"
+      tags: site

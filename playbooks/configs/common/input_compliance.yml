@@ -1,0 +1,5 @@
+device_list : ["204.1.2.5","204.1.2.6","204.1.2.7"]
+site_name : "Global/USA/SAN JOSE/SJ_BLD23"
+sync_device:
+  ip: ["204.1.2.6"]
+  name: 

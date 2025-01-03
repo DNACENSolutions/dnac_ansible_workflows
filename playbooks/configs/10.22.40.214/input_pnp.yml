@@ -1,7 +1,7 @@
 ---
 pnp_claim:
   ewlc:
-    - site_name: Global/USA/SAN JOSE/BLD23
+    - site_name: Global/USA/SAN JOSE/SJ_BLD23
       project_name: Onboarding Configuration
       image_name: C9800-40-universalk9_wlc.17.12.02.SPA.bin
       template_name: PnP-Devices_SJ-EWLC
@@ -22,7 +22,7 @@ pnp_claim:
       vlan_id: 2050
 
   cat9k:
-    - site_name: Global/USA/SAN JOSE/BLD23
+    - site_name: Global/USA/SAN JOSE/SJ_BLD23
       project_name: Onboarding Configuration
       template_name: PnP-Devices-SW
       template_params:
@@ -36,7 +36,7 @@ pnp_claim:
           pid: C9300-48UXM
 
   cat9k_stack:
-    - site_name: Global/USA/New York/BLDNYC1
+    - site_name:  Global/USA/New York/NY_BLD1
       project_name: Onboarding Configuration
       template_name: PnP-Devices-SW
       image_name: cat9k_iosxe.17.12.02.SPA.bin
@@ -51,7 +51,7 @@ pnp_claim:
       pnp_type: StackSwitch
 
   router:
-    - site_name: Global/USA/SAN-FRANCISCO/BLD_SF1
+    - site_name: Global/USA/SAN-FRANCISCO/SF_BLD1
       project_name: Onboarding Configuration
       template_name: PnP-Devices_SF-ISR_No-Vars
       image_name: isr4400-universalk9.17.12.02.SPA.bin
@@ -63,7 +63,7 @@ pnp_claim:
 
 pnp_reset:
   ewlc:
-    - site_name: Global/USA/SAN JOSE/BLD23
+    - site_name: Global/USA/SAN JOSE/SJ_BLD23
       project_name: Onboarding Configuration
       template_name: PnP-Devices_SJ-EWLC_No-Vars
       device_info:
@@ -81,7 +81,7 @@ pnp_delete:
           pid: C9300-48UXM
 
   delete:
-    - site_name: Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL4
+    - site_name: Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
       project_name: Onboarding Configuration
       template_name: PnP-Devices_No-Vars
       image_name: cat9k_iosxe.17.09.04a.SPA.bin
@@ -93,20 +93,20 @@ pnp_delete:
 
 bulk:
   add:
-    - device_info:
-        - serial_number: FOX2639PAYD
-          hostname: SJ-EWLC-1
-          state: Unclaimed
-          pid: C9800-40-K9
-        - serial_number: FJC271924D9
-          hostname: SJ-EN-9300
-          state: Unclaimed
-          pid: C9300-48UXM
-        - serial_number: FJC271925Q1
-          hostname: NY-EN-9300
-          state: Unclaimed
-          pid: C9300-48UXM
-        - serial_number: FJC2402A0TX
-          hostname: SF-BN-ISR
-          state: Unclaimed
-          pid: ISR4451-X/K9
+  - device_info:
+    - serial_number: FOX2639PAYD
+      hostname: SJ-EWLC-1
+      state: Unclaimed
+      pid: C9800-40-K9
+    - serial_number: FJC271924D9
+      hostname: SJ-EN-9300
+      state: Unclaimed
+      pid: C9300-48UXM
+    - serial_number: FJC271925Q1
+      hostname: NY-EN-9300
+      state: Unclaimed
+      pid: C9300-48UXM
+    - serial_number: FJC2402A0TX
+      hostname: SF-BN-ISR
+      state: Unclaimed
+      pid: ISR4451-X/K9

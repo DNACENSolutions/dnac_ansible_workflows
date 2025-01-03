@@ -1,0 +1,26 @@
+user_creation:
+  user_details:
+{% for index in rbac_elements %}
+    - username: scale{{ index }}
+      password: Maglev@123
+{% endfor %}
+
+user_deletion:
+  user_details:
+{% for index in rbac_elements %}
+    - username: scale{{ index }}
+{% endfor %}
+
+role_creation:
+  role_details:
+{% for index in rbac_elements %}
+    - role_name: "scale_role_{{ index }}"
+      network_analytics:
+      - data_access: "deny"
+{% endfor %}
+
+role_deletion:
+  role_details:
+{% for index in rbac_elements %}
+    - role_name: "scale_role_{{ index }}"
+{% endfor %}

@@ -1,0 +1,144 @@
+---
+swim_task:
+  import:
+    - import_image_details:
+        type: remote
+        url_details:
+          payload:
+            - source_url: 
+                - http://10.4.23.100/swim/iac/cat9k_iosxe.17.12.03.SPA.bin
+                - http://10.4.23.100/swim/iac/C9800-40-universalk9_wlc.17.12.03.SPA.bin
+              is_third_party: False
+    - import_image_details:
+        type: remote
+        url_details:
+          payload:
+            - source_url: 
+                - http://10.4.23.100/swim/iac/isr4400v2-universalk9.17.12.03a.SPA.bin
+                - http://10.4.23.100/swim/iac/asr1000-universalk9.17.12.03a.SPA.bin
+              is_third_party: False
+    - import_image_details:
+        type: remote
+        url_details:
+          payload:
+            - source_url:
+                - http://10.4.23.100/swim/iac/C9800-SW-iosxe-wlc.17.12.03.SPA.bin
+              is_third_party: False
+
+  device_e2e:
+    tag:
+      - tagging_details:
+          image_name: cat9k_iosxe.17.12.03.SPA.bin
+          device_role: ACCESS
+          site_name: Global
+          device_image_family_name: Cisco Catalyst 9300 Switch
+          tagging: True
+      - tagging_details:
+          image_name: cat9k_iosxe.17.12.03.SPA.bin
+          device_role: DISTRIBUTION
+          site_name: Global
+          device_image_family_name: Cisco Catalyst 9300 Switch
+          tagging: True
+      - tagging_details:
+          image_name: C9800-40-universalk9_wlc.17.12.03.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA
+          device_image_family_name: Cisco Catalyst 9800-40 Wireless Controller
+          tagging: True
+      - tagging_details:
+          image_name: isr4400v2-universalk9.17.12.03a.SPA.bin
+          device_role: BORDER ROUTER
+          site_name: Global/USA
+          device_image_family_name: Cisco 4461 Integrated Services Router
+          tagging: True
+      - tagging_details:
+          image_name: asr1000-universalk9.17.12.03a.SPA.bin
+          device_role: BORDER ROUTER
+          site_name: Global/USA
+          device_image_family_name: Cisco ASR 1001-HX Router
+          tagging: True
+      - tagging_details:
+          image_name: cat9k_iosxe.17.12.03.SPA.bin
+          device_role: CORE
+          site_name: Global/USA/SAN JOSE/SJ_BLD23
+          device_image_family_name: Cisco Catalyst 9300 Switch
+          tagging: True
+
+    untag:
+      - tagging_details:
+          image_name: cat9k_iosxe.17.12.03.SPA.bin
+          device_role: CORE
+          site_name: Global/USA/SAN JOSE/SJ_BLD23
+          device_image_family_name: Cisco Catalyst 9300 Switch
+          tagging: False
+
+    distribute:
+      - image_distribution_details:
+          image_name: cat9k_iosxe.17.12.03.SPA.bin
+          device_ip_address: 10.4.213.1
+      - image_distribution_details:
+          image_name: C9800-40-universalk9_wlc.17.12.03.SPA.bin
+          device_ip_address: 10.4.210.200
+      - image_distribution_details:
+          image_name: isr4400v2-universalk9.17.12.03a.SPA.bin
+          device_ip_address: 10.4.213.8
+      - image_distribution_details:
+          image_name: asr1000-universalk9.17.12.03a.SPA.bin
+          device_ip_address: 10.4.213.7
+
+    activate:
+      - image_activation_details:
+          image_name: cat9k_iosxe.17.12.03.SPA.bin
+          schedule_validate: False
+          activate_lower_image_version: True
+          distribute_if_needed: True
+          device_ip_address: 10.4.213.1
+          device_upgrade_mode: currentlyExists
+      - image_activation_details:
+          image_name: C9800-40-universalk9_wlc.17.12.03.SPA.bin
+          schedule_validate: False
+          activate_lower_image_version: True
+          distribute_if_needed: True
+          device_ip_address: 10.4.210.200
+          device_upgrade_mode: currentlyExists
+      - image_activation_details:
+          image_name: isr4400v2-universalk9.17.12.03a.SPA.bin
+          schedule_validate: False
+          activate_lower_image_version: True
+          distribute_if_needed: True
+          device_ip_address: 10.4.213.8
+          device_upgrade_mode: currentlyExists
+      - image_activation_details:
+          image_name: asr1000-universalk9.17.12.03a.SPA.bin
+          schedule_validate: False
+          activate_lower_image_version: True
+          distribute_if_needed: True
+          device_ip_address: 10.4.213.7
+          device_upgrade_mode: currentlyExists
+
+  filter_e2e:
+    tag:
+      - tagging_details:
+          image_name: cat9k_iosxe.17.12.03.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE/SJ_BLD23
+          device_image_family_name: Cisco Catalyst 9300 Switch
+          tagging: True
+
+    distribute:
+      - image_distribution_details:
+          image_name: cat9k_iosxe.17.12.03.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE/SJ_BLD23
+          device_family_name: Switches and Hubs
+
+    activate:
+      - image_activation_details:
+          image_name: cat9k_iosxe.17.12.03.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE/SJ_BLD23
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+          activate_lower_image_version: true
+          distribute_if_needed: true
+          schedule_validate: false

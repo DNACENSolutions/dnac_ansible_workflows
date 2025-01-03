@@ -1,0 +1,391 @@
+---
+- name: Playbook for testing Access Points Configuration
+  hosts: dnac
+  connection: local
+  gather_facts: false
+  ignore_errors: false
+
+  vars_files:
+    - ../cc_config.yml
+    - "{{ config_access_point }}"
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: true
+  tasks:
+    - name: Pulling Variables
+      ansible.builtin.include_vars:
+        file: "{{ input_file_regr }}"
+        name: vars_map
+      no_log: true
+      tags: always
+
+    # - name: Create Access Point
+    #   cisco.dnac.accesspoint_workflow_manager:
+    #     <<: *common_config
+    #     state: merged
+    #     config: "{{ vars_map.create_access_point }}"
+    #   tags: create_ap
+
+    - name: Incorrect Mac Address format (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[0]] }}"
+      register: result
+      failed_when: result is successful
+      tags: incorrect_mac_neg
+
+    - name: Null Mac Address format (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[1]] }}"
+      register: result
+      failed_when: result is successful
+      tags: null_mac_neg
+
+    - name: Incorrect LED status (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[2]] }}"
+      register: result
+      failed_when: result is successful
+      tags: incorrect_led_status_neg
+
+    - name: Incorrect AP Mode (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[3]] }}"
+      register: result
+      failed_when: result is successful
+      tags: incorrect_ap_mode_neg
+
+    - name: LED brightness level not in range 1-8(Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[4]] }}"
+      register: result
+      failed_when: result is successful
+      tags: incorrect_led_bright_neg
+
+    - name: Incorrect clean air parameter (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[5]] }}"
+      register: result
+      failed_when: result is successful
+      tags: incorrect_clean_air_neg
+
+    - name: Duplicate IP address in controller details (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[6]] }}"
+      register: result
+      failed_when: result is successful #####Remove the # for running regression CSCwm71649
+      tags: dup_ctrl_ip_neg
+
+    - name: Invalid IPv4 in Primary controller IP (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[7]] }}"
+      register: result
+      failed_when: result is successful
+      tags: invalid_ipv4_prim_neg
+
+    - name: Invalid IPv6 in Primary controller IP (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[8]] }}"
+      register: result
+      failed_when: result is successful # remove # while running regression CSCwm75377
+      tags: invalid_ipv6_prim_neg
+
+    - name: Invalid IPv4 in Secondary controller IP (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[9]] }}"
+      register: result
+      failed_when: result is successful
+      tags: invalid_ipv4_sec_neg
+
+    - name: Invalid IPv6 in Secondary controller IP (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[10]] }}"
+      register: result
+      failed_when: result is successful # remove # while running regression CSCwm75377
+      tags: invalid_ipv6_sec_neg
+
+    - name: Configure unsupported fix band radio (2.4ghz not supported on 9120) (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[11]] }}"
+      register: result
+      failed_when: result is successful #remove # while running regression CSCwm71789
+      tags: invalid_radio_band_neg
+
+    - name: Configure 2.4Ghz fix band radio with incorrect radio role assignment (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[12]] }}"
+      register: result
+      failed_when: result is successful
+      tags: radio_role_neg_24GHz
+
+    - name: Configure 2.4Ghz fix band radio with incorrect channel assignment mode (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[13]] }}"
+      register: result
+      failed_when: result is successful
+      tags: channel_mode_neg_24GHz
+
+    - name: Configure 2.4Ghz fix band radio with incorrect channel number (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[14]] }}"
+      register: result
+      failed_when: result is successful
+      tags: channel_num_neg_24GHz
+
+    - name: Configure 2.4Ghz fix band radio with incorrect channel width (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[15]] }}"
+      register: result
+      failed_when: result is successful
+      tags: channel_width_neg_24GHz
+
+    - name: Configure 2.4Ghz fix band radio with incorrect antenna name (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[16]] }}"
+      register: result
+      failed_when: result is successful # CSCwm72689
+      tags: ant_name_neg_24GHz
+
+    - name: Configure 2.4Ghz fix band radio with antenna gain not in range 0-40 (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[17]] }}"
+      register: result
+      failed_when: result is successful
+      tags: ant_gain_neg_24GHz
+
+    - name: Configure 2.4Ghz fix band radio with incorrect antenna cable name (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[18]] }}"
+      register: result
+      failed_when: result is successful
+      tags: ant_cable_name_neg_24GHz
+
+    - name: Configure 2.4Ghz fix band radio with cable loss higher than antenna gain (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[19]] }}"
+      register: result
+      failed_when: result is successful
+      tags: cable_loss_neg_1_24GHz
+
+    - name: Configure 2.4Ghz fix band radio with cable loss without providing antenna gain (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[20]] }}"
+      register: result
+      failed_when: result is successful # it should be successful if antenna gain is higher than cable loss already CSCwm77521
+      tags: cable_loss_neg_2_24GHz
+
+    - name: Configure 2.4Ghz fix band radio with cable loss not in range 0-40 (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[21]] }}"
+      register: result
+      failed_when: result is successful
+      tags: cable_loss_neg_3_24GHz
+
+    - name: Configure 5Ghz fix band radio with incorrect radio role assignment (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[22]] }}"
+      register: result
+      failed_when: result is successful
+      tags: radio_role_neg_5ghz
+
+    - name: Configure 5Ghz fix band radio with incorrect channel assignment mode (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[23]] }}"
+      register: result
+      failed_when: result is successful
+      tags: channel_assign_neg_5ghz
+
+    - name: Configure 5Ghz fix band radio with incorrect channel number (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[24]] }}"
+      register: result
+      failed_when: result is successful
+      tags: channel_num_neg_5ghz
+
+    - name: Configure 5Ghz fix band radio with incorrect channel width (9166). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[25]] }}"
+      register: result
+      failed_when: result is successful
+      tags: channel_width_neg_5ghz
+
+    - name: Configure 5Ghz fix band radio with incorrect antenna name (9120). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[26]] }}"
+      register: result
+      failed_when: result is successful # CSCwm72689
+      tags: ant_name_neg_5ghz
+
+    - name: Configure 5Ghz fix band radio with antenna gain not in range 0-40 (9120). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[27]] }}"
+      register: result
+      failed_when: result is successful
+      tags: ant_gain_neg_5ghz
+
+    - name: Configure 5Ghz fix band radio with incorrect antenna cable name (9120). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[28]] }}"
+      register: result
+      failed_when: result is successful
+      tags: ant_cable_name_neg_5ghz
+
+    - name: Configure 5Ghz fix band radio with cable loss higher than antenna gain (9120). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[29]] }}"
+      register: result
+      failed_when: result is successful
+      tags: cable_loss_neg_1_5ghz
+
+    - name: Configure 5Ghz fix band radio with cable loss without providing antenna gain (9120). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[30]] }}"
+      register: result
+      failed_when: result is successful # CSCwm77521
+      tags: cable_loss_neg_2_5ghz
+
+    - name: Configure 5Ghz fix band radio with cable loss not in range 0-40 (9120). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[31]] }}"
+      register: result
+      failed_when: result is successful
+      tags: cable_loss_neg_3_5ghz
+
+    - name: Configure XOR with unsupported radio band (9166 supports only 5Ghz and 6Ghz for XOR). (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[32]] }}"
+      register: result
+      failed_when: result is successful # Bug : CSCwm72726
+      tags: xor_unsupp_radio_neg
+
+    - name: Configure XOR with 2.4 Ghz and incorrect channel number. (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[33]] }}"
+      register: result
+      failed_when: result is successful
+      tags: xor_channel_num_neg
+
+    - name: Provision access point to a SITE not available in Catalyst Center (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[34]] }}"
+      register: result
+      # failed_when: result is successful #Bug : CSCwm75560
+      tags: prov_site_neg
+
+    - name: Provision access point to a RF Profile not available in Catalyst Center (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[35]] }}"
+      register: result
+      failed_when: result is successful # CSCwm34362 : fails for Either Rf profiles is creted or not.
+      tags: prov_rf_prof_neg
+
+    - name: Provision the device to a site not managed by the Primary Controller (Negative Case)
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.create_access_point_neg[36]] }}"
+      register: result
+      failed_when: result is successful # CSCwm77166
+      tags: prov_unmanaged_site
+
+    - name: Create Access Point Bulk
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.create_access_point }}"
+      tags: create_ap_bulk
+
+    - name: Reboot list of APs
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.ap_reboot_list}}"
+      tags: reboot_aps
+
+    - name: Factory reset list of APs
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.factory_reset_list }}"
+      tags: factory_reset_aps

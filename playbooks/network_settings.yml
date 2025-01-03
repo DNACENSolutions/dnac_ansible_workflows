@@ -1,0 +1,250 @@
+---
+- name: Playbook for Network Setting module (Regression)
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - cc_config.yml
+    - "{{ config_nw_settings }}"
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+  tasks:
+    - name: Includes network settings info
+      include_vars:
+        file: "{{ input_file }}"
+        name: vars_map
+      tags: always
+
+# ----------------- Update NW settings (POSITIVE_CASE) ---------------------------
+    # TC1
+    - name: Add network servers on sites, add it on global site
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.add_network_settings_global }}"
+      tags: nw_settg_add_global
+
+    # TC2
+    - name: Update network servers on sites, add it on global site
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.update_network_settings_global }}"
+      tags: nw_settg_update_global
+
+    # TC3
+    - name: Remove network servers on global
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.remove_network_settings_global }}"
+      tags: nw_settg_remove_global
+
+    # TC4
+    - name: Add site-specific network servers
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.add_network_settings_site_specific }}"
+      tags: nw_settg_add_site
+
+    # TC5
+    - name: Update site-specific network servers
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.update_network_settings_site_specific }}"
+      tags: nw_settg_update_site
+
+# ------------------------------------------------------------------------------ #
+
+# ----------------- Update NW settings (NEGATIVE_CASE) ---------------------------
+    # TC10
+    - name: Update AAA configure not valid
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.update_aaa_invalid }}"   
+      tags: nw_settg_update_aaa_invalid
+
+    # TC11
+    - name: Update the network and endpoint AAA servers (ISE) are using the same IP, the shared secrets not same
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.update_aaa_invalid_1 }}"   
+      tags: nw_settg_update_aaa_invalid_1
+
+    # TC12
+    - name: Update banner has a length exceeds the maximum supported line length of 80
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.update_motd_invalid }}"   
+      tags: nw_settg_update_motd_invalid
+
+    # TC13
+    - name: Update banner with 'banner' is empty and 'exist_banner' is "false"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.update_motd_invalid_1 }}"   
+      tags: nw_settg_update_motd_invalid_1
+
+    # TC14
+    - name: Update NW settings with site is not available
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.update_site_invalid }}"   
+      tags: nw_settg_update_site_invalid
+
+# ------------------------------------------------------------------------------ #
+
+
+#------------------------ NW_SETTING/SETUP-------------------------------------- 
+    - name: Update setup network servers on sites
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - network_management_details:
+            - settings:
+                network_aaa:
+                  pan_address: 172.23.241.229
+                  primary_server_address: 172.23.241.229 #204.192.1.245
+                  protocol: RADIUS
+                  server_type: ISE
+                client_and_endpoint_aaa:
+                  pan_address: 172.23.241.229
+                  primary_server_address: 172.23.241.229
+                  protocol: RADIUS
+                  server_type: ISE
+                dhcp_server:
+                  - 204.192.3.40
+                  - 2004:192:3::40
+                dns_server:
+                  domain_name: cisco.local
+                  primary_ip_address: 204.192.3.40
+                  secondary_ip_address: 2006:1:1::1
+                ntp_server:
+                  - 204.192.3.40
+                message_of_the_day:
+                  banner_message: "{% raw %} This Device is part of Solution Automation Testbed\n Please log off if you are not intended user\n Contact phannguy for further details\n {% endraw %}"
+                  retain_existing_banner: False
+                netflow_collector:
+                  ip_address: ""
+                snmp_server:
+                  configure_dnac_ip: True
+                  ip_addresses:
+                    - 8.8.8.8
+                syslog_server:
+                  configure_dnac_ip: True
+                  ip_addresses:
+                    - 6.6.6.6
+                timezone: America/Los_Angeles
+      tags: global_settings
+# ------------------------------------------------------------------------------ #
+
+
+# -------------------- Update NW settings/Provision  ---------------------------
+    # TC20
+    - name: Update network settings for site, changing the banner, then provision devices
+      block:
+        - name: Update network settings for site, changing the banner
+          cisco.dnac.network_settings_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.motd_provision.motd }}"
+          tags: motd
+        - name: Provision device
+          cisco.dnac.provision_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.motd_provision.provision }}"
+          tags: provision_tc20
+      tags: nw_settg_motd_provision
+
+    # TC21
+    - name: Update network settings for site, changing the shared secret under AAA configuration, then provision devices
+      block:
+        - name: Update network settings for site, changing the shared secret under AAA configuration
+          cisco.dnac.network_settings_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.shared_secret_provision.shared_secret }}"
+          tags: shared_secret
+        - name: Provision device
+          cisco.dnac.provision_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.shared_secret_provision.provision }}"
+          tags: provision_tc21
+      tags: nw_settg_shared_secret_provision
+
+    # TC22
+    - name: Update network settings for site, using a different AAA server, then provision devices
+      block:
+        - name: Update network settings for site, using a different AAA server
+          cisco.dnac.network_settings_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.aaa_server_provision.aaa_server }}"
+          tags: aaa_server
+        - name: Provision device
+          cisco.dnac.provision_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.aaa_server_provision.provision }}"
+          tags: provision_tc22
+      tags: nw_settg_aaa_provision
+
+    # TC23
+    - name: Update network settings for site, changing the DHCP server, then provision devices, Add both IPv4 and IPv6 DHCP servers, DNS with Primary and Secondary servers. NTP with primary and secondary servers. 
+      block:
+        - name: Update network settings for site, changing the DHCP, DNS, NTP
+          cisco.dnac.network_settings_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.dhcp_dns_ntp_provision.dhcp_dns_ntp }}"
+          tags: dhcp_dns_ntp
+        - name: Provision device
+          cisco.dnac.provision_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.dhcp_dns_ntp_provision.provision }}"
+          tags: provision_tc23
+      tags: nw_settg_dhcp_dns_ntp_provision
+
+# ------------------------------------------------------------------------------ #

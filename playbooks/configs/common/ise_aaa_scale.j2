@@ -1,0 +1,50 @@
+---
+add_aaa:
+{% for ip in ip_list_specific %}
+  - authentication_policy_server:
+      server_type: AAA
+      server_ip_address: {{ ip }}
+      shared_secret: cisco
+      protocol: RADIUS_TACACS
+      encryption_scheme: KEYWRAP
+      encryption_key: dnacsolutions123
+      message_authenticator_code_key: dnacisesolutions1234
+      authentication_port: 1812
+      accounting_port: 1813
+      port: 49
+      retries: 3
+      timeout: 4
+      role: secondary
+{% endfor %}
+
+delete_aaa:
+{% for ip in ip_list_specific %}
+  - authentication_policy_server:
+      server_ip_address: {{ ip }}
+{% endfor %}
+
+design_sites:
+{% for i in range(1,(ip_list_specific|length)) %}
+  - site:
+      area:
+        name: {{site_name}}-{{ i }}
+        parentName: Global
+    type: area
+{% endfor %}
+
+associate:
+{% for i in range((ip_list_specific|length)-1) %}
+{% set site_name = site_name ~ '-' ~ (i+1)|string %}
+  - network_management_details:
+      settings:
+        network_aaa:
+          primary_server_address: {{ ip_list_specific[i] }}
+          protocol: RADIUS
+          server_type: AAA
+        client_and_endpoint_aaa:
+          primary_server_address: {{ ip_list_specific[i] }}
+          secondary_server_address: {{ ip_list_specific[i+1] }}
+          protocol: RADIUS
+          server_type: AAA
+      site_name: Global/{{ site_name }}
+{% endfor %}

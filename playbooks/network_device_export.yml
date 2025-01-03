@@ -1,0 +1,75 @@
+
+---
+- name: Configure global credentials on Cisco DNA Center
+  hosts: dnachosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ CLUSTER_FILE }}"
+    - "{{ VARS_FILES_PATH }}/input_network_device_export.yml"
+
+  vars:
+    dnac_login: &dnac_login
+                
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+
+  tasks:
+    - name: Get all Network Devices
+      cisco.dnac.network_device_info:
+        dnac_host: "{{dnac_host}}"
+        dnac_username: "{{dnac_username}}"
+        dnac_password: "{{dnac_password}}"
+        dnac_verify: "{{dnac_verify}}"
+        dnac_port: "{{dnac_port}}"
+        dnac_version: "{{dnac_version}}"
+        dnac_debug: "{{dnac_debug}}"
+      register: result
+
+    - name: debug result
+      debug:
+        var: result
+
+    - name: ExportNetworkDeviceConfig
+      cisco.dnac.network_device_export:
+        <<: *dnac_login
+        deviceUuids: "{{ result.dnac_response.response[0].id }}"
+        operationEnum: DEVICEDETAILS
+        password: Lablab#123123123
+      register: result1
+
+    - name: debug result1
+      debug:
+        var: result1
+
+    - name: Get Task by id for task id "{{ result1.dnac_response.response.taskId }}"
+      cisco.dnac.task_info:
+        <<: *dnac_login
+        taskId: "{{ result1.dnac_response.response.taskId}}"
+      register: result2
+      until: result2.dnac_response.response.endTime is defined
+      retries: 10
+      delay: 10
+    - name: debug result2.dnac_response.response
+      debug:
+        var: result2
+    - name: Get exported file by id
+      cisco.dnac.file_info:
+        dnac_host: "{{dnac_host}}"
+        dnac_username: "{{dnac_username}}"
+        dnac_password: "{{dnac_password}}"
+        dnac_verify: "{{dnac_verify}}"
+        dnac_port: "{{dnac_port}}"
+        dnac_version: "{{dnac_version}}"
+        dnac_debug: "{{dnac_debug}}"
+        fileId: "{{ result2.dnac_response.response.id }}"
+        dirPath: "{{ export_file_dir }}"
+        saveFile: false
+        filename: "ExportedConfig.txt"
+      register: result

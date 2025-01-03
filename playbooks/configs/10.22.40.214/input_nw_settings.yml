@@ -1,0 +1,354 @@
+---
+#--------POSITIVE_CASE--------
+add_network_settings_global:
+  - network_management_details:
+    - site_name: Global
+      settings:
+        network_aaa:
+          primary_server_address: 204.192.1.249
+          protocol: RADIUS
+          server_type: AAA
+        client_and_endpoint_aaa:
+          primary_server_address: 204.192.1.252
+          secondary_server_address: 204.192.1.249
+          protocol: RADIUS
+          server_type: AAA
+        dhcp_server:
+          - 1.1.1.1
+        dns_server:
+          domain_name: abc.com
+          primary_ip_address: 1.1.1.1
+          secondary_ip_address: 2.2.2.2
+        ntp_server:
+          - 1.1.1.1
+        message_of_the_day:
+          banner_message: "{% raw %} Add network server with junk info {% endraw %}"
+          retain_existing_banner: False
+        netflow_collector:
+          ip_address: 10.10.10.10
+          port: 443
+        snmp_server:
+          configure_dnac_ip: True
+          ip_addresses:
+            - 1.1.1.1
+        syslog_server:
+          configure_dnac_ip: True
+          ip_addresses:
+            - 1.1.1.1
+        timezone: GMT
+
+update_network_settings_global:
+  - network_management_details:
+    - settings:
+        network_aaa:
+          pan_address: 172.23.241.229
+          primary_server_address: 172.23.241.229 #204.192.1.245
+          protocol: RADIUS
+          server_type: ISE
+        client_and_endpoint_aaa:
+          pan_address: 172.23.241.229
+          primary_server_address: 172.23.241.229
+          protocol: RADIUS
+          server_type: ISE
+        dhcp_server:
+          - 204.192.3.40
+          - 2004:192:3::40
+        dns_server:
+          domain_name: cisco.local
+          primary_ip_address: 204.192.3.40
+          secondary_ip_address: 2006:1:1::1
+        ntp_server:
+          - 204.192.3.40
+          - 1.1.1.1
+        message_of_the_day:
+          banner_message: "{% raw %} This Device is part of Solution Automation Testbed\n Please log off if you are not intended user\n Contact phannguy for further details\n {% endraw %}"
+          retain_existing_banner: False
+        netflow_collector:
+          ip_address: ""
+        snmp_server:
+          configure_dnac_ip: True
+          ip_addresses:
+            - 8.8.8.8
+            - 2.2.2.2
+        syslog_server:
+          configure_dnac_ip: True
+          ip_addresses:
+            - 6.6.6.6
+            - 3.3.3.3
+        timezone: America/Los_Angeles
+
+remove_network_settings_global:
+  - network_management_details:
+    - settings:
+        # network_aaa:
+        #   network: ""
+        #   protocol: ""
+        #   server_type: ""
+        # client_and_endpoint_aaa:
+        #   network:  "204.192.1.252"
+        #   ip_address:  204.192.1.249
+        #   protocol: RADIUS
+        #   server_type: AAA
+        dhcp_server: [""]
+        dns_server:
+          domain_name: ""
+          primary_ip_address: ""
+          secondary_ip_address: ""
+        ntp_server: [""]
+        message_of_the_day:
+          banner_message: "None"
+          retain_existing_banner: True
+        netflow_collector:
+          ip_address: ""
+        snmp_server:
+          configure_dnac_ip: False
+          ip_addresses: [""]
+        syslog_server:
+          configure_dnac_ip: False
+          ip_addresses: [""]
+        timezone: GMT
+      site_name: Global
+
+add_network_settings_site_specific:
+  - network_management_details:
+    - settings:
+        network_aaa:
+          primary_server_address: 204.192.1.249
+          protocol: RADIUS
+          server_type: AAA
+        client_and_endpoint_aaa:
+          primary_server_address: 204.192.1.252
+          secondary_server_address: 204.192.1.249
+          protocol: RADIUS
+          server_type: AAA
+        dhcp_server:
+          - 1.1.1.1
+        dns_server:
+          domain_name: abc.com
+          primary_ip_address: 1.1.1.1
+          secondary_ip_address: 2.2.2.2
+        ntp_server:
+          - 1.1.1.1
+        message_of_the_day:
+          banner_message: "{% raw %} Add network server with junk info in site-specific Global/India {% endraw %}"
+          retain_existing_banner: False
+        netflow_collector:
+          ip_address: 10.10.10.10
+          port: 443
+        snmp_server:
+          configure_dnac_ip: True
+          ip_addresses:
+            - 1.1.1.1
+        syslog_server:
+          configure_dnac_ip: True
+          ip_addresses:
+            - 1.1.1.1
+        timezone: GMT
+      site_name: Global/India
+
+update_network_settings_site_specific:
+  - network_management_details:
+    - settings:
+        network_aaa:
+          pan_address: 172.23.241.229
+          primary_server_address: 172.23.241.229 #204.192.1.245
+          protocol: RADIUS
+          server_type: ISE
+        client_and_endpoint_aaa:
+          pan_address: 172.23.241.229
+          primary_server_address: 172.23.241.229
+          protocol: RADIUS
+          server_type: ISE
+        dhcp_server:
+          - 204.192.3.40
+          - 2004:192:3::40
+        dns_server:
+          domain_name: cisco.local
+          primary_ip_address: 204.192.3.40
+          secondary_ip_address: 2006:1:1::1
+        ntp_server:
+          - 204.192.3.40
+          - 1.1.1.1
+        message_of_the_day:
+          banner_message: "{% raw %} Site-specific: Global/India .This Device is part of Solution Automation Testbed\n Please log off if you are not intended user\n Contact phannguy for further details\n {% endraw %}"
+          retain_existing_banner: False
+        netflow_collector:
+          ip_address: ""
+        snmp_server:
+          configure_dnac_ip: True
+          ip_addresses:
+            - 8.8.8.8
+            - 2.2.2.2
+        syslog_server:
+          configure_dnac_ip: True
+          ip_addresses:
+            - 6.6.6.6
+            - 3.3.3.3
+        timezone: America/Los_Angeles
+      site_name: Global/India
+#-----------------------------#
+
+
+#--------NEGATIVE_CASE--------
+update_aaa_invalid:
+  - network_management_details:
+    - settings:
+        network_aaa:
+          primary_server_address: 13.1.1.2
+          protocol: RADIUS
+          server_type: AAA
+
+update_aaa_invalid_1:
+  - network_management_details:
+    - settings:
+        network_aaa:
+          pan_address: 172.23.241.229
+          primary_server_address: 172.23.241.229 #204.192.1.245
+          protocol: RADIUS
+          server_type: ISE
+          shared_secret: Test123
+        client_and_endpoint_aaa:
+          pan_address: 172.23.241.229
+          primary_server_address: 172.23.241.229
+          protocol: RADIUS
+          server_type: ISE
+          shared_secret: Test1231
+
+update_motd_invalid:
+  - network_management_details:
+    - settings:
+        message_of_the_day:
+          banner_message: "{% raw %} Site-specific: Global. \n \n \n \n Negative case: banner has a length exceeds the maximum supported line length of 80 {% endraw %}"
+          retain_existing_banner: False
+
+update_motd_invalid_1:
+  - network_management_details:
+    - settings:
+        message_of_the_day:
+          banner_message: ""
+          retain_existing_banner: False
+
+update_site_invalid:
+  - network_management_details:
+    - settings:
+        message_of_the_day:
+          banner_message: "{% raw %} Site-specific: Global/afrgasf. The site is not available {% endraw %}"
+          retain_existing_banner: False
+      site_name: Global/afrgasf
+#-----------------------------#
+
+
+#----------NW_SETTING/PROVISION--------#
+motd_provision:
+  motd:
+    - network_management_details:
+      - settings:
+          message_of_the_day:
+            banner_message: "{% raw %} Site-specific: Global/USA/SAN JOSE/SJ_BLD23. Update for provision {% endraw %}"
+            retain_existing_banner: False
+          timezone: America/Los_Angeles
+        site_name: Global/USA/SAN JOSE/SJ_BLD23
+  provision:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.1
+
+shared_secret_provision:
+  shared_secret:
+    - network_management_details:
+      - settings:
+          network_aaa:
+            pan_address: 172.23.241.229
+            primary_server_address: 172.23.241.229 #204.192.1.245
+            protocol: RADIUS
+            server_type: ISE
+            shared_secret: Test123
+          client_and_endpoint_aaa:
+            pan_address: 172.23.241.229
+            primary_server_address: 172.23.241.229
+            protocol: RADIUS
+            server_type: ISE
+            shared_secret: Test123
+          timezone: America/Los_Angeles
+        site_name: Global/USA/SAN JOSE/SJ_BLD23
+  provision:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.1
+
+aaa_server_provision:
+  aaa_server:
+    - network_management_details:
+      - settings:
+          network_aaa:
+            primary_server_address: 204.192.1.249
+            secondary_server_address: 204.192.1.252
+            protocol: RADIUS
+            server_type: AAA
+          client_and_endpoint_aaa:
+            pan_address: 172.23.241.229
+            primary_server_address: 172.23.241.229 #204.192.1.245
+            protocol: RADIUS
+            server_type: ISE
+          timezone: America/Los_Angeles
+        site_name: Global/USA/SAN JOSE/SJ_BLD23
+  provision:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.1
+
+dhcp_dns_ntp_provision:
+  dhcp_dns_ntp:
+    - network_management_details:
+      - settings:
+          dhcp_server:
+            - 204.192.3.40
+            - 2004:192:3::40
+          dns_server:
+            domain_name: cisco.local
+            primary_ip_address: 204.192.3.40
+            secondary_ip_address: 2006:1:1::1
+          ntp_server:
+            - 204.192.3.40
+          timezone: America/Los_Angeles
+        site_name: Global/USA/SAN JOSE/SJ_BLD23
+  provision:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.1
+#---------------------------------------#
+
+
+#------------NW_SETTING/SETUP-----------#
+update_setup:
+  - network_management_details:
+    - settings:
+        network_aaa:
+          pan_address: 172.23.241.229
+          primary_server_address: 172.23.241.229 #204.192.1.245
+          protocol: RADIUS
+          server_type: ISE
+        client_and_endpoint_aaa:
+          pan_address: 172.23.241.229
+          primary_server_address: 172.23.241.229
+          protocol: RADIUS
+          server_type: ISE
+        dhcp_server:
+          - 204.192.3.40
+          - 2004:192:3::40
+        dns_server:
+          domain_name: cisco.local
+          primary_ip_address: 204.192.3.40
+          secondary_ip_address: 2006:1:1::1
+        ntp_server:
+          - 204.192.3.40
+        message_of_the_day:
+          banner_message: "{% raw %} This Device is part of Solution Automation Testbed\n Please log off if you are not intended user\n Contact phannguy for further details\n {% endraw %}"
+          retain_existing_banner: False
+        netflow_collector:
+          ip_address: ""
+        snmp_server:
+          configure_dnac_ip: True
+          ip_addresses:
+            - 8.8.8.8
+        syslog_server:
+          configure_dnac_ip: True
+          ip_addresses:
+            - 6.6.6.6
+        timezone: America/Los_Angeles

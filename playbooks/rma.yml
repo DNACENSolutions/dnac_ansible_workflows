@@ -1,0 +1,38 @@
+---
+- name: Playbook for RMA Workflow Manager module
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+  tasks:
+    - name: RMA workflow for Access Point
+      cisco.dnac.rma_workflow_manager:
+        <<: *common_config
+        state: replaced
+        config:
+          - faulty_device_ip_address:  204.192.106.10
+            replacement_device_ip_address: 204.192.106.3
+      tags: AP
+
+    - name: RMA workflow for Routers
+      cisco.dnac.rma_workflow_manager:
+        <<: *common_config
+        state: replaced
+        config:
+          - faulty_device_name: NY-BN-4-ISR4451-X.cisco.local
+            replacement_device_name: SJ-BN-2-ISR4451-X.cisco.local
+      tags: router
+  

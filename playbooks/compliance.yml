@@ -1,0 +1,122 @@
+---
+- name: Playbook for Network Compliance Workflow Manager Module
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - cc_config.yml
+    - "{{ config_compliance }}"
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+  tasks:
+    - name: Includes Compliance info
+      include_vars:
+        file: "{{ input_file }}"
+        name: vars_map
+      tags: always
+
+    - name: Run Compliance check on device(s) using Site name
+      cisco.dnac.network_compliance_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - site_name: "{{ vars_map.site_name }}"
+            run_compliance: True
+      tags: site_name
+
+    - name: Run Compliance check MIXED
+      cisco.dnac.network_compliance_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - run_compliance_categories:
+              [IMAGE, INTENT, PSIRT, EOX, RUNNING_CONFIG]
+            site_name: Global/USA/SAN-FRANCISCO/SF_BLD1
+            ip_address_list: [204.1.2.7, 204.1.2.9]
+            run_compliance: True
+            sync_device_config: True
+      tags: check_cat_site_ip
+
+    - name: Run Compliance check for IMAGE type
+      cisco.dnac.network_compliance_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - run_compliance_categories: ["IMAGE"]
+            ip_address_list: "{{ vars_map.device_list }}"
+            run_compliance: True
+      tags: image
+
+    - name: Run Compliance check for INTENT type
+      cisco.dnac.network_compliance_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - run_compliance_categories: ["INTENT"]
+            ip_address_list: "{{ vars_map.device_list }}"
+            run_compliance: True
+      tags: intent
+
+    - name: Run Compliance check for RUNNING_CONFIG type
+      cisco.dnac.network_compliance_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - run_compliance_categories: ["RUNNING_CONFIG"]
+            ip_address_list: "{{ vars_map.device_list }}"
+            run_compliance: True
+      tags: running_config
+
+    - name: Run Compliance check for PSIRT type
+      cisco.dnac.network_compliance_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - run_compliance_categories: ["PSIRT"]
+            ip_address_list: "{{ vars_map.device_list }}"
+            run_compliance: True
+      tags: psirt
+
+    - name: Run Compliance check for EOX type
+      cisco.dnac.network_compliance_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - run_compliance_categories: ["EOX"]
+            ip_address_list: "{{ vars_map.device_list }}"
+            run_compliance: True
+      tags: eox
+
+    - name: Run Compliance check for NETWORK_SETTINGS type
+      cisco.dnac.network_compliance_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - run_compliance_categories: ["NETWORK_SETTINGS"]
+            ip_address_list: "{{ vars_map.device_list }}"
+            run_compliance: True
+      tags: network_settings
+
+    - name: Sync Device Configuration
+      cisco.dnac.network_compliance_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - ip_address_list: "{{ vars_map.sync_device.ip }}"
+            run_compliance_categories: ["RUNNING_CONFIG"]
+            run_compliance: True
+            sync_device_config: True
+      tags: sync_config

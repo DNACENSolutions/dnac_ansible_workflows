@@ -1,0 +1,5 @@
+input_file: ../configs/common/input_user_role.yml
+
+user_role_template_input: ../configs/common/input_scale_user_role.j2
+
+user_role_template_output: ../configs/common/input_scale_user_role_{{ start }}_{{ count }}.yml

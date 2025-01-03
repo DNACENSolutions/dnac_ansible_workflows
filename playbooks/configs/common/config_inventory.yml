@@ -1,0 +1,10 @@
+# Copyright 2024 Cisco Systems, Inc. and its affiliates
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+input_file: ../configs/{{ dnac_host }}/input_inventory.yml
+
+input_file_regr: ../configs/{{ dnac_host }}/input_inventory_regr.yml
+
+inventory_template_input: ../configs/common/inventory_scale.j2
+
+inventory_template_output: ../configs/common/input_inventory_scale_{{ start_ip }}-{{ end_ip }}.yml

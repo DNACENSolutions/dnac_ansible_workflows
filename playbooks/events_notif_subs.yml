@@ -1,0 +1,872 @@
+---
+- name: Configure channels and create events in Cisco Catalyst Center
+  hosts:
+    - dnac
+    - syslog_server
+  connection: local
+  gather_facts: false
+  ignore_errors: false
+
+  vars_files:
+    - cc_config.yml
+    - "{{ config_event_notification }}"
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: true
+  tasks:
+    # Uncomment below task if Vault is used to store credentials
+    - name: Include vault variables
+      ansible.builtin.include_vars:
+        file: "{{ SECRET }}"
+        name: cred_map
+      no_log: true
+      tags: always
+
+    - name: Include INPUT file
+      when: inventory_hostname in groups['dnac']
+      ansible.builtin.include_vars:
+        file: "{{ input_file_regr }}"
+        name: vars_map
+      no_log: true
+      tags: always
+
+    # Read SYSLOG Message #
+    # - name: Read the last 50 lines of syslog
+    #   connection: ssh
+    #   remote_user: "{{ syslog_username }}"
+    #   when: inventory_hostname in groups['syslog_server']
+    #   vars:
+    #     ansible_password: "{{ syslog_password }}"
+    #   ansible.builtin.command:
+    #     cmd: "tail -n 10 {{ syslog_destination }}"
+    #   register: syslog_contents
+    #   tags: syslog
+
+    # - name: Print the syslog contents
+    #   when: inventory_hostname in groups['syslog_server']
+    #   ansible.builtin.debug:
+    #     msg: "{{ syslog_contents.stdout_lines }}"
+    #   tags: syslog
+
+    ################ Negative TESTCASES ##################
+
+    #TC1
+    # Adding/Updating WEBHOOK Destination in Catalyst Center
+    - name: Add/update Webhook destination with incorrect IPv4 in URL. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_neg[0]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: webhook_dest_ipv4_neg
+
+    #TC2
+    - name: Add/update Webhook destination with incorrect IPv6 in URL. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_neg[1]] }}"
+      register: result
+      failed_when: result is successful
+      tags: webhook_dest_ipv6_neg
+
+    #TC3
+    - name: Add/update Webhook destination with incorrect method. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_neg[2]] }}"
+      register: result
+      failed_when: result is successful
+      tags: webhook_dest_method_neg
+
+    #TC4
+    - name: Add/update Webhook destination with missing URL. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_neg[3]] }}"
+      register: result
+      failed_when: result is successful
+      tags: webhook_dest_url_neg
+
+    #TC5
+    - name: Add/update Webhook destination with missing https://. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_neg[4]] }}"
+      register: result
+      failed_when: result is successful
+      tags: webhook_dest_url_form_neg
+
+    #TC6
+    - name: Add/update Webhook destination with null method. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_neg[5]] }}"
+      register: result
+      failed_when: result is successful
+      tags: webhook_dest_method_neg
+
+    #TC7
+    - name: Add/update Webhook destination with null NAME. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_neg[6]] }}"
+      register: result
+      failed_when: result is successful
+      tags: webhook_dest_name_neg
+
+    #TC8
+    # Adding/Updating WEBHOOK Event Subscription in Catalyst Center
+    - name: Add/Update Webhook events subscription with SITE not present in Cisco Catalyst Center. (NEGATIVE_CASE)
+      # Site is not a madatory parameter for site creation
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_subs_neg[0]] }}"
+      tags: webhook_subs_site_neg
+
+    #TC9
+    - name: Add/Update Webhook events subscription with null SITE in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_subs_neg[1]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: webhook_subs_site_null_neg
+
+    #TC10
+    - name: Add/Update Webhook events subscription with unsupported EVENT in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_subs_neg[2]] }}"
+      register: result
+      failed_when: result is successful
+      tags: webhook_subs_event_neg
+
+    #TC11
+    - name: Add/Update Webhook events subscription with null EVENT in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_subs_neg[3]] }}"
+      register: result
+      failed_when: result is successful
+      tags: webhook_subs_event_null_neg
+
+    #TC12
+    - name: Add/Update Webhook events subscription with DESTINAITON not in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_subs_neg[4]] }}"
+      register: result
+      failed_when: result is successful
+      tags: webhook_subs_dest_neg
+
+    #TC13
+    - name: Add/Update Webhook events subscription with null DESTINAITON in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.webhook_subs_neg[5]] }}"
+      register: result
+      failed_when: result is successful
+      tags: webhook_subs_dest_null_neg
+
+    #TC14
+    # Adding/Updating SYSLOG Destination in Catalyst Center
+    - name: Add/update Syslog with destination with wrong PROTOCOL in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_neg[0]] }}"
+      register: result
+      failed_when: result is successful
+      tags: syslog_dest_protocol_neg
+
+    #TC15
+    - name: Add/update Syslog with destination with wrong PORT in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_neg[1]] }}"
+      register: result
+      failed_when: result is successful
+      tags: syslog_dest_port_neg
+
+    #TC16
+    - name: Add/update Syslog with destination with wrong IPV4 in server address in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_neg[2]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: syslog_dest_ipv4_neg
+
+    #TC17
+    - name: Add/update Syslog with destination with wrong IPV6 in server address in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_neg[3]] }}"
+      register: result
+      failed_when: result is successful
+      tags: syslog_dest_ipv6_neg
+
+    #TC17
+    - name: Add/update Syslog with destination with null in server address in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_neg[4]] }}"
+      register: result
+      failed_when: result is successful
+      tags: syslog_dest_null_serv_neg
+
+    #TC18
+    - name: Add/update Syslog with destination with null in Name in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_neg[5]] }}"
+      register: result
+      failed_when: result is successful
+      tags: syslog_dest_null_name_neg
+
+    #TC19
+    - name: Add/update Syslog with destination with null in port in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_neg[6]] }}"
+      register: result
+      failed_when: result is successful
+      tags: syslog_dest_null_port_neg
+
+    #TC20
+    - name: Add/update Syslog with destination with null in port in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_neg[7]] }}"
+      register: result
+      failed_when: result is successful
+      tags: syslog_dest_null_port_neg
+
+    #TC21
+    - name: Create/Update SYSLOG events subscription with SITE not present in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_subs_neg[0]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: syslog_subs_site_neg
+
+    #TC22
+    - name: Create/Update SYSLOG events subscription with DESTINATION not present in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_subs_neg[1]] }}"
+      register: result
+      failed_when: result is successful
+      tags: syslog_subs_dest_neg
+
+    #TC23
+    - name: Create/Update SYSLOG events subscription with DESTINATION null in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_subs_neg[2]] }}"
+      register: result
+      failed_when: result is successful
+      tags: syslog_subs_dest_null_neg
+
+    #TC24
+    - name: Create/Update SYSLOG events subscription with SITE null in Cisco Catalyst Center. (NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.syslog_subs_neg[3]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: syslog_subs_site_null_neg
+
+    #TC24
+    - name: Add/update Email destination with null SUBJECT in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_neg[0]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: email_dest_subject_neg
+
+    #TC25
+    - name: Add/update Email destination with null SENDER EMAIL in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_neg[1]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: email_dest_send_neg
+
+    #TC26
+    - name: Add/update Email destination with null RECEIPIENT EMAIL in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_neg[2]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: email_dest_recp_neg
+
+    #TC27
+    - name: Add/update Email destination with wrong port prim in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_neg[3]] }}"
+      register: result
+      failed_when: result is successful #for DNAC 2.3.7.6 onwards
+      tags: email_dest_port_prim_neg
+
+    #TC28
+    - name: Add/update Email destination with wrong port secondary in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_neg[4]] }}"
+      register: result
+      failed_when: result is successful #for DNAC 2.3.7.6 onwards
+      tags: email_dest_port_sec_neg
+
+    #TC29
+    - name: Add/update Email destination with wrong IPv4 in server address prim in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_neg[5]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: email_dest_serv_prim_ipv4_neg
+
+    #TC30
+    - name: Add/update Email destination with wrong IPv4 in server address secondary in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_neg[6]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: email_dest_serv_sec_ipv4_neg
+
+    #TC31
+    - name: Add/update Email destination with wrong IPv6 in server address prim in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_neg[7]] }}"
+      register: result
+      failed_when: result is successful
+      tags: email_dest_serv_prim_ipv6_neg
+
+    #TC32
+    - name: Add/update Email destination with wrong IPv6 in server address sec in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_neg[8]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: email_dest_serv_sec_ipv6_neg
+
+    #TC33
+    - name: Create/Update Email events subscription with SITES not in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_subs_neg[0]]  }}"
+      register: result
+      # failed_when: result is successful
+      tags: email_subs_site_neg
+
+    #TC34
+    - name: Create/Update Email events subscription with no SENDER EMAIL in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_subs_neg[1]]  }}"
+      register: result
+      failed_when: result is successful
+      tags: email_subs_sender_neg
+
+    #TC35
+    - name: Create/Update Email events subscription with no RECEIPIENT EMAIL in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_subs_neg[2]] }}"
+      register: result
+      failed_when: result is successful
+      tags: email_subs_recp_neg
+
+    #TC36
+    - name: Create/Update Email events subscription with no SUBJECT in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_subs_neg[3]] }}"
+      register: result
+      failed_when: result is successful
+      tags: email_subs_subject_neg
+
+    #TC37
+    - name: Create/Update Email events subscription with null INSTANCE in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_subs_neg[4]] }}"
+      register: result
+      failed_when: result is successful
+      tags: email_subs_inst_neg
+
+    #TC38
+    - name: Create/Update Email events subscription with UNSUPPORTED EVENT in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.email_subs_neg[5]] }}"
+      register: result
+      failed_when: result is successful
+      tags: email_subs_unsupp_neg
+
+    #TC39
+    - name: Add/update SNMP destination with wrong IPv4 Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.snmp_neg[0]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: snmp_dest_ipv4_neg
+
+    #TC40
+    - name: Add/update SNMP destination with wrong IPv6 Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.snmp_neg[1]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: snmp_dest_ipv6_neg
+
+    #TC41
+    - name: Add/update SNMP destination with wrong Port(higher than 65535) Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.snmp_neg[2]] }}"
+      register: result
+      failed_when: result is successful
+      tags: snmp_dest_port_neg
+
+    #TC42
+    - name: Add/update SNMP destination with incorrect SNMP version Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.snmp_neg[3]] }}"
+      register: result
+      failed_when: result is successful
+      tags: snmp_dest_version_neg
+
+    #TC43
+    - name: Add/update SNMP destination with null Community String Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.snmp_neg[4]] }}"
+      register: result
+      failed_when: result is successful
+      tags: snmp_dest_comm_neg
+
+    #TC44
+    - name: Add/update SNMP destination with incorrect SNMPv3 MODE Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.snmp_neg[5]] }}"
+      register: result
+      failed_when: result is successful
+      tags: snmp_dest_mode_neg
+
+    #TC45
+    - name: Add/update SNMP destination with incorrect SNMPv3 AUTH_TYPE Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.snmp_neg[6]] }}"
+      register: result
+      failed_when: result is successful
+      tags: snmp_dest_auth_type_neg
+
+    #TC46
+    - name: Add/update SNMP destination with incorrect SNMPv3 PRIVACY_TYPE Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.snmp_neg[7]] }}"
+      register: result
+      failed_when: result is successful
+      tags: snmp_dest_priv_type_neg
+
+    #TC47
+    - name: Add/update SNMP destination with missing SNMPv3 AUTH_PASSWORD Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.snmp_neg[8]] }}"
+      register: result
+      failed_when: result is successful
+      tags: snmp_dest_auth_pass_neg
+
+    #TC48
+    - name: Add/update SNMP destination with missing SNMPv3 PRIVACY_PASSWORD Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.snmp_neg[9]] }}"
+      register: result
+      failed_when: result is successful
+      tags: snmp_dest_priv_pass_neg
+
+    #TC49
+    - name: Add/update SNMP destination with missing SNMPv3 USERNAME Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.snmp_neg[10]] }}"
+      register: result
+      failed_when: result is successful
+      tags: snmp_dest_username_neg
+
+    #TC50
+    - name: Add/update ITSM Destination with incorrect URL format(missing https://) in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.itsm_neg[0]] }}"
+      register: result
+      failed_when: result is successful
+      tags: itsm_dest_url_neg
+
+    #TC51
+    - name: Add/update ITSM Destination with incorrect IPv4 in URL in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.itsm_neg[1]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: itsm_dest_ipv4_neg
+
+    #TC52
+    - name: Add/update ITSM Destination with incorrect IPv6 in URL in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.itsm_neg[2]] }}"
+      register: result
+      # failed_when: result is successful
+      tags: itsm_dest_ipv6_neg
+
+    #TC53
+    - name: Add/update ITSM Destination with null USERNAME in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.itsm_neg[3]] }}"
+      register: result
+      failed_when: result is successful
+      tags: itsm_dest_user_neg
+
+    #TC54
+    - name: Add/update ITSM Destination with null PASSWORD in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.itsm_neg[4]] }}"
+      register: result
+      failed_when: result is successful
+      tags: itsm_dest_user_neg
+
+    #TC55
+    - name: Add/update ITSM Destination with null URL in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.itsm_neg[5]] }}"
+      register: result
+      failed_when: result is successful
+      tags: itsm_dest_user_neg
+
+    #TC56
+    - name: Add/update ITSM Destination with null INSTANCE_NAME in Cisco Catalyst Center.(NEGATIVE_CASE)
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ [vars_map.itsm_neg[5]] }}"
+      register: result
+      failed_when: result is successful
+      tags: itsm_dest_instance_neg
+
+    #TC57
+    - name: Delete ITSM with destination.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config: "{{ vars_map.itsm_neg }}"
+      tags: delete_itsm_dest_neg
+
+    #TC58
+    - name: Create Events subscription in Cisco Catalyst Center ALL AT ONCE(BULK OPERATION).
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.webhook_subs_neg + vars_map.syslog_subs_neg + vars_map.email_subs_neg }}"
+      register: result
+      failed_when: result is successful
+      tags: create_subs_neg
+
+    #TC59
+    - name: Delete Events subscription in Cisco Catalyst Center ALL AT ONCE(BULK OPERATION).
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config: "{{ vars_map.webhook_subs_neg + vars_map.syslog_subs_neg + vars_map.email_subs_neg }}"
+      register: result
+      failed_when: result is successful
+      tags: delete_subs_neg
+
+    ##################Positive Test Cases####################
+
+    #TC60
+    - name: Add/update Webhook with destination and create/update events in Cisco Catalyst Center.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.webhook }}"
+      tags: webhook_dest
+
+    #TC61
+    - name: Add/Update Webhook events subscription in Cisco Catalyst Center.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.webhook_subs }}"
+      tags: webhook_subs
+
+    #TC62
+    - name: Delete Webhook events subscription in Cisco Catalyst Center.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config: "{{ vars_map.webhook_subs }}"
+      tags: delete_webhook_subs
+
+    #TC63
+    - name: Add/update Syslog destination in Cisco Catalyst Center.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.syslog }}"
+      tags: syslog_dest
+
+    #TC64
+    - name: Create/Update events subscription in Cisco Catalyst Center.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.syslog_subs }}"
+      tags: syslog_subs
+
+    #TC65
+    - name: Delete Syslog events subscription in Cisco Catalyst Center.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config: "{{ vars_map.syslog_subs }}"
+      tags: delete_syslog_subs
+
+    #TC66
+    - name: Add/update Email with destination in Cisco Catalyst Center.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.email }}"
+      tags: email_dest
+
+    #TC67
+    - name: Create/Update Email events subscription in Cisco Catalyst Center.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.email_subs }}"
+      tags: email_subs
+
+    #TC68
+    - name: Delete Email events subscription in Cisco Catalyst Center.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config: "{{ vars_map.email_subs}}"
+      tags: delete_email_subs
+
+    #TC69
+    - name: Add/update SNMP with destination and create/update events in Cisco Catalyst Center.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.snmp }}"
+      tags: snmp_dest
+
+    #TC70
+    - name: Add/update ITSM with destination and create/update events in Cisco Catalyst Center.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.itsm }}"
+      tags: itsm_dest
+
+    #TC71
+    - name: Delete ITSM with destination.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config: "{{ vars_map.itsm }}"
+      tags: delete_itsm_dest
+
+    #TC72
+    - name: Create all Destinations
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        #for 2.3.7.6
+        config: "{{ vars_map.webhook + vars_map.email + vars_map.syslog + vars_map.snmp + vars_map.itsm }}"
+        #for 2.3.5.3 as currently NO API SUPPORT FOR SNMP IS AVAILABLE
+        # config: "{{ vars_map.webhook + vars_map.email + vars_map.syslog + vars_map.itsm }}"
+      tags: create_dest
+
+    #TC73
+    - name: Create all subscriptions.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.email_subs + vars_map.webhook_subs + vars_map.syslog_subs }}"
+      tags: create_subs
+
+    #TC74
+    - name: Delete all subscriptions.
+      when: inventory_hostname in groups['dnac']
+      cisco.dnac.events_and_notifications_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config: "{{ vars_map.email_subs + vars_map.webhook_subs + vars_map.syslog_subs }}"
+      tags: delete_subs

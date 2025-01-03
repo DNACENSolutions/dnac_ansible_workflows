@@ -1,0 +1,210 @@
+---
+#Configuring Destinations
+webhook:
+  - webhook_destination:
+      name: webhook demo 102
+      description: Webhook Demo Test SEEN-4890-01
+      url: https://4.5.6.8/dnac_test_webhook
+      method: POST
+      trust_cert: false
+      headers: #Optional Parameter
+        - name: Header1
+          value: Header_Value1
+          encrypt: false
+        - name: Header2
+          value: Header_Value2
+          encrypt: false
+      is_proxy_route: false
+  - webhook_destination:
+      name: webhook demo 103
+      description: Webhook Demo Test SEEN-4890-02
+      url: https://webhook.cisco.com/dna_test_webhook
+      method: PUT
+      trust_cert: false
+      is_proxy_route: true
+syslog:
+  - syslog_destination:
+      name: Test_Syslog 101
+      description: Adding random IP Test 01
+      server_address: 10.195.247.247
+      protocol: UDP
+      port: 514
+  - syslog_destination:
+      name: Test_Syslog 102
+      description: Adding random URL Test 02
+      server_address: syslog.cisco.com
+      protocol: TCP
+      port: 514
+email:
+  - email_destination:
+      sender_email: "DNAC@cisco.com"
+      recipient_email: "uchandan@cisco.com"
+      subject: "Ansible IaC testing 001"
+      primary_smtp_config:
+        server_address: mail.cisco.com
+        port: "465"
+        smtp_type: "SSL"
+        username: "{{ cred_map.email_user_prim }}"
+        password: "{{ cred_map.email_pass_prim }}"
+      secondary_smtp_config:
+        server_address: outbound.cisco.com
+        port: "587"
+        smtp_type: "TLS"
+        username: "{{ cred_map.email_user_sec }}"
+        password: "{{ cred_map.email_pass_sec }}"
+snmp:
+  - snmp_destination:
+      name: SNMP
+      description: Test Cisco SNMP
+      server_address: 23.2.34.34
+      port: 161
+      snmp_version: V2C
+      community: "{{ cred_map.snmp_community }}"
+  - snmp_destination:
+      name: SNMP V3
+      description: Testing DNAC for SNMPv3
+      server_address: 2.7.4.5
+      port: 161
+      snmp_version: V3
+      username: cisco123
+      mode: AUTH_PRIVACY
+      auth_type: SHA
+      auth_password: "{{ cred_map.snmp_auth_pass }}"
+      privacy_type: AES128
+      privacy_password: "{{ cred_map.snmp_priv_pass}}"
+
+itsm:
+  - itsm_setting:
+      instance_name: "Playbook itsm demo 01"
+      description: "ITSM description for testing"
+      connection_settings:
+        url: "https://ventest1.service-now.com/"
+        username: "{{ cred_map.itsm_username }}"
+        password: "{{ cred_map.itsm_password }}"
+  - itsm_setting:
+      instance_name: "ITSM_Demo_test 02"
+      description: "ITSM description for testing"
+      connection_settings:
+        url: "https://ciscotest13.servicenow.com"
+        username: "{{ cred_map.itsm_username }}"
+        password: "{{ cred_map.itsm_password }}"
+
+#Configuring Subscriptions
+webhook_subscription:
+  - webhook_event_notification:
+      name: Webhook Notification SEEN-4890-01
+      description: Notification for webhook events subscription 001
+      sites:
+        - Global/India
+        - Global/USA
+      events:
+        - AP Flap
+        - AP Reboot Crash
+        - AP disconnected from WLC
+        - Switch Power Failure
+        - Switch Experiencing High CPU utilization
+        - High input/output Error on Switch Interfaces
+      destination: webhook demo 102
+  - webhook_event_notification:
+      name: Webhook Notification SEEN-4890-02
+      description: Notification for webhook events subscription 002
+      sites:
+        - Global/India
+        - Global/USA
+      events:
+        - AP Flap
+        - AP disconnected from WLC
+        - Switch Unreachable
+        - Switch Experiencing High CPU utilization
+        - High input/output Error on Switch Interfaces
+      destination: webhook demo 103
+  - webhook_event_notification:
+      name: Webhook Notification SEEN-4890-03
+      description: Notification for webhook events subscription 003
+      sites:
+        - Global/India
+        - Global/USA
+        - Global/Australia
+      events:
+        - AP Flap
+        - AP Reboot Crash
+        - AP disconnected from WLC
+        - Switch Unreachable
+        - Switch Experiencing High CPU utilization
+        - High input/output Error on Switch Interfaces
+      destination: webhook demo 103
+email_subscription:
+  - email_event_notification:
+      name: EMAIL Notification SEEN-4890-04-sanity
+      description: Notification description for email subscription creation 01
+      sites:
+        - Global/India
+        - Global/USA
+        - Global/Australia
+      events:
+        - AP Flap
+        - AP disconnected from WLC
+        - Switch Power Failure
+        - Switch Unreachable
+        - Switch Experiencing High CPU utilization
+        - High input/output Error on Switch Interfaces
+      sender_email: catalyst@cisco.com
+      recipient_emails:
+        - noc@cisco.com
+        - soc@cisco.com
+      subject: Mail test
+      instance: Email Instance test
+      instance_description: Email Instance description 1
+  - email_event_notification:
+      name: EMAIL Notification SEEN-4890-05-sanity
+      description: Notification description for email subscription creation 02
+      sites:
+        - Global/India
+        - Global/USA
+        - Global/Australia
+      events:
+        - AP Reboot Crash
+        - AP disconnected from WLC
+        - Switch Power Failure
+        - Switch Unreachable
+        - Switch Experiencing High CPU utilization
+        - High input/output Error on Switch Interfaces
+      sender_email: catalyst@cisco.com
+      recipient_emails:
+        - noc@cisco.com
+        - soc@cisco.com
+      subject: Mail test
+      instance: Email Instance test
+      instance_description: Email Instance description 2
+syslog_subscription:
+  - syslog_event_notification:
+      name: Syslog Notification 001
+      description: Subscription for syslog events notification Test 001
+      sites:
+        - Global/India
+        - Global/USA
+        - Global/Australia
+      events:
+        - AP Flap
+        - AP Reboot Crash
+        - AP disconnected from WLC
+        - Switch Power Failure
+        - Switch Unreachable
+        - Switch Experiencing High CPU utilization
+        - High input/output Error on Switch Interfaces
+      destination: Test_Syslog 101
+  - syslog_event_notification:
+      name: Syslog Notification 002
+      description: Subscription for syslog events notification Test 002
+      sites:
+        - Global/India
+        - Global/USA
+        - Global/Australia
+      events:
+        - AP Flap
+        - AP Reboot Crash
+        - AP disconnected from WLC
+        - Switch Unreachable
+        - Switch Experiencing High CPU utilization
+        - High input/output Error on Switch Interfaces
+      destination: Test_Syslog 102

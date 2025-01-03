@@ -1,0 +1,263 @@
+asgn_wired:
+  assign_wired:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.3
+      provisioning: False
+  unknow_ip:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 1.1.1.1
+      provisioning: False
+  unknow_site:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23333333
+      management_ip_address: 204.1.2.1
+      provisioning: False
+  to_area:
+    - site_name_hierarchy: Global
+      management_ip_address: 204.1.2.1
+      provisioning: False
+  to_area_2:
+    - site_name_hierarchy: Global/USA
+      management_ip_address: 204.1.2.1
+      provisioning: False
+  to_floor:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
+      management_ip_address: 204.1.2.1
+      provisioning: False
+
+prov_wired:
+  wired_dev:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD1
+      management_ip_address: 204.1.2.4
+  without_assign:
+    - management_ip_address: 204.1.2.2
+  unknow_site:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD2111111111111
+      management_ip_address: 204.1.2.2
+  to_area:
+    - site_name_hierarchy: Global
+      management_ip_address: 204.1.2.2
+  unknow_ip:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD2
+      management_ip_address: 204.1.2.233333
+#Todo
+prov_wlc:
+  wireless:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.192.4.200
+      managed_ap_locations: 
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR2
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR3
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR4
+  without_ap_location:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD3
+      management_ip_address: 204.192.6.200
+  ap_location_string:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD3
+      management_ip_address: 204.192.6.200
+      managed_ap_locations: 
+        - Global/USA/New York/NY_BLD3/FLOOR1
+          Global/USA/New York/NY_BLD3/FLOOR2
+          Global/USA/New York/NY_BLD3/FLOOR3
+          Global/USA/New York/NY_BLD3/FLOOR4
+  ap_location_area:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD3
+      management_ip_address: 204.192.6.200
+      managed_ap_locations: 
+        - Global/USA
+        - Global/USA
+        - Global/USA
+  ap_location_site:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD3
+      management_ip_address: 204.192.6.200
+      managed_ap_locations: 
+        - Global/USA/New York
+        - Global/USA/New York
+        - Global/USA/New York
+  ap_location_building:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD3
+      management_ip_address: 204.192.6.200
+      managed_ap_locations: 
+        - Global/USA/New York/NY_BLD3
+        - Global/USA/New York/NY_BLD3
+        - Global/USA/New York/NY_BLD3
+        - Global/USA/New York/NY_BLD3
+  ap_location_not_assign_to_nw_profile:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD3
+      management_ip_address: 204.192.6.200
+      managed_ap_locations: 
+        - Global/USA/New York/NY_BLD3/FLOOR1
+        - Global/USA/New York/NY_BLD3/FLOOR2
+        - Global/USA/New York/NY_BLD3/FLOOR3
+        - Global/USA/New York/NY_BLD3/FLOOR4
+  unknow_ap_location:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD3
+      management_ip_address: 204.192.6.200
+      managed_ap_locations: 
+        - Global/USA/New York/NY_BLD33333/FLOOR1
+        - Global/USA/New York/NY_BLD33333/FLOOR2
+        - Global/USA/New York/NY_BLD33333/FLOOR3
+        - Global/USA/New York/NY_BLD33333/FLOOR4
+  to_area:
+    - site_name_hierarchy: Global/USA
+      management_ip_address: 204.192.6.200
+      managed_ap_locations: 
+        - Global/USA/New York/NY_BLD3/FLOOR1
+        - Global/USA/New York/NY_BLD3/FLOOR2
+        - Global/USA/New York/NY_BLD3/FLOOR3
+        - Global/USA/New York/NY_BLD3/FLOOR4
+  to_site:
+    - site_name_hierarchy: Global/USA/SAN JOSE
+      management_ip_address: 204.192.6.200
+      managed_ap_locations: 
+        - Global/USA/New York/NY_BLD3/FLOOR1
+        - Global/USA/New York/NY_BLD3/FLOOR2
+        - Global/USA/New York/NY_BLD3/FLOOR3
+        - Global/USA/New York/NY_BLD3/FLOOR4
+  to_floor:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD3/BLD20_FLOOR2
+      management_ip_address: 204.192.6.200
+      managed_ap_locations: 
+        - Global/USA/New York/NY_BLD3/FLOOR1
+        - Global/USA/New York/NY_BLD3/FLOOR2
+        - Global/USA/New York/NY_BLD3/FLOOR3
+        - Global/USA/New York/NY_BLD3/FLOOR4
+  unknow_ip:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD3
+      management_ip_address: 204.192.6.202222222222
+      managed_ap_locations: 
+        - Global/USA/New York/NY_BLD3/FLOOR1
+        - Global/USA/New York/NY_BLD3/FLOOR2
+        - Global/USA/New York/NY_BLD3/FLOOR3
+        - Global/USA/New York/NY_BLD3/FLOOR4
+
+re_prov_wired:
+  wired:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.3
+  without_site:
+    - management_ip_address: 204.1.2.3
+  to_diff_site:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+      management_ip_address: 204.1.2.3
+
+re_prov_wlc:
+  wireless:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.192.4.200
+      managed_ap_locations: 
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR2
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR3
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR4
+  without_site:
+    - management_ip_address: 204.192.4.200
+      managed_ap_locations: 
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR2
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR3
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR4
+  to_diff_site:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.192.4.200
+      managed_ap_locations: 
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR2
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR3
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR4
+  fewer_ap:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.192.4.200
+      managed_ap_locations: 
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
+
+un_prov:
+  clean_true:
+    - ip_address_list: 
+      - 204.1.2.1
+      clean_config: true
+  clean_false:
+    - ip_address_list: 
+      - 204.1.2.2
+      clean_config: false
+  method_merged:
+    - ip_address_list: 
+      - 204.1.2.4
+      clean_config: false
+  unknow_ip:
+    - ip_address_list: 
+      - 204.1.2.122222
+      clean_config: false
+  non_prov_dev:
+    - ip_address_list: 
+      - 204.1.2.70
+      clean_config: false
+
+multi_wired:
+  assign:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.1
+      provisioning: False
+    - site_name_hierarchy: Global/USA/New York/NY_BLD2
+      management_ip_address: 204.1.2.2
+      provisioning: False
+    - site_name_hierarchy: Global/USA/New York/NY_BLD2
+      management_ip_address: 204.1.2.4
+      provisioning: False
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.70
+      provisioning: False
+
+  provision:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.3
+    - site_name_hierarchy: Global/USA/New York/NY_BLD1
+      management_ip_address: 204.1.2.4
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.1
+    - site_name_hierarchy: Global/USA/New York/NY_BLD1
+      management_ip_address: 204.1.2.2
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.5
+
+  un_provision:
+    - ip_address_list: 
+      - 204.1.2.1
+      clean_config: false
+    - ip_address_list: 
+      - 204.1.2.2
+      clean_config: false
+    - ip_address_list: 
+      - 204.1.2.4
+      clean_config: false
+    - ip_address_list: 
+      - 204.1.2.70
+      clean_config: false
+
+multi_wireless:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.192.4.200
+      managed_ap_locations: 
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR2
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR3
+        - Global/USA/SAN JOSE/SJ_BLD23/FLOOR4
+    - site_name_hierarchy: Global/USA/New York/NY_BLD3
+      management_ip_address: 204.192.6.200
+      managed_ap_locations: 
+        - Global/USA/New York/NY_BLD3/FLOOR1
+        - Global/USA/New York/NY_BLD3/FLOOR2
+        - Global/USA/New York/NY_BLD3/FLOOR3
+        - Global/USA/New York/NY_BLD3/FLOOR4
+    - site_name_hierarchy: Global/USA/New York/NY_BLD4
+      management_ip_address: 204.192.6.202
+      managed_ap_locations: 
+        - Global/USA/New York/NY_BLD4/FLOOR1
+        - Global/USA/New York/NY_BLD4/FLOOR2
+        - Global/USA/New York/NY_BLD4/FLOOR3
+        - Global/USA/New York/NY_BLD4/FLOOR4
+
+test:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 204.1.2.70
+      provisioning: False

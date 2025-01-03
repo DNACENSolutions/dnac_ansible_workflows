@@ -1,0 +1,331 @@
+---
+- name: Provision devices
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - cc_config.yml
+    - "{{ config_provision }}"
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+  tasks:
+    - name: Includes Provision info
+      include_vars:
+        file: "{{ input_file }}"
+        name: vars_map
+      tags: always
+
+    - name: Provision task - Assign device to site (Wired device)
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD1
+            management_ip_address: 204.1.2.7
+            provisioning: False
+      tags: assign_wired
+
+    - name: Provision task - Provision wired device
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wired.wired_dev }}"
+      tags: [prov_wired, prov_devices]
+
+    - name: Provision task - Provision wireless device
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+            management_ip_address: 204.192.4.200
+            managed_ap_locations: 
+              - Global/USA/SAN JOSE/SJ_BLD21/FLOOR1
+              - Global/USA/SAN JOSE/SJ_BLD21/FLOOR2
+              - Global/USA/SAN JOSE/SJ_BLD21/FLOOR3
+              - Global/USA/SAN JOSE/SJ_BLD21/FLOOR4
+      tags: [prov_wireless, prov_devices]
+
+    - name: Provision task - Provision wireless device without managed_ap_locations
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wlc.without_ap_location }}"
+      tags: prov_wlc_without_ap_location
+
+    - name: Provision task - Provision wireless device but managed_ap_locations is string
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wlc.ap_location_string }}"
+      tags: prov_wlc_ap_location_string
+
+    - name: Provision task - Provision wireless device but managed_ap_locations is area
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wlc.ap_location_area }}"
+      tags: prov_wlc_ap_location_area
+
+    - name: Provision task - Provision wireless device but managed_ap_locations is site
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wlc.ap_location_site }}"
+      tags: prov_wlc_ap_location_site
+
+    - name: Provision task - Provision wireless device but managed_ap_locations is building
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wlc.ap_location_building }}"
+      tags: prov_wlc_ap_location_building
+
+    - name: Provision task - Provision wireless device but managed_ap_locations are not assign to any wireless profile
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wlc.ap_location_not_assign_to_nw_profile }}"
+      tags: ap_location_not_assign_to_nw_profile
+
+    - name: Provision task - Provision wireless device but provide unknow managed_ap_locations
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wlc.unknow_ap_location }}"
+      tags: prov_wlc_unknow_ap_location
+
+    - name: Provision task - Provision wireless device but provide area to site_name_hierarchy
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wlc.to_area }}"
+      tags: prov_wlc_to_area
+
+    - name: Provision task - Provision wireless device but provide site to site_name_hierarchy
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wlc.to_site }}"
+      tags: prov_wlc_to_site
+
+    - name: Provision task - Provision wireless device but provide floor to site_name_hierarchy
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wlc.to_floor }}"
+      tags: prov_wlc_to_floor
+
+    - name: Provision task - Provision wireless device but provide unknow ip address
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.prov_wlc.unknow_ip }}"
+      tags: prov_wlc_unknow_ip
+
+    - name: Provision task - Re-Provision wired device
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.re_prov_wired.wired }}"
+      tags: re_prov_wired
+
+    - name: Provision task - Re-Provision wired device without provide site name
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.re_prov_wired.without_site }}"
+      tags: re_prov_wired_without_site
+
+    - name: Provision task - Re-Provision wired device to difference site
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.re_prov_wired.diff_site }}"
+      tags: re_prov_wired_diff_site
+
+    - name: Provision task - Re-Provision wired device after change device role
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.re_prov_wired.wired }}"
+      tags: re_prov_wired_role_changed
+
+    - name: Provision task - Re-Provision wired device after change site name
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.re_prov_wired.wired }}"
+      tags: re_prov_wired_site_changed
+
+    - name: Provision task - Re-Provision wireless device
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.re_prov_wlc.wireless }}"
+      tags: re_prov_wlc
+
+    - name: Provision task - Re-Provision wireless device without define site name
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.re_prov_wlc.without_site }}"
+      tags: re_prov_wlc_without_site
+
+    - name: Provision task - Re-Provision wireless device to difference site
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.re_prov_wlc.to_diff_site }}"
+      tags: re_prov_wlc_diff_site
+
+    - name: Provision task - Re-Provision wireless device but got fewer AP locations
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.re_prov_wlc.fewer_ap }}"
+      tags: re_prov_wlc_fewer_ap
+
+    - name: Provision task - assign multiple wired device to site concurrently
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.multi_wired.assign }}"
+      async: 60
+      poll: 0
+      tags: assign_parallel
+
+    - name: Provision task - Provision multiple wired device to site concurrently
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.multi_wired.provision }}"
+      async: 60
+      poll: 0
+      tags: wired_concurrently
+
+    - name: Provision task - Re-Provision multiple wired device concurrently
+      cisco.dnac.provision_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.multi_wired.provision }}"
+      async: 60
+      poll: 0
+      tags: re_wired_concurrently
+
+    - name: Provision task - Un-Provision multiple wired device concurrently
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.multi_wired.un_provision }}"
+      async: 60
+      poll: 0
+      tags: un_provision_concurrently
+
+    - name: Provision task - Un-Provision device with clean_config is True
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.un_prov.clean_true }}"
+      tags: un_prov_clean_true
+
+    - name: Provision task - Un-Provision device with clean_config is False
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.un_prov.clean_false }}"
+      tags: un_prov_clean_false
+
+    - name: Provision task - Un-Provision device with method is Merged
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.un_prov.method_merged }}"
+      tags: un_prov_method_merged
+
+    - name: Provision task - Un-Provision device but provide unknow IP address
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.un_prov.unknow_ip }}"
+      tags: un_prov_unknow_ip
+
+    - name: Provision task - Un-Provision a non-provision device
+      cisco.dnac.inventory_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.un_prov.non_prov_dev }}"
+      tags: un_prov_non_provision

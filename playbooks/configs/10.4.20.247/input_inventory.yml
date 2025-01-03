@@ -2,23 +2,21 @@
 network_device:
   add:
     - ip_address_list:
-        - 10.4.213.5
         - 10.4.213.6
-        - 10.4.213.7
-        - 10.4.213.8
+        - 10.4.213.5
       ipv6Enabled: false
       type: NETWORK_DEVICE
       cli_transport: ssh
-      username: wlcaccess
-      password: Lablab#123
-      enable_password: Cisco#123
+      username: xxxx
+      password: xxxx
+      enable_password: xxxx
       snmp_version: v3
-      snmp_username: v3Public1
+      snmp_username: xxxx
       snmp_mode: AUTHPRIV
       snmp_auth_protocol: SHA
-      snmp_auth_passphrase: Cisco#123456789
+      snmp_auth_passphrase: xxxx
       snmp_priv_protocol: AES128
-      snmp_priv_passphrase: Cisco#1234567890
+      snmp_priv_passphrase: xxxx
       snmp_retry: 3
       snmp_timeout: 5
       netconf_port: 830
@@ -26,25 +24,17 @@ network_device:
 
   provision:
     - provision_wired_device:
+        - device_ip: 10.4.213.6
+          site_name: Global/USA/SAN-FRANCISCO/SF_BLD2
         - device_ip: 10.4.213.5
           site_name: Global/USA/SAN JOSE/SJ_BLD22
-        - device_ip: 10.4.213.6
-          site_name: Global/USA/SAN-FRANCISCO/SF_BLD3
-        - device_ip: 10.4.213.7
-          site_name: Global/USA/New York/NY_BLD3
-        - device_ip: 10.4.213.8
-          site_name: Global/USA/New York/NY_BLD3
 
   reprovision:
     - reprovision_wired_device:
+        - device_ip: 10.4.213.6
+          site_name: Global/USA/SAN-FRANCISCO/SF_BLD2
         - device_ip: 10.4.213.5
           site_name: Global/USA/SAN JOSE/SJ_BLD22
-        - device_ip: 10.4.213.6
-          site_name: Global/USA/SAN-FRANCISCO/SF_BLD3
-        - device_ip: 10.4.213.7
-          site_name: Global/USA/New York/NY_BLD3
-        - device_ip: 10.4.213.8
-          site_name: Global/USA/New York/NY_BLD3
 
 wireless_network_device:
   add:
@@ -53,16 +43,16 @@ wireless_network_device:
       ipv6Enabled: false
       type: NETWORK_DEVICE
       cli_transport: ssh
-      username: wlcaccess
-      password: Lablab#123
-      enable_password: Cisco#123
+      username: xxxx
+      password: xxxx
+      enable_password: xxxx
       snmp_version: v3
-      snmp_username: v3Public1
+      snmp_username: xxxx
       snmp_mode: AUTHPRIV
       snmp_auth_protocol: SHA
-      snmp_auth_passphrase: Cisco#123456789
+      snmp_auth_passphrase: xxxx
       snmp_priv_protocol: AES128
-      snmp_priv_passphrase: Cisco#1234567890
+      snmp_priv_passphrase: xxxx
       snmp_retry: 3
       snmp_timeout: 5
       netconf_port: 830
@@ -71,11 +61,11 @@ wireless_network_device:
   provision:
     - provision_wireless_device:
         - device_ip: 10.4.218.250
-          site_name: Global/USA/SAN-FRANCISCO/SF_BLD1
+          site_name: Global/USA/SAN-FRANCISCO/SF_BLD2
           managed_ap_locations:
-            - Global/USA/SAN-FRANCISCO/SF_BLD1/FLOOR1
-            - Global/USA/SAN-FRANCISCO/SF_BLD1/FLOOR2
-            - Global/USA/SAN-FRANCISCO/SF_BLD1/FLOOR3
+            - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+            - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+            - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
           dynamic_interfaces:
             - interface_ip_address: 10.4.218.250
               interface_netmask_in_cidr: 28

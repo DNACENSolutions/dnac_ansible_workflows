@@ -1,0 +1,604 @@
+---
+global_ippools:
+  - IpAddressSpace: IPv4
+    dhcpServerIps: []
+    dnsServerIps: []
+    gateway: 123.123.0.1
+    ipPoolCidr: 123.123.0.0/20
+    ipPoolName: SGT_Port_test
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps: []
+    dnsServerIps: []
+    gateway: 204.1.16.1
+    ipPoolCidr: 204.1.16.0/20
+    ipPoolName: BorderHandOff
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps: []
+    dnsServerIps: []
+    gateway: 2004:1:16::1
+    ipPoolCidr: 2004:1:16::0/64
+    ipPoolName: BorderHandOff_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 204.1.51.1
+    ipPoolCidr: 204.1.48.0/20
+    ipPoolName: SENSORPool
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:1:48::1
+    ipPoolCidr: 2004:1:48::0/64
+    ipPoolName: SENSORPool_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 204.1.64.1
+    ipPoolCidr: 204.1.64.0/20
+    ipPoolName: 64net
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:1:64::1
+    ipPoolCidr: 2004:1:64::0/64
+    ipPoolName: 64net_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 204.1.80.1
+    ipPoolCidr: 204.1.80.0/20
+    ipPoolName: 80net
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:1:80::1
+    ipPoolCidr: 2004:1:80::0/64
+    ipPoolName: 80net_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 204.1.96.1
+    ipPoolCidr: 204.1.96.0/20
+    ipPoolName: 96net
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:1:96::1
+    ipPoolCidr: 2004:1:96::0/64
+    ipPoolName: 96net_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 204.1.112.1
+    ipPoolCidr: 204.1.112.0/20
+    ipPoolName: 112net
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:1:112::1
+    ipPoolCidr: 2004:1:112::0/64
+    ipPoolName: 112net_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 204.1.224.1
+    ipPoolCidr: 204.1.224.0/20
+    ipPoolName: WClients
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:1:224::1
+    ipPoolCidr: 2004:1:224::0/64
+    ipPoolName: WClients_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps: []
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 204.1.176.1
+    ipPoolCidr: 204.1.176.0/20
+    ipPoolName: overlapping
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps: []
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:1:176::1
+    ipPoolCidr: 2004:1:176::0/64
+    ipPoolName: overlapping_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 204.1.240.1
+    ipPoolCidr: 204.1.240.0/20
+    ipPoolName: WSClients
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:1:240::1
+    ipPoolCidr: 2004:1:240::0/64
+    ipPoolName: WSClients_V6
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:1:128::1
+    ipPoolCidr: 2004:1:128::0/64
+    ipPoolName: GP_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 204.1.128.1
+    ipPoolCidr: 204.1.128.0/20
+    ipPoolName: GP
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 204.1.208.1
+    ipPoolCidr: 204.1.208.0/20
+    ipPoolName: APPool
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps: []
+    dnsServerIps: []
+    gateway: 14.14.0.1
+    ipPoolCidr: 14.14.0.0/16
+    ipPoolName: multicast
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:14:14::1
+    ipPoolCidr: 2004:14:14::0/64
+    ipPoolName: multicast_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps: []
+    dnsServerIps: []
+    gateway: 15.14.0.1
+    ipPoolCidr: 15.14.0.0/16
+    ipPoolName: multicast1
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:15:14::1
+    ipPoolCidr: 2004:15:14::0/64
+    ipPoolName: multicast1_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps: []
+    dnsServerIps: []
+    gateway: 16.14.0.1
+    ipPoolCidr: 16.14.0.0/16
+    ipPoolName: multicast2
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps: []
+    dnsServerIps: []
+    gateway: 17.14.0.1
+    ipPoolCidr: 17.14.0.0/16
+    ipPoolName: multicast3
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:17:14::1
+    ipPoolCidr: 2004:17:14::0/64
+    ipPoolName: multicast3_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.40.1
+    ipPoolCidr: 40.40.40.0/24
+    ipPoolName: VN1-POOL1
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2040:40:40::1
+    ipPoolCidr: 2040:40:40::0/64
+    ipPoolName: VN1-POOL1_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.41.1
+    ipPoolCidr: 40.40.41.0/24
+    ipPoolName: VN1-POOL2
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2040:40:41::1
+    ipPoolCidr: 2040:40:41::0/64
+    ipPoolName: VN1-POOL2_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.42.1
+    ipPoolCidr: 40.40.42.0/24
+    ipPoolName: VN2-POOL1
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.43.1
+    ipPoolCidr: 40.40.43.0/24
+    ipPoolName: VN2-POOL2
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.44.1
+    ipPoolCidr: 40.40.44.0/24
+    ipPoolName: VN3-POOL1
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.45.1
+    ipPoolCidr: 40.40.45.0/24
+    ipPoolName: VN3-POOL2
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.46.1
+    ipPoolCidr: 40.40.46.0/24
+    ipPoolName: VN4-POOL1
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.47.1
+    ipPoolCidr: 40.40.47.0/24
+    ipPoolName: VN4-POOL2
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.48.1
+    ipPoolCidr: 40.40.48.0/24
+    ipPoolName: VN5-POOL1
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.49.1
+    ipPoolCidr: 40.40.49.0/24
+    ipPoolName: VN5-POOL2
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.50.1
+    ipPoolCidr: 40.40.50.0/24
+    ipPoolName: VN6-POOL1
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.51.1
+    ipPoolCidr: 40.40.51.0/24
+    ipPoolName: VN6-POOL2
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.52.1
+    ipPoolCidr: 40.40.52.0/24
+    ipPoolName: VN7-POOL1
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.40.53.1
+    ipPoolCidr: 40.40.53.0/24
+    ipPoolName: VN7-POOL2
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.10.0.1
+    ipPoolCidr: 40.10.0.0/16
+    ipPoolName: Fabric_VN
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2040:40:52::1
+    ipPoolCidr: 2040:40:52::0/64
+    ipPoolName: VN7-POOL1_V6
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2040:40:53::1
+    ipPoolCidr: 2040:40:53::0/64
+    ipPoolName: VN7-POOL2_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 204.1.32.1
+    ipPoolCidr: 204.1.32.0/20
+    ipPoolName: EXT_POOL
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2004:1:32::1
+    ipPoolCidr: 2004:1:32::0/64
+    ipPoolName: EXT_POOL_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.50.0.1
+    ipPoolCidr: 40.50.0.0/16
+    ipPoolName: CR_POOL
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2040:50:0::1
+    ipPoolCidr: 2040:50:0::0/64
+    ipPoolName: CR_POOL_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.51.0.1
+    ipPoolCidr: 40.51.0.0/16
+    ipPoolName: AnchorVN1
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2040:51:0::1
+    ipPoolCidr: 2040:51:0::0/64
+    ipPoolName: AnchorVN1_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.52.0.1
+    ipPoolCidr: 40.52.0.0/16
+    ipPoolName: AnchorVN2
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2040:52:0::1
+    ipPoolCidr: 2040:52:0::0/64
+    ipPoolName: AnchorVN2_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.53.0.1
+    ipPoolCidr: 40.53.0.0/16
+    ipPoolName: AnchorVN3
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2040:53:0::1
+    ipPoolCidr: 2040:53:0::0/64
+    ipPoolName: AnchorVN3_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.54.0.1
+    ipPoolCidr: 40.54.0.0/16
+    ipPoolName: AnchorVN4
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2040:54:0::1
+    ipPoolCidr: 2040:54:0::0/64
+    ipPoolName: AnchorVN4_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 40.55.0.1
+    ipPoolCidr: 40.55.0.0/16
+    ipPoolName: MDNAC1
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2040:55:0::1
+    ipPoolCidr: 2040:55:0::0/64
+    ipPoolName: MDNAC1_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    gateway: 204.1.1.1
+    ipPoolCidr: 204.1.1.0/24
+    ipPoolName: underlay
+    type: Generic
+  - IpAddressSpace: IPv4
+    gateway: 204.1.2.1
+    ipPoolCidr: 204.1.2.0/24
+    ipPoolName: underlay1
+    type: Generic
+  - IpAddressSpace: IPv4
+    gateway: 204.1.3.1
+    ipPoolCidr: 204.1.3.0/24
+    ipPoolName: underlay2
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 208.1.208.1
+    ipPoolCidr: 208.1.208.0/20
+    ipPoolName: APPool2
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 208.1.16.1
+    ipPoolCidr: 208.1.16.0/20
+    ipPoolName: ClientPool1
+    type: Generic
+  - IpAddressSpace: IPv6
+    dhcpServerIps:
+      - 2004:192:3::40
+    dnsServerIps:
+      - 2006:1:1::1
+    gateway: 2008:1:16::1
+    ipPoolCidr: 2008:1:16::0/64
+    ipPoolName: ClientPool1_V6
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 207.1.1.1
+    ipPoolCidr: 207.1.1.0/24
+    ipPoolName: Prime_APPOOL
+    type: Generic
+  - IpAddressSpace: IPv4
+    dhcpServerIps:
+      - 204.192.3.40
+    dnsServerIps:
+      - 171.70.168.183
+    gateway: 87.1.1.152
+    ipPoolCidr: 87.1.1.0/24
+    ipPoolName: Prime_CLIENTPOOL
+    type: Generic

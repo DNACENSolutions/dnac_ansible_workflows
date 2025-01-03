@@ -1,0 +1,75 @@
+---
+syslog_subscription:
+{% for subs in event_subscription %}
+  - syslog_event_notification:
+      name: Syslog Notification {{ subs }}
+      description: Subscription for syslog events notification {{ subs }}
+      sites:
+        - Global/India
+        - Global/USA
+      events:   
+        - AP Flap
+        - AP Reboot Crash
+        - AP disconnected from WLC
+        - Switch Power Failure
+        - Switch Unreachable
+        - Switch Experiencing High CPU utilization
+        - High input/output Error on Switch Interfaces
+      destination: Test_Syslog 101
+{% endfor %}
+
+email_subscription:
+{% for subs in event_subscription %}
+  - email_event_notification:
+        name: "EMAIL Notification {{ subs }}"
+        description: "Notification description for email subscription creation {{ subs }}"
+        sites:
+          - Global/India
+          - Global/USA
+        events: 
+          - AP Reboot Crash
+          - AP disconnected from WLC
+          - Switch Power Failure
+          - Switch Unreachable
+          - Switch Experiencing High CPU utilization
+          - High input/output Error on Switch Interfaces
+        sender_email: catalyst@cisco.com
+        recipient_emails: ["uchandan@cisco.com"]
+        subject: "Mail test"
+        instance: "Email Instance test"
+        instance_description: "Email Instance description {{ subs }}"
+{% endfor %}
+
+webhook_subscription:
+{% for subs in event_subscription %}
+  - webhook_event_notification:
+      name: Webhook Notification {{ subs }}
+      description: Notification for webhook events subscription {{ subs }}
+      sites:
+        - Global/India
+        - Global/USA
+        - Global/China
+      events:
+        - AP Flap
+        - AP disconnected from WLC
+        - Switch Unreachable
+        - Switch Experiencing High CPU utilization
+        - High input/output Error on Switch Interfaces
+        - Wireless clients failed to connect - Failed to get an IP Address due to Client Timeouts
+        - Wireless clients failed to connect - Failed to get an IP Address due to DHCP Server or Client Timeout
+        - Wireless clients failed to connect - Failed to authenticate due to Client Timeouts
+      destination: webhook demo 102
+{% endfor %}
+
+itsm:
+{% for subs in event_subscription %}
+  - itsm_setting:
+      instance_name: "Playbook itsm demo {{ subs }}"
+      description: "ITSM description for testing {{ subs }}"
+      connection_settings:
+        url: "https://ven04533.00{{ subs }}.com/"
+        username: tranlamtestz_00{{ subs }}
+        password: C1sco12afdfsdf3!22_00{{ subs }}
+
+{% endfor %}
+

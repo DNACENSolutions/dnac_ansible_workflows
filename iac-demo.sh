@@ -59,3 +59,43 @@ ansible-playbook playbooks/pnp.yml \
 -vvvv
 
 
+# ISE and AAA Integration
+ansible-playbook playbooks/ise_aaa_intg.yml \
+--tags ise_aaa_intg \
+-i inventory/iac2/hosts \
+-vvvv
+
+
+# Provision
+ansible-playbook playbooks/provision.yml \
+--tags prov_wireless \
+-i inventory/iac2/hosts \
+-vvvv
+
+
+# Network Settings
+ansible-playbook playbooks/network_settings.yml \
+--tags global_settings \
+-i inventory/iac2/hosts \
+-vvvv
+
+
+# Compliance
+ansible-playbook playbooks/compliance.yml \
+--tags check_cat_site_ip \
+-i inventory/iac2/hosts \
+-vvvv
+
+
+# LAN Automation
+ansible-playbook playbooks/lan_automation.yml \
+--tags start_lan_auto \
+-i inventory/iac2/hosts \
+-vvvv
+
+
+# IP Pools
+ansible-playbook playbooks/ip_pools.yml \
+--tags reserve_subpool \
+-i inventory/iac2/hosts \
+-vvvv

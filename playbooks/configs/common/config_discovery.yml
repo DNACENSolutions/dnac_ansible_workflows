@@ -1,0 +1,8 @@
+# Copyright 2024 Cisco Systems, Inc. and its affiliates
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+input_file: ../configs/{{ dnac_host }}/input_discovery.yml
+
+discovery_template_input: ../configs/{{ dnac_host }}/discovery_scale.j2
+
+discovery_template_output: ../configs/{{ dnac_host }}/input_discovery_scale_{{ start }}_{{ count }}.yml

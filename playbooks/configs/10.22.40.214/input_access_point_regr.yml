@@ -1,0 +1,567 @@
+---
+create_access_point_neg:
+  #Input 1 : Incorrect Mac Address format (Negative Case)
+  - mac_address: e438:7e42bc:40
+    ap_name: Cisco_9120_IP1
+    admin_status: Enabled
+    led_status: Enabled
+    ap_mode: Local
+
+  #Input 2 : Null Mac Address format (Negative Case)
+  - mac_address: 
+    ap_name: Cisco_9120_IP2
+    admin_status: Enabled
+    led_status: Enabled
+    ap_mode: Local
+
+  #Input 3 : Incorrect LED status (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP3
+    admin_status: Enabled
+    led_status: offline
+    ap_mode: Local
+
+  #Input 4 : Incorrect AP Mode (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    ap_mode: Flex
+
+  #Input 5 : LED brightness level not in range 1-8(Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 9
+    ap_mode: Local
+
+  #Input 6 : Incorrect clean air parameter (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    clean_air_si_2.4ghz: 7
+    clean_air_si_5ghz: false
+
+  #Input 7 : Duplicate IP address in controller details (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    primary_controller_name: SJ-EWLC-1.cisco.local
+    primary_ip_address: 
+      address: 204.192.4.200
+    secondary_controller_name: SJ-EWLC-1.cisco.local
+    secondary_ip_address: 
+      address: 204.192.4.200
+    tertiary_controller_name: "Inherit from site / Clear"
+    tertiary_ip_address: 
+      address: 204.192.40.200
+
+  
+
+  #Input 8 : Invalid IPv4 in Primary controller IP (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    primary_controller_name: SJ-EWLC-123.abc.com
+    primary_ip_address: 
+      address: 204.192.400.200
+    secondary_controller_name: SJ-EWLC-1.cisco.local
+    secondary_ip_address: 
+      address: 204.192.4.200
+    tertiary_controller_name: "Inherit from site / Clear"
+    tertiary_ip_address: 
+      address: FE08::123
+
+  #Input 9 : Invalid IPv6 in Primary controller IP (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    primary_controller_name: SJ-EWLC-123.abc.com
+    primary_ip_address: 
+      address: FE08::123:1234K56
+    secondary_controller_name: SJ-EWLC-1.cisco.local
+    secondary_ip_address: 
+      address: 204.192.4.200
+    tertiary_controller_name: "Inherit from site / Clear"
+    tertiary_ip_address: 
+      address: FE08::123
+
+  #Input 10 : Invalid IPv4 in Secondary controller IP (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    primary_controller_name: SJ-EWLC-1.cisco.local
+    primary_ip_address: 
+      address: 204.192.4.200
+    secondary_controller_name: SJ-EWLC-123.abc.com
+    secondary_ip_address: 
+      address: 204.192.400.200
+    tertiary_controller_name: "Inherit from site / Clear"
+    tertiary_ip_address: 
+      address: FE08::123
+
+  #Input 11 : Invalid IPv6 in Secondary controller IP (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    primary_controller_name: SJ-EWLC-1.cisco.local
+    primary_ip_address: 
+      address: 204.192.4.200
+    secondary_controller_name: SJ-EWLC-1.cisco.local
+    secondary_ip_address: 
+      address: FE08::123:1234KF56
+    tertiary_controller_name: "Inherit from site / Clear"
+    tertiary_ip_address: 
+      address: FE08::123
+
+  #Input 12 : Configure unsupported fix band radio (2.4ghz not supported on 9120) (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    2.4ghz_radio:
+      admin_status: Enabled
+      channel_assignment_mode: Custom
+      radio_role_assignment: Client-Serving
+      channel_number: 13
+      power_level: 5
+
+  #Input 13 : Configure 2.4Ghz fix band radio with incorrect radio role assignment (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    2.4ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Enabled
+      channel_assignment_mode: Custom
+      channel_number: 13
+      power_level: 5
+
+  #Input 14 : Configure 2.4Ghz fix band radio with incorrect channel assignment mode (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    2.4ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Enabled
+      channel_number: 13
+      power_level: 5
+
+  #Input 15 : Configure 2.4Ghz fix band radio with incorrect channel number (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    2.4ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Enabled
+      channel_number: 44
+      power_level: 5
+
+  #Input 16 : Configure 2.4Ghz fix band radio with incorrect channel width (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    2.4ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 11
+      channel_width: "25 MHz"
+      power_level: 5
+
+  #Input 17 : Configure 2.4Ghz fix band radio with incorrect antenna name (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    2.4ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 11
+      antenna_name: Other
+      antenna_gain: 8
+      power_level: 5
+
+  #Input 18 : Configure 2.4Ghz fix band radio with antenna gain not in range 0-40 (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    2.4ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 11
+      antenna_name: Other
+      antenna_gain: 89
+      power_level: 5
+
+  #Input 19 : Configure 2.4Ghz fix band radio with incorrect antenna cable name (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    2.4ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 11
+      antenna_name: Other
+      antenna_gain: 20
+      antenna_cable_name: AIR-24CAB-9166
+      cable_loss: 5
+      power_level: 5
+
+  #Input 20 : Configure 2.4Ghz fix band radio with cable loss higher than antenna gain (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    2.4ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 11
+      antenna_name: Other
+      antenna_gain: 20
+      antenna_cable_name: Other
+      cable_loss: 35
+      power_level: 5
+
+  #Input 21 : Configure 2.4Ghz fix band radio with cable loss without providing antenna gain (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    2.4ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 11
+      channel_width: "20 MHz"
+      antenna_cable_name: Other
+      cable_loss: 40
+      power_level: 5
+
+  #Input 22 : Configure 2.4Ghz fix band radio with cable loss not in range 0-40 (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    2.4ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 11
+      channel_width: "20 MHz"
+      antenna_cable_name: Other
+      cable_loss: 45
+      power_level: 5
+
+  #Input 23 : Configure 5Ghz fix band radio with incorrect radio role assignment (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Enabled
+      channel_assignment_mode: Custom
+      channel_number: 44
+      power_level: 5
+
+  #Input 24 : Configure 5Ghz fix band radio with incorrect channel assignment mode (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Enabled
+      channel_number: 64
+      power_level: 5
+
+  #Input 25 : Configure 5Ghz fix band radio with incorrect channel number (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 79
+      power_level: 5
+
+  #Input 26 : Configure 5Ghz fix band radio with incorrect channel width (9166). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 48
+      channel_width: "420 MHz"
+      power_level: 5
+
+  #Input 27 : Configure 5Ghz fix band radio with incorrect antenna name (9120). (Negative Case)
+  - mac_address:  a4:88:73:d0:53:60
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 100
+      antenna_name: ANT-5G-2166
+      antenna_gain: 25
+      power_level: 5
+
+  #Input 28 : Configure 5Ghz fix band radio with antenna gain not in range 0-40 (9120). (Negative Case)
+  - mac_address:  a4:88:73:d0:53:60
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 100
+      antenna_name: Other
+      antenna_gain: 43
+      power_level: 5
+
+  #Input 29 : Configure 5Ghz fix band radio with incorrect antenna cable name (9120). (Negative Case)
+  - mac_address:  a4:88:73:d0:53:60
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 40
+      antenna_name: Other
+      antenna_gain: 20
+      antenna_cable_name: AIR-24CAB-9166
+      cable_loss: 5
+      power_level: 5
+
+  #Input 30 : Configure 5Ghz fix band radio with cable loss higher than antenna gain (9120). (Negative Case)
+  - mac_address:  a4:88:73:d0:53:60
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 44
+      antenna_name: Other
+      antenna_gain: 20
+      antenna_cable_name: Other
+      cable_loss: 35
+      power_level: 5
+
+  #Input 31 : Configure 5Ghz fix band radio with cable loss without providing antenna gain (9120). (Negative Case)
+  - mac_address:  a4:88:73:d0:53:60
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 44
+      channel_width: "20 MHz"
+      antenna_cable_name: Other
+      cable_loss: 35
+      power_level: 5
+
+  #Input 32 : Configure 5Ghz fix band radio with cable loss not in range 0-40 (9120). (Negative Case)
+  - mac_address:  a4:88:73:d0:53:60
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 44
+      channel_width: "20 MHz"
+      antenna_cable_name: Other
+      cable_loss: 45
+      power_level: 5
+
+
+  #Input 33 : Configure XOR with unsupported radio band (9166 supports only 5Ghz and 6Ghz for XOR). (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    xor_radio:
+      admin_status: Enabled
+      radio_band: "2.4 GHz"
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 11
+      channel_width: "20 MHz"
+      power_level: 5
+
+  #Input 34 : Configure XOR with 2.4 Ghz and incorrect channel number. (Negative Case)
+  - mac_address:  e4:38:7e:42:bc:40
+    ap_name: Cisco_9166_IP4
+    admin_status: Enabled
+    ap_mode: Local
+    xor_radio:
+      admin_status: Enabled
+      radio_band: "2.4 GHz"
+      radio_role_assignment: Client-Serving
+      channel_assignment_mode: Custom
+      channel_number: 11
+      channel_width: "20 MHz"
+      power_level: 5
+
+  #Input 35 : Provision access point to a SITE not available in Catalyst Center (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    site:
+      floor : 
+        name: FLOOR5
+        parent_name: "Global/USA/SAN JOSE/SJ_BLD23"
+    is_assigned_site_as_location: Enabled
+    rf_profile: HIGH
+
+  #Input 36 : Provision access point to a RF Profile not available in Catalyst Center (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    site:
+      floor : 
+        name: FLOOR3
+        parent_name: "Global/USA/SAN JOSE/SJ_BLD23"
+    is_assigned_site_as_location: Enabled
+    rf_profile: Wireless_test_profile
+
+
+  #Input 37 : Provision the device to a site not managed by the Primary Controller (Negative Case)
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120_IP4
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    site:
+      floor : 
+        name: FLOOR4
+        parent_name: "Global/USA/SAN JOSE/SJ_BLD22"
+    is_assigned_site_as_location: Enabled
+    rf_profile: HIGH
+
+create_access_point:
+  # - mac_address: e4:38:7e:42:bc:40
+  #   ap_name: Cisco_9166AXI-B
+  #   admin_status: Enabled
+  #   led_status: Enabled
+  #   led_brightness_level: 8
+  #   ap_mode: Local
+  #   failover_priority: Low
+  #   clean_air_si_2.4ghz: Disabled
+  #   clean_air_si_5ghz: Enabled
+  #   primary_controller_name: SJ-EWLC-1.cisco.local
+  #   primary_ip_address: 
+  #     address: 204.192.4.200
+  #   secondary_controller_name: Test_controller.cisco.local
+  #   secondary_ip_address: 
+  #     address: FE08::123
+  #   tertiary_controller_name: Test_controller2.cisco.local
+  #   tertiary_ip_address: 
+  #     address: FE08::1234
+  #   2.4ghz_radio:
+  #     admin_status: Disabled
+  #     channel_assignment_mode: Custom
+  #     radio_role_assignment: Client-Serving
+  #     channel_number: 13
+  #     power_level: 5
+  #   5ghz_radio:
+  #     admin_status: Enabled
+  #     radio_role_assignment: "Client-Serving"
+  #     channel_assignment_mode: Custom
+  #     channel_number: 44
+  #     channel_width: "20 MHz"
+  #     powerlevel: 6
+  
+  - mac_address: a4:88:73:d4:dd:80
+    ap_name: Cisco_9120AXE_IP4-02
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    is_assigned_site_as_location: Enabled
+    rf_profile: HIGH
+
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120AXE_IP4-01
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 7
+    ap_mode: Local
+    is_assigned_site_as_location: Enabled
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: "Client-Serving"
+      channel_assignment_mode: Custom
+      channel_number: 44
+      channel_width: "40 MHz"
+      powerlevel: 6
+
+ap_reboot_list:
+  - reboot_aps:
+      mac_addresses:
+        - a4:88:73:d4:dd:80
+        - a4:88:73:d0:53:60
+
+factory_reset_list:
+  - factory_reset_aps:
+      mac_addresses:
+        - e4:38:7e:42:bc:40
+        - a4:88:73:d0:53:60

@@ -40,20 +40,39 @@ range:
 
 multi_range:
   - ip_address_list:
+      - 204.1.2.1-204.1.2.5
       - 204.192.3.40
-      - 204.1.2.5
-      - 204.1.2.4
-      - 204.1.2.3
+      - 204.1.2.6-204.1.2.9
+      - 204.1.2.69-204.1.2.70
+      - 204.192.4.200
+      - 204.192.6.200-204.192.6.203
     discovery_type: MULTI RANGE
     protocol_order: ssh
-    global_credentials:
-      snmp_v3_credential_list:
-        - description: SNMPv3-credentials
-          username: v3Public
-      snmp_v2_write_credential_list:
-        - description: snmpWrite
     state: merged
     discovery_name: Multi Range Discovery
+
+sapro_range:
+  - ip_address_list:
+      - 137.1.1.0-137.1.5.255
+      - 137.1.6.0-137.1.10.255
+      - 137.1.11.0-137.1.15.255
+      - 137.1.16.0-137.1.20.255
+    discovery_name: Sapro devices Discovery
+    use_global_credentials: False
+    discovery_specific_credentials:
+      cli_credentials_list:
+        - username: cisco
+          password: Cisco#123
+          enable_password: Cisco#123
+      snmp_v2_read_credential:
+        description: snmpv2 public
+        community: public
+      snmp_v2_write_credential:
+        description: snmpv2 private
+        community: private
+    discovery_type: MULTI RANGE
+    protocol_order: telnet
+    state: merged
 
 cidr:
   - ip_address_list:
@@ -62,3 +81,53 @@ cidr:
     protocol_order: ssh
     state: merged
     discovery_name: CIDR Discovery
+
+rediscovery:
+  preferred_management_ip:
+    - ip_address_list:
+        - 204.192.3.40
+        - 10.22.40.244
+        - 204.1.1.14
+        - 204.1.100.1
+        - 204.192.50.1
+      preferred_mgmt_ip_method: UseLoopBack
+      discovery_type: MULTI RANGE
+      protocol_order: ssh
+      state: merged
+      discovery_name: Re-discovery using preferred management ip(s)
+  different_credentials:
+    - ip_address_list:
+        - 204.192.4.200
+      discovery_type: SINGLE
+      start_index: 1
+      records_to_return: 500
+      discovery_name: SJ-EWLC-1 re-discovery using diffrent credentials
+      username_list: [wlcaccess]
+      password_list: [Lablab#123]
+      enable_password_list: [Cisco#123]
+      preffered_mgmt_ip_method: None
+      protocol_order: ssh
+      retry: 3
+      cli_cred_len: 5
+
+edit_discovery:
+  create:
+    - ip_address_list:
+        - 204.192.3.40
+      discovery_type: "SINGLE"
+      protocol_order: ssh
+      start_index: 1
+      records_to_return: 25
+      snmp_version: v2c
+      preferred_mgmt_ip_method: "UseLoopBack"
+      discovery_name: Ansible Edit Discovery
+  edit:
+    - ip_address_list:
+        - 204.192.6.1
+      discovery_type: "SINGLE"
+      protocol_order: ssh
+      start_index: 1
+      records_to_return: 50
+      snmp_version: v2c
+      preferred_mgmt_ip_method: "None"
+      discovery_name: Ansible Edit Discovery

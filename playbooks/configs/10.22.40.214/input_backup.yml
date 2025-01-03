@@ -1,0 +1,16 @@
+hostname: 
+  - file_password: qsaA12!asdasd 
+    hostname_list:  ['DC-T-9300.cisco.local','SJ-IM-1-9300.abc.com','SJ-EN-10-9300.cisco.local']
+    file_path: backup
+
+no_password:
+  - hostname_list:  ['DC-T-9300.cisco.local']
+    file_path: backup
+
+backslash:
+  - file_password: qsaA12!asda\sd
+    hostname_list:  ['DC-T-9300.cisco.local']
+    file_path: backup
+
+site:
+    - site_list: ['Global','Global/USA/SAN JOSE/SJ_BLD23']
