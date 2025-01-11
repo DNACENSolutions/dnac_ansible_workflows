@@ -21,6 +21,7 @@
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
       dnac_log_level: "{{ dnac_log_level }}"
+      dnac_log_file_path: "{{ dnac_log_file_path }}"
 
   tasks:
     - name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
