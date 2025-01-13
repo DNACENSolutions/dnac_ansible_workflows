@@ -6,7 +6,7 @@ jinjatemplate: bool(required=False)
 jinjatemplate_file: str(required=False)
 ---
 site_type: 
-  site: any(include('area_type'), include('building_type'), include('floor_type'))
+  site: any('area_type','building_type','floor_type')
   type: str()
 
 area_type:
@@ -26,8 +26,11 @@ building_type:
 floor_type:
   floor:
     name: str()
+    floor_number: num(required=True)
     parent_name: str()
-    rfModel: str()
+    rfModel: str(include('Cubes And Walled Offices', 'Drywall Office Only', 'Indoor High Ceiling', 'Outdoor Open Space'))
     width: num()
     length: num()
     height: num()
+    upload_floor_image_path: str(required=False)
+    units_of_measure: str(include('feet','meters'), required=False)
