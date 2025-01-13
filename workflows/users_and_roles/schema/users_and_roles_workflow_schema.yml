@@ -604,8 +604,8 @@ roles_users_details:
 ---
 users_details_type:
   email: str(required=False)
-  first_name: str(required=True)
-  last_name: str(required=True)
+  first_name: str(required=False, min=2, max=50, matches="^[a-zA-Z0-9]+$")
+  last_name: str(required=False, min=2, max=50, matches="^[a-zA-Z0-9]+$")
   password: str(required=True)
   role_list: list(str(), required=False)
   username: str(required=True)
