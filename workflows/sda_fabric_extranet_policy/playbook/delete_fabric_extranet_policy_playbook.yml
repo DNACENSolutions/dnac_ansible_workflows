@@ -31,6 +31,7 @@
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
       dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: "{{ config_verify | default(False) }}"
   tasks:
   #write tasks for extranet policies creations
     - name: Playbook start time for the delete SDA Extranet Policies playbook

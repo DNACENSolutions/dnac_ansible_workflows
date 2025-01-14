@@ -184,6 +184,7 @@ provision_details_type:
   provisioning: bool(default=True, required=False)
   managed_ap_locations: list(str, required=False)
   dynamic_interfaces: list(include('dynamic_interfaces_type'), required=False)
+  force_provisioning: bool(default=False, required=False)
 
 dynamic_interfaces_type:
   interface_gateway: str(required=False)
