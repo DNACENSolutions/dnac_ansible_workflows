@@ -28,6 +28,8 @@
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
       dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: "{{ config_verify | default(False) }}"
+      dnac_log_file_path: "{{ dnac_log_file_path | default(dnac_log_file_path) }}"
 
   tasks:
   #write tasks for fabric site(s)/zone(s) creations
