@@ -18,7 +18,7 @@
 #     true
 #     false
 # A boolean flag that indicates whether the pub/sub mechanism is enabled for control nodes in the fabric site. This feature is relevant only when creating or updating fabric sites, not fabric zones. When set to True, pub/sub facilitates more efficient communication and control within the site. The default is True for fabric sites, and this setting is not applicable for fabric zones.
-# 		site_name
+# 		site_name_hierarchy
 # string / required
 # This name uniquely identifies the site for operations such as creating, updating, or deleting fabric sites or zones, as well as for updating the authentication profile template. This parameter is mandatory for any fabric site/zone management operation.
 # 		update_authentication_profile
@@ -60,11 +60,11 @@ fabric_sites_type:
     authentication_profile: enum('Closed Authentication', 'Low Impact', 'No Authentication', 'Open Authentication', required=True)
     fabric_type: str(required=True)
     is_pub_sub_enabled: bool(required=False)
-    site_name: str(required=True)
+    site_name_hierarchy: str(required=True)
     update_authentication_profile: include('update_authentication_profile_type', required=False)
 update_authentication_profile_type:
       authentication_order: str(required=False)
       dot1x_fallback_timeout: int(required=False)
       enable_bpu_guard: bool(required=False)
-      number_of_hosts: str(required=False)
+      number_of_hosts: enum('Single', 'Unlimited', required=False)
       wake_on_lan: bool(required=False)
