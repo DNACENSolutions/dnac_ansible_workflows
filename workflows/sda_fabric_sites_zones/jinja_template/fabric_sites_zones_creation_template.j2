@@ -6,12 +6,12 @@ fabric_sites_and_zones:
 {% for i in range(1, 4) %}
     - fabric_sites:
         - fabric_type: fabric_site
-          site_name: Global/USA/AREA{{i}}/AREA{{i}} BLD{{i}}
+          site_name_hierarchy: Global/USA/AREA{{i}}/AREA{{i}} BLD{{i}}
           authentication_profile: No Authentication
           is_pub_sub_enabled: true
 {% for j in range(1, 4) %}
         - fabric_type: fabric_zone
-          site_name: Global/USA/AREA{{i}}/AREA{{i}} BLD{{i}}/AREA{{i}} BLD{{i}} FLOOR{{j}}
+          site_name_hierarchy: Global/USA/AREA{{i}}/AREA{{i}} BLD{{i}}/AREA{{i}} BLD{{i}} FLOOR{{j}}
           authentication_profile: No Authentication
           is_pub_sub_enabled: true
 {% endfor %}
