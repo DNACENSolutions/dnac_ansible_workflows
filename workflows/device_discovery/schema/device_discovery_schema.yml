@@ -558,7 +558,7 @@ global_credential_details_type:
     snmp_v2_write_credential_list: list(include('gl_snmp_v2c_write_type', required=False), min=0, max=100, required=False)
     http_read_credential_list: list(include('gl_https_read_type', required=False), min=0, max=100, required=False)
     http_write_credential_list: list(include('gl_https_write_type', required=False), min=0, max=100, required=False)
-    net_conf_port_list: list(include ('net_conf_port_list_type', min=0, max=10, required=False))
+    net_conf_port_list: list(include ('net_conf_port_list_type', required=False), min=0, max=100, required=False)
 
 gl_cli_credential_type:
     description: str(required=False)
@@ -579,5 +579,5 @@ gl_snmp_v2c_read_type:
     description: str(required=False)
     community: str(required=False)
 net_conf_port_list_type:
-    description: str(required=True)
+    description: str(required=False)
     net_conf_port: str(required=False)
