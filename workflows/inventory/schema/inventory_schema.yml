@@ -49,6 +49,7 @@ network_devices_type_type:
   dnac_api_task_timeout: int(required=False)
   dnac_task_poll_interval: int(required=False)
   validate_response_schema: bool(required=False)
+  site_name: str(required=False)
 
 add_user_defined_field_type:
   description: str(required=False)
@@ -65,7 +66,6 @@ provision_wired_device_type:
   resync_retry_count: int(required=False)
   resync_retry_interval: int(required=False)
   site_name: str(required=True)
-
 update_interface_details_type:
   admin_status: enum('UP', 'DOWN', required=False)
   clear_mac_address_table: bool(required=False)
