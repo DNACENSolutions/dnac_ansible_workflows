@@ -1,0 +1,6 @@
+---
+catalyst_center_version: "2.3.7.6"
+catalyst_center_verify: false
+jinjatemplate: true
+jinjatemplate_file: ../jinja_template/sda_fabric_device_roles_jinja_template.j2
+fabric_devices_details: []

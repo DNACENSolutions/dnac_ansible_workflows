@@ -13,23 +13,19 @@ device_config_type:
     list(enum('CONTROL_PLANE_NODE', 'EDGE_NODE', 'BORDER_NODE', 'WIRELESS_CONTROLLER_NODE'), 
          min=1, max=4, required=True)
   route_distribution_protocol: enum('LISP_BGP', 'LISP_PUB_SUB', required=False, default='LISP_BGP')
-
   borders_settings: include('borders_settings_type', required=False)
 
 borders_settings_type:
   layer3_settings: 
     include ('layer3_settings_type', required=False)
-
   layer2_handoff:
     list(include('layer2_handoff_type'), min=0, max=100, required=False)
-
   layer3_handoff_ip_transit:
     list(include('layer3_handoff_ip_transit_type'), min=0, max=100, required=False)
-
   layer3_handoff_sda_transit: include('layer3_handoff_sda_transit_type', required=False)
 
 layer3_settings_type:
-    local_autonomous_system_number: int(min=1, max=65535, required=True)
+    local_autonomous_system_number: int(min=1, max=4294967295, required=True)
     is_default_exit: bool(required=False, default=False)
     import_external_routes: bool(required=False, default=False)
     border_priority: int(min=1, max=9, required=False, default=10)

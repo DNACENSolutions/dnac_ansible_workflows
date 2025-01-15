@@ -18,6 +18,7 @@
       dnac_debug: "{{ dnac_debug }}"
       dnac_log_level: "{{dnac_log_level}}"
       dnac_log: "{{dnac_log}}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(dnac_log_file_path) }}"
   tasks:
     #Import an image from a URL
     - name: Import an image from an URL or from Local disc provided in import_images in file {{ VARS_FILE_PATH }}

@@ -13,7 +13,6 @@
 
   vars_files:
     - "{{ VARS_FILE_PATH }}"
-
   vars:
     state: merged
     dnac_login: &dnac_login
@@ -26,7 +25,7 @@
       dnac_log: "{{ catalyst_center_log | default(dnac_log) }}"
       dnac_log_level: "{{ catalyst_center_log_level | default(dnac_log_level) }}"
       dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
-      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(dnac_log_file_path) }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(dnac_log_file_path) }}" 
 
   tasks:
     - name: SDA Fabric Virtual Networks and L2/L3 Gateways Playbook start time
