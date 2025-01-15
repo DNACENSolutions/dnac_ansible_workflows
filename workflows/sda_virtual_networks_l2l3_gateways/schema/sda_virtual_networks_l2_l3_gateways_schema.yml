@@ -321,7 +321,7 @@ fabric_vlan_type:
   fabric_site_locations: list(include('fabric_site_locations_type'),min=1,max=100,required=True)
   #fabric_type: str(required=True)
   traffic_type: str(required=True)
-  vlan_id: str(required=True)
+  vlan_id: int(required=False)
   vlan_name: str(required=True)
 virtual_networks_type:
   anchored_site_name: str(required=False)
