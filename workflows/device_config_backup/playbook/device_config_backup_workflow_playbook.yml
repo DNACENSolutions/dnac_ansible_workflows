@@ -24,6 +24,7 @@
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
       dnac_log_level: "{{ dnac_log_level }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(dnac_log_file_path) }}"
   tasks:
     - name: Playbook start time for Device configuration backup through Cisco Catalyst Center
       set_fact:

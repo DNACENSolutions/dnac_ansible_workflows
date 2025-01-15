@@ -17,7 +17,7 @@
       dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
-      dnac_log_level: "{{ dnac_log_level }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(dnac_log_file_path) }}"
   tasks: 
     - name: Device Replacement Playbook start time
       set_fact:

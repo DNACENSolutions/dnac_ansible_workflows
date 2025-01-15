@@ -331,7 +331,9 @@ virtual_networks_type:
   vn_name: str(required=True)
 anycast_gateways_type:
   auto_generate_vlan_name: bool(required=False)
-  fabric_site_location: include('fabric_site_locations_type', required=True)
+  fabric_site_location: 
+    site_name_hierarchy: str(required=True)
+    fabric_type: str(required=True)
   group_policy_enforcement_enabled: bool(required=False)
   intra_subnet_routing_enabled: bool(required=False)
   ip_directed_broadcast: bool(required=False)
@@ -339,7 +341,7 @@ anycast_gateways_type:
   is_critical_pool: bool(required=False)
   layer2_flooding_enabled: bool(required=False)
   multiple_ip_to_mac_addresses: bool(required=False)
-  pool_type: str(required=False)
+  pool_type: enum('EXTENDED_NODE', 'FABRIC_AP', required=False)
   security_group_name: str(required=False)
   supplicant_based_extended_node_onboarding: bool(required=False)
   tcp_mss_adjustment: int(required=False)
@@ -347,6 +349,7 @@ anycast_gateways_type:
   vlan_id: int(required=False)
   vlan_name: str(required=False)
   vn_name: str(required=True)
+  fabric_enabled_wireless: bool(required=False)
 fabric_site_locations_type:
   site_name_hierarchy: str(required=True)
   fabric_type: str(required=True)
