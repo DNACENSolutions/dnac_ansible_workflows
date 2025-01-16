@@ -8,8 +8,10 @@ catalyst_center_version: str(required=False)
 ---
 full_upload_type:
   import_image_details:
-    type: enum('remote', 'local')
-    url_details: any(include('url_details_type'))
+    type: enum('remote', 'local','CCO')
+    url_details: any(include('url_details_type'), required=False)
+    cco_image_details: any(include('cco_image_details_type'), required=False)
+    local_image_details: any(include('local_image_details_type'), required=False)
 
   tagging_details:
     image_name: str()
@@ -53,9 +55,13 @@ import_images_type:
 
 import_image_details_type:
   import_image_details:
-    type: enum('remote', 'local')
-    url_details: any(include('url_details_type'), required=False)
-    local_image_details: any(include('local_image_details_type'), required=False)
+    type: enum('remote', 'local','CCO')
+    url_details: any(include('url_details_type', required=False), required=False)
+    local_image_details: any(include('local_image_details_type', required=False), required=False)
+    cco_image_details: any(include('cco_image_details_type', required=False), required=False)
+
+cco_image_details_type:
+  image_name: str(required=False)
 
 local_image_details_type:
   local_image_details:
@@ -101,7 +107,6 @@ distribute_images_type:
     device_family_name: str(required=False)
     device_serial_number: str(required=False)
     device_series_name: str(required=False)
-
 
 activate_images_type:
   image_activation_details:
