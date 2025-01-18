@@ -4,14 +4,15 @@ catalyst_center_version: 2.3.7.6
 fabric_sites_and_zones:
     - fabric_sites:
         - fabric_type: fabric_site
-          site_name_hierarchy: Global/USA/AREA1/AREA1 BLD1
+          site_name_hierarchy: Global/USA/SAN JOSE
           authentication_profile: No Authentication
           is_pub_sub_enabled: true
-        - fabric_type: fabric_zone
-          site_name_hierarchy: Global/USA/AREA1/AREA1 BLD1/AREA1 BLD1 FLOOR1
-          authentication_profile: No Authentication
+        - fabric_type: fabric_site
+          site_name_hierarchy: Global/USA/SAN-FRANCISCO
+          authentication_profile: Closed Authentication
           is_pub_sub_enabled: true
-        - fabric_type: fabric_zone
-          site_name_hierarchy: Global/USA/AREA1/AREA1 BLD1/AREA1 BLD1 FLOOR2
-          authentication_profile: No Authentication
-          is_pub_sub_enabled: true
+          update_authentication_profile:
+            authentication_order: "dot1x"
+            dot1x_fallback_timeout: 28
+            wake_on_lan: True
+            number_of_hosts: "Single"

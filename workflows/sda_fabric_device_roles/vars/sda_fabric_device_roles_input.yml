@@ -5,7 +5,7 @@ fabric_devices_details:
       fabric_name: Global/USA/SAN-FRANCISCO
       device_config:
         - device_ip: 204.1.2.6
-          device_roles: [CONTROL_PLANE_NODE, BORDER_NODE, EDGE_NODE]
+          device_roles: [CONTROL_PLANE_NODE, BORDER_NODE]
           route_distribution_protocol: LISP_PUB_SUB 
           borders_settings:
             layer3_settings:
