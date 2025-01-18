@@ -1,15 +1,18 @@
-catalyst_center_version: str(required=False)
 swim_details:
   import_images: list(include('import_image_details_type'), min=0, max=100, required=False)
   golden_tag_images: list(include('tagging_details_type'), min=0, max=100, required=False)
   distribute_images: list(include('distribute_images_type'), min=0, max=100, required=False)
   activate_images: list(include('activate_images_type'), min=0, max=100, required=False)
   upload_tag_dis_activate_images: list(include('full_upload_type'), min=0, max=100, required=False)
+catalyst_center_version: str(required=False)
 ---
 full_upload_type:
   import_image_details:
-    type: enum('remote', 'local')
-    url_details: any(include('url_details_type'))
+    type: enum('remote', 'local','CCO')
+    url_details: any(include('url_details_type'), required=False)
+    cco_image_details: any(include('cco_image_details_type'), required=False)
+    local_image_details: any(include('local_image_details_type'), required=False)
+
   tagging_details:
     image_name: str()
     device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN')
@@ -17,6 +20,7 @@ full_upload_type:
     device_image_family_name: str()
     site_name: str()
     tagging: bool()
+
   image_distribution_details:
     image_name: str()
     device_hostname: str(required=False)
@@ -28,6 +32,7 @@ full_upload_type:
     #          'Network Management', 'Cisco Interfaces and Modules', 'Wireless Controller', 'Wireless Sensor')
     device_family_name: str(required=False)
     device_serial_number: str(required=False)
+
   image_activation_details:
     activate_lower_image_version: bool(required=False)
     #Sample: ('NFVIS', 'Routers', 'Switches and Hubs', 'Security and VPN', 'Voice and Telephony',
@@ -50,9 +55,13 @@ import_images_type:
 
 import_image_details_type:
   import_image_details:
-    type: enum('remote', 'local')
-    url_details: any(include('url_details_type'), required=False)
-    local_image_details: any(include('local_image_details_type'), required=False)
+    type: enum('remote', 'local','CCO')
+    url_details: any(include('url_details_type', required=False), required=False)
+    local_image_details: any(include('local_image_details_type', required=False), required=False)
+    cco_image_details: any(include('cco_image_details_type', required=False), required=False)
+
+cco_image_details_type:
+  image_name: str(required=False)
 
 local_image_details_type:
   local_image_details:
@@ -98,7 +107,6 @@ distribute_images_type:
     device_family_name: str(required=False)
     device_serial_number: str(required=False)
     device_series_name: str(required=False)
-
 
 activate_images_type:
   image_activation_details:
