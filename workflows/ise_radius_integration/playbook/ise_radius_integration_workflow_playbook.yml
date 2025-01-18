@@ -25,6 +25,7 @@
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
       dnac_log_file_path: "{{ catalyst_center_log_file_path | default(dnac_log_file_path) }}"
+      dnac_log_append: "{{ catalyst_center_log_append | default(dnac_log_append) }}"
   # Tasks including jinja templates to create the ise_radius_integration_details
   tasks:
     - name: Playbook start time for Authentication and Policy Servers configuration on Cisco Catalyst Center

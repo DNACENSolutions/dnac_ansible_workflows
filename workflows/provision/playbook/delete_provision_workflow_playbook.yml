@@ -1,8 +1,8 @@
 ---
-#the following playbook is used to run compliance, fix config compliance, on Cisco Catalyst Center
+#the following playbook is used to un-provision, re-provision devices on Cisco Catalyst Center
 # The playbook is executed with the following command
-# ansible-playbook -i inventory/hosts.yml network_compliance_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/network_compliance_inputs.yml"
-- name: Network Compliance on  Cisco Catalyst Center
+# ansible-playbook -i inventory/hosts.yml provision_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/provision_inputs.yml"
+- name: Provision devices Cisco Catalyst Center
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -11,7 +11,7 @@
     - "{{ VARS_FILE_PATH }}"
 
   vars:
-    state: merged
+    state: deleted
     dnac_login: &dnac_login
       dnac_host: "{{ dnac_host }}"
       dnac_username: "{{ dnac_username }}"
@@ -22,29 +22,28 @@
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
       dnac_log_level: "{{ dnac_log_level }}"
-      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(dnac_log_file_path) }}"
+      dnac_log_file_path: "{{ dnac_log_file_path | default(dnac_log_file_path) }}"
       dnac_log_append: "{{ catalyst_center_log_append | default(dnac_log_append) }}"
-      
   tasks:
-    - name: Network Compliance devices on Cisco Catalyst Center
+    - name: Un-Provision devices on Cisco Catalyst Center
       set_fact:
         long_op_start: "{{ now() }}"
-    - name: Network Compliance devices on Cisco Catalyst Center
-      cisco.dnac.network_compliance_workflow_manager:
+    - name: Un-Provision devices on Cisco Catalyst Center
+      cisco.dnac.provision_workflow_manager:
         <<: *dnac_login
         state: merged
-        config: "{{network_compliance_details}}"
-      register: network_compliance_output
-      when: network_compliance_details is defined
-    - name: Print the Network Compliance devices output
+        config: "{{provision_details}}"
+      register: provision_output
+      when: provision_details is defined
+    - name: Print the un-Provision devices output
       debug:
-        msg: "{{network_compliance_output}}"
-    - name: Network Compliance devices playbook end time
+        msg: "{{provision_output}}"
+    - name: Provision devices playbook end time
       set_fact:
         long_op_end: "{{ now() }}"
-    - name: Print Network Compliance devices playbook execution time
+    - name: Print Un-Provision devices playbook execution time
       debug:
-        msg: "Network Compliance devices playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+        msg: "Provision devices playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
   post_tasks:
     - name: run command module to find python version
       ansible.builtin.command: which python

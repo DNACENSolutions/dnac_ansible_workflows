@@ -24,6 +24,7 @@
       dnac_debug: "{{ dnac_debug }}"
       dnac_log: "{{ dnac_log }}"
       dnac_log_file_path: "{{ catalyst_center_log_file_path | default(dnac_log_file_path) }}"
+      dnac_log_append: "{{ catalyst_center_log_append | default(dnac_log_append) }}"
   tasks:
     - name: Playbook start time for Authentication and Policy Servers deletion on Cisco Catalyst Center
       set_fact:

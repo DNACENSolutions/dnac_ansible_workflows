@@ -2,69 +2,104 @@
 #Select Catalyst Cennter version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 sda_host_onboarding_details: 
-  - ip_address: "204.1.2.2"
-    port_assignment_details:
-      - interface_name: "FortyGigabitEthernet1/1/1"
-        connected_device_type: "TRUNKING_DEVICE"
-      - interface_name: "FortyGigabitEthernet1/1/2"
-        connected_device_type: "TRUNKING_DEVICE"
+  - ip_address: 204.101.16.1
+    fabric_site_name_hierarchy: Global/USA/SAN JOSE
+    port_assignments:
+      - interface_name: GigabitEthernet6/0/13
+        connected_device_type: TRUNKING_DEVICE
+      - interface_name: GigabitEthernet6/0/14
+        connected_device_type: TRUNKING_DEVICE
         authentication_template_name: "No Authentication"
         interface_description: "Trunk Port"
-      - interface_name: "FortyGigabitEthernet2/1/1"
-        connected_device_type: "ACCESS_POINT"
-        data_vlan_name: "AG_23"
-      - interface_name: "FortyGigabitEthernet2/1/2"
-        connected_device_type: "ACCESS_POINT"
-        data_vlan_name: "AG_23"
-        authentication_template_name: "No Authentication"
+      - interface_name: "GigabitEthernet6/0/15"
+        connected_device_type: ACCESS_POINT
+        data_vlan_name: APPOOL_SJC_INFRA_VN
+      - interface_name: "GigabitEthernet6/0/16"
+        connected_device_type: ACCESS_POINT
+        data_vlan_name: "APPOOL_SJC_INFRA_VN"
         interface_description: "Access Point Port"
-    port_channel_details:
-      - interface_names: ["TenGigabitEthernet1/0/37", "TenGigabitEthernet1/0/38", "TenGigabitEthernet1/0/39"]
-        connected_device_type: "TRUNK"
-      - interface_names: ["TenGigabitEthernet1/0/43", "TenGigabitEthernet1/0/44"]
-        connected_device_type: "TRUNK"
-        protocol: "ON"
-      - interface_names: ["TenGigabitEthernet1/0/45", "TenGigabitEthernet1/0/46", "TenGigabitEthernet1/0/47", "TenGigabitEthernet1/0/48"]
-        connected_device_type: "TRUNK"
-        protocol: "LACP"
-      - interface_names: ["TenGigabitEthernet1/1/2", "TenGigabitEthernet1/1/3", "TenGigabitEthernet1/1/4"]
-        connected_device_type: "TRUNK"
-        protocol: "PAGP"
-        port_channel_description: "Trunk port channel"
-      - interface_names: ["TenGigabitEthernet1/1/7", "TenGigabitEthernet1/1/8"]
-        connected_device_type: "EXTENDED_NODE"
-        protocol: "PAGP"
-        port_channel_description: "extended node port channel"
-  - hostname: "DC-T-9300.cisco.local"
-    port_assignment_details:
-      - interface_name: "FortyGigabitEthernet1/1/1"
-        connected_device_type: "TRUNKING_DEVICE"
-      - interface_name: "FortyGigabitEthernet1/1/2"
-        connected_device_type: "TRUNKING_DEVICE"
+      - interface_name: "GigabitEthernet6/0/17"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "EMPLOYEEPOOL_sjc_Employee_VN"
+        security_group_name: Employees
+        voice_vlan_name: VOICEPOOL_sjc_Employee_VN
         authentication_template_name: "No Authentication"
+        interface_description: "IPPhone and Laptop"
+    port_channels:
+      - interface_names: 
+          - GigabitEthernet6/0/18
+          - GigabitEthernet6/0/19
+        connected_device_type: "TRUNK"
+      - interface_names: 
+          -  GigabitEthernet6/0/20
+          -  GigabitEthernet6/0/21
+          -  GigabitEthernet6/0/22
+        connected_device_type: "TRUNK"
+        protocol: "PAGP"
+    wireless_ssids: 
+      - vlan_name: EMPLOYEEPOOL_sjc_Employee_VN
+        ssid_details:
+          - ssid_name: employees
+            security_group_name: Employees
+      - vlan_name: GUESTPOOL_sjc_Guest_VN
+        ssid_details:
+          - ssid_name: guest-nw
+            security_group_name: Guests
+
+  - fabric_site_name_hierarchy: Global/USA/SAN-FRANCISCO
+    ip_address: 204.101.16.2
+    port_assignments:
+      - interface_name: GigabitEthernet1/0/4
+        connected_device_type: TRUNKING_DEVICE
+      - interface_name: GigabitEthernet1/0/5
+        connected_device_type: TRUNKING_DEVICE
         interface_description: "Trunk Port"
-      - interface_name: "FortyGigabitEthernet2/1/1"
-        connected_device_type: "ACCESS_POINT"
-        data_vlan_name: "AG_23"
-      - interface_name: "FortyGigabitEthernet2/1/2"
-        connected_device_type: "ACCESS_POINT"
-        data_vlan_name: "AG_23"
-        authentication_template_name: "No Authentication"
+      - interface_name: GigabitEthernet1/0/6
+        connected_device_type: ACCESS_POINT
+        data_vlan_name: APPOOL_SF_INFRA_VN
+      - interface_name: "GigabitEthernet1/0/7"
+        connected_device_type: ACCESS_POINT
+        data_vlan_name: "APPOOL_SF_INFRA_VN"
         interface_description: "Access Point Port"
-    port_channel_details:
-      - interface_names: ["TenGigabitEthernet1/0/37", "TenGigabitEthernet1/0/38", "TenGigabitEthernet1/0/39"]
+      - interface_name: "GigabitEthernet1/0/8"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "EMPLOYEEPOOL_sf_EMPLOYEE_VN"
+        security_group_name: Employees
+        voice_vlan_name: VOICEPOOL_sf_Employee_VN
+        authentication_template_name: "No Authentication"
+        interface_description: "IPPhone and Laptop"
+      - interface_name: "GigabitEthernet1/0/9"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "EMPLOYEEPOOL_sf_EMPLOYEE_VN"
+        security_group_name: Employees
+        voice_vlan_name: VOICEPOOL_sf_Employee_VN
+        authentication_template_name: "No Authentication"
+        interface_description: "IPPhone and Laptop"
+      - interface_name: "GigabitEthernet1/0/10"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "EMPLOYEEPOOL_sf_EMPLOYEE_VN"
+        security_group_name: Employees
+        voice_vlan_name: VOICEPOOL_sf_Employee_VN
+        authentication_template_name: "No Authentication"
+        interface_description: "IPPhone and Laptop"
+    port_channels:
+      - interface_names: 
+          - GigabitEthernet1/0/11
+          - GigabitEthernet1/0/12
         connected_device_type: "TRUNK"
-      - interface_names: ["TenGigabitEthernet1/0/43", "TenGigabitEthernet1/0/44"]
-        connected_device_type: "TRUNK"
-        protocol: "ON"
-      - interface_names: ["TenGigabitEthernet1/0/45", "TenGigabitEthernet1/0/46", "TenGigabitEthernet1/0/47", "TenGigabitEthernet1/0/48"]
-        connected_device_type: "TRUNK"
-        protocol: "LACP"
-      - interface_names: ["TenGigabitEthernet1/1/2", "TenGigabitEthernet1/1/3", "TenGigabitEthernet1/1/4"]
+      - interface_names: 
+          -  GigabitEthernet1/0/13
+          -  GigabitEthernet1/0/14
+          -  GigabitEthernet1/0/15
         connected_device_type: "TRUNK"
         protocol: "PAGP"
-        port_channel_description: "Trunk port channel"
-      - interface_names: ["TenGigabitEthernet1/1/7", "TenGigabitEthernet1/1/8"]
-        connected_device_type: "EXTENDED_NODE"
-        protocol: "PAGP"
-        port_channel_description: "extended node port channel"
+  - fabric_site_name_hierarchy: Global/USA/SAN-FRANCISCO
+    wireless_ssids: 
+      - vlan_name: EMPLOYEEPOOL_sf_EMPLOYEE_VN
+        ssid_details:
+          - ssid_name: employees
+            security_group_name: Employees
+      - vlan_name: GUESTPOOL_sf_Guest_VN
+        ssid_details:
+          - ssid_name: guest-nw
+            security_group_name: Guests
