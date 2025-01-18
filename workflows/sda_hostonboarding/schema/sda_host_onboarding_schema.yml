@@ -300,8 +300,10 @@ sda_host_onboarding_details: list(include('sda_host_onboarding_details_type'), r
 sda_host_onboarding_details_type:
   hostname: str(required=False)
   ip_address: str(required=False)
-  port_assignment_details: list(include('port_assignment_details_type'), required=False, min=0, max=100)
-  port_channel_details: list(include('port_channel_details_type'), required=False, min=0, max=100)
+  fabric_site_name_hierarchy: str(required=False)
+  port_assignments: list(include('port_assignment_details_type'), required=False, min=0, max=100)
+  port_channels: list(include('port_channel_details_type'), required=False, min=0, max=100)
+  wireless_ssids: list(include('wireless_ssid_details_type'), required=False, min=0, max=100)
 
 port_assignment_details_type:
   authentication_template_name: enum('No Authentication', 'Open Authentication', 'Closed Authentication', 'Low Impact', required=False)
@@ -319,6 +321,13 @@ port_channel_details_type:
   port_channel_name: str(required=False)
   protocol: enum('ON', 'LACP', 'PAGP', required=False)
 
+wireless_ssid_details_type:
+  vlan_name: str(required=True)
+  ssid_details: list(include('ssid_details_type'), required=True, min=0, max=100)
+
+ssid_details_type:
+  ssid_name: str(required=True)
+  security_group_name: str(required=False)
 
 # The Cisco Catalyst Center schema for the SD-Access Host Onboarding playbook.
 
