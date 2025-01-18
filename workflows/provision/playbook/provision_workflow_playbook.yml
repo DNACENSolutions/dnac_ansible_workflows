@@ -1,5 +1,5 @@
 ---
-#the following playbook is used to provision, re-provision, and de-provision devices on Cisco Catalyst Center
+#the following playbook is used to provision, re-provision devices on Cisco Catalyst Center
 # The playbook is executed with the following command
 # ansible-playbook -i inventory/hosts.yml provision_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/provision_inputs.yml"
 - name: Provision devices Cisco Catalyst Center
@@ -23,7 +23,7 @@
       dnac_log: "{{ dnac_log }}"
       dnac_log_level: "{{ dnac_log_level }}"
       dnac_log_file_path: "{{ dnac_log_file_path | default(dnac_log_file_path) }}"
-
+      dnac_log_append: "{{ catalyst_center_log_append | default(dnac_log_append) }}"
   tasks:
     - name: Provision devices on Cisco Catalyst Center
       set_fact:
