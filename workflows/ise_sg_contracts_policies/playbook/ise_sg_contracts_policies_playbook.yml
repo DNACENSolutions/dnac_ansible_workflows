@@ -1,0 +1,60 @@
+
+---
+- hosts: ise
+  gather_facts: false
+  connection: local
+
+vars:
+  ise_login: &ise_login
+    ise_hostname: "{{ise_hostname}}"
+    ise_username: "{{ise_username}}"
+    ise_password: "{{ise_password}}"
+    ise_verify: "{{ise_verify}}"
+    state: present
+
+  tasks:
+    - name: Include vars from YAML file
+      include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+
+    - name: Get all SGt
+      cisco.ise.sgt_info:
+        <<: *ise_login
+        page: 1
+        size: 100
+        sortasc: string
+        sortdsc: string
+        filter: []
+        filterType: AND
+      register: result
+
+    - name: Get SGt by id
+      cisco.ise.sgt_info:
+        <<: *ise_login
+        id: string
+      register: result
+
+    - name: Create Security Groups
+      cisco.ise.ise_sg_group:
+        <<: *ise_login
+        sg_name: "{{ item.name }}"
+        sg_description: "{{ item.description }}"
+      loop: "{{ security_groups }}"
+
+    - name: Create Access Contracts
+      cisco.ise.ise_sg_contract:
+        <<: *ise_login
+        sg_contract_name: "{{ item.name }}"
+        sg_contract_description: "{{ item.description }}"
+        sg_source_name: "{{ item.source_group }}"
+        sg_destination_name: "{{ item.destination_group }}"
+      loop: "{{ access_contracts }}"
+
+    - name: Create Access Policies
+      cisco.ise.ise_sg_acl:
+        <<: *ise_login
+        sg_acl_name: "{{ item.name }}"
+        sg_acl_description: "{{ item.description }}"
+        sg_contract_name: "{{ item.contract }}"
+      loop: "{{ access_policies }}"
+
