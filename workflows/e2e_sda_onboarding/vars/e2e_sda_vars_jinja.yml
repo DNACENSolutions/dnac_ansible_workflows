@@ -1,0 +1,479 @@
+# Define User Roles and Access Policies
+# ISE Integrations - Create CatC ISE Integration
+# Design Site Hierarchy (Sites, Buildings and Floors)
+# Define Device Credentials and Assign credentials to sites.
+# Define Network Settings (NTP, SNMP, Syslog, IP Pools, DNS, DHCP, IPAM)
+# IP Address Management - Create IP Address Pools, Assign IP Address Pools to Sites
+# Define and Run Discovery, Discover Devices
+# Define Network Profiles (Switching, Wireless, Assurance)
+# Inventory Management - Update device details, roles, assigned devices to sites and provision devices
+# Define and Run Provisioning, Provision Devices
+# Create Fabric Sites and Fabric Zones
+# Create Fabric Transits IP/SDA (BGP/LISP-PUBSUB)
+# Create Virtual Network and associate VNs to sites
+# Create L3 Gateways and L2 Vlans and assigne them to sites
+# Add devices to Fabric and assign them to sites with roles and transits, L2/L3 Handoffs
+# Onboard host Devices on fabric sites.
+# Define User Roles and Access Policies
+catc_users_and_roles:
+  roles_users_details:
+    # Define roles and users to be created or updated, and their permissions
+    # Assign users with customed roles
+    role_details:
+      - role_name: Admin_customized_role
+        description: This role is created for Ansible module testing
+        assurance:
+          - monitoring_and_troubleshooting: write
+            monitoring_settings: read
+            troubleshooting_tools: deny
+        network_analytics:
+          - data_access: write
+        network_design:
+          - advanced_network_settings: deny
+            image_repository: deny
+            #network_hierarchy: deny
+            network_profiles: write
+            network_settings: write
+            virtual_network: read
+        network_provision:
+          - compliance: deny
+            eox: read
+            image_update: write
+            inventory_management:
+              - device_configuration: write
+                discovery: deny
+                network_device: read
+                port_management: write
+                topology: write
+            license: write
+            network_telemetry: write
+            pnp: deny
+            provision: read
+        network_services:
+          - app_hosting: deny
+            bonjour: write
+            stealthwatch: read
+            umbrella: deny
+        platform:
+          - apis: write
+            bundles: write
+            events: write
+            reports: read
+        security:
+          - group_based_policy: read
+            ip_based_access_control: write
+            security_advisories: write
+        system:
+          - machine_reasoning: read
+            system_management: write
+        utilities:
+          - audit_log: read
+            event_viewer: deny
+            network_reasoner: write
+            remote_device_support: read
+            scheduler: read
+            search: write
+      - role_name: Assurance-role
+        description: With write access overall
+        assurance:
+          - overall: write
+            monitoring_and_troubleshooting: read
+    user_details:
+      - username: testuser1
+        first_name: ajith
+        last_name: Andrew1
+        email: ajith_andrew@example.com
+        #Password Restrictions: Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character, no white spaces, no more than 2 identical characters in a row, no more than 3 consecutive characters,
+        password: "Lablab#!12345"
+        password_update: true
+        role_list: 
+          - Admin_customized_role
+          - Assurance-role
+
+# Define Catalyst Center ISE Integration
+catc_ise_aaas:
+  ise_radius_integration_details:
+    - authentication_policy_server:
+      - server_type: AAA
+        server_ip_address: 10.0.0.1
+        shared_secret: "12345"
+        protocol: RADIUS_TACACS
+        authentication_port: 1812
+        accounting_port: 1813
+        retries: 3
+        timeout: 4
+        role: secondary
+      - server_type: ISE
+        server_ip_address: 10.195.243.31
+        shared_secret: "Labab123"
+        protocol: RADIUS_TACACS
+        #encryption_scheme: KEYWRAP
+        #encryption_key: "1234567890123456"
+        #message_authenticator_code_key: asdfghjklasdfghjklas
+        authentication_port: 1812
+        accounting_port: 1813
+        retries: 3
+        timeout: 4
+        role: primary
+        use_dnac_cert_for_pxgrid: False
+        pxgrid_enabled: True
+        cisco_ise_dtos:
+        - user_name: admin
+          password: "Maglev#123"
+          fqdn: IBSTE-ISE1.cisco.com
+          ip_address: 10.195.243.31
+          description: Cisco ISE
+        trusted_server: True
+        ise_integration_wait_time: 20
+
+# Define Site Hierarchy
+Global:
+  global_ip_pools:
+    - name: "Global IP Pool"
+      description: "Global IP Pool"
+      ip_pool: ""
+      gateway: ""
+      mask: ""
+      dns_server: ""
+      dhcp_server: ""
+  global_nw_settings:
+    - name: "Global Network Settings"
+      ntp_server: ""
+      snmp_server: ""
+      syslog_server: ""
+      dns_server: ""
+      dhcp_server: ""
+  area:
+    - name: "Area"
+      area_name: ""
+      area_description: ""
+      area_parent: ""
+      building:
+        - name: "Building"
+          building_name: ""
+          building_description: ""
+          building_parent: ""
+          floor:
+            - name: "Floor"
+              floor_name: ""
+              floor_description: ""
+              floor_parent: ""
+
+# Define Device Credentials and Assign credentials to sites.
+device_credentials:
+  credentials_details: #Create multiple credentials for the same protocol
+  - global_credential_details: #Create global credentials for the device list
+      cli_credential: #Create CLI credentials list
+      - description: CLI Sample 1
+        username: cli-1
+        password: "5!meh"
+        enable_password: "q4^t^"
+      - description: CLI2
+        username: cli-2
+        password: "sbs2@"
+        enable_password: "8b!rn"
+      snmp_v3: #Create SNMPv3 credentials list
+      - description: snmpV3 Sample 1 
+        auth_password: "hp!x6px&#@2xi5"
+        auth_type: SHA
+        snmp_mode: AUTHPRIV
+        privacy_password: "ai7tpci3j@*j5g"
+        privacy_type: AES128
+        username: admin
+      https_read: #Create HTTPS Read credentials list
+      - description: httpsRead Sample 1
+        username: admin
+        password: "2!x88yvqz*7"
+        port: 443
+      https_write: #Create HTTPS Write credentials list
+      - description: httpsWrite Sample 1
+        username: admin
+        password: "j@5wgm%s2g%"
+        port: 443
+  credentials_site_assignment: #Assign credentials to sites list of all sites mappings
+  - assign_credentials_to_site: # Assign device credentials to sites
+      cli_credential: #Assign CLI credentials to sites
+        description: CLI Sample 1
+        username:  cli-1
+      snmp_v3: #Assign SNMPv3 credentials to sites
+        description: snmpV3 Sample 1 
+        username: admin
+      https_read: #Assign HTTPS Read credentials to sites
+        username: admin
+        description: httpsRead Sample 1
+      https_write: #Assign HTTPS Write credentials to sites
+        username: admin
+        description: httpsWrite Sample 1
+      site_name: #Sites  to which the credentials are assigned
+      - Global/India #Full Site Heirarchy Path from Global to Site
+      - Global/India/Bangalore
+
+# Define Network Settings (NTP, SNMP, Syslog, IP Pools, DNS, DHCP, IPAM)
+network_settings_details: 
+  - network_management_details:
+    - site_name: Global
+      settings:
+        dns_server:
+          domain_name: cisco.com
+          primary_ip_address: "204.192.3.40"
+          secondary_ip_address: "2006:1:1::1"
+        dhcp_server: 
+            - "204.192.3.40"
+            - "2004:192:3::40"
+        network_aaa:
+          server_type: ISE
+          shared_secret: Maglev123
+          # Wrong to be fixed with bug fix: CSCwm65781
+          #pan_address: "10.195.243.31"
+          pan_address: "82.2.2.3"
+          # Wrong to be fixed with bug fix: CSCwm65781
+          #primary_server_address: "82.2.2.3"
+          primary_server_address: "10.195.243.31"
+          protocol: RADIUS
+        client_and_endpoint_aaa:
+          server_type: ISE
+          shared_secret: Maglev123
+          # Wrong to be fixed with bug fix: CSCwm65781
+          #pan_address: "10.195.243.31"
+          pan_address: "82.2.2.3"
+          # Wrong to be fixed with bug fix: CSCwm65781
+          #primary_server_address: "82.2.2.3"
+          primary_server_address: "10.195.243.31"
+          protocol: RADIUS
+        ntp_server: 
+          - "204.192.3.40"
+        message_of_the_day:
+          banner_message: This Device belongs to En Solutions, Stay away
+          retain_existing_banner: False
+        netflow_collector:
+          ip_address: 82.2.2.3
+          port: 443
+        snmp_server:
+          configure_dnac_ip: False
+          ip_addresses: 
+            - 9.9.9.9
+        syslog_server:
+          configure_dnac_ip: False
+          ip_addresses: 
+            - 9.9.9.9
+        timezone: America/Los_Angeles
+  # IP Address Management - Create IP Address Pools, Assign IP Address Pools to Sites
+  - global_pool_details:
+        settings:
+          ip_pool:
+          - name:  underlay
+            gateway: 204.1.1.1
+            ip_address_space: IPv4
+            cidr: 204.1.1.0/24
+            pool_type: Generic
+            dhcp_server_ips:
+              - 204.192.3.40
+            dns_server_ips:
+              - 171.70.168.183
+          - name:  underlay1
+            gateway: 204.1.2.1
+            ip_address_space: IPv4
+            cidr: 204.1.2.0/24
+            pool_type: Generic
+            dhcp_server_ips:
+              - 204.192.3.40
+            dns_server_ips:
+              - 171.70.168.183
+          - name:  SENSORPool
+            gateway: 204.1.48.1
+            ip_address_space: IPv4
+            cidr: 204.1.48.0/20
+            pool_type: Generic
+            dhcp_server_ips:
+              - 204.192.3.40
+            dns_server_ips:
+              - 171.70.168.183
+          - name:  SENSORPool_V6
+            gateway: 2004:1:48::1
+            ip_address_space: IPv6
+            cidr: 2004:1:48::/64
+            pool_type: Generic
+            dhcp_server_ips:
+              - 2004:192:3::40
+            dns_server_ips:
+              - 2006:1:1::1
+    - reserve_pool_details:
+      - ipv6_address_space: False
+        ipv4_global_pool: 204.1.1.0
+        ipv4_prefix: True
+        ipv4_prefix_length: 25
+        ipv4_subnet: 204.1.1.0
+        ipv4_gateway: 204.1.1.1
+        name: underlay_sub
+        site_name: Global/USA/SAN JOSE
+        slaac_support: False
+        pool_type: LAN
+      - ipv6_address_space: False
+        ipv4_global_pool:  204.1.1.0
+        ipv4_prefix: True
+        ipv4_prefix_length: 25
+        ipv4_subnet: 204.1.1.128
+        ipv4_gateway: 204.1.1.129
+        name: underlay_sub_small
+        site_name: Global/USA/SAN JOSE
+        slaac_support: False
+        pool_type: LAN
+      - ipv6_address_space: True
+        ipv4_global_pool: 204.1.48.0
+        ipv4_prefix: True
+        ipv4_prefix_length: 24
+        ipv4_subnet: 204.1.48.0/24
+        ipv4_gateway: 204.1.48.1
+        ipv4_dhcp_servers:
+          - 204.192.3.40
+        ipv4_dns_servers:
+          - 204.192.3.40
+        name: SENSORPool_sub
+        ipv6_prefix: True
+        ipv6_prefix_length: 112
+        ipv6_global_pool: 2004:1:48::/64
+        ipv6_subnet: 2004:1:48::1:0
+        ipv6_gateway: 2004:1:48::1:1
+        ipv6_dhcp_servers: 
+          - 2004:192:3::40
+        ipv6_dns_servers: 
+          - 2006:1:1::1
+        site_name: Global/USA/SAN JOSE
+        slaac_support: False
+        pool_type: Generic
+    #Assign Network Settings at the global and Site level
+    - network_management_details:
+      - site_name: Global
+        settings:
+          dns_server:
+            domain_name: cisco.com
+            primary_ip_address: "204.192.3.40"
+            secondary_ip_address: "2006:1:1::1"
+          dhcp_server: 
+              - "204.192.3.40"
+              - "2004:192:3::40"
+          network_aaa:
+            server_type: ISE
+            shared_secret: Maglev123
+            # Wrong to be fixed with bug fix: CSCwm65781
+            #pan_address: "10.195.243.31"
+            pan_address: "82.2.2.3"
+            # Wrong to be fixed with bug fix: CSCwm65781
+            #primary_server_address: "82.2.2.3"
+            primary_server_address: "10.195.243.31"
+            protocol: RADIUS
+          client_and_endpoint_aaa:
+            server_type: ISE
+            shared_secret: Maglev123
+            # Wrong to be fixed with bug fix: CSCwm65781
+            #pan_address: "10.195.243.31"
+            pan_address: "82.2.2.3"
+            # Wrong to be fixed with bug fix: CSCwm65781
+            #primary_server_address: "82.2.2.3"
+            primary_server_address: "10.195.243.31"
+            protocol: RADIUS
+          ntp_server: 
+            - "204.192.3.40"
+          message_of_the_day:
+            banner_message: This Device belongs to En Solutions, Stay away
+            retain_existing_banner: False
+          netflow_collector:
+            ip_address: 82.2.2.3
+            port: 443
+          snmp_server:
+            configure_dnac_ip: False
+            ip_addresses: 
+              - 9.9.9.9
+          syslog_server:
+            configure_dnac_ip: False
+            ip_addresses: 
+              - 9.9.9.9
+          timezone: America/Los_Angeles
+
+# Define and Run Discovery, Discover Devices
+device_discovery:
+  discovery_details:
+    multi_range:
+      - ip_address_list:
+        - 204.101.16.2-204.101.16.3
+        - 204.101.16.4-204.101.16.4
+        discovery_type: MULTI RANGE
+        protocol_order: ssh
+        discovery_name: Multi Range Discovery 11
+        discovery_specific_credentials:
+          cli_credentials_list:
+              - username: wlcaccess
+                password: Lablab#123
+                enable_password: Cisco#123
+              - username: cisco
+                password: Cisco#123
+                enable_password: Cisco#123
+          http_read_credential:
+              username: wlcaccess
+              password: Lablab#123
+              port: 443
+              secure: true
+          http_write_credential:
+              username: wlcaccess
+              password: Lablab#123
+              port: 443
+              secure: true
+          snmp_v3_credential:
+              description: snmpV3 Sample 1
+              username: wlcaccess
+              snmp_mode: AUTHPRIV
+              auth_password: Lablab#123
+              auth_type: SHA
+              privacy_type: AES128
+              privacy_password: Lablab#123
+        net_conf_port: 430
+        timeout: 30
+        enable_password_list: 
+          - Cisco#123
+        retry: 2
+
+# Define Network Profiles (Switching, Wireless, Assurance)
+network_profiles:
+  network_profiles_details:
+    - network_profile_name: "Switching Profile"
+      network_profile_description: "Switching Profile"
+      network_profile_type: "Switching"
+      network_profile_sites:
+        - site_hierarchy1
+        - site_hierarchy2
+    - network_profile_name: "Wireless Profile"
+      network_profile_description: "Wireless Profile"
+      network_profile_type: "Wireless"
+      network_profile_sites:
+        - site_hierarchy1
+        - site_hierarchy2
+    - network_profile_name: "Assurance Profile"
+      network_profile_description: "Assurance Profile"
+      network_profile_type: "Assurance"
+      network_profile_sites:
+        - site_hierarchy1
+        - site_hierarchy2
+
+# Inventory Management - Update device details, roles, assigned devices to sites and provision devices
+inventory_management:
+  inventory_details:
+    network_devices:
+    - ip_address_list: ["204.101.16.2","204.101.16.3","204.101.16.3"]
+      role: ACCESS
+    - ip_address_list: ["204.101.16.1"]
+      role: BORDER ROUTER
+
+# Define and Run Provisioning, Provision Devices
+device_provisioning:
+  provision_details:
+    provision_wired_device:
+      device_ip: "204.101.16.1"
+      resync_retry_count: 3
+      resync_retry_interval: 5
+      site_name: "Global/India/Bangalore"
+    provision_wireless_device:
+      device_ip: "204.192.2.1"
+      resync_retry_count: 3
+      resync_retry_interval: 5
+      site_name: "Global/India/Bangalore"
+

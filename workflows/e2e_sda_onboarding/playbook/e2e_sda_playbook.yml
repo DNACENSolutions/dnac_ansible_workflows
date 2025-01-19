@@ -1,0 +1,50 @@
+---
+- name: Playbook to manage device credentials in Catalyst Center and assignment of credentials onsites and apply
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+  vars:
+    state: merged
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ catalyst_center_verify  | default(dnac_verify) }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      
+  tasks:
+    - name: Construct absolute paths for the variabe file
+      set_fact:
+        absolute_path: "{{ VARS_FILE_PATH | path_join(ansible_env.HOME) }}"
+    # Include the variables file {{ VARS_FILE_PATH }} for the playbook
+    - name: Device Credentials Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+
+    - name: set the password file path
+      set_fact:
+        passwords_file: "{{ passwords_file  | default('../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml') }}"
+      when: jinjatemplate is defined and jinjatemplate is true 
+
+    - name: load password file
+      include_vars:
+        file: "{{ passwords_file }}"
+      when: jinjatemplate is defined and jinjatemplate is true and passwords_file is defined
+
+    # load site template jinja file
+    - name: Create Template
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined
