@@ -1,0 +1,66 @@
+---
+- name:  Configure accesspoints on Cisco Catalyst Center.
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+  vars:
+    state: merged
+    dnac_login: &dnac_login
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+  tasks:
+    # Include the variables file {{ VARS_FILE_PATH }} for the playbook
+    - name: Accesspoints Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+    # load site template jinja file
+    - name: Create Template
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    - name: Create accesspoints from accesspoints_details config
+      cisco.dnac.accesspoint_workflow_manager:
+        <<: *dnac_login
+        dnac_version: "{{ dnac_version }}"
+        dnac_verify: "{{ dnac_verify }}"
+        state: "{{state}}"
+        config: "{{accesspoints_details}}"
+      register: accesspoints_output
+      when: accesspoints_details is defined and accesspoints_details | length > 0
+    # Print the sites creation output
+    - name: Print the Accesspoints creation output
+      debug:
+        msg: "{{site_output}}"
+    # delete the template file
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Sites playbook end time
+    - name: Accesspoints playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    # Print sites execution time
+    - name: Print sites execution time
+      debug:
+        msg: "Accesspoints playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  # run command module to find python version
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
