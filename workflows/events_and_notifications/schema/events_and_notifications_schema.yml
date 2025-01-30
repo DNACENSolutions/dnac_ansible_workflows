@@ -312,7 +312,15 @@
 # Set to True to verify the Cisco Catalyst Center config after applying the playbook config.
 #=======================
 catalyst_center_version: str(required=False)
-config_verify: bool(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_task_poll_interval: int(required=False)
+catalyst_center_config_verify: bool(required=False)
 events_notifications_destination_and_subscription_details: list(include('events_notifications_destination_and_subscription_details_type'), required=False)
 #Subtype Definitions
 ---

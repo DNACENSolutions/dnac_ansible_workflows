@@ -1,6 +1,6 @@
 ---
 catalyst_center_version: 2.3.7.6
-config_verify: false
+catalyst_center_verify: false
 events_notifications_destination_and_subscription_details:
   - email_destination:
       sender_email: "test@cisco.com"
