@@ -1,0 +1,57 @@
+# Copyright 2024 Cisco Systems, Inc. and its affiliates
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+# Network Hierarchy Design
+config_site: configs/common/config_site.yml
+
+# Device Credentials
+config_credentials: configs/common/config_credentials.yml
+
+# Device Discovery
+config_discovery: configs/common/config_discovery.yml
+
+# Network Settings
+config_nw_settings: configs/common/config_nw_settings.yml
+
+# CLI Templates
+config_templates: configs/common/config_templates.yml
+
+# Inventory
+config_inventory: configs/common/config_inventory.yml
+
+# Software Updates
+config_swim: configs/common/config_swim.yml
+
+# PnP Claim
+config_pnp: configs/common/config_pnp.yml
+
+# ISE and AAA Integration
+config_ise_aaa: configs/common/config_ise_aaa.yml
+
+# Device Provision
+config_provision: configs/common/config_provision.yml
+
+# IP Pools
+config_ip_pools: configs/common/config_ip_pools.yml
+
+# Compliance
+config_compliance: configs/common/config_compliance.yml
+
+# Event and Notification
+config_event_notification: configs/common/config_event_notification.yml
+
+# Device Config backup
+config_backup: configs/common/config_backup.yml
+
+# Users and Roles
+config_user_role: configs/common/config_user_role.yml
+
+# Access Point Configuration
+config_access_point: configs/common/config_access_point.yml
+
+# LAN Automation
+config_lan_automation: configs/common/config_lan_automation.yml
+
+# SDA VIRTUAL NETWORK
+config_sda_vn: configs/common/config_sda_vn.yml
+
