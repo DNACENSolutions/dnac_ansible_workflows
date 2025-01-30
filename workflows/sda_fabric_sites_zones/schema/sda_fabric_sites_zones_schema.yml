@@ -47,10 +47,16 @@
 # A boolean value indicating whether the Wake-on-LAN feature is enabled. Wake-on-LAN allows the network to remotely wake up devices that are in a low-power state.
 catalyst_center_version: str(required=False)
 catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
 jinjatemplate: bool(required=False)
 jinjatemplate_file: str(required=False)
 passwords_file: str(required=False)
-
 fabric_sites_and_zones: list(include('fabric_sites_and_zones_type'), min=0, max=1000, required=False)
 # Schema for the fabric sites and zones details.
 ---

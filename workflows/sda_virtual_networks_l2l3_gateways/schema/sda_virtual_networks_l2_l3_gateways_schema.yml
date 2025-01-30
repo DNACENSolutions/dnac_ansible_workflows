@@ -1,11 +1,10 @@
-# Parameters
-# Parameter	Choices/Defaults	Comments
+# Parameter	Choices / Defaults	Comments
 # config
-# list / elements =dictionary / required
+# list / elements=dictionary / required
 # A list containing detailed configurations for creating, updating, or deleting fabric sites/zones in a Software-Defined Access (SDA) environment. It also includes specifications for updating the authentication profile template for these sites. Each element in the list represents a specific operation to be performed on the SDA infrastructure, such as the addition, modification, or removal of fabric sites/zones, and modifications to authentication profiles.
 
 # anycast_gateways
-# list / elements =dictionary
+# list / elements=dictionary
 # A list of anycast gateways in the SDA fabric, each with details about its associated virtual network, IP pool, VLAN configuration, and other advanced network settings.
 
 # auto_generate_vlan_name
@@ -28,10 +27,10 @@
 
 # fabric_type
 # string
-# Default:fabric_site	
+# Default: fabric_site	
 # Specifies the type of site to be managed within the SDA environment. The acceptable values are 'fabric_site' and 'fabric_zone'. The default value is 'fabric_site', indicating the configuration of a broader network area, whereas 'fabric_zone' typically refers to a more specific segment within the site.
 
-# site_name
+# site_name_hierarchy
 # string
 # The hierarchical name of the site where the anycast gateway is deployed.
 
@@ -117,7 +116,7 @@
 # The name of the Layer3 virtual network. It must consist only of letters, numbers, and underscores, with a length between 1 and 16 characters. This field cannot be updated after creation.
 
 # fabric_vlan
-# list / elements =dictionary
+# list / elements=dictionary
 # A list of VLAN configurations for fabric sites in SDA environment. Each VLAN entry includes information about its name, ID, traffic type, and wireless capabilities.
 
 # associated_layer3_virtual_network
@@ -132,14 +131,14 @@
 # Indicates whether the fabric VLAN is enabled for wireless in the fabric environment. By default, it is set to False.
 
 # fabric_site_locations
-# list / elements =dictionary
+# list / elements=dictionary
 # A list of fabric site locations where this VLAN is deployed, including site hierarchy and fabric type details.
 
 # fabric_type
 # string / required
 # Specifies the type of site to be managed within the SDA environment. The acceptable values are 'fabric_site' and 'fabric_zone'. The default value is 'fabric_site', indicating the configuration of a broader network area, whereas 'fabric_zone' typically refers to a more specific segment within the site.
 
-# site_name
+# site_name_hierarchy
 # string / required
 # This name uniquely identifies the site for operations such as creating/updating/deleting any fabric VLAN. This parameter is required, and updates to this field is not allowed.
 
@@ -148,7 +147,7 @@
 # The type of traffic handled by the VLAN (e.g., DATA, VOICE). By default, it is set to "DATA".
 
 # vlan_id
-# string / required
+# integer / required
 # ID for the layer2 VLAN network. Allowed VLAN range is 2-4093 except for reserved VLANs 1002-1005, and 2046. If deploying on a fabric zone, this vlan_id must match the vlan_id of the corresponding layer2 virtual network on the fabric site. And updation of this field is not allowed.
 
 # vlan_name
@@ -156,7 +155,7 @@
 # Name of the VLAN of the layer2 virtual network. Must contain only alphanumeric characters, underscores, and hyphens. Updating this field is not allowed.
 
 # virtual_networks
-# list / elements =dictionary
+# list / elements=dictionary
 # A list of virtual networks (VNs) configured within the SDA fabric. Each virtual network includes details such as its name, associated fabric sites, and optionally, an anchored site.
 
 # anchored_site_name
@@ -164,15 +163,15 @@
 # Specifies the name of the fabric site where the virtual network is anchored. When this parameter is provided, ensure that the 'fabric_site_locations' contains the same 'site_name', and that only one fabric site location is specified. If all parameters are provided, the Layer3 virtual network is created and extended across multiple fabric sites. However, the operation will fail due to conflicting 'anchored_site_name' settings, and the module will return a failure response. For a Virtual Network anchored at a site, at least one Control Plane (CP) and External Border must be present.
 
 # fabric_site_locations
-# list / elements =dictionary
+# list / elements=dictionary
 # A list of fabric site locations where this this Layer3 virtual network is to be assigned to, including site hierarchy and fabric type details. If this parameter is given make sure to provide the site_name and fabric_type as well as the required parameter to extend the virtual networks across given fabric sites.
 
 # fabric_type
 # string
-# Default:fabric_site	
+# Default: fabric_site	
 # Specifies the type of site to be managed within the SDA environment. The acceptable values are 'fabric_site' and 'fabric_zone'. The default value is 'fabric_site', indicating the configuration of a broader network area, whereas 'fabric_zone' typically refers to a more specific segment within the site.
 
-# site_name
+# site_name_hierarchy
 # string
 # This name uniquely identifies the site for operations such as creating/updating/deleting any layer3 virtual network.
 
@@ -189,7 +188,7 @@
 
 # dnac_api_task_timeout
 # integer
-# Default:1200	
+# Default: 1200	
 # Defines the timeout in seconds for API calls to retrieve task details. If the task details are not received within this period, the process will end, and a timeout notification will be logged.
 
 # dnac_debug
@@ -229,7 +228,7 @@
 
 # dnac_log_file_path
 # string
-# Default:dnac.log	
+# Default: dnac.log	
 # Governs logging. Logs are recorded if dnac_log is True.
 
 # If path is not specified, - When 'dnac_log_append' is True, 'dnac.log' is generated in the current Ansible directory; logs are appended. - When 'dnac_log_append' is False, 'dnac.log' is generated; logs are overwritten.
@@ -238,7 +237,7 @@
 
 # dnac_log_level
 # string
-# Default:WARNING	
+# Default: WARNING	
 # Sets the threshold for log level. Messages with a level equal to or higher than this will be logged. Levels are listed in order of severity [CRITICAL, ERROR, WARNING, INFO, DEBUG].
 
 # CRITICAL indicates serious errors halting the program. Displays only CRITICAL messages.
@@ -257,17 +256,17 @@
 
 # dnac_port
 # string
-# Default:443	
+# Default: 443	
 # Specifies the port number associated with the Cisco Catalyst Center.
 
 # dnac_task_poll_interval
 # integer
-# Default:2	
+# Default: 2	
 # Specifies the interval in seconds between successive calls to the API to retrieve task details.
 
 # dnac_username
 # string
-# Default:admin	
+# Default: admin	
 # The username for authentication at the Cisco Catalyst Center.
 
 # aliases: user
@@ -280,8 +279,13 @@
 
 # dnac_version
 # string
-# Default:2.2.3.3	
+# Default: 2.2.3.3	
 # Specifies the version of the Cisco Catalyst Center that the SDK should use.
+
+# sda_fabric_vlan_limit
+# integer
+# Default: 50	
+# Set the limit for creating/updating fabric VLAN(s) via the SDA API, consistent with the GUI constraints. By default it is set to 50 as in the GUI we can only create 50 fabric VLAN(s) at a time.
 
 # state
 # string
@@ -296,16 +300,17 @@
 # true  ←
 # false
 # Flag for Cisco Catalyst Center SDK to enable the validation of request bodies against a JSON schema.
+
 catalyst_center_version: str(required=False)
-config_verify: bool(required=False, default=False)
+catalyst_center_verify: bool(required=False)
 catalyst_center_api_task_timeout: int(required=False, default=1200)
 catalyst_center_debug: bool(required=False, default=False)
 catalyst_center_log: bool(required=False, default=False)
 catalyst_center_log_append: bool(required=False, default=True)
 catalyst_center_log_file_path: str(required=False, default='dnac.log')
-catalyst_center_log_level: str(required=False, default='WARNING')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
 catalyst_center_task_poll_interval: int(required=False, default=2)
-catalyst_center_verify: bool(required=False)
 jinjatemplate: bool(required=False)
 jinjatemplate_file: str(required=False)
 sda_fabric_virtual_networks_details: list(include('sda_virtual_networks_l2_l3_gateways_type'),min=0,max=1000,required=True)
@@ -315,25 +320,25 @@ sda_virtual_networks_l2_l3_gateways_type:
   virtual_networks: list(include('virtual_networks_type'),min=1,max=100,required=False)
   anycast_gateways: list(include('anycast_gateways_type'),min=1,max=100,required=False)
   fabric_site_locations: list(include('fabric_site_locations_type'),min=1,max=100,required=False)
+
 fabric_vlan_type:
   associated_layer3_virtual_network: str(required=False)
   fabric_enabled_wireless: bool(required=False)
   fabric_site_locations: list(include('fabric_site_locations_type'),min=1,max=100,required=True)
-  #fabric_type: str(required=True)
   traffic_type: str(required=True)
-  vlan_id: int(required=False)
+  vlan_id: int(required=True)
   vlan_name: str(required=True)
+
 virtual_networks_type:
   anchored_site_name: str(required=False)
   fabric_site_locations: list(include('fabric_site_locations_type'),min=1,max=100,required=True)
-  #fabric_type: str(required=False)
   site_name: str(required=False)
   vn_name: str(required=True)
+
+
 anycast_gateways_type:
   auto_generate_vlan_name: bool(required=False)
-  fabric_site_location: 
-    site_name_hierarchy: str(required=True)
-    fabric_type: str(required=True)
+  fabric_site_location: include('fabric_site_locations_type', required=True)
   group_policy_enforcement_enabled: bool(required=False)
   intra_subnet_routing_enabled: bool(required=False)
   ip_directed_broadcast: bool(required=False)
@@ -341,7 +346,7 @@ anycast_gateways_type:
   is_critical_pool: bool(required=False)
   layer2_flooding_enabled: bool(required=False)
   multiple_ip_to_mac_addresses: bool(required=False)
-  pool_type: enum('EXTENDED_NODE', 'FABRIC_AP', required=False)
+  pool_type: str(required=False)
   security_group_name: str(required=False)
   supplicant_based_extended_node_onboarding: bool(required=False)
   tcp_mss_adjustment: int(required=False)
@@ -350,6 +355,7 @@ anycast_gateways_type:
   vlan_name: str(required=False)
   vn_name: str(required=True)
   fabric_enabled_wireless: bool(required=False)
+
 fabric_site_locations_type:
   site_name_hierarchy: str(required=True)
   fabric_type: str(required=True)

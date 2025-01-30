@@ -7,8 +7,8 @@ discovery_details:
       discovery_type: CDP
       protocol_order: ssh
       discovery_name: CDP Based Discovery1
-      enable_password_list: 
-        - Cisco#123
+      discovery_specific_credentials:
+        net_conf_port: "830"
       retry: 2
   single:
     - ip_address_list:
@@ -41,9 +41,8 @@ discovery_details:
         snmp_v2_write_credential:
             description: snmpV2 Sample 1
             community: public
-      net_conf_port: 430
-      enable_password_list: 
-        - Cisco#123
+      discovery_specific_credentials:
+        net_conf_port: "830"
       retry: 2
     - ip_address_list:
       - 204.101.16.2
@@ -77,9 +76,8 @@ discovery_details:
             auth_type: SHA
             privacy_type: AES128
             privacy_password: Lablab#123
-      net_conf_port: 430
-      enable_password_list: 
-        - Cisco#123
+      discovery_specific_credentials:
+        net_conf_port: "830"
       retry: 2
   range:
     - ip_address_list:
@@ -113,9 +111,8 @@ discovery_details:
             auth_type: SHA
             privacy_type: AES128
             privacy_password: Lablab#123
-      net_conf_port: 430
-      enable_password_list: 
-        - Cisco#123
+      discovery_specific_credentials:
+        net_conf_port: "830"
       retry: 2
   multi_range:
     - ip_address_list:
@@ -150,9 +147,8 @@ discovery_details:
             auth_type: SHA
             privacy_type: AES128
             privacy_password: Lablab#123
-      net_conf_port: 430
       timeout: 30
-      enable_password_list: 
-        - Cisco#123
+      discovery_specific_credentials:
+        net_conf_port: "830"
       retry: 2
 
