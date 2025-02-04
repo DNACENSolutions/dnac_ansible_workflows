@@ -78,7 +78,7 @@ url_details_type:
   schedule_origin: str(required=False)
 
 payload_type:
-  source_url: str()
+  source_url: any(str(), list(str()), required=True)
   third_party: bool(required=False)
   file_path: str(required=False)
   third_party_application_type: enum('WLC', 'LINUX', 'FIREWALL', 'WINDOWS', 'LOADBALANCER', 'THIRDPARTY', 'NAM', 'WAN Optimization', 'Unknown', 'Router', required=False)
