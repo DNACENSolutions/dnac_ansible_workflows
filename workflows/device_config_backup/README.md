@@ -34,6 +34,29 @@ catalyst_center_hosts:
             dnac_log_level: INFO
             dnac_log: true
 ```
+
+3. ## Define Playbook input:
+The workflows/device_config_backup/vars device_config_backup_workflow_input.yml file stores the sites details you want to configure
+
+```bash
+catalyst_center_version: 2.3.7.6
+catalyst_center_task_timeout: 1200
+catalyst_center_task_poll_interval: 60
+
+# Network Settings an IP Pools design.
+device_configs_backup_details:
+  - management_ip_address: 204.1.2.1
+    #hostname: NY-BN-9500.cisco.local
+    #serial_number: F2AKI0082J
+    #family: Switches and Hubs
+    #type: Cisco Catalyst 9300 Switch
+    #series: Cisco Catalyst 9300 Series Switches
+    collection_status: Managed
+    file_path: "./"
+  - management_ip_address: 204.1.2.2
+    file_path: "./"
+```
+
 3. ## Generate your Input:
 The workflows/device_config_backup/vars/device_config_backup_workflow_input.yml file should be configured with device details
 Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/device_configs_backup_workflow_manager
