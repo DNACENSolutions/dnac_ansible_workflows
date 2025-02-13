@@ -91,6 +91,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: /auto/dna-sol/ws/rammuthy/new_repo/dnac_ansible_workflows/workflows/sites/images/floor_image1.png
+        force_upload_floor_image: True
     type: floor
 ```
 You can organize by putting all teh sites togather i.e. all fllor under one building next to the building.
@@ -143,6 +147,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: /auto/dna-sol/ws/rammuthy/new_repo/dnac_ansible_workflows/workflows/sites/images/floor_image1.png
+        force_upload_floor_image: True
     type: floor
 {% endfor %}
 {% endfor %}
