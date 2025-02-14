@@ -47,7 +47,7 @@ We have three ways to import images into DNAC:
           url_details:
             payload:
               - source_url: 
-                  - http://172.21.236.183/swim/sanity_image_regr/17_12_4CCO/C9800-40-universalk9_wlc.17.12.04.SPA.bin
+                  - http://xx.xx.xx.xx/swim/sanity_image_regr/17_12_4CCO/C9800-40-universalk9_wlc.17.12.04.SPA.bin
                 is_third_party: False
   ```
   + Explain values:
@@ -71,15 +71,15 @@ We have three ways to import images into DNAC:
           url_details:
             payload:
               - source_url: 
-                  - http://172.21.236.183/swim/V1715_1PRD18_FC1/cat9k_iosxe.17.15.01prd18.SPA.bin
-                  - http://172.21.236.183/swim/V1715_1PRD18_FC1/C9800-SW-iosxe-wlc.17.15.01prd18.SPA.bin
+                  - http://xx.xx.xx.xx/swim/V1715_1PRD18_FC1/cat9k_iosxe.17.15.01prd18.SPA.bin
+                  - http://xx.xx.xx.xx/swim/V1715_1PRD18_FC1/C9800-SW-iosxe-wlc.17.15.01prd18.SPA.bin
                 is_third_party: False
       - import_image_details:
           type: remote
           url_details:
             payload:
               - source_url: 
-                  - http://172.21.236.183/swim/V1715_1PRD18_FC1/C9800-universalk9_wlc.17.15.01prd18.SPA.bin	
+                  - http://xx.xx.xx.xx/swim/V1715_1PRD18_FC1/C9800-universalk9_wlc.17.15.01prd18.SPA.bin	
                 is_third_party: False
   ```
   DNAC will install in parallel with the two images: 'cat9k_iosxe.17.15.01prd18.SPA.bin' and 'C9800-SW-iosxe-wlc.17.15.01prd18.SPA.bin'. After the import is completed, DNAC will continue to install the image 'C9800-universalk9_wlc.17.15.01prd18.SPA.bin'.
@@ -122,9 +122,6 @@ Distribute the image to the device. In the playbook, we can have two types for d
   ```yaml
       - image_distribution_details:
           image_name: cat9k_iosxe.17.06.08.SPA.bin
-          device_serial_number: null
-          device_hostname: null
-          device_mac_address: null
           device_ip_address: 204.1.2.1
   ```
 
@@ -152,9 +149,6 @@ Activate the image to the device after successful distribution. In the playbook,
           schedule_validate: false
           activate_lower_image_version: true
           distribute_if_needed: true
-          device_serial_number: null
-          device_hostname: null
-          device_mac_address: null
           device_ip_address: 204.1.2.1
           device_upgrade_mode: currentlyExists
   ```
@@ -192,8 +186,8 @@ We can update the software image (SWIM) to the device with just one run by combi
         url_details:
           payload:
             - source_url: 
-                - http://172.21.236.183/swim/V1715_1PRD18_FC1/cat9k_iosxe.17.15.01prd18.SPA.bin
-                - http://172.21.236.183/swim/V1715_1PRD18_FC1/C9800-SW-iosxe-wlc.17.15.01prd18.SPA.bin
+                - http://xx.xx.xx.xx/swim/V1715_1PRD18_FC1/cat9k_iosxe.17.15.01prd18.SPA.bin
+                - http://xx.xx.xx.xx/swim/V1715_1PRD18_FC1/C9800-SW-iosxe-wlc.17.15.01prd18.SPA.bin
               is_third_party: False
       tagging_details:
           image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
@@ -203,21 +197,13 @@ We can update the software image (SWIM) to the device with just one run by combi
           tagging: true
       image_distribution_details:
         image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
-        device_hostname: null
-        device_mac_address: null
-        device_ip_address: null
         device_role: ACCESS
         site_name: Global/USA/SAN JOSE/BLD23
         device_family_name: Switches and Hubs
-        device_serial_number: null
       image_activation_details:
         activate_lower_image_version: false
         device_family_name: Switches and Hubs
-        device_hostname: null
-        device_ip_address: null
-        device_mac_address: null
         device_role: ACCESS
-        device_serial_number: null
         device_upgrade_mode: currentlyExists
         distribute_if_needed: true
         image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
@@ -227,7 +213,6 @@ We can update the software image (SWIM) to the device with just one run by combi
 
 
 # Referances
-- https://iacguide.cisco.com/cvd/swim/
 
 * Note: The environment is used for the references in the above instructions.
 ```
