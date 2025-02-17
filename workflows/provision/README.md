@@ -12,10 +12,11 @@ To run this workflow, you follow the README.md
 
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/provision/playbook/provision_workflow_playbook.yml --e VARS_FILE_PATH=../vars/provision_workflow_inputs.yml -vvvv
 
-##parameters:
--i: Specifies the inventory file containing host details.
---e VARS_FILE_PATH: Path to the variable file containing workflow inputs.
--vvvv: Enables verbose mode for detailed output.
+## Parameters:
+
+- `-i`: Specifies the inventory file containing host details.  
+- `--e VARS_FILE_PATH`: Path to the variable file containing workflow inputs.  
+- `-vvvv`: Enables verbose mode for detailed output.  
 
 Description of vars in hosts.yml
 
