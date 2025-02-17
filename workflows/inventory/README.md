@@ -78,6 +78,17 @@ catalyst_center_hosts:
             dnac_log_level: INFO
             dnac_log: true
 ```
+## Description of Vars in `hosts.yml`
+
+    - **dnac_host**: IP address of the Catalyst Center.  
+    - **dnac_username**: Catalyst Center login username.  
+    - **dnac_password**: Catalyst Center login password.  
+    - **dnac_version**: Catalyst Center version.  
+    - **dnac_port**: Port number to which Catalyst Center listens.  
+    - **dnac_timeout**: Timeout for API requests made to Catalyst Center.  
+    - **dnac_verify**: Indicates whether to verify the SSL certificate of Catalyst Center.  
+    - **dnac_debug**: Enables or disables debug mode.  
+    - **dnac_log**: Enables or disables logging for Catalyst Center. 
 
 3. ## Define Playbook input:
 
@@ -118,41 +129,47 @@ inventory_details:
 
 Execute: Execute the playbooks with your inputs and Inventory, specify your input file using the --e variable VARS_FILE_PATH
 
-## Execute the Ansible Playbook to add devices:
+## To execute the Ansible Playbook for adding devices:
 * After the successful execution you will get the below message.
 "device(s) '204.101.16.1', '1.1.1.1', '2.2.2.2' added successfully in Cisco Catalyst Center."
 * verify the devices is successfully added to the inventory and present in the UI.
 ![alt text](images/add_devices.png)
-*  Run the add Devices Playbook:
+* To run the add Devices Playbook:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_vars.yml
 ```
 
-## Execute the Ansible Playbook to provision devices:
+## To execute the Ansible playbook for provision devices:
 * After the successful execution you will get the below message.
 "device(s) '137.1.3.1', '137.1.3.2', '137.1.3.3', '137.1.3.4', '137.1.3.5' provisioned successfully in Cisco Catalyst Center."
 * verify the devices provision status in the UI and it will show provision status as success.
 ![alt text](images/provision_device.png)
-*  Run the Provision Playbook:
+*  To run the Provision Playbook:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_provision_devices.yml
 ```
 
-## Execute the Ansible Playbook to resync/reboot devices:
+## To execute the Ansible playbook for resync/reboot devices:
 * After the successful execution you will get the below message.
 "Device(s) '['137.1.1.1', '137.1.1.2']' have been successfully resynced in the inventory in Cisco Catalyst Center."
-*  Run the Resync/Reboot Playbook:
+*  To run the Resync/Reboot Playbook:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_resync_reboot_vars.yml
 ```
 
-## Execute the Ansible Playbook to Delete devices:
+## To execute the Ansible playbook for deleting devices.:
 *  How to Delete Existing Devices/Provisioned devices from inventory
 * After the successful execution you will get the below message.
 "device(s) '204.101.16.1', '1.1.1.1', '2.2.2.2' successfully deleted in Cisco Catalyst Center"
-*  Run the Delete Playbook:
+*  To run the Delete Playbook:
 ```bash
-    ansible-playbook -i host_inventory_dnac10_195_227_14/hosts.yml workflows/inventory/playbook/delete_inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_delete_devices.yml
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/delete_inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_delete_devices.yml
 ```
+## Parameters:
+
+- `-i`: Specifies the inventory file containing host details.  
+- `--e VARS_FILE_PATH`: Path to the variable file containing workflow inputs.  
+- `-vvvv`: Enables verbose mode for detailed output. 
+
 ##  Important Notes
 * Always refer to the detailed input specification for comprehensive information on available options and their structure.
