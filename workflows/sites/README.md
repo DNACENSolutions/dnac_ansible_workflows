@@ -149,7 +149,7 @@ design_sites:
         height: 10.00
         floor_number: 1
         units_of_measure: feet
-        upload_floor_image_path: /auto/dna-sol/ws/rammuthy/new_repo/dnac_ansible_workflows/workflows/sites/images/floor_image1.png
+        upload_floor_image_path: workflows/sites/images/floor_image1.png
         force_upload_floor_image: True
     type: floor
 {% endfor %}

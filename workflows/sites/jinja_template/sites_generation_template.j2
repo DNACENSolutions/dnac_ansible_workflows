@@ -26,10 +26,6 @@ design_sites:
         latitude: 37.398188
         longitude: -121.912974
         country: United States
-        floor_number: 1
-        units_of_measure: feet
-        upload_floor_image_path: /auto/dna-sol/ws/rammuthy/new_repo/dnac_ansible_workflows/workflows/sites/images/floor_image3.jpeg
-        force_upload_floor_image: True
     type: building
 {% for l in range(1, 4) %}
   - site:
@@ -42,7 +38,7 @@ design_sites:
         height: 10.00
         floor_number: 1
         units_of_measure: feet
-        upload_floor_image_path: /auto/dna-sol/ws/rammuthy/new_repo/dnac_ansible_workflows/workflows/sites/images/floor_image3.jpeg
+        upload_floor_image_path: workflows/sites/images/floor_image3.jpeg
         force_upload_floor_image: True
     type: floor
 {% endfor %}
