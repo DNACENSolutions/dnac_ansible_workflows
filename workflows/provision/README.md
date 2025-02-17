@@ -18,17 +18,17 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/provision/playbook/
 - `--e VARS_FILE_PATH`: Path to the variable file containing workflow inputs.  
 - `-vvvv`: Enables verbose mode for detailed output.  
 
-Description of vars in hosts.yml
+## Description of Vars in `hosts.yml`
 
-dnac_host: IP address of the Catalyst Center.
-dnac_username: Catalyst Center login username.
-dnac_password: Catalyst Center login password.
-dnac_version:  Catalyst Center version.
-dnac_port: port number to which DNAC listen
-dnac_timeout: timeout for api request made to DNAC Center
-dnac_verify: Indicates whether to verify the SSL certificate of the DNAC Center
-dnac_debug: enable or disable debug mode
-dnac_log: enables or disables logging for Catalyst Center
+- **dnac_host**: IP address of the Catalyst Center.  
+- **dnac_username**: Catalyst Center login username.  
+- **dnac_password**: Catalyst Center login password.  
+- **dnac_version**: Catalyst Center version.  
+- **dnac_port**: Port number to which Catalyst Center listens.  
+- **dnac_timeout**: Timeout for API requests made to Catalyst Center.  
+- **dnac_verify**: Indicates whether to verify the SSL certificate of Catalyst Center.  
+- **dnac_debug**: Enables or disables debug mode.  
+- **dnac_log**: Enables or disables logging for Catalyst Center. 
 
 ##The Sample host_inventory_dnac1/hosts.yml
 
@@ -49,25 +49,25 @@ catalyst_center_hosts:
 ```
 User Inputs for Users and roles are stored in  workflows/provision/vars/provision_workflow_inputs.yml
 
-Key Configuration Operation
+## Key Configuration Operation  
 
-General Options:
-    - config_verify: Set to true to verify the catalyst center configuration
-    - state: Defines the post-module state
-    - config: List of devices being managed
+### General Options:  
+- **config_verify**: Set to `true` to verify the Catalyst Center configuration.  
+- **state**: Defines the post-module state.  
+- **config**: List of devices being managed.  
 
-Device-Specific Suboptions:
-    - management_ip_address: IP address of the device.
-    - provisioning: Defines whether only site assignment or full provisioning is performed.
-        . Set to 'true' to proceed with provisioning to a site.
-        . Set to 'false' to carry out site assignment only
-    - force_provisioning: Determines if provisioning should be enforced.
-    - site_name_hierarchy: Name of the site where the device will be added.
-        . Set to 'true' to enforce reprovisioning
-        . Set to 'false' to skip provisioning for devices
-    - managed_ap_locations: Site locations allocated for Access Points.
-    - primary_managed_ap_locations: Site locations assigned to primary managed APs.
-    - secondary_managed_ap_locations: Site locations assigned to secondary managed APs.
+### Device-Specific Suboptions:  
+- **management_ip_address**: IP address of the device.  
+- **provisioning**: Defines whether only site assignment or full provisioning is performed.  
+  - Set to `true` to proceed with provisioning to a site.  
+  - Set to `false` to carry out site assignment only.  
+- **force_provisioning**: Determines if provisioning should be enforced.  
+- **site_name_hierarchy**: Name of the site where the device will be added.  
+  - Set to `true` to enforce reprovisioning.  
+  - Set to `false` to skip provisioning for devices.  
+- **managed_ap_locations**: Site locations allocated for Access Points.  
+- **primary_managed_ap_locations**: Site locations assigned to primary managed APs.  
+- **secondary_managed_ap_locations**: Site locations assigned to secondary managed APs.
 
 Operations Overview
 
