@@ -6,44 +6,39 @@ This Ansible playbook streamlines the management of device compliance within you
 * Perform full compliance checks or specific category checks on reachable device(s).
 * Sync device configuration on device(s), running_configuration with Startup_config, if the they are our of sync.
 
-## Compatibility
+![Alt text](./images/complian.png)
+
+# Procedure
+1. ## Prepare your Ansible environment:
+
+Install Ansible if you haven't already Ensure you have network connectivity to your Catalyst Center instance. Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
+2. ## Compatibility
 
 * Catalyst Center Release version 2.3.7.6 and later
 
-## Key Concepts
+3. ## Key Concepts
 
 Device inputs can be provided through the input file **network_compliance_workflow_input.yml**
 
 * **network_compliance_details**: This section in your YAML input file defines the list of devices and their associated details to be processed by the playbook.
+* **ip_address_list**: List of IP addresses of devices to run a compliance check on or synchronize device configurations.
+* **site_name**: When "site_name" is specified, the module executes the operation on all the devices located within the specified site.
+* **run_compliance**: Determines if a full compliance check should be triggered on the devices specified in the "ip_address_list" and/or "site_name".
+* **run_compliance_categories**: Specifying compliance categories allows you to trigger compliance checks only for the mentioned categories.
+* **sync_device_config**: Determines whether to synchronize the device configuration on the devices specified in the "ip_address_list" and/or "site_name".
 
-## Workflow Specification
+4. ## Workflow Specification
 
 For comprehensive details on input options and structure, refer to the full workflow specification: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network_compliance_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network_compliance_workflow_manager/)
 
-## Running the Playbook
+5. ## Running the Playbook
 
 ### Configure Host Inventory
 
 - The **host_inventory_dnac1/hosts.yml** file contains connection details (IP, credentials) for your Catalyst Center instance.
 - Ensure the **dnac_version** matches your Catalyst Center version.
 
-### Prepare Input Data
-
-- User inputs are stored in **workflows/network_compliance/vars/network_compliance_workflow_inputs.yml**.
-
-### Validate Input
-
-```bash
-   (pyats) dnac_ansible_workflows % ./tools/validate.sh -s workflows/network_compliance/schema/network_compliance_workflow_schema.yml -d workflows/network_compliance/vars/network_compliance_workflow_input.yml
-```
-
-### Example run
-
-```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml --e VARS_FILE_PATH=../vars/network_compliance_workflow_input.yml -vvvv
-```
-
-### The Sample
+### Configure Host Inventory
 - **host_inventory_dnac1/hosts.yml**
 
 ```yaml
@@ -64,15 +59,29 @@ catalyst_center_hosts:
 
 - User Inputs for Users and roles are stored in **workflows/network compliance/vars/network_compliance_workflow_inputs.yml**
 
+### Prepare Input Data
+
+- User inputs are stored in **workflows/network_compliance/vars/network_compliance_workflow_inputs.yml**.
+
 ### Validate user input before running though ansible
 
+command to validate:
 ```bash
-(pyats) dnac_ansible_workflows % ./tools/validate.sh -s workflows/network_compliance/schema/network_compliance_workflow_schema.yml -d workflows/network_compliance/vars/network_compliance_workflow_input.yml 
+./tools/validate.sh -s workflows/network_compliance/schema/network_compliance_workflow_schema.yml -d workflows/network_compliance/vars/network_compliance_workflow_input.yml 
+```
+result:
+```bash
 workflows/network_compliance/schema/network_compliance_workflow_schema.yml
 workflows/network_compliance/vars/network_compliance_workflow_input.yml
 yamale   -s workflows/network_compliance/schema/network_compliance_workflow_schema.yml  workflows/network_compliance/vars/network_compliance_workflow_input.yml
 Validating /Users/pawansi/dnac_ansible_workflows/workflows/network_compliance/vars/network_compliance_workflow_input.yml...
 Validation success! 👍
+```
+
+### Example run
+
+```bash
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml --e VARS_FILE_PATH=../vars/network_compliance_workflow_input.yml -vvvv
 ```
 
 ### Important Notes
