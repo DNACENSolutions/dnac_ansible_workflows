@@ -91,7 +91,7 @@ Validation success! 👍
     ```
     Mapping config to UI Actions:
     ![alt text](./images/aaa_2.png)
-    ![alt text](./images/aaa_2.2.png)
+    ![alt text](./images/aaa_2.1.png)
 
     #### b. DHCP
     Example input config:
@@ -589,9 +589,9 @@ For example, if the variable (i=10; site_name='country') it will create a config
 ```
 
 #### 2d. UI action
-![alt text](./iamges/scale_nw1.png)
-![alt text](./iamges/scale_nw2.png)
-![alt text](./iamges/scale_nw3.png)
+![alt text](./images/scale_nw1.png)
+![alt text](./images/scale_nw2.png)
+![alt text](./images/scale_nw3.png)
 
 
 ## Referances
