@@ -211,7 +211,23 @@ We can update the software image (SWIM) to the device with just one run by combi
         site_name: Global/USA/SAN JOSE/BLD23
 ```
 
+# How to run
+  1. ## Command to run:
+  ```bash
+  ANSIBLE_PYTHON_INTERPRETER="$(which python)" ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/swim_vars.yml -vvv
+  ```
 
+  2. ## Structure file
+  ![alt text](./images/structure.png)
+
+    \* Explain values:
+    ```yaml
+    -i ./inventory/demo_lab/inventory_demo_lab.yml: refer to DNAC to run
+    ./workflows/swim/playbook/swim_workflow_playbook.yml: playbook will run this
+    --extra-vars VARS_FILE_PATH=./../vars/swim_vars.yml: location of the input file for the playbook to execute.
+    -vvv: return detailed information about the message; the more 'v', more detailed
+    ```
+  
 # Referances
 
 * Note: The environment is used for the references in the above instructions.
