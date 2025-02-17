@@ -1,0 +1,14 @@
+---
+catalyst_center_hosts:
+    hosts:
+        catalyst_center220:
+            dnac_host: 10.22.40.214
+            dnac_password: Admin-Than-()
+            dnac_port: 443
+            dnac_timeout: 60
+            dnac_username: thanduon
+            dnac_verify: false
+            dnac_version: 2.3.7.6
+            dnac_debug: true
+            dnac_log_level: debug
+            dnac_log: true  
