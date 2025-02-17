@@ -74,13 +74,13 @@ Provisioning:
     Assigns device to a site and configures them.
 
     step 1: Device is in a non-provisioned state
-    ![alt text](../../images/non-provision_device.png)
+    ![alt text](images/non-provision_device.png)
 
     step 2: Execute the provision workflow playbook. Upon a successful completion, the device is assigned and provisioned
-    ![alt text](../../images/Device_provisioned.png)
+    ![alt text](images/Device_provisioned.png)
 
     Provision configuration can be verified in the UI. 
-    ![alt text](../../images/Detailed_device_provision.png)
+    ![alt text](images/Detailed_device_provision.png)
 
     Upon successfull completion, the output will be.
     "msg": "Provisioning of the device '204.192.3.40' completed successfully.",
@@ -90,26 +90,26 @@ Site Assignment:
     Assign a device to a site without provision. set provisioning: False
 
     Step1: The device is not assigned to any site or provisioned 
-    ![alt text](../../images/Device_in_initial_state.png)
+    ![alt text](images/Device_in_initial_state.png)
     
     Step2: Execute the site assignment playbook. Upon successful completion, the device is assigned to a site
-    ![alt text](../../images/site_assignment_successful.png)
+    ![alt text](images/site_assignment_successful.png)
 
     Device site assignment details can be verified
-    ![alt text](../../images/Deail_site_Assignment.png)
+    ![alt text](images/Detail_site_Assignment.png)
     
 Device Re_Provision:
     Re-provision an already provisioned device
 
     Step1: The device is in a provisioned state
     Before the re-provisioning process, the device is in a provisioned state.
-    ![alt text](../../images/Device_already_provision.png)
-
+    ![alt text](images/Device_already_provision.png)
+    
     Step2: After the reprovision operation successful 
-    ![alt text](../../images/Re_provision_successful.png)
+    ![alt text](images/Re_provision_successful.png)
 
     Reprovision Device detail can be verified
-    ![alt text](../../images/Detail_device_reprovision.png)
+    ![alt text](images/Detail_device_reprovision.png)
 
     Upon successful completion, the output will be.
     "msg": "Re-Provision for device '137.1.1.8' done successfully",
@@ -119,10 +119,10 @@ Device Un_Provision:
     Un_provision the device
 
     Step1: The device is in provisioned state
-    ![alt text](../../images/Device_is_already_provision.png)
+    ![alt text](images/Device_is_already_provision.png)
 
     Step2: After the unprovision operation, the device will be removed from the inventory
-    ![alt text](../../images/Device_unprovisioned.png)
+    ![alt text](images/Device_unprovisioned.png)
 
     Upon successfull completetion, the playbook will return the following response
     "msg": "Deletion done Successfully for the device '137.1.1.12' ",
