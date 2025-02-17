@@ -1,7 +1,7 @@
 ---
-#the following playbook is used to provision, re-provision, and de-provision devices on Cisco Catalyst Center
+# The following playbook is used to provision and site_assignment of devices on Cisco Catalyst Center
 # The playbook is executed with the following command
-# ansible-playbook -i inventory/hosts.yml provision_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/provision_inputs.yml"
+# ansible-playbook -i inventory/hosts.yml provision_workflow_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/provision_workflow_inputs.yml"
 - name: Provision devices Cisco Catalyst Center
   hosts: catalyst_center_hosts
   connection: local
