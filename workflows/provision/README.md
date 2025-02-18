@@ -58,7 +58,7 @@ User Inputs for Users and roles are stored in  workflows/provision/vars/provisio
 
 ### Device-Specific Suboptions:  
 - **management_ip_address**: IP address of the device.  
-- **provisioning**: Defines whether only site assignment or full provisioning is performed.  
+- **provisioning**: Defines whether only site assignment or full provisioning will be performed.  
   - Set to `true` to proceed with provisioning to a site.  
   - Set to `false` to carry out site assignment only.  
 - **force_provisioning**: Determines if provisioning should be enforced.  
@@ -72,7 +72,7 @@ User Inputs for Users and roles are stored in  workflows/provision/vars/provisio
 Operations Overview
 
 ## Provisioning:
-Assigns device to a site and configures them.
+### Assigns device to a site and configures them
 
 step 1: Device is in a non-provisioned state
 ![alt text](images/non-provision_device.png)
@@ -88,7 +88,7 @@ Upon successfull completion, the output will be.
 "response": "Provisioning of the device '204.192.3.40' completed successfully."
 
 ## Site Assignment:
-Assign a device to a site without provision. set provisioning: False
+### Assign a device to a site without provision. set provisioning: False
 
 Step1: The device is not assigned to any site or provisioned 
 ![alt text](images/Device_in_initial_state.png)
@@ -100,7 +100,7 @@ Device site assignment details can be verified
 ![alt text](images/Detail_site_Assignment.png)
     
 ## Device Re_Provision:
-Re-provision an already provisioned device
+### Re-provision an already provisioned device
 
 Step1: The device is in a provisioned state
 Before the re-provisioning process, the device is in a provisioned state.
@@ -117,7 +117,7 @@ Upon successful completion, the output will be.
 "response": "Wired Device '137.1.1.8' re-provisioning completed successfully."
 
 ## Device Un_Provision:
-Un_provision the device
+### Un_provision the provisioned device
 
 Step1: The device is in provisioned state
 ![alt text](images/Device_is_already_provision.png)
