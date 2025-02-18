@@ -6,8 +6,10 @@ Provision_details defines the list of devices and device details such as managem
 
 To define the details you can refer the full workflow specification: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/provision_workflow_manager/
 
-To run this workflow, you follow the README.md 
+To run this workflow, you follow the README.md
+
 ##Example Run:
+
 ##Run the following command to execute the playbook
 
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/provision/playbook/provision_workflow_playbook.yml --e VARS_FILE_PATH=../vars/provision_workflow_inputs.yml -vvvv
@@ -72,7 +74,7 @@ User Inputs for Users and roles are stored in  workflows/provision/vars/provisio
 Operations Overview
 
 ## Provisioning:
-#### Assigns device to a site and configures them
+#### Assigns device to a site and configures them.
 
 step 1: Device is in a non-provisioned state
 
@@ -108,7 +110,7 @@ Device site assignment details can be verified
 ![alt text](images/Detail_site_Assignment.png)
     
 ## Device Re_Provision:
-#### Re-provision an already provisioned device
+#### Re-provision an already provisioned device.
 
 Step1: The device is in a provisioned state
 
@@ -129,7 +131,7 @@ Upon successful completion, the output will be.
 "response": "Wired Device '137.1.1.8' re-provisioning completed successfully."
 
 ## Device Un_Provision:
-#### Un_provision the provisioned device
+#### Un_provision the provisioned device.
 
 Step1: The device is in provisioned state
 
