@@ -9,7 +9,6 @@ To define the details you can refer the full workflow specification: https://gal
 To run this workflow, you follow the README.md
 
 ##Example Run:
-
 ##Run the following command to execute the playbook
 
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/provision/playbook/provision_workflow_playbook.yml --e VARS_FILE_PATH=../vars/provision_workflow_inputs.yml -vvvv
@@ -87,6 +86,15 @@ step 2: Execute the provision workflow playbook. Upon a successful completion, t
 Provision configuration can be verified in the UI. 
 
 ![alt text](images/Detailed_device_provision.png)
+
+### Example:
+#### ** Input (YAML) **
+```bash
+provision_details:
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+    management_ip_address: 204.192.3.40
+    provisioning: True
+```
 
 Upon successfull completion, the output will be.
 
