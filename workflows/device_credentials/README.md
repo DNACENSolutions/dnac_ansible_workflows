@@ -1,5 +1,21 @@
 # Device Credential Workflow Manager
-This Ansible workflow automates the management of device credentials within your network using Cisco DNA Center.
+Device Credential Workflow Manager in Cisco DNA Center is a tool that helps you organize and manage network device credentials, including creating, applying, and updating credentials for network devices during deployment or maintenance.
+
+You can configure and manage credentials for network devices such as switches, routers, access points, and other devices, ensuring that Cisco DNA Center has access and can manage them automatically.
+
+These workflows help you reduce risk and enhance security while managing your network. Below are the key elements and processes in Device Credential Workflow Manager.
+
+Device Credentials Figure: It consists of two parts: Network Hierarchy and Manage Credentials.
+![Alt text](./images/credential.png)
+
+Network Hierarchy: specifies where the credential will be applied on
+Manage Credentials:
+- CLI: Connect and manage devices via command line (SSH/Telnet).
+- SNMPv2c Read: Read device status information via SNMPv2c.
+- SNMPv2c Write: Both read and change configuration via SNMPv2c.
+- SNMPv3: Secure SNMP version, supporting encryption and authentication.
+- HTTP(S) Read: Read device information via HTTP or HTTPS protocol.
+- HTTP(S) Write: Change device configuration via HTTP or HTTPS protocol.
 
 ## Purpose
 
