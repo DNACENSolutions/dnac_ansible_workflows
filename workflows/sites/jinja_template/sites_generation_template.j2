@@ -5,12 +5,19 @@ catalyst_center_version: 2.3.7.6
 jinjatemplate: true
 passwords_file: ../../../valted_passwords/mypasswordfile.yaml
 jinjatemplate_file: ../sites_generation_template/sites_generation_template.j2
+{% set my_namespace = namespace(my_list=['floor_image1.png', 'floor_image2.jpg', 'floor_image3.jpeg', 'floor_image4.pdf']) %}
+
+{% set _ = my_namespace.my_list.append('item1') %}
+{% set _ = my_namespace.my_list.append('item2') %}
+{% set _ = my_namespace.my_list.append('item3') %}
+{% set _ = my_namespace.my_list.append('item4') %}
 design_sites:
   - site:
       area:
         name: IAC_Dev
         parent_name: Global
     type: area
+
 {% for i in range(1, 4) %}
   - site:
       area:
@@ -38,7 +45,7 @@ design_sites:
         height: 10.00
         floor_number: 1
         units_of_measure: feet
-        upload_floor_image_path: workflows/sites/images/floor_image3.jpeg
+        upload_floor_image_path: workflows/sites/images/{{ my_namespace.my_list[i] }}
         force_upload_floor_image: True
     type: floor
 {% endfor %}
