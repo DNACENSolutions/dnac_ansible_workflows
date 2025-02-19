@@ -41,39 +41,16 @@ Manage Credentials:
 
 - Latest stable version recommended
 
-## Workflow Details
-The workflow leverages the **device_credential_workflow_manager**  module to interact with DNA Center's credential management APIs. It supports the following operations:
-
-### Add Device Credential 
-
-- Create new device credentials.
-
-### Update Device Credential 
-
-- Modify existing credentials (e.g., change passwords).
-
-### Delete Device Credential 
-
-- Remove credentials from DNA Center.
-
-### Assign or Update Credentials to Sites
-
-- Assign clredentials to sites, Update new credentials to sites. 
-
-### Apply Credentials
-
-- Make update to creedentials, i.e. reset passsword etc and Apply to applicable sites and all the devices on that site.
-
 ## Procedure
 
-### Prepare your Ansible environment
+1. ### Prepare your Ansible environment
 
-- Install Ansible if you haven't already
-- Ensure you have network connectivity to your Catalyst Center instance.
-- Checkout the project and playbooks:
->git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
+  - Install Ansible if you haven't already
+  - Ensure you have network connectivity to your Catalyst Center instance.
+  - Checkout the project and playbooks:
+  >git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
 
-### Configure Host Inventory
+2. ### Configure Host Inventory
 
 - Update hosts.yml (or your preferred inventory file) with the connection details for your DNA Center instance.
  - The **host_inventory_dnac1/hosts.yml** file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
@@ -94,47 +71,148 @@ catalyst_center_hosts:
             dnac_log_level: INFO
             dnac_log: true
 ```
+3. ### Workflow Details and Generate your Input
+The workflow utilizes the **device_credential_workflow_manager** module to interface with DNA Center's credential management APIs. For a comprehensive guide on the available options and their structure, please refer to the full workflow specification: [full workflow specification](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/device_credential_workflow_manager). The following operations are supported:
 
-### Generate your Input
+- **Add Device Credential:** 
 
-- Create a YAML file (e.g., vars.yml) to store the required variables for the workflow.
-- Refer to the **device_credential_workflow_manager** module documentation for details on the available variables and their formats.
-- Example:
- - The **workflows/device_config_backup/vars/device_config_backup_workflow_input.yml** file should be configured with device details.
- - Refer to the full workflow specification for detailed instructions on the available options and their structure:[full workflow specification](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/device_configs_backup_workflow_manager)
-- Operation: 
- - add
- - update 
- - delete
+  **Purpose**:
+  - Create new device credentials.
+  - Make sure this device credential does not already exist in DNA Center.
 
-```yaml
----
-catalyst_center_version: 2.3.7.6
-device_credentials:
-  credentials_details: #Create multiple credentials for the same protocol
-  - global_credential_details: #Create global credentials for the device list
-      cli_credential: #Create CLI credentials list
-      - description: CLI Sample 1
-        username: cli-1
-        password: "5!meh"
-        enable_password: "q4^t^"
-      - description: CLI2
-        username: cli-2
-        password: "sbs2@"
-        enable_password: "8b!rn"
-  credentials_site_assignment: #Assign credentials to sites list of all sites mappings
-  - assign_credentials_to_site: # Assign device credentials to sites
-      cli_credential: #Assign CLI credentials to sites
-        description: CLI Sample 1
-        username:  cli-1
-```
+  **Input example with creating cli credential**:
 
-### Validate Input:(recommended)
+  ```yaml
+  ---
+  catalyst_center_version: 2.3.7.6
+  device_credentials:
+    credentials_details: #Create multiple credentials for the same protocol
+    - global_credential_details: #Create global credentials for the device list
+        cli_credential: #Create CLI credentials list
+        - description: CLI Sample 1
+          username: cli-1
+          password: "5!meh"
+          enable_password: "q4^t^"
+        - description: CLI2
+          username: cli-2
+          password: "sbs2@"
+          enable_password: "8b!rn"
+  ```
+
+- **Update Device Credential:**
+
+  **Purpose**:
+  - Modify existing credentials (e.g., change passwords).
+  - This task ensures that if the credential already exists, the details of that credential will be updated without creating a duplicate.
+
+  **Input example with update cli credential**:
+
+  ```yaml
+  ---
+  catalyst_center_version: 2.3.7.6
+  device_credentials:
+    credentials_details: 
+    - global_credential_details: 
+        cli_credential:
+        - description: CLI Sample 1
+          username: cli-1
+          password: "5!meh"
+          enable_password: "q4^t^"
+        - description: CLI2
+          username: cli-2
+          password: "sbs2@"
+          enable_password: "8b!rn"
+  ```
+
+  **Input example with update device credential name/description using old name and description**:
+
+  ```yaml
+  ---
+  catalyst_center_version: 2.3.7.6
+  device_credentials:
+    credentials_details:
+    - global_credential_details:
+        cli_credential:
+        - description: CLISample1
+          username: cli1
+          password: "5!meh"
+          enable_password: "q4^t^"
+          old_description: CLI Sample 1
+          old_username: cli-1
+  ```
+
+- **Delete Device Credential:**
+  **Purpose**:
+    - Remove credentials from DNA Center.
+    - Make sure that the device credentials you delete are not assigned to any site.
+
+  **Input example with delete cli credential**:
+
+  ```yaml
+  ---
+  catalyst_center_version: 2.3.7.6
+  device_credentials:
+    credentials_details:
+    - global_credential_details:
+        cli_credential:
+        - description: CLI Sample 1
+          username: cli-1
+  ```
+
+- **Assign or Update Credentials to Sites:**
+
+  **Purpose**:
+    - Assign clredentials to sites.
+    - Update new credentials to sites. 
+
+  **Input example for Assign Credentials to sites**:
+
+    ```yaml
+    ---
+    catalyst_center_version: 2.3.7.6
+    device_credentials:
+      credentials_site_assignment: #Assign credentials to sites list of all sites mappings
+      - assign_credentials_to_site: # Assign device credentials to sites
+          cli_credential: #Assign CLI credentials to sites
+            description: CLI Sample 1
+            username:  cli-1
+          site_name: #Sites  to which the credentials are assigned
+          - Global/India #Full Site Heirarchy Path from Global to Site
+          - Global/India/Bangalore
+    ```
+
+- **Apply Credentials:**
+
+  **Purpose**:
+    - Make update to creedentials, i.e. reset passsword etc and Apply to applicable sites and all the devices on that site.
+
+  **Input example for Apply Credentials to sites**:
+
+    ```yaml
+    ---
+    catalyst_center_version: 2.3.7.6
+    device_credentials:
+      credentials_site_apply:
+      - apply_credentials_to_site:
+          cli_credential:
+            description: CLI Sample 1
+            username:  cli-1
+          site_name:
+          - Global/India #Full Site Heirarchy Path from Global to Site
+          - Global/India/Bangalore
+    ```
+
+4. ### Validate Input:(recommended)
 
 Validate the input with schema using yamale
+- Command to Validate:
 
 ```bash
-dnac_ansible_workflows % yamale -s workflows/device_credentials/schema/device_credentials_schema.yml workflows/device_credentials/vars/device_credentials_vars.yml
+yamale -s workflows/device_credentials/schema/device_credentials_schema.yml workflows/device_credentials/vars/device_credentials_vars.yml
+```
+
+- Result:
+```bash
 Validating /Users/pawansi/dnac_ansible_workflows/workflows/device_credentials/vars/device_credentials_vars.yml...
 Validation success! 👍
 ```
@@ -218,7 +296,9 @@ The variables used in the template should be already added to ansible vault.
 Refer workflow ansible_vault_update workflow to add the variable to your ansible vault.
 
 ## Execute credentials with jinja template:
+```bash
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_credentials/playbook/device_credentials_playbook.yml --e VARS_FILE_PATH=../vars/jinja_template_device_credentials_input.yml -vvvv
+```
 
 
 ## Important Notes:
