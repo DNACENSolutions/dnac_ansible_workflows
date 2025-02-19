@@ -54,7 +54,7 @@ catalyst_center_hosts:
             dnac_log: true
 ```
 
-### Define Playbook input:
+### Define Schema:
 The workflows/device_config_backup/vars device_config_backup_workflow_input.yml file stores the sites details you want to configure
 
 ```bash
@@ -63,17 +63,19 @@ catalyst_center_task_timeout: 1200
 catalyst_center_task_poll_interval: 60
 
 # Network Settings an IP Pools design.
-device_configs_backup_details:
-  - management_ip_address: 204.1.2.1
-    #hostname: NY-BN-9500.cisco.local
-    #serial_number: F2AKI0082J
-    #family: Switches and Hubs
-    #type: Cisco Catalyst 9300 Switch
-    #series: Cisco Catalyst 9300 Series Switches
-    collection_status: Managed
-    file_path: "./"
-  - management_ip_address: 204.1.2.2
-    file_path: "./"
+device_configs_backup_details_type:
+  collection_status: str(required=False)
+  family: str(required=False)
+  file_password: str(required=False)
+  file_path: str(required=False)
+  hostname_list: str(required=False)
+  ip_address_list: str(required=False)
+  mac_address_list: str(required=False)
+  serial_number_list: str(required=False)
+  series: str(required=False)
+  site_list: str(required=False)
+  type: str(required=False)
+  unzip_backup: bool(required=False)
 ```
 
 ### Generate your Input:
@@ -95,7 +97,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_config_backu
 
 ## III. Detailed steps to perform
 
-### Take Backup Using Hostname
+### 1. Take Backup Using Hostname
 
 #### **Mapping config to UI Actions**
 
@@ -103,19 +105,8 @@ The config parameter within this task corresponds to the Provision > Inventory >
 
 ![alt text](./images/hostname.png)
 
-#### **YAML Structure and Parameter Explanation**
 
-```
-- name: Take backup using hostname
-  cisco.dnac.device_configs_backup_workflow_manager:
-    <<: *common_config
-    state: merged
-    validate_response_schema: True
-    config:
-      "{{ vars_map.hostname }}"
-  tags: hostname
-```
-#### **Input File Structure**
+#### **Example Input**
 
 ```
 hostname:
@@ -129,68 +120,43 @@ hostname:
 - file_path: The directory path where the backup files will be stored.
 
 
-### Take Backup Without Defined Passwords
+### 2. Take Backup Without Defined Passwords
 
-#### **YAML Structure and Parameter Explanation**
 
-```
-- name: Take backup without defined passwords
-  cisco.dnac.device_configs_backup_workflow_manager:
-    <<: *common_config
-    state: merged
-    validate_response_schema: True
-    config:
-      "{{ vars_map.no_password }}"
-  tags: no_password
-```
-
-#### **Input File Structure**
+#### **Example Input **
 
 ```
-no_password:
+device_configs_backup_details:
   - hostname_list: ['DC-T-9300.cisco.local']
-    file_path: backup
+    file_path: "./"
 ```
 - hostname_list: A list of hostnames for which the device configurations will be backed up.
 - file_path: The directory path where the backup files will be stored.
 
-### Take Backup for All Devices
+### 3. Take Backup with ip_address_list unzip
 
-#### **YAML Structure and Parameter Explanation**
-
-```
-- name: Take backup for all devices
-  cisco.dnac.device_configs_backup_workflow_manager:
-    <<: *common_config
-    state: merged
-    validate_response_schema: True
-    config:
-      - file_password: qsaA12!asdasd
-  tags: all_devices
-```
-
-### Take Backup Using Site Name
-
-#### **YAML Structure and Parameter Explanation**
+#### **Example Input **
 
 ```
-- name: Take backup using site name
-  cisco.dnac.device_configs_backup_workflow_manager:
-    <<: *common_config
-    state: merged
-    config:
-      "{{ vars_map.site }}"
-  tags: site
+device_configs_backup_details:
+  - ip_address_list: 204.1.2.2
+    file_path: "./"
+    unzip_backup: true
 ```
 
-#### **Input File Structure**
+### 4. Take Backup Using collection_status and ip_address_list
+
+#### **Example Input **
 
 ```
-site:
-  - site_list: ['Global','Global/USA/SAN JOSE/SJ_BLD23']
+device_configs_backup_details:
+  - ip_address_list: 204.1.2.1
+    collection_status: Managed
+    file_path: "./"
+    unzip_backup: false
 ```
 
-- site_list: A list of site names for which the device configurations will be backed up.
+
 
 
 ## IV. References

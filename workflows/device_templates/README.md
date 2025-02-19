@@ -61,31 +61,34 @@ The /vars/template_workflow_inputs.yml file stores the sites details you want to
 
 ```bash
 template_details:
-    - configuration_templates:
-        author: Pawan Singh
-        composite: false
-        custom_params_order: true
-        description: Template to configure Access Vlan n Access Interfaces
-        device_types:
-        - product_family: Switches and Hubs
+  # List of templates to be uploaded to the Cisco Catalyst Center
+  - configuration_templates:
+      author: Pawan Singh
+      composite: false
+      custom_params_order: true
+      description: Template to configure Access Vlan n Access Interfaces
+      device_types:
+      - product_family: Switches and Hubs
         product_series: Cisco Catalyst 9300 Series Switches
-        product_type: Cisco Catalyst 9300 Switch
-        failure_policy: ABORT_TARGET_ON_ERROR
-        language: VELOCITY
-        name: access_van_template_9300_switches
-        project_name: access_van_template_9300_switches
-        project_description: This project contains all the templates for Access Switches
-        software_type: IOS-XE
-        software_version: null
-        template_name: PnP-Upstream-SW
-        template_content: |
+        #product_type: Cisco Catalyst 9300 Switch
+      failure_policy: ABORT_TARGET_ON_ERROR
+      language: VELOCITY
+      name: access_van_template_9300_switches
+      project_name: access_van_template_9300_switches
+      project_description: This project contains all the templates for Access Switches
+      software_type: IOS-XE
+      software_version: null
+      template_name: PnP-Upstream-SW
+      #tags:
+      #  name: string
+      template_content: |
         vlan $vlan
         interface $interface
         switchport access vlan $vlan
         switchport mode access
         description $interface_description
-        version: "1.0"
-    - configuration_templates:
+      version: "1.0"
+  - configuration_templates:
       name: PnP-Upstream-SW
       template_name: PnP-Upstream-SW
       project_name: Onboarding Configuration
@@ -106,18 +109,25 @@ template_details:
         description $interface_description
     
 deploy_device_details:
-    - host_name: SJC-Switch-1
-      management_ip: 10.1.1.1
-      site_name: Global/USA/SAN JOSE/BLD23
-      device_role: ACCESS
-      device_tag: all_9300_Access_tag1
-      device_template_params:
-          - param_name: "vlan"
-            param_value: "100"
-          - param_name: "interface"
-            param_value: "TwoGigabitEthernet1/0/2"
-          - param_name: "interface_description"
-            param_value: "Access Port"
+  - deploy_template:
+    - project_name: Onboarding Configuration
+      template_name: PnP-Upstream-SW
+      force_push: true
+      template_parameters:
+        - param_name: "vlan_id"
+          param_value: "1431"
+      site_provisioning_details:
+        - site_name: "Global/Bangalore/Building14/Floor1"
+          device_family: "Switches and Hubs"
+  - deploy_template:
+    - project_name: Onboarding Configuration
+      template_name: PnP-Upstream-SW
+      force_push: true
+      template_parameters:
+        - param_name: "vlan_id"
+          param_value: "1431"
+      device_details:
+        device_ips: ["10.1.2.1", "10.2.3.4"]
 ```
 ### How to Validate Input
 
@@ -151,9 +161,7 @@ Validation success! 👍
 
 ![alt text](./images/template1.png)
 
-![alt text](./images/template2.png)
 
-![alt text](./images/template3.png)
 
 #### **YAML Structure and Parameter Explanation**
 
@@ -164,14 +172,41 @@ Validation success! 👍
     state: merged
     config:
       - "{{ item }}"
-  with_list: "{{ vars_map.template_pnp_upstream_sw }}"
+  with_list: "{{ vars_map.template_details }}"
   tags: pnp_upstream_sw
 ```
 
 #### **Input File Structure**
 
 ```
-template_pnp_upstream_sw:
+template_details:
+  # List of templates to be uploaded to the Cisco Catalyst Center
+  - configuration_templates:
+      author: Pawan Singh
+      composite: false
+      custom_params_order: true
+      description: Template to configure Access Vlan n Access Interfaces
+      device_types:
+      - product_family: Switches and Hubs
+        product_series: Cisco Catalyst 9300 Series Switches
+        #product_type: Cisco Catalyst 9300 Switch
+      failure_policy: ABORT_TARGET_ON_ERROR
+      language: VELOCITY
+      name: access_van_template_9300_switches
+      project_name: access_van_template_9300_switches
+      project_description: This project contains all the templates for Access Switches
+      software_type: IOS-XE
+      software_version: null
+      template_name: PnP-Upstream-SW
+      #tags:
+      #  name: string
+      template_content: |
+        vlan $vlan
+        interface $interface
+        switchport access vlan $vlan
+        switchport mode access
+        description $interface_description
+      version: "1.0"
   - configuration_templates:
       name: PnP-Upstream-SW
       template_name: PnP-Upstream-SW
@@ -184,224 +219,23 @@ template_pnp_upstream_sw:
         - product_family: Switches and Hubs
           product_series: Cisco Catalyst 9300 Series Switches
       software_type: IOS-XE
-      software_variant: XE
-      template_content: |
-        {% raw %}
-        {% set PNP_INTF_PREFIX = "204.1.218" %}
-        {% set PNP_INTF_SUBNET = "255.255.255.240" %}
-        {% set PNP_INTF_OCT = (PNP_VLAN_ID - 2000) * 16 %}
-        {% set PNP_INTF_NW = PNP_INTF_PREFIX + "." + PNP_INTF_OCT %}
-        {% set PNP_GW_IP = PNP_INTF_OCT + 1 %}
-        {% set PNP_INTF_GW = "204.1.218." + PNP_GW_IP %}
-
-        vlan {{ PNP_VLAN_ID }}
-
-        pnp startup-vlan {{ PNP_VLAN_ID }}
-
-        interface vlan {{ PNP_VLAN_ID }}
-          ip address {{ PNP_INTF_GW }} {{ PNP_INTF_SUBNET }}
-          no ip redirects
-          no ip proxy-arp
-          ip pim sparse-mode
-          ip router isis 1
-          load-interval 30
-          bfd interval 750 min_rx 750 multiplier 3
-          no bfd echo
-
-        ip dhcp pool pnp_vlan_{{ PNP_VLAN_ID }}
-          network {{ PNP_INTF_NW }} {{ PNP_INTF_SUBNET }}
-          default-router {{ PNP_INTF_GW }}
-          option 43 ascii "5A1N;B2;K4;I{{ DNAC_ENT_IP }};J80"
-
-        {% set DESCRIPTION = 'PnP devices' %}
-        {% for INTERFACE in PNP_SW_INTERFACES %}
-        default interface {{ INTERFACE }}
-        interface {{ INTERFACE }}
-          description {{ DESCRIPTION }}
-          switchport mode trunk
-          switchport trunk native vlan {{ PNP_VLAN_ID }}
-
-        {% endfor %}
-        {% endraw %}
-
-      template_params:
-        - parameter_name: PNP_GW_IP
-          data_type: STRING
-          default_value: null
-          description: null
-          required: true
-          not_param: true
-          param_array: false
-          instruction_text: null
-          group: null
-          order: 3
-          custom_order: 0
-          selection: null
-          range: []
-          key: null
-          provider: null
-          binding: ""
-          display_name: null
-        - parameter_name: DNAC_ENT_IP
-          data_type: IPADDRESS
-          default_value: 204.192.1.214
-          description: null
-          required: true
-          not_param: false
-          param_array: false
-          instruction_text: null
-          group: null
-          order: 4
-          custom_order: 0
-          selection:
-            selection_type: null
-            selection_values: {}
-            default_selected_values: []
-            id: null
-          range: []
-          key: null
-          provider: null
-          binding: ""
-          display_name: DNAC Enterprise IP Address
-        - parameter_name: PNP_SW_INTERFACES
-          data_type: STRING
-          default_value: ""
-          description: null
-          required: true
-          not_param: false
-          param_array: true
-          instruction_text: null
-          group: null
-          order: 5
-          custom_order: 0
-          selection:
-            selection_type: MULTI_SELECT
-            selection_values: {}
-            default_selected_values: []
-            id: null
-          range: []
-          key: null
-          provider: null
-          binding: >-
-            {
-              "provider": "Inventory",
-              "source": "Inventory",
-              "entity": "Interface",
-              "variableName": "__interface",
-              "attribute": "portName",
-              "attributeToDisplay": "portName",
-              "attributesAvailable": [
-                "addresses",
-                "adminStatus",
-                "className",
-                "deviceId",
-                "duplex",
-                "ifIndex",
-                "interfaceType",
-                "ipv4Address",
-                "ipv4Mask",
-                "isisSupport",
-                "lastUpdated",
-                "macAddress",
-                "mappedPhysicalInterfaceId",
-                "mappedPhysicalInterfaceName",
-                "mediaType",
-                "mtu",
-                "nativeVlanId",
-                "networkdevice_id",
-                "ospfSupport",
-                "pid",
-                "portMode",
-                "portName",
-                "portType",
-                "poweroverethernet",
-                "serialNo",
-                "series",
-                "speed",
-                "status",
-                "vlanId",
-                "voiceVlan",
-                "managedComputeElement",
-                "managedNetworkElement",
-                "description",
-                "owningEntityId"
-              ],
-              "params": [
-                {
-                  "type": "MANAGED_DEVICE_UUID",
-                  "scope": "RUNTIME",
-                  "value": null
-                },
-                {
-                  "type": "MANAGED_DEVICE_IP",
-                  "scope": "RUNTIME",
-                  "value": null
-                },
-                {
-                  "type": "MANAGED_DEVICE_HOSTNAME",
-                  "scope": "RUNTIME",
-                  "value": null
-                }
-              ],
-              "value": null,
-              "errorMessage": null,
-              "sortAttribute": null,
-              "sortValues": null,
-              "filterType": null,
-              "filterValue": null,
-              "filterByAttribute": null,
-              "filterSupported": true
-            }
-          display_name: Interfaces connected to PnP Devices
-        - parameter_name: PNP_INTF_OCT
-          data_type: STRING
-          default_value: null
-          description: null
-          required: true
-          not_param: true
-          param_array: false
-          instruction_text: null
-          group: null
-          order: 2
-          custom_order: 0
-          selection: null
-          range: []
-          key: null
-          provider: null
-          binding: ""
-          display_name: null
-        - parameter_name: PNP_VLAN_ID
-          data_type: INTEGER
-          default_value: 2000
-          description: null
-          required: true
-          not_param: false
-          param_array: false
-          instruction_text: null
-          group: null
-          order: 1
-          custom_order: 0
-          selection:
-            selection_type: null
-            selection_values: {}
-            default_selected_values: []
-            id: null
-          range:
-            - min_value: 2000
-              max_value: 2015
-              id: null
-          key: null
-          provider: null
-          binding: ""
-          display_name: PnP Startup VLAN ID
-      rollback_template_params: []
-      composite: false
-      containing_templates: []
-      language: JINJA
-      custom_params_order: false
+      language: VELOCITY
+      template_content: 
+        vlan $vlan
+        interface $interface
+        switchport access vlan $vlan
+        switchport mode access
+        description $interface_description
 ```
 
-### 2. Create Templates - PnP-Devices-SW
+### 2. Deploy Templates
+
+#### **Mapping config to UI Actions**
+![alt text](./images/image1.png)
+![alt text](./images/image2.png)
+![alt text](./images/image3.png)
+![alt text](./images/image4.png)
+
 
 #### **YAML Structure and Parameter Explanation**
 
@@ -412,7 +246,7 @@ template_pnp_upstream_sw:
     state: merged
     config:
       - "{{ item }}"
-  with_list: "{{ vars_map.template_pnp_devices_sw }}"
+  with_list: "{{ vars_map.deploy_device_details }}"
   tags: pnp_devices_sw
 ```
 
@@ -420,156 +254,25 @@ template_pnp_upstream_sw:
 
 
 ```
-template_pnp_devices_sw:
-  - configuration_templates:
-      name: PnP-Devices-SW
-      template_name: PnP-Devices-SW
-      project_name: Onboarding Configuration
-      tags: []
-      author: admin
-      device_types:
-        - product_family: Switches and Hubs
-          product_series: Cisco Catalyst 9500 Series Switches
-        - product_family: Switches and Hubs
-          product_series: Cisco Catalyst 9300 Series Switches
-      software_type: IOS-XE
-      software_variant: XE
-      template_content: |
-        {% raw %}
-        no logging console
-        no logging monitor
-        !
-        ip routing
-        !
-        !
-        !
-        !
-        !
-        ip multicast-routing
-        ip domain name cisco.local
-        no ip dhcp conflict logging
-        !
-        !
-        !
-        no login on-success log
-        ipv6 unicast-routing
-        !
-        !
-        !
-        !
-        !
-        !
-        !
-        vtp mode transparent
-        no device-tracking logging theft
-        !
-        !
-        system mtu 9100
-        license boot level network-advantage addon dna-advantage
-        !
-        !
-        diagnostic bootup level minimal
-        !
-        spanning-tree mode rapid-pvst
-        spanning-tree extend system-id
-        archive
-        log config
-          logging enable
-          logging size 1000
-        memory free low-watermark processor 134344
-        !
-        redundancy
-        mode sso
-        !
-        !
-        !
-        !
-        !
-        transceiver type all
-        monitoring
-        !
-        !
-        interface vlan {{ PNP_VLAN_ID }}
-          no ip redirects
-          no ip proxy-arp
-          ip pim sparse-mode
-          ip router isis 1
-          load-interval 30
-          bfd interval 750 min_rx 750 multiplier 3
-          no bfd echo
-        !
-        interface Loopback0
-          ip address {{ LOOPBACK_IP }} 255.255.255.255
-          ip router isis 1
-        !
-        !
-        {% set RANDOM = range(1, 1000) | random %}
-        {% set ISIS_NET = PNP_VLAN_ID + RANDOM %}
-        router isis 1
-          net 49.0001.1111.1111.{{ ISIS_NET }}.00
-          is-type level-2-only
-          metric-style wide
-          log-adjacency-changes
-          bfd all-interfaces
-        !
-        ip forward-protocol nd
-        !
-        netconf-yang
-        end
-        {% endraw %}
-
-      rollback_template_content: ""
-      template_params:
-        - parameter_name: LOOPBACK_IP
-          data_type: IPADDRESS
-          default_value: 204.1.2.100
-          description: null
-          required: true
-          not_param: false
-          param_array: false
-          instruction_text: null
-          group: null
-          order: 2
-          custom_order: 0
-          selection:
-            selection_type: null
-            selection_values: {}
-            default_selected_values: []
-            id: null
-          range: []
-          key: null
-          provider: null
-          binding: ""
-          display_name: null
-        - parameter_name: PNP_VLAN_ID
-          data_type: INTEGER
-          default_value: 2000
-          description: null
-          required: true
-          not_param: false
-          param_array: false
-          instruction_text: null
-          group: null
-          order: 1
-          custom_order: 0
-          selection:
-            selection_type: null
-            selection_values: {}
-            default_selected_values: []
-            id: null
-          range:
-            - min_value: 2000
-              max_value: 2015
-              id: null
-          key: null
-          provider: null
-          binding: ""
-          display_name: PnP Startup VLAN ID
-      rollback_template_params: []
-      composite: false
-      containing_templates: []
-      language: JINJA
-      custom_params_order: false
+- deploy_template:
+    - project_name: Onboarding Configuration
+      template_name: PnP-Upstream-SW
+      force_push: true
+      template_parameters:
+        - param_name: "vlan_id"
+          param_value: "1431"
+      site_provisioning_details:
+        - site_name: "Global/Bangalore/Building14/Floor1"
+          device_family: "Switches and Hubs"
+  - deploy_template:
+    - project_name: Onboarding Configuration
+      template_name: PnP-Upstream-SW
+      force_push: true
+      template_parameters:
+        - param_name: "vlan_id"
+          param_value: "1431"
+      device_details:
+        device_ips: ["10.1.2.1", "10.2.3.4"]
 ```
 
 ## III. References:
