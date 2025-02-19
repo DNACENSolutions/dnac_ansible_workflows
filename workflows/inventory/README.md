@@ -94,14 +94,19 @@ catalyst_center_hosts:
 
 The workflow/inventory/vars/inventory_vars.yaml file stores the device details you want to add to catalyst center.
 Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/inventory_workflow_manager/
+
+4. ## How to Run the playbooks
+
+Execute: Execute the playbooks with your inputs and Inventory, specify your input file using the --e variable VARS_FILE_PATH
+
+## A. To execute the Ansible playbook for adding devices:
+
+* This task adds new devices to Cisco Catalyst Center. It allows you to specify multiple devices using a list of IP addresses and configure parameters such as device type, connection method, credentials, and SNMP information.
+* The below sample playbook will be used for adding 3 devices to the inventory.
 ```bash
----
-# Provide the Catalyst Center Version
-catalyst_center_version: 2.3.7.6
-# This file contains the variables for the inventory workflow
 inventory_details:
   network_devices:
-  - ip_address_list: ["204.101.16.1","1.1.1.1", "2.2.2.2"]
+  - ip_address_list: ["XX.XX.XX.XX", "XX.XX.XX.XX", "XX.XX.XX.XX"]
     cli_transport: ssh
     compute_device: False
     password: Test@123
@@ -124,49 +129,96 @@ inventory_details:
     type: NETWORK_DEVICE
     username: cisco
 ```
-
-## How to Run
-
-Execute: Execute the playbooks with your inputs and Inventory, specify your input file using the --e variable VARS_FILE_PATH
-
-## To execute the Ansible Playbook for adding devices:
 * After the successful execution you will get the below message.
-"device(s) '204.101.16.1', '1.1.1.1', '2.2.2.2' added successfully in Cisco Catalyst Center."
-* verify the devices are successfully added to the inventory and present in the UI.
+"device(s) 'XX.XX.XX.XX', 'XX.XX.XX.XX', 'XX.XX.XX.XX' added successfully in Cisco Catalyst Center."
+* verify the devices are successfully added to the inventory and present in the Cisco Catalyst Center.
+
 ![alt text](images/add_devices.png)
-* To run the add Devices Playbook:
+
+* Sample run line command to run the add devices Playbook:
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_vars.yml
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_vars.yml -vvvvv
 ```
 
-## To execute the Ansible playbook for provision devices:
+## B. To execute the Ansible playbook for provision devices:
+
+* This task provisions wired devices in the Cisco DNA Center inventory. Provisioning involves assigning devices to a specific site and applying the necessary configurations for them to operate within that site's network environment.
+* The below sample playbook will provision the 2 devices to it's respective sites.
+* We can provision multiple devices and the provisioning of multiple devices will do in parallel.
+```
+    - provision_wired_device:
+        - device_ip: XX.XX.XX.XX
+        site_name: Global/USA/San Jose/BLD23
+        - device_ip: XX.XX.XX.XX
+        site_name: Global/USA/New York/BLDNYC
+```
 * After the successful execution you will get the below message.
-"device(s) '137.1.3.1', '137.1.3.2', '137.1.3.3', '137.1.3.4', '137.1.3.5' provisioned successfully in Cisco Catalyst Center."
-* verify the devices provision status in the Cisco Catalyst Center and it will show provision status as success.
+"device(s) 'XX.XX.XX.XX', 'XX.XX.XX.XX' provisioned successfully in Cisco Catalyst Center."
+* verify the devices provision status in the Cisco Catalyst Center and it will show provision status as success. Before provision it will show Not Provisioned.
+
 ![alt text](images/provision_device.png)
-*  To run the Provision Playbook:
+
+*  Sample run line command for running the Provision Playbook:
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_provision_devices.yml
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_provision_devices.yml -vvvvv
 ```
 
-## To execute the Ansible playbook for resync/reboot devices:
+## C. To execute the Ansible playbook for resync and reboot devices:
+* Resync - This task is used to resynchronize network devices with Cisco DNAC. The resync process ensures that the device’s configuration and status in DNAC are updated to reflect its actual state in the network. Resync is commonly used to address discrepancies between DNAC and device configurations.
+* The below sample playbook will be used for resync.
+* If force_sync is true then device sync would run in high priority thread if available, else the sync will fail.
+```
+    - ip_address_list: 
+      - XX.XX.XX.XX
+      device_resync: true
+      force_sync: false
+```
 * After the successful execution you will get the below message.
-"Device(s) '['137.1.1.1', '137.1.1.2']' have been successfully resynced in the inventory in Cisco Catalyst Center."
+"Device(s) '['XX.XX.XX.XX']' have been successfully resynced in the inventory in Cisco Catalyst Center."
+
+* Reboot - This task initiates a reboot of specified network devices using the Cisco DNAC inventory manager. Device reboots are often necessary after configuration changes, updates, or troubleshooting procedures to ensure that the devices properly apply new settings for the access point Devices.
+* The below sample playbook will be used for reboot.
+```
+    config:
+      - ip_address_list: ["XX.XX.XX.XX", "XX.XX.XX.XX"]
+        reboot_device: true
+```
 *  To run the Resync/Reboot Playbook:
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_resync_reboot_vars.yml
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_resync_reboot_vars.yml -vvvvv
 ```
 
-## To execute the Ansible playbook for deleting devices.:
-*  How to Delete Existing Devices/Provisioned devices from inventory
+## D. To execute the Ansible playbook for changing Device roles:
+* This task updates the role of existing devices in the Cisco Catalyst Center inventory. The role of a device helps categorize its function within the network (e.g., as an access, distribution, or core).
+* The below playbook will be used for changing device roles. It will support multiple devices.
+```
+    - ip_address_list: ["XX.XX.XX.XX", "XX.XX.XX.XX"]
+        role: ACCESS
+```
 * After the successful execution you will get the below message.
-"device(s) '204.101.16.1', '1.1.1.1', '2.2.2.2' successfully deleted in Cisco Catalyst Center"
+"msg": "Device(s) '['XX.XX.XX.XX', 'XX.XX.XX.XX']' role updated successfully to '['ACCESS']'"
+* Verify the device role in the cisco catalyst center.
+
+![alt text](images/Device_role.png)
+
+
+## D. To execute the Ansible playbook for deleting devices:
+* This task deletes specific devices from the Cisco DNAC inventory using their IP addresses. You can control whether the device's configuration is retained or removed upon deletion, depending on your network management needs.
+*  The below playbook will be used for Delete Devices/Provisioned devices from inventory.
+* If clean_config set to true it will delete the Provisioned device by clearing current configuration.
+```
+    - ip_address_list: ["XX.XX.XX.XX", "XX.XX.XX.XX"]
+        clean_config: False
+```
+* After the successful execution you will get the below message.
+"device(s) 'XX.XX.XX.XX', 'XX.XX.XX.XX' successfully deleted in Cisco Catalyst Center"
 * Make sure the devices are devices are deleted from the Cisco Catalyst Center.
 *  To run the Delete Playbook:
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/delete_inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_delete_devices.yml
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/delete_inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_delete_devices.yml -vvvvv
 ```
-## Parameters:
+
+## Run line command parameters:
 
 - `-i`: Specifies the inventory file containing host details.  
 - `--e VARS_FILE_PATH`: Path to the variable file containing workflow inputs.  
@@ -174,3 +226,14 @@ Execute: Execute the playbooks with your inputs and Inventory, specify your inpu
 
 ##  Important Notes
 * Always refer to the detailed input specification for comprehensive information on available options and their structure.
+
+* Note: The environment is used for the references in the above instructions.
+```
+  Python: 3.12.0
+  ansible: 9.9.0
+  ansible-core: 2.16.10
+  ansible-runner: 2.4.0
+  dnacentersdk: 2.8.3
+  cisco.dnac: 6.29.0
+  ansible.utils: 5.1.2
+```
