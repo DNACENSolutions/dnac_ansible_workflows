@@ -120,12 +120,13 @@ The PnP onboarding process in Cisco Catalyst Center allows devices to be automat
 
 The `config` parameter within each task corresponds to actions you would normally perform manually in the Cisco Catalyst Center UI, such as: **Provision > Plug and Play > Claim**
 
+![Alt text](images/pnp_claim_start.png)
+![Alt text](images/image.png)
+![Alt text](images/image-1.png)
+![Alt text](images/image-2.png)
+![Alt text](images/image-3.png)
+
 ``` yaml
-    - name: Claim Cat9K switch
-      cisco.dnac.pnp_workflow_manager:
-        <<: *common_config
-        state: merged
-        config:
           - site_name: Global/USA/SAN JOSE/SJ_BLD23
             project_name: Onboarding Configuration
             template_name: PnP-Devices-SW
@@ -138,7 +139,6 @@ The `config` parameter within each task corresponds to actions you would normall
                 hostname: SJ-EN-1-9300
                 state: Unclaimed
                 pid: C9300-48UXM
-      tags: claim_cat9k
 ```
 
 ### Task: Claiming a Cisco Catalyst 9K Switch Stack
@@ -147,12 +147,9 @@ The `config` parameter within each task corresponds to actions you would normall
 
 Similar to the task for claiming a single switch, this task relies on a predefined configuration template in Cisco Catalyst Center. However, in this case, the **StackSwitch** option is selected in the UI to indicate that the device being onboarded is part of a switch stack.
 
+![Alt text](images/image-4.png)
+
 ``` yaml
-    - name: Claim Cat9K switches stack
-      cisco.dnac.pnp_workflow_manager:
-        <<: *common_config
-        state: merged
-        config:
           - site_name: Global/USA/New York/NY_BLD4
             project_name: Onboarding Configuration
             template_name: PnP-Devices-SW
@@ -166,7 +163,6 @@ Similar to the task for claiming a single switch, this task relies on a predefin
                 state: Unclaimed
                 pid: C9300-48UXM
             pnp_type: StackSwitch
-      tags: claim_cat9k_stack
 ```
 
 ### Task: Claiming a Cisco Embedded Wireless Controller (EWLC)
@@ -175,12 +171,9 @@ Similar to the task for claiming a single switch, this task relies on a predefin
 
 In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller (EWLC) involves specifying parameters such as the site, project, device information, and network settings. This configuration aligns with actions like assigning a site, selecting an image, and setting network interfaces.
 
+![Alt text](images/image-5.png)
+
 ``` yaml
-    - name: Claim a single EWLC
-      cisco.dnac.pnp_workflow_manager:
-        <<: *common_config
-        state: merged
-        config:
           - site_name: Global/USA/SAN JOSE/SJ_BLD21
             project_name: Onboarding Configuration
             image_name: C9800-40-universalk9_wlc.17.12.02.SPA.bin
@@ -196,19 +189,15 @@ In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller
             gateway: 204.192.50.1
             ip_interface_name: TenGigabitEthernet0/0/2
             vlan_id: 2050
-      tags: claim_ewlc
 ```
 
 ### Task: Claiming Multiple EWLC Devices for High Availability (HA)
 
 #### Mapping Config to UI Actions
 
+![Alt text](images/image-6.png)
+
 ``` yaml
-    - name: Claim two EWLC devices for HA
-      cisco.dnac.pnp_workflow_manager:
-        <<: *common_config
-        state: merged
-        config:
           - site_name: Global/USA/New York/NY_BLD2
             project_name: Onboarding Configuration
             image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
@@ -239,7 +228,6 @@ In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller
             gateway: 10.4.218.225
             ip_interface_name: TenGigabitEthernet0/0/1
             vlan_id: 2014
-      tags: claim_ewlc_ha
 ```
 #### Key Points
 
@@ -252,14 +240,11 @@ In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller
 
 #### Mapping Config to UI Actions
 
+![Alt text](images/image-7.png)
+
 In scenarios where a device encounters errors during onboarding, it can be reset and reattempted. The following task demonstrates how to reset a Catalyst EWLC that is in an error state.
 
 ``` yaml
-    - name: Reset an Error PnP device - EWLC type
-      cisco.dnac.pnp_workflow_manager:
-        <<: *common_config
-        state: merged
-        config:
           - site_name: Global/USA/SAN JOSE/BLD23
             project_name: Onboarding Configuration
             template_name: PnP-Devices_SJ-EWLC_No-Vars
@@ -268,7 +253,6 @@ In scenarios where a device encounters errors during onboarding, it can be reset
                 hostname: WLC
                 state: Error
                 pid: C9800-40-K9
-      tags: reset_ewlc
 ```
 #### Key Points
 
@@ -279,14 +263,11 @@ In scenarios where a device encounters errors during onboarding, it can be reset
 
 #### Mapping Config to UI Actions
 
+![Alt text](images/image-8.png)
+
 Access Points (APs) play a crucial role in wireless networks, and onboarding them can be automated through Cisco Catalyst Center. The following example shows how to onboard an Access Point (AP) into the network.
 
 ``` yaml 
-    - name: Claim AP
-      cisco.dnac.pnp_workflow_manager:
-        <<: *common_config
-        state: merged
-        config:
           - site_name: Global/USA/New York/NY_BLD2/FLOOR1
             rf_profile: HIGH
             device_info:
@@ -295,7 +276,6 @@ Access Points (APs) play a crucial role in wireless networks, and onboarding the
                 state: Unclaimed
                 pid: C9120AXE-E
             pnp_type: AccessPoint
-      tags: claim_ap
 ```
 #### Key Points
 
@@ -303,17 +283,17 @@ Access Points (APs) play a crucial role in wireless networks, and onboarding the
 - **Access Point Details**: The serial number, hostname, and product ID (PID) are provided for identification.
 - **Important**: Ensure that the Wireless LAN Controller (WLC) is fully onboarded before claiming any Access Points; otherwise, you may encounter an error.
 
+![Alt text](images/image-9.png)
+
 ### Task: Bulk Device Onboarding
 
 This task demonstrates how to add multiple devices in bulk. Bulk onboarding is useful when multiple devices need to be configured and onboarded simultaneously, such as in large-scale deployments.
 
 #### Mapping Config to UI Actions
+
+![Alt text](images/image-10.png)
+
 ``` yaml
-    - name: Adding PnP devices in Bulk
-      cisco.dnac.pnp_workflow_manager:
-        <<: *common_config
-        state: merged
-        config:
           - device_info:
               - serial_number: FOX2639PAYD
                 hostname: SJ-EWLC-1
@@ -331,7 +311,6 @@ This task demonstrates how to add multiple devices in bulk. Bulk onboarding is u
                 hostname: SF-BN-ISR
                 state: Unclaimed
                 pid: ISR4451-X/K9
-      tags: bulk_add
 ```
 
 

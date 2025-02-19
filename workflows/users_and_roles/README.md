@@ -146,58 +146,36 @@ This task creates a user with the **SUPER-ADMIN-ROLE** in **Cisco Catalyst Cente
 
 The `config` parameter within this task corresponds to the **System > Users & Roles** action in the Cisco Catalyst Center UI. It initiates the creation of a user with the specified role.
 
+![Alt text](image.png)
+
 ```yaml
-- name: Create SUPER-ADMIN-ROLE user
-  cisco.dnac.user_role_workflow_manager:
-    <<: *common_config
-    dnac_username: "{{ dnac_username }}"
-    dnac_password: "{{ dnac_password }}"
-    state: merged
-    config:
       user_details:
         - username: super-admin
           email: "super_admin@example.com"
           password: xxxx
           role_list: ["SUPER-ADMIN-ROLE"]
-  tags: super-admin
 ```
 ### Task: Create NETWORK-ADMIN-ROLE User
 
 This task creates a user with the **NETWORK-ADMIN-ROLE** in **Cisco Catalyst Center**.
 
 ```yaml
-- name: Create user
-  cisco.dnac.user_role_workflow_manager:
-    <<: *common_config
-    dnac_username: "{{ dnac_username }}"
-    dnac_password: "{{ dnac_password }}"
-    state: merged
-    config:
       user_details:
         - username: network-admin
           email: "network_admin@example.com"
           password: xxxx
           role_list: ["NETWORK-ADMIN-ROLE"]
-  tags: net-admin
 ```
 ### Task: Create OBSERVER-ROLE User
 
 This task creates a user with the **OBSERVER-ROLE** in **Cisco Catalyst Center**.
 
 ```yaml
-- name: Create user
-  cisco.dnac.user_role_workflow_manager:
-    <<: *common_config
-    dnac_username: "{{ dnac_username }}"
-    dnac_password: "{{ dnac_password }}"
-    state: merged
-    config:
       user_details:
         - username: observer
           email: "observer@example.com"
           password: xxxx
           role_list: ["OBSERVER-ROLE"]
-  tags: observer
 ```
 
 ### Task: Create Default User
@@ -205,18 +183,10 @@ This task creates a user with the **OBSERVER-ROLE** in **Cisco Catalyst Center**
 This task creates a user with the **Default** in **Cisco Catalyst Center**.
 
 ```yaml
-- name: Create user
-  cisco.dnac.user_role_workflow_manager:
-    <<: *common_config
-    dnac_username: "{{ dnac_username }}"
-    dnac_password: "{{ dnac_password }}"
-    state: merged
-    config:
       user_details:
         - username: default
           email: "default@example.com"
           password: xxxx
-  tags: default
 ```
 
 ### Task: Create Multiple User
@@ -225,12 +195,6 @@ This task creates a user with the **Multiple** in **Cisco Catalyst Center**.
 
 ```yaml
 - name: Create user
-  cisco.dnac.user_role_workflow_manager:
-    <<: *common_config
-    dnac_username: "{{ dnac_username }}"
-    dnac_password: "{{ dnac_password }}"
-    state: merged
-    config:
       user_details:
         - username: Admin_multiple
           email: "super_admin_multiple@example.com"
@@ -248,7 +212,6 @@ This task creates a user with the **Multiple** in **Cisco Catalyst Center**.
           email: "guest@example.com"
           password: xxxx
           role_list: ["SUPER-ADMIN-ROLE","NETWORK-ADMIN-ROLE","OBSERVER-ROLE"]
-  tags: multiple
 ```
 
 ## Default Roles

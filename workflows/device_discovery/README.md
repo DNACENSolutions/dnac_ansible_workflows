@@ -148,6 +148,13 @@ Consider these settings to speed up the discovery process:
 
 
 ## Undestanding Discover task
+To Discover devices, Navigate to Tools -> Discovery -> Add Discovery
+![Alt text](./images/discovery_1.png)
+
+For Credential, These some prerequisite. Check below box to run Discovery
+![Alt text](./images/discovery_credential_1.png)
+![Alt text](./images/Discovery_credential_2.png)
+
 ### Task: Discovery Multiple IP Address Ranges
 
 This task initiates the discovery of multiple devices across various IP address ranges using the `cisco.dnac.discovery_workflow_manager` Ansible module. It allows you to specify multiple IP address ranges and a Netconf port for device discovery.
@@ -155,15 +162,11 @@ This task initiates the discovery of multiple devices across various IP address 
 #### Mapping Config to UI Actions
 
 The `config` parameter within this task corresponds to the **Tools > Discovery > Discovery Type: IP Address Range** action in the Cisco Catalyst Center UI, specifically focusing on the **Multi Range** discovery type.
+![Alt text](./images/discovery_range_1.png)
 
 #### YAML Structure and Parameter Explanation
 
 ```yaml
-- name: Discovery Multiple IP Address Ranges
-  cisco.dnac.discovery_workflow_manager:
-    <<: *common_config
-    state: merged
-    config:
       - ip_address_list:
           - 204.1.2.1-204.1.2.5
           - 204.192.3.40
@@ -172,7 +175,6 @@ The `config` parameter within this task corresponds to the **Tools > Discovery >
         discovery_type: MULTI RANGE
         protocol_order: ssh
         discovery_name: Multi Range Discovery
-  tags: multi_range
 ```
 #### Key Points
 
@@ -192,11 +194,6 @@ The `config` parameter within this task corresponds to the **Tools > Discovery >
 #### YAML Structure and Parameter Explanation
 
 ```yaml
-- name: Discovery devices from a CDP seed
-  cisco.dnac.discovery_workflow_manager:
-    <<: *common_config
-    state: "merged"
-    config:
       - ip_address_list:
           - 204.1.2.3
         discovery_type: CDP
@@ -216,7 +213,6 @@ The `config` parameter within this task corresponds to the **Tools > Discovery >
           net_conf_port_list:
             - net_conf_port: 830
               description: Netconf
-  tags: cdp
 ```
 
 #### Key Points
@@ -237,11 +233,6 @@ The `config` parameter within this task corresponds to the **Tools > Discovery >
 #### YAML Structure and Parameter Explanation
 
 ```yaml
-- name: Discovery using Preferred Management Ip(s)
-  cisco.dnac.discovery_workflow_manager:
-    <<: *common_config
-    state: merged
-    config:
       - ip_address_list:
           - 204.192.3.40
           - 10.22.40.244
@@ -268,11 +259,6 @@ The `config` parameter within this task corresponds to the **Tools > Discovery >
 #### YAML Structure and Parameter Explanation
 
 ```yaml
-- name: Discovery using job specific credentials
-  cisco.dnac.discovery_workflow_manager:
-    <<: *common_config
-    state: "merged"
-    config:
       - ip_address_list:
           - 204.192.3.40
           - 10.22.40.244
@@ -297,17 +283,13 @@ This task facilitates the removal of a specific discovery task from Cisco Cataly
 #### Mapping to UI Action
 
 The action performed by this task corresponds to selecting a specific discovery task in the Cisco Catalyst Center UI under **"Discovery"** and then choosing the **"Delete"** option.
+![Alt text](./images/delete_discovery.png)
+
 
 #### YAML Structure and Parameter Explanation
 
 ```yaml
-- name: Delete discovery by name
-  cisco.dnac.discovery_workflow_manager:
-    <<: *common_config
-    state: deleted
-    config:
       - discovery_name: "Multi Range Discovery"
-  tags: delete
 ```
 ### Task: Delete All Discovery
 
@@ -320,13 +302,7 @@ While there's no direct equivalent in the UI to delete all discoveries at once, 
 #### YAML Structure and Parameter Explanation
 
 ```yaml
-- name: Delete all discovery
-  cisco.dnac.discovery_workflow_manager:
-    <<: *common_config
-    state: deleted
-    config:
       - delete_all: True
-  tags: delete_all
 ```
 
 ## Running the Playbook
