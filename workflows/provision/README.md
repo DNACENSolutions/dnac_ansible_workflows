@@ -31,7 +31,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/provision/playbook/
 - **dnac_debug**: Enables or disables debug mode.  
 - **dnac_log**: Enables or disables logging for Catalyst Center. 
 
-##The Sample host_inventory_dnac1/hosts.yml
+### The Sample host_inventory_dnac1/hosts.yml
 
 ```bash
 catalyst_center_hosts:
@@ -70,7 +70,7 @@ User Inputs for Users and roles are stored in  workflows/provision/vars/provisio
 - **primary_managed_ap_locations**: Site locations assigned to primary managed APs.  
 - **secondary_managed_ap_locations**: Site locations assigned to secondary managed APs.
 
-Operations Overview
+## Operations Overview
 
 ## Provisioning:
 #### Assigns device to a site and configures them.
@@ -87,7 +87,7 @@ Provision configuration can be verified in the UI.
 
 ![alt text](images/Detailed_device_provision.png)
 
-### Example:
+### Example: Wired device
 #### ** Input (YAML) **
 ```bash
 provision_details:
@@ -95,6 +95,24 @@ provision_details:
     management_ip_address: 204.192.3.40
     provisioning: True
 ```
+
+### Example: Wireless device
+#### ** Input (YAML) **
+```bash
+provision_details:
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+    management_ip_address: 204.192.4.200
+    managed_ap_locations:
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR1
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR2
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR3
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR4
+```
+
+### How to run
+#### ** cmd to run playbook **
+
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/provision_workflow_inputs.yml -vvvv
 
 Upon successfull completion, the output will be.
 
@@ -116,7 +134,21 @@ Step2: Execute the site assignment playbook. Upon successful completion, the dev
 Device site assignment details can be verified
 
 ![alt text](images/Detail_site_Assignment.png)
-    
+
+### Example: Wired device
+#### ** Input (YAML) **
+```bash
+provision_details:
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+    management_ip_address: 204.192.4.200
+    provisioning: False 
+```
+
+### How to run
+#### ** cmd to run playbook **
+
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/provision_workflow_inputs.yml -vvvv
+
 ## Device Re_Provision:
 #### Re-provision an already provisioned device.
 
@@ -132,11 +164,39 @@ Reprovision Device detail can be verified
 
 ![alt text](images/Detail_device_reprovision.png)
 
+### Example: Wired device
+#### ** Input (YAML) **
+```bash
+reprovision_details:
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+    management_ip_address: 137.1.1.72
+    force_provisioning: True
+```
+
+### Example: Wireless device
+#### ** Input (YAML) **
+```bash
+reprovision_details:
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+    management_ip_address: 204.192.4.200
+    managed_ap_locations:
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR1
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR2
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR3
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR4
+    force_provisioning: True
+```
+
+### How to run
+#### ** cmd to run playbook **
+
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/reprovision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/re_provision_workflow_inputs.yml -vvvv
+
 Upon successful completion, the output will be.
 
 
-"msg": "Re-Provision for device '137.1.1.8' done successfully",
-"response": "Wired Device '137.1.1.8' re-provisioning completed successfully."
+"msg": "Re-Provision for device '137.1.1.72' done successfully",
+"response": "Wired Device '137.1.1.72' re-provisioning completed successfully."
 
 ## Device Un_Provision:
 #### Un_provision the provisioned device.
@@ -148,6 +208,18 @@ Step1: The device is in provisioned state
 Step2: After the unprovision operation, the device will be removed from the inventory
 
 ![alt text](images/Device_unprovisioned.png)
+
+### Example: Wired device
+#### ** Input (YAML) ** 
+```bash
+unprovision_details:
+  - management_ip_address: 137.1.1.12
+```
+
+### How to run
+#### ** cmd to run playbook **
+
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/delete_provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/un_provision_workflow_inputs.yml -vvvv
 
 Upon successfull completetion, the playbook will return the following response
 
@@ -167,4 +239,17 @@ workflows/provision/vars/provision_workflow_inputs.yml
 yamale   -s workflows/provision/schema/provision_workflow_schema.yml  workflows/provision/vars/provision_workflow_inputs.yml
 Validating /Users/pawansi/dnac_ansible_workflows/workflows/provision/vars/provision_workflow_inputs.yml...
 Validation success! 👍
+```
+
+## Reference 
+The enviornment used for the references in above examples.
+
+```bash
+ansible: 9.9.0
+ansible-runner: 2.4.0
+ansible-core: 2.16.10
+
+dnacentersdk: 2.8.3
+cisco.dnac: 6.27.0
+ansible.utils: 5.1.2
 ```
