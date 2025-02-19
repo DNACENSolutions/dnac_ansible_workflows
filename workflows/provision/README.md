@@ -92,7 +92,7 @@ Provision configuration can be verified in the UI.
 ```bash
 provision_details:
   - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
-    management_ip_address: 204.192.3.40
+    management_ip_address: xx.xx.xx.xx
     provisioning: True
 ```
 
@@ -101,7 +101,7 @@ provision_details:
 ```bash
 provision_details:
   - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
-    management_ip_address: 204.192.4.200
+    management_ip_address: xx.xx.xx.xx
     managed_ap_locations:
       - Global/USA/SAN JOSE/SJ_BLD21/FLOOR1
       - Global/USA/SAN JOSE/SJ_BLD21/FLOOR2
@@ -117,8 +117,8 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/prov
 Upon successfull completion, the output will be.
 
 
-"msg": "Provisioning of the device '204.192.3.40' completed successfully.",
-"response": "Provisioning of the device '204.192.3.40' completed successfully."
+"msg": "Provisioning of the device 'xx.xx.xx.xx' completed successfully.",
+"response": "Provisioning of the device 'xx.xx.xx.xx' completed successfully."
 
 ## Site Assignment:
 #### Assign a device to a site without provision. set provisioning: False
@@ -140,7 +140,7 @@ Device site assignment details can be verified
 ```bash
 provision_details:
   - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
-    management_ip_address: 204.192.4.200
+    management_ip_address: xx.xx.xx.xx
     provisioning: False 
 ```
 
@@ -169,7 +169,7 @@ Reprovision Device detail can be verified
 ```bash
 reprovision_details:
   - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
-    management_ip_address: 137.1.1.72
+    management_ip_address: xx.xx.xx.xx
     force_provisioning: True
 ```
 
@@ -178,7 +178,7 @@ reprovision_details:
 ```bash
 reprovision_details:
   - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
-    management_ip_address: 204.192.4.200
+    management_ip_address: xx.xx.xx.xx
     managed_ap_locations:
       - Global/USA/SAN JOSE/SJ_BLD21/FLOOR1
       - Global/USA/SAN JOSE/SJ_BLD21/FLOOR2
@@ -195,8 +195,8 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/prov
 Upon successful completion, the output will be.
 
 
-"msg": "Re-Provision for device '137.1.1.72' done successfully",
-"response": "Wired Device '137.1.1.72' re-provisioning completed successfully."
+"msg": "Re-Provision for device 'xx.xx.xx.xx' done successfully",
+"response": "Wired Device 'xx.xx.xx.xx' re-provisioning completed successfully."
 
 ## Device Un_Provision:
 #### Un_provision the provisioned device.
@@ -213,7 +213,7 @@ Step2: After the unprovision operation, the device will be removed from the inve
 #### ** Input (YAML) ** 
 ```bash
 unprovision_details:
-  - management_ip_address: 137.1.1.12
+  - management_ip_address: xx.xx.xx.xx
 ```
 
 ### How to run
@@ -224,8 +224,8 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/prov
 Upon successfull completetion, the playbook will return the following response
 
 
-"msg": "Deletion done Successfully for the device '137.1.1.12' ",
-"response": "Deletion done Successfully for the device '137.1.1.12' "
+"msg": "Deletion done Successfully for the device 'xx.xx.xx.xx' ",
+"response": "Deletion done Successfully for the device 'xx.xx.xx.xx' "
 
 
 Use the following command to validate the input file against the schema:
