@@ -257,7 +257,9 @@ We can update the software image (SWIM) to the device with just one run by combi
 
 * Note: The environment is used for the references in the above instructions.
 ```
-  Python: 3.12.0
+  python: 3.12.0
+
+  dnac_version: 2.3.7.6
 
   ansible: 9.9.0
   ansible-core: 2.16.10
