@@ -22,7 +22,7 @@ Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/modul
 * Update the Device Polling Interval
 * Delete a Network Device
 * Manage Port Details
-* Provision Device (assign devices to sites and provision wired devices)
+* Provision Device (assign devices to sites and provision wired and wireless devices)
 * Resync and reboot the devices
 * Manage Port Details
 * **To manage the port's admin status:**
