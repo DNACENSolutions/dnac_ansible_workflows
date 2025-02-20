@@ -104,6 +104,7 @@ Execute: Execute the playbooks with your inputs and Inventory, specify your inpu
 * This task adds new devices to Cisco Catalyst Center. It allows you to specify multiple devices using a list of IP addresses and configure parameters such as device type, connection method, credentials, and SNMP information.
 * The below sample playbook will be used for adding 3 devices to the inventory.
 ```bash
+catalyst_center_version: 2.3.7.6
 inventory_details:
   network_devices:
   - ip_address_list: ["XX.XX.XX.XX", "XX.XX.XX.XX", "XX.XX.XX.XX"]
@@ -145,12 +146,19 @@ inventory_details:
 * This task provisions wired devices in the Cisco DNA Center inventory. Provisioning involves assigning devices to a specific site and applying the necessary configurations for them to operate within that site's network environment.
 * The below sample playbook will provision the 2 devices to it's respective sites.
 * We can provision multiple devices and the provisioning of multiple devices will do in parallel.
-```
+```bash
+catalyst_center_version: 2.3.7.6
+inventory_details:
+  network_devices:
     - provision_wired_device:
-        - device_ip: XX.XX.XX.XX
-        site_name: Global/USA/San Jose/BLD23
-        - device_ip: XX.XX.XX.XX
-        site_name: Global/USA/New York/BLDNYC
+      - device_ip: XX.XX.XX.XX
+        site_name: Global/USA/SAN-FRANCISCO/SF_BLD1
+        resync_retry_count: 200
+        resync_retry_interval: 2
+      - device_ip: XX.XX.XX.XX
+        site_name: Global/USA/SAN JOSE/SJ_BLD23
+        resync_retry_count: 200
+        resync_retry_interval: 2
 ```
 * After the successful execution you will get the below message.
 "device(s) 'XX.XX.XX.XX', 'XX.XX.XX.XX' provisioned successfully in Cisco Catalyst Center."
@@ -167,36 +175,51 @@ inventory_details:
 * Resync - This task is used to resynchronize network devices with Cisco DNAC. The resync process ensures that the device’s configuration and status in DNAC are updated to reflect its actual state in the network. Resync is commonly used to address discrepancies between DNAC and device configurations.
 * The below sample playbook will be used for resync.
 * If force_sync is true then device sync would run in high priority thread if available, else the sync will fail.
-```
-    - ip_address_list: 
-      - XX.XX.XX.XX
-      device_resync: true
-      force_sync: false
+```bash
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the inventory workflow
+inventory_details:
+  network_devices:
+  - ip_address_list: ["XX.XX.XX.XX","XX.XX.XX.XX"]
+    device_resync: True
+    # Make this True if you want to force resync the device
+    force_sync: False
+    resync_retry_count: 200
+    resync_interval: 2
 ```
 * After the successful execution you will get the below message.
-"Device(s) '['XX.XX.XX.XX']' have been successfully resynced in the inventory in Cisco Catalyst Center."
+"Device(s) '['XX.XX.XX.XX', 'XX.XX.XX.XX']' have been successfully resynced in the inventory in Cisco Catalyst Center."
 
 * Reboot - This task initiates a reboot of specified network devices using the Cisco DNAC inventory manager. Device reboots are often necessary after configuration changes, updates, or troubleshooting procedures to ensure that the devices properly apply new settings for the access point Devices.
-* The below sample playbook will be used for reboot.
+* The below sample playbook for Reboot AP Devices with IP Addresses.
+```bash
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the inventory workflow
+inventory_details:
+  network_devices:
+  - ip_address_list: ["XX.XX.XX.XX","XX.XX.XX.XX"]
+    reboot_device: True
 ```
-    config:
-      - ip_address_list: ["XX.XX.XX.XX", "XX.XX.XX.XX"]
-        reboot_device: true
-```
+* After the successful execution you will get the below message.
+"msg: AP Device(s) XX.XX.XX.XX, XX.XX.XX.XX successfully rebooted!"
 *  To run the Resync/Reboot Playbook:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_resync_reboot_vars.yml -vvvvv
 ```
+* **NOTE - reboot will works for only AP devices, where resync will work for all the devices.**
 
 ## D. To execute the Ansible playbook for changing Device roles:
 * This task updates the role of existing devices in the Cisco Catalyst Center inventory. The role of a device helps categorize its function within the network (e.g., as an access, distribution, or core).
 * The below playbook will be used for changing device roles. It will support multiple devices.
-```
-    - ip_address_list: ["XX.XX.XX.XX", "XX.XX.XX.XX"]
-        role: ACCESS
+```bash
+catalyst_center_version: 2.3.7.6
+inventory_details:
+  network_devices:
+  - ip_address_list: ["XX.XX.XX.XX", "XX.XX.XX.XX"]
+    role: ACCESS
 ```
 * After the successful execution you will get the below message.
-"msg": "Device(s) '['XX.XX.XX.XX', 'XX.XX.XX.XX']' role updated successfully to '['ACCESS']'"
+"msg": "Device(s) '['XX.XX.XX.XX', 'XX.XX.XX.XX']' role updated successfully to '['ACCESS', 'ACCESS']'"
 * Verify the device role in the cisco catalyst center.
 
 ![alt text](images/Device_role.png)
@@ -206,9 +229,12 @@ inventory_details:
 * This task deletes specific devices from the Cisco DNAC inventory using their IP addresses. You can control whether the device's configuration is retained or removed upon deletion, depending on your network management needs.
 *  The below playbook will be used for Delete Devices/Provisioned devices from inventory.
 * If clean_config set to true it will delete the Provisioned device by clearing current configuration.
-```
-    - ip_address_list: ["XX.XX.XX.XX", "XX.XX.XX.XX"]
-        clean_config: False
+```bash
+catalyst_center_version: 2.3.7.6
+inventory_details:
+  network_devices:
+  - ip_address_list: ["XX.XX.XX.XX","XX.XX.XX.XX"]
+    clean_config: False
 ```
 * After the successful execution you will get the below message.
 "device(s) 'XX.XX.XX.XX', 'XX.XX.XX.XX' successfully deleted in Cisco Catalyst Center"
@@ -228,7 +254,7 @@ inventory_details:
 * Always refer to the detailed input specification for comprehensive information on available options and their structure.
 
 * Note: The environment is used for the references in the above instructions.
-```
+```bash
   Python: 3.12.0
   ansible: 9.9.0
   ansible-core: 2.16.10
