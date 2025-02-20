@@ -11,4 +11,5 @@ inventory_details:
     resync_retry_count: 200
     resync_interval: 2
     # Make this True if you want to reboot the device
+    # Reboot will work only for Access point(AP) devices
     reboot_device: True
