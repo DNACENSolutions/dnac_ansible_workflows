@@ -1,6 +1,5 @@
 # PROVISION Workflow Playbook
 This workflow playbook automates the process of assigning device to sites, provisioning, reprovisioning and deleting devices in Cisco DNA (Catalyst Center) inventory.
-
 it is supported from Catalyst Center Release version 2.3.7.6
 
 ## Workflow Main Tasks
@@ -9,7 +8,7 @@ it is supported from Catalyst Center Release version 2.3.7.6
 - **Device Re-Provision**: Re-provision an already provisioned device.
 - **Device Un-Provision**: Remove a provisioned device from the inventory.
 
-To run this workflow, follow the README.md instruction
+#### To run this workflow, follow the README.md instruction
 
 ## Procedure 
 
@@ -21,7 +20,7 @@ To run this workflow, follow the README.md instruction
 ###  2. Configure Hosts Inventory
 - Update hosts.yml with the connection details of your DNA Center instance. 
 
-### The Sample host_inventory_dnac1/hosts.yml
+#### The Sample host_inventory_dnac1/hosts.yml
 
 ```bash
 catalyst_center_hosts:
@@ -39,13 +38,13 @@ catalyst_center_hosts:
             dnac_log: true
 ```
 
-### User Inputs for Users and roles are stored in workflows/provision/vars/provision_workflow_inputs.yml 
+#### User Inputs for Users and roles are stored in workflows/provision/vars/provision_workflow_inputs.yml 
 
-## 3. Defining device details 
+### 3. Defining device details 
 provision_details section specifies the list of devices and their configurations for the devices to be run through the playbooks.
 To configure this, refer to the full workflow specification: [Ansible Galaxy - Provision Workflow Manager](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/provision_workflow_manager/).
 
-## Validate the input file using yamale: (recommended)
+### Validate the input file using yamale: (recommended)
 ```bash
 #validates input file against the schema
 (pyats) dnac_ansible_workflows % ./tools/validate.sh -s workflows/provision/schema/provision_workflow_schema.yml -d workflows/provision/vars/provision_workflow_inputs.yml 
@@ -137,7 +136,7 @@ provision_details:
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/provision_workflow_inputs.yml -vvvv
 ```
 
-#### On a successful completion, the device is assigned and provisioned
+#### On a successful completion, the device is assigned and provisioned.
 
 ![alt text](images/Device_provisioned.png)
 
@@ -187,7 +186,7 @@ provision_details:
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/provision_workflow_inputs.yml -vvvv
 ```
 
-#### On a successful completion, the device is assigned and provisioned
+#### On a successful completion, the device is assigned and provisioned.
 
 ![alt text](images/wlc_device_provisioned.png)
 
@@ -334,7 +333,7 @@ unprovision_details:
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/delete_provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/un_provision_workflow_inputs.yml -vvvv
 ```
 
-#### On a successful completion, the device will be removed .
+#### On a successful completion, the device will be removed.
 
 ### Step 3: Verify the playbook output
 
