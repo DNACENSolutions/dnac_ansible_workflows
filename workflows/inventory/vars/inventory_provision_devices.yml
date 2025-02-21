@@ -1,0 +1,28 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the inventory workflow
+# This file is used for provisioning multiple devices
+inventory_details:
+  network_devices:
+    - provision_wired_device:
+      - device_ip: 137.1.3.1
+        site_name: Global/USA/SAN-FRANCISCO/SF_BLD1
+        resync_retry_count: 200
+        resync_retry_interval: 2
+      - device_ip: 137.1.3.2
+        site_name: Global/USA/SAN JOSE/SJ_BLD23
+        resync_retry_count: 200
+        resync_retry_interval: 2
+      - device_ip: 137.1.3.3
+        site_name: Global/USA/SAN-FRANCISCO/SF_BLD1
+        resync_retry_count: 200
+        resync_retry_interval: 2
+      - device_ip: 137.1.3.4
+        site_name: Global/USA/SAN JOSE/SJ_BLD23
+        resync_retry_count: 200
+        resync_retry_interval: 2
+      - device_ip: 137.1.3.5
+        site_name: Global/USA/SAN-FRANCISCO/SF_BLD1
+        resync_retry_count: 200
+        resync_retry_interval: 2 
