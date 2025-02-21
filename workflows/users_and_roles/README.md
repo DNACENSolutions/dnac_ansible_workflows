@@ -1,6 +1,91 @@
-# User Profile Roles and Permissions in Catalyst Center
+# Ansible User and Role Workflow Manager Guide for Cisco Catalyst Center
 
-Catalyst Center utilizes Role-Based Access Control (RBAC) to manage user permissions. User roles determine the actions a user can perform within the system.
+This guide provides an overview of how to use the **Ansible playbook** to automate user and role management workflows on **Cisco Catalyst Center**. The playbook utilizes the `cisco.dnac.user_role_workflow_manager` module to interact with Cisco Catalyst Center and perform tasks related to **creating**, **updating**, and **managing** users and roles.
+
+## Overview of User and Role Management Functions
+
+The user and role management workflow in Cisco Catalyst Center focuses on:
+
+- **Creating** and **managing users**
+- **Assigning roles**
+- Configuring **role-based access control (RBAC)**
+
+
+### Task: Create SUPER-ADMIN-ROLE User
+
+This task creates a user with the **SUPER-ADMIN-ROLE** in **Cisco Catalyst Center**.
+
+#### Mapping Config to UI Actions
+
+The `config` parameter within this task corresponds to the **System > Users & Roles** action in the Cisco Catalyst Center UI. It initiates the creation of a user with the specified role.
+
+![Alt text](image.png)
+
+```yaml
+      user_details:
+        - username: super-admin
+          email: "super_admin@example.com"
+          password: xxxx
+          role_list: ["SUPER-ADMIN-ROLE"]
+```
+### Task: Create NETWORK-ADMIN-ROLE User
+
+This task creates a user with the **NETWORK-ADMIN-ROLE** in **Cisco Catalyst Center**.
+
+```yaml
+      user_details:
+        - username: network-admin
+          email: "network_admin@example.com"
+          password: xxxx
+          role_list: ["NETWORK-ADMIN-ROLE"]
+```
+### Task: Create OBSERVER-ROLE User
+
+This task creates a user with the **OBSERVER-ROLE** in **Cisco Catalyst Center**.
+
+```yaml
+      user_details:
+        - username: observer
+          email: "observer@example.com"
+          password: xxxx
+          role_list: ["OBSERVER-ROLE"]
+```
+
+### Task: Create Default User
+
+This task creates a user with the **Default** in **Cisco Catalyst Center**.
+
+```yaml
+      user_details:
+        - username: default
+          email: "default@example.com"
+          password: xxxx
+```
+
+### Task: Create Multiple User
+
+This task creates a user with the **Multiple** in **Cisco Catalyst Center**.
+
+```yaml
+- name: Create user
+      user_details:
+        - username: Admin_multiple
+          email: "super_admin_multiple@example.com"
+          password: xxxx
+          role_list: ["SUPER-ADMIN-ROLE"]
+        - username: Network-admin_multiple
+          email: "net_admin_multiple@example.com"
+          password: xxxx
+          role_list: ["NETWORK-ADMIN-ROLE"]
+        - username: Observer_multiple
+          email: "observer_multiple@example.com"
+          password: xxxx
+          role_list: ["OBSERVER-ROLE"]
+        - username: Guest
+          email: "guest@example.com"
+          password: xxxx
+          role_list: ["SUPER-ADMIN-ROLE","NETWORK-ADMIN-ROLE","OBSERVER-ROLE"]
+```
 
 ## Default Roles
 
@@ -58,7 +143,7 @@ role_details:
 ```
 assign roles to the users
 ### Assign Users to the Role
-    In the user_details section, add users and specify their assigned roles in the role_list.
+In the user_details section, add users and specify their assigned roles in the role_list.
    **Example:**
 ```yaml
 user_details:
@@ -80,20 +165,15 @@ user_details:
 
 ## Validate Your Input:
 ##Validate user input before running though ansible
-```bash
-    (pyats)  dnac_ansible_workflows % ./tools/validate.sh -s workflows/users_and_roles/schema/users_and_roles_workflow_schema.yml -d workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml                             
-    workflows/users_and_roles/schema/users_and_roles_workflow_schema.yml
-    workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml
-    yamale   -s workflows/users_and_roles/schema/users_and_roles_workflow_schema.yml  workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml
-    Validating /Users/pawansi/dnac_ansible_workflows/workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml...
-    Validation success! 👍
+```command
+yamale -s workflows/users_and_roles/schema/users_and_roles_workflow_schema.yml      workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml
 ```
 
 Use the provided validation script to ensure your YAML input file adheres to the required schema.
 ## Execute the Playbook:
 Run the create Playbook
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
+    ansible-playbook -i inventory/iac2/host.yml  workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --e  VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml > logs/userrole.log -vvvvv 
 ```
 Post the user and the roles will start reflecting in the catalyst center.
 

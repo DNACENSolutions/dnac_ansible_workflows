@@ -2,17 +2,34 @@
 
 ## Fabric Sites
 
-A fabric site is an independent fabric area with a unique set of network devices: control plane, border, edge, wireless controller, ISE PSN. Different levels of redundancy and scale can be designed per site by including local resources: DHCP, AAA, DNS, Internet, and so on.
+A **fabric site** is an independent fabric area with a unique set of network devices, including:
 
-A fabric site can cover a single physical location, multiple locations, or only a subset of a location:
+- Control plane
+- Border
+- Edge
+- Wireless controller
+- ISE PSN
 
-    Single location: branch, campus, or metro campus
+Different levels of redundancy and scale can be designed per site by including local resources such as DHCP, AAA, DNS, Internet, and more.
 
-    Multiple locations: metro campus + multiple branches
+### Fabric Site Coverage
 
-    Subset of a location: building or area within a campus
+A fabric site can cover:
 
-A Software-Defined Access fabric network may comprise multiple sites. Each site has the benefits of scale, resiliency, survivability, and mobility. The overall aggregation of fabric sites accommodates a large number of endpoints and scales modularly or horizontally. Multiple fabric sites are interconnected using a transit.
+- **Single location**: Branch, campus, or metro campus
+- **Multiple locations**: Metro campus + multiple branches
+- **Subset of a location**: Building or area within a campus
+
+### Benefits of a Software-Defined Access Fabric Network
+
+A Software-Defined Access fabric network may comprise multiple sites, offering:
+
+- **Scale**
+- **Resiliency**
+- **Survivability**
+- **Mobility**
+
+The overall aggregation of fabric sites accommodates a large number of endpoints and scales modularly or horizontally. Multiple fabric sites are interconnected using a transit.
 
 ## Before you begin
 
@@ -20,27 +37,235 @@ You can create a fabric site only if IP Device Tracking (IPDT) is already config
 
 ## In the Authentication Profile you do the following:
 
-    Choose an authentication template for the fabric site:
+Choose an authentication template for the fabric site:
 
-        Closed Authentication: Any traffic before authentication is dropped, including DHCP, DNS, and ARP.
+- **Closed Authentication**: Any traffic before authentication is dropped, including DHCP, DNS, and ARP.
+- **Open Authentication**: A host is allowed network access without having to go through 802.1X authentication.
+- **Low Impact**: Security is added by applying an ACL to the switch port, allowing very limited network access before authentication. After a host has been successfully authenticated, additional network access is granted.
+- **None**
 
-        Open Authentication: A host is allowed network access without having to go through 802.1X authentication.
+(Optional) If you choose Closed Authentication, Open Authentication, or Low Impact, you can customize the authentication settings:
 
-        Low Impact: Security is added by applying an ACL to the switch port, to allow very limited network access before authentication. After a host has been successfully authenticated, additional network access is granted.
+- **First Authentication Method**: Choose `802.1x` or `MAC Authentication Bypass (MAB)`.
+- **802.1x Timeout (in seconds)**: Use the slider to specify the 802.1x timeout, in seconds.
+- **Wake on LAN**: Choose `Yes` or `No`.
+- **Number of Hosts**: Choose `Unlimited` or `Single`.
+- **BPDU Guard**: Use this checkbox to enable or disable the Bridge Protocol Data Unit (BPDU) guard on all the Closed Authentication ports.
 
-        None
+## Fabric Site Zone Management Workflow Overview
 
-    (Optional) If you choose Closed Authentication, Open Authentication, or Low Impact, you can customize the authentication settings:
+This diagram illustrates the flow of a Fabric Site Zone management workflow initiated from an **Ansible Playbook**, utilizing the `cisco.dnac.sda_fabric_sites_zones_workflow_manager` module to interact with **Cisco Catalyst Center**.
 
-        First Authentication Method: Choose 802.1x or MAC Authentication Bypass (MAB)
+### Workflow Steps
 
-        802.1x Timeout (in seconds): Use the slider to specify the 802.1x timeout, in seconds.
+#### 1. Ansible Playbook
+The process begins with the **Ansible Playbook**, which triggers the execution of the `cisco.dnac.sda_fabric_sites_zones_workflow_manager` module. The playbook defines the tasks and configurations needed to manage users and roles.
 
-        Wake on LAN: Choose Yes or No.
+#### 2. Ansible Module
+Within the **Ansible Module**, the `cisco.dnac.sda_fabric_sites_zones_workflow_manager` module interacts with the **Cisco Catalyst Center SDK** to perform tasks such as creating or updating users, assigning roles, and managing role-based access control.
 
-        Number of Hosts: Choose Unlimited or Single.
+#### 3. Cisco Catalyst Center SDK
+The **SDK** acts as an intermediary between the Ansible Module and the **Cisco Catalyst Center APIs**. It handles the construction and execution of API calls to Cisco Catalyst Center.
 
-        BPDU Guard: Use this check box to enable or disable the Bridge Protocol Data Unit (BPDU) guard on all the Closed Authentication ports.
+#### 4. Cisco Catalyst Center APIs
+The final step involves direct interaction with the **Cisco Catalyst Center APIs** to perform the Fabric Site Zone management tasks.
+
+## Understanding the Configs for Fabric Site Zone Management Tasks
+
+- **config_verify** (bool): 
+  - Set to `True` to verify the Cisco Catalyst Center configuration after applying the playbook configuration. 
+  - **Defaults**: `False`.
+
+- **state** (str): 
+  - The desired state of Cisco Catalyst Center after the module execution. 
+  - **Choices**: [merged, deleted]. 
+  - **Defaults**: `merged`.
+
+- **config** (list[dict]): 
+  - A list containing detailed configurations for creating, updating, or deleting fabric sites or zones in an SDA environment. 
+  - Includes specifications for updating the authentication profile template for these sites. 
+  - Each element represents an operation (add, modify, delete) on SDA infrastructure. 
+  - **Required**.
+
+  - **fabric_sites** (dict): 
+    - Detailed configurations for managing fabric sites and zones, including REST Endpoints for Audit logs and Events. 
+    - Essential for specifying attributes and parameters for fabric site/zone lifecycle management and authentication profile updates.
+
+    - **site_name_hierarchy** (str): 
+      - The unique name identifying the site for create, update, delete operations on fabric sites or zones, and for updating the authentication profile template. 
+      - **Required** for any fabric site/zone management.
+
+    - **fabric_type** (str): 
+      - Specifies the type of site to be managed. 
+      - **Choices**: ['fabric_site', 'fabric_zone']. 
+      - **Defaults**: 'fabric_site'. 
+      - 'fabric_site' refers to a broader network area, while 'fabric_zone' refers to a specific segment within the site. 
+      - **Required**.
+
+    - **authentication_profile** (str): 
+      - The authentication profile applied to the fabric. 
+      - **Choices**: ['Closed Authentication', 'Low Impact', 'No Authentication', 'Open Authentication']. 
+      - Critical for creating/updating fabric sites and updating the authentication profile template.
+
+    - **is_pub_sub_enabled** (bool): 
+      - A flag indicating whether the pub/sub mechanism is enabled for control nodes in the fabric site. 
+      - Relevant only for creating/updating fabric sites (not zones). 
+      - **Defaults**: `True` for fabric sites. Not applicable for fabric zones.
+
+    - **update_authentication_profile** (dict): 
+      - Details for updating the authentication profile template associated with the fabric site. 
+      - Includes advanced authentication settings.
+
+      - **authentication_order** (str): 
+        - The primary authentication method for the site. 
+        - **Choices**: ['dot1x', 'mac']. 
+        - Determines the authentication mechanism attempt order.
+
+      - **dot1x_fallback_timeout** (int): 
+        - The timeout (in seconds) for falling back from 802.1X authentication (3-120 seconds). 
+        - Defines the wait time before attempting an alternative method if 802.1X fails.
+
+      - **wake_on_lan** (bool): 
+        - Enables/disables the Wake-on-LAN feature. 
+        - Allows remote wake-up of low-power devices.
+
+      - **number_of_hosts** (str): 
+        - Specifies the number of hosts allowed per port. 
+        - **Choices**: ['Single', 'Unlimited']. 
+        - Controls network access and maintains security.
+
+      - **enable_bpu_guard** (bool): 
+        - Enables/disables BPDU Guard. 
+        - A security mechanism that disables a port upon receiving a BPDU. 
+        - **Defaults**: `True` when the authentication profile is "Closed Authentication".
+
+### Task: Create Fabric Sites
+
+This task creates **Fabric Sites** in **Cisco Catalyst Center**.
+
+#### Mapping Config to UI Actions
+
+```yaml
+    - name: Create Fabric Sites
+      cisco.dnac.sda_fabric_sites_zones_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+            - fabric_sites:
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD10
+                authentication_profile: "No Authentication"
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD11
+                authentication_profile: "No Authentication"
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD12
+                authentication_profile: "No Authentication"
+      tags: create_fabric_site
+```
+
+### Task: Create Fabric zone
+
+This task creates **Fabric zone** in **Cisco Catalyst Center**.
+
+#### Mapping Config to UI Actions
+
+```yaml
+    - name: Create Fabric Zone
+      cisco.dnac.sda_fabric_sites_zones_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+            - fabric_sites:
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD11/FLOOR1
+                authentication_profile: "No Authentication"
+                fabric_type: "fabric_zone"
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD11/FLOOR2
+                authentication_profile: "No Authentication"
+                fabric_type: "fabric_zone"
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD11/FLOOR3
+                authentication_profile: "No Authentication"
+                fabric_type: "fabric_zone"
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD11/FLOOR4
+                authentication_profile: "No Authentication"
+                fabric_type: "fabric_zone"
+      tags: create_fabric_zone
+```
+
+### Task: Create Fabric Site and Fabric Zone
+
+This task creates **Fabric Site** and **Fabric zone** in **Cisco Catalyst Center**.
+
+#### Mapping Config to UI Actions
+
+```yaml
+    - name: Create Fabric Site and Fabric Zone
+      cisco.dnac.sda_fabric_sites_zones_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+            - fabric_sites:
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD10
+                authentication_profile: "No Authentication"
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR1
+                authentication_profile: "No Authentication"
+                fabric_type: "fabric_zone"
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR2
+                authentication_profile: "No Authentication"
+                fabric_type: "fabric_zone"
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR3
+                authentication_profile: "No Authentication"
+                fabric_type: "fabric_zone"
+                - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR4
+                authentication_profile: "No Authentication"
+                fabric_type: "fabric_zone"
+      tags: create_fabric_site_zone
+```
+
+### Task: Delete Fabric zone
+
+This task Delete **Fabric zone** in **Cisco Catalyst Center**.
+
+#### Mapping Config to UI Actions
+
+```yaml
+    - name: Delete Fabric Zone
+      cisco.dnac.sda_fabric_sites_zones_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+        - fabric_sites:
+            - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR1
+            fabric_type: "fabric_zone"
+            - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR2
+            fabric_type: "fabric_zone"
+            - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR3
+            fabric_type: "fabric_zone"
+            - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR4
+            fabric_type: "fabric_zone"
+      tags: delete_fabric_site
+```
+
+### Task: Create Fabric zone
+
+This task creates **Fabric zone** in **Cisco Catalyst Center**.
+
+#### Mapping Config to UI Actions
+
+```yaml
+    - name: Delete Fabric site
+      cisco.dnac.sda_fabric_sites_sites_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+        - fabric_sites:
+            - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR1
+            fabric_type: "fabric_site"
+            - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR2
+            fabric_type: "fabric_site"
+            - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR3
+            fabric_type: "fabric_site"
+            - site_name_hierarchy: Global/USA/RTP/RTP_BLD10/FLOOR4
+            fabric_type: "fabric_site"
+      tags: delete_fabric_site
+```
 
 ## Create an Fabric sites and fabric zones: Running the Playbook
 Figure 1 Creating Fabric site and fabric Zones
@@ -54,24 +279,6 @@ Figure 3 Select the fabric zones
 
 Figure 4 Configuratin Summary
 ![Alt text](./images/Fabric_site_zone_summary.png)
-
-Achieveing the same through Playbook provide the following inputs:
-fabric_sites_and_zones:
-```bash
-    - fabric_sites:
-        - fabric_type: fabric_site
-          site_name: Global/USA/AREA1/AREA1 BLD1
-          authentication_profile: No Authentication
-          is_pub_sub_enabled: true
-        - fabric_type: fabric_zone
-          site_name: Global/USA/AREA1/AREA1 BLD1/AREA1 BLD1 FLOOR1
-          authentication_profile: No Authentication
-          is_pub_sub_enabled: true
-        - fabric_type: fabric_zone
-          site_name: Global/USA/AREA1/AREA1 BLD1/AREA1 BLD1 FLOOR2
-          authentication_profile: No Authentication
-          is_pub_sub_enabled: true
-```
 
 1. **Validate Your Input:**
 
