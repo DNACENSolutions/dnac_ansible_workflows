@@ -6,18 +6,18 @@ catalyst_center_task_poll_interval: 60
 
 # Network Settings an IP Pools design.
 device_configs_backup_details:
-  - ip_address_list: 204.1.2.1
-    collection_status: Managed
-    #family: Switches and Hubs
+  - ip_address_list: [204.1.2.1]
+    collection_status_list: [Managed]
+    #family_list: ["Switches and Hubs"]
     #file_password: qsaA12!asdasd
     file_path: "./"
-    #hostname_list: NY-BN-9500.cisco.local
+    #hostname_list: ["NY-BN-9500.cisco.local"]
     #mac_address_list: ["d4:ad:bd:c1:67:00", " 00:b6:70:32:b8:00"]
     #serial_number_list: ["FCW2225C020", "FJB2334D06N", "FJC2327U0S2", "FJC2721271T"]
-    #series: Cisco Catalyst 9300 Series Switches
+    #series_list: ["Cisco Catalyst 9300 Series Switches"]
     #site_list: ["Global"]
-    #type: Cisco Catalyst 9300 Switch
+    #type_list: ["Cisco Catalyst 9300 Switch"]
     unzip_backup: false
-  - ip_address_list: 204.1.2.2
+  - ip_address_list: [204.1.2.1]
     file_path: "./"
     unzip_backup: true

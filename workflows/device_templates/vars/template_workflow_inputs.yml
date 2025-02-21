@@ -56,6 +56,7 @@ deploy_device_details:
       template_parameters:
         - param_name: "vlan_id"
           param_value: "1431"
+        - param_name: "interface"
       site_provisioning_details:
         - site_name: "Global/Bangalore/Building14/Floor1"
           device_family: "Switches and Hubs"
