@@ -17,16 +17,64 @@ Manage Credentials:
 - HTTP(S) Read: Read device information via HTTP or HTTPS protocol.
 - HTTP(S) Write: Change device configuration via HTTP or HTTPS protocol.
 
-## **Requirements**
+## Purpose
 
-- **Ansible**: A system with Ansible installed and configured.
-- **Credentials**: Valid login credentials for the target devices (username/password or SSH key).
-- **Device Credentials**: The necessary authentication details (such as username, password, or SSH key) for devices to allow Ansible to manage and configure them.
+### Centralized Credential Management 
+
+- Streamline the process of adding, updating, and deleting device credentials from a single location.
+
+### Improved Security 
+
+- Reduce the risk of unauthorized access by ensuring credentials are securely stored and managed.
+
+### Workflow Automation 
+
+- Simplify credential management tasks with an automated workflow, saving time and minimizing errors.
+
+## Compatibility
+
+### Cisco DNA Center 
+
+- 2.3.7.6 and above
+
+### Ansible 
+
+- Latest stable version recommended
+
+## Workflow Details
+The workflow leverages the **device_credential_workflow_manager**  module to interact with DNA Center's credential management APIs. It supports the following operations:
+
+### Add Device Credential 
+
+- Create new device credentials.
+
+### Update Device Credential 
+
+- Modify existing credentials (e.g., change passwords).
+
+### Delete Device Credential 
+
+- Remove credentials from DNA Center.
+
+### Assign or Update Credentials to Sites
+
+- Assign clredentials to sites, Update new credentials to sites. 
+
+### Apply Credentials
+
+- Make update to creedentials, i.e. reset passsword etc and Apply to applicable sites and all the devices on that site.
 - **Access Rights**: The user account should have sufficient privileges (e.g., `admin` or equivalent) to execute necessary tasks on the devices.
 
 ## Procedure
 
-1. ### Configure Host Inventory
+### Prepare your Ansible environment
+
+- Install Ansible if you haven't already
+- Ensure you have network connectivity to your Catalyst Center instance.
+- Checkout the project and playbooks:
+>git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
+
+### Configure Host Inventory
 
 - Update hosts.yml (or your preferred inventory file) with the connection details for your DNA Center instance.
  - The **host_inventory_dnac1/hosts.yml** file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
@@ -47,9 +95,15 @@ catalyst_center_hosts:
             dnac_log_level: INFO
             dnac_log: true
 ```
-2. ### Workflow Details and Generate your Input
-The workflow utilizes the **device_credential_workflow_manager** module to interface with DNA Center's credential management APIs. For a comprehensive guide on the available options and their structure, please refer to the full workflow specification: [full workflow specification](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/device_credential_workflow_manager). The following operations are supported:
+	
+### Generate your Input
 
+- Create a YAML file (e.g., vars.yml) to store the required variables for the workflow.
+- Refer to the **device_credential_workflow_manager** module documentation for details on the available variables and their formats.
+- Example:
+ - The **workflows/device_config_backup/vars/device_config_backup_workflow_input.yml** file should be configured with device details.
+ - Refer to the full workflow specification for detailed instructions on the available options and their structure:[full workflow specification](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/device_configs_backup_workflow_manager)
+- Operation: 
 - **Add Device Credential:** 
 
   **Mapping to UI action**:
@@ -67,6 +121,7 @@ The workflow utilizes the **device_credential_workflow_manager** module to inter
   - Make sure this device credential does not already exist in DNA Center.
 
   **Input example with creating cli credential**:
+
 
   ```yaml
   ---
@@ -239,7 +294,7 @@ Validating /Users/pawansi/dnac_ansible_workflows/workflows/device_credentials/va
 Validation success! 👍
 ```
 
-## How to run
+## Example run
 
 1. ### Command to run create device credentials
 
@@ -756,7 +811,12 @@ Refer workflow ansible_vault_update workflow to add the variable to your ansible
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_credentials/playbook/device_credentials_playbook.yml --e VARS_FILE_PATH=../vars/jinja_template_device_credentials_input.yml -vvvv
 ```
 
-## Reference
+
+## Important Notes:
+- Ensure the Catalyst Center version is compatible.
+- Carefully configure inventory and input variables.
+- Validate input using yamale to prevent errors.
+- Review execution logs for troubleshooting.
 
 * Note: The environment is used for the references in the above instructions.
 ```

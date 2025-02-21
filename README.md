@@ -44,7 +44,7 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 - [Catalyst Center ISE and AAA Servers Integration](./workflows/ise_radius_integration/#readme)
 
 ## Day1 Configurations (Design and Discovery)
-- [Catalyst Center Site Hierarchy and Floor Maps design](./workflows/sites/#readme)
+- [Catalyst Center Site Hierarchy and Floor Maps design](./workflows/site_hierarchy/#readme)
 - [Catalyst Center Device Credentials configurations and assignment](./workflows/device_credentials/#readme)
 - [Catalyst Center Network Settings (Servers, Banners, TZ, SNMP, Logging, Telemetry Management](./workflows/network_settings/#readme)
 - [Catalyst Center Network Settings Global Ip Pools and Site Pools reservation Management](./workflows/network_settings/#readme)
@@ -74,6 +74,15 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 ## Demo Videos
 [IaC Demo Videos](http://3.136.0.140/index.html)
 
+# Compatibility Matrix
+| Deployed Catalyst Center Version   | Catalyst Center Version in Input   | Ansible Galaxy collection (cisco.dnac)Version    | Python SDK (dnacentersdk) Version    |
+| :--------------------------------: | :--------------------------------: | :-----------------------: | :-------------------: |
+| 2.3.5.3 | 2.3.5.3   | latest   | latest |
+| 2.3.5.5 | 2.3.5.3   | latest   | latest |
+| 2.3.5.6 | 2.3.5.3   | latest   | latest |
+| 2.3.7.6 | 2.3.7.6   | latest   | latest |
+| 2.3.7.7 | 2.3.7.6   | latest   | latest |
+
 # Prerequisites
 Before using these Ansible workflows, ensure that you have the following prerequisites:
 
@@ -82,17 +91,24 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 - Proper network connectivity to interact with the Catalyst Center APIs
 
 
-# Installation
-Python 3.7+ is required to install iac-validate. Don't have Python 3.7 or later? 
-See Python 3 Installation & Setup Guide https://realpython.com/installing-python/
-Create your python virtual environment using commend:
+# Installation of Cisco Validated Playbooks, Schema and Sample Inputs Vars
+
+- Install Python 3.9 or later
+- Install  cisco.dnac collection including Python requirements.
+- Modify ansible.cfg file to support additional jinja2 extensions
+
+## Python
+    Python 3.9+ is required to install iac-validate. Don't have Python 3.9 or later? 
+    See Python 3 Installation & Setup Guide https://realpython.com/installing-python/
+    Create your python virtual environment using commend:
 ```bash
     python3 -m venv python3env --prompt "AnsiblePython3 VENV"
-    source python3env
+    source python3env/bin/activate
 ```
 
-## Clone this repository to your local machine:
-Clone the repo or pull a branch and use directly
+## Ansible Requirements
+1. Clone this repository to your local machine:
+
 ```bash
     git clone https://github.com/DNACENSolutions/dnac_ansible_workflows.git
 ```
@@ -108,18 +124,79 @@ Clone the repo or pull a branch and use directly
     pip install -r requirements.txt
 ```
 ## Install the collection (Galaxy link):
+For installing or upgrading the cisco.dnac ansible collection follow steps:
+    Install Collection from Ansible Galaxy
+    These instructions are for regular users to install via Ansible Galaxy. The instructions also include installation of all Python requirements for a given version. 
+    The cisco.dnac collection is available on the Ansible Galaxy server and can be automatically installed on your system using following command
+
+### Latest version
+Clone the dnacenter-ansible repository.
 ```bash
     ansible-galaxy collection install cisco.dnac --force
 ```
-## Create your inventory
-### Inventory:
+### Sppecific version
+```bash
+ansible-galaxy collection install cisco.dnac:==6.29.0 --force
+```
+
+### Install latest devel version from  GitHub abd build
+```bash
+git clone https://github.com/cisco-en-programmability/dnacenter-ansible.git
+```
+Go to the dnacenter-ansible directory
+```bash
+cd dnacenter-ansible
+```
+Pull the latest master from the repo
+```bash
+git pull origin master
+```
+Build and install a collection from source
+```bash
+ansible-galaxy collection build --force
+ansible-galaxy collection install cisco-dnac-* --force
+```
+
+## Install or Update the dnacentersdk:
+For installing or upgrading the dnacentersdk follow steps:
+
+### Install via pip or pip3
+To get the Python Catalyst Center SDK latest in a fresh development environment:
+
+```bash
+pip install dnacentersdk
+```
+
+### Upgrading to the latest Version
+Use --upgrade opton to upgrde to latest version available.
+```bash
+pip install dnacentersdk --upgrade
+```
+### Install a specific version
+To install a specific version like 2.8.3
+```bash
+pip install dnacentersdk:2.8.3
+```
+
+## Ansible configuration file
+Enable Jinja2 extensions: loopcontrols and do
+[Jinja2 Extensions Documentation](https://jinja.palletsprojects.com/en/stable/extensions/)
+
+By default, Ansible will issue a warning when a duplicate dict key is encountered in YAML. We recommend to change to error instead and stop playbook execution when a duplicate key is detected.
+```bash
+jinja2_extensions=jinja2.ext.loopcontrols,jinja2.ext.do
+duplicate_dict_key=error
+```
+
+# Create your inventory
+## Inventory:
 This folder contains inventory file for your dev, lab, sandbox or production env which will be utilised by swim playbooks.
 
 Create your inventory file in below template format to utilize the swim playbooks.
 
 The template for the inventory file is:
 ```bash
-    cat inventory/demo_lab/001-dnac_inventory_template.yml
+cat inventory/demo_lab/001-dnac_inventory_template.yml
 ```
 
 Setup up your ansible python interpretor following suitable method for your environment : https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
@@ -129,11 +206,11 @@ Setup up your ansible python interpretor following suitable method for your envi
 The second folder of the workflows contains playbook and var files for workflows.
 Example:
 ```bash
-    workflows/swim
-    playbooks/
-        swim_workflow_playbook.yml
-    vars/
-        vars_swim.yml
+workflows/swim
+playbooks/
+    swim_workflow_playbook.yml
+vars/
+    vars_swim.yml
 ```
 ### Var files:
     Update var file with your  details and parameter to control playbook
@@ -164,7 +241,7 @@ Here are a few examples of Cisco Validated Playbooks in the repo. For details do
 ## Example 1: 
 Swim upgrade, this include uploading the images, golden tagging the image filtered location and device family and distributed and activating images on the networkk devices.
 ```bash
-    ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=< Vars File PATH (Full Path or relative path from playbook)> -vvvv
+ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=< Vars File PATH (Full Path or relative path from playbook)> -vvvv
 ```
     
 ## Example 2: 
@@ -187,7 +264,7 @@ ERROR! A worker was found in a dead state
 
 If that's the case try setting this environment variable:
 ```bash
-    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 ```
 
 # Update
