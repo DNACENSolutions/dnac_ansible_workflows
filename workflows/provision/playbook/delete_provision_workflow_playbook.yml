@@ -1,8 +1,8 @@
 ---
-#the following playbook is used to un-provision, re-provision devices on Cisco Catalyst Center
+# The following playbook is use to un-provision devices on Cisco Catalyst Center
 # The playbook is executed with the following command
-# ansible-playbook -i inventory/hosts.yml provision_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/provision_inputs.yml"
-- name: Provision devices Cisco Catalyst Center
+# ansible-playbook -i inventory/hosts.yml delete_provision_workflow_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/un_provision_workflow_inputs.yml"
+- name: Un_Provision devices Cisco Catalyst Center
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -38,13 +38,13 @@
       when: provision_details is defined
     - name: Print the un-Provision devices output
       debug:
-        msg: "{{provision_output}}"
-    - name: Provision devices playbook end time
+        msg: "{{unprovision_output}}"
+    - name: UnProvision devices playbook end time
       set_fact:
         long_op_end: "{{ now() }}"
-    - name: Print Un-Provision devices playbook execution time
+    - name: Print UnProvision devices playbook execution time
       debug:
-        msg: "Provision devices playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+        msg: "UnProvision devices playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
   post_tasks:
     - name: run command module to find python version
       ansible.builtin.command: which python
