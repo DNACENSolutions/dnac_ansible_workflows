@@ -628,7 +628,7 @@ network_management_settings_type:
   message_of_the_day: include('message_of_the_day_type', required=False)
   netflow_collector: include('netflow_collector_type', required=False)
   network_aaa: include('network_aaa_type', required=False)
-  ntp_server: list(str(), min=1, max=2, required=False)
+  ntp_server: list(str(), min=0, max=2, required=False)
   snmp_server: include('snmp_server_type', required=False)
   syslog_server: include('syslog_server_type', required=False)
   timezone: str(required=False)
@@ -636,8 +636,8 @@ network_management_settings_type:
   wireless_telemetry: include('wireless_telemetry_type', required=False)
   
 dns_server_type:
-  domain_name: str(required=True)
-  primary_ip_address: str(required=True)
+  domain_name: str(required=False)
+  primary_ip_address: str(required=False)
   secondary_ip_address: str(required=False)
 
 client_and_endpoint_aaa_type:

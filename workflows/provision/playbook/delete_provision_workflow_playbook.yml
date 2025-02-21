@@ -32,11 +32,11 @@
     - name: Un-Provision devices on Cisco Catalyst Center
       cisco.dnac.provision_workflow_manager:
         <<: *dnac_login
-        state: deleted
-        config: "{{unprovision_details}}"
-      register: unprovision_output
-      when: unprovision_details is defined
-    - name: Print the UnProvision devices output
+        state: "{{ state }}"
+        config: "{{provision_details}}"
+      register: provision_output
+      when: provision_details is defined
+    - name: Print the un-Provision devices output
       debug:
         msg: "{{unprovision_output}}"
     - name: UnProvision devices playbook end time

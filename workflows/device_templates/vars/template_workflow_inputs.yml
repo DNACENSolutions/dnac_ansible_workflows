@@ -49,15 +49,23 @@ template_details:
         description $interface_description
 
 deploy_device_details:
-    - host_name: SJC-Switch-1
-      management_ip: 10.1.1.1
-      site_name: Global/USA/SAN JOSE/BLD23
-      device_role: ACCESS
-      device_tag: all_9300_Access_tag1
-      device_template_params:
-          - param_name: "vlan"
-            param_value: "100"
-          - param_name: "interface"
-            param_value: "TwoGigabitEthernet1/0/2"
-          - param_name: "interface_description"
-            param_value: "Access Port"
+  - deploy_template:
+    - project_name: Onboarding Configuration
+      template_name: PnP-Upstream-SW
+      force_push: true
+      template_parameters:
+        - param_name: "vlan_id"
+          param_value: "1431"
+        - param_name: "interface"
+      site_provisioning_details:
+        - site_name: "Global/Bangalore/Building14/Floor1"
+          device_family: "Switches and Hubs"
+  - deploy_template:
+    - project_name: Onboarding Configuration
+      template_name: PnP-Upstream-SW
+      force_push: true
+      template_parameters:
+        - param_name: "vlan_id"
+          param_value: "1431"
+      device_details:
+        device_ips: ["10.1.2.1", "10.2.3.4"]
