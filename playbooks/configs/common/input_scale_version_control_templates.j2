@@ -1,0 +1,56 @@
+---
+scale_template_version_control:
+{% for template_id in template_list %}
+    - configuration_templates:
+        name: PnP-Upstream-Scale_version_control
+        template_name: PnP-Upstream-Scale_version_control
+        project_name: Scale_VersionControl
+        tags: ["Scale"]
+        author: admin
+        device_types:
+        - product_family: Switches and Hubs
+          product_series: Cisco Catalyst 9500 Series Switches
+        - product_family: Switches and Hubs
+          product_series: Cisco Catalyst 9300 Series Switches
+        software_type: IOS-XE
+        software_variant: XE
+        template_content: |
+            {% set PNP_VLAN_ID = 2000 + template_id -%}
+            {% set PNP_INTF_PREFIX = "204.1.218" -%}
+            {% set PNP_INTF_SUBNET = "255.255.255.240" -%}
+            {% set PNP_INTF_OCT = (PNP_VLAN_ID - 2000) * 16 -%}
+            {% set PNP_INTF_NW = PNP_INTF_PREFIX + "." + PNP_INTF_OCT|string -%}
+            {% set PNP_GW_IP = PNP_INTF_OCT + 1 -%}
+            {% set PNP_INTF_GW = "204.1.218." + PNP_GW_IP|string -%}
+            !
+            !
+            vlan {{PNP_VLAN_ID}}
+
+            pnp startup-vlan {{PNP_VLAN_ID}}
+
+            interface vlan {{PNP_VLAN_ID}}
+            ip address {{ PNP_INTF_GW }} {{ PNP_INTF_SUBNET }}
+                no ip redirects
+                no ip proxy-arp
+                ip pim sparse-mode
+                ip router isis 1
+                load-interval 30
+                bfd interval 750 min_rx 750 multiplier 3
+                no bfd echo
+
+            ip dhcp pool pnp_vlan_{{PNP_VLAN_ID}}
+            network 10.4.218.240 255.255.255.240
+            default-router 10.4.218.241
+            option 43 ascii "5A1N;B2;K4;I10.4.208.247;J80"
+
+            interface TenGigabitEthernet1/1/5
+            description SF-EWLC-1
+            switchport mode trunk
+            switchport trunk native vlan 2015
+        template_params: []
+        rollback_template_params: []
+        composite: false
+        containing_templates: []
+        language: JINJA
+        custom_params_order: false
+{% endfor %}

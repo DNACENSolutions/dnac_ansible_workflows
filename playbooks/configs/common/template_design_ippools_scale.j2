@@ -1,0 +1,198 @@
+---
+global_pool_config:
+add_ip_pool:
+{% for ip_pool in ip_pools %}
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 10.0.{{ ip_pool }}.1
+    cidr: 10.0.{{ ip_pool }}.0/24
+    name: VN4-POOL-{{ ip_pool }}
+    pool_type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:40:{{ ip_pool }}::1
+    cidr: 2040:40:{{ ip_pool }}::0/64
+    name: IPv6_scale_{{ ip_pool }}
+    pool_type: Generic
+{% endfor %}
+
+add_ip_pool_bulk:
+-
+{% for ip_pool in ip_pools %}
+- ip_address_space: IPv4
+  dhcp_server_ips:
+    - 204.192.3.40
+  dns_server_ips:
+    - 171.70.168.183
+  gateway: 10.0.{{ ip_pool }}.1
+  cidr: 10.0.{{ ip_pool }}.0/24
+  name: VN4-POOL-{{ ip_pool }}
+  pool_type: Generic
+- ip_address_space: IPv6
+  dhcp_server_ips:
+    - 2004:192:3::40
+  dns_server_ips:
+    - 2006:1:1::1
+  gateway: 2040:40:{{ ip_pool }}::1
+  cidr: 2040:40:{{ ip_pool }}::0/64
+  name: IPv6_scale_{{ ip_pool }}
+  pool_type: Generic
+{% endfor %}
+
+
+reserve_pool_config:
+{% set counter = namespace(value=0) %}
+{% set ipv4_subnet_increment = namespace(value=0) %}
+{% set ipv6_subnet_increment = namespace(value=0) %}
+{% for ip_pool in ip_pools %}
+{% if ip_pool <= 50 %}
+{% set siteName = 'Global/India' %}
+{% else %}
+{% set siteName = 'Global/USA' %}
+{% endif %}
+{% for item in range(1, 11) %}
+{% set counter.value = counter.value + 1 %}
+{% if item == 1 %}
+{% set ipv4_subnet_increment.value = 0 %}
+{% set ipv6_subnet_increment.value = 0 %}
+{% elif item % 2 == 0 %}
+{% set ipv6_subnet_increment.value = ipv6_subnet_increment.value + 800 %}
+{% else %}
+{% set ipv6_subnet_increment.value = ipv6_subnet_increment.value + 200 %}
+{% endif %}
+  - site_name: {{ siteName }}
+    ipv6_address_space: True
+    ipv4_global_pool: '10.0.{{ ip_pool }}.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 28
+    ipv4_subnet: 10.0.{{ ip_pool }}.{{ ipv4_subnet_increment.value }}
+    name: dual_stack_{{ counter.value }}
+    ipv6_prefix: True
+    ipv6_prefix_length: 69
+    ipv6_global_pool: '2040:40:{{ ip_pool }}::/64'
+    ipv6_subnet: '2040:40:{{ ip_pool }}:0:{{ ipv6_subnet_increment.value }}::'
+    slaac_support: False
+    pool_type: Generic
+{% set ipv4_subnet_increment.value = ipv4_subnet_increment.value + 16 %}
+{% endfor %}  
+{% endfor %}
+
+reserve_pool_config_bulk:
+-
+{% set counter = namespace(value=0) %}
+{% set ipv4_subnet_increment = namespace(value=0) %}
+{% set ipv6_subnet_increment = namespace(value=0) %}
+{% for ip_pool in ip_pools %}
+{% if ip_pool <= 50 %}
+{% set siteName = 'Global/India' %}
+{% else %}
+{% set siteName = 'Global/USA' %}
+{% endif %}
+{% for item in range(1, 11) %}
+{% set counter.value = counter.value + 1 %}
+{% if item == 1 %}
+{% set ipv4_subnet_increment.value = 0 %}
+{% set ipv6_subnet_increment.value = 0 %}
+{% elif item % 2 == 0 %}
+{% set ipv6_subnet_increment.value = ipv6_subnet_increment.value + 800 %}
+{% else %}
+{% set ipv6_subnet_increment.value = ipv6_subnet_increment.value + 200 %}
+{% endif %}
+- site_name: {{ siteName }}
+  ipv6_address_space: True
+  ipv4_global_pool: '10.0.{{ ip_pool }}.0/24'
+  ipv4_prefix: True
+  ipv4_prefix_length: 28
+  ipv4_subnet: 10.0.{{ ip_pool }}.{{ ipv4_subnet_increment.value }}
+  name: dual_stack_{{ counter.value }}
+  ipv6_prefix: True
+  ipv6_prefix_length: 69
+  ipv6_global_pool: '2040:40:{{ ip_pool }}::/64'
+  ipv6_subnet: '2040:40:{{ ip_pool }}:0:{{ ipv6_subnet_increment.value }}::'
+  slaac_support: False
+  pool_type: Generic
+{% set ipv4_subnet_increment.value = ipv4_subnet_increment.value + 16 %}
+{% endfor %}  
+{% endfor %}
+
+
+reserve_pool_edit_config:
+{% set counter = namespace(value=0) %}
+{% set ipv4_subnet_increment = namespace(value=0) %}
+{% set ipv6_subnet_increment = namespace(value=0) %}
+{% for ip_pool in ip_pools %}
+{% if ip_pool <= 50 %}
+{% set siteName = 'Global/India' %}
+{% else %}
+{% set siteName = 'Global/USA' %}
+{% endif %}
+{% for item in range(1, 11) %}
+{% set counter.value = counter.value + 1 %}
+{% if item == 1 %}
+{% set ipv4_subnet_increment.value = 0 %}
+{% set ipv6_subnet_increment.value = 0 %}
+{% elif item % 2 == 0 %}
+{% set ipv6_subnet_increment.value = ipv6_subnet_increment.value + 800 %}
+{% else %}
+{% set ipv6_subnet_increment.value = ipv6_subnet_increment.value + 200 %}
+{% endif %}
+  - site_name: {{ siteName }}
+    ipv6_address_space: False
+    ipv4_global_pool: '10.0.{{ ip_pool }}.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 28
+    ipv4_subnet: 10.0.{{ ip_pool }}.{{ ipv4_subnet_increment.value }}
+    name: dual_stack_{{ counter.value }}
+    ipv6_prefix: True
+    ipv6_prefix_length: 69
+    ipv6_global_pool: '2040:40:{{ ip_pool }}::/64'
+    ipv6_subnet: '2040:40:{{ ip_pool }}:0:{{ ipv6_subnet_increment.value }}::'
+    slaac_support: False
+    pool_type: Generic
+{% set ipv4_subnet_increment.value = ipv4_subnet_increment.value + 16 %}
+{% endfor %}  
+{% endfor %}
+
+reserve_pool_edit_config_bulk:
+-
+{% set counter = namespace(value=0) %}
+{% set ipv4_subnet_increment = namespace(value=0) %}
+{% set ipv6_subnet_increment = namespace(value=0) %}
+{% for ip_pool in ip_pools %}
+{% if ip_pool <= 50 %}
+{% set siteName = 'Global/India' %}
+{% else %}
+{% set siteName = 'Global/USA' %}
+{% endif %}
+{% for item in range(1, 11) %}
+{% set counter.value = counter.value + 1 %}
+{% if item == 1 %}
+{% set ipv4_subnet_increment.value = 0 %}
+{% set ipv6_subnet_increment.value = 0 %}
+{% elif item % 2 == 0 %}
+{% set ipv6_subnet_increment.value = ipv6_subnet_increment.value + 800 %}
+{% else %}
+{% set ipv6_subnet_increment.value = ipv6_subnet_increment.value + 200 %}
+{% endif %}
+- site_name: {{ siteName }}
+  ipv6_address_space: False
+  ipv4_global_pool: '10.0.{{ ip_pool }}.0/24'
+  ipv4_prefix: True
+  ipv4_prefix_length: 28
+  ipv4_subnet: 10.0.{{ ip_pool }}.{{ ipv4_subnet_increment.value }}
+  name: dual_stack_{{ counter.value }}
+  ipv6_prefix: True
+  ipv6_prefix_length: 69
+  ipv6_global_pool: '2040:40:{{ ip_pool }}::/64'
+  ipv6_subnet: '2040:40:{{ ip_pool }}:0:{{ ipv6_subnet_increment.value }}::'
+  slaac_support: False
+  pool_type: Generic
+{% set ipv4_subnet_increment.value = ipv4_subnet_increment.value + 16 %}
+{% endfor %}  
+{% endfor %}

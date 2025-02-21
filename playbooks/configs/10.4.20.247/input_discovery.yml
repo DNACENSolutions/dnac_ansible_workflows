@@ -1,0 +1,233 @@
+---
+single:
+  - ip_address_list:
+      - 10.4.213.9
+    discovery_type: SINGLE
+    protocol_order: ssh
+    state: merged
+    discovery_name: Single IP Discovery
+    global_credentials:
+      cli_credentials_list:
+        - username: cisco
+          description: cli
+      http_read_credential_list:
+        - username: cisco
+          description: http_read
+      http_write_credential_list:
+        - username: cisco
+          description: http_write
+      snmp_v3_credential_list:
+        - username: cisco
+          description: SNMPv3-credentials
+      net_conf_port_list:
+        - description: defaultNetConfPort
+
+cdp:
+  - ip_address_list:
+      - 10.4.213.9
+    discovery_type: CDP
+    cdp_level: 3
+    ip_filter_list:
+      - 10.4.20.0/24
+      - 10.4.21.0/24
+      - 10.4.22.0/24
+    protocol_order: ssh
+    state: merged
+    discovery_name: CDP Discovery with filters
+    global_credentials:
+      cli_credentials_list:
+        - username: cisco
+          description: cli
+      http_read_credential_list:
+        - username: cisco
+          description: http_read
+      http_write_credential_list:
+        - username: cisco
+          description: http_write
+      snmp_v3_credential_list:
+        - username: cisco
+          description: SNMPv3-credentials
+      net_conf_port_list:
+        - description: defaultNetConfPort
+
+lldp:
+  - ip_address_list:
+      - 10.4.213.9
+    discovery_type: LLDP
+    protocol_order: ssh
+    state: merged
+    discovery_name: LLDP Discovery
+    global_credentials:
+      cli_credentials_list:
+        - username: cisco
+          description: cli
+      http_read_credential_list:
+        - username: cisco
+          description: http_read
+      http_write_credential_list:
+        - username: cisco
+          description: http_write
+      snmp_v3_credential_list:
+        - username: cisco
+          description: SNMPv3-credentials
+      net_conf_port_list:
+        - description: defaultNetConfPort
+
+range:
+  - ip_address_list:
+      - 10.4.213.1-10.4.213.5
+    discovery_type: RANGE
+    protocol_order: ssh
+    state: merged
+    discovery_name: Single Range Discovery 1
+    global_credentials:
+      cli_credentials_list:
+        - username: cisco
+          description: cli
+      http_read_credential_list:
+        - username: cisco
+          description: http_read
+      http_write_credential_list:
+        - username: cisco
+          description: http_write
+      snmp_v3_credential_list:
+        - username: cisco
+          description: SNMPv3-credentials
+      net_conf_port_list:
+        - description: defaultNetConfPort
+  - ip_address_list:
+      - 10.4.212.1
+    discovery_type: RANGE
+    protocol_order: ssh
+    state: merged
+    discovery_name: Single Range Discovery 2
+    global_credentials:
+      cli_credentials_list:
+        - username: cisco
+          description: cli
+      http_read_credential_list:
+        - username: cisco
+          description: http_read
+      http_write_credential_list:
+        - username: cisco
+          description: http_write
+      snmp_v3_credential_list:
+        - username: cisco
+          description: SNMPv3-credentials
+      net_conf_port_list:
+        - description: defaultNetConfPort
+
+multi_range:
+  - ip_address_list:
+      - 10.4.210.200
+      - 10.4.211.201
+      - 10.4.212.1
+      - 10.4.213.1-10.4.213.5
+      - 10.4.213.6
+      - 10.4.213.7
+      - 10.4.213.8
+      - 10.4.213.10
+    discovery_type: MULTI RANGE
+    protocol_order: ssh
+    state: merged
+    discovery_name: Multi Range Discovery
+    global_credentials:
+      cli_credentials_list:
+        - username: cisco
+          description: cli
+      http_read_credential_list:
+        - username: cisco
+          description: http_read
+      http_write_credential_list:
+        - username: cisco
+          description: http_write
+      snmp_v3_credential_list:
+        - username: cisco
+          description: SNMPv3-credentials
+      net_conf_port_list:
+        - description: defaultNetConfPort
+
+cidr:
+  - ip_address_list:
+      - 10.4.213.0/28
+    discovery_type: CIDR
+    protocol_order: ssh
+    state: merged
+    discovery_name: CIDR Discovery
+    global_credentials:
+      cli_credentials_list:
+        - username: cisco
+          description: cli
+      http_read_credential_list:
+        - username: cisco
+          description: http_read
+      http_write_credential_list:
+        - username: cisco
+          description: http_write
+      snmp_v3_credential_list:
+        - username: cisco
+          description: SNMPv3-credentials
+      net_conf_port_list:
+        - description: defaultNetConfPort
+
+rediscovery:
+  preferred_management_ip:
+    - ip_address_list:
+        - 10.4.20.2
+        - 10.4.20.3
+        - 10.4.20.4
+        - 10.4.20.9
+        - 10.4.21.10
+        - 10.4.21.11
+      preferred_mgmt_ip_method: UseLoopBack
+      discovery_type: MULTI RANGE
+      protocol_order: ssh
+      state: merged
+      discovery_name: Re-discovery using preferred management ip(s)
+      global_credentials:
+        cli_credentials_list:
+          - username: cisco
+            description: cli
+        http_read_credential_list:
+          - username: cisco
+            description: http_read
+        http_write_credential_list:
+          - username: cisco
+            description: http_write
+        snmp_v3_credential_list:
+          - username: cisco
+            description: SNMPv3-credentials
+        net_conf_port_list:
+          - description: defaultNetConfPort
+  different_credentials:
+    - ip_address_list:
+        - 10.4.211.201
+      discovery_type: SINGLE
+      discovery_name: SJ-EWLC-1 re-discovery using different credentials
+      discovery_specific_credentials:
+        cli_credentials_list:
+          - username: cisco
+            password: Private#123
+            enable_password: Private#123
+      preffered_mgmt_ip_method: None
+      protocol_order: ssh
+      retry: 3
+
+edit_discovery:
+  create:
+    - ip_address_list:
+        - 10.4.20.2
+        - 10.4.20.3
+      discovery_type: SINGLE
+      protocol_order: ssh
+      snmp_version: v2c
+      preferred_mgmt_ip_method: UseLoopBack
+      discovery_name: Ansible Edit Discovery
+  edit:
+    - ip_address_list:
+        - 204.192.6.1
+      discovery_type: SINGLE
+      protocol_order: ssh
+      snmp_version: v2c
+      preferred_mgmt_ip_method: None
+      discovery_name: Ansible Edit Discovery
