@@ -2,21 +2,11 @@
 
 ## **Overview**
 
-This Ansible playbook automates the provisioning and onboarding of new network devices leveraging Cisco's Plug and Play technology. It streamlines the process of configuring devices, minimizing manual efforts and promoting consistency. This guide explains how to use an Ansible Playbook to automate device onboarding using Cisco's Plug-and-Play (PnP) service within the Cisco Catalyst Center. This feature allows network administrators to onboard new devices into the network with minimal manual intervention, reducing deployment time and avoiding configuration errors.
-
 **PnP** (Plug-and-Play) is a network deployment solution that simplifies the process of onboarding new devices by automatically assigning configurations and images to new network devices upon discovery. This automation can be driven by **Cisco Catalyst Center** via **Ansible Playbooks** to handle various deployment scenarios, including:
 
 - **Switches**
 - **Wireless LAN Controllers (WLCs)**
 - **Access Points (APs)**
-
-The following Ansible Playbook examples demonstrate the onboarding process for:
-
-1. **Claiming a Cisco Catalyst 9K Switch**
-2. **Claiming a Cisco Catalyst 9K Switch Stack**
-3. **Claiming a Cisco Embedded Wireless Controller (EWLC)**
-4. **Claiming Multiple EWLCs for High Availability (HA)**
-5. **Onboarding Access Points (APs)**
 
 ## Prerequisites
 
@@ -36,81 +26,26 @@ Before starting, ensure the following requirements are met:
 * **Planned Provisioning:** Pre-configure settings and apply them when the device comes online.
 * **Unclaimed Provisioning:** Discover and configure new devices that join the network unexpectedly.
 
-**Workflows**
+### Configure Environment
 
-* **Planned Provisioning:**
-    * Devices are pre-configured in Catalyst Center.
-    * Upon connecting to the network, they automatically receive their configuration.
-* **Unclaimed Provisioning:**
-    * New devices are detected.
-    * An administrator can initiate the provisioning process through this playbook.
+```bash
+catalyst_center_hosts:
+    hosts:
+        catalyst_center220:
+            dnac_host: xx.xx.xx.xx.
+            dnac_password: XXXXXXXX
+            dnac_port: 443
+            dnac_timeout: 60
+            dnac_username: admin
+            dnac_verify: false
+            dnac_version: 2.3.7.6
+            dnac_debug: true
+            dnac_log_level: INFO
+            dnac_log: true
+```
 
 ## Overview of the PnP Onboarding Process
 This diagram provides an overview of the **PnP onboarding process** initiated by an Ansible playbook using the **cisco.dnac.pnp_workflow_manager** module. The module interacts with the **Cisco Catalyst Center** via its API, allowing devices to be onboarded seamlessly into the network.
-
-## Key Components
-
-### Ansible Playbook
-- The playbook serves as the automation tool that executes the onboarding process.
-- It triggers the **cisco.dnac.pnp_workflow_manager** module, passing configuration parameters for devices to be onboarded.
-
-### Ansible Module: cisco.dnac.pnp_workflow_manager
-- Manages the interaction between Ansible and the Catalyst Center APIs.
-- Retrieves device details, checks the existence of sites, images, and templates, and processes the onboarding steps for each device.
-
-### Cisco Catalyst Center SDK
-Acting as the intermediary, the SDK communicates directly with the Catalyst Center APIs. It performs the following:
-- **Retrieves device information** from the PnP database using the device’s `serial_number`.
-- If the device does not exist in the PnP database, the SDK **adds the device**.
-- If the device already exists, the SDK **updates its details** if necessary.
-- If a device is in an "Error" state, the SDK **resets the device** before continuing with onboarding.
-
-### API Calls
-- **GET**: Requests details from Catalyst Center about the device (via the `/dna/intent/api/v1/onboarding/pnp-device` endpoint), checking if the device is already in the system.
-- **POST**: For new devices or when the device needs to be claimed to a site, a POST request is sent to `/dna/intent/api/v1/onboarding/pnp-device` or `/dna/intent/api/v1/onboarding/pnp-device/site-claim`.
-- **PUT**: If the device exists but requires updating, the module uses a PUT request to modify the existing record.
-
-### Device Processing Loop
-The playbook loops through each device defined in the `pnp_params` and handles onboarding as follows:
-- **Initial Check**: Verify if the site, image, and template are available.
-- **Device Handling**: The device is either added, updated, or reset based on its current state.
-- **Claiming to a Site**: Each device is claimed and assigned to its designated site in Catalyst Center.
-
-### Bulk Import
-If several devices need to be imported at once (i.e., bulk processing), the module performs a bulk import by sending a POST request to the bulk import API endpoint (`/dna/intent/api/v1/onboarding/pnp-device/import`).
-
-## Understanding the configs for PnP tasks
-- `config_verify` (bool): Set to `True` to verify the Cisco Catalyst Center config after applying the playbook config. Defaults to `False`.
-- `state` (str): The state of Cisco Catalyst Center after module completion. Choices: [`merged`, `deleted`]. Defaults to `merged`.
-- `config` (list[dict]): List of device details being managed. **Required**.
-  - `device_info` (list[dict]): Provides device-specific information for adding devices to the PnP database. **Required**.
-    - For single device addition: The list should contain exactly one set of device information. If a `site_name` is also provided, the device can be claimed immediately.
-    - For bulk import: The list must contain information for more than one device. Claiming must be performed separately.
-      - `hostname` (str): Desired hostname for the PnP device after claiming. Can only be assigned/changed during the claim process.
-      - `state` (str): Onboarding state of the PnP device. Choices: [`Unclaimed`, `Claimed`, `Provisioned`].
-      - `pid` (str): PnP device's PID.
-      - `serial_number` (str): PnP device's serial number.
-      - `is_sudi_required` (bool): Flag indicating if SUDI authentication is required.
-      - `site_name` (str): Name of the site for claiming the device.
-      - `project_name` (str): Name of the project under which the template is present. Defaults to "Onboarding Configuration".
-      - `template_name` (str): Name of the template to be configured on the device. Supported for EWLC from Cisco Catalyst Center release 2.3.7.x onwards.
-      - `template_params` (dict): Parameter values for parameterized templates. Key-value pairs of variable names and values (e.g., `variable_name: variable_value`). Supported for EWLC from Cisco Catalyst Center release 2.3.7.x onwards.
-      - `image_name` (str): Name of the image to be configured on the device.
-      - `golden_image` (bool): Flag indicating if the image is tagged as a golden image.
-      - `pnp_type` (str): Device type for the PnP device. Choices: [`Default`, `CatalystWLC`, `AccessPoint`, `StackSwitch`]. Defaults to `Default`.
-        - `Default`: Applicable to switches and routers.
-        - `CatalystWLC`: For 9800 series wireless controllers.
-        - `AccessPoint`: For claiming an access point.
-        - `StackSwitch`: For a group of switches operating as a single switch.
-      - `static_ip` (str): Management IP address of the Wireless Controller.
-      - `subnet_mask` (str): Subnet mask of the management IP address of the Wireless Controller.
-      - `gateway` (str): Gateway IP address of the Wireless Controller.
-      - `vlan_id` (str): VLAN ID allocated for claiming the Wireless Controller.
-      - `ip_interface_name` (str): Interface name used for PnP by the Wireless Controller. Must be pre-configured on the controller.
-      - `rf_profile` (str): Radio Frequency (RF) profile of the AP being claimed. Choices: [`HIGH`, `LOW`, `TYPICAL`].
-        - `HIGH`: Allows more power and easier AP joining with clients.
-        - `TYPICAL`: Blend of moderate power and client visibility.
-        - `LOW`: Consumes less power and has least client visibility.
 
 ### Task: Claiming a Cisco Catalyst 9K Switch
 
@@ -174,6 +109,11 @@ In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller
 ![Alt text](images/image-5.png)
 
 ``` yaml
+    - name: PnP Tasks
+      cisco.dnac.pnp_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config:
           - site_name: Global/USA/SAN JOSE/SJ_BLD21
             project_name: Onboarding Configuration
             image_name: C9800-40-universalk9_wlc.17.12.02.SPA.bin
@@ -189,6 +129,8 @@ In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller
             gateway: 204.192.50.1
             ip_interface_name: TenGigabitEthernet0/0/2
             vlan_id: 2050
+      loop: "{{ PnP_Tasks }}"
+      when: PnP_Tasks is defined
 ```
 
 ### Task: Claiming Multiple EWLC Devices for High Availability (HA)
@@ -198,6 +140,11 @@ In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller
 ![Alt text](images/image-6.png)
 
 ``` yaml
+    - name: PnP Tasks
+      cisco.dnac.pnp_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config:
           - site_name: Global/USA/New York/NY_BLD2
             project_name: Onboarding Configuration
             image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
@@ -228,6 +175,8 @@ In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller
             gateway: 10.4.218.225
             ip_interface_name: TenGigabitEthernet0/0/1
             vlan_id: 2014
+      loop: "{{ PnP_Tasks }}"
+      when: PnP_Tasks is defined
 ```
 #### Key Points
 
@@ -245,6 +194,11 @@ In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller
 In scenarios where a device encounters errors during onboarding, it can be reset and reattempted. The following task demonstrates how to reset a Catalyst EWLC that is in an error state.
 
 ``` yaml
+    - name: PnP Tasks
+      cisco.dnac.pnp_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config:
           - site_name: Global/USA/SAN JOSE/BLD23
             project_name: Onboarding Configuration
             template_name: PnP-Devices_SJ-EWLC_No-Vars
@@ -253,6 +207,8 @@ In scenarios where a device encounters errors during onboarding, it can be reset
                 hostname: WLC
                 state: Error
                 pid: C9800-40-K9
+      loop: "{{ PnP_Tasks }}"
+      when: PnP_Tasks is defined
 ```
 #### Key Points
 
@@ -294,6 +250,12 @@ This task demonstrates how to add multiple devices in bulk. Bulk onboarding is u
 ![Alt text](images/image-10.png)
 
 ``` yaml
+
+    - name: PnP Tasks
+      cisco.dnac.pnp_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config:
           - device_info:
               - serial_number: FOX2639PAYD
                 hostname: SJ-EWLC-1
@@ -311,6 +273,9 @@ This task demonstrates how to add multiple devices in bulk. Bulk onboarding is u
                 hostname: SF-BN-ISR
                 state: Unclaimed
                 pid: ISR4451-X/K9
+      loop: "{{ PnP_Tasks }}"
+      when: PnP_Tasks is defined
+
 ```
 
 
@@ -341,5 +306,17 @@ This task demonstrates how to add multiple devices in bulk. Bulk onboarding is u
 
 * This playbook is provided as-is. Use at your own risk.
 * Ensure you have proper backups and understand the potential impact before running in a production environment.
+## Referances
+
+
+```yaml
+  ansible: 9.9.0
+  ansible-core: 2.16.10
+  ansible-runner: 2.4.0
+
+  dnacentersdk: 2.8.3
+  cisco.dnac: 6.29.0
+  ansible.utils: 5.1.2
+```
 
 ---
