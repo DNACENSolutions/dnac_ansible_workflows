@@ -26,8 +26,8 @@ passwords_details:
 
 ## Executing the playbook to add variables and encrypt to the playbook:
 
-ansible-playbook -i host_inventory_dnac1 workflows/ansible_vault_update/playbook/ansible_vault_update_playbook.yml --extra-vars "VARS_FILE_PATH=../vars/ansible_vault_update_inputs.yml"
+ansible-playbook -i host_inventory workflows/ansible_vault_update/playbook/ansible_vault_update_playbook.yml --extra-vars "VARS_FILE_PATH=../vars/ansible_vault_update_inputs.yml"
 
 ## Removing variables from ansible vault
 
-ansible-playbook -i host_inventory_dnac1 workflows/ansible_vault_update/playbook/delete_ansible_vault_update_playbook.yml --extra-vars "VARS_FILE_PATH=../vars/ansible_vault_update_inputs.yml"
+ansible-playbook -i host_inventory workflows/ansible_vault_update/playbook/delete_ansible_vault_update_playbook.yml --extra-vars "VARS_FILE_PATH=../vars/ansible_vault_update_inputs.yml"
