@@ -1,12 +1,13 @@
 # PROVISION Workflow Playbook
 This workflow playbook automates the process of assigning device to sites, provisioning, reprovisioning and deleting devices in Cisco DNA (Catalyst Center) inventory.
+
 it is supported from Catalyst Center Release version 2.3.7.6
 
 ## Workflow Main Tasks
-- Site Assignment: Assign a device to a site_hierarchy without provisioning
-- Device Provision: Assign a device to site and provision.
-- Device Re-provision: Re-provision an already provisioned device.
-- Device Un-provision: Remove a provisioned device from the inventory.
+- **Site Assignment**: Assign a device to a site_hierarchy without provisioning
+- **Device Provision**: Assign a device to site and provision.
+- **Device Re-Provision**: Re-provision an already provisioned device.
+- **Device Un-Provision**: Remove a provisioned device from the inventory.
 
 To run this workflow, follow the README.md instruction
 
@@ -38,13 +39,13 @@ catalyst_center_hosts:
             dnac_log: true
 ```
 
-User Inputs for Users and roles are stored in workflows/provision/vars/provision_workflow_inputs.yml 
+### User Inputs for Users and roles are stored in workflows/provision/vars/provision_workflow_inputs.yml 
 
 ## 3. Defining device details 
 provision_details section specifies the list of devices and their configurations for the devices to be run through the playbooks.
 To configure this, refer to the full workflow specification: [Ansible Galaxy - Provision Workflow Manager](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/provision_workflow_manager/).
 
-Validate the input file using yamale: (recommended)
+## Validate the input file using yamale: (recommended)
 ```bash
 #validates input file against the schema
 (pyats) dnac_ansible_workflows % ./tools/validate.sh -s workflows/provision/schema/provision_workflow_schema.yml -d workflows/provision/vars/provision_workflow_inputs.yml 
@@ -88,7 +89,7 @@ provision_details:
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/provision_workflow_inputs.yml -vvvv
 ```
 
-Upon successful completion, the device is assigned to a site
+#### Upon successful completion, the device is assigned to a site.
 
 ![alt text](images/site_assignment_successful.png)
 
@@ -100,13 +101,13 @@ response: []
 
 ### Step 4: Verify site assignment details
 
-#### Site assignment details can be verified in UI
+#### Site Assignment details can be verified in UI.
 
 ![alt text](images/Detail_site_Assignment.png)
 
 ### Notes: 
-- Site Assignment for wirless device via playbook is not supported yet (Work in progress)
-- Site assignment for bulk wired devices is supported. Please refer to the "Assign devices to sites without provisioning" section in the provision_workflow_inputs.yml.
+- Site Assignment for wirless device via playbook is not supported yet (Work in progress).
+- Site Assignment for bulk wired devices is supported. Please refer to the "Assign devices to sites without provisioning" section in the provision_workflow_inputs.yml.
 
 ## 2. Provisioning:
 #### Assigns device to a site and configures them.
@@ -136,7 +137,7 @@ provision_details:
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/provision_workflow_inputs.yml -vvvv
 ```
 
-On a successful completion, the device is assigned and provisioned
+#### On a successful completion, the device is assigned and provisioned
 
 ![alt text](images/Device_provisioned.png)
 
@@ -144,8 +145,10 @@ On a successful completion, the device is assigned and provisioned
 
 #### Upon successful completion, the expected output will be:
 
+```bash
 "msg": "Provisioning of the device 'xx.xx.xx.xx' completed successfully.",
 "response": "Provisioning of the device 'xx.xx.xx.xx' completed successfully."
+```
 
 ### Step 4: Verify the Provisioning Configuration
 
@@ -168,7 +171,7 @@ provision_details:
 
 ### Notes: 
 - Ensure that the WLC device provision configuration details are added in provision_workflow_inputs.yml before running the playbook.
-- Bulk device provision operation can perform on wired and wirless devices
+- Bulk device provision operation can perform on wired and wirless devices.
 
 ### Step 1: WLC Device is in Non-Provisioned State
 
@@ -184,16 +187,18 @@ provision_details:
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/provision_workflow_inputs.yml -vvvv
 ```
 
-On a successful completion, the device is assigned and provisioned
+#### On a successful completion, the device is assigned and provisioned
 
 ![alt text](images/wlc_device_provisioned.png)
 
 ### Step 3: Verify playbook output
 
-#### Upon successful completion, the output will be.
+#### Upon successful completion, the expected output will be.
 
+```bash
 "msg": "Provisioning of the wireless device 'XX.XX.XX.XX' completed successfully.",
 "response": "Provisioning of the wireless device 'XX.XX.XX.XX' completed successfully."
+```
 
 ### Step 4: Verify the Provisioning Configuration
 
@@ -211,7 +216,6 @@ On a successful completion, the device is assigned and provisioned
 #Select Catalyst Cennter version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 provision_details:
-  #Wired device Reprovisioning 
   #Reprovision wired device Hubs and Switches
   - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
     management_ip_address: XX.XX.XX.XX
@@ -232,7 +236,7 @@ provision_details:
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/provision_workflow_inputs.yml -vvvv
 ```
 
-On a successful completion, the device is reprovisioned
+#### On a successful completion, the device is reprovisioned.
 
 ![alt text](images/Re_provision_successful.png)
 
@@ -240,8 +244,10 @@ On a successful completion, the device is reprovisioned
 
 #### If the re-provisioning is successful, the output will be similar to:
 
+```bash
 "msg": "Re-Provision for device 'xx.xx.xx.xx' done successfully",
 "response": "Wired Device 'xx.xx.xx.xx' re-provisioning completed successfully."
+```
 
 ### Step 4: Validate Device Re-Provisioning in UI
 
@@ -285,7 +291,7 @@ provision_details:
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/provision_workflow_inputs.yml -vvvv
 ```
 
-On a successful completion, the device is reprovisioned
+#### On a successful completion, the device is reprovisioned.
 
 ![alt text](images/wlc_reprovision_successful.png)
 
@@ -293,8 +299,10 @@ On a successful completion, the device is reprovisioned
 
 #### If the re-provisioning is successful, the output will be similar to:
 
+```bash
 "msg": "Provisioning of the wireless device 'XX.XX.XX.XX' completed successfully.",
 "response": "Provisioning of the wireless device 'XX.XX.XX.XX' completed successfully."
+```
 
 ### Step 4: Validate Device Re-Provisioning in UI
 
@@ -302,8 +310,8 @@ On a successful completion, the device is reprovisioned
 
 ![alt text](images/wlc_repvosion_verification.png)
 
-## 4. Device Un_Provision:
-#### Un_provision a previously provisioned device, removing it from the inventory.
+## 4. Device Un-Provision:
+#### Un-Provision a previously provisioned device, removing it from the inventory.
 
 ### Example: Wired device
 #### Input (YAML)
@@ -326,12 +334,16 @@ unprovision_details:
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/delete_provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/un_provision_workflow_inputs.yml -vvvv
 ```
 
+#### On a successful completion, the device will be removed .
+
 ### Step 3: Verify the playbook output
 
 #### If the un-provisioning is successful, the output will be similar to:
 
+```bash
 "msg": "Deletion done Successfully for the device 'xx.xx.xx.xx' ",
 "response": "Deletion done Successfully for the device 'xx.xx.xx.xx' "
+```
 
 ### Step 4: Verify Device Removal from Inventory
 
@@ -340,7 +352,7 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/prov
 ![alt text](images/Device_unprovisioned.png)
 
 ### Notes: 
-- Un-provision for wireless device is not supported yet (Work In Progress)
+- Un-provision for wireless device is not supported yet (Work In Progress).
 
 ## Run line parameters description:
 
