@@ -91,6 +91,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: /auto/dna-sol/ws/rammuthy/new_repo/dnac_ansible_workflows/workflows/sites/images/floor_image1.png
+        force_upload_floor_image: True
     type: floor
 ```
 You can organize by putting all teh sites togather i.e. all fllor under one building next to the building.
@@ -112,6 +116,12 @@ workflow/sites/jinja_template/site_generation_template.j2 template can be used t
 ---
 #Select Catalyst Cennter version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
+{% set my_namespace = namespace(my_list=['floor_image1.png', 'floor_image2.jpg', 'floor_image3.jpeg', 'floor_image4.pdf']) %}
+
+{% set _ = my_namespace.my_list.append('item1') %}
+{% set _ = my_namespace.my_list.append('item2') %}
+{% set _ = my_namespace.my_list.append('item3') %}
+{% set _ = my_namespace.my_list.append('item4') %}
 design_sites:
   - site:
       area:
@@ -143,6 +153,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/{{ my_namespace.my_list[i] }}
+        force_upload_floor_image: True
     type: floor
 {% endfor %}
 {% endfor %}
@@ -167,12 +181,39 @@ With the belo input the delete playbooks Delete all the floors and building unde
 ---
 #Select Catalyst Cennter version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
-design_sites:  
+design_sites:
   - site:
       area:
-        name: AREA1
+        name: USA
+        parent_name: Global
+    type: area
+  - site:
+      area:
+        name: SAN JOSE
         parent_name: Global/USA
     type: area
+  - site:
+      building:
+        name: BLD23
+        parent_name: Global/USA/SAN JOSE
+        address: McCarthy Blvd, San Jose, California 95131, United States
+        latitude: 37.398188
+        longitude: -121.912974
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: FLOOR1
+        parent_name: Global/USA/SAN JOSE/BLD23
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: /auto/dna-sol/ws/rammuthy/new_repo/dnac_ansible_workflows/workflows/sites/images/floor_image1.png
+        force_upload_floor_image: True
+    type: floor
 ```
 
 ## Deleting the sites
@@ -182,3 +223,26 @@ Playbook can be used to delete roles and users
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/delete_site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/delete_site_hierarchy_design_vars.yml -vvv
 ```
 Roles and Users will get deleted from the Catalyst Center
+
+## Structure file
+  ![alt text](./images/structure.png)
+
+  \* Explain values:
+  ```yaml
+  -i ./inventory/demo_lab/inventory_demo_lab.yml: refer to DNAC to run
+  ./workflows/sites/playbook/site_hierarchy_playbook.yml: playbook will run this
+  --extra-vars VARS_FILE_PATH=./../vars/jinja_template_site_hierarchy_design_vars.yml: location of the input file for the playbook to execute.
+  -vvv: return detailed information about the message; the more 'v', more detailed
+    ```
+
+# Referances
+
+* Note: The environment is used for the references in the above instructions.
+```
+  ansible: 10.7.0
+  ansible-core: 2.17.7
+  ansible-runner: 2.4.0
+
+  dnacentersdk: 2.8.1
+  cisco.dnac: 6.29.0
+  ansible.utils: 5.1.2

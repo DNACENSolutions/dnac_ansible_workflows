@@ -31,3 +31,7 @@ floor_type:
     width: num()
     length: num()
     height: num()
+    floor_number: num()
+    units_of_measure: str()
+    upload_floor_image_path: str()
+    force_upload_floor_image: bool()
