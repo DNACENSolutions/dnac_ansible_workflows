@@ -18,7 +18,7 @@ configuration_templates_type:
     description: str(required=False)
     device_types: list(include('device_types_type'), min=0, max=100, required=False)
     failure_policy: enum('ABORT_TARGET_ON_ERROR',required=False)
-    #id: (required=False)
+    # id: str(required=False)
     language: enum('VELOCITY', 'JINJA', required=False)
     name: str(required=True)
     template_name: str(required=False)
@@ -38,12 +38,16 @@ device_types_type:
   product_type: str(required=False)
 
 deploy_device_details_type:
-  host_name: str(required=False)
-  management_ip: str(required=False)
-  site_name: str(required=False)
-  device_role: str(required=False)
-  device_tag: str(required=False)
-  device_template_params: list(include('device_template_params_type'), min=0, max=100, required=False)
+  deploy_template:
+    project_name: str(required=False)
+    template_name: str(required=False)
+    force_push: bool(required=False)
+    template_parameters: list(include('device_template_params_type'), min=0, max=100, required=False)
+    site_provisioning_details: list(include('site_provisioning_type'), min=0, max=100, required=False)
+    device_details: dict( device_ips=list(str(required=True))
 device_template_params_type:
   param_name: str(required=True)
   param_value: str(required=True)
+site_provisioning_type:
+  site_name: str(required=True)
+  device_family: str(required=True)
