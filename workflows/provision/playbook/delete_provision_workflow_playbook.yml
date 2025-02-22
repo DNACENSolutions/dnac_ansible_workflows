@@ -32,7 +32,7 @@
     - name: Un-Provision devices on Cisco Catalyst Center
       cisco.dnac.provision_workflow_manager:
         <<: *dnac_login
-        state: "{{state}}"
+        state: "{{ state }}"
         config: "{{unprovision_details}}"
       register: unprovision_output
       when: unprovision_details is defined
