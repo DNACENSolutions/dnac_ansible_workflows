@@ -1,5 +1,21 @@
 # Device Credential Workflow Manager
-This Ansible workflow automates the management of device credentials within your network using Cisco DNA Center.
+Device Credential Workflow Manager in Cisco DNA Center is a tool that helps you organize and manage network device credentials, including creating, applying, and updating credentials for network devices during deployment or maintenance.
+
+You can configure and manage credentials for network devices such as switches, routers, access points, and other devices, ensuring that Cisco DNA Center has access and can manage them automatically.
+
+These workflows help you reduce risk and enhance security while managing your network. Below are the key elements and processes in Device Credential Workflow Manager.
+
+Device Credentials Figure: It consists of two parts: Network Hierarchy and Manage Credentials.
+![Alt text](./images/credential.png)
+
+Network Hierarchy: specifies where the credential will be applied on
+Manage Credentials:
+- CLI: Connect and manage devices via command line (SSH/Telnet).
+- SNMPv2c Read: Read device status information via SNMPv2c.
+- SNMPv2c Write: Both read and change configuration via SNMPv2c.
+- SNMPv3: Secure SNMP version, supporting encryption and authentication.
+- HTTP(S) Read: Read device information via HTTP or HTTPS protocol.
+- HTTP(S) Write: Change device configuration via HTTP or HTTPS protocol.
 
 ## Purpose
 
@@ -19,7 +35,7 @@ This Ansible workflow automates the management of device credentials within your
 
 ### Cisco DNA Center 
 
-- 2.3.3.0 and above
+- 2.3.7.6 and above
 
 ### Ansible 
 
@@ -47,6 +63,7 @@ The workflow leverages the **device_credential_workflow_manager**  module to int
 ### Apply Credentials
 
 - Make update to creedentials, i.e. reset passsword etc and Apply to applicable sites and all the devices on that site.
+- **Access Rights**: The user account should have sufficient privileges (e.g., `admin` or equivalent) to execute necessary tasks on the devices.
 
 ## Procedure
 
@@ -78,7 +95,7 @@ catalyst_center_hosts:
             dnac_log_level: INFO
             dnac_log: true
 ```
-
+	
 ### Generate your Input
 
 - Create a YAML file (e.g., vars.yml) to store the required variables for the workflow.
@@ -87,48 +104,636 @@ catalyst_center_hosts:
  - The **workflows/device_config_backup/vars/device_config_backup_workflow_input.yml** file should be configured with device details.
  - Refer to the full workflow specification for detailed instructions on the available options and their structure:[full workflow specification](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/device_configs_backup_workflow_manager)
 - Operation: 
- - add
- - update 
- - delete
+- **Add Device Credential:** 
 
-```yaml
----
-catalyst_center_version: 2.3.7.6
-device_credentials:
-  credentials_details: #Create multiple credentials for the same protocol
-  - global_credential_details: #Create global credentials for the device list
-      cli_credential: #Create CLI credentials list
-      - description: CLI Sample 1
-        username: cli-1
-        password: "5!meh"
-        enable_password: "q4^t^"
-      - description: CLI2
-        username: cli-2
-        password: "sbs2@"
-        enable_password: "8b!rn"
-  credentials_site_assignment: #Assign credentials to sites list of all sites mappings
-  - assign_credentials_to_site: # Assign device credentials to sites
-      cli_credential: #Assign CLI credentials to sites
-        description: CLI Sample 1
-        username:  cli-1
-```
+  **Mapping to UI action**:
+  - Design -> Network Settings -> Device Credentials -> Manage Credentials
 
-### Validate Input:(recommended)
+  ![Alt text](./images/manage_creden.png)
+
+
+  - Enter data to create new credential
+
+  ![Alt text](./images/create_cli.png)
+
+  **Purpose**:
+  - Create new device credentials.
+  - Make sure this device credential does not already exist in DNA Center.
+
+  **Input example with creating cli credential**:
+
+
+  ```yaml
+  ---
+  catalyst_center_version: 2.3.7.6
+  device_credentials:
+    credentials_details: #Create multiple credentials for the same protocol
+    - global_credential_details: #Create global credentials for the device list
+        cli_credential: #Create CLI credentials list
+        - description: CLI Sample 1
+          username: cli-1
+          password: "5!meh"
+          enable_password: "q4^t^"
+        - description: CLI2
+          username: cli-2
+          password: "sbs2@"
+          enable_password: "8b!rn"
+  ```
+
+- **Update Device Credential:**
+
+  **Mapping to UI action**:
+  - Design -> Network Settings -> Device Credentials -> Manage Credentials
+
+  ![Alt text](./images/manage_creden.png)
+
+
+  - Enter data to update existing credentials
+
+  ![Alt text](./images/create_cli.png)
+
+  **Purpose**:
+  - Modify existing credentials (e.g., change passwords).
+  - This task ensures that if the credential already exists, the details of that credential will be updated without creating a duplicate.
+
+  **Input example with update cli credential**:
+
+  ```yaml
+  ---
+  catalyst_center_version: 2.3.7.6
+  device_credentials:
+    credentials_details: 
+    - global_credential_details: 
+        cli_credential:
+        - description: CLI Sample 1
+          username: cli-1
+          password: "5!meh"
+          enable_password: "q4^t^"
+        - description: CLI2
+          username: cli-2
+          password: "sbs2@"
+          enable_password: "8b!rn"
+  ```
+
+  **Input example with update device credential name/description using old name and description**:
+
+  ```yaml
+  ---
+  catalyst_center_version: 2.3.7.6
+  device_credentials:
+    credentials_details:
+    - global_credential_details:
+        cli_credential:
+        - description: CLISample1
+          username: cli1
+          password: "5!meh"
+          enable_password: "q4^t^"
+          old_description: CLI Sample 1
+          old_username: cli-1
+  ```
+
+- **Delete Device Credential:**
+
+  **Mapping to UI action**:
+  - Design -> Network Settings -> Device Credentials -> Manage Credentials -> Focus -> System
+
+  ![Alt text](./images/system_creden.png)
+
+
+  - Select The Credential To Delete -> Go To The Three Dots -> Select Delete
+
+  ![Alt text](./images/delete_creden.png)
+
+  **Purpose**:
+    - Remove credentials from DNA Center.
+    - Make sure that the device credentials you delete are not assigned to any site.
+
+  **Input example with delete cli credential**:
+
+  ```yaml
+  ---
+  catalyst_center_version: 2.3.7.6
+  device_credentials:
+    credentials_details:
+    - global_credential_details:
+        cli_credential:
+        - description: CLI Sample 1
+          username: cli-1
+  ```
+
+- **Assign or Update Credentials to Sites:**
+
+  **Mapping to UI action**:
+  - Design -> Network Settings -> Device Credentials -> Select Site -> Select Credential Type -> Save
+
+  ![Alt text](./images/assign_creden.png)
+
+  **Purpose**:
+    - Assign clredentials to sites.
+    - Update new credentials to sites. 
+
+  **Input example for Assign Credentials to sites**:
+
+    ```yaml
+    ---
+    catalyst_center_version: 2.3.7.6
+    device_credentials:
+      credentials_site_assignment: #Assign credentials to sites list of all sites mappings
+      - assign_credentials_to_site: # Assign device credentials to sites
+          cli_credential: #Assign CLI credentials to sites
+            description: CLI Sample 1
+            username:  cli-1
+          site_name: #Sites  to which the credentials are assigned
+          - Global/India #Full Site Heirarchy Path from Global to Site
+          - Global/India/Bangalore
+    ```
+
+- **Apply Credentials:**
+
+    **Mapping to UI action**:
+  - Design -> Network Settings -> Device Credentials -> Manage Credentials -> Focus -> Current site
+
+  ![Alt text](./images/manage_current.png)
+
+
+  - Select The Credential To Apply -> Go To The Three Dots -> Select Apply
+
+  ![Alt text](./images/apply_creden.png)
+
+  **Purpose**:
+    - Make update to creedentials, i.e. reset passsword etc and Apply to applicable sites and all the devices on that site.
+
+  **Input example for Apply Credentials to sites**:
+
+    ```yaml
+    ---
+    catalyst_center_version: 2.3.7.6
+    device_credentials:
+      credentials_site_apply:
+      - apply_credentials_to_site:
+          cli_credential:
+            description: CLI Sample 1
+            username:  cli-1
+          site_name:
+          - Global #Full Site Heirarchy Path from Global
+          - Global/India/Bangalore
+    ```
+
+3. ### Validate Input:(recommended)
 
 Validate the input with schema using yamale
+- Command to Validate:
 
 ```bash
-dnac_ansible_workflows % yamale -s workflows/device_credentials/schema/device_credentials_schema.yml workflows/device_credentials/vars/device_credentials_vars.yml
+yamale -s workflows/device_credentials/schema/device_credentials_schema.yml workflows/device_credentials/vars/device_credentials_vars.yml
+```
+
+- Result:
+```bash
 Validating /Users/pawansi/dnac_ansible_workflows/workflows/device_credentials/vars/device_credentials_vars.yml...
 Validation success! 👍
 ```
 
 ## Example run
 
-- Collect device running configurations through Catalyst Center APIs.
+1. ### Command to run create device credentials
+
+- Command to run:
 
 ```bash
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_credentials/playbook/device_credentials_playbook.yml --e VARS_FILE_PATH=../vars/device_credentials_vars.yml -vvvv
+```
+- Reult:
+
+```bash
+TASK [Create or Update existing Credentials with provided details in "../vars/device_credentials_vars.yml"] ***
+task path: /auto/dna-sol/ws/thanduong/dnac-auto/dnac_ansible_workflows/workflows/device_credentials/playbook/device_credentials_playbook.yml:53
+<catalyst_center220> ESTABLISH LOCAL CONNECTION FOR USER: thanduon
+<catalyst_center220> EXEC /bin/sh -c 'echo ~thanduon && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c '( umask 77 && mkdir -p "` echo /users/thanduon/.ansible/tmp `"&& mkdir "` echo /users/thanduon/.ansible/tmp/ansible-tmp-1740126079.5517635-1320856-85222477229834 `" && echo ansible-tmp-1740126079.5517635-1320856-85222477229834="` echo /users/thanduon/.ansible/tmp/ansible-tmp-1740126079.5517635-1320856-85222477229834 `" ) && sleep 0'
+Using module file /users/thanduon/.ansible/collections/ansible_collections/cisco/dnac/plugins/modules/device_credential_workflow_manager.py
+<catalyst_center220> PUT /users/thanduon/.ansible/tmp/ansible-local-1320371l8ksx2_1/tmpf1medyzg TO /users/thanduon/.ansible/tmp/ansible-tmp-1740126079.5517635-1320856-85222477229834/AnsiballZ_device_credential_workflow_manager.py
+<catalyst_center220> EXEC /bin/sh -c 'chmod u+x /users/thanduon/.ansible/tmp/ansible-tmp-1740126079.5517635-1320856-85222477229834/ /users/thanduon/.ansible/tmp/ansible-tmp-1740126079.5517635-1320856-85222477229834/AnsiballZ_device_credential_workflow_manager.py && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c '/auto/dna-sol/pyats-ws/pyats-thanduong/bin/python /users/thanduon/.ansible/tmp/ansible-tmp-1740126079.5517635-1320856-85222477229834/AnsiballZ_device_credential_workflow_manager.py && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c 'rm -f -r /users/thanduon/.ansible/tmp/ansible-tmp-1740126079.5517635-1320856-85222477229834/ > /dev/null 2>&1 && sleep 0'
+changed: [catalyst_center220] => {
+    "changed": true,
+    "diff": [],
+    "invocation": {
+        "module_args": {
+            "config": [
+                {
+                    "global_credential_details": {
+                        "cli_credential": [
+                            {
+                                "description": "CLI Sample 1",
+                                "enable_password": "q4^t^",
+                                "password": "5!meh",
+                                "username": "cli-1"
+                            },
+                            {
+                                "description": "CLI2",
+                                "enable_password": "8b!rn",
+                                "password": "sbs2@",
+                                "username": "cli-2"
+                            }
+                        ],
+                        "https_read": [
+                            {
+                                "description": "httpsRead Sample 1",
+                                "password": "2!x88yvqz*7",
+                                "port": 443,
+                                "username": "admin"
+                            }
+                        ],
+                        "https_write": [
+                            {
+                                "description": "httpsWrite Sample 1",
+                                "password": "j@5wgm%s2g%",
+                                "port": 443,
+                                "username": "admin"
+                            }
+                        ],
+                        "snmp_v3": [
+                            {
+                                "auth_password": "hp!x6px&#@2xi5",
+                                "auth_type": "SHA",
+                                "description": "snmpV3 Sample 1",
+                                "privacy_password": "ai7tpci3j@*j5g",
+                                "privacy_type": "AES128",
+                                "snmp_mode": "AUTHPRIV",
+                                "username": "admin"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "config_verify": false,
+            "dnac_api_task_timeout": 1200,
+            "dnac_debug": true,
+            "dnac_host": "10.22.40.214",
+            "dnac_log": true,
+            "dnac_log_append": true,
+            "dnac_log_file_path": "dnac.log",
+            "dnac_log_level": "debug",
+            "dnac_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
+            "dnac_port": "443",
+            "dnac_task_poll_interval": 2,
+            "dnac_username": "thanduon",
+            "dnac_verify": false,
+            "dnac_version": "2.3.7.6",
+            "state": "merged",
+            "validate_response_schema": true
+        }
+    },
+    "response": [
+        {
+            "apply_credential": {},
+            "assign_credential": {},
+            "global_credential": {
+                "Creation": {
+                    "msg": "Global Credential Created Successfully",
+                    "response": {
+                        "active_validation": false,
+                        "cliCredential": [
+                            {
+                                "description": "CLI Sample 1",
+                                "enablePassword": "q4^t^",
+                                "password": "5!meh",
+                                "username": "cli-1"
+                            },
+                            {
+                                "description": "CLI2",
+                                "enablePassword": "8b!rn",
+                                "password": "sbs2@",
+                                "username": "cli-2"
+                            }
+                        ],
+                        "httpsRead": [
+                            {
+                                "description": "httpsRead Sample 1",
+                                "password": "2!x88yvqz*7",
+                                "port": 443,
+                                "username": "admin"
+                            }
+                        ],
+                        "httpsWrite": [
+                            {
+                                "description": "httpsWrite Sample 1",
+                                "password": "j@5wgm%s2g%",
+                                "port": 443,
+                                "username": "admin"
+                            }
+                        ],
+                        "snmpV3": [
+                            {
+                                "authPassword": "hp!x6px&#@2xi5",
+                                "authType": "SHA",
+                                "description": "snmpV3 Sample 1",
+                                "privacyPassword": "ai7tpci3j@*j5g",
+                                "privacyType": "AES128",
+                                "snmpMode": "AUTHPRIV",
+                                "username": "admin"
+                            }
+                        ]
+                    }
+                },
+                "No Updation": {
+                    "msg": "No Updation is available",
+                    "response": "No Response"
+                }
+            }
+        }
+    ]
+}
+Read vars_file '{{ VARS_FILE_PATH }}'
+
+TASK [Assign Credentials to sites for credentials and sites maps in variables file "../vars/device_credentials_vars.yml"] ***
+task path: /auto/dna-sol/ws/thanduong/dnac-auto/dnac_ansible_workflows/workflows/device_credentials/playbook/device_credentials_playbook.yml:61
+<catalyst_center220> ESTABLISH LOCAL CONNECTION FOR USER: thanduon
+<catalyst_center220> EXEC /bin/sh -c 'echo ~thanduon && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c '( umask 77 && mkdir -p "` echo /users/thanduon/.ansible/tmp `"&& mkdir "` echo /users/thanduon/.ansible/tmp/ansible-tmp-1740126102.9772413-1322165-162826310557816 `" && echo ansible-tmp-1740126102.9772413-1322165-162826310557816="` echo /users/thanduon/.ansible/tmp/ansible-tmp-1740126102.9772413-1322165-162826310557816 `" ) && sleep 0'
+Using module file /users/thanduon/.ansible/collections/ansible_collections/cisco/dnac/plugins/modules/device_credential_workflow_manager.py
+<catalyst_center220> PUT /users/thanduon/.ansible/tmp/ansible-local-1320371l8ksx2_1/tmpog0uoozu TO /users/thanduon/.ansible/tmp/ansible-tmp-1740126102.9772413-1322165-162826310557816/AnsiballZ_device_credential_workflow_manager.py
+<catalyst_center220> EXEC /bin/sh -c 'chmod u+x /users/thanduon/.ansible/tmp/ansible-tmp-1740126102.9772413-1322165-162826310557816/ /users/thanduon/.ansible/tmp/ansible-tmp-1740126102.9772413-1322165-162826310557816/AnsiballZ_device_credential_workflow_manager.py && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c '/auto/dna-sol/pyats-ws/pyats-thanduong/bin/python /users/thanduon/.ansible/tmp/ansible-tmp-1740126102.9772413-1322165-162826310557816/AnsiballZ_device_credential_workflow_manager.py && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c 'rm -f -r /users/thanduon/.ansible/tmp/ansible-tmp-1740126102.9772413-1322165-162826310557816/ > /dev/null 2>&1 && sleep 0'
+changed: [catalyst_center220] => {
+    "changed": true,
+    "diff": [],
+    "invocation": {
+        "module_args": {
+            "config": [
+                {
+                    "assign_credentials_to_site": {
+                        "cli_credential": {
+                            "description": "CLI Sample 1",
+                            "username": "cli-1"
+                        },
+                        "https_read": {
+                            "description": "httpsRead Sample 1",
+                            "username": "admin"
+                        },
+                        "https_write": {
+                            "description": "httpsWrite Sample 1",
+                            "username": "admin"
+                        },
+                        "site_name": [
+                            "Global/India",
+                            "Global/India/Bangalore"
+                        ],
+                        "snmp_v3": {
+                            "description": "snmpV3 Sample 1",
+                            "username": "admin"
+                        }
+                    }
+                }
+            ],
+            "config_verify": false,
+            "dnac_api_task_timeout": 1200,
+            "dnac_debug": true,
+            "dnac_host": "10.22.40.214",
+            "dnac_log": true,
+            "dnac_log_append": true,
+            "dnac_log_file_path": "dnac.log",
+            "dnac_log_level": "debug",
+            "dnac_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
+            "dnac_port": "443",
+            "dnac_task_poll_interval": 2,
+            "dnac_username": "thanduon",
+            "dnac_verify": false,
+            "dnac_version": "2.3.7.6",
+            "state": "merged",
+            "validate_response_schema": true
+        }
+    },
+    "response": [
+        {
+            "apply_credential": {},
+            "assign_credential": {
+                "Assign Credentials": {
+                    "msg": "Device Credential Assigned to a site is Successfully",
+                    "response": [
+                        {
+                            "cliCredentialsId": {
+                                "credentialsId": "86090cd5-94b1-41c9-9c4e-a9d89cb304cd"
+                            },
+                            "httpReadCredentialsId": {
+                                "credentialsId": "15039f68-7f4a-4b86-90a9-9c3d49947c6a"
+                            },
+                            "httpWriteCredentialsId": {
+                                "credentialsId": "74ceca6c-0317-49eb-95dc-f8decea49581"
+                            },
+                            "id": "876b792c-bdac-478e-a8e7-8bbc2c53bf5b",
+                            "snmpv3CredentialsId": {
+                                "credentialsId": "d053df1e-b937-43e4-8a30-a0de54885449"
+                            }
+                        },
+                        {
+                            "active_validation": false,
+                            "cliCredentialsId": {
+                                "credentialsId": "86090cd5-94b1-41c9-9c4e-a9d89cb304cd"
+                            },
+                            "httpReadCredentialsId": {
+                                "credentialsId": "15039f68-7f4a-4b86-90a9-9c3d49947c6a"
+                            },
+                            "httpWriteCredentialsId": {
+                                "credentialsId": "74ceca6c-0317-49eb-95dc-f8decea49581"
+                            },
+                            "id": "e8d333ad-d853-4f6e-a1cd-1d45434e4eef",
+                            "snmpv3CredentialsId": {
+                                "credentialsId": "d053df1e-b937-43e4-8a30-a0de54885449"
+                            }
+                        }
+                    ]
+                }
+            },
+            "global_credential": {}
+        }
+    ]
+}
+
+```
+
+2. ### Command to run delete devicecredentails:
+
+- Command to run:
+
+```bash
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_credentials/playbook/delete_device_credentials_playbook.yml --e VARS_FILE_PATH=../vars/device_credentials_vars.yml -vvvv
+```
+- Reult:
+
+```bash
+TASK [Create or Update existing Credentials with provided details in "../vars/device_credentials_vars.yml"] ***
+task path: /auto/dna-sol/ws/thanduong/dnac-auto/dnac_ansible_workflows/workflows/device_credentials/playbook/delete_device_credentials_playbook.yml:36
+<catalyst_center220> ESTABLISH LOCAL CONNECTION FOR USER: thanduon
+<catalyst_center220> EXEC /bin/sh -c 'echo ~thanduon && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c '( umask 77 && mkdir -p "` echo /users/thanduon/.ansible/tmp `"&& mkdir "` echo /users/thanduon/.ansible/tmp/ansible-tmp-1740129405.6199465-1431951-27769327087581 `" && echo ansible-tmp-1740129405.6199465-1431951-27769327087581="` echo /users/thanduon/.ansible/tmp/ansible-tmp-1740129405.6199465-1431951-27769327087581 `" ) && sleep 0'
+Using module file /users/thanduon/.ansible/collections/ansible_collections/cisco/dnac/plugins/modules/device_credential_workflow_manager.py
+<catalyst_center220> PUT /users/thanduon/.ansible/tmp/ansible-local-1430199wc5qelwj/tmptr7r6kkp TO /users/thanduon/.ansible/tmp/ansible-tmp-1740129405.6199465-1431951-27769327087581/AnsiballZ_device_credential_workflow_manager.py
+<catalyst_center220> EXEC /bin/sh -c 'chmod u+x /users/thanduon/.ansible/tmp/ansible-tmp-1740129405.6199465-1431951-27769327087581/ /users/thanduon/.ansible/tmp/ansible-tmp-1740129405.6199465-1431951-27769327087581/AnsiballZ_device_credential_workflow_manager.py && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c '/auto/dna-sol/pyats-ws/pyats-thanduong/bin/python /users/thanduon/.ansible/tmp/ansible-tmp-1740129405.6199465-1431951-27769327087581/AnsiballZ_device_credential_workflow_manager.py && sleep 0'
+<catalyst_center220> EXEC /bin/sh -c 'rm -f -r /users/thanduon/.ansible/tmp/ansible-tmp-1740129405.6199465-1431951-27769327087581/ > /dev/null 2>&1 && sleep 0'
+changed: [catalyst_center220] => (item={'global_credential_details': {'cli_credential': [{'description': 'CLI Sample 1', 'username': 'cli-1', 'password': '5!meh', 'enable_password': 'q4^t^'}, {'description': 'CLI2', 'username': 'cli-2', 'password': 'sbs2@', 'enable_password': '8b!rn'}], 'snmp_v3': [{'description': 'snmpV3 Sample 1', 'auth_password': 'hp!x6px&#@2xi5', 'auth_type': 'SHA', 'snmp_mode': 'AUTHPRIV', 'privacy_password': 'ai7tpci3j@*j5g', 'privacy_type': 'AES128', 'username': 'admin'}], 'https_read': [{'description': 'httpsRead Sample 1', 'username': 'admin', 'password': '2!x88yvqz*7', 'port': 443}], 'https_write': [{'description': 'httpsWrite Sample 1', 'username': 'admin', 'password': 'j@5wgm%s2g%', 'port': 443}]}}) => {
+    "ansible_loop_var": "item",
+    "changed": true,
+    "diff": [],
+    "invocation": {
+        "module_args": {
+            "config": [
+                {
+                    "global_credential_details": {
+                        "cli_credential": [
+                            {
+                                "description": "CLI Sample 1",
+                                "enable_password": "q4^t^",
+                                "password": "5!meh",
+                                "username": "cli-1"
+                            },
+                            {
+                                "description": "CLI2",
+                                "enable_password": "8b!rn",
+                                "password": "sbs2@",
+                                "username": "cli-2"
+                            }
+                        ],
+                        "https_read": [
+                            {
+                                "description": "httpsRead Sample 1",
+                                "password": "2!x88yvqz*7",
+                                "port": 443,
+                                "username": "admin"
+                            }
+                        ],
+                        "https_write": [
+                            {
+                                "description": "httpsWrite Sample 1",
+                                "password": "j@5wgm%s2g%",
+                                "port": 443,
+                                "username": "admin"
+                            }
+                        ],
+                        "snmp_v3": [
+                            {
+                                "auth_password": "hp!x6px&#@2xi5",
+                                "auth_type": "SHA",
+                                "description": "snmpV3 Sample 1",
+                                "privacy_password": "ai7tpci3j@*j5g",
+                                "privacy_type": "AES128",
+                                "snmp_mode": "AUTHPRIV",
+                                "username": "admin"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "config_verify": false,
+            "dnac_api_task_timeout": 1200,
+            "dnac_debug": true,
+            "dnac_host": "10.22.40.214",
+            "dnac_log": true,
+            "dnac_log_append": true,
+            "dnac_log_file_path": "dnac.log",
+            "dnac_log_level": "debug",
+            "dnac_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
+            "dnac_port": "443",
+            "dnac_task_poll_interval": 2,
+            "dnac_username": "thanduon",
+            "dnac_verify": false,
+            "dnac_version": "2.3.7.6",
+            "state": "deleted",
+            "validate_response_schema": true
+        }
+    },
+    "item": {
+        "global_credential_details": {
+            "cli_credential": [
+                {
+                    "description": "CLI Sample 1",
+                    "enable_password": "q4^t^",
+                    "password": "5!meh",
+                    "username": "cli-1"
+                },
+                {
+                    "description": "CLI2",
+                    "enable_password": "8b!rn",
+                    "password": "sbs2@",
+                    "username": "cli-2"
+                }
+            ],
+            "https_read": [
+                {
+                    "description": "httpsRead Sample 1",
+                    "password": "2!x88yvqz*7",
+                    "port": 443,
+                    "username": "admin"
+                }
+            ],
+            "https_write": [
+                {
+                    "description": "httpsWrite Sample 1",
+                    "password": "j@5wgm%s2g%",
+                    "port": 443,
+                    "username": "admin"
+                }
+            ],
+            "snmp_v3": [
+                {
+                    "auth_password": "hp!x6px&#@2xi5",
+                    "auth_type": "SHA",
+                    "description": "snmpV3 Sample 1",
+                    "privacy_password": "ai7tpci3j@*j5g",
+                    "privacy_type": "AES128",
+                    "snmp_mode": "AUTHPRIV",
+                    "username": "admin"
+                }
+            ]
+        }
+    },
+    "response": [
+        {
+            "apply_credential": {},
+            "assign_credential": {},
+            "global_credential": {
+                "Deletion": {
+                    "msg": "Global Device Credentials Deleted Successfully",
+                    "response": {
+                        "cliCredential": [
+                            {
+                                "description": "CLI Sample 1",
+                                "response": "Global credential deleted successfully"
+                            },
+                            {
+                                "description": "CLI2",
+                                "response": "Global credential deleted successfully"
+                            }
+                        ],
+                        "httpsRead": [
+                            {
+                                "description": "httpsRead Sample 1",
+                                "response": "Global credential deleted successfully"
+                            }
+                        ],
+                        "httpsWrite": [
+                            {
+                                "description": "httpsWrite Sample 1",
+                                "response": "Global credential deleted successfully"
+                            }
+                        ],
+                        "snmpV3": [
+                            {
+                                "description": "snmpV3 Sample 1",
+                                "response": "Global credential deleted successfully"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}
+
 ```
 
 ## running through Jinja template with credentials picked up from ansible Vault
@@ -201,8 +806,10 @@ device_credentials: []
 The variables used in the template should be already added to ansible vault. 
 Refer workflow ansible_vault_update workflow to add the variable to your ansible vault.
 
-## Execute credentials with jinja template:
+## How to run with jinja template:
+```bash
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_credentials/playbook/device_credentials_playbook.yml --e VARS_FILE_PATH=../vars/jinja_template_device_credentials_input.yml -vvvv
+```
 
 
 ## Important Notes:
@@ -210,3 +817,18 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_credentials/
 - Carefully configure inventory and input variables.
 - Validate input using yamale to prevent errors.
 - Review execution logs for troubleshooting.
+
+* Note: The environment is used for the references in the above instructions.
+```
+  python: 3.12.0
+
+  dnac_version: 2.3.7.6
+
+  ansible: 9.9.0
+  ansible-core: 2.16.10
+  ansible-runner: 2.4.0
+
+  dnacentersdk: 2.8.3
+  cisco.dnac: 6.29.0
+  ansible.utils: 5.1.2
+```

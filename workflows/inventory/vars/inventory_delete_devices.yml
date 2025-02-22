@@ -5,4 +5,4 @@ catalyst_center_version: 2.3.7.6
 inventory_details:
   network_devices:
   - ip_address_list: ["204.101.16.1","204.101.16.2"]
-    clean_config: False
+    clean_config: True # Default clean_config is False, if it set to True it will delete the provisioned device current configuration.

@@ -8,14 +8,16 @@ swim_details:
         type: remote # url or local
         url_details:
           payload:
-          - source_url: http://<server IP>/swim/V1712_1_FC5/cat9k_lite_iosxe.17.12.01.SPA.bin
+          - source_url: 
+              - http://<server IP>/swim/V1712_1_FC5/cat9k_lite_iosxe.17.12.01.SPA.bin
             third_party: false
     - import_image_details:
         type: remote # url or local
         url_details:
           payload:
-          - source_url: http://<server IP>/swim/V1712_20230427_143746/cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
-          - source_url: http://<server IP>/swim/V1712_20230427_143746/C9800-SW-iosxe-wlc.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
+          - source_url: 
+              - http://<server IP>/swim/V1712_20230427_143746/cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
+              - http://<server IP>/swim/V1712_20230427_143746/C9800-SW-iosxe-wlc.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
             third_party: false
     - import_image_details:
         type: CCO
@@ -62,7 +64,6 @@ swim_details:
         device_role: ACCESS
         site_name: Global/USA/SAN JOSE/BLD23
         device_family_name: Switches and Hubs
-        device_serial_number: null
 
   # List of images to be activated on the devices
   activate_images:
