@@ -1,11 +1,11 @@
 # ISE and AAA Integration Workflow Playbook
-Workflow Playbook for Assigning devices to sites network complianceing, Re-network complianceing and Deleteing the devices in Inventory. 
+This Workflow Playbook is for Integrating the ISE with Catalyst Center also add Additional external AAA servers to catalyst Center. 
 This workflow playbook is supported from Catalyst Center Release version 2.3.7.6
 
-network_compliance_details  defines the list of devices and devices details for the devices to be run rough the playbooks
+ise_radius_integration_details  defines the list of devices and devices details for the devices to be run rough the playbooks
 
 
-To define the details you can refer the full workflow specification: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network compliance_workflow_manager/
+To define the details you can refer the full workflow specification: https://docs.ansible.com/ansible/latest/collections/cisco/dnac/ise_radius_integration_workflow_manager_module.html
 
 
 ## The Sample host_inventory_dnac1/hosts.yml
