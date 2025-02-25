@@ -3,16 +3,16 @@ catalyst_center_hosts:
     hosts:
         catalyst_center220:
             #(Mandatory) CatC Ip address
-            dnac_host:  <DNAC IP Address>
+            catalyst_center_host:  <DNAC IP Address>
             #(Mandatory) CatC UI admin Password
-            dnac_password: <DNAC UI admin Password>
-            dnac_port: 443
-            dnac_timeout: 60
+            catalyst_center_password: <DNAC UI admin Password>
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
             #(Mandatory) CatC UI admin username
-            dnac_username: <DNAC UI admin username> 
-            dnac_verify: false
+            catalyst_center_username: <DNAC UI admin username> 
+            catalyst_center_verify: false
             #(Mandatory) DNAC Release version
-            dnac_version: <DNAC Release version>
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
+            catalyst_center_version: <DNAC Release version>
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
