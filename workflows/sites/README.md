@@ -174,9 +174,12 @@ Use the input var file: jinja_template_site_hierarchy_design_vars.yml and secify
 Figure 2: Jinja Template created site design
 ![Alt text](./images/template_created_sites.png)
 
-Deleting sites delete all teh sites under the site provided.
+Figure 3: Jinja Template created site with floor image design
+![Alt text](./images/template_created_floor_image.png)
 
-With the belo input the delete playbooks Delete all the floors and building under the site hierarchy Global/USA/AREA1 and site AREA1.
+Deleting sites delete all the sites under the site provided.
+
+With the below input the delete playbooks Delete all the floors and building under the site hierarchy Global/USA/AREA1 and site AREA1.
 ```bash
 ---
 #Select Catalyst Cennter version, this one overwrite the default version from host file
@@ -225,8 +228,6 @@ Playbook can be used to delete roles and users
 Roles and Users will get deleted from the Catalyst Center
 
 ## Structure file
-  ![alt text](./images/structure.png)
-
   \* Explain values:
   ```yaml
   -i ./inventory/demo_lab/inventory_demo_lab.yml: refer to DNAC to run
