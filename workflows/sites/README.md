@@ -106,7 +106,7 @@ You can organize by putting all teh sites togather i.e. all fllor under one buil
 ## Creating Bulk Site confiogurations using JINJA template and using the playbook
 
 Create a Jinja template for your desired inopout, Example Jinja template for sites is as below
-This Example create 3 Areas and in Each Areas create 3 buildings and in each building it creates 3 floors. 
+This Example create 4 Areas and in Each Areas create 4 buildings and in each building it creates 4 floors. 
 This example can be reused and customized to your requirement and increase the requirement scale.
 
 ### Creating bulk sites with jinja template
@@ -174,9 +174,12 @@ Use the input var file: jinja_template_site_hierarchy_design_vars.yml and secify
 Figure 2: Jinja Template created site design
 ![Alt text](./images/template_created_sites.png)
 
-Deleting sites delete all teh sites under the site provided.
+Figure 3: Jinja Template created site with floor image design
+![Alt text](./images/template_created_floor_image.png)
 
-With the belo input the delete playbooks Delete all the floors and building under the site hierarchy Global/USA/AREA1 and site AREA1.
+Deleting sites delete all the sites under the site provided.
+
+With the below input the delete playbooks Delete all the floors and building under the site hierarchy Global/USA/AREA1 and site AREA1.
 ```bash
 ---
 #Select Catalyst Cennter version, this one overwrite the default version from host file
@@ -217,28 +220,25 @@ design_sites:
 ```
 
 ## Deleting the sites
-Playbook can be used to delete roles and users
+Playbook can be used to delete sites with area , building and floors.
 6. Run the delete Playbook
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/delete_site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/delete_site_hierarchy_design_vars.yml -vvv
 ```
-Roles and Users will get deleted from the Catalyst Center
+sites with area, building and floors will get deleted from the Catalyst Center
 
 ## Structure file
-  ![alt text](./images/structure.png)
-
   \* Explain values:
   ```yaml
   -i ./inventory/demo_lab/inventory_demo_lab.yml: refer to DNAC to run
   ./workflows/sites/playbook/site_hierarchy_playbook.yml: playbook will run this
   --extra-vars VARS_FILE_PATH=./../vars/jinja_template_site_hierarchy_design_vars.yml: location of the input file for the playbook to execute.
   -vvv: return detailed information about the message; the more 'v', more detailed
-    ```
+  ```
 
-# Referances
-
-* Note: The environment is used for the references in the above instructions.
-```
+## Referances
+  \* Note: The environment is used for the references in the above instructions.
+  ```
   ansible: 10.7.0
   ansible-core: 2.17.7
   ansible-runner: 2.4.0
@@ -246,3 +246,5 @@ Roles and Users will get deleted from the Catalyst Center
   dnacentersdk: 2.8.1
   cisco.dnac: 6.29.0
   ansible.utils: 5.1.2
+
+  ```
