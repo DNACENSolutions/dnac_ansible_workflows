@@ -152,3 +152,18 @@ discovery_details:
         net_conf_port: "830"
       retry: 2
 
+delete_discovery:
+  by_name:
+    - discovery_name: "Multi Range Discovery"
+  
+  all:
+    - delete_all: True
+
+
+test:
+    - ip_address_list:
+      - 204.1.2.5
+      discovery_type: SINGLE
+      protocol_order: ssh
+      state: merged
+      discovery_name: Single IP Discovery
