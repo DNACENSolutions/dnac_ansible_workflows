@@ -225,7 +225,7 @@ Playbook can be used to delete sites with area , building and floors.
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/delete_site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/delete_site_hierarchy_design_vars.yml -vvv
 ```
-Roles and Users will get deleted from the Catalyst Center
+sites with area, building and floors will get deleted from the Catalyst Center
 
 ## Structure file
   \* Explain values:
@@ -234,12 +234,11 @@ Roles and Users will get deleted from the Catalyst Center
   ./workflows/sites/playbook/site_hierarchy_playbook.yml: playbook will run this
   --extra-vars VARS_FILE_PATH=./../vars/jinja_template_site_hierarchy_design_vars.yml: location of the input file for the playbook to execute.
   -vvv: return detailed information about the message; the more 'v', more detailed
-    ```
+  ```
 
-# Referances
-
-* Note: The environment is used for the references in the above instructions.
-```
+## Referances
+  \* Note: The environment is used for the references in the above instructions.
+  ```
   ansible: 10.7.0
   ansible-core: 2.17.7
   ansible-runner: 2.4.0
@@ -247,3 +246,5 @@ Roles and Users will get deleted from the Catalyst Center
   dnacentersdk: 2.8.1
   cisco.dnac: 6.29.0
   ansible.utils: 5.1.2
+
+  ```
