@@ -106,7 +106,7 @@ You can organize by putting all teh sites togather i.e. all fllor under one buil
 ## Creating Bulk Site confiogurations using JINJA template and using the playbook
 
 Create a Jinja template for your desired inopout, Example Jinja template for sites is as below
-This Example create 3 Areas and in Each Areas create 3 buildings and in each building it creates 3 floors. 
+This Example create 4 Areas and in Each Areas create 4 buildings and in each building it creates 4 floors. 
 This example can be reused and customized to your requirement and increase the requirement scale.
 
 ### Creating bulk sites with jinja template
@@ -220,7 +220,7 @@ design_sites:
 ```
 
 ## Deleting the sites
-Playbook can be used to delete roles and users
+Playbook can be used to delete sites with area , building and floors.
 6. Run the delete Playbook
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/delete_site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/delete_site_hierarchy_design_vars.yml -vvv
