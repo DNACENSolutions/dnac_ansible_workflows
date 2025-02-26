@@ -476,7 +476,7 @@ The API currently does not support the Deleted method in network settings, so we
       -vvv # return detailed information about the message; the more 'v', more detailed
     ```
 
-## Creating Bulk Network settings confiogurations using JINJA template and using the playbook
+## Creating Bulk Network settings configurations using JINJA template and using the playbook
 To run scale network settings, we need to create a scale site first.
 1. ### Create scale site
 #### 1a. Jinja for create site:
@@ -552,11 +552,11 @@ network_settings:
           server_type: ISE
         message_of_the_day:
           banner_message: "Site-specific: {{ site_name }} . Scale for set up network settings (new)"
-          retain_existing_banner: False
+          retain_existing_banner: false
         wired_data_collection:
-          enable_wired_data_collection: True
+          enable_wired_data_collection: true
         wireless_telemetry:
-          enable_wireless_telemetry: True
+          enable_wireless_telemetry: true
       site_name: Global/Network Settings Scale/{{ site_name }}
 {% endfor %}
 ```
@@ -583,11 +583,11 @@ network_settings:
           server_type: ISE
         message_of_the_day:
           banner_message: "Site-specific: country-1 . Scale for set up network settings (new)"
-          retain_existing_banner: False
+          retain_existing_banner: false
         wired_data_collection:
-          enable_wired_data_collection: True
+          enable_wired_data_collection: true
         wireless_telemetry:
-          enable_wireless_telemetry: True
+          enable_wireless_telemetry: true
       site_name: Global/Network Settings Scale/country-1
   - network_management_details:
     - settings:
@@ -598,11 +598,11 @@ network_settings:
           server_type: ISE
         message_of_the_day:
           banner_message: "Site-specific: country-2 . Scale for set up network settings (new)"
-          retain_existing_banner: False
+          retain_existing_banner: false
         wired_data_collection:
-          enable_wired_data_collection: True
+          enable_wired_data_collection: true
         wireless_telemetry:
-          enable_wireless_telemetry: True
+          enable_wireless_telemetry: true
       site_name: Global/Network Settings Scale/country-2
   ...
   - network_management_details:
@@ -614,11 +614,11 @@ network_settings:
           server_type: ISE
         message_of_the_day:
           banner_message: "Site-specific: country-10 . Scale for set up network settings (new)"
-          retain_existing_banner: False
+          retain_existing_banner: false
         wired_data_collection:
-          enable_wired_data_collection: True
+          enable_wired_data_collection: true
         wireless_telemetry:
-          enable_wireless_telemetry: True
+          enable_wireless_telemetry: true
       site_name: Global/Network Settings Scale/country-10
 
 ```
@@ -628,6 +628,449 @@ network_settings:
 ![alt text](./images/scale_nw2.png)
 ![alt text](./images/scale_nw3.png)
 
+
+## Understanding the Configs for IP Pool Tasks
+Regarding the IP pool, we will have two concepts: a global pool (ip-pool) and a reserve pool (sub-pool).
+1. ### Global pool
+  Manages IPv4 and IPv6 IP pools in the global level.
+  #### a. Add IP Pool (global-pool)
+  Example input config:
+  ```yaml
+  network_settings_details:
+    - global_pool_details:
+        settings:
+          ip_pool:
+          - name: asd_pool
+            pool_type: Generic
+            ip_address_space: IPv4
+            cidr: 135.1.1.0/24
+            gateway: 135.1.1.1
+            dhcp_server_ips: null
+            dns_server_ips: null
+  ```
+  mapping config to UI Actions:
+  ![alt text](./images/add_global_pool.png)
+
+  * Explain param:
+  ```yaml
+    name: The name of the IP address pool.
+    pool_type: The type of pool, typically set to Generic.
+    ip_address_space: Specifies whether the pool is for IPv4 or IPv6.
+    cidr: The CIDR notation for the IP address range (e.g., 40.40.46.0/24).
+    gateway: The gateway IP address for the pool. (Optional)
+    dhcp_server_ips: A list of DHCP server IP that has been created in the network server previously at the global site. (Optional)
+    dns_server_ips: A list of DNS server IP addresses that has been created in the network server previously at the global site. (Optional)
+  ```
+
+  #### b. Edit IP Pool (global-pool)
+  We can only edit 'name', 'dhcp_server_ips', and 'dns_server_ips' in the global pool.
+  ![alt text](./images/edit_global_pool.png)
+  Example input config:
+  ```yaml
+  network_settings_details:
+    - global_pool_details:
+        settings:
+          ip_pool:
+          - prev_name: asd_pool
+            name: asd_pool_new
+            ip_address_space: ipv4
+            cidr: 135.1.1.0/24
+            dhcp_server_ips:
+              - 1.1.1.1
+              - 2.2.2.2
+            dns_server_ips:
+              - 1.1.1.1
+  ```
+  The 'cidr' and 'ip_address_space' parameters will be used for identification (not by 'name' parameter).
+
+  #### c. Delete IP Pool (global-pool)
+  - Delete one IP pool at the global level.
+    ```yaml
+    network_settings_details:
+      - global_pool_details:
+          settings:
+            ip_pool:
+            - name: asd_pool
+    ```
+
+  - We can delete all ip pool with the flag:
+    ```yaml
+    network_settings_details:
+      - global_pool_details:
+          settings:
+            ip_pool:
+            - force_delete: true #CSCwo26508
+    ```
+    mapping config to UI Actions:
+    ![alt text](./images/delete_all_global_pool.png)
+
+  * If the IP pool has been reserved, it cannot be deleted.
+
+  #### d. Add/Edit/Delete Bulk IP Pool configurations
+  - Example config input for add multiple IP pools (4 IP pools):
+    ```yaml
+    network_settings_details: 
+      - global_pool_details:
+          settings:
+            ip_pool:
+            - name: underlay
+              gateway: 204.1.1.1
+              ip_address_space: IPv4
+              cidr: 204.1.1.0/24
+              pool_type: Generic
+              dhcp_server_ips:
+                - 204.192.3.40
+              dns_server_ips:
+                - 171.70.168.183
+            - name: underlay1
+              gateway: 204.1.2.1
+              ip_address_space: IPv4
+              cidr: 204.1.2.0/24
+              pool_type: Generic
+              dhcp_server_ips:
+                - 204.192.3.40
+              dns_server_ips:
+                - 171.70.168.183
+            - name: SENSORPool
+              gateway: 204.1.48.1
+              ip_address_space: IPv4
+              cidr: 204.1.48.0/20
+              pool_type: Generic
+              dhcp_server_ips:
+                - 204.192.3.40
+              dns_server_ips:
+                - 171.70.168.183
+            - name: SENSORPool_V6
+              gateway: 2004:1:48::1
+              ip_address_space: IPv6
+              cidr: 2004:1:48::/64
+              pool_type: Generic
+              dhcp_server_ips:
+                - 2004:192:3::40
+              dns_server_ips:
+                - 2006:1:1::1
+    ```
+
+  - Example config input for edit multiple IP pools (3 IP pools):
+    ```yaml
+    network_settings_details: 
+      - global_pool_details:
+          settings:
+            ip_pool:
+            - prev_name: underlay
+              name: underlay_new
+              ip_address_space: IPv4
+              cidr: 204.1.1.0/24
+            - prev_name: underlay1
+              name: underlay1_new
+              ip_address_space: IPv4
+              cidr: 204.1.2.0/24
+            - prev_name: SENSORPool_V6
+              name: SENSORPool_V6_new
+              ip_address_space: IPv6
+              cidr: 2004:1:48::/64
+    ```
+  
+  - Example config input for delete multiple specific IP pools (3 IP pools):
+    ```yaml
+    network_settings_details: 
+      - global_pool_details:
+          settings:
+            ip_pool:
+            - name: underlay_new
+            - name: underlay1_new
+            - name: SENSORPool_V6_new
+    ```
+
+2. ### Reserve IP subpool
+  This task reserves sub-pools from a global IP address pool for specific sites in Cisco Catalyst Center. It allows you to allocate a portion of the global IP address pool to a specific site, ensuring that the site has a dedicated range of IP addresses.
+  #### a. Add sub-pool (Reserve IP Pool)
+  We will assume that the reserve IP pool has been created globally before with the parameter "name: asd_pool" and "cidr: 135.1.1.0/24".
+  - Example input config (1):
+    ```yaml
+    network_settings_details:
+      - reserve_pool_details:
+        - site_name: Global/Canada
+          name: asd_pool_sub
+          pool_type: LAN
+          ipv4_global_pool: 135.1.1.0/24
+          ipv4_global_pool_name: asd_pool
+          ipv4_prefix: true
+          ipv4_prefix_length: 25
+          ipv4_subnet: 135.1.1.0
+          ipv4_gateway: null
+          ipv4_dhcp_servers: null
+          ipv4_dns_servers: null
+          ipv6_address_space: false
+          slaac_support: false
+    ```
+    mapping config to UI Actions:
+    ![alt text](./images/add_sub_pool_1.png)
+
+  - Example input config (2):
+    ```yaml
+    network_settings_details:
+      - reserve_pool_details:
+        - site_name: Global/Canada
+          name: asd_pool_sub
+          pool_type: LAN
+          ipv4_global_pool: 135.1.1.0/24
+          ipv4_global_pool_name: asd_pool
+          ipv4_prefix: false
+          ipv4_total_host: 10
+          ipv4_dhcp_servers: null
+          ipv4_dns_servers: null
+          ipv6_address_space: false
+          slaac_support: false
+    ```
+    mapping config to UI Actions:
+    ![alt text](./images/add_sub_pool_2.png)
+
+  * Explain param:
+    ```yaml
+      site_name: The site hierarchy where the sub-pool will be reserved.
+      name: The name of the sub-pool.
+      pool_type: The type of pool, typically set to Generic.
+      ipv4_global_pool: IP v4 Global pool address with cidr, example 175.175.0.0/16.
+      ipv4_global_pool_name: Specifies the name to be associated with the IPv4 Global IP Pool. If both 'ipv4_global_pool' and 'ipv4_global_pool_name' are provided, the 'ipv4_global_pool' will be given priority.
+      ipv4_prefix: Specifies whether an IPv4 prefix is used.
+      ipv4_prefix_length: The length of the IPv4 prefix (e.g., 27).
+      ipv4_total_host: The total number of hosts for IPv4, required when the 'ipv4_prefix' is set to false
+      ipv4_subnet: The subnet of the reserved IP address range (e.g., 40.40.46.0).
+      ipv4_gateway: Provides the gateway's IPv4 address, for example, "175.175.0.1".
+      ipv4_dhcp_servers: A list of DHCP server IP addresses that will serve this sub-pool (Optional).
+      ipv4_dns_servers: A list of DNS server IP addresses that will serve this sub-pool.
+      ipv6_address_space: Specifies whether IPv6 is enabled for this sub-pool. If true, we will have all parameters similar to the above IPv4. (e.g., ipv6_global_pool, ipv6_prefix, ipv6_dhcp_servers, ... ). 
+      slaac_support: Specifies whether SLAAC (Stateless Address Autoconfiguration) is supported for IPv6.
+    ```
+
+  #### b. Edit IP subpool
+  We can only edit 'name', 'dhcp_server_ips', and 'dns_server_ips' in the ip subpool.
+  Example input config:
+  ```yaml
+  network_settings_details:
+    - reserve_pool_details:
+      - site_name: Global/Canada
+        prev_name: asd_pool_sub
+        name: asd_pool_sub_new
+        pool_type: LAN
+        ipv4_global_pool: 135.1.1.0/24
+        ipv4_dhcp_servers: 
+          - 1.1.1.1
+        ipv4_dns_servers:
+          - 8.8.8.8
+        ipv6_address_space: false
+  ```
+
+  #### c. Delete IP subpool
+  - Delete one IP subpool at the site level.
+    ```yaml
+    network_settings_details:
+      - reserve_pool_details:
+        - site_name: Global/Canada
+          name: asd_pool_sub_new
+    ```
+
+  - We can delete all ip subpool at the site level with the flag:
+    ```yaml
+    network_settings_details:
+      - reserve_pool_details:
+        - site_name: Global/Canada
+          force_delete: true #CSCwo26508
+    ```
+    mapping config to UI Actions:
+    ![alt text](./images/delete_all_subpool.png)
+
+  #### d. Add/Edit/Delete Bulk IP subpool configurations
+  - Example config input for add multiple IP subpools (3 IP subpools | 2 field: 1 ipv4; 1 field: 1 ipv4 + 1 ipv6):
+    ```yaml
+    network_settings_details: 
+      - reserve_pool_details:
+        - ipv6_address_space: false
+          ipv4_global_pool: 204.1.1.0/24
+          ipv4_prefix: true
+          ipv4_prefix_length: 25
+          ipv4_subnet: 204.1.1.0
+          ipv4_gateway: 204.1.1.1
+          name: underlay_sub
+          site_name: Global/USA/SAN JOSE
+          slaac_support: false
+          pool_type: LAN
+        - ipv6_address_space: false
+          ipv4_global_pool:  204.1.1.0/24
+          ipv4_prefix: true
+          ipv4_prefix_length: 25
+          ipv4_subnet: 204.1.1.128
+          ipv4_gateway: 204.1.1.129
+          name: underlay_sub_small
+          site_name: Global/USA/SAN JOSE
+          slaac_support: false
+          pool_type: LAN
+        - ipv6_address_space: true
+          ipv4_global_pool: 204.1.48.0/20
+          ipv4_prefix: true
+          ipv4_prefix_length: 24
+          ipv4_subnet: 204.1.48.0/24
+          ipv4_gateway: 204.1.48.1
+          ipv4_dhcp_servers:
+            - 204.192.3.40
+          ipv4_dns_servers:
+            - 204.192.3.40
+          name: SENSORPool_sub
+          ipv6_prefix: true
+          ipv6_prefix_length: 112
+          ipv6_global_pool: 2004:1:48::/64
+          ipv6_subnet: 2004:1:48::1:0
+          ipv6_gateway: 2004:1:48::1:1
+          ipv6_dhcp_servers: 
+            - 2004:192:3::40
+          ipv6_dns_servers: 
+            - 2006:1:1::1
+          site_name: Global/USA/SAN JOSE
+          slaac_support: false
+          pool_type: Generic
+    ```
+
+  - Example config input for edit multiple IP subpools (3 IP subpools):
+    ```yaml
+    network_settings_details: 
+      - reserve_pool_details:
+        - ipv6_address_space: false
+          ipv4_global_pool: 204.1.1.0/24
+          prev_name: underlay_sub
+          name: underlay_sub_new
+          site_name: Global/USA/SAN JOSE
+          pool_type: LAN
+
+        - ipv6_address_space: false
+          ipv4_global_pool:  204.1.1.0/24
+          prev_name: underlay_sub_small
+          name: underlay_sub_small_new
+          site_name: Global/USA/SAN JOSE
+          pool_type: LAN
+          
+        - ipv6_address_space: false
+          ipv4_global_pool: 204.1.48.0/20
+          prev_name: SENSORPool_sub
+          name: SENSORPool_sub_new
+          # ipv6_global_pool: 2004:1:48::/64
+          site_name: Global/USA/SAN JOSE
+          pool_type: Generic
+    ```
+
+  - Example config input for delete multiple specific IP subpools (3 IP subpools):
+    ```yaml
+    network_settings_details:
+      - reserve_pool_details:
+        - site_name: Global/Canada
+          name: underlay_sub_new
+        - site_name: Global/Canada
+          name: underlay_sub_small_new
+        - site_name: Global/Canada
+          name: SENSORPool_sub_new
+    ```
+
+3. ### Add global pool and reserve ip subpool in one input
+  Example input config:
+  ```yaml
+  network_settings_details: 
+    - global_pool_details:
+        settings:
+          ip_pool:
+          - name: underlay
+            gateway: 204.1.1.1
+            ip_address_space: IPv4
+            cidr: 204.1.1.0/24
+            pool_type: Generic
+            dhcp_server_ips:
+              - 204.192.3.40
+            dns_server_ips:
+              - 171.70.168.183
+          - name: underlay1
+            gateway: 204.1.2.1
+            ip_address_space: IPv4
+            cidr: 204.1.2.0/24
+            pool_type: Generic
+            dhcp_server_ips:
+              - 204.192.3.40
+            dns_server_ips:
+              - 171.70.168.183
+          - name: SENSORPool
+            gateway: 204.1.48.1
+            ip_address_space: IPv4
+            cidr: 204.1.48.0/20
+            pool_type: Generic
+            dhcp_server_ips:
+              - 204.192.3.40
+            dns_server_ips:
+              - 171.70.168.183
+          - name: SENSORPool_V6
+            gateway: 2004:1:48::1
+            ip_address_space: IPv6
+            cidr: 2004:1:48::/64
+            pool_type: Generic
+            dhcp_server_ips:
+              - 2004:192:3::40
+            dns_server_ips:
+              - 2006:1:1::1
+    - reserve_pool_details:
+      - ipv6_address_space: false
+        ipv4_global_pool: 204.1.1.0/24
+        ipv4_prefix: true
+        ipv4_prefix_length: 25
+        ipv4_subnet: 204.1.1.0
+        ipv4_gateway: 204.1.1.1
+        name: underlay_sub
+        site_name: Global/USA/SAN JOSE
+        slaac_support: false
+        pool_type: LAN
+      - ipv6_address_space: false
+        ipv4_global_pool:  204.1.1.0/24
+        ipv4_prefix: true
+        ipv4_prefix_length: 25
+        ipv4_subnet: 204.1.1.128
+        ipv4_gateway: 204.1.1.129
+        name: underlay_sub_small
+        site_name: Global/USA/SAN JOSE
+        slaac_support: false
+        pool_type: LAN
+      - ipv6_address_space: true
+        ipv4_global_pool: 204.1.48.0/20
+        ipv4_prefix: true
+        ipv4_prefix_length: 24
+        ipv4_subnet: 204.1.48.0/24
+        ipv4_gateway: 204.1.48.1
+        ipv4_dhcp_servers:
+          - 204.192.3.40
+        ipv4_dns_servers:
+          - 204.192.3.40
+        name: SENSORPool_sub
+        ipv6_prefix: true
+        ipv6_prefix_length: 112
+        ipv6_global_pool: 2004:1:48::/64
+        ipv6_subnet: 2004:1:48::1:0
+        ipv6_gateway: 2004:1:48::1:1
+        ipv6_dhcp_servers: 
+          - 2004:192:3::40
+        ipv6_dns_servers: 
+          - 2006:1:1::1
+        site_name: Global/USA/SAN JOSE
+        slaac_support: false
+        pool_type: Generic
+  ```
+
+4. ### How to run
+  1. #### Command to run:
+  Example command to run the IP Pool playbook with merged method:
+  ```bash
+  ansible-playbook 
+    -i ./inventory/demo_lab/inventory_demo_lab.yml # refer to DNAC to run
+    ./workflows/network_settings/playbook/network_settings_playbook.yml # playbook will run this
+    --extra-vars VARS_FILE_PATH=./../vars/global_pool_and_reserve_pools_on_sites.yml # location of the input file for the playbook to execute
+    -vvv # return detailed information about the message; the more 'v', more detailed
+  ```
+
+  * With the deleted method, change the destination playbook to: ./workflows/network_settings/playbook/delete_network_settings_playbook.yml
 
 ## Referances
 * Note: The environment is used for the references in the above instructions.
@@ -640,7 +1083,7 @@ network_settings:
   ansible-core: 2.16.10
   ansible-runner: 2.4.0
 
-  dnacentersdk: 2.8.3
-  cisco.dnac: 6.29.0
+  dnacentersdk: 2.8.4
+  cisco.dnac: 6.30.0
   ansible.utils: 5.1.2
 ```
