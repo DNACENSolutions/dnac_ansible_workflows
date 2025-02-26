@@ -2,7 +2,14 @@
 
 ## Overview
 
-The Discovery feature is designed to help you identify and manage devices within your network. By scanning your network, it creates an inventory of all discovered devices, making it easier to monitor and configure them. This feature also works alongside the Device Controllability feature to apply necessary network settings to devices that may not have them.
+The Discovery feature in Catalyst Center scans your network to identify devices and add them to the inventory. It can also work with the Device Controllability feature to configure necessary network settings on discovered devices.
+
+## Discovery Methods
+You have four options for discovering devices:
+* **Cisco Discovery Protocol (CDP):** Provide a seed IP address and Catalyst Center will use CDP to discover neighboring devices.
+* **IP Address Range:** Specify a range of IP addresses to scan. (Maximum range: 4096 devices)
+* **Link Layer Discovery Protocol (LLDP):** Similar to CDP, provide a seed IP address for LLDP-based discovery.
+* **Classless Inter-Domain Routing (CIDR):** Provide a seed IP address and a CIDR notation to define the network range to scan.
 
 ## How to Use the Discovery Feature
 
@@ -61,21 +68,13 @@ You can save commonly used credentials in Catalyst Center for easier access acro
 - Use the device's loopback IP address for management if reachable.
 - If you only want to discover new devices, select the option to discover new devices only to avoid updating existing device information.
 
-## Undestanding Discover task
+## Discovery single device
 
-### Task: Discovery single device
-
-This task initiates the discovery of single device IP address using the `cisco.dnac.discovery_workflow_manager` Ansible module. It allows you to specify single device and a Netconf port for device discovery.
-
-#### Mapping Config to UI Actions
-
-The `config` parameter within this task corresponds to the **Tools > Discovery** action in the Cisco Catalyst Center UI
 ![Alt text](./images/discovery_2.png)
 
-#### YAML Structure and Parameter Explanation
+#### Example input config:
 
 ```yaml
-catalyst_center_version: 2.3.7.6
 discovery_details:
   single:
     - ip_address_list:
@@ -84,83 +83,21 @@ discovery_details:
       discovery_type: SINGLE
       protocol_order: ssh
       discovery_name: Single IP Discovery11
-      discovery_specific_credentials:
-        cli_credentials_list:
-            - username: wlcaccess
-              password: Lablab#123
-              enable_password: Cisco#123
-            - username: cisco
-              password: Cisco#123
-              enable_password: Cisco#123
-        http_read_credential:
-            username: wlcaccess
-            password: Lablab#123
-            port: 443
-            secure: true
-        http_write_credential:
-            username: wlcaccess
-            password: Lablab#123
-            port: 443
-            secure: true
-        snmp_v2_read_credential:
-            description: snmpV2 Sample 1
-            community: public
-        snmp_v2_write_credential:
-            description: snmpV2 Sample 1
-            community: public
-      discovery_specific_credentials:
-        net_conf_port: "830"
-      retry: 2
     - ip_address_list:
       - 204.101.16.2
       devices_list: []
       discovery_type: SINGLE
       protocol_order: ssh
       discovery_name: Single IP Discovery11
-      discovery_specific_credentials:
-        cli_credentials_list:
-            - username: wlcaccess
-              password: Lablab#123
-              enable_password: Cisco#123
-            - username: cisco
-              password: Cisco#123
-              enable_password: Cisco#123
-        http_read_credential:
-            username: wlcaccess
-            password: Lablab#123
-            port: 443
-            secure: true
-        http_write_credential:
-            username: wlcaccess
-            password: Lablab#123
-            port: 443
-            secure: true
-        snmp_v3_credential:
-            description: snmpv3Credentials
-            username: wlcaccess
-            snmp_mode: AUTHPRIV
-            auth_password: Lablab#123
-            auth_type: SHA
-            privacy_type: AES128
-            privacy_password: Lablab#123
-      discovery_specific_credentials:
-        net_conf_port: "830"
-      retry: 2
 ```
 
-### Task: Discovery IP Address Range
+## Discovery IP Address Range
 
-This task initiates the discovery of multiple devices of IP address ranges using the `cisco.dnac.discovery_workflow_manager` Ansible module. It allows you to specify single device and a Netconf port for device discovery.
-
-#### Mapping Config to UI Actions
-
-The `config` parameter within this task corresponds to the **Tools > Discovery** action in the Cisco Catalyst Center UI
 ![Alt text](./images/discovery_3.png)
 
-#### YAML Structure and Parameter Explanation
+#### Example input config:
 
 ```yaml
-catalyst_center_version: 2.3.7.6
 discovery_details:
   range:
     - ip_address_list:
@@ -168,50 +105,15 @@ discovery_details:
       discovery_type: RANGE
       protocol_order: ssh
       discovery_name: Range IP Discovery11
-      discovery_specific_credentials:
-        cli_credentials_list:
-            - username: wlcaccess
-              password: Lablab#123
-              enable_password: Cisco#123
-            - username: cisco
-              password: Cisco#123
-              enable_password: Cisco#123
-        http_read_credential:
-            username: wlcaccess
-            password: Lablab#123
-            port: 443
-            secure: true
-        http_write_credential:
-            username: wlcaccess
-            password: Lablab#123
-            port: 443
-            secure: true
-        snmp_v3_credential:
-            description: snmpV3 Sample 1
-            username: wlcaccess
-            snmp_mode: AUTHPRIV
-            auth_password: Lablab#123
-            auth_type: SHA
-            privacy_type: AES128
-            privacy_password: Lablab#123
-      discovery_specific_credentials:
-        net_conf_port: "830"
-      retry: 2
 ```
 
-### Task: Discovery Multiple IP Address Ranges
+## Discovery Multiple IP Address Ranges
 
-This task initiates the discovery of multiple devices across various IP address ranges using the `cisco.dnac.discovery_workflow_manager` Ansible module. It allows you to specify multiple IP address ranges and a Netconf port for device discovery.
-
-#### Mapping Config to UI Actions
-
-The `config` parameter within this task corresponds to the **Tools > Discovery > Discovery Type: IP Address Range** action in the Cisco Catalyst Center UI, specifically focusing on the **Multi Range** discovery type.
 ![Alt text](./images/discovery_4.png)
 
-#### YAML Structure and Parameter Explanation
+#### Example input config:
 
 ```yaml
-catalyst_center_version: 2.3.7.6
 discovery_details:
   multi_range:
     - ip_address_list:
@@ -220,51 +122,14 @@ discovery_details:
       discovery_type: MULTI RANGE
       protocol_order: ssh
       discovery_name: Multi Range Discovery 11
-      discovery_specific_credentials:
-        cli_credentials_list:
-            - username: wlcaccess
-              password: Lablab#123
-              enable_password: Cisco#123
-            - username: cisco
-              password: Cisco#123
-              enable_password: Cisco#123
-        http_read_credential:
-            username: wlcaccess
-            password: Lablab#123
-            port: 443
-            secure: true
-        http_write_credential:
-            username: wlcaccess
-            password: Lablab#123
-            port: 443
-            secure: true
-        snmp_v3_credential:
-            description: snmpV3 Sample 1
-            username: wlcaccess
-            snmp_mode: AUTHPRIV
-            auth_password: Lablab#123
-            auth_type: SHA
-            privacy_type: AES128
-            privacy_password: Lablab#123
-      timeout: 30
-      discovery_specific_credentials:
-        net_conf_port: "830"
-      retry: 2
-
 ```
 
-### Task: Discovery Devices from a CDP Seed
+## Discovery Devices from a CDP Seed
 
-This task leverages the Cisco Discovery Protocol (CDP) to discover neighboring devices connected to a specified seed device. It utilizes the `cisco.dnac.discovery_workflow_manager` Ansible module to automate this process within Cisco Catalyst Center.
-
-#### Mapping Config to UI Actions
-
-The `config` parameter within this task corresponds to the **Tools > Discovery > Discovery Type: CDP** action in the Cisco Catalyst Center UI.
 ![Alt text](./images/discovery_5.png)
-#### YAML Structure and Parameter Explanation
+#### Example input config:
 
 ```yaml
-catalyst_center_version: 2.3.7.6
 discovery_details:
     - ip_address_list:
       - 204.101.16.1
@@ -277,16 +142,11 @@ discovery_details:
       retry: 2
 ```
 
-### Task: Discovery Devices from LLDP
-
-#### Mapping Config to UI Actions
-
-The `config` parameter within this task corresponds to the **Tools > Discovery** action in the Cisco Catalyst Center UI.
+## Discovery Devices from LLDP
 ![Alt text](./images/discovery_6.png)
-#### YAML Structure and Parameter Explanation
+#### Example input config:
 
 ```yaml
-catalyst_center_version: 2.3.7.6
 discovery_details:
     - ip_address_list:
       - 204.101.16.1
@@ -298,16 +158,11 @@ discovery_details:
       retry: 2
 ```
 
-### Task: Discovery Devices from CIDR
-
-#### Mapping Config to UI Actions
-
-The `config` parameter within this task corresponds to the **Tools > Discovery** action in the Cisco Catalyst Center UI.
+## Discovery Devices from CIDR 
 ![Alt text](./images/discovery_7.png)
-#### YAML Structure and Parameter Explanation
+#### Example input config:
 
 ```yaml
-catalyst_center_version: 2.3.7.6
 discovery_details:
     - ip_address_list:
       - 204.101.16.1/24
@@ -319,38 +174,23 @@ discovery_details:
       retry: 2
 ```
 
+## Delete Discovery by Name
 
-### Task: Delete Discovery by Name
-
-This task facilitates the removal of a specific discovery task from Cisco Catalyst Center based on its name. It utilizes the `cisco.dnac.discovery_workflow_manager` Ansible module with the state parameter set to 'deleted'.
-
-#### Mapping to UI Action
-
-The action performed by this task corresponds to selecting a specific discovery task in the Cisco Catalyst Center UI under **"Discovery"** and then choosing the **"Delete"** option.
 ![Alt text](./images/delete_discovery.png)
 
-
-#### YAML Structure and Parameter Explanation
+#### Example input config:
 
 ```yaml
-catalyst_center_version: 2.3.7.6
-delete_discovery:
-  by_name:
-    - discovery_name: "Multi Range Discovery"
+  del_discovery_by_name:
+    - discovery_name: "Multi Range Discovery" 
 ```
-### Task: Delete All Discovery
-
-This task enables the removal of all existing discovery tasks within Cisco Catalyst Center. It leverages the `cisco.dnac.discovery_workflow_manager` Ansible module, setting the state to 'deleted' and utilizing the `delete_all` parameter.
-
-#### Mapping to UI Action
-
+## Delete All Discovery
 While there's no direct equivalent in the UI to delete all discoveries at once, this task essentially automates the process of selecting each discovery task individually and deleting them.
 
-#### YAML Structure and Parameter Explanation
+#### Example input config:
 
 ```yaml
-delete_discovery:
-  all:
+  del_discovery_all:
     - delete_all: True
 ```
 

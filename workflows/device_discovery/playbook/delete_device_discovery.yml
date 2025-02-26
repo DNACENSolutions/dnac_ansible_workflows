@@ -29,7 +29,7 @@
       set_fact:
         long_op_start: "{{ now() }}"
 
-    - name: Delete discovery
+    - name: Delete discovery by name if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
@@ -38,7 +38,7 @@
       loop: "{{ delete_discovery.by_name }}"
       when: delete_discovery.by_name is defined
 
-    - name: Delete discovery
+    - name: Delete all discovery if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
