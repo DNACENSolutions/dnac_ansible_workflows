@@ -1,0 +1,97 @@
+---
+# tasks file for pnp
+- name: Includes PnP info
+  include_vars:
+    file: "{{ pnp_input_file }}"
+    name: vars_map
+  tags: always
+
+- name: Claim PnP device - EWLC type
+  cisco.dnac.pnp_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  loop: "{{ vars_map.pnp_claim.ewlc }}"
+  tags: pnp_claim_ewlc
+
+- name: Claim PnP device - EWLC - HA
+  cisco.dnac.pnp_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  loop: "{{ vars_map.pnp_claim.ewlc_ha }}"
+  tags: pnp_claim_ewlc
+
+- name: Claim PnP devices - Cat9K switch
+  cisco.dnac.pnp_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  loop: "{{ vars_map.pnp_claim.cat9k }}"
+  tags: pnp_claim_cat9k
+
+- name: Claim PnP devices - Cat9K switches stack
+  cisco.dnac.pnp_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  loop: "{{ vars_map.pnp_claim.cat9k_stack }}"
+  tags: pnp_claim_cat9k_stack
+
+- name: Claim PnP device - AP
+  cisco.dnac.pnp_workflow_manager:
+    dnac_host: "{{ dnac_host }}"
+    dnac_username: "{{ dnac_username }}"
+    dnac_password: "{{ dnac_password }}"
+    dnac_verify: "{{ dnac_verify }}"
+    dnac_port: "{{ dnac_port }}"
+    dnac_version: "{{ dnac_version }}"
+    dnac_debug: "{{ dnac_debug }}"
+    dnac_log: "{{ dnac_log }}"
+    dnac_log_level: "{{ dnac_log_level }}"
+    config_verify: True
+    state: merged
+    config:
+      - "{{ item }}"
+  loop: "{{ vars_map.pnp_claim.ap }}"
+  tags: pnp_claim_ap

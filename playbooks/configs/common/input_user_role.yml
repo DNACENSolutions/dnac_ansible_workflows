@@ -1,0 +1,249 @@
+admin:
+  user_details:
+    - username: super-admin
+      email: "super_admin@example.com"
+      password: xxxx
+      role_list: ["SUPER-ADMIN-ROLE"]
+
+network_admin:
+  user_details:
+    - username: network-admin
+      email: "network_admin@example.com"
+      password: xxxx
+      role_list: ["NETWORK-ADMIN-ROLE"]
+
+observer:
+  user_details:
+    - username: observer
+      email: "observer@example.com"
+      password: xxxx
+      role_list: ["OBSERVER-ROLE"]
+
+test_edit:
+  upd_create:
+    user_details:
+      - username: "datcpham"
+        first_name: "dat"
+        last_name: "pham"
+        email: "dat.pham@gmail.com"
+        password: "admin123!"
+        role_list: ["OBSERVER-ROLE"]
+  upd_update_cred:
+    user_details:
+      - username: "datcpham"
+        first_name: "dat1"
+        email: "dat.pham1@example.com"             
+        role_list: ["SUPER-ADMIN-ROLE"]
+  upd_update_pw:
+    user_details:
+      - username: "datcpham"
+        password: "admin123!4"
+        password_update: True
+  upd_delete:
+    user_details:
+      - username: "datcpham"
+
+test_delete_user:
+  del_create:
+    user_details:
+      - username: "test_delete"
+        first_name: "test"
+        last_name: "delete"
+        email: "testdelete@gmail.com"
+        password: "admin123!"
+        role_list: ["SUPER-ADMIN-ROLE"]
+  del_delete:
+    user_details:
+      - username: "test_delete"
+
+default:
+  user_details:
+    - username: default
+      email: "default@example.com"
+      password: xxxx
+
+multiple:
+  user_details:
+    - username: Admin_multiple
+      email: "super_admin_multiple@example.com"
+      password: xxxx
+      role_list: ["SUPER-ADMIN-ROLE"]
+    - username: Network-admin_multiple
+      email: "net_admin_multiple@example.com"
+      password: xxxx
+      role_list: ["NETWORK-ADMIN-ROLE"]
+    - username: Observer_multiple
+      email: "observer_multiple@example.com"
+      password: xxxx
+      role_list: ["OBSERVER-ROLE"]
+    - username: Guest
+      email: "guest@example.com"
+      password: xxxx
+      role_list: ["SUPER-ADMIN-ROLE","NETWORK-ADMIN-ROLE","OBSERVER-ROLE"]
+
+change_role:
+  create:
+    user_details:
+      - username: test_change
+        email: "change@example.com"
+        password: xxxx
+        role_list: ["OBSERVER-ROLE"]
+  change:
+    user_details:
+    - username: test_change
+      role_list: ["custom"]
+    role_details:
+      - role_name: custom
+        description: Custom role for testing
+        network_design:
+          - advanced_network_settings: write
+            image_repository: read
+            network_profiles: read
+
+user:
+  user_update: 
+    user_details:
+    - username: "default"
+      first_name: "User Update"
+      last_name: "Updating"
+      email: "default@example.com"
+      role_list: ["OBSERVER-ROLE"]
+  user_delete:
+    user_details:
+    - username: "default"
+
+role:
+  default:
+    role_details:
+    - role_name: "default_role"
+      description: "Role creation with default parameter"
+      assurance:
+        - monitoring_and_troubleshooting: "write"
+          monitoring_settings: "read"
+          troubleshooting_tools: "deny"
+      network_analytics:
+        - data_access: "write"
+      network_design:
+        - advanced_network_settings: "deny"
+          image_repository: "deny"
+          network_hierarchy: "deny"
+          network_profiles: "write"
+          network_settings: "write"
+          virtual_network: "read"
+      network_provision:
+        - compliance: "deny"
+          eox: "read"
+          image_update: "write"
+          inventory_management:
+            - device_configuration: "write"
+              discovery: "deny"
+              network_device: "read"
+              port_management: "write"
+              topology: "write"
+          license: "write"
+          network_telemetry: "write"
+          pnp: "deny"
+          provision: "read"
+      network_services:
+        - app_hosting: "deny"
+          bonjour: "write"
+          stealthwatch: "read"
+          umbrella: "deny"
+      platform:
+        - apis: "write"
+          bundles: "write"
+          events: "write"
+          reports: "read"
+      security:
+        - group_based_policy: "read"
+          ip_based_access_control: "write"
+          security_advisories: "write"
+      system:
+        - machine_reasoning: "read"
+          system_management: "write"
+      utilities:
+        - audit_log: "read"
+          event_viewer: "deny"
+          network_reasoner: "write"
+          remote_device_support: "read"
+          scheduler: "read"
+          search: "write"
+  write_only:
+    role_details:
+      - role_name: "write_only"
+        description: "Role creation with only write permission"
+        assurance:
+          - overall: "write"
+        network_analytics:
+          - overall: "write"
+        network_design:
+          - overall: "write"
+        network_provision:
+          - overall: "write"
+        network_services:
+          - overall: "write"
+        platform:
+          - overall: "write"
+        security:
+          - overall: "write"
+        system:
+          - overall: "write"
+        utilities:
+          - overall: "write"
+  read_only:
+    role_details:
+    - role_name: "read_only"
+      description: "Role creation with only read permission"
+      assurance:
+        - overall: "read"
+      network_analytics:
+        - overall: "read"
+      network_design:
+        - overall: "read"
+      network_provision:
+        - overall: "read"
+      network_services:
+        - overall: "read"
+      platform:
+        - overall: "read"
+      security:
+        - overall: "read"
+      system:
+        - overall: "read"
+      utilities:
+        - overall: "read"
+  deny_only:
+    role_details:
+      - role_name: "deny_only"
+        description: "Role creation with only deny permission (expected failed)"
+        assurance:
+          - overall: "deny"
+        network_analytics:
+          - overall: "deny"
+        network_design:
+          - overall: "deny"
+        network_provision:
+          - overall: "deny"
+        network_services:
+          - overall: "deny"
+        platform:
+          - overall: "deny"
+        security:
+          - overall: "deny"
+        system:
+          - overall: "deny"
+        utilities:
+          - overall: "deny"
+  role_update:
+    role_details:
+    - role_name: "default_role"
+      description: "Role has been updated, include description and permission"
+      assurance:
+        - monitoring_and_troubleshooting: "deny"
+          monitoring_settings: "read"
+          troubleshooting_tools: "deny"
+      network_analytics:
+        - data_access: "deny"
+  role_deletion:
+    role_details:
+    - role_name: "default_role"

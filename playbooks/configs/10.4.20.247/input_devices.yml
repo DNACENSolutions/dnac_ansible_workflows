@@ -1,0 +1,66 @@
+devices_list:
+  - name: DC-FR-9300
+    site: Global/USA/SAN JOSE/BLD23
+    role: 'CORE,FUSION'
+    intfToISE: TenGigabitEthernet1/1/8
+    intfToDNAC: TenGigabitEthernet1/1/8
+    ip: 10.4.212.1
+
+  - name: DC-T-9300
+    site: Global/USA/SAN JOSE/BLD23
+    role: TRANSITSDA
+    ip: 10.4.213.9
+
+  - name: SJ-BN-9500
+    site: Global/USA/SAN JOSE/BLD23
+    role: 'MAPSERVER,BORDERNODE,INTERNAL,EXTERNAL,SDATRANSIT'
+    l2interface: TenGigabitEthernet1/1/1
+    ip: 10.4.213.5
+
+  - name: SJ-EN-9300-1
+    site: Global/USA/SAN JOSE/BLD23
+    role: EDGENODE
+    ip: 10.4.213.1
+
+  - name: SJ-EN-9300-2
+    site: Global/USA/SAN JOSE/BLD23
+    role: EDGENODE
+    ip: 10.4.213.2
+
+  - name: SF-BN-8500
+    site: Global/USA/SAN-FRANCISCO/BLD_SF
+    role: 'MAPSERVER,BORDERNODE,INTERNAL,EXTERNAL,SDATRANSIT,NOIPTRANSIT'
+    l2interface: TenGigabitEthernet0/1/0
+    ip: 10.4.213.6
+
+  - name: SF-EN-9300
+    site: Global/USA/SAN-FRANCISCO/BLD_SF
+    role: EDGENODE
+    ip: 10.4.213.3
+
+  - name: SF-EWLC-1
+    site: Global/USA/SAN-FRANCISCO/BLD_SF
+    role: EWLC
+    managed_ap_site: Global/USA/SAN-FRANCISCO/BLD_SF/FLOOR2
+
+  - name: NY-BN-ASR
+    site: Global/USA/New York/BLDNYC
+    role: 'MAPSERVER,BORDERNODE,INTERNAL,EXTERNAL,SDATRANSIT,NOIPTRANSIT'
+    l2interface: GigabitEthernet0/0/0
+    ip: 10.4.213.7
+
+  - name: NY-BN-ISR
+    site: Global/USA/New York/BLDNYC
+    role: 'MAPSERVER,BORDERNODE,INTERNAL,EXTERNAL,SDATRANSIT,NOIPTRANSIT'
+    l2interface: GigabitEthernet0/0/2
+    ip: 10.4.213.8
+
+  - name: NY-EN-9300
+    site: Global/USA/New York/BLDNYC
+    role: EDGENODE
+    ip: 10.4.213.4
+
+  - name: NY-EWLC-1
+    site: Global/USA/New York/BLDNYC
+    role: EWLC
+    managed_ap_site: Global/USA/New York/BLDNYC/FLOOR1

@@ -1,0 +1,498 @@
+---
+setup:
+  setup_site:
+    - site:
+        area:
+          name: dat
+          parent_name: "Global"
+      site_type: area
+    - site:
+        area:
+          name: dat1
+          parent_name: "Global"
+      site_type: area
+    - site:
+        area:
+          name: dat2
+          parent_name: "Global"
+      site_type: area
+    - site:
+        area:
+          name: test_fb_zone
+          parent_name: "Global"
+      site_type: area
+    - site:
+        area:
+          name: fb_zone1
+          parent_name: "Global/test_fb_zone"
+      site_type: area
+    - site:
+        area:
+          name: fb_zone2
+          parent_name: "Global/test_fb_zone"
+      site_type: area
+    - site:
+        building:
+          name: dat1
+          address: "1234 Elm Street"
+          parent_name: "Global/dat"
+          latitude: 37.387
+          longitude: -121.845
+          country: India
+      site_type: building
+    - site:
+        floor:
+          name: dat2
+          parent_name: "Global/dat/dat1"
+          length: 103.23
+          width: 75.1
+          height: 50.23
+          rf_model: Cubes And Walled Offices
+          floor_number: 1
+          # units_of_measure: "meters"
+      site_type: floor
+  setup_fb_site:
+    - fabric_sites:
+        - site_name_hierarchy: "Global/dat1"
+          fabric_type: "fabric_site"
+          authentication_profile: "No Authentication"
+        - site_name_hierarchy: "Global/dat/dat1"
+          fabric_type: "fabric_site"
+          authentication_profile: "No Authentication"
+        - site_name_hierarchy: "Global/dat2"
+          fabric_type: "fabric_site"
+          authentication_profile: "No Authentication"
+
+layer3:
+  layer3_create:
+    - virtual_networks:
+        - vn_name: "vn_dat1"
+    - virtual_networks:
+        # - vn_name: "vn_dat1"
+        - vn_name: "vn_dat2"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+        - vn_name: "vn_dat3"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+            - site_name_hierarchy: "Global/dat2"
+            - site_name_hierarchy: "Global/dat/dat1"
+        - vn_name: "vn_dat4"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+              fabric_type: "fabric_site"
+            - site_name_hierarchy: "Global/dat2"
+              fabric_type: "fabric_site"
+            - site_name_hierarchy: "Global/dat/dat1"
+              fabric_type: "fabric_site"
+  layer3_update:
+    - virtual_networks:
+        - vn_name: "vn_dat1"
+    - virtual_networks:
+        - vn_name: "vn_dat2"
+          fabric_site_locations: []
+        - vn_name: "vn_dat3"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+        - vn_name: "vn_dat4"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+            - site_name_hierarchy: "Global/dat2"
+  layer3_delete:
+    - virtual_networks:
+        - vn_name: "vn_dat1"
+    - virtual_networks:
+        - vn_name: "vn_dat2"
+        - vn_name: "vn_dat3"
+        - vn_name: "vn_dat4"
+        - vn_name: "vn_dat_non_exist"
+
+anchor_vn:
+  anchor_fb_site_create:
+    - fabric_sites:
+        - site_name_hierarchy: "Global/USA/SAN JOSE"
+          fabric_type: "fabric_site"
+          authentication_profile: "No Authentication"
+  anchor_setup_sda_device:
+    - fabric_devices:
+        fabric_name: Global/USA/SAN JOSE
+        device_config:
+          - device_ip: 204.1.2.3
+            device_roles: [CONTROL_PLANE_NODE, BORDER_NODE]
+            route_distribution_protocol: LISP_BGP
+            borders_settings:
+              layer3_settings:
+                local_autonomous_system_number: 1111
+                is_default_exit: true
+                import_external_routes: true
+                border_priority: 2
+                prepend_autonomous_system_count: 2
+  anchor_vn_to_site:
+    - virtual_networks:
+        - vn_name: "a_test"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/USA/SAN JOSE"
+              fabric_type: "fabric_site"
+          anchored_site_name: "Global/USA/SAN JOSE"
+  anchor_extend_site:
+    - virtual_networks:
+        - vn_name: "a_test"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/USA/SAN JOSE" # main site anchor
+              fabric_type: "fabric_site"
+            - site_name_hierarchy: "Global/dat1"
+              fabric_type: "fabric_site"
+            - site_name_hierarchy: "Global/dat2"
+            - site_name_hierarchy: "Global/dat/dat1"
+          anchored_site_name: "Global/USA/SAN JOSE"
+  anchor_remome_main_without_extended_site:
+    - virtual_networks:
+        - vn_name: "a_test"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+              fabric_type: "fabric_site"
+            - site_name_hierarchy: "Global/dat2"
+            - site_name_hierarchy: "Global/dat/dat1"
+          anchored_site_name: "Global/USA/SAN JOSE"
+  anchor_remove_extended_site:
+    - virtual_networks:
+        - vn_name: "a_test"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/USA/SAN JOSE"
+              fabric_type: "fabric_site"
+          anchored_site_name: "Global/USA/SAN JOSE"
+  anchor_remome_main_site:
+    - virtual_networks:
+        - vn_name: "a_test"
+          fabric_site_locations: []
+          anchored_site_name: "Global/USA/SAN JOSE"
+
+anchor_remove_fabric_device:
+  - fabric_devices:
+      fabric_name: Global/USA/SAN JOSE
+      device_config:
+        # - device_ip: 10.195.247.23
+        #   delete_fabric_device: True
+        #   device_roles: [WIRELESS_CONTROLLER_NODE]
+        - device_ip: 204.1.2.3
+          delete_fabric_device: True
+          device_roles: [CONTROL_PLANE_NODE, BORDER_NODE]
+
+remove_anchor_from_site:
+  - virtual_networks:
+      - vn_name: "a_test"
+        fabric_site_locations:
+          - site_name_hierarchy: "Global/USA/SAN JOSE"
+            fabric_type: "fabric_site"
+        anchored_site_name: ""
+
+layer2:
+  layer2_create:
+    - fabric_vlan:
+        - vlan_name: "l2_dat1"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+              fabric_type: "fabric_site"
+          traffic_type: "DATA"
+          vlan_id: 4000
+        - vlan_name: l2_dat2
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat2"
+              fabric_type: "fabric_site"
+            - site_name_hierarchy: "Global/dat/dat1"
+              fabric_type: "fabric_site"
+          traffic_type: "VOICE"
+          vlan_id: 4000
+          fabric_enabled_wireless: True
+  layer2_update:
+    - fabric_vlan:
+        - vlan_name: "l2_dat1"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+              fabric_type: "fabric_site"
+          vlan_id: 4000
+          traffic_type: "VOICE"
+          fabric_enabled_wireless: True
+    - fabric_vlan:
+        - vlan_name: l2_dat2
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat2"
+              fabric_type: "fabric_site"
+          vlan_id: 4000
+          traffic_type: "DATA"
+        - vlan_name: l2_dat2
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat/dat1"
+              fabric_type: "fabric_site"
+          vlan_id: 4000
+          fabric_enabled_wireless: False
+  layer2_delete:
+    - fabric_vlan:
+        - vlan_name: "l2_dat2"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat/dat1"
+              fabric_type: "fabric_site"
+          vlan_id: 4000
+        - vlan_name: "l2_dat2"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat2"
+              fabric_type: "fabric_site"
+          vlan_id: 4000
+    - fabric_vlan:
+        - vlan_name: "l2_dat1"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+              fabric_type: "fabric_site"
+          vlan_id: 4000
+        - vlan_name: "l2_dat1" #non-exist
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+              fabric_type: "fabric_site"
+          vlan_id: 4001
+
+layer2_associate:
+  layer2_fb_site_create:
+    - fabric_sites:
+        - site_name_hierarchy: "Global/test_fb_zone"
+          fabric_type: "fabric_site"
+          authentication_profile: "No Authentication"
+  layer2_fb_zone_create:
+    - fabric_sites:
+        - site_name_hierarchy: "Global/test_fb_zone/fb_zone1"
+          authentication_profile: "No Authentication"
+          fabric_type: "fabric_zone"
+        - site_name_hierarchy: "Global/test_fb_zone/fb_zone2"
+          authentication_profile: "No Authentication"
+          fabric_type: "fabric_zone"
+  layer2_associate_site:
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone1"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+          traffic_type: "DATA"
+          vlan_id: 1010
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone2"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+          traffic_type: "DATA"
+          vlan_id: 1011
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone3"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+          traffic_type: "DATA"
+          vlan_id: 1012
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone4"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+          traffic_type: "DATA"
+          vlan_id: 1013
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone5"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+          traffic_type: "DATA"
+          vlan_id: 1014
+  layer2_associate_site_zone:
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone1"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone1"
+              fabric_type: "fabric_zone"
+          vlan_id: 1010
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone2"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone1"
+              fabric_type: "fabric_zone"
+          vlan_id: 1011
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone3"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone2"
+              fabric_type: "fabric_zone"
+          vlan_id: 1012
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone4"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone2"
+              fabric_type: "fabric_zone"
+          vlan_id: 1013
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone5"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone1"
+              fabric_type: "fabric_zone"
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone2"
+              fabric_type: "fabric_zone"
+          vlan_id: 1014
+  remove_layer2_associate_site_zone:
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone1"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone1"
+              fabric_type: "fabric_zone"
+          vlan_id: 1010
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone2"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone1"
+              fabric_type: "fabric_zone"
+          vlan_id: 1011
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone3"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone2"
+              fabric_type: "fabric_zone"
+          vlan_id: 1012
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone4"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone2"
+              fabric_type: "fabric_zone"
+          vlan_id: 1013
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone5"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone1"
+              fabric_type: "fabric_zone"
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone2"
+              fabric_type: "fabric_zone"
+          vlan_id: 1014
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone1"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+          vlan_id: 1010
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone2"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+          vlan_id: 1011
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone3"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+          vlan_id: 1012
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone4"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+          vlan_id: 1013
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone5"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+          vlan_id: 1014
+  re_add_layer2_associate_site_zone:
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone1"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone1"
+              fabric_type: "fabric_zone"
+          vlan_id: 1010
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone2"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone1"
+              fabric_type: "fabric_zone"
+          vlan_id: 1011
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone3"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone2"
+              fabric_type: "fabric_zone"
+          vlan_id: 1012
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone4"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone2"
+              fabric_type: "fabric_zone"
+          vlan_id: 1013
+    - fabric_vlan:
+        - vlan_name: "l2_test_zone5"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/test_fb_zone"
+              fabric_type: "fabric_site"
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone1"
+              fabric_type: "fabric_zone"
+            - site_name_hierarchy: "Global/test_fb_zone/fb_zone2"
+              fabric_type: "fabric_zone"
+          vlan_id: 1014
+
+l3_associate_anycast_gw:
+  create_global_pool:
+    - global_pool_details:
+        settings:
+          ip_pool:
+          - name: test_ippool_sda
+            pool_type: Generic
+            ip_address_space: IPv4
+            cidr: 162.121.0.0/16
+            dhcp_server_ips: []
+            dns_server_ips: []
+  create_sub_pool:
+    - reserve_pool_details:
+      - site_name: Global/dat1
+        name: dat1_ippool
+        pool_type: Generic
+        ipv6_address_space: False
+        ipv4_global_pool: '162.121.0.0/16'
+        ipv4_global_pool_name: test_ippool_sda
+        ipv4_prefix: false
+        ipv4_total_host: 200
+  create_l3:
+    - virtual_networks:
+        - vn_name: "test_anycast_l3"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+  create_anycast_gw:
+    - anycast_gateways:
+      - vn_name: "test_anycast_l3"
+        fabric_site_location:
+          site_name_hierarchy: "Global/dat1"
+          fabric_type: "fabric_site"
+        ip_pool_name: "dat1_ippool"
+        vlan_name: "test_anycast_l2"
+        vlan_id: 2036
+        traffic_type: "DATA"
+  delete_l3:
+    - virtual_networks:
+        - vn_name: "test_anycast_l3"
+
+l2_advance_attribute:
+  create_l3:
+    - virtual_networks:
+        - vn_name: "a1_lay3"
+          fabric_site_locations:
+            - site_name_hierarchy: "Global/dat1"
+  l2_advance_attribute:
+    - fabric_vlan:
+      - vlan_name: "test_l2_advance_attribute"
+        fabric_site_locations:
+        - site_name_hierarchy: "Global/dat1"
+          fabric_type: "fabric_site"
+        vlan_id: 1920
+        traffic_type: "VOICE"
+        fabric_enabled_wireless: true
+        associated_layer3_virtual_network: a1_lay3
