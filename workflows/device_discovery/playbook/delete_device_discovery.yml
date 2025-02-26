@@ -29,59 +29,24 @@
       set_fact:
         long_op_start: "{{ now() }}"
 
-    - name: Discover a singe device IP Address for a list of discoveries from "{{ VARS_FILE_PATH }}"
+    - name: Delete discovery by name if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
-      loop: "{{ discovery_details.single }}"
-      when: discovery_details.single is defined
+      loop: "{{ delete_discovery.by_name }}"
+      when: delete_discovery.by_name is defined
 
-    - name: Discover devices for an IP Address Range if defined in file "{{ VARS_FILE_PATH }}"
+    - name: Delete all discovery if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
-      loop: "{{ discovery_details.range }}"
-      when: discovery_details.range is defined
+      loop: "{{ delete_discovery.all }}"
+      when: delete_discovery.all is defined
 
-    - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH }}"
-      cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
-        state: "{{ state }}"
-        config:
-        - "{{ item }}"
-      loop: "{{ discovery_details.multi_range }}"
-      when: discovery_details.multi_range is defined
-
-    - name: Discover devices from a CDP seed if defined in the file "{{ VARS_FILE_PATH }}"
-      cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
-        state: "{{ state }}"
-        config:
-        - "{{ item }}"
-      loop: "{{ discovery_details.cdp }}"
-      when: discovery_details.cdp is defined
-
-    - name: Discover devices from an LLDP seed if defined in the file "{{ VARS_FILE_PATH }}"
-      cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
-        state: "{{ state }}"
-        config:
-        - "{{ item }}"
-      loop: "{{ discovery_details.lldp }}"
-      when: discovery_details.lldp is defined
-
-    - name: Configure and run an CIDR Discovery if defined in the file "{{ VARS_FILE_PATH }}"
-      cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
-        state: "{{ state }}"
-        config:
-        - "{{ item }}"
-      loop: "{{ discovery_details.cidr }}"
-      when: discovery_details.cidr is defined
     - name: Discovery playbook end time
       set_fact:
         long_op_end: "{{ now() }}"
