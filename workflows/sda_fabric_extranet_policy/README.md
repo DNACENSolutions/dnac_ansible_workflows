@@ -266,7 +266,7 @@ Note: The environment is used for the references in the above instructions.
   ansible-runner: 2.4.0
 
   dnacentersdk: 2.8.3
-  cisco.dnac: 6.29.0
+  cisco.dnac: 6.30.0
   ansible.utils: 5.1.2
 ```
 Cisco Catalyst Center Ansible Module Documentation: [sda_extranet_policies_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/sda_extranet_policies_workflow_manager.html)
