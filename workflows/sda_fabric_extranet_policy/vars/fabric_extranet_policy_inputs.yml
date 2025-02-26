@@ -13,4 +13,4 @@ extranet_policies:
           - VN_3
       fabric_sites: 
           - Global/USA/SAN JOSE
-          - Global/USA/SAN FRANCISCO
+          - Global/USA/SAN-FRANCISCO
