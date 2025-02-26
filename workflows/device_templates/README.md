@@ -31,7 +31,7 @@ Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/modul
 ## I. Procedure
 ### Prepare your Ansible environment:
 
-- nstall Ansible if you haven't already
+- install Ansible if you haven't already
 - Ensure you have network connectivity to your Catalyst Center instance.
 - Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
 
@@ -171,9 +171,6 @@ Validation success! 👍
 ![alt text](./images/create3.png)
 - Check template created
 ![alt text](./images/create4.png)
-
-
-
 
 #### **YAML Structure and Parameter Explanation**
 
