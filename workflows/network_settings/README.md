@@ -665,6 +665,7 @@ Regarding the IP pool, we will have two concepts: a global pool (ip-pool) and a 
   #### b. Edit IP Pool (global-pool)
   We can only edit 'name', 'dhcp_server_ips', and 'dns_server_ips' in the global pool.
   ![alt text](./images/edit_global_pool.png)
+
   Example input config:
   ```yaml
   network_settings_details:
@@ -1060,7 +1061,6 @@ Regarding the IP pool, we will have two concepts: a global pool (ip-pool) and a 
   ```
 
 4. ### How to run
-  1. #### Command to run:
   Example command to run the IP Pool playbook with merged method:
   ```bash
   ansible-playbook 
