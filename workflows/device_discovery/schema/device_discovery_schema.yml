@@ -461,6 +461,8 @@ discovery_details:
   single: include('single_discovery_type', required=False)
   range: include('range_discovery_type', required=False)
   multi_range: include('multi_range_discovery_type', required=False)
+  del_discovery_by_name: list(include('del_discovery_by_name_type', required=False))
+  del_discovery_all: list(include('del_discovery_all_type', required=False))
 catalyst_center_version: str(required=False)
 catalyst_center_verify: bool(required=False)
 catalyst_center_api_task_timeout: int(required=False, default=1200)
@@ -588,3 +590,8 @@ gl_snmp_v2c_read_type:
 net_conf_port_list_type:
     description: str(required=False)
     net_conf_port: str(required=False)
+
+del_discovery_by_name_type: 
+    discovery_name: str(required=True)
+del_discovery_all_type: 
+    delete_all: bool(required=True)

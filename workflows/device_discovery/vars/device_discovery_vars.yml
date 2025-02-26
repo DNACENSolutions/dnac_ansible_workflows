@@ -151,4 +151,7 @@ discovery_details:
       discovery_specific_credentials:
         net_conf_port: "830"
       retry: 2
-
+  del_discovery_by_name:
+    - discovery_name: "Multi Range Discovery" 
+  del_discovery_all:
+    - delete_all: True
