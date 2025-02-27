@@ -147,19 +147,6 @@ The /vars/fabric_extranet_policy_inputs.yml file stores the sites details you wa
 - Check Extranet Policy created
 ![alt text](./images/ext12.png)
 
-#### **YAML Structure and Parameter Explanation**
-
-```bash
-- name: Create Extranet Policy
-  cisco.dnac.sda_extranet_policies_workflow_manager:
-    <<: *common_config
-    state: merged
-    config:
-      - "{{ item }}"
-  with_list: "{{ extranet_policies }}"
-  tags: create_extranet_policies
-```
-
 #### **Example Input File**
 
 ```bash
@@ -197,19 +184,6 @@ Check all Subscriber Virtual Networks that have been added and Subscriber Virtua
 - Check configuration update 
 ![alt text](./images/edit_ext10.png)
 
-#### **YAML Structure and Parameter Explanation**
-
-```bash
-- name: Update Extranet Policy
-  cisco.dnac.sda_extranet_policies_workflow_manager:
-    <<: *common_config
-    state: merged
-    config:
-      - "{{ item }}"
-  with_list: "{{ extranet_policies }}"
-  tags: update_extranet_policies
-```
-
 #### **Example Input File**
 
 ```bash
@@ -235,20 +209,6 @@ Check all Subscriber Virtual Networks that have been added and Subscriber Virtua
 ![alt text](./images/delete_4.png)
 - Check the deleted Extranet Policy
 ![alt text](./images/delete_5.png)
-
-
-#### **YAML Structure and Parameter Explanation**
-
-```bash
-- name: Delete Extranet Policy
-  cisco.dnac.sda_extranet_policies_workflow_manager:
-    <<: *common_config
-    state: delete
-    config:
-      - "{{ item }}"
-  with_list: "{{ extranet_policies }}"
-  tags: delete_extranet_policies
-```
 
 #### **Example Input File**
 
