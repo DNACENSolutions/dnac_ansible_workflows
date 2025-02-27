@@ -55,21 +55,21 @@ Validation success! 👍
 ### 1. Add/Update Network Servers Separately
   #### a. AAA
   Update the network server with only the AAA field (network, client/endpoint):
-  + Example input config (1):
+  \+ Example input config (1):
     ```yaml
-      network_settings_details:
-        - network_management_details:
-          - site_name: Global/nw_settings/aaa
-            settings:
-              network_aaa:
-                primary_server_address: 204.192.1.249
-                protocol: RADIUS
-                server_type: AAA
-              client_and_endpoint_aaa:
-                primary_server_address: 204.192.1.252
-                secondary_server_address: 204.192.1.249
-                protocol: RADIUS
-                server_type: AAA
+    network_settings_details:
+      - network_management_details:
+        - site_name: Global/nw_settings/aaa
+          settings:
+            network_aaa:
+              primary_server_address: 204.192.1.249
+              protocol: RADIUS
+              server_type: AAA
+            client_and_endpoint_aaa:
+              primary_server_address: 204.192.1.252
+              secondary_server_address: 204.192.1.249
+              protocol: RADIUS
+              server_type: AAA
     ```
     mapping config to UI Actions:
     ![AAA Config 1](./images/aaa_1.png)
@@ -643,7 +643,7 @@ Manages IPv4 and IPv6 IP pools at the global level.
               dhcp_server_ips: null
               dns_server_ips: null
     ```
-    mapping Config to UI Actions:
+    mapping config to UI Actions:
 
     ![Add Global Pool](./images/add_global_pool.png)
 
@@ -697,7 +697,7 @@ Manages IPv4 and IPv6 IP pools at the global level.
             ip_pool:
             - force_delete: true
     ```
-    mapping Config to UI Actions:
+    mapping config to UI Actions:
 
     ![Delete All Global Pool](./images/delete_all_global_pool.png)
 
@@ -802,7 +802,7 @@ This task reserves sub-pools from a global IP address pool for specific sites in
           ipv6_address_space: false
           slaac_support: false
     ```
-    mapping Config to UI Actions:
+    mapping config to UI Actions:
     ![Add Sub Pool 1](./images/add_sub_pool_1.png)
 
   + Example input config (2):
@@ -821,7 +821,7 @@ This task reserves sub-pools from a global IP address pool for specific sites in
           ipv6_address_space: false
           slaac_support: false
     ```
-    mapping Config to UI Actions:
+    mapping config to UI Actions:
     ![Add Sub Pool 2](./images/add_sub_pool_2.png)
 
   * Parameter Explanation:
@@ -876,7 +876,7 @@ This task reserves sub-pools from a global IP address pool for specific sites in
         - site_name: Global/Canada
           force_delete: true
     ```
-    mapping Config to UI Actions:
+    mapping config to UI Actions:
     ![Delete All Subpool](./images/delete_all_subpool.png)
 
   #### d. Add/Edit/Delete Bulk IP Subpool Configurations
