@@ -644,9 +644,10 @@ Manages IPv4 and IPv6 IP pools at the global level.
               dns_server_ips: null
     ```
     mapping Config to UI Actions:
+
     ![Add Global Pool](./images/add_global_pool.png)
 
-  - **Parameter Explanation:**
+  * Parameter Explanation:
       ```yaml
       name: The name of the IP address pool.
       pool_type: The type of pool, typically set to Generic.
