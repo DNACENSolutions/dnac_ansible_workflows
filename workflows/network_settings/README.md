@@ -57,19 +57,19 @@ Validation success! 👍
   Update the network server with only the AAA field (network, client/endpoint):
   + Example input config (1):
     ```yaml
-    network_settings_details:
-      - network_management_details:
-        - site_name: Global/nw_settings/aaa
-          settings:
-            network_aaa:
-              primary_server_address: 204.192.1.249
-              protocol: RADIUS
-              server_type: AAA
-            client_and_endpoint_aaa:
-              primary_server_address: 204.192.1.252
-              secondary_server_address: 204.192.1.249
-              protocol: RADIUS
-              server_type: AAA
+      network_settings_details:
+        - network_management_details:
+          - site_name: Global/nw_settings/aaa
+            settings:
+              network_aaa:
+                primary_server_address: 204.192.1.249
+                protocol: RADIUS
+                server_type: AAA
+              client_and_endpoint_aaa:
+                primary_server_address: 204.192.1.252
+                secondary_server_address: 204.192.1.249
+                protocol: RADIUS
+                server_type: AAA
     ```
     mapping config to UI Actions:
     ![AAA Config 1](./images/aaa_1.png)
