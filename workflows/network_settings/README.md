@@ -55,7 +55,7 @@ Validation success! 👍
 ### 1. Add/Update Network Servers Separately
   #### a. AAA
   Update the network server with only the AAA field (network, client/endpoint):
-  \+ Example input config (1):
+  + Example input config (1):
     ```yaml
     network_settings_details:
       - network_management_details:
@@ -647,7 +647,7 @@ Manages IPv4 and IPv6 IP pools at the global level.
 
     ![Add Global Pool](./images/add_global_pool.png)
 
-  * Parameter Explanation:
+  \* Parameter Explanation:
       ```yaml
       name: The name of the IP address pool.
       pool_type: The type of pool, typically set to Generic.
@@ -824,7 +824,7 @@ This task reserves sub-pools from a global IP address pool for specific sites in
     mapping config to UI Actions:
     ![Add Sub Pool 2](./images/add_sub_pool_2.png)
 
-  * Parameter Explanation:
+  \* Parameter Explanation:
     ```yaml
     site_name: The site hierarchy where the sub-pool will be reserved.
     name: The name of the sub-pool.
