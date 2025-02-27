@@ -258,49 +258,47 @@ Validation success! 👍
     ![Syslogs Config 2](./images/syslogs2.png)
 
   #### i. Application Visibility
-- Update the network server with only the Application Visibility field:
+  Update the network server with only the Application Visibility field:
+  + Example input config (1):
+    ```yaml
+    network_settings_details:
+      - network_management_details:
+        - site_name: Global/nw_settings/netflow
+          settings:
+            netflow_collector:
+              collector_type: Telemetry_broker_or_UDP_director
+              ip_address: "1.1.1.2"
+              port: 12
+              enable_on_wired_access_devices: true
+    ```
+    mapping config to UI Actions:
+    ![Netflow Config 1](./images/netflow1.png)
 
-  **Example input config (1):**
-  ```yaml
-  network_settings_details:
-    - network_management_details:
-      - site_name: Global/nw_settings/netflow
-        settings:
-          netflow_collector:
-            collector_type: Telemetry_broker_or_UDP_director
-            ip_address: "1.1.1.2"
-            port: 12
-            enable_on_wired_access_devices: true
-  ```
-  *Mapping config to UI Actions:*
-  ![Netflow Config 1](./images/netflow1.png)
-
-  **Example input config (2):**
-  ```yaml
-  network_settings_details:
-    - network_management_details:
-      - site_name: Global/nw_settings/netflow
-        settings:
-          netflow_collector:
-            collector_type: Builtin
-  ```
-  *Mapping config to UI Actions:*
-  ![Netflow Config 2](./images/netflow2.png)
+  + Example input config (2):
+    ```yaml
+    network_settings_details:
+      - network_management_details:
+        - site_name: Global/nw_settings/netflow
+          settings:
+            netflow_collector:
+              collector_type: Builtin
+    ```
+    mapping config to UI Actions:*
+    ![Netflow Config 2](./images/netflow2.png)
 
   #### j. Wired Endpoint Data Collection
-- Update the network server with only the Wired Endpoint Data Collection field:
-
-  **Example input config:**
-  ```yaml
-  network_settings_details:
-    - network_management_details:
-      - site_name: Global/nw_settings/wired wireless endpoint
-        settings:
-          wired_data_collection:
-            enable_wired_data_collection: true
-  ```
-  *Mapping config to UI Actions:*
-  ![Wired Endpoint Config](./images/wire_endpoint.png)
+  Update the network server with only the Wired Endpoint Data Collection field:
+  + Example input config:
+    ```yaml
+    network_settings_details:
+      - network_management_details:
+        - site_name: Global/nw_settings/wired wireless endpoint
+          settings:
+            wired_data_collection:
+              enable_wired_data_collection: true
+    ```
+    mapping config to UI Actions:
+    ![Wired Endpoint Config](./images/wire_endpoint.png)
 
   #### k. Wireless Controller, Access Point, and Wireless Clients Health
   Update the network server with only the Wireless Controller, Access Point, and Wireless Clients Health field:
@@ -369,7 +367,7 @@ Validation success! 👍
             timezone: GMT
     ```
 
-  *Note:* If the 'site' parameter is not provided, it will default to the Global site.
+  - Note: If the 'site' parameter is not provided, it will default to the Global site.
     ```yaml
     network_settings_details:
       - network_management_details:
@@ -662,7 +660,7 @@ Manages IPv4 and IPv6 IP pools at the global level.
   #### b. Edit IP Pool (Global Pool)
   We can only edit 'name', 'dhcp_server_ips', and 'dns_server_ips' in the global pool.
   ![alt text](./images/edit_global_pool.png)
-  + Example input config:**
+  + Example input config:
     ```yaml
     network_settings_details:
       - global_pool_details:
@@ -678,7 +676,7 @@ Manages IPv4 and IPv6 IP pools at the global level.
               dns_server_ips:
                 - 1.1.1.1
     ```
-  The 'cidr' and 'ip_address_space' parameters will be used for identification (not by 'name' parameter).
+    The 'cidr' and 'ip_address_space' parameters will be used for identification (not by 'name' parameter).
 
   #### c. Delete IP Pool (Global Pool)
   + Delete One IP Pool at Global Level:
@@ -699,6 +697,7 @@ Manages IPv4 and IPv6 IP pools at the global level.
             - force_delete: true
     ```
     mapping Config to UI Actions:
+
     ![Delete All Global Pool](./images/delete_all_global_pool.png)
 
   - **Note:** If the IP pool has been reserved, it cannot be deleted.
@@ -824,8 +823,7 @@ This task reserves sub-pools from a global IP address pool for specific sites in
     mapping Config to UI Actions:
     ![Add Sub Pool 2](./images/add_sub_pool_2.png)
 
-  - **Parameter Explanation:**
-
+  * Parameter Explanation:
     ```yaml
     site_name: The site hierarchy where the sub-pool will be reserved.
     name: The name of the sub-pool.
