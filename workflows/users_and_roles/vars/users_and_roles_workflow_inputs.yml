@@ -69,8 +69,9 @@ roles_users_details:
       last_name: Andrew1
       email: ajith_andrew@example.com
       #Password Restrictions: Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character, no white spaces, no more than 2 identical characters in a row, no more than 3 consecutive characters,
-      password: "Lablab#!12345"
+      password: "Password@2025"
       password_update: true
+      # Only one role can be assigned to a user at a time. Please select a single role before proceeding
       role_list: 
-        - Admin_customized_role
         - Assurance-role
+        
