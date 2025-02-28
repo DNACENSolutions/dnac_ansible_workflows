@@ -10,4 +10,5 @@ dnachosts:
       dnac_version: 2.3.7.6 #(Mandatory)  Example: 2.3.5.3
       dnac_log: true
       dnac_log_level: debug
+      catalyst_center_config_verify: true
       ansible_python_interpreter: /Users/majlona/Desktop/dnac_ansible_workflows_vs_copilot/python3env/bin/python

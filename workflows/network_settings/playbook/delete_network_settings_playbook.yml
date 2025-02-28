@@ -30,7 +30,7 @@
       set_fact:
         long_op_start: "{{ now() }}"
     #Create Global Pools, and Network Settings etc 
-    - name: Create/Update Global Pools, Subpools and Network Settings etc 
+    - name: Delete Global Pools, Subpools and Network Settings etc 
       cisco.dnac.network_settings_workflow_manager:
         <<: *dnac_login
         state: deleted

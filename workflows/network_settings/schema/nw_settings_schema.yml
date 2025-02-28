@@ -591,8 +591,8 @@ reserve_pool_details_type:
     ipv4_subnet: str(required=False)
     ipv4_gateway: str(required=False)
     ipv4_total_host: int(required=False)
-    name: str(required=False)
-    site_name: str(required=False)
+    name: str(required=True)
+    site_name: str(required=True)
     slaac_support: bool(required=False)
     pool_type: enum('Generic', 'LAN', 'Management', 'Service', 'WAN', default='Generic', required=False)
     ipv6_address_space: bool(required=False)
@@ -606,16 +606,18 @@ reserve_pool_details_type:
     ipv6_dns_servers: list(str(), required=False)
     ipv6_total_host: int(required=False)
     prev_name: str(required=False)
+    force_delete: bool(required=False)
 
 ip_pool_details_type:
-  name: str(required=False)
+  name: str(required=True)
   gateway: str(required=False)
   ip_address_space: enum('IPv4', 'IPv6', required=False)
-  cidr: str(required=False)
+  cidr: str(required=True)
   pool_type: enum('Generic', required=False)
   dhcp_server_ips: list(str(), min=0, max=100, required=False)
   dns_server_ips: list(str(), min=0, max=100, required=False)
   prev_name: str(required=False)
+  force_delete: bool(required=False)
 
 network_management_details_type:
   settings: include('network_management_settings_type')
