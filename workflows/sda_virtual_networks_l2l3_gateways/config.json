@@ -1,0 +1,5 @@
+{
+  "summary": "Accelerate the creation and management of SDA Fabric VLANs, Virtual Networks, and Anycast Gateways with our comprehensive Ansible automation for Cisco Catalyst Center.",
+  "status": "active",
+  "managed_by": "cisco"
+}

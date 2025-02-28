@@ -1,0 +1,5 @@
+{
+  "summary": "Ensure network device compliance efficiently with our Ansible playbook, performing comprehensive checks and configuration syncs seamlessly.",
+  "status": "active",
+  "managed_by": "cisco"
+}
