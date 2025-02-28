@@ -28,7 +28,6 @@
     - name: Playbook start time for the discoveries
       set_fact:
         long_op_start: "{{ now() }}"
-
     - name: Discover a singe device IP Address for a list of discoveries from "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
         <<: *dnac_login

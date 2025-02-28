@@ -68,6 +68,7 @@ user_details:
     email: xxxxxxw@example.com
     password: xxxxx@123!45
     role_list: 
+    - Admin_customized_role
     - Assurance-role
 - username: "ajithandrewj"
     first_name: "ajith"
