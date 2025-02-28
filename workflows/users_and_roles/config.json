@@ -1,0 +1,5 @@
+{
+  "summary": "Streamline user role management in Cisco Catalyst Center with Ansible automation to easily create, update, and delete user roles and permissions.",
+  "status": "active",
+  "managed_by": "cisco"
+}

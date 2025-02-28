@@ -1,0 +1,5 @@
+{
+  "summary": "Automate the creation, update, and deletion of SDA fabric extranet policies in Cisco Catalyst Center with our comprehensive Ansible playbook.",
+  "status": "active",
+  "managed_by": "cisco"
+}

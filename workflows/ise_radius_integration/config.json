@@ -1,0 +1,5 @@
+{
+  "summary": "Integrate ISE and AAA servers with Catalyst Center seamlessly using our Ansible playbook for efficient network management.",
+  "status": "active",
+  "managed_by": "cisco"
+}

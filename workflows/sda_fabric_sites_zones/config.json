@@ -1,0 +1,5 @@
+{
+  "summary": "Automate the creation and management of SDA fabric sites and zones in Cisco Catalyst Center with our comprehensive Ansible playbook.",
+  "status": "active",
+  "managed_by": "cisco"
+}

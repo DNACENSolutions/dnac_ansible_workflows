@@ -1,0 +1,5 @@
+{
+  "summary": "Automate and simplify Cisco Catalyst device software imports, upgrades, and verifications with this SWIM-based Ansible workflow for fast, error-free deployments.",
+  "status": "active",
+  "managed_by": "cisco"
+}
