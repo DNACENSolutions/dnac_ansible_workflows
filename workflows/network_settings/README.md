@@ -138,7 +138,7 @@ Validation success! 👍
               primary_ip_address: 204.192.3.40
               secondary_ip_address: 2040:50:0::0
     ```
-    mapping config to UI Actions:*
+    mapping config to UI Actions:
     ![DNS Config 1](./images/dns1.png)
 
   #### d. NTP
@@ -194,7 +194,7 @@ Validation success! 👍
               banner_message: "Test banner separate (new)"
               retain_existing_banner: false
     ```
-    mapping config to UI Actions:*
+    mapping config to UI Actions:
     ![Banner Config 2](./images/banner2.png)
 
   #### g. SNMP Traps
@@ -224,7 +224,7 @@ Validation success! 👍
               ip_addresses:
                 - 80.80.80.80
     ```
-    mapping config to UI Actions:*
+    mapping config to UI Actions:
     ![SNMP Traps Config 2](./images/snmp_trap2.png)
 
   #### h. Syslogs
@@ -254,7 +254,7 @@ Validation success! 👍
               ip_addresses:
                 - 90.90.90.90
     ```
-    mapping config to UI Actions:*
+    mapping config to UI Actions:
     ![Syslogs Config 2](./images/syslogs2.png)
 
   #### i. Application Visibility
@@ -283,7 +283,7 @@ Validation success! 👍
             netflow_collector:
               collector_type: Builtin
     ```
-    mapping config to UI Actions:*
+    mapping config to UI Actions:
     ![Netflow Config 2](./images/netflow2.png)
 
   #### j. Wired Endpoint Data Collection
