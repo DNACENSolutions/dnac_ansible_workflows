@@ -17,9 +17,9 @@ Before starting, ensure the following requirements are met:
 - **Ansible Installation**: Ansible must be installed on the machine managing the automation process.
 - **Cisco DNA Ansible Collection**: The `cisco.dnac.pnp_workflow_manager` module must be available from the Cisco DNA Ansible Collection.
 - **dnacentersdk Python SDK**: This SDK is required to interact with Cisco Catalyst Center.
-* Ansible installed
-* `yamale` Python library installed (`pip install yamale`)
-* Cisco DNA Center or Plug and Play Connect access configured
+- **Ansible installation**: Ensure that Ansible is installed.
+- **Yamale Python Library**: The `yamale` Python library installed (`pip install yamale`)
+- **Cisco DNA Center or Plug and Play Connect Access**: Ensure access is configured
 
 ## **Key Features**
 
@@ -226,7 +226,7 @@ Run the following command to delete the device:
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
 ```
 
-#### Upon successful execution, the device will be deleted from PnP.
+Upon successful execution, the device will be deleted from PnP.
 
 ![alt text](images/Device_is_removed.png)
 
@@ -371,6 +371,9 @@ pnp_details:
 
 In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller (EWLC) involves specifying parameters such as the site, project, device information, and network settings. This configuration aligns with actions like assigning a site, selecting an image, and setting network interfaces.
 
+### Note:
+- Ensure that the required configurations are in place before proceeding, including: Template, Image and Catalyst Wireless LAN Controller Settings which is compatible to ewlc device
+
 ### Example: Input (YAML)
 ```bash
 ---
@@ -401,9 +404,6 @@ pnp_details:
 ### Mapping Example to UI Actions
 
 #### The screenshots below demonstrate how to manually onboard and claim a device in the Cisco Catalyst Center UI:
-
-### Note:
-- Ensure that the required configurations are in place before proceeding, including: Template, Image and Catalyst Wireless LAN Controller Settings which is compatible to ewlc device
 
 ![alt text](images/Claim_ewlc_img1.png)
 ![alt text](images/Claim_ewlc_img2.png)
@@ -538,7 +538,7 @@ pnp_details:
 
 ![alt text](images/ap_failure_img1.png)
 
-**Usage**
+### Usage
 
 1. **Configure Variables**
     * Edit `catalyst_center_pnp_vars.yml` with your specific settings:
@@ -559,12 +559,12 @@ pnp_details:
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
 ```
 
-**Important Notes**
+### Important Notes
 
 * Customize the playbook and variables to match your network environment.
 * Consult Cisco documentation for in-depth information about Plug and Play.
 
-**Disclaimer**
+### Disclaimer
 
 * This playbook is provided as-is. Use at your own risk.
 * Ensure you have proper backups and understand the potential impact before running in a production environment.
