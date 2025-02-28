@@ -160,3 +160,14 @@ Run the delete Playbook
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/delete_users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
 ```
 Roles and Users will get deleted from the Catalyst Center
+
+## Referances
+  \* Note: The environment is used for the references in the above instructions.
+  ```
+  ansible: 10.7.0
+  ansible-core: 2.17.7
+  ansible-runner: 2.4.0
+
+  dnacentersdk: 2.9.4
+  cisco.dnac: 6.30.0
+  ansible.utils: 5.1.2
