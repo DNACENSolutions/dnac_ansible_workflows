@@ -46,10 +46,8 @@ catalyst_center_hosts:
             dnac_log: true
 ```
 
-## Overview of the PnP Onboarding Process
+## Overview of PnP Onboarding Process with Example
 The following diagram illustrates the **PnP onboarding process**, initiated through an Ansible playbook utilizing the **cisco.dnac.pnp_workflow_manager** module. This module communicates with **Cisco Catalyst Center** via its API, enabling seamless device onboarding into the network.
-
-## Workflow overview with example
 
 ## Task: Device onboarding
 
@@ -73,19 +71,19 @@ pnp_details:
 
 ### Step 1: Execute the pnp playbook.
 
-#### Run the following command to onboard the device:
+Run the following command to onboard the device:
 
 ```bash
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
 ```
 
-#### Upon successful completion, the device is added to the plug and play.
+Upon successful completion, the device is added to the plug and play.
 
 ![alt text](images/Device_added_successfully.png)
 
 ### Step 2: Verify the playbook output
 
-#### Upon successful completion, you will see an msg similar to:
+Upon successful completion, you will see an msg similar to:
 
 ```bash
 "failed": false,
@@ -122,19 +120,19 @@ pnp_details:
 
 ### Step 1: Execute the pnp playbook.
 
-#### Run the following command to onboard bulk the device:
+Run the following command to onboard bulk the device:
 
 ```bash
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
 ```
 
-#### Upon successful execution, all devices are added to Plug and Play (PnP).
+Upon successful execution, all devices are added to Plug and Play (PnP).
 
 ![alt text](images/Bulk_pnp_device_addition.png)
 
 ### Step 2: Verify the playbook output
 
-#### Upon successful completion, you should see a message similar to:
+Upon successful completion, you should see a message similar to:
 
 ```bash
 "failed": false,
@@ -166,7 +164,7 @@ pnp_details:
 
 ![alt text](images/Device_is_present.png)
 
-#### Run the following command to delete the device:
+Run the following command to delete the device:
 
 ```bash
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
@@ -174,13 +172,13 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug
 
 ### Step 2: Execute the pnp playbook.
 
-#### Upon successful execution, the device will be deleted from PnP.
+Upon successful execution, the device will be deleted from PnP.
 
 ![alt text](images/Device_is_removed.png)
 
 ### Step 3: Verify the playbook output
 
-#### Upon successful completion, you should see a message similar to:
+Upon successful completion, you should see a message similar to:
 
 ```bash
 "failed": false,
@@ -189,7 +187,7 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug
 
 ### Step 4: Verify that device is removed
 
-#### To ensure the device has been successfully removed, verify the PnP UI.
+To ensure the device has been successfully removed, verify the PnP UI.
 
 ![alt text](images/verify_device_deletion.png)
 
@@ -222,7 +220,7 @@ pnp_details:
 
 ### Step 2: Execute the PnP Playbook:
 
-#### Run the following command to delete the device:
+Run the following command to delete the device:
 
 ```bash
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
@@ -234,7 +232,7 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug
 
 ### Step 3: Verify the playbook output
 
-#### Upon successful completion, you should see a message similar to:
+Upon successful completion, you should see a message similar to:
 
 ```bash
 "failed": false,
@@ -243,14 +241,14 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug
 
 ### Step 4: Verify that all devices is removed
 
-#### To ensure the devices has been successfully removed, verify the PnP UI.
+To ensure the devices has been successfully removed, verify the PnP UI.
 
 ![alt text](images/All_devices_get_removed.png)
 
 
 ## Task: Claiming a Cisco Catalyst 9K Switch
 
-#### This task demonstrates how to add and claim a Cisco Catalyst 9K switch using the Plug and Play (PnP)
+This task demonstrates how to add and claim a Cisco Catalyst 9K switch using the Plug and Play (PnP)
 
 ### Example: Input (YAML)
 ```bash
@@ -274,7 +272,7 @@ pnp_details:
 
 ### Step 1: Execute the PnP playbook
 
-#### To initiate the device onboarding and claim process execute the PnP workflow playbook using below command.
+To initiate the device onboarding and claim process execute the PnP workflow playbook using below command.
 
 ```bash
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
@@ -282,11 +280,11 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug
 
 ### Step 2: Verify the playbook output 
 
-#### Ensure that no failures are observed after playbook execution complete.
+Ensure that no failures are observed after playbook execution complete.
 
 ### Step 3: Confirm Device Onboarding in Cisco Catalyst Center
 
-#### Verify that the device is onboarded and successfully claimed in the Cisco Catalyst Center UI.
+Verify that the device is onboarded and successfully claimed in the Cisco Catalyst Center UI.
 
 ### Mapping Example to UI Actions
 
@@ -296,13 +294,13 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug
 ![alt text](images/claim_switch_device_img2.png)
 ![alt text](images/claim_switch_device_img3.png)
 ![alt text](images/claim_switch_device_img4.png)
-![alt text](images/claim_switch_device_img5.png)
+![alt text](images/clain_switch_device_img5.png)
 ![alt text](images/claim_switch_device_img6.png)
 
 
-### Task: Claiming a Cisco Catalyst 9K Switch Stack
+## Task: Claiming a Cisco Catalyst 9K Switch Stack
 
-#### Similar to the task for claiming a single switch, this task relies on a predefined configuration template in Cisco Catalyst Center. However, in this case, the **StackSwitch** option is selected in the UI to indicate that the device being onboarded is part of a switch stack.
+Similar to the task for claiming a single switch, this task relies on a predefined configuration template in Cisco Catalyst Center. However, in this case, the **StackSwitch** option is selected in the UI to indicate that the device being onboarded is part of a switch stack.
 
 ![alt text](images/Claim_siwtch_stack_9k.png)
 
@@ -329,7 +327,7 @@ pnp_details:
 
 ### Step 1: Execute the PnP playbook
 
-#### Run the PnP workflow playbook to initiate the onboarding and claim process using below command.
+Run the PnP workflow playbook to initiate the onboarding and claim process using below command.
 
 ```bash
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
@@ -337,15 +335,15 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug
 
 ### Step 2: Verify the playbook output 
 
-#### Ensure that the playbook execution completes successfully without any failures.
+Ensure that the playbook execution completes successfully without any failures.
 
 ### Step 3: Confirm Device Onboarding in Cisco Catalyst Center
 
-#### Verify that the switch stack is onboarded and successfully claimed in the Cisco Catalyst Center UI.
+Verify that the switch stack is onboarded and successfully claimed in the Cisco Catalyst Center UI.
 
 ## Task: Claiming a cisco Router Device
  
-### Similar to the task of claiming a single switch, we can onboard the router device as well using the pnp workflow playbook.
+Similar to the task of claiming a single switch, we can onboard the router device as well using the pnp workflow playbook.
 
 ### Example: Input (YAML)
 ```bash
@@ -369,10 +367,9 @@ pnp_details:
 
 ![alt text](images/Claim_router_device_img1.png)
 
-
 ## Task: Claiming a Cisco Embedded Wireless Controller (EWLC)
 
-### In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller (EWLC) involves specifying parameters such as the site, project, device information, and network settings. This configuration aligns with actions like assigning a site, selecting an image, and setting network interfaces.
+In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller (EWLC) involves specifying parameters such as the site, project, device information, and network settings. This configuration aligns with actions like assigning a site, selecting an image, and setting network interfaces.
 
 ### Example: Input (YAML)
 ```bash
@@ -509,9 +506,9 @@ pnp_details:
 
 ![alt text](images/reset_error_ewlc_pnp.png)
 
-### Task: Claiming Access Points (APs)
+## Task: Claiming Access Points (APs)
 
-#### Access Points (APs) play a crucial role in wireless networks, and onboarding them can be automated through Cisco Catalyst Center. The following example shows how to onboard an Access Point (AP) into the network.
+Access Points (APs) play a crucial role in wireless networks, and onboarding them can be automated through Cisco Catalyst Center. The following example shows how to onboard an Access Point (AP) into the network.
 
 ### Example: Input (YAML)
 ```bash
@@ -555,6 +552,11 @@ pnp_details:
 3. **Validate Inputs**
 ```bash
     yamale -s workflows/plug_and_play/schema/plug_and_play_schema.yml workflows/plug_and_play/vars/catalyst_center_pnp_vars.yml 
+```
+
+4. **Example Command To Run Playbook**
+```bash
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
 ```
 
 **Important Notes**
