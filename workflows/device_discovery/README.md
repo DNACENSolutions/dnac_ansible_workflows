@@ -1,6 +1,6 @@
 # Catalyst Center Device Discovery Playbook
 
-## Overview
+## Discovery Playbook Overview
 
 The Discovery feature in Catalyst Center scans your network to identify devices and add them to the inventory. It can also work with the Device Controllability feature to configure necessary network settings on discovered devices.
 
@@ -16,12 +16,11 @@ You have four options for discovering devices:
 ### Prerequisites for Discovery
 
 Before running the Discovery feature, ensure you have:
-- Configured at least one **SNMP credential** on your devices.
-- Set up **SSH credentials** to allow Catalyst Center to manage devices.
-
+* Configured at least one **SNMP credential** on your devices.
+* Set up **SSH credentials** to allow Catalyst Center to manage devices.
 * **Network Access:** Ensure Catalyst Center has appropriate network access to reach the devices you want to discover.
 * **Device Support:** Verify that your devices support the chosen discovery protocol (CDP or LLDP).
-* **Credentials:** If Device Controllability is enabled, ensure Catalyst Center has the correct credentials to access and configure discovered devices.. please refer to Credential module
+* **Credentials:** If Device Controllability is enabled, ensure Catalyst Center has the correct credentials to access and configure discovered devices.
 * **Catalyst Center Configuration:**
     * Regardless of the method used, you must be able to reach the device from Catalyst Center.
     * Configure specific credentials and protocols in Catalyst Center user device_credentials workflow.
@@ -172,26 +171,6 @@ discovery_details:
       discovery_specific_credentials:
         net_conf_port: "830"
       retry: 2
-```
-
-## Delete Discovery by Name
-
-![Alt text](./images/delete_discovery.png)
-
-#### Example input config:
-
-```yaml
-  del_discovery_by_name:
-    - discovery_name: "Multi Range Discovery" 
-```
-## Delete All Discovery
-While there's no direct equivalent in the UI to delete all discoveries at once, this task essentially automates the process of selecting each discovery task individually and deleting them.
-
-#### Example input config:
-
-```yaml
-  del_discovery_all:
-    - delete_all: True
 ```
 
 ## Running the Playbook
