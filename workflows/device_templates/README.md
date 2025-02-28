@@ -134,10 +134,10 @@ deploy_device_details:
 ```
 ### How to Validate Input
 
-* Use `yamale`:
+* Use `yaml`:
 
 ```bash
-yamale -s workflows/device_templates/schema/template_workflow_schema.yml workflows/device_templates/vars/template_workflow_inputs.yml 
+yaml -s workflows/device_templates/schema/template_workflow_schema.yml workflows/device_templates/vars/template_workflow_inputs.yml 
 Validating /Users/pawansi/dnac_ansible_workflows/workflows/device_templates/vars/template_workflow_inputs.yml...
 Validation success! 👍
 ```
@@ -220,7 +220,7 @@ template_details:
 ### 2. Delete Templates
 
 #### **Mapping config to UI Actions**
-- Choose Templete want to delete -> Delete
+- Choose Template want to delete -> Delete
 ![alt text](./images/delete1.png)
 - Click Yes to confirm deleting the template
 ![alt text](./images/delete1.png)
@@ -278,7 +278,7 @@ template_details:
 ![alt text](./images/deploy1.png)
 - Choose Network Profile need to attach -> Save
 ![alt text](./images/deploy2.png)
-- Check Template attach successfuly
+- Check Template attach successfully
 ![alt text](./images/deploy3.png)
 - Choose Template deploy -> Provision Templates
 ![alt text](./images/deploy4.png)
