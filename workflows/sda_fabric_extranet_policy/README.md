@@ -31,7 +31,7 @@ Consider the following guidelines before you configure an extranet policy:
 
 - Extranet Policy is supported only on the fabric sites that have a LISP Pub/Sub control plane.
 
-- To configure an extranet policy on a multisite fabric with SD-Access transit, ensure that all the sites have the provider VN.
+- To configure an extranet policy on a multi site fabric with SD-Access transit, ensure that all the sites have the provider VN.
 
 - If you configure multiple VN policies in your network, the same VN cannot be the Provider VN in more than one policy.
 
@@ -102,13 +102,13 @@ The /vars/fabric_extranet_policy_inputs.yml file stores the sites details you wa
 **Validate Your Input:**
 
 ```bash
-   yamale -s workflows/fabric_extranet_policy/schema/fabric_extranet_policy_schema.yml workflows/fabric_extranet_policy/vars/fabric_extranet_policy_inputs.yml
+   yaml -s workflows/fabric_extranet_policy/schema/fabric_extranet_policy_schema.yml workflows/fabric_extranet_policy/vars/fabric_extranet_policy_inputs.yml
 ```
 **Execute the Playbook**
 
 - Playbook: workflows/fabric_extranet_policy/playbook/fabric_extranet_policy_playbook.yml
 
-####  To create or update the fabroc extranet Policy:
+####  To create or update the fabric extranet Policy:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/fabric_extranet_policy/playbook/fabric_extranet_policy_playbook.yml --e VARS_FILE_PATH=../vars/fabric_extranet_policy_inputs.yml
 ```
@@ -121,10 +121,10 @@ The /vars/fabric_extranet_policy_inputs.yml file stores the sites details you wa
 
 ### 1. Create SDA Extranet Policies
 #### **Mapping config to UI Actions**
-- The config parameter within this task corresponds to the "Provision > Virtural Networks> Create Template" action in the Cisco Catalyst Center UI.
+- The config parameter within this task corresponds to the "Provision > Virtual Networks> Create Template" action in the Cisco Catalyst Center UI.
 - Select "Provision" -> "Virtual Networks" to access the Virtual Networks page.
 ![alt text](./images/ext1.png)
--  Click Layer3 Virutal Network
+-  Click Layer3 Virtual Network
 ![alt text](./images/ext2.png)
 - Click "Extranet Policies" -> "Create Extranet Policy" to start creating a new policy.
 ![alt text](./images/ext3.png)
@@ -147,19 +147,6 @@ The /vars/fabric_extranet_policy_inputs.yml file stores the sites details you wa
 - Check Extranet Policy created
 ![alt text](./images/ext12.png)
 
-#### **YAML Structure and Parameter Explanation**
-
-```bash
-- name: Create Extranet Policy
-  cisco.dnac.sda_extranet_policies_workflow_manager:
-    <<: *common_config
-    state: merged
-    config:
-      - "{{ item }}"
-  with_list: "{{ extranet_policies }}"
-  tags: create_extranet_policies
-```
-
 #### **Example Input File**
 
 ```bash
@@ -174,7 +161,7 @@ The /vars/fabric_extranet_policy_inputs.yml file stores the sites details you wa
 
 ### 2. Update SDA Extranet Policies
 #### **Mapping config to UI Actions**
-- Select Extrabnet Policy Name to update -> "More Action" -> "Edit Extranet Policy" to update Extranet policy
+- Select Extranet Policy Name to update -> "More Action" -> "Edit Extranet Policy" to update Extranet policy
 ![alt text](./images/edit_ext1.png)
 - In Subscriber Virtual Networks section _> "Edit" to update Subscriber Virtual Networks
 ![alt text](./images/edit_ext2.png)
@@ -186,7 +173,7 @@ Check all Subscriber Virtual Networks that have been added and Subscriber Virtua
 ![alt text](./images/edit_ext41.png)
 - Check the configuration information that has changed -> "Next"
 ![alt text](./images/edit_ext42.png)
-- Deploy Extrabnet Policy that has just been updated
+- Deploy Extranet Policy that has just been updated
 ![alt text](./images/edit_ext6.png)
 - Enter "Task Name" for the update task -> Submit
 ![alt text](./images/edit_ext7.png)
@@ -196,19 +183,6 @@ Check all Subscriber Virtual Networks that have been added and Subscriber Virtua
 ![alt text](./images/edit_ext9.png)
 - Check configuration update 
 ![alt text](./images/edit_ext10.png)
-
-#### **YAML Structure and Parameter Explanation**
-
-```bash
-- name: Update Extranet Policy
-  cisco.dnac.sda_extranet_policies_workflow_manager:
-    <<: *common_config
-    state: merged
-    config:
-      - "{{ item }}"
-  with_list: "{{ extranet_policies }}"
-  tags: update_extranet_policies
-```
 
 #### **Example Input File**
 
@@ -225,7 +199,7 @@ Check all Subscriber Virtual Networks that have been added and Subscriber Virtua
 
 ### 2. Delete SDA Extranet Policies
 #### **Mapping config to UI Actions**
-- Select Extrabnet Policy Name to update -> "More Action" -> "Delete Extranet Policy" to update Extranet policy
+- Select Extranet Policy Name to update -> "More Action" -> "Delete Extranet Policy" to update Extranet policy
 ![alt text](./images/delete_1.png)
 - Click "Apply" to delete
 ![alt text](./images/delete_2.png)
@@ -235,20 +209,6 @@ Check all Subscriber Virtual Networks that have been added and Subscriber Virtua
 ![alt text](./images/delete_4.png)
 - Check the deleted Extranet Policy
 ![alt text](./images/delete_5.png)
-
-
-#### **YAML Structure and Parameter Explanation**
-
-```bash
-- name: Delete Extranet Policy
-  cisco.dnac.sda_extranet_policies_workflow_manager:
-    <<: *common_config
-    state: delete
-    config:
-      - "{{ item }}"
-  with_list: "{{ extranet_policies }}"
-  tags: delete_extranet_policies
-```
 
 #### **Example Input File**
 
@@ -269,6 +229,6 @@ Note: The environment is used for the references in the above instructions.
   cisco.dnac: 6.30.0
   ansible.utils: 5.1.2
 ```
-Cisco Catalyst Center Ansible Module Documentation: [sda_extranet_policies_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/sda_extranet_policies_workflow_manager.html)
+Cisco Catalyst Center Ansible Module Documentation: [sda_extranet_policies_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/sda_extranet_policies_module)
 
 GitHub Source Code: [sda_extranet_policies_workflow_manager.py](https://github.com/cisco-en-programmability/dnacenter-ansible/blob/main/plugins/modules/sda_extranet_policies_workflow_manager.py)
