@@ -4,32 +4,32 @@ The SDA Host Onboarding Workflow Manager is a powerful tool within Cisco DNA Cen
 Host Onboarding Figure:
 ![alt text](./images/host_onboarding.png)
 
-Key Features:
-1. Port Assignments Management:
+## I. Key Features.
+### 1. Port Assignments Management.
     - Add, Update, and Delete Ports: The Workflow Manager enables administrators to easily add, update, or delete port assignments for network devices. This functionality ensures accurate and efficient configuration for each device.
 
-2. Port Channel Management:
+### 2. Port Channel Management.
     - The tool supports the configuration and management of port channels for network devices. This capability ensures that network traffic is optimized and evenly distributed across ports.
 
-3. Automation of Onboarding Processes:
+### 3. Automation of Onboarding Processes.
     - The Workflow Manager provides the ability to automate the onboarding processes for devices, not only for a single interface but also for multiple interfaces across one or several access devices. This significantly reduces the time and effort required for network configuration.
 
-4. Bulk Operations Support:
+### 4. Bulk Operations Support.
     - The tool can perform bulk operations, allowing administrators to implement changes across multiple devices simultaneously, enhancing network management efficiency.
 
-5. Integration with Cisco DNA Center:
+### 5. Integration with Cisco DNA Center.
     - The Workflow Manager seamlessly integrates with Cisco DNA Center, enabling the use of existing management and monitoring features within the platform. This integration facilitates easy tracking of changes and updates within the network.
 
-## Procedure
+## II. Procedure.
 
-### Prepare your environment
+### 1. Prepare your environment.
 
 - Install Ansible if you haven't already
 - Ensure you have network connectivity to your Catalyst Center instance.
-- Minimum Catalyst Cennter Version Supported : 2.3.7.6
+- Minimum Catalyst Centner Version Supported : 2.3.7.6
 - Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
 
-### Configure Host Inventory
+### 2. Configure Host Inventory.
 
 - Update hosts.yml (or your preferred inventory file) with the connection details for your DNA Center instance.
 - The **host_inventory_dnac1/hosts.yml** file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
@@ -51,7 +51,7 @@ catalyst_center_hosts:
             dnac_log: true
 ```
 
-### Generate your Input
+### 3. Generate your Input.
 - Create a YAML file (e.g., vars.yml) to store the required variables for the workflow.
 - Refer to the **sda_host_port_onboarding_workflow_manager** module documentation for details on the available variables and their formats.
 - Example:
@@ -59,58 +59,58 @@ catalyst_center_hosts:
  - Refer to the full workflow specification for detailed instructions on the available options and their structure:[full workflow specification](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_host_port_onboarding_workflow_manager)
 
 
-### Add port interfaces and port channels for a specific fabric device
+### 4. Add port interfaces and port channels for a specific fabric device.
 
-    1. Add port interfaces:
-        - Mapping to UI action:
-            - Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+#### 4.1 Add port interfaces.
+
+- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
-            - Select Interface -> Select Configure
+- Select Interface -> Select Configure
 
 ![alt text](./images/add-port-assignment.png)
 
-            - Select one of the 3 options: Access Point, Trunking Device, User Devices and Endpoints, each option will require a different parameter
+- Select one of the 3 options: Access Point, Trunking Device, User Devices and Endpoints, each option will require a different parameter
 
 ![alt text](./images/choose_port-assign.png)
 
-            - Then you can check the information you entered -> Click Deploy All to complete.
+- Then you can check the information you entered -> Click Deploy All to complete.
 
 ![alt text](./images/deloy_port_assignment.png)
 
 
-    2. Add port channel:
-        - Mapping to UI action:
-            - Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+#### 4.2. Add port channel. 
+
+- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
-            - Select More Actions Tab -> Chose Create Port Channel
+- Select More Actions Tab -> Chose Create Port Channel
 
 ![alt text](./images/create-port-channel.png)
 
-            - Chose Device
+- Chose Device
 
 ![alt text](./images/Chose-device.png)
 
-            - Chose parameter (Note: Connected Device Type: Extended Node can only select Protocol PAgP)
+- Chose parameter (Note: Connected Device Type: Extended Node can only select Protocol PAgP)
 
 ![alt text](./images/Chose_parameter_port_channel.png)
 
-            - Chose Interface 
+- Chose Interface 
 
 ![alt text](./images/Chose_interface_port_channel.png)
 
-            - Deploy Port Channel
+- Deploy Port Channel
 
 ![alt text](./images/Deploy_port_channel.png)
 
-    3. Generate Input:
+### 5. Generate Input.
 
 ```yaml
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+#Select Catalyst Center version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 sda_host_onboarding_details: 
   - ip_address: 204.1.2.8
@@ -148,46 +148,46 @@ sda_host_onboarding_details:
         connected_device_type: "TRUNK"
         protocol: "PAGP"
 ```
-    4. Result:
+### 6. Result.
 
 ![alt text](./images/result-add-port.png)
 
 
-### Update port interfaces and port channels for a specific fabric device
+### 7. Update port interfaces and port channels for a specific fabric device.
 
-    1. Update port interfaces:
-        - Mapping to UI action:
-            - Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+#### 7.1. Update port interfaces.
+
+- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
-            - Select Interface -> More Actions -> Edit Port Assignment
+- Select Interface -> More Actions -> Edit Port Assignment
 
 ![alt text](./images/edit-port-assignment.png)
 
-            - Chose parameter -> update new parameter
+- Chose parameter -> update new parameter
 
 ![alt text](./images/update_port_assignment.png)
 
-    2. Update port channel:
-        - Mapping to UI action:
-            - Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+#### 7.2. Update port channel.
+
+- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
-            - Select Port Channel -> More Actions -> Edit Port Channel
+- Select Port Channel -> More Actions -> Edit Port Channel
 
 ![alt text](./images/edit_port_channel.png)
 
-            - Chose parameter -> update new parameter
+- Chose parameter -> update new parameter
 
 ![alt text](./images/update_port_channel.png)
 
-    3. Generate Input:
+#### 7.3. Generate Input.
 
 ```yaml
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+#Select Catalyst Center version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 sda_host_onboarding_details: 
   - ip_address: 204.1.2.8
@@ -227,51 +227,51 @@ sda_host_onboarding_details:
         protocol: "PAGP"
 ```
 
-        4. Result:
+#### 7.4. Result.
 
 ![alt text](./images/result_update_port_channel.png)
 
-### Delete port interfaces and port channels using interface names and port channel name
+### 8. Delete port interfaces and port channels using interface names and port channel name.
 
-    1. Delete port interfaces:
-        - Mapping to UI action:
-            - Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+#### 8.1. Delete port interfaces:
+
+- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
-            - Select Interface -> More Actions -> Clear Port Assignments
+- Select Interface -> More Actions -> Clear Port Assignments
 
 ![alt text](./images/clear_port_assignment.png)
 
-            - Clear Configuration
+- Clear Configuration
 
 ![alt text](./images/clear_port_assignment.png)
 
-            - Deploy
+- Deploy
 
 ![alt text](./images/deploy_clear_port_assignment.png)
 
-    2. Delete Port Channel:
-        - Mapping to UI action:
-            - Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+#### 8.2. Delete Port Channel.
+
+- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
-            - Select Port Channel -> More Actions -> Delete Port Channel
+- Select Port Channel -> More Actions -> Delete Port Channel
 
 ![alt text](./images/delete_port_channel.png)
 
-            - Select Apply -> Check Config -> Deploy
+- Select Apply -> Check Config -> Deploy
 
 ![alt text](./images/apply_delete_port_channel.png)
 
-    3. Generate Input:
+#### 8.3. Generate Input.
 
-        - Delete specific port assignments, port channels:
+- Delete specific port assignments, port channels:
 
 ```yaml
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+#Select Catalyst Center version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 sda_host_onboarding_details: 
   - ip_address: 204.1.2.8
@@ -315,15 +315,15 @@ sda_host_onboarding_details:
 
 ```yaml
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+#Select Catalyst Center version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 sda_host_onboarding_details: 
   - ip_address: 204.1.2.8
     fabric_site_name_hierarchy: Global/USA/SAN-FRANCISCO
 ```
-# How to execute playbook:
+## III. How to execute playbook.
 
-## Validate the playbooks with schema
+### 1. Validate the playbooks with schema.
 - Command to Validate:
 ```bash
     yamale -s schema/sda_host_onboarding_schema.yml workflows/sda_hostonboarding/vars/sda_host_onboarding_input.yml
@@ -336,7 +336,7 @@ sda_host_onboarding_details:
     Validation success! 👍
 ```
 
-## Running playbook create and update port assigmnet and port channel
+### 2. Running playbook create and update port assignment and port channel.
 
 - Command to run:
 
@@ -466,7 +466,7 @@ changed: [catalyst_center220] => {
 }
 ```
 
-## Running playbook delete port assigmnet and port channel
+### 3. Running playbook delete port assignment and port channel
 
 - Command to run:
 
@@ -597,18 +597,4 @@ changed: [catalyst_center220] => {
     },
     "status": "success"
 }
-```
-
-# References:
-
-Note: The environment is used for the references in the above instructions.
-
-```
-  ansible: 9.9.0
-  ansible-core: 2.16.10
-  ansible-runner: 2.4.0
-
-  dnacentersdk: 2.8.3
-  cisco.dnac: 6.30.0
-  ansible.utils: 5.1.2
 ```
