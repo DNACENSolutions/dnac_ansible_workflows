@@ -49,18 +49,16 @@ catalyst_center_hosts:
 ## Overview of the PnP Onboarding Process
 The following diagram illustrates the **PnP onboarding process**, initiated through an Ansible playbook utilizing the **cisco.dnac.pnp_workflow_manager** module. This module communicates with **Cisco Catalyst Center** via its API, enabling seamless device onboarding into the network.
 
-### Example command to run the PnP workflow playbook
+## Workflow overview with example
 
-```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
-```
-
-### Task: Device onboarding
+## Task: Device onboarding
 
 This task demonstrates how to add a single device to Plug and Play (PnP) without claiming it.
 
-### Example: 
-#### Input (YAML)
+### Note:
+- Ensure that the device is not already onboarded or claimed.
+
+### Example: Input (YAML)
 ```bash
 ---
 catalyst_center_version: 2.3.7.6
@@ -73,10 +71,13 @@ pnp_details:
         pid: C9300-48T
 ```
 
-### Notes:
-- Ensure that the device is not already onboarded or claimed.
-
 ### Step 1: Execute the pnp playbook.
+
+#### Run the following command to onboard the device:
+
+```bash
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
+```
 
 #### Upon successful completion, the device is added to the plug and play.
 
@@ -91,12 +92,14 @@ pnp_details:
 "msg": "Only Device Added Successfully",
 ```
 
-### Task: Bulk Device Onboarding
+## Task: Bulk Device Onboarding
 
 This task demonstrates how to add multiple devices in bulk. Bulk onboarding is useful when multiple devices need to be configured and onboarded simultaneously, such as in large-scale deployments.
 
-### Example:
-#### Input (YAML)
+### Note:
+- This example includes router, switch and wlc devices
+
+### Example: Input (YAML)
 ```bash
 ---
 catalyst_center_version: 2.3.7.6
@@ -117,10 +120,13 @@ pnp_details:
         pid: C9800-40-K9      
 ```
 
-### Notes:
-- This example includes router, switch and wlc devices
-
 ### Step 1: Execute the pnp playbook.
+
+#### Run the following command to onboard bulk the device:
+
+```bash
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
+```
 
 #### Upon successful execution, all devices are added to Plug and Play (PnP).
 
@@ -135,12 +141,11 @@ pnp_details:
 "msg": "3 device(s) imported successfully",
 ```
 
-### Task: Delete a Device from PnP
+## Task: Delete a Device from PnP
 
 This task demonstrates how to delete a device from Plug and Play (PnP).
 
-### Example:
-#### Input (YAML)
+### Example: Input (YAML)
 ```bash
 ---
 catalyst_center_version: 2.3.7.6
@@ -160,6 +165,12 @@ pnp_details:
 ### Step 1: Ensure that the device exists in Plug and Play (PnP) before executing the playbook.
 
 ![alt text](images/Device_is_present.png)
+
+#### Run the following command to delete the device:
+
+```bash
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
+```
 
 ### Step 2: Execute the pnp playbook.
 
@@ -182,10 +193,9 @@ pnp_details:
 
 ![alt text](images/verify_device_deletion.png)
 
-### Task: Bulk Device Deletion
+## Task: Bulk Device Deletion
 
-### Example
-#### Input (YAML)
+### Example: Input (YAML)
 ```bash
 ---
 catalyst_center_version: 2.3.7.6
@@ -212,6 +222,12 @@ pnp_details:
 
 ### Step 2: Execute the PnP Playbook:
 
+#### Run the following command to delete the device:
+
+```bash
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
+```
+
 #### Upon successful execution, the device will be deleted from PnP.
 
 ![alt text](images/Device_is_removed.png)
@@ -232,12 +248,11 @@ pnp_details:
 ![alt text](images/All_devices_get_removed.png)
 
 
-### Task: Claiming a Cisco Catalyst 9K Switch
+## Task: Claiming a Cisco Catalyst 9K Switch
 
-This task demonstrates how to add and claim a Cisco Catalyst 9K switch using the Plug and Play (PnP)
+#### This task demonstrates how to add and claim a Cisco Catalyst 9K switch using the Plug and Play (PnP)
 
-### Example
-#### Input (YAML)
+### Example: Input (YAML)
 ```bash
 ---
 catalyst_center_version: 2.3.7.6
@@ -259,7 +274,11 @@ pnp_details:
 
 ### Step 1: Execute the PnP playbook
 
-#### To initiate the device onboarding and claim process execute the PnP workflow playbook.
+#### To initiate the device onboarding and claim process execute the PnP workflow playbook using below command.
+
+```bash
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
+```
 
 ### Step 2: Verify the playbook output 
 
@@ -283,12 +302,11 @@ pnp_details:
 
 ### Task: Claiming a Cisco Catalyst 9K Switch Stack
 
-Similar to the task for claiming a single switch, this task relies on a predefined configuration template in Cisco Catalyst Center. However, in this case, the **StackSwitch** option is selected in the UI to indicate that the device being onboarded is part of a switch stack.
+#### Similar to the task for claiming a single switch, this task relies on a predefined configuration template in Cisco Catalyst Center. However, in this case, the **StackSwitch** option is selected in the UI to indicate that the device being onboarded is part of a switch stack.
 
 ![alt text](images/Claim_siwtch_stack_9k.png)
 
-### Example
-#### Input (YAML)
+### Example: Input (YAML)
 ```bash
 ---
 catalyst_center_version: 2.3.7.6
@@ -311,7 +329,11 @@ pnp_details:
 
 ### Step 1: Execute the PnP playbook
 
-#### Run the PnP workflow playbook to initiate the onboarding and claim process.
+#### Run the PnP workflow playbook to initiate the onboarding and claim process using below command.
+
+```bash
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
+```
 
 ### Step 2: Verify the playbook output 
 
@@ -321,12 +343,11 @@ pnp_details:
 
 #### Verify that the switch stack is onboarded and successfully claimed in the Cisco Catalyst Center UI.
 
-### Task: Claiming a cisco Router Device
+## Task: Claiming a cisco Router Device
  
-Similar to the task of claiming a single switch, we can onboard the router device as well using the pnp workflow playbook.
+### Similar to the task of claiming a single switch, we can onboard the router device as well using the pnp workflow playbook.
 
-### Example
-#### Input (YAML)
+### Example: Input (YAML)
 ```bash
 ---
 catalyst_center_version: 2.3.7.6
@@ -349,12 +370,11 @@ pnp_details:
 ![alt text](images/Claim_router_device_img1.png)
 
 
-### Task: Claiming a Cisco Embedded Wireless Controller (EWLC)
+## Task: Claiming a Cisco Embedded Wireless Controller (EWLC)
 
-In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller (EWLC) involves specifying parameters such as the site, project, device information, and network settings. This configuration aligns with actions like assigning a site, selecting an image, and setting network interfaces.
+### In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller (EWLC) involves specifying parameters such as the site, project, device information, and network settings. This configuration aligns with actions like assigning a site, selecting an image, and setting network interfaces.
 
-### Example
-#### Input (YAML)
+### Example: Input (YAML)
 ```bash
 ---
 catalyst_center_version: 2.3.7.6
@@ -395,10 +415,9 @@ pnp_details:
 ![alt text](images/Claim_ewlc_img5.png)
 
 
-### Task: Claiming Multiple EWLC Devices for High Availability (HA)
+## Task: Claiming Multiple EWLC Devices for High Availability (HA)
 
-### Example
-#### Input (YAML)
+### Example: Input (YAML)
 ```bash
 ---
 catalyst_center_version: 2.3.7.6
@@ -465,8 +484,7 @@ pnp_details:
 
 In scenarios where a device encounters errors during onboarding, it can be reset and reattempted. The following task demonstrates how to reset a Catalyst EWLC that is in an error state.
 
-### Example
-#### Input (YAML)
+### Example: Input (YAML)
 ```bash
 ---
 catalyst_center_version: 2.3.7.6
@@ -493,10 +511,9 @@ pnp_details:
 
 ### Task: Claiming Access Points (APs)
 
-Access Points (APs) play a crucial role in wireless networks, and onboarding them can be automated through Cisco Catalyst Center. The following example shows how to onboard an Access Point (AP) into the network.
+#### Access Points (APs) play a crucial role in wireless networks, and onboarding them can be automated through Cisco Catalyst Center. The following example shows how to onboard an Access Point (AP) into the network.
 
-### Example
-#### Input (YAML)
+### Example: Input (YAML)
 ```bash
 ---
 catalyst_center_version: 2.3.7.6
