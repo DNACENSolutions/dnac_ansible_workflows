@@ -34,16 +34,16 @@ Before starting, ensure the following requirements are met:
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
-            dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
+            catalyst_center_host: xx.xx.xx.xx.
+            catalyst_center_password: XXXXXXXX
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            catalyst_center_username: admin
+            catalyst_center_verify: false
+            catalyst_center_version: 2.3.7.6
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
 ```
 
 ## Overview of PnP Onboarding Process with Example
@@ -167,7 +167,7 @@ pnp_details:
 Run the following command to delete the device:
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/delete_catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/delete_catalyst_center_pnp_vars.yml -vvvv
 ```
 
 ### Step 2: Execute the pnp playbook.
@@ -223,7 +223,7 @@ pnp_details:
 Run the following command to delete the device:
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/delete_catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/delete_catalyst_center_pnp_vars.yml -vvvv
 ```
 
 Upon successful execution, the device will be deleted from PnP.
@@ -341,7 +341,7 @@ Ensure that the playbook execution completes successfully without any failures.
 
 Verify that the switch stack is onboarded and successfully claimed in the Cisco Catalyst Center UI.
 
-## Task: Claiming a cisco Router Device
+## Task: Claiming a Cisco Router Device
  
 Similar to the task of claiming a single switch, we can onboard the router device as well using the pnp workflow playbook.
 
@@ -477,7 +477,7 @@ pnp_details:
 ![alt text](images/claim_multiple_ewlc_img9.png)
 
 
-### Task: Resetting an Error PnP Device (EWLC Type)
+## Task: Resetting an Error PnP Device (EWLC Type)
 
 In scenarios where a device encounters errors during onboarding, it can be reset and reattempted. The following task demonstrates how to reset a Catalyst EWLC that is in an error state.
 
@@ -569,7 +569,7 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug
 * This playbook is provided as-is. Use at your own risk.
 * Ensure you have proper backups and understand the potential impact before running in a production environment.
 
-## Referances
+## References
 
 ```yaml
   ansible: 9.9.0
