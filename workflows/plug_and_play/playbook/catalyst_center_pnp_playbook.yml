@@ -1,5 +1,5 @@
 ---
-- name: Playbook to manage Cisco Catalyst Center Plug and Play, add pnp devices, bulk import, delete, update, claim routing, switching devices and wirelesss controllers. 
+- name: Playbook to manage Cisco Catalyst Center Plug and Play, add pnp devices, bulk import, update, claim routing, switching devices and wirelesss controllers. 
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -8,7 +8,6 @@
     - "{{ VARS_FILE_PATH }}"
   vars:
     state: merged
-    state_delete: deleted
     dnac_login: &dnac_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
@@ -46,30 +45,6 @@
         config: "{{ pnp_details.add_bulk_network_devices }}"
       register: pnp_output
       when: pnp_details.add_bulk_network_devices
-    - name: Print the Network Plug and Play devices output
-      debug:
-        msg: "{{pnp_output}}"
-      when: pnp_output is defined
-
-    - name: Delete pnp device from Cisco Catalyst Center
-      cisco.dnac.pnp_workflow_manager:
-        <<: *dnac_login
-        state: "{{ state_delete }}"
-        config: "{{ pnp_details.delete_network_device }}"
-      register: pnp_output
-      when: pnp_details.delete_network_device is defined
-    - name: Print the Network Plug and Play devices output
-      debug:
-        msg: "{{pnp_output}}"
-      when: pnp_output is defined
-
-    - name: Delete pnp bulk devices from Cisco Catalyst Center
-      cisco.dnac.pnp_workflow_manager:
-        <<: *dnac_login
-        state: "{{ state_delete }}"
-        config: "{{ pnp_details.delete_bulk_network_devices }}"
-      register: pnp_output
-      when: pnp_details.delete_bulk_network_devices is defined
     - name: Print the Network Plug and Play devices output
       debug:
         msg: "{{pnp_output}}"
