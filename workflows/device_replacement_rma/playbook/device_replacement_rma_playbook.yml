@@ -10,18 +10,18 @@
   vars:
     state: replaced
     dnac_login: &dnac_login
-      dnac_host: "{{ dnac_host }}"
-      dnac_username: "{{ dnac_username }}"
-      dnac_password: "{{ dnac_password }}"
-      dnac_port: "{{ dnac_port }}"
-      dnac_verify: "{{ dnac_verify }}"
-      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
       dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
-      dnac_debug: "{{ catalyst_center_debug | default(dnac_debug) }}"
-      dnac_log: "{{ catalyst_center_log | default(dnac_log) }}"
-      dnac_log_level: "{{ catalyst_center_log_level | default(dnac_log_level) }}"
-      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(dnac_log_file_path) }}"
-      dnac_log_append: "{{ catalyst_center_log_append | default(dnac_log_append) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(False) }}"
+      dnac_log: "{{ catalyst_center_log | default(False) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
   tasks: 
     - name: Device Replacement Playbook start time
       set_fact:
