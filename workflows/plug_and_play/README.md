@@ -1,4 +1,4 @@
-# Plug and Play Provisioning Ansible Workflow
+# Plug and Play Provisioning Ansible Playbook
 
 ## **Overview**
 
