@@ -1,46 +1,57 @@
-# Catalyst Center SDA Fabric sites and fabric Zones Playbooks
+# Catalyst Center SDA Fabric Sites and Fabric Zones Playbooks
 
 ## Fabric Sites
 
-A fabric site is an independent fabric area with a unique set of network devices: control plane, border, edge, wireless controller, ISE PSN. Different levels of redundancy and scale can be designed per site by including local resources: DHCP, AAA, DNS, Internet, and so on.
+A fabric site is an independent fabric area with a unique set of network devices: control plane, border, edge, wireless controller, and ISE PSN. Different levels of redundancy and scale can be designed per site by including local resources such as DHCP, AAA, DNS, and Internet.
 
 A fabric site can cover a single physical location, multiple locations, or only a subset of a location:
 
-    Single location: branch, campus, or metro campus
+- **Single location**: branch, campus, or metro campus
+- **Multiple locations**: metro campus + multiple branches
+- **Subset of a location**: building or area within a campus
 
-    Multiple locations: metro campus + multiple branches
+A Software-Defined Access (SDA) fabric network may comprise multiple sites. Each site benefits from scale, resiliency, survivability, and mobility. The overall aggregation of fabric sites accommodates a large number of endpoints and scales modularly or horizontally. Multiple fabric sites are interconnected using a transit.
 
-    Subset of a location: building or area within a campus
-
-A Software-Defined Access fabric network may comprise multiple sites. Each site has the benefits of scale, resiliency, survivability, and mobility. The overall aggregation of fabric sites accommodates a large number of endpoints and scales modularly or horizontally. Multiple fabric sites are interconnected using a transit.
-
-## Before you begin
+## Before You Begin
 
 You can create a fabric site only if IP Device Tracking (IPDT) is already configured for the site.
 
-## In the Authentication Profile you do the following:
+### In the Authentication Profile, You Do the Following:
 
-    Choose an authentication template for the fabric site:
+1. **Choose an authentication template for the fabric site**:
+    - **Closed Authentication**: Any traffic before authentication is dropped, including DHCP, DNS, and ARP.
+    - **Open Authentication**: A host is allowed network access without having to go through 802.1X authentication.
+    - **Low Impact**: Security is added by applying an ACL to the switch port, allowing very limited network access before authentication. After a host has been successfully authenticated, additional network access is granted.
+    - **None**
 
-        Closed Authentication: Any traffic before authentication is dropped, including DHCP, DNS, and ARP.
+2. (Optional) If you choose **Closed Authentication**, **Open Authentication**, or **Low Impact**, you can customize the authentication settings:
+    - **First Authentication Method**: Choose 802.1x or MAC Authentication Bypass (MAB).
+    - **802.1x Timeout (in seconds)**: Use the slider to specify the 802.1x timeout, in seconds.
+    - **Wake on LAN**: Choose Yes or No.
+    - **Number of Hosts**: Choose Unlimited or Single.
+    - **BPDU Guard**: Use this checkbox to enable or disable the Bridge Protocol Data Unit (BPDU) guard on all the Closed Authentication ports.
 
-        Open Authentication: A host is allowed network access without having to go through 802.1X authentication.
+### Configure Environment
 
-        Low Impact: Security is added by applying an ACL to the switch port, to allow very limited network access before authentication. After a host has been successfully authenticated, additional network access is granted.
+```bash
+catalyst_center_hosts:
+    hosts:
+        catalyst_center220:
+            dnac_host: xx.xx.xx.xx.
+            dnac_password: XXXXXXXX
+            dnac_port: 443
+            dnac_timeout: 60
+            dnac_username: admin
+            dnac_verify: false
+            dnac_version: 2.3.7.6
+            dnac_debug: true
+            dnac_log_level: INFO
+            dnac_log: true
+```
 
-        None
+### Full Workflow Specification: 
+Refer to the official documentation for detailed information on defining workflows: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_fabric_sites_zones_workflow_manager
 
-    (Optional) If you choose Closed Authentication, Open Authentication, or Low Impact, you can customize the authentication settings:
-
-        First Authentication Method: Choose 802.1x or MAC Authentication Bypass (MAB)
-
-        802.1x Timeout (in seconds): Use the slider to specify the 802.1x timeout, in seconds.
-
-        Wake on LAN: Choose Yes or No.
-
-        Number of Hosts: Choose Unlimited or Single.
-
-        BPDU Guard: Use this check box to enable or disable the Bridge Protocol Data Unit (BPDU) guard on all the Closed Authentication ports.
 
 ## Create an Fabric sites and fabric zones: Running the Playbook
 Figure 1 Creating Fabric site and fabric Zones
@@ -183,6 +194,20 @@ catalyst_center220         : ok=9    changed=3    unreachable=0    failed=0    s
 ```
 Figure 5 Jinja created fabric sites
 ![Alt text](./images/fabric_sites_with_jinja.png)
+
+
+## Referances
+
+```yaml
+  ansible: 9.9.0
+  ansible-core: 2.16.10
+  ansible-runner: 2.4.0
+
+  dnacentersdk: 2.8.3
+  cisco.dnac: 6.29.0
+  ansible.utils: 5.1.2
+```
+
 
 ## Important Notes
 ### Refer to the Catalyst Center documentation for detailed instructions on configuring fabric sites and fabric zones and using the Ansible playbooks.
