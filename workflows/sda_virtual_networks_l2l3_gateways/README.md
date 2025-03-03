@@ -122,7 +122,7 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
     \* **Note**: If Layer 3 is associated with a fabric site or anchor previously, in the UI we will not be able to perform the delete action for Layer 3. However, with the Ansible playbook, it allows deletion by first deleting the associations to the fabric site and anchor (if have), and then deleting Layer 3.
 
   #### d. Add/Update/Delete Bulk layer3
-  + Example config for add multiple layer3:
+  + Example config for `add` multiple layer3:
     ```yaml
       sda_fabric_virtual_networks_details:
         - virtual_networks:
@@ -160,7 +160,7 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
               ...
       ```
 
-  + Example config for update multiple layer3:
+  + Example config for `update` multiple layer3:
     ```yaml
       sda_fabric_virtual_networks_details:
         - virtual_networks:
@@ -179,7 +179,7 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
     mapping config to UI Actions:
     ![alt text](./images/update_bulk_l3.png)
 
-  + Example config for delete multiple layer3:
+  + Example config for `delete` multiple layer3:
     ```yaml
       sda_fabric_virtual_networks_details:
         - virtual_networks:
@@ -263,7 +263,7 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
     ```
 
   #### d. Add/Update/Delete Bulk layer2
-  + Example config for add multiple layer2:
+  + Example config for `add` multiple layer2:
     ```yaml
       sda_fabric_virtual_networks_details:
         - fabric_vlan:
@@ -299,7 +299,7 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
     ```
     -> It will create parallel `l2_dat1`, `l2_dat2`, and after completion, it will continue to create parallel `l2_dat3`, `l2_dat4`, and `l2_dat5`
 
-  + Example config for update multiple layer2:
+  + Example config for `update` multiple layer2:
     ```yaml
       sda_fabric_virtual_networks_details:
         - fabric_vlan:
@@ -317,7 +317,7 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
               vlan_id: 1201
     ```
 
-  + Example config for delete multiple layer2:
+  + Example config for `delete` multiple layer2:
     ```yaml
       sda_fabric_virtual_networks_details:
         - fabric_vlan:
@@ -436,7 +436,7 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
     ```
 
   #### d. Add/Update/Delete Bulk anycast_gateways
-  + Example config for add multiple anycast_gateways:
+  + Example config for `add` multiple anycast_gateways:
     ```yaml
       sda_fabric_virtual_networks_details:
         - anycast_gateways:
@@ -481,7 +481,7 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
     ```
     -> It will create parallel `test1_anycast_l3`, `test2_anycast_l3`, and after completion, it will continue to create parallel `test3_anycast_l3`, `test4_anycast_l3`, and `test5_anycast_l3`
 
-  + Example config for update multiple anycast_gateways:
+  + Example config for `update` multiple anycast_gateways:
     ```yaml
       sda_fabric_virtual_networks_details:
         - anycast_gateways:
@@ -505,7 +505,7 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
             tcp_mss_adjustment: 602
     ```  
 
-  + Example config for delete multiple anycast_gateways:
+  + Example config for `delete` multiple anycast_gateways:
     ```yaml
       sda_fabric_virtual_networks_details:
         - anycast_gateways:
