@@ -1,3 +1,9 @@
+# User and Role Ansible workflow:
+
+**OVERVIEW**
+
+This Ansible playbook automates both users and roles to manage access. Each user is assigned roles to access controller functionality.
+
 # User Profile Roles and Permissions in Catalyst Center
 
 Catalyst Center utilizes Role-Based Access Control (RBAC) to manage user permissions. User roles determine the actions a user can perform within the system.
@@ -13,11 +19,16 @@ Catalyst Center utilizes Role-Based Access Control (RBAC) to manage user permiss
 Users with the SUPER-ADMIN-ROLE can create custom roles to fine-tune access permissions.
 
 # Procedure
+
 1. ## Prepare your Ansible environment:
 
-Install Ansible if you haven't already
-Ensure you have network connectivity to your Catalyst Center instance.
-Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
+**Before starting, ensure the following requirements are met:**
+
+* **Access to Cisco Catalyst Center (DNAC):** Ensure that User and Role is enabled.
+* **Ansible Installation:** Ansible must be installed on the machine managing the automation process.
+* **Yamale Python Library:** `yamale` Python library installed (`pip install yamale`)
+* **Cisco DNA Ansible Collection:** The cisco.dnac.user_role_workflow_manager module must be available from the Cisco DNA Ansible Collection.
+* **dnacentersdk Python SDK:** This SDK is required to interact with Cisco Catalyst Center.
 
 2. ## Configure Host Inventory:
 
@@ -29,55 +40,68 @@ Make sure the dnac_version in this file matches your actual Catalyst Center vers
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
-            dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
+            catalyst_center_host: xx.xx.xx.xx.
+            catalyst_center_password: XXXXXXXX
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            catalyst_center_username: admin
+            catalyst_center_verify: false
+            catalyst_center_version: 2.3.7.6
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
 ```
 3. ## Define User and Role Data:
+
 The workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml file stores the user and role details you want to configure.
 Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/user_role_workflow_manager/
-### Define the Custom Role
+
+Use the `user_details` section in your YAML configuration to define the role's username, email, password and role_list.
+
+### Define User and assign it to the default roles:
+
+ **Example:**
+```yaml
+user_details:
+- username: "xxxxxxxxx"
+    first_name: "Rama"
+    last_name: "Krishna" 
+    email: "xxxxxxxxx@example.com"
+    password: "Example@0101"
+    role_list: ["SUPER-ADMIN-ROLE"]
+```
+
+### Define the Custom Role and assign users to the Custom Role:
 User Inputs for Users and roles are stored in  workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml
 
 Use the `role_details` section in your YAML configuration to define the role's name, description, and specific permissions.
+
+### Define Custom Role Details:
+
    **Example:**
 ```yaml
 role_details:
-    - role_name: Assurance-role
+    - role_name: Admin_customized_role
     description: With write access overall
     assurance:
         - overall: write
         monitoring_and_troubleshooting: read
 ```
-assign roles to the users
-### Assign Users to the Role
+### Assign Users to the Role:
+
     In the user_details section, add users and specify their assigned roles in the role_list.
+
    **Example:**
 ```yaml
 user_details:
 - username: xxxxxxx
-    first_name: Pawan
-    last_name: Singh
+    first_name: Rama
+    last_name: Krishna
     email: xxxxxxw@example.com
     password: xxxxx@123!45
     role_list: 
     - Admin_customized_role
-    - Assurance-role
-- username: "ajithandrewj"
-    first_name: "ajith"
-    last_name: "andrew"
-    email: "ajith.andrew@example.com"
-    role_list: ["SUPER-ADMIN-ROLE"]
 ```
-
-
 ## Validate Your Input:
 ##Validate user input before running though ansible
 ```bash
@@ -90,6 +114,7 @@ user_details:
 ```
 
 Use the provided validation script to ensure your YAML input file adheres to the required schema.
+
 ## Execute the Playbook:
 Run the create Playbook
 ```bash
