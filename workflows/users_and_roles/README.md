@@ -97,6 +97,12 @@ Run the create Playbook
 ```
 Post the user and the roles will start reflecting in the catalyst center.
 
+Figure 1: User creation with normal template.
+![Alt text](./images/user_creation_normal_template.png)
+
+Figure 2: Role creation and assigned role to the user with normal template.
+![Alt text](./images/Role_creation_and_assigned_role_to_the_user_normal_template.png)
+
 ## Running playbook with passowrd in Ansible vault. 
 Create your password file in folder: valted_passwords/<filename>
 write your password in yaml format there example
@@ -116,6 +122,12 @@ passwords_file: ../../../valted_passwords/mypasswordfile.yaml
 ```bash
     dnac_ansible_workflows % ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --ask-vault-pass --e VARS_FILE_PATH=../jinja_template/template_users_and_roles_workflow_inputs.j2 -vvvv
 ```
+Figure 3: User creation with jinja template.
+![Alt text](./images/user_creation.png)
+
+Figure 4: Role creation and assigned role to the user with jinja template.
+![Alt text](./images/Role_creation_and_assigned_role_to_the_user.png)
+
 it will prompt for valt password. Enter the val password which was used to encrypt the password. 
 Alternatively:
 1. Create valt password hidden file:
@@ -149,3 +161,14 @@ Run the delete Playbook
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/delete_users_and_roles_workflow_playbook.yml --e VARS_FILE_PATH=../vars/users_and_roles_workflow_inputs.yml -vvvv
 ```
 Roles and Users will get deleted from the Catalyst Center
+
+## Referances
+  \* Note: The environment is used for the references in the above instructions.
+  ```
+  ansible: 10.7.0
+  ansible-core: 2.17.7
+  ansible-runner: 2.4.0
+
+  dnacentersdk: 2.9.4
+  cisco.dnac: 6.30.0
+  ansible.utils: 5.1.2

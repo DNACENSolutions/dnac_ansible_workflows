@@ -6,6 +6,7 @@
 sda_host_onboarding_details: 
 {% for i in range(2, 4) %}  
   - ip_address: "204.1.2.{{i}}"
+    fabric_site_name_hierarchy: "Global/USA/SAN JOSE"
     port_assignments:
 {% for j in range(1, 10) %}  
       - interface_name: "TenGigabitEthernet1/0/{{j}}"
