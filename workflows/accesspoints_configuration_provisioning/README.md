@@ -10,7 +10,7 @@
     Reboot and Update Management: Easily reboot individual or multiple APs and update configurations through Catalyst Center with logging for audits and compliance.
 ## I. Overview.
 ### 1. Wireless Accesspoint Configuration Overview.
- - The access point management workflow in Cisco Catalyst Center focuses on provisioning, configuring, and managing access points. These tasks include creating access points, rebooting them, and performing factory resets. The cisco.dnac.accesspoint_workflow_manager module is designed to automate these processes, ensuring consistency and reducing manual effort.
+ - The access point management workflow in Cisco Catalyst Center focuses on provisioning, configuring, and managing access points. These tasks include creating access points, rebooting them, and performing factory resets. The cisco.catalyst_center.accesspoint_workflow_manager module is designed to automate these processes, ensuring consistency and reducing manual effort.
  - By leveraging this module, network administrators can efficiently manage access points, reducing manual effort and improving consistency across the network.
 
 ### 3. Detailed Input Specification.
@@ -29,24 +29,24 @@
  - Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git.
 
 ### 2. Configure Host Inventory.
- - The host_inventory_dnac1/hosts.yml file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
- - Make sure the dnac_version in this file matches your actual Catalyst Center version.
- - The Sample host_inventory_dnac1/hosts.yml.
+ - The host_inventory_catalyst_center1/hosts.yml file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
+ - Make sure the catalyst_center_version in this file matches your actual Catalyst Center version.
+ - The Sample host_inventory_catalyst_center1/hosts.yml.
 
 ```bash
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
-            dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
+            catalyst_center_host: xx.xx.xx.xx.
+            catalyst_center_password: XXXXXXXX
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            catalyst_center_username: admin
+            catalyst_center_verify: false
+            catalyst_center_version: 2.3.7.6
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
 ```
 ### 3. Define input.
 The /vars/fabric_extranet_policy_inputs.yml file stores the sites details you want to configure.
@@ -136,42 +136,8 @@ The /vars/fabric_extranet_policy_inputs.yml file stores the sites details you wa
 ## III. Detailed steps to perform.
 
 ### 1. Update Wireless Accesspoint Configuration.
-#### **a. Mapping config to UI Actions.**
-- Select Workflows to enter the workflows page
-![alt text](./images/configuretion_ap_1.png)
-- On the workflows page, search for "Configure Access Points" -> Select the task "Configure Access Points".
-![alt text](./images/configuretion_ap_2.png)
-- On the Get Started page, enter Task Name -> Next.
-![alt text](./images/configuretion_ap_3.png)
-- Perform some options for the Configurre Access Points section including Radio and Steps.
-![alt text](./images/configuretion_ap_4.png)
-- On the Selected Access Points page, select the Access Point you want to configure.
-![alt text](./images/configuretion_ap_5.png)
-- On the Selected Access Points page, select the Access Point you want to configure -> Next.
-![alt text](./images/configuretion_ap_6.png)
-- On the Configure AP Parameters page, perform the options you want to configure -> Next.
-![alt text](./images/configuretion_ap_7.png)
-- On the Configure 5 GHZ Radio Rarameters page, perform the options you want to configure (This page is only displayed if you select configure 5 GHz) -> Next.
-![alt text](./images/configuretion_ap_8.png)
-- On the Configure 2.4 GHZ Radio Rarameters page, perform the options you want to configure (This page is only displayed if you select configure 2.4 GHz) -> Next. Note, for Access Points that cannot configure 2.4 GHZ Radio Rarameters, this page is still displayed but you cannot configure.
-![alt text](./images/configuretion_ap_9.png)
-- On the Configure 6 GHZ Radio Rarameters page, perform the options you want to configure (This page is only displayed if you choose to configure 6 GHz) -> Next. Note, for Access Points that cannot configure 6 GHZ Radio Rarameters, this page is still displayed but you cannot configure.
-![alt text](./images/configuretion_ap_10.png)
-- On the Configure Dual-Band (XOR) Radio Rarameters page, perform the options you want to configure (This page is only displayed if you choose to configure Dual-Band (XOR) ) -> Next.
-![alt text](./images/configuretion_ap_11.png)
-- On the Configure Tri-Radio Rarameters page, perform the options you want to configure (This page is only displayed if you choose to configure Tri-Radio ) -> Next.
-![alt text](./images/configuretion_ap_12.png)
-- On the Save As Reusable Template page, enter Template Name -> Next to save the task name.
-![alt text](./images/configuretion_ap_13.png)
-- On the Summary page, check the selected parameters -> Next
-![alt text](./images/configuretion_ap_14.png)
-A- t the Provision Schedule, enter Task Name -> Configure.
-![alt text](./images/configuretion_ap_15.png)
-- Finally, check Preview Configuration -> Deploy.
-![alt text](./images/configuretion_ap_16.png)
 
-
-#### **b. Example Input File.**
+#### **a. Example Input File.**
 ```bash
   - mac_address: e4:38:7e:42:bc:00
     ap_name: "LTTS_Test_9166_T3"
@@ -236,6 +202,42 @@ A- t the Provision Schedule, enter Task Name -> Configure.
       radio_band: "6 GHz"
       channel_width: "40 MHz"
 ```
+
+
+#### **b. Mapping config to UI Actions.**
+- Select Workflows to enter the workflows page
+![alt text](./images/configuretion_ap_1.png)
+- On the workflows page, search for "Configure Access Points" -> Select the task "Configure Access Points".
+![alt text](./images/configuretion_ap_2.png)
+- On the Get Started page, enter Task Name -> Next.
+![alt text](./images/configuretion_ap_3.png)
+- Perform some options for the Configurre Access Points section including Radio and Steps.
+![alt text](./images/configuretion_ap_4.png)
+- On the Selected Access Points page, select the Access Point you want to configure.
+![alt text](./images/configuretion_ap_5.png)
+- On the Selected Access Points page, select the Access Point you want to configure -> Next.
+![alt text](./images/configuretion_ap_6.png)
+- On the Configure AP Parameters page, perform the options you want to configure -> Next.
+![alt text](./images/configuretion_ap_7.png)
+- On the Configure 5 GHZ Radio Rarameters page, perform the options you want to configure (This page is only displayed if you select configure 5 GHz) -> Next.
+![alt text](./images/configuretion_ap_8.png)
+- On the Configure 2.4 GHZ Radio Rarameters page, perform the options you want to configure (This page is only displayed if you select configure 2.4 GHz) -> Next. Note, for Access Points that cannot configure 2.4 GHZ Radio Rarameters, this page is still displayed but you cannot configure.
+![alt text](./images/configuretion_ap_9.png)
+- On the Configure 6 GHZ Radio Rarameters page, perform the options you want to configure (This page is only displayed if you choose to configure 6 GHz) -> Next. Note, for Access Points that cannot configure 6 GHZ Radio Rarameters, this page is still displayed but you cannot configure.
+![alt text](./images/configuretion_ap_10.png)
+- On the Configure Dual-Band (XOR) Radio Rarameters page, perform the options you want to configure (This page is only displayed if you choose to configure Dual-Band (XOR) ) -> Next.
+![alt text](./images/configuretion_ap_11.png)
+- On the Configure Tri-Radio Rarameters page, perform the options you want to configure (This page is only displayed if you choose to configure Tri-Radio ) -> Next.
+![alt text](./images/configuretion_ap_12.png)
+- On the Save As Reusable Template page, enter Template Name -> Next to save the task name.
+![alt text](./images/configuretion_ap_13.png)
+- On the Summary page, check the selected parameters -> Next
+![alt text](./images/configuretion_ap_14.png)
+A- t the Provision Schedule, enter Task Name -> Configure.
+![alt text](./images/configuretion_ap_15.png)
+- Finally, check Preview Configuration -> Deploy.
+![alt text](./images/configuretion_ap_16.png)
+
 
 
 ## IV. References.
