@@ -26,13 +26,13 @@
       set_fact:
         long_op_start: "{{ now() }}"
 
-    - name: Add pnp device to Cisco Catalyst Center
+    - name: Add pnp devices to Cisco Catalyst Center
       cisco.dnac.pnp_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
-        config: "{{ pnp_details.add_network_device }}"
+        config: "{{ pnp_details.add_network_devices }}"
       register: pnp_output
-      when: pnp_details.add_network_device is defined
+      when: pnp_details.add_network_devices is defined
     - name: Print the Network Plug and Play devices output
       debug:
         msg: "{{pnp_output}}"

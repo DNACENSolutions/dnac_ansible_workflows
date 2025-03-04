@@ -37,13 +37,17 @@
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            catalyst_center_host: xx.xx.xx.xx.
-            catalyst_center_password: XXXXXXXX
+            #(Mandatory) CatC Ip address
+            catalyst_center_host:  <DNAC IP Address>
+            #(Mandatory) CatC UI admin Password
+            catalyst_center_password: <DNAC UI admin Password>
             catalyst_center_port: 443
             catalyst_center_timeout: 60
-            catalyst_center_username: admin
+            #(Mandatory) CatC UI admin username
+            catalyst_center_username: <DNAC UI admin username> 
             catalyst_center_verify: false
-            catalyst_center_version: 2.3.7.6
+            #(Mandatory) DNAC Release version
+            catalyst_center_version: <DNAC Release version>
             catalyst_center_debug: true
             catalyst_center_log_level: INFO
             catalyst_center_log: true

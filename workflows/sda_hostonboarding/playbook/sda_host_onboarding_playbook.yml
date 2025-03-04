@@ -42,8 +42,6 @@
     - name: Onboard hosts from design_hosts config
       cisco.dnac.sda_host_port_onboarding_workflow_manager:
         <<: *dnac_login
-        dnac_version: "{{ dnac_version }}"
-        dnac_verify: "{{ dnac_verify }}"
         state: "{{state}}"
         config: "{{sda_host_onboarding_details}}"
       register: sda_host_output

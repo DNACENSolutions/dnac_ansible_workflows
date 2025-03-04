@@ -1,6 +1,7 @@
 # SDA Host Onboarding Workflow Manager
 This Ansible workflow playbook manages host onboarding operations within a Cisco SD-Access fabric through the Cisco DNA Center. It provides the ability to add, update, and delete port assignments and port channels for network devices, enabling seamless automation of host onboarding workflows on single or bulk interfaces on a single or a number of access devices.
 ### Minimum Catalyst Cennter Version Supported : 2.3.7.6
+
 # Playbook Use Cases
 This Playbook can be used to automate various host onboarding tasks, including:
 1. Adding a group of hosts or different types of host on one or more edge devices.
@@ -10,6 +11,9 @@ This Playbook can be used to automate various host onboarding tasks, including:
 5. Onboard hosts on link aggregation (port Channels)
 6. Delete ALL port assignments and port channels for the fabric device using ip_address
 7. Remove provided hosts from interfaces and port channels.
+
+## Playbook parameters spec
+https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_host_port_onboarding_workflow_manager/
 
 Host Onboarding Figure:
 ![alt text](./images/host_onboarding.png)
