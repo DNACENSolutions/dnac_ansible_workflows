@@ -44,7 +44,7 @@
     # Print the sites creation output
     - name: Print the Accesspoints creation output
       debug:
-        msg: "{{site_output}}"
+        msg: "{{accesspoints_output}}"
     # delete the template file
     - name: Delete the template file
       ansible.builtin.command: rm ../tmp/template_generated_file.yaml
