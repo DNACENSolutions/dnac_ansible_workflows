@@ -1,0 +1,12 @@
+# Copyright 2024 Cisco Systems, Inc. and its affiliates
+# GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+input_file: ../configs/{{ dnac_host }}/input_events_dest_and_subs.yml
+
+input_file_regr: ../configs/{{ dnac_host }}/input_events_dest_and_subs_regr.yml
+
+SECRET: ../configs/common/vault.yml
+
+event_subscription_template_input: ../configs/common/events_and_notification_scale.j2
+
+event_subscription_template_output: ../configs/{{ dnac_host }}/input_events_and_notification_scale_{{ start }}_{{ count }}.yml

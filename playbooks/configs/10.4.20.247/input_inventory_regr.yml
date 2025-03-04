@@ -1,0 +1,308 @@
+---
+add_device:
+  add_switch:
+    - ip_address_list:
+        - 10.4.213.1
+        - 10.4.213.3
+      ipv6Enabled: false
+      type: NETWORK_DEVICE
+      cli_transport: ssh
+      username: xxxx
+      password: xxxx
+      enable_password: xxxx
+      snmp_version: v2
+      snmp_ro_community: xxxx
+      snmp_rw_community: xxxx
+      snmp_retry: 3
+      snmp_timeout: 5
+      http_username: xxxx
+      http_password: xxxx
+      http_port: 443
+      netconf_port: 830
+
+  add_wlc:
+    - ip_address_list:
+        - 10.4.210.200
+      ipv6Enabled: false
+      type: NETWORK_DEVICE
+      cli_transport: ssh
+      username: xxxx
+      password: xxxx
+      enable_password: xxxx
+      snmp_version: v2
+      snmp_ro_community: xxxx
+      snmp_rw_community: xxxx
+      snmp_retry: 3
+      snmp_timeout: 5
+      netconf_port: 830
+
+  add_dump_device:
+    - ip_address_list:
+        - 15.15.15.15
+        - 16.16.16.16
+      type: NETWORK_DEVICE
+      compute_device: false
+      cli_transport: ssh
+      username: xxxx
+      password: xxxx
+      enable_password: xxxx
+      snmp_version: v2
+      snmp_ro_community: xxxx
+      snmp_rw_community: xxxx
+      snmp_retry: 3
+      snmp_timeout: 5
+      netconf_port: 830
+
+    - ip_address_list:
+        - 17.17.17.17
+      type: NETWORK_DEVICE
+      compute_device: false
+      cli_transport: ssh
+      username: xxxx
+      password: xxxx
+      enable_password: xxxx
+      snmp_version: v3
+      snmp_username: xxxx
+      snmp_mode: AUTHPRIV
+      snmp_auth_protocol: SHA
+      snmp_auth_passphrase: xxxx
+      snmp_priv_protocol: AES128
+      snmp_priv_passphrase: xxxx
+      snmp_retry: 3
+      snmp_timeout: 5
+      netconf_port: 830
+
+
+update_device:
+  update_common:
+  # Edit common info multiple device.
+    - ip_address_list:
+        - 10.4.213.1
+        - 10.4.213.3
+      type: NETWORK_DEVICE
+      cli_transport: ssh
+      username: xxxx
+      password: xxxx
+      enable_password: xxxx
+      snmp_version: v2
+      snmp_ro_community: xxxx
+      snmp_rw_community: xxxx
+      snmp_retry: 1
+      snmp_timeout: 2
+      http_username: xxxx
+      http_password: xxxx
+      netconf_port: 830
+      credential_update: true
+
+  # Edit common info single device
+    - ip_address_list:
+        - 15.15.15.15
+      update_mgmt_ipaddresslist:
+        - exist_mgmt_ipaddress: 15.15.15.15
+          new_mgmt_ipaddress: 20.20.20.20
+      credential_update: true
+
+    - ip_address_list:
+        - 16.16.16.16
+      update_mgmt_ipaddresslist:
+        - exist_mgmt_ipaddress: 16.16.16.16
+          new_mgmt_ipaddress: 21.21.21.21
+      cli_transport: ssh
+      username: xxxx
+      password: xxxx
+      enable_password: xxxx
+      snmp_version: v3
+      snmp_username: xxxx
+      snmp_mode: AUTHPRIV
+      snmp_auth_protocol: SHA
+      snmp_auth_passphrase: xxxx
+      snmp_priv_protocol: AES128
+      snmp_priv_passphrase: xxxx
+      netconf_port: 830
+      credential_update: true
+
+    - ip_address_list:
+        - 17.17.17.17
+      update_mgmt_ipaddresslist:
+        - exist_mgmt_ipaddress: 17.17.17.17
+          new_mgmt_ipaddress: 22.22.22.22
+      credential_update: true
+
+    - ip_address_list:
+        - 20.20.20.20
+      cli_transport: ssh
+      netconf_port: 830
+      credential_update: true
+
+    - ip_address_list:
+        - 21.21.21.21
+      cli_transport: ssh
+      netconf_port: 831
+      username: xxxx
+      snmp_username: xxxx
+      credential_update: true
+
+    - ip_address_list:
+        - 22.22.22.22
+      cli_transport: ssh
+      username: cisco1
+      password: xxxx
+      enable_password: xxxx
+      snmp_version: v3
+      snmp_username: xxxx
+      snmp_mode: AUTHPRIV
+      snmp_auth_protocol: SHA
+      snmp_auth_passphrase: xxxx
+      snmp_priv_protocol: AES128
+      snmp_priv_passphrase: xxxx
+      netconf_port: 830
+      credential_update: true
+
+    - ip_address_list:
+        - 20.20.20.20
+      update_mgmt_ipaddresslist:
+        - exist_mgmt_ipaddress: 20.20.20.20
+          new_mgmt_ipaddress: 15.15.15.15
+      credential_update: true
+
+    - ip_address_list:
+        - 21.21.21.21
+      update_mgmt_ipaddresslist:
+        - exist_mgmt_ipaddress: 21.21.21.21
+          new_mgmt_ipaddress: 16.16.16.16
+      credential_update: true
+
+    - ip_address_list:
+        - 22.22.22.22
+      update_mgmt_ipaddresslist:
+        - exist_mgmt_ipaddress: 22.22.22.22
+          new_mgmt_ipaddress: 17.17.17.17
+      credential_update: true
+
+  update_device_role:
+    - ip_address_list:
+        - 10.4.213.1
+        - 10.4.213.3
+      role: DISTRIBUTION
+
+    - ip_address_list:
+        - 10.4.213.1
+        - 10.4.213.3
+      role: ACCESS
+
+  update_device_interface:
+    - ip_address_list:
+        - 10.4.213.1
+      update_interface_details:
+        description: Deploy in Gi1/0/23 Gi1/0/22
+        admin_status: UP
+        vlan_id: 1
+        voice_vlan_id: 1
+        deployment_mode: Deploy
+        interface_name: ["GigabitEthernet1/0/23", "GigabitEthernet1/0/22"]
+
+    - ip_address_list:
+        - 10.4.213.1
+      update_interface_details:
+        description: Deploy in Gi1/0/22 new
+        admin_status: UP
+        vlan_id: 1
+        voice_vlan_id: 1
+        deployment_mode: Deploy
+        interface_name: ["GigabitEthernet1/0/22"]
+
+
+resync:
+  - ip_address_list:
+      - 10.4.213.1
+      - 10.4.213.3
+    device_resync: true
+    force_sync: false
+
+
+reboot:
+  - ip_address_list:
+      - 10.192.106.3
+    reboot_device: true
+
+
+export:
+  - ip_address_list:
+      - 10.4.213.1
+      - 10.4.213.3
+    export_device_list:
+      password: Cisco123!
+      operation_enum: 1
+      parameters:
+        - hostname
+        - managementIpAddress
+
+
+delete_device:
+  - ip_address_list:
+      - 10.4.213.1
+      - 6.6.6.6
+      - 10.4.213.3
+    clean_config: False
+
+  - ip_address_list:
+      - 5.5.5.5
+    clean_config: True
+
+
+delete_all:
+  - ip_address_list:
+      - 10.4.213.1
+      - 10.4.213.2
+      - 10.4.213.3
+      - 10.4.213.4
+      - 10.4.213.5
+      - 10.4.213.6
+      - 10.4.213.7
+      - 10.4.213.8
+      - 10.4.213.9
+    clean_config: False
+
+  - ip_address_list:
+      - 10.4.212.41
+      - 10.4.212.49
+      - 10.4.212.61
+      - 10.4.212.1
+      - 10.4.210.200
+    clean_config: False
+
+  - ip_address_list:
+      - 15.15.15.15
+      - 16.16.16.16
+      - 17.17.17.17
+    clean_config: False
+
+
+network_device:
+  add:
+    - ip_address_list:
+        - 10.4.213.1
+        - 10.4.213.3
+      ipv6Enabled: false
+      type: NETWORK_DEVICE
+      cli_transport: ssh
+      username: xxxx
+      password: xxxx
+      enable_password: xxxx
+      snmp_version: v2
+      snmp_ro_community: xxxx
+      snmp_rw_community: xxxx
+      snmp_retry: 3
+      snmp_timeout: 5
+      http_username: xxxx
+      http_password: xxxx
+      http_port: 443
+      netconf_port: 830
+
+  provision:
+    - provision_wired_device:
+        - device_ip: 10.4.213.1
+          site_name: Global/USA/SAN JOSE/SJ_BLD23
+        - device_ip: 10.4.213.3
+          site_name: Global/USA/SAN-FRANCISCO/SF_BLD1
+

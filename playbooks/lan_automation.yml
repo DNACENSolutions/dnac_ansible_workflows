@@ -1,0 +1,83 @@
+---
+- name: LAN Automation
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - cc_config.yml
+    - "{{ config_lan_automation }}"
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+  tasks:
+    - name: Includes LAN Automation config
+      include_vars:
+        file: "{{ input_file }}"
+        name: vars_map
+      tags: always
+
+    - name: Start a LAN Automation session without waiting for it to finish
+      cisco.dnac.lan_automation_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+        - lan_automation:
+            discovered_device_site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD1
+            primary_device_management_ip_address: 204.1.2.8
+            primary_device_interface_names:
+              - FiveGigabitEthernet1/0/45
+              - FiveGigabitEthernet1/0/46
+            ip_pools:
+              - ip_pool_name: SF-LAN-AUTO
+                ip_pool_role: MAIN_POOL
+            discovery_timeout: 40
+            discovery_devices:
+              - device_serial_number: FJC24421T9Z
+                device_host_name: SF-X-1-9300L
+                device_site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD1
+                device_management_ip_address: 204.1.2.20
+              - device_serial_number: FJC24421SGW
+                device_host_name: SF-X-2-9300L
+                device_site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD1
+                device_management_ip_address: 204.1.2.21
+            multicast_enabled: false
+            redistribute_isis_to_bgp: false
+            launch_and_wait: false
+            pnp_authorization: True
+      tags: start_lan_auto
+
+    - name: Re-Start a LAN Automation session
+      cisco.dnac.lan_automation_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.start_lan_auto }}"
+      tags: restart_lan_auto
+      
+    - name: Stop above LAN Automation
+      cisco.dnac.lan_automation_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          "{{ vars_map.stop_lan_auto }}"
+      tags: stop_lan_auto
+
+    - name: Start a LAN Automation session with pnp authorization (basic params)
+      cisco.dnac.lan_automation_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          "{{ vars_map.start_lan_auto_with_pnp }}"
+      tags: test

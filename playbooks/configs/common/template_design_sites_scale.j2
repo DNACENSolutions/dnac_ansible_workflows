@@ -1,0 +1,67 @@
+---
+design_sites_country:
+{% for site_element in site_elements %}
+- site:
+    area:
+      name: country-{{ site_element }}
+      parentName: Global
+  type: area
+  
+{% endfor %}
+
+
+design_sites:
+- site:
+    area:
+      name: USA
+      parentName: Global
+  type: area
+
+{% for site_element in site_elements %}
+- site:
+    area:
+      name: City{{ site_element }}
+      parentName: Global/USA
+  type: area
+
+- site:
+    building:
+      name: BLD1
+      parentName: Global/USA/City{{ site_element }}
+      address: Ev Chargers Bldg 10, 7200-10 Kit Creek Rd, Morrisville, North Carolina 27560, United States
+      latitude: 35.85992111421487
+      longitude: -78.8829258991226
+      country: United States
+  type: building
+
+- site:
+    floor:
+      name: BLD1_FLOOR1
+      parentName: Global/USA/City{{ site_element }}/BLD1
+      rfModel: Cubes And Walled Offices
+      width: 100.00
+      length: 100.00
+      height: 10.00
+  type: floor
+
+- site:
+    floor:
+      name: BLD1_FLOOR2
+      parentName: Global/USA/City{{ site_element }}/BLD1
+      rfModel: Cubes And Walled Offices
+      width: 100.00
+      length: 100.00
+      height: 10.00
+  type: floor
+
+- site:
+    floor:
+      name: BLD1_FLOOR3
+      parentName: Global/USA/City{{ site_element }}/BLD1
+      rfModel: Cubes And Walled Offices
+      width: 100.00
+      length: 100.00
+      height: 10.00
+  type: floor
+
+{% endfor %}
