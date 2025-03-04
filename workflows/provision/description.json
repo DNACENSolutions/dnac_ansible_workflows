@@ -1,0 +1,5 @@
+{
+  "summary": "Automate device site assignments, provisioning, reprovisioning, and unprovisioning in Cisco DNA Center with our comprehensive Ansible playbook.",
+  "status": "active",
+  "managed_by": "cisco"
+}

@@ -1,0 +1,5 @@
+{
+  "summary": "Streamline host onboarding in Cisco SD-Access fabric by automating port assignments and port channel configurations with our comprehensive Ansible workflow playbook.",
+  "status": "active",
+  "managed_by": "cisco"
+}
