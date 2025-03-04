@@ -33,9 +33,9 @@
       cisco.dnac.provision_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
-        config: "{{unprovision_details}}"
+        config: "{{provision_details}}"
       register: unprovision_output
-      when: unprovision_details is defined
+      when: provision_details is defined
     - name: Print the UnProvision devices output
       debug:
         msg: "{{unprovision_output}}"
