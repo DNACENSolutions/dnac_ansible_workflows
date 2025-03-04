@@ -1,0 +1,5 @@
+{
+  "summary": "Streamline the deployment and management of SD-Access fabric transits in Cisco Catalyst Center by leveraging our Ansible automation playbook to seamlessly interconnect fabric sites and external networks.",
+  "status": "active",
+  "managed_by": "cisco"
+}
