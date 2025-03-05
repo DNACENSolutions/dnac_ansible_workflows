@@ -1,0 +1,5 @@
+{
+  "summary": "Automate and secure your device configuration backups with our Ansible playbook, compatible with Catalyst Center 2.3.7.6 or later.",
+  "status": "active",
+  "managed_by": "cisco"
+}

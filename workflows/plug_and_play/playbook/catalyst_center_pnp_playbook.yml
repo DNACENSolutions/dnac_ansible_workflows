@@ -1,5 +1,5 @@
 ---
-- name: Playbook to manage Cisco Catalyst Center Plug and Play, add pnp devices, bulk import, delete, update, claim routing, switching devices and wirelesss controllers. 
+- name: Playbook to manage Cisco Catalyst Center Plug and Play, add pnp devices, bulk import, update, claim routing, switching devices and wirelesss controllers. 
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -37,19 +37,19 @@
       debug:
         msg: "{{pnp_output}}"
       when: pnp_output is defined
-    - name: Claim Wireless Controller 98XX EWLC devices through PnP
+
+    - name: Add pnp bulk devices to Cisco Catalyst Center
       cisco.dnac.pnp_workflow_manager:
         <<: *dnac_login
-        state: merged
-        config:
-        - "{{ item }}"
-      loop: "{{ pnp_details.claim_ewlc_devices }}"
+        state: "{{ state }}"
+        config: "{{ pnp_details.add_bulk_network_devices }}"
       register: pnp_output
-      when: pnp_details.claim_ewlc_devices is defined
-    - name: print the output of the claim_ewlc_devices
+      when: pnp_details.add_bulk_network_devices
+    - name: Print the Network Plug and Play devices output
       debug:
         msg: "{{pnp_output}}"
       when: pnp_output is defined
+
     - name: Claim Routing devices through PnP
       cisco.dnac.pnp_workflow_manager:
         <<: *dnac_login
@@ -63,6 +63,7 @@
       debug:
         msg: "{{pnp_output}}"
       when: pnp_output is defined
+
     - name: Claim Switching devices through PnP
       cisco.dnac.pnp_workflow_manager:
         <<: *dnac_login
@@ -76,18 +77,77 @@
       debug:
         msg: "{{pnp_output}}"
       when: pnp_output is defined
-    - name: Claim Access Point devices through PnP
+    
+    - name: Claim Switching Stack devices through PnP
       cisco.dnac.pnp_workflow_manager:
         <<: *dnac_login
         state: merged
         config:
         - "{{ item }}"
-      loop: "{{ pnp_details.claim_ap_devices }}"
+      loop: "{{ pnp_details.claim_cat9k_switch_stack }}"
       register: pnp_output
-      when: pnp_details.claim_ap_devices is defined
-    - name: Print the Network Plug and Play devices output
+      when: pnp_details.claim_cat9k_switch_stack is defined
+    - name: print the output of the claim_cat9k_switch_stack
       debug:
         msg: "{{pnp_output}}"
+      when: pnp_output is defined
+
+    - name: Claim Wireless Controller EWLC devices through PnP
+      cisco.dnac.pnp_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config:
+        - "{{ item }}"
+      loop: "{{ pnp_details.claim_embedded_wireless_controller }}"
+      register: pnp_output
+      when: pnp_details.claim_embedded_wireless_controller is defined
+    - name: print the output of the claim_embedded_wireless_controller
+      debug:
+        msg: "{{pnp_output}}"
+      when: pnp_output is defined
+
+    - name: Reset an error PnP device - EWLC type
+      cisco.dnac.pnp_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config:
+        - "{{ item }}"
+      loop: "{{ pnp_details.pnp_ewlc_reset }}"
+      register: pnp_output
+      when: pnp_details.pnp_ewlc_reset is defined
+    - name: print the output of the pnp_ewlc_reset
+      debug:
+        msg: "{{pnp_output}}"
+      when: pnp_output is defined
+
+    - name: Claim Access Point device through PnP
+      cisco.dnac.pnp_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config:
+        - "{{ item }}"
+      loop: "{{ pnp_details.claim_access_points }}"
+      register: pnp_output
+      when: pnp_details.claim_access_points is defined
+    - name: print the output of the claim_access_points
+      debug:
+        msg: "{{pnp_output}}"
+      when: pnp_output is defined
+
+    - name: Claim Multiple EWLC device through PnP High Availability (HA)
+      cisco.dnac.pnp_workflow_manager:
+        <<: *dnac_login
+        state: merged
+        config:
+        - "{{ item }}"
+      loop: "{{ pnp_details.claim_multiple_ewlc_ha }}"
+      register: pnp_output
+      when: pnp_details.claim_multiple_ewlc_ha is defined
+    - name: print the output of the claim_multiple_ewlc_ha
+      debug:
+        msg: "{{pnp_output}}"
+      when: pnp_output is defined
+
     - name: Network Plug and Play devices playbook end time
       set_fact:
         long_op_end: "{{ now() }}"

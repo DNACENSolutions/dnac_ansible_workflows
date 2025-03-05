@@ -5,6 +5,8 @@ sda_fabric_virtual_networks_details:
   - fabric_vlan:
     - vlan_name: "vlan_test1"
       fabric_site_locations:
+        - site_name_hierarchy: "Global/India"
+          fabric_type: "fabric_site"
         - site_name_hierarchy: "Global/India/Chennai"
           fabric_type: "fabric_zone"
       vlan_id: 1333

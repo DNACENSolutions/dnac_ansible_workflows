@@ -20,12 +20,12 @@ Uses LISP/VxLAN encapsulation to connect two fabric sites. The SD-Access transit
 
 3. To create SD-Access Transit atleast one Transit CP device must be provided. 
 
-## Create an Fabric transits: Running the Playbook
+## Create Fabric transits: Running the Playbook
 - Playbook: workflows/sda_fabric_transits/playbook/playbook/sda_fabric_transits_workflow_playbook.yml
 - Schema: workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_schema.yml
 - Input Variables: [Title](vars/sda_fabric_transits_workflow_inputs.yml)
 
-### Input example 
+### Input example for create IP based transit and Lisp/PUB SUB Transit
 ![Alt text](./images/image.png)
 
 ``` yaml
@@ -34,16 +34,39 @@ fabric_transits:
       - ip_transit_settings:
           autonomous_system_number: "100"
           routing_protocol_name: BGP
-        name: IP Transit_AS200
+        name: IP_Transit_AS200
         transit_type: IP_BASED_TRANSIT
       - sda_transit_settings:
           control_plane_network_device_ips:
-            - "10.1.1.1"
-            - "10.1.1.2"
+            - 204.1.2.5
           is_multicast_over_transit_enabled: true
-        name: SDA Transit_1
+        name: SDA_Transit_1
         transit_type: SDA_LISP_PUB_SUB_TRANSIT
 ```
+### Input example for create Lisp/BGP transits
+``` yaml
+  - sda_fabric_transits:
+    - name: BGP_transit
+    transit_type: SDA_LISP_BGP_TRANSIT
+    sda_transit_settings:
+      control_plane_network_device_ips:
+      - 204.1.2.5
+```
+
+## Delete Fabric transits: Running the Playbook
+- Playbook: workflows/sda_fabric_transits/playbook/delete_sda_fabric_transits_workflow_playbook.yml
+- Schema: workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_schema.yml
+- Input Variables: [Title](vars/sda_fabric_transits_workflow_inputs.yml)
+![Alt text](./images/image_1.png)
+
+``` yaml
+fabric_transits:
+  - sda_fabric_transits:
+    - name: Transit_AS200
+    - name: SDA_Transit_1
+    - name: BGP_transit
+```
+
 
 1. **Validate Your Input**
 
