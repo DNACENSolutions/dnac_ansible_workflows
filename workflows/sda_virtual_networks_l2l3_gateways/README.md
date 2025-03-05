@@ -749,7 +749,6 @@ This example can be reused and customized to your requirement and increase the r
     changed: [catalyst_center_hosts]
 
     TASK [Print the layer2 Fabric VLAN(s) creation output] *********************************************************************************************************************************************************************
-    task path: /auto/dna-sol/ws/datcpham/dnac_ansible_workflows/workflows/sda_virtual_networks_l2l3_gateways/playbook/sda_virtual_networks_l2_l3_gateways_playbook.yml:58
     Tuesday 04 March 2025  23:44:00 -0800 (0:04:00.971)       0:04:03.242 ********* 
     ok: [catalyst_center_hosts] => 
       msg:
