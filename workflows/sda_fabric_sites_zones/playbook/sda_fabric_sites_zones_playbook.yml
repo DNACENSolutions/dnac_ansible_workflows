@@ -58,6 +58,7 @@
     - name: Print the fabric site(s)/zone(s) output
       debug:
         msg: "{{fabric_sites_and_zones_output}}"
+
     # delete the template file
     - name: Delete the template file
       ansible.builtin.command: rm ../tmp/template_generated_file.yaml
