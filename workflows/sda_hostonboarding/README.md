@@ -1,24 +1,15 @@
 # SDA Host Onboarding Workflow Manager
-The SDA Host Onboarding Workflow Manager is a powerful tool within Cisco Catalyst Center, designed to manage the onboarding process of endpoint devices (hosts).
+This Ansible workflow playbook manages host onboarding operations within a Cisco SD-Access fabric through the Cisco DNA Center. It provides the ability to add, update, and delete port assignments and port channels for network devices, enabling seamless automation of host onboarding workflows on single or bulk interfaces on a single or a number of access devices.
 
-Host Onboarding Figure:
-![alt text](./images/host_onboarding.png)
-
-## I. Key Features.
-### 1. Port Assignments Management
-- Add, Update, and Delete Ports: The Workflow Manager enables administrators to easily add, update, or delete port assignments for network devices. This functionality ensures accurate and efficient configuration for each device.
-
-### 2. Port Channel Management
-- The tool supports the configuration and management of port channels for network devices. This capability ensures that network traffic is optimized and evenly distributed across ports.
-
-### 3. Automation of Onboarding Processes
-- The Workflow Manager provides the ability to automate the onboarding processes for devices, not only for a single interface but also for multiple interfaces across one or several access devices. This significantly reduces the time and effort required for network configuration.
-
-### 4. Bulk Operations Support
-- The tool can perform bulk operations, allowing administrators to implement changes across multiple devices simultaneously, enhancing network management efficiency.
-
-### 5. Integration with Cisco DNA Center
-- The Workflow Manager seamlessly integrates with Cisco DNA Center, enabling the use of existing management and monitoring features within the platform. This integration facilitates easy tracking of changes and updates within the network.
+## I. Playbook Use Cases
+This Playbook can be used to automate various host onboarding tasks, including:
+1. Adding a group of hosts or different types of host on one or more edge devices.
+2. Updating host port assignment: Move a host to a different port or port channel.
+3. Deleting host port assignment: Remove a host's port assignment, effectively disconnecting it from the network.
+4. Creating and managing port channels: Configure port channels for link aggregation and redundancy.
+5. Onboard hosts on link aggregation (port Channels)
+6. Delete ALL port assignments and port channels for the fabric device using ip_address
+7. Remove provided hosts from interfaces and port channels.
 
 ## II. Procedure
 
@@ -35,7 +26,6 @@ Host Onboarding Figure:
 - The **host_inventory_dnac1/hosts.yml** file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
 
 ```yaml
----
 ---
 catalyst_center_hosts:
     hosts:
