@@ -25,9 +25,8 @@ Uses LISP/VxLAN encapsulation to connect two fabric sites. The SD-Access transit
 - Schema: workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_schema.yml
 - Input Variables: [Title](vars/sda_fabric_transits_workflow_inputs.yml)
 
-### Input example for create IP based transit and Lisp/PUB SUB Transit
-![Alt text](./images/image.png)
-
+### Input example for Create/Update IP based transit, Lisp PUB/SUB Transit and Lisp BGP transits
+![Alt text](images/image.png)
 ``` yaml
 fabric_transits:
   - sda_fabric_transits:
@@ -42,22 +41,34 @@ fabric_transits:
           is_multicast_over_transit_enabled: true
         name: SDA_Transit_1
         transit_type: SDA_LISP_PUB_SUB_TRANSIT
+      - sda_fabric_transits:
+        - name: BGP_transit
+        transit_type: SDA_LISP_BGP_TRANSIT
+        sda_transit_settings:
+          control_plane_network_device_ips:
+          - 204.1.2.5
 ```
-### Input example for create Lisp/BGP transits
-``` yaml
-  - sda_fabric_transits:
-    - name: BGP_transit
-    transit_type: SDA_LISP_BGP_TRANSIT
-    sda_transit_settings:
-      control_plane_network_device_ips:
-      - 204.1.2.5
+
+![Alt text](images/image-1.png)
+
+### Command to validate and running the playbook
+
+#### Validate the input
+``` bash
+yamale -s workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_schema.yml workflows/sda_fabric_transits/vars/sda_fabric_transits_workflow_inputs.yml
+```
+#### Running the playbook
+``` bash
+ansible-playbook -i inventory/iac2/host.yml  workflows/sda_fabric_transits/playbook/sda_fabric_transits_workflow_playbook.yml --e  VARS_FILE_PATH=../vars/sda_fabric_transits_workflow_inputs.yml > logs/transits.log -vvvvvv  
 ```
 
 ## Delete Fabric transits: Running the Playbook
 - Playbook: workflows/sda_fabric_transits/playbook/delete_sda_fabric_transits_workflow_playbook.yml
 - Schema: workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_schema.yml
 - Input Variables: [Title](vars/sda_fabric_transits_workflow_inputs.yml)
-![Alt text](./images/image_1.png)
+
+### Input example for delete transits
+![Alt text](images/image-2.png)
 
 ``` yaml
 fabric_transits:
@@ -66,7 +77,6 @@ fabric_transits:
     - name: SDA_Transit_1
     - name: BGP_transit
 ```
-
 
 1. **Validate Your Input**
 

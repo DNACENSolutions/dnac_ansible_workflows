@@ -8,19 +8,19 @@
     - "{{ VARS_FILE_PATH }}"
   vars:
     state: merged
-    dnac_login: &dnac_login
-      dnac_host: "{{ dnac_host }}"
-      dnac_username: "{{ dnac_username }}"
-      dnac_password: "{{ dnac_password }}"
-      dnac_port: "{{ dnac_port }}"
-      dnac_verify: "{{ dnac_verify }}"
+    catalyst_center_login: &catalyst_center_login
+      catalyst_center_host: "{{ catalyst_center_host }}"
+      catalyst_center_username: "{{ catalyst_center_username }}"
+      catalyst_center_password: "{{ catalyst_center_password }}"
+      catalyst_center_port: "{{ catalyst_center_port }}"
+      catalyst_center_verify: "{{ catalyst_center_verify }}"
       config_verify: "{{ catalyst_center_config_verify | default(False) }}"
-      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
-      dnac_debug: "{{ catalyst_center_debug | default(dnac_debug) }}"
-      dnac_log: "{{ catalyst_center_log | default(dnac_log) }}"
-      dnac_log_level: "{{ catalyst_center_log_level | default(dnac_log_level) }}"
-      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(dnac_log_file_path) }}"
-      dnac_log_append: "{{ catalyst_center_log_append | default(dnac_log_append) }}"
+      catalyst_center_version: "{{ catalyst_center_version  | default(catalyst_center_version) }}"
+      catalyst_center_debug: "{{ catalyst_center_debug | default(catalyst_center_debug) }}"
+      catalyst_center_log: "{{ catalyst_center_log | default(catalyst_center_log) }}"
+      catalyst_center_log_level: "{{ catalyst_center_log_level | default(catalyst_center_log_level) }}"
+      catalyst_center_log_file_path: "{{ catalyst_center_log_file_path | default(catalyst_center_log_file_path) }}"
+      catalyst_center_log_append: "{{ catalyst_center_log_append | default(catalyst_center_log_append) }}"
   tasks:
     - name: print VARS_FILE_PATH
       debug:
@@ -30,7 +30,7 @@
         long_op_start: "{{ now() }}"
     - name: Discover a singe device IP Address for a list of discoveries from "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -39,7 +39,7 @@
 
     - name: Discover devices for an IP Address Range if defined in file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -48,7 +48,7 @@
 
     - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -57,7 +57,7 @@
 
     - name: Discover devices from a CDP seed if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -66,7 +66,7 @@
 
     - name: Discover devices from an LLDP seed if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -75,7 +75,7 @@
 
     - name: Configure and run an CIDR Discovery if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
