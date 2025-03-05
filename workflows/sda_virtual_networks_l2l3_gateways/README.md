@@ -1,5 +1,5 @@
 
-# SDA Fabric Virtual Networks Automation and onboarding anycast gaetways on fabric sites
+# SDA Fabric Virtual Networks Automation and onboarding anycast gateways on fabric sites
 This Ansible playbooks to automate the configuration of Fabric VLANs, Virtual Networks, and Anycast Gateways within a Cisco SD-Access fabric using the Cisco DNA Center.
 
 # Requirements:
@@ -15,8 +15,6 @@ This playbook utilizes the cisco.dnac.sda_fabric_virtual_networks_workflow_manag
 Fabric VLANs: Create, update, and delete Layer 2 Fabric VLANs.
 Virtual Networks: Create, update, and delete Layer 3 Virtual Networks.
 Anycast Gateways: Create, update, and delete Anycast Gateways for providing Layer 3 connectivity within the SD-Access fabric.
-
-
 
 # How to execute playbook:
 
@@ -37,24 +35,16 @@ Make sure the dnac_version in this file matches your actual Catalyst Center vers
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
-            dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
-```
-## Validate the playbooks with schema
-```bash
-(pyats) pawansi@PAWANSI-M-81A3 dnac_ansible_workflows % yamale -s workflows/sda_virtual_networks_l2l3_gateways/schema/sda_virtual_networks_l2_l3_gateways_schema.yml workflows/sda_virtual_networks_l2l3_gateways/vars
-Finding yaml files...
-Found 2 yaml files.
-Validating...
-Validation success! 👍
+            catalyst_center_host: xx.xx.xx.xx.
+            catalyst_center_password: XXXXXXXX
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            catalyst_center_username: admin
+            catalyst_center_verify: false
+            catalyst_center_version: 2.3.7.6
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
 ```
 
 ## Running playbook
@@ -575,6 +565,313 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
   ```
 
   **For the Deleted Method**, change the destination playbook to: `./workflows/sda_virtual_networks_l2l3_gateways/playbook/delete_sda_virtual_networks_l2_l3_gateways_playbook.yml`
+
+  **Validate the playbooks with schema:** Used to verify if the input is valid for execution in the module.
+  ```bash
+  (pyats-ansible-phamdat) bash-4.4$ yamale -s workflows/sda_virtual_networks_l2l3_gateways/schema/sda_virtual_networks_l2_l3_gateways_schema.yml workflows/sda_virtual_networks_l2l3_gateways/vars/sda_virtual_networks_l2_l3_gateways_input.yml
+  Validating workflows/sda_virtual_networks_l2l3_gateways/vars/sda_virtual_networks_l2_l3_gateways_input.yml...
+  Validation success! 👍
+  ```
+
+## Creating Bulk SDA Fabric Virtual Networks configurations using JINJA template and using the playbook
+Create a Jinja template for your desired inopout, Example Jinja template for layer2, layer3 is as below.
+**Need to scale the site hierarchy and scale the fabric site beforehand to create corresponding Layer 2 and Layer 3 for the associated site.**
+This example can be reused and customized to your requirement and increase the requirement scale.
+
+### 1. Create a Scale Site and Scale Fabric Site
+  Here we will assume that the scaling for the **site** and **fabric site** has been created beforehand with the corresponding module.
+  #### a. JINJA Template
+  ```jinja
+    {% set site_name = 'site_scale' %}
+    {% set range_site = 10 %}
+    ### -------------------- Scale site hierarchy -------------------- ###
+    design_sites:
+      - site:
+          area:
+            name: SDA Sites
+            parent_name: Global
+        site_type: area
+    {% for i in range(range_site|int) %}
+      - site:
+          area:
+            name: {{ site_name }}-{{ i|string }}
+            parent_name: Global/SDA Sites
+        site_type: area
+    {% endfor %}
+
+    ### -------------------- Scale Fabric Site Zone -------------------- ###
+    fabric_sites_and_zones:
+      - fabric_sites:
+    {% for i in range(range_site|int) %}
+        - site_name_hierarchy: Global/SDA Sites/{{ site_name }}-{{ i|string }}
+          fabric_type: "fabric_site"
+          authentication_profile: "No Authentication"
+          is_pub_sub_enabled: false
+    {% endfor %}
+  ```
+
+  #### b. Input File Example
+  For instance, with `range_site=10` and `site_name='site_scale'`, the template creates:
+  ```yaml
+    ### -------------------- Scale site hierarchy -------------------- ###
+    design_sites:
+      - site:
+          area:
+            name: SDA Sites
+            parent_name: Global
+        site_type: area
+      - site:
+          area:
+            name: site_scale-0
+            parent_name: Global/SDA Sites
+        site_type: area
+      ...
+      - site:
+          area:
+            name: site_scale-9
+            parent_name: Global/SDA Sites
+        site_type: area
+    ### -------------------- Scale Fabric Site Zone -------------------- ###
+    fabric_sites_and_zones:
+      - fabric_sites:
+        - site_name_hierarchy: Global/SDA Sites/site_scale-0
+          fabric_type: "fabric_site"
+          authentication_profile: "No Authentication"
+          is_pub_sub_enabled: false
+        ...
+        - site_name_hierarchy: Global/SDA Sites/site_scale-9
+          fabric_type: "fabric_site"
+          authentication_profile: "No Authentication"
+          is_pub_sub_enabled: false
+  ```
+
+  #### c. UI Action
+  ![alt text](./images/scale_site_and_fbsite.png)
+
+### 2. Create a Scale layer3 and Scale layer2
+  #### a. JINJA Template
+  ```jinja
+    # -------------------- Valid VLAN range -------------------- #
+    {% set valid_vlan_ids = namespace (vlan = []) %}
+    {% for vlan_id in range(2, 4095) %}
+        {% if vlan_id not in range(1002, 1006) and vlan_id != 2046 %}
+            {% set valid_vlan_ids.vlan = valid_vlan_ids.vlan + [vlan_id] %}
+        {% endif %}
+    {% endfor %}
+
+    {% set l3_name = 'l3_scale' %}
+    ### -------------------- Scale layer3 -------------------- ###
+    sda_fabric_virtual_networks_details:
+      - virtual_networks:
+    {% for i in range(range_site|int) %}
+        - vn_name: {{ l3_name }}_{{ i|string }}
+          fabric_site_locations:
+            - site_name_hierarchy: Global/SDA Sites/{{ site_name }}-{{ i|string }}
+              fabric_type: "fabric_site"
+    {% endfor %}
+
+    {% set l2_name = 'l2_scale' %}
+    ### -------------------- Scale layer2 -------------------- ###
+      - fabric_vlan:
+    {% for i in range(range_site|int) %}
+        - vlan_name: {{ l2_name }}
+          fabric_site_locations:
+          - site_name_hierarchy: Global/SDA Sites/{{ site_name }}-{{ i|string }}
+            fabric_type: "fabric_site"
+          vlan_id: {{ valid_vlan_ids.vlan[i % (valid_vlan_ids.vlan | length)] }}
+    {% if i % 2 == 1 %}
+          traffic_type: "VOICE"
+          fabric_enabled_wireless: True
+    {% endif %}
+    {% endfor %}
+  ```
+
+  - `Valid VLAN range`: When we create Layer 2, in the UI we may not need to provide the VLAN ID, as the UI will generate it automatically. However, in the module, this field is mandatory to supply. Therefore, this method is used to retrieve the VLAN ID within the valid range when creating the scale for Layer 2.
+
+  #### b. Input File Example
+  For instance, with `range_site=10` , `l3_name = 'l3_scale'`, `l2_name = 'l2_scale'`, the template creates:
+  ```yaml
+    ### -------------------- Scale layer3 -------------------- ###
+    sda_fabric_virtual_networks_details:
+      - virtual_networks:
+        - vn_name: l3_scale_0
+          fabric_site_locations:
+            - site_name_hierarchy: Global/SDA Sites/site_scale-0
+              fabric_type: "fabric_site"
+        ...
+        - vn_name: l3_scale_9
+          fabric_site_locations:
+            - site_name_hierarchy: Global/SDA Sites/site_scale-9
+              fabric_type: "fabric_site"
+
+    ### -------------------- Scale layer2 -------------------- ###
+      - fabric_vlan:
+        - vlan_name: l2_scale
+          fabric_site_locations:
+          - site_name_hierarchy: Global/SDA Sites/site_scale-0
+            fabric_type: "fabric_site"
+          vlan_id: 2
+        ...
+        - vlan_name: l2_scale
+          fabric_site_locations:
+          - site_name_hierarchy: Global/SDA Sites/site_scale-9
+            fabric_type: "fabric_site"
+          vlan_id: 11
+          traffic_type: "VOICE"
+          fabric_enabled_wireless: True
+  ```
+  - *Note: The temporary input file generated by Jinja will be deleted after the execution task in the playbook finishes*
+
+  #### c. Execute with Jinja template
+  ```bash
+    (pyats-ansible-phamdat) bash-4.4$ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/sda_virtual_networks_l2l3_gateways/playbook/sda_virtual_networks_l2_l3_gateways_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/sda_virtual_networks_l2_l3_gateways_jinja_input.yml
+
+    PLAY [Playbook to manage Cisco Catalyst Center Fabric Virtual Networks and layer2 and L3 Gateways] ***************************************************************************************************
+
+    TASK [SDA Fabric Virtual Networks and L2/L3 Gateways Playbook start time] ****************************************************************************************************************************
+    Tuesday 04 March 2025  23:56:43 -0800 (0:00:00.093)       0:00:00.093 ********* 
+    ok: [catalyst_center_hosts]
+
+    TASK [debug] *****************************************************************************************************************************************************************************************
+    Tuesday 04 March 2025  23:56:43 -0800 (0:00:00.029)       0:00:00.122 ********* 
+    ok: [catalyst_center_hosts] => 
+      msg: 'version: 2.3.7.6'
+
+    TASK [Create Template] *******************************************************************************************************************************************************************************
+    Tuesday 04 March 2025  23:56:43 -0800 (0:00:00.025)       0:00:00.148 ********* 
+    changed: [catalyst_center_hosts]
+
+    TASK [Include the variables file ../tmp/template_generated_file.yaml for the playbook] ***************************************************************************************************************
+    Tuesday 04 March 2025  23:56:45 -0800 (0:00:02.030)       0:00:02.179 ********* 
+
+    TASK [Create, update, Fabric VLAN(s) for SDA operations in Cisco Catalyst Center] ********************************************************************************************************************
+    Tuesday 04 March 2025  23:56:45 -0800 (0:00:00.055)       0:00:02.234 ********* 
+    changed: [catalyst_center_hosts]
+
+    TASK [Print the layer2 Fabric VLAN(s) creation output] *********************************************************************************************************************************************************************
+    Tuesday 04 March 2025  23:44:00 -0800 (0:04:00.971)       0:04:03.242 ********* 
+    ok: [catalyst_center_hosts] => 
+      msg:
+        changed: true
+        diff: []
+        failed: false
+        msg: 'Layer2 Fabric VLAN(s) ''[''l2_scale having vlan id: 2 and site: Global/SDA Sites/site_scale-0'', ''l2_scale having vlan id: 3 and site: Global/SDA Sites/site_scale-1'', ''l2_scale having vlan id: 4 and site: Global/SDA Sites/site_scale-2'', ''l2_scale having vlan id: 5 and site: Global/SDA Sites/site_scale-3'', ''l2_scale having vlan id: 6 and site: Global/SDA Sites/site_scale-4'', ''l2_scale having vlan id: 7 and site: Global/SDA Sites/site_scale-5'', ''l2_scale having vlan id: 8 and site: Global/SDA Sites/site_scale-6'', ''l2_scale having vlan id: 9 and site: Global/SDA Sites/site_scale-7'', ''l2_scale having vlan id: 10 and site: Global/SDA Sites/site_scale-8'', ''l2_scale having vlan id: 11 and site: Global/SDA Sites/site_scale-9'']'' created successfully in the Cisco Catalyst Center. Layer3 Virtual Network(s) ''[''l3_scale_0'', ''l3_scale_1'', ''l3_scale_2'', ''l3_scale_3'', ''l3_scale_4'', ''l3_scale_5'', ''l3_scale_6'', ''l3_scale_7'', ''l3_scale_8'', ''l3_scale_9'']'' created
+          successfully in the Cisco Catalyst Center.'
+        response: 'Layer2 Fabric VLAN(s) ''[''l2_scale having vlan id: 2 and site: Global/SDA Sites/site_scale-0'', ''l2_scale having vlan id: 3 and site: Global/SDA Sites/site_scale-1'', ''l2_scale having vlan id: 4 and site: Global/SDA Sites/site_scale-2'', ''l2_scale having vlan id: 5 and site: Global/SDA Sites/site_scale-3'', ''l2_scale having vlan id: 6 and site: Global/SDA Sites/site_scale-4'', ''l2_scale having vlan id: 7 and site: Global/SDA Sites/site_scale-5'', ''l2_scale having vlan id: 8 and site: Global/SDA Sites/site_scale-6'', ''l2_scale having vlan id: 9 and site: Global/SDA Sites/site_scale-7'', ''l2_scale having vlan id: 10 and site: Global/SDA Sites/site_scale-8'', ''l2_scale having vlan id: 11 and site: Global/SDA Sites/site_scale-9'']'' created successfully in the Cisco Catalyst Center. Layer3 Virtual Network(s) ''[''l3_scale_0'', ''l3_scale_1'', ''l3_scale_2'', ''l3_scale_3'', ''l3_scale_4'', ''l3_scale_5'', ''l3_scale_6'', ''l3_scale_7'', ''l3_scale_8'', ''l3_scale_9'']''
+          created successfully in the Cisco Catalyst Center.'
+        status: success
+    Read vars_file '{{ VARS_FILE_PATH }}'
+
+    TASK [Delete the template file] **********************************************************************************************************************************************************************
+    Tuesday 04 March 2025  23:56:55 -0800 (0:00:00.029)       0:00:12.156 ********* 
+    changed: [catalyst_center_hosts]
+
+    TASK [SDA Fabric Virtual Networks and L2/L3 Gateways playbook end time] ****************************************************************************************************************************************************
+    Tuesday 04 March 2025  23:44:01 -0800 (0:00:00.956)       0:04:04.242 ********* 
+    ok: [catalyst_center_hosts]
+
+    TASK [Print SDA Fabric Virtual Networks and L2/L3 Gateways execution time] *************************************************************************************************************************************************
+    Tuesday 04 March 2025  23:44:01 -0800 (0:00:00.021)       0:04:04.264 ********* 
+    ok: [catalyst_center_hosts] => 
+      msg: 'SDA Fabric Virtual Networks and L2/L3 Gateways playbook run time: 2025-03-04 23:39:56.885148, end: 2025-03-04 23:44:01.041848'
+
+    TASK [run command module to find python version] ***************************************************************************************************************************************************************************
+    Tuesday 04 March 2025  23:44:01 -0800 (0:00:00.030)       0:04:04.294 ********* 
+    changed: [catalyst_center_hosts]
+
+    PLAY RECAP *****************************************************************************************************************************************************************************************************************
+    catalyst_center_hosts      : ok=10   changed=3    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+    Tuesday 04 March 2025  23:44:01 -0800 (0:00:00.485)       0:04:04.779 ********* 
+    =============================================================================== 
+    cisco.dnac.sda_fabric_virtual_networks_workflow_manager --------------- 240.97s
+    template ---------------------------------------------------------------- 2.08s
+    ansible.builtin.command ------------------------------------------------- 1.44s
+    debug ------------------------------------------------------------------- 0.09s
+    include_vars ------------------------------------------------------------ 0.06s
+    set_fact ---------------------------------------------------------------- 0.05s
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    total ----------------------------------------------------------------- 244.70s
+    Playbook run took 0 days, 0 hours, 4 minutes, 4 seconds
+  ```
+
+  #### d. UI Action
+  ![alt text](./images/scale_l2_and_l3.png)
+
+### 3. Delete a Scale layer3 and Scale layer2
+  Similar to Create, change the destination playbook to: `./workflows/network_settings/playbook/delete_network_settings_playbook.yml`
+  ```bash
+    (pyats-ansible-phamdat) bash-4.4$ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/sda_virtual_networks_l2l3_gateways/playbook/delete_sda_virtual_networks_l2_l3_gateways_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/s
+    da_virtual_networks_l2_l3_gateways_jinja_input.yml
+
+    PLAY [Playbook to manage Cisco Catalyst Center Fabric Virtual Networks and layer2 and L3 Gateways] ************************************************
+
+    TASK [SDA Fabric Virtual Networks and L2/L3 Gateways Playbook start time] *************************************************************************
+    Wednesday 05 March 2025  00:30:28 -0800 (0:00:00.096)       0:00:00.096 ******* 
+    ok: [catalyst_center_hosts]
+
+    TASK [debug] **************************************************************************************************************************************
+    Wednesday 05 March 2025  00:30:28 -0800 (0:00:00.027)       0:00:00.123 ******* 
+    ok: [catalyst_center_hosts] => 
+      msg: 'version: 2.3.7.6'
+
+    TASK [Create Template] ****************************************************************************************************************************
+    Wednesday 05 March 2025  00:30:28 -0800 (0:00:00.022)       0:00:00.146 ******* 
+    ok: [catalyst_center_hosts]
+
+    TASK [Include the variables file ../tmp/template_generated_file.yaml for the playbook] ************************************************************
+    Wednesday 05 March 2025  00:30:30 -0800 (0:00:02.062)       0:00:02.209 ******* 
+    ok: [catalyst_center_hosts]
+
+    TASK [Delete Fabric VLAN(s) for SDA operations in Cisco Catalyst Center] *****************************************************************
+    Wednesday 05 March 2025  00:30:30 -0800 (0:00:00.052)       0:00:02.261 ******* 
+    changed: [catalyst_center_hosts]
+
+    TASK [Print the layer2 Fabric VLAN(s) creation output] ********************************************************************************************
+    Wednesday 05 March 2025  00:32:03 -0800 (0:01:32.944)       0:01:35.206 ******* 
+    ok: [catalyst_center_hosts] => 
+      msg:
+        changed: true
+        diff: []
+        failed: false
+        msg: 'Fabric VLAN(s) ''[''l2_scale having vlan id: 2 and site: Global/SDA Sites/site_scale-0'', ''l2_scale having vlan id: 3 and site: Global/SDA Sites/site_scale-1'', ''l2_scale having vlan id: 4 and site: Global/SDA Sites/site_scale-2'', ''l2_scale having vlan id: 5 and site: Global/SDA Sites/site_scale-3'', ''l2_scale having vlan id: 6 and site: Global/SDA Sites/site_scale-4'', ''l2_scale having vlan id: 7 and site: Global/SDA Sites/site_scale-5'', ''l2_scale having vlan id: 8 and site: Global/SDA Sites/site_scale-6'', ''l2_scale having vlan id: 9 and site: Global/SDA Sites/site_scale-7'', ''l2_scale having vlan id: 10 and site: Global/SDA Sites/site_scale-8'', ''l2_scale having vlan id: 11 and site: Global/SDA Sites/site_scale-9'']'' deleted successfully from the Cisco Catalyst Center. Layer3 Virtual Network(s) ''[''l3_scale_0'', ''l3_scale_1'', ''l3_scale_2'', ''l3_scale_3'', ''l3_scale_4'', ''l3_scale_5'', ''l3_scale_6'', ''l3_scale_7'', ''l3_scale_8'', ''l3_scale_9'']'' deleted
+          successfully from the Cisco Catalyst Center.'
+        response: 'Fabric VLAN(s) ''[''l2_scale having vlan id: 2 and site: Global/SDA Sites/site_scale-0'', ''l2_scale having vlan id: 3 and site: Global/SDA Sites/site_scale-1'', ''l2_scale having vlan id: 4 and site: Global/SDA Sites/site_scale-2'', ''l2_scale having vlan id: 5 and site: Global/SDA Sites/site_scale-3'', ''l2_scale having vlan id: 6 and site: Global/SDA Sites/site_scale-4'', ''l2_scale having vlan id: 7 and site: Global/SDA Sites/site_scale-5'', ''l2_scale having vlan id: 8 and site: Global/SDA Sites/site_scale-6'', ''l2_scale having vlan id: 9 and site: Global/SDA Sites/site_scale-7'', ''l2_scale having vlan id: 10 and site: Global/SDA Sites/site_scale-8'', ''l2_scale having vlan id: 11 and site: Global/SDA Sites/site_scale-9'']'' deleted successfully from the Cisco Catalyst Center. Layer3 Virtual Network(s) ''[''l3_scale_0'', ''l3_scale_1'', ''l3_scale_2'', ''l3_scale_3'', ''l3_scale_4'', ''l3_scale_5'', ''l3_scale_6'', ''l3_scale_7'', ''l3_scale_8'', ''l3_scale_9'']'' deleted
+          successfully from the Cisco Catalyst Center.'
+        status: success
+
+    TASK [Delete the template file] *******************************************************************************************************************
+    Wednesday 05 March 2025  00:32:03 -0800 (0:00:00.046)       0:01:35.252 ******* 
+    changed: [catalyst_center_hosts]
+
+    TASK [SDA Fabric Virtual Networks and L2/L3 Gateways playbook end time] ***************************************************************************
+    Wednesday 05 March 2025  00:32:04 -0800 (0:00:01.182)       0:01:36.435 ******* 
+    ok: [catalyst_center_hosts]
+
+    TASK [Print SDA Fabric Virtual Networks and L2/L3 Gateways execution time] ************************************************************************
+    Wednesday 05 March 2025  00:32:04 -0800 (0:00:00.025)       0:01:36.461 ******* 
+    ok: [catalyst_center_hosts] => 
+      msg: 'SDA Fabric Virtual Networks and L2/L3 Gateways playbook run time: 2025-03-05 00:30:28.105850, end: 2025-03-05 00:32:04.444496'
+
+    TASK [run command module to find python version] **************************************************************************************************
+    Wednesday 05 March 2025  00:32:04 -0800 (0:00:00.035)       0:01:36.496 ******* 
+    changed: [catalyst_center_hosts]
+
+    PLAY RECAP ****************************************************************************************************************************************
+    catalyst_center_hosts      : ok=10   changed=3    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+    Wednesday 05 March 2025  00:32:04 -0800 (0:00:00.491)       0:01:36.988 ******* 
+    =============================================================================== 
+    cisco.dnac.sda_fabric_virtual_networks_workflow_manager ---------------- 92.94s
+    template ---------------------------------------------------------------- 2.06s
+    ansible.builtin.command ------------------------------------------------- 1.67s
+    debug ------------------------------------------------------------------- 0.10s
+    set_fact ---------------------------------------------------------------- 0.05s
+    include_vars ------------------------------------------------------------ 0.05s
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    total ------------------------------------------------------------------ 96.89s
+    Playbook run took 0 days, 0 hours, 1 minutes, 36 seconds
+  ```
 
 ## References
 
