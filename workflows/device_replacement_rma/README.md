@@ -43,6 +43,22 @@ rma_devices:
     replacement_device_serial_number: "KWC2333037V"
 ```
 
+```yaml
+---
+catalyst_center_version: 2.3.7.6
+rma_devices: 
+  - faulty_device_ip_address: "204.192.3.40"
+    replacement_device_ip_address: "204.1.2.5"
+```
+
+```yaml
+---
+catalyst_center_version: 2.3.7.6
+rma_devices: 
+  - faulty_device_name: "SJ-EN-9300.cisco.local"
+    replacement_device_name: "SJ-EN-9300.cisco-1.local"
+```
+
 ## Validate the inputs:
 ```bash
 yamale -s workflows/device_replacement_rma/schema/device_replacement_rma_schema.yml workflows/device_replacement_rma/vars/device_replacement_rma_input.yml

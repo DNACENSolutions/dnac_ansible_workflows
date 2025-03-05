@@ -41,19 +41,25 @@ Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/modul
 - The Sample host_inventory_dnac1/hosts.yml
 
 ```bash
+---
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
-            dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
+            #(Mandatory) CatC Ip address
+            catalyst_center_host:  <CatC IP Address>
+            #(Mandatory) CatC UI admin Password
+            catalyst_center_password: <CatC UI admin Password>
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            #(Mandatory) CatC UI admin username
+            catalyst_center_username: <CatC UI admin username> 
+            catalyst_center_verify: false
+            #(Mandatory) CatC Release version
+            catalyst_center_version: <CatC Release version>
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
+```
 ```
 ### 3. Define Playbook input:
 The /vars/template_workflow_inputs.yml file stores the sites details you want to configure.
@@ -136,7 +142,9 @@ deploy_device_details:
 * Use `yaml`:
 
 ```bash
-yaml -s workflows/device_templates/schema/template_workflow_schema.yml workflows/device_templates/vars/template_workflow_inputs.yml 
+yamale -s workflows/device_templates/schema/template_workflow_schema.yml workflows/device_templates/vars/template_workflow_inputs.yml 
+```
+```
 Validating /Users/pawansi/dnac_ansible_workflows/workflows/device_templates/vars/template_workflow_inputs.yml...
 Validation success! 👍
 ```
@@ -298,9 +306,8 @@ Note: The environment is used for the references in the above instructions.
   ansible: 9.9.0
   ansible-core: 2.16.10
   ansible-runner: 2.4.0
-
   dnacentersdk: 2.8.3
-  cisco.dnac: 6.29.0
+  cisco.dnac: 6.30.0
   ansible.utils: 5.1.2
 ```
 Cisco Catalyst Center Ansible Module Documentation: [template_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/template_workflow_manager_module.html)

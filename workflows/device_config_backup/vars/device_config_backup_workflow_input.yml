@@ -9,7 +9,7 @@ device_configs_backup_details:
   - ip_address_list: [204.1.2.1]
     collection_status_list: [Managed]
     #family_list: ["Switches and Hubs"]
-    #file_password: qsaA12!asdasd
+    #file_password: XXXXXXX
     file_path: "./"
     #hostname_list: ["NY-BN-9500.cisco.local"]
     #mac_address_list: ["d4:ad:bd:c1:67:00", " 00:b6:70:32:b8:00"]

@@ -58,7 +58,6 @@
     - name: Authentication and Policy Servers configurations on Cisco Catalyst Center
       cisco.dnac.ise_radius_integration_workflow_manager:
         <<: *dnac_login
-        #dnac_version: "{{ catalyst_center_version }}"
         state: merged
         config: "{{ise_radius_integration_details}}"
       register: ise_radius_integration_output

@@ -50,8 +50,6 @@
     - name: Create, update, Fabric VLAN(s) for SDA operations in Cisco Catalyst Center
       cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
         <<: *dnac_login
-        dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
-        dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
         state: "{{state}}"
         config: "{{sda_fabric_virtual_networks_details}}"
       register: sda_fabric_virtual_networks_output
