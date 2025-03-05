@@ -1,0 +1,5 @@
+{
+  "summary": "Automate and update network settings and IP pool reservations on Cisco Catalyst Center sites efficiently with our Ansible playbook.",
+  "status": "active",
+  "managed_by": "cisco"
+}

@@ -1,0 +1,5 @@
+{
+  "summary": "Automate the provisioning and onboarding of new network devices with Cisco's Plug and Play technology using our Ansible playbook for streamlined and consistent configuration.",
+  "status": "active",
+  "managed_by": "cisco"
+}

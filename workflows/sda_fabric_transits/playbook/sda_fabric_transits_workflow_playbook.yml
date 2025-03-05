@@ -26,8 +26,8 @@
       catalyst_center_debug: "{{ catalyst_center_debug | default(catalyst_center_debug) }}"
       catalyst_center_log: "{{ catalyst_center_log | default(catalyst_center_log) }}"
       catalyst_center_log_level: "{{ catalyst_center_log_level | default(catalyst_center_log_level) }}"
-      # catalyst_center_log_file_path: "{{ catalyst_center_log_file_path | default(catalyst_center_log_file_path) }}"
-      # catalyst_center_log_append: "{{ catalyst_center_log_append | default(catalyst_center_log_append) }}"
+      catalyst_center_log_file_path: "{{ catalyst_center_log_file_path | default(catalyst_center_log_file_path) }}"
+      catalyst_center_log_append: "{{ catalyst_center_log_append | default(catalyst_center_log_append) }}"
   tasks:
   #write tasks for fabric site(s)/zone(s) creations
     - name: Playbook start time for the fabric transits playbook
