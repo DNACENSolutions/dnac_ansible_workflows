@@ -1,14 +1,13 @@
 dnachosts:
   hosts:
     catalyst_center_hosts:
-      dnac_debug: true
-      dnac_host: 172.19.186.220 #(Mandatory) DNAC Ip address
-      dnac_password: Password@9 #(Mandatory)
-      dnac_port: 443 #(Mandatory)
-      dnac_username: admin #(Mandatory)
-      dnac_verify: false #(Mandatory)
-      dnac_version: 2.3.7.6 #(Mandatory)  Example: 2.3.5.3
-      dnac_log: true
-      dnac_log_level: debug
-      catalyst_center_config_verify: true
-      ansible_python_interpreter: /Users/majlona/Desktop/dnac_ansible_workflows_vs_copilot/python3env/bin/python
+      catalyst_center_debug: true
+      catalyst_center_host: 10.22.40.214 #(Mandatory) catalyst_center Ip address
+      catalyst_center_password: xxxxxxx #(Mandatory)
+      catalyst_center_port: 443 #(Mandatory)
+      catalyst_center_username: rammuthy #(Mandatory)
+      catalyst_center_verify: false #(Mandatory)
+      catalyst_center_version: 2.3.7.6 #(Mandatory)  Example: 2.3.5.3
+      catalyst_center_log: true
+      catalyst_center_log_level: debug
+      ansible_python_interpreter: /auto/dna-sol/ws/rammuthy/ansible_rammuthy/pyats1/bin/python
