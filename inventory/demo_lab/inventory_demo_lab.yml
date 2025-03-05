@@ -1,0 +1,13 @@
+dnachosts:
+  hosts:
+    catalyst_center_hosts:
+      catalyst_center_debug: true
+      catalyst_center_host: 10.22.40.214 #(Mandatory) catalyst_center Ip address
+      catalyst_center_password: xxxxxxx #(Mandatory)
+      catalyst_center_port: 443 #(Mandatory)
+      catalyst_center_username: rammuthy #(Mandatory)
+      catalyst_center_verify: false #(Mandatory)
+      catalyst_center_version: 2.3.7.6 #(Mandatory)  Example: 2.3.5.3
+      catalyst_center_log: true
+      catalyst_center_log_level: debug
+      ansible_python_interpreter: /auto/dna-sol/ws/rammuthy/ansible_rammuthy/pyats1/bin/python
