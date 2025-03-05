@@ -5,26 +5,101 @@ events_notifications_destination_and_subscription_details:
   - email_destination:
       sender_email: "test@cisco.com"
       recipient_email: "demo@cisco.com"
-      subject: "Ansible testing"
+      subject: "Testing email destination"
       primary_smtp_config:
-        server_address: "outbound.cisco.com"
+        server_address: "mail.cisco.com"
         port: "25"
         smtp_type: "DEFAULT"
+      secondary_smtp_config:
+        server_address: outbound.cisco.com
+        port: "587"
+        smtp_type: "TLS"
   - syslog_destination:
-      name: Syslog test
-      description: "Adding syslog destination"
-      server_address: "10.30.0.90"
+      name: Syslog test 100
+      description: "Testing syslog destination notification"
+      server_address: "10.20.0.40"
       protocol: "TCP"
       port: 6553
+  - webhook_destination:
+      name: webhook demo 110
+      description: Webhook Demo Test SEEN-5000-01
+      url: https://4.5.6.8/dnac_test_webhook
+      method: POST
+      trust_cert: false
+      headers_list: # Wrap headers inside another key
+        headers:
+          - name: Header1
+            value: Header_Value1
+            encrypt: false
+          - name: Header2
+            value: Header_Value2
+            encrypt: false
+      is_proxy_route: false
+  - webhook_destination:
+      name: webhook demo 111
+      description: Webhook Demo Test SEEN-5001-02
+      url: https://webhook.cisco.com/dna_test_webhook
+      method: PUT
+      trust_cert: false
+      is_proxy_route: true
   - snmp_destination:
-      name: Snmp test
-      description: "Adding snmp destination for testing."
-      server_address: "10.30.0.90"
-      port: "25"
-      snmp_version: "V3"
+      name: SNMP Testing 
+      description: Test Cisco SNMP V2C
+      server_address: 22.10.30.34
+      port: 165
+      snmp_version: V2C
+      community: testcisco_secure
+  - snmp_destination:
+      name: Snmp test new
+      description: Adding snmp destination for testing V3
+      server_address: 10.30.0.90
+      port: 125
+      snmp_version: V3
       username: cisco
       mode: AUTH_PRIVACY
       auth_type: SHA
       auth_password: authpass123
       privacy_type: AES128
       privacy_password: privacy123
+
+  #Configuring Subscription
+
+  - email_event_notification:
+      name: EMAIL Notification Testing
+      description: Notification description for email subscription creation 01 Please ignore test
+      sites:
+        - Global/India/Bangalore/BLD_1
+      events:
+        - AP Flap
+        - AP disconnected from WLC
+      sender_email: catalyst@cisco.com
+      recipient_emails:
+        - noc@cisco.com
+        - soc@cisco.com
+        - mohmshai@cisco.com
+      subject: Mail test
+      instance: Email Instance test
+      instance_description: Email Instance description 1
+
+  - syslog_event_notification:
+      name: Syslog Notification 001
+      description: Subscription for syslog events notification Test 001
+      sites:
+        - Global/India/Bangalore/BLD_1
+        - Global/Bangladesh/Dhaka/Dhaka_Building/Administration20
+      events:
+        - AP Flap
+        - AP Reboot Crash
+        - AP disconnected from WLC
+        - Switch Power Failure
+      destination: Test_Syslog 101
+
+  - webhook_event_notification:
+      name: Webhook Notification SEEN-4890-02
+      description: Notification for webhook events subscription 002
+      sites:
+        - Global/India/Bangalore/BLD_1
+      events:
+        - Add device failed
+        - AP Coverage Hole
+      destination: webhook demo 103
