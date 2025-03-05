@@ -2,58 +2,137 @@
 #Select Catalyst Cennter version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 pnp_details:
-  claim_ewlc_devices:
-      - site_name: Global/USA/SAN JOSE/BLD23
-        project_name: Onboarding Configuration
-        image_name: C9800-40-universalk9_wlc.17.12.02.SPA.bin
-        template_name: PnP-Devices_SJ-EWLC_No-Vars
-        state: merged
-        device_info:
-          - serial_number: FOX2639PAYD
-            hostname: SJ-EWLC-1
-            state: Unclaimed
-            pid: C9800-40-K9
-        pnp_type: CatalystWLC
-        static_ip: 204.192.50.200
-        subnet_mask: 255.255.255.0
-        gateway: 204.192.50.1
-        ip_interface_name: TenGigabitEthernet0/0/2
-        vlan_id: 2050
+  add_network_device:
+    - device_info:
+      - serial_number: FOX2639PAYD
+        hostname: SJ-EWLC-1
+        state: Unclaimed
+        pid: C9800-40-K9
+
+  add_bulk_network_devices:
+    - device_info:
+      - serial_number: FXS2502Q2HC
+        hostname: SF-BN-2-ASR.cisco.local
+        state: Unclaimed
+        pid: ASR1001-X
+      - serial_number: FJC271923AK
+        hostname: NY-EN-9300
+        state: Unclaimed
+        pid: C9300-48UXM
+      - serial_number: FOX2639PAYD
+        hostname: SJ-EWLC-1.cisco.local
+        state: Unclaimed
+        pid: C9800-40-K9 
 
   claim_switching_devices:
-      - site_name: Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL4
+      - site_name: Global/USA/SAN JOSE/SJ_BLD21
         project_name: Onboarding Configuration
-        template_name: PnP-Devices_No-Vars
-        image_name: cat9k_iosxe.17.09.04a.SPA.bin
-        state: merged
+        template_name: PnP-Devices-SW
+        image_name: cat9k_iosxe.17.12.04.SPA.bin
+        template_params:
+          PNP_VLAN_ID: 2000
+          LOOPBACK_IP: 204.1.2.100
         device_info:
-          serial_number: FJC271925Q1
-          add_device_method: Single
-          hostname: SJ-EN-9300
-          state: Unclaimed
-          pid: C9300-48UXM
+          - serial_number: FJC272127LW
+            hostname: DC-FR-9300.cisco.local
+            state: Unclaimed
+            pid: C9300-48T
 
-      - site_name: Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL4
-        project_name: Onboarding Configuration
-        template_name: PnP-Devices_No-Vars
-        image_name: cat9k_iosxe.17.12.01.SPA.bin
-        state: merged
-        device_info:
-          serial_number: FJC271924D9
-          add_device_method: Single
-          hostname: Test
+  claim_cat9k_switch_stack:
+    - site_name:  Global/USA/New York/NY_BLD1
+      project_name: Onboarding Configuration
+      template_name: PnP-Devices-SW
+      image_name: cat9k_iosxe.17.12.02.SPA.bin
+      template_params:
+        PNP_VLAN_ID: 2005
+        LOOPBACK_IP: 204.1.2.2
+      device_info:
+        - serial_number: FJC271925Q1
+          hostname: NY-EN-9300
           state: Unclaimed
           pid: C9300-48UXM
+      pnp_type: StackSwitch
+
+  claim_embedded_wireless_controller:
+    - site_name: Global/USA/SAN JOSE/SJ_BLD23
+      project_name: Onboarding Configuration
+      image_name: C9800-40-universalk9_wlc.17.12.02.SPA.bin
+      template_name: PnP-Devices_SJ-EWLC
+      template_params:
+        MGMT_IP: 10.22.40.244
+        MGMT_SUBNET: 255.255.255.0
+        NTP_SERVER_IP: 171.68.38.66
+      device_info:
+        - serial_number: FOX2639PAYD
+          hostname: SJ-EWLC-1
+          state: Unclaimed
+          pid: C9800-40-K9
+      pnp_type: CatalystWLC
+      static_ip: 204.192.50.200
+      subnet_mask: 255.255.255.0
+      gateway: 204.192.50.1
+      ip_interface_name: TenGigabitEthernet0/0/2
+      vlan_id: 2050
+
+  pnp_ewlc_reset:
+    - site_name: Global/USA/SAN JOSE/SJ_BLD23
+      project_name: Onboarding Configuration
+      template_name: PnP-Devices_SJ-EWLC_No-Vars
+      device_info:
+        - serial_number: FOX2639PAYD
+          hostname: SJ-EWLC-1
+          state: Error
+          pid: C9800-40-K9
+  
+  claim_access_points:
+    - site_name: Global/USA/New York/NY_BLD2/FLOOR1
+      rf_profile: HIGH
+      device_info:
+        - serial_number: FGL2402LCYH
+          hostname: NY-AP1-C9120AXE
+          state: Unclaimed
+          pid: C9120AXE-E
+      pnp_type: AccessPoint
+
+  claim_multiple_ewlc_ha:
+    - site_name: Global/USA/New York/NY_BLD2
+      project_name: Onboarding Configuration
+      image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+      template_name: PnP-Devices_NY-EWLC_No-Vars
+      device_info:
+        - serial_number: TTM2737020R
+          hostname: NY-EWLC-1
+          state: Unclaimed
+          pid: C9800-40-K9
+      pnp_type: CatalystWLC
+      static_ip: 10.4.218.230
+      subnet_mask: 255.255.255.240
+      gateway: 10.4.218.225
+      ip_interface_name: TenGigabitEthernet0/0/1
+      vlan_id: 2014
+    - site_name: Global/USA/New York/NY_BLD2
+      project_name: Onboarding Configuration
+      image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+      template_name: PnP-Devices_NY-EWLC_No-Vars
+      device_info:
+        - serial_number: TTM2737021L
+          hostname: NY-EWLC-2
+          state: Unclaimed
+          pid: C9800-40-K9
+      pnp_type: CatalystWLC
+      static_ip: 10.4.218.232
+      subnet_mask: 255.255.255.240
+      gateway: 10.4.218.225
+      ip_interface_name: TenGigabitEthernet0/0/1
+      vlan_id: 2014
 
   claim_router_devices:
-      - site_name: Global/USA/SAN-FRANCISCO/BLD_SF1
-        project_name: Onboarding Configuration
-        template_name: PnP-Devices_SF-ISR_No-Vars
-        image_name: isr4400-universalk9.17.12.02.SPA.bin
-        state: merged
-        device_info:
-          serial_number: FJC2402A0TX
-          add_device_method: Single
-          hostname: SF-BN-ISR
+    - site_name: Global/USA/SAN-FRANCISCO/BLD_SF1
+      project_name: Onboarding Configuration
+      template_name: PnP-Devices_SF-ISR_No-Vars
+      image_name: isr4400-universalk9.17.12.02.SPA.bin
+      device_info:
+        - serial_number: FXS2502Q2HC
+          hostname: SF-BN-2-ASR.cisco.local
           state: Unclaimed
-          pid: ISR4451-X/K9
+          pid: ASR1001-X

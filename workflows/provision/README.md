@@ -315,7 +315,7 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/prov
 ### Example: Wired device
 #### Input (YAML)
 ```bash
-unprovision_details:
+provision_details:
   - management_ip_address: xx.xx.xx.xx
 ```
 

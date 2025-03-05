@@ -1,18 +1,18 @@
 # Ansible Workflow: Device Template Workflow Manager
 
-### Overview
+## I. Overview.
 
 This Ansible workflow automates crating and managing template projects, device templates and deploying the templates to the devices. One of the many powerful features of Cisco's DNA Center is its templating engine. You can configure nearly your entire network from here.
 
-### Detailed Input Spec
+### 1. Detailed Input Spec.
 Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/template_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/template_workflow_manager/)
 
-### Features
+### 2. Features.
 - Create, update, or delete configuration templates.
 - Apply templates to specific devices or device types.
 - Manage template versions and rollback configurations.
 
-### Main Task
+### 3. Main Task.
 
 *  Manage operations create, update and delete of the resource Configuration Template.
 *    API to create a template by project name and template name.
@@ -25,18 +25,17 @@ Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/modul
 *  Deploy Templates to devices with device specific parameters.
 
 
-###  Important Notes
+###  4. Important Notes.
 * Always refer to the detailed input specification for comprehensive information on available options and their structure.
 
-## I. Procedure
-### Prepare your Ansible environment:
+## II. Procedure
+### 1. Prepare your Ansible environment.
 
-- nstall Ansible if you haven't already
+- install Ansible if you haven't already
 - Ensure you have network connectivity to your Catalyst Center instance.
-- Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
+- Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git.
 
-
-### Configure Host Inventory:
+### 2. Configure Host Inventory.
 - The host_inventory_dnac1/hosts.yml file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
 - Make sure the dnac_version in this file matches your actual Catalyst Center version.
 - The Sample host_inventory_dnac1/hosts.yml
@@ -56,7 +55,7 @@ catalyst_center_hosts:
             dnac_log_level: INFO
             dnac_log: true
 ```
-### Define Playbook input:
+### 3. Define Playbook input:
 The /vars/template_workflow_inputs.yml file stores the sites details you want to configure.
 
 - Create templates
@@ -132,61 +131,46 @@ deploy_device_details:
       device_details:
         device_ips: ["10.1.2.1", "10.2.3.4"]
 ```
-### How to Validate Input
+### 4. How to Validate Input.
 
-* Use `yamale`:
+* Use `yaml`:
 
 ```bash
-yamale -s workflows/device_templates/schema/template_workflow_schema.yml workflows/device_templates/vars/template_workflow_inputs.yml 
+yaml -s workflows/device_templates/schema/template_workflow_schema.yml workflows/device_templates/vars/template_workflow_inputs.yml 
 Validating /Users/pawansi/dnac_ansible_workflows/workflows/device_templates/vars/template_workflow_inputs.yml...
 Validation success! 👍
 ```
 
-### How to Run
-* Execute the Ansible Playbook to add, update, provision devices:
+### 5. How to Run.
+* Execute the Ansible Playbook to add, update, provision devices.
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_templates/playbook/template_workflow_playbook.yml --e VARS_FILE_PATH=../vars/template_workflow_inputs.yml
 ```
 
-*  How to Delete Existing Devices from inventory
+*  How to Delete Existing Devices from inventory.
 *  Run the Delete Playbook:
 ```bash
     ansible-playbook -i host_inventory_dnac/hosts.yml workflows/device_templates/playbook/delete_template_workflow_playbook.yml --e VARS_FILE_PATH=../vars/template_workflow_inputs.yml
 ```
 
-## II. Detailed steps to perform
+## III. Detailed steps to perform.
 
-### 1. Create Templates - PnP-Upstream-SW
+### 1. Create Templates - PnP-Upstream-SW.
 
 #### **Mapping config to UI Actions**
 
 - The config parameter within this task corresponds to the "Design > CLI Templates > Create Template" action in the Cisco Catalyst Center UI.
 
 ![alt text](./images/create0.png)
-- Enter the parameters of the template you want to create
+- Enter the parameters of the template you want to create.
 ![alt text](./images/template1.png)
-- Enter content template -> Commit
+- Enter content template -> Commit.
 ![alt text](./images/create2.png)
-- Enter commit note -> Commit
+- Enter commit note -> Commit.
 ![alt text](./images/create3.png)
-- Check template created
+- Check template created.
 ![alt text](./images/create4.png)
 
-
-
-
-#### **YAML Structure and Parameter Explanation**
-
-```
-- name: Create templates - PnP-Upstream-SW
-  cisco.dnac.template_workflow_manager:
-    <<: *common_config
-    state: merged
-    config:
-      - "{{ item }}"
-  with_list: "{{ vars_map.template_details }}"
-  tags: pnp_upstream_sw
-```
 
 #### **Example Input File**
 
@@ -223,25 +207,13 @@ template_details:
 ### 2. Delete Templates
 
 #### **Mapping config to UI Actions**
-- Choose Templete want to delete -> Delete
+- Choose Template want to delete -> Delete.
 ![alt text](./images/delete1.png)
-- Click Yes to confirm deleting the template
-![alt text](./images/delete1.png)
-- Check Template deleted
-![alt text](./images/delete1.png)
+- Click "Yes" to confirm deleting the template.
+![alt text](./images/delete2.png)
+- Check Template deleted.
+![alt text](./images/delete3.png)
 
-#### **YAML Structure and Parameter Explanation**
-
-```bash
-- name: Create templates - PnP-Upstream-SW
-  cisco.dnac.template_workflow_manager:
-    <<: *common_config
-    state: delete
-    config:
-      - "{{ item }}"
-  with_list: "{{ vars_map.template_details }}"
-  tags: pnp_upstream_sw
-```
 #### **Example Input File**
 ```bash
 template_details:
@@ -277,38 +249,24 @@ template_details:
 ### 3. Deploy Templates
 
 #### **Mapping config to UI Actions**
-- Acttach Template to Network Profile: Choose Template -> Attach
+- Acttach Template to Network Profile: Choose Template -> Attach.
 ![alt text](./images/deploy1.png)
-- Choose Network Profile need to attach -> Save
+- Choose Network Profile need to attach -> "Save".
 ![alt text](./images/deploy2.png)
-- Check Template attach successfuly
+- Check Template attach successfully
 ![alt text](./images/deploy3.png)
-- Choose Template deploy -> Provision Templates
+- Choose Template deploy -> Provision Templates.
 ![alt text](./images/deploy4.png)
-- Click Next
+- Click Next.
 ![alt text](./images/deploy5.png)
-- Choose device need deploy template
+- Choose device need deploy template.
 ![alt text](./images/deploy6.png)
-- Click Next
+- Click Next.
 ![alt text](./images/deploy7.png)
-- click on Apply to deploy the template
+- click on Apply to deploy the template.
 ![alt text](./images/deploy8.png)
 
-#### **YAML Structure and Parameter Explanation**
-
-```
-- name: Create templates - PnP-Devices-SW
-  cisco.dnac.template_workflow_manager:
-    <<: *common_config
-    state: merged
-    config:
-      - "{{ item }}"
-  with_list: "{{ vars_map.deploy_device_details }}"
-  tags: pnp_devices_sw
-```
-
 #### **Example Input File**
-
 
 ```
 - deploy_template:
@@ -332,7 +290,7 @@ template_details:
         device_ips: ["10.1.2.1", "10.2.3.4"]
 ```
 
-## III. References:
+## IV. References:
 
 Note: The environment is used for the references in the above instructions.
 
