@@ -1,4 +1,4 @@
-# User and Role Ansible workflow:
+# User and Role Ansible Playbbok:
 
 **OVERVIEW**
 
@@ -24,7 +24,7 @@ Users with the SUPER-ADMIN-ROLE can create custom roles to fine-tune access perm
 
 **Before starting, ensure the following requirements are met:**
 
-* **Access to Cisco Catalyst Center (DNAC):** Ensure that User and Role is enabled.
+* **Access to Cisco Catalyst Center:** Ensure that User and Role is enabled.
 * **Ansible Installation:** Ansible must be installed on the machine managing the automation process.
 * **Yamale Python Library:** `yamale` Python library installed (`pip install yamale`)
 * **Cisco DNA Ansible Collection:** The cisco.dnac.user_role_workflow_manager module must be available from the Cisco DNA Ansible Collection.
@@ -408,10 +408,6 @@ Figure 7: Role deleted using jinja template.
 ## References
   \* Note: The environment is used for the references in the above instructions.
   ```
-  ansible: 10.7.0
-  ansible-core: 2.17.7
-  ansible-runner: 2.4.0
 
-  dnacentersdk: 2.9.4
+  dnacentersdk: 2.8.6
   cisco.dnac: 6.30.0
-  ansible.utils: 5.1.2

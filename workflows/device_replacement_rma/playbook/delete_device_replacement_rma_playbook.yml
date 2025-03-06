@@ -41,8 +41,6 @@
     - name: Replace devices from design_devices config
       cisco.dnac.rma_workflow_manager:
         <<: *dnac_login
-        dnac_version: "{{ dnac_version }}"
-        dnac_verify: "{{ dnac_verify }}"
         state: "{{state}}"
         config: "{{rma_devices}}"
       register: rma_devices_output
