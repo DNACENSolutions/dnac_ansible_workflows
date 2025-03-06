@@ -40,16 +40,6 @@
         file: ../tmp/template_generated_file.yaml
       when: jinjatemplate is defined and jinjatemplate | bool and jinjatemplate_file is defined
 
-    # Set DNAC version if not already defined
-    - name: Set DNAC version
-      set_fact:
-        dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
-
-    # Debug Catalyst Center version
-    - name: Debug Catalyst Center version
-      debug:
-        msg: "Catalyst Center version: {{ dnac_version }}"
-
     # Manage SDA fabric devices
     - name: Manage SDA fabric devices
       cisco.dnac.sda_fabric_devices_workflow_manager:
