@@ -1,0 +1,452 @@
+---
+- name: Playbook for IP Address Pools
+  hosts: dnac
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - cc_config.yml
+    - "{{ config_ip_pools }}"
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      # config_verify: true
+  tasks:
+    - name: Pulling Variables
+      ansible.builtin.include_vars:
+        file: "{{ input_file }}"
+        name: vars_map
+      tags: always
+
+
+    - name: "Create Global Pool (Negative case: Invalid Address Space)"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.global_invalid_addr_space }}"
+      register: result
+      failed_when: result.failed is false
+      tags: create_global_invalid_addr_space
+    
+    - name: "Create Global Pool (Negative case: Invalid name with special Characters)"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.global_invalid_name }}"
+      register: result
+      failed_when: result.failed is false
+      tags: create_global_invalid_name
+
+    - name: "Create Global Pool (Negative case: Invalid Pool Name: Exceed Character limit)"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.global_pool_name_char_limit }}"
+      register: result
+      failed_when: result.failed is false
+      tags:  create_global_name_char_limit 
+
+    - name: "Create Global Pool (Negative case: Invalid Subnet)"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.global_invalid_ipv4_ips }}"
+      register: result
+      failed_when: result.failed is false
+      tags: create_global_invalid_ipv4_ips
+
+    - name: "Create Global Pool (Negative case: Invalid Subnet)"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.global_invalid_ipv6_ips }}"
+      register: result
+      failed_when: result.failed is false
+      tags: create_global_invalid_ipv6_ips
+
+    - name: "Create Global Pool (Negative case: Invalid Subnet)"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.global_invalid_type }}"
+      register: result
+      failed_when: result.failed is false
+      tags: create_global_invalid_type
+
+    ## POSITIVE
+    - name: "Create IPv4 and IPv6 Address Pools: POSITIVE CASE"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.add_ip_pool }}"
+      tags: create_global
+    
+    - name: "Edit Global Pool (Negative case: Invalid Pool Name: Special characters)"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.edit_global_invalid_name }}"
+      register: result
+      failed_when: result.failed is false
+      tags: edit_global_invalid_name
+
+    - name: "Edit Global Pool (Negative case: Invalid Pool Name: Exceed Char Limit )"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.edit_global_char_limit }}"
+      register: result
+      failed_when: result.failed is false
+      tags: edit_global_char_limit
+
+    - name: "Edit Global Pool (Negative case: Invalid Gateway )"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.edit_global_invalid_ipv4_ips }}"
+      register: result
+      failed_when: result.failed is false
+      tags: edit_global_invalid_ipv4_ips
+
+    - name: "Edit Global Pool (Negative case: Invalid Gateway )"
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.edit_global_invalid_ipv6_ips }}"
+      register: result
+      failed_when: result.failed is false
+      tags: edit_global_invalid_ipv6_ips
+
+    - name: Edit Global Pool - POSITIVE CASE
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.edit_ip_pool }}"
+      tags: edit_global
+
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid Site
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_site }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_invalid_site
+      
+    - name: Reserve IP Pool - NEGATIVE CASE - Sub Pool name with special characters
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_name_spl_char }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_name_spl_char
+
+    - name: Reserve IP Pool - NEGATIVE CASE - Exceed character limit of Sub Pool name
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_name_char_limit }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_name_char_limit
+
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid IPv4 global Pool
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_global }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_ipv4_invalid_global
+    
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid IPv4 Cidr
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_subnet }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_ipv4_invalid_subnet
+    
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid IPv4 gateway
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_gateway }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_ipv4_invalid_gateway
+      
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid IPv4 prefix length
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_ipv4_prefix_len}}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_invalid_ipv4_prefix_len
+
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid IPv4 Dhcp server
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_dhcp_dns }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_invalid_dhcp_dns
+
+
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid IPv6 Global Pool
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_ipv6_global }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_invalid_ipv6_global
+
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid IPv6 prefix length
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_ipv6_prefix_len }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_invalid_ipv6_prefix_len
+    
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid IPv6 Total Hosts
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_ipv4_total_host }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_invalid_ipv4_total_host
+    
+
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid IPv6 Total Hosts
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_ipv6_total_host }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_invalid_ipv6_total_host
+
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid IPv6 Subnet
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_ipv6_subnet }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_invalid_ipv6_subnet
+
+    - name: Reserve IP Pool - NEGATIVE CASE - Invalid IPv6 Gateway
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_invalid_ipv6_gw }}"
+      register: result
+      failed_when: result.failed is false
+      tags: reserve_pool_invalid_ipv6_gw
+
+    - name: Reserve Sub Pools - POSITIVE CASE
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.reserve_pool_config }}"
+      tags: reserve_subpool
+
+    - name: Reserve Sub Pools via Total Hosts - POSITIVE CASE
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.subpool_total_host }}"
+      tags: subpool_total_host
+    
+    - name: Edit Sub-Pool - NEGATIVE CASE - Invalid Name
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.edit_sub_pool_invalid_name }}"
+      register: result
+      failed_when: result.failed is false
+      tags: edit_sub_pool_invalid_name
+
+    - name: Edit Sub-Pool - NEGATIVE CASE - Exceed Character limit of SubPool name
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.edit_sub_pool_name_char_limit }}"
+      register: result
+      failed_when: result.failed is false
+      tags: edit_sub_pool_name_char_limit
+
+    - name: Edit Sub-Pool - NEGATIVE CASE - Invalid IPv6 Address Space
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.edit_sub_pool_invalid_addr_space }}"
+      register: result
+      failed_when: result.failed is false
+      tags: edit_sub_pool_invalid_addr_space
+
+    - name: Edit Sub-Pool - NEGATIVE CASE - Invalid IPv4 Gateway
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.edit_sub_pool_invalid_ipv4_gw }}"
+      register: result
+      failed_when: result.failed is false
+      tags: edit_sub_pool_invalid_ipv4_gw
+
+    - name: Edit Sub-Pool - NEGATIVE CASE - Invalid IPv6 Gateway
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.edit_sub_pool_invalid_ipv6_gw }}"
+      register: result
+      failed_when: result.failed is false
+      tags: edit_sub_pool_invalid_ipv6_gw
+
+    - name: Edit Sub-Pool - NEGATIVE CASE - Invalid Servers
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.edit_sub_pool_invalid_servers }}"
+      register: result
+      failed_when: result.failed is false
+      tags: edit_sub_pool_invalid_servers
+
+    - name: Edit Sub-Pool - NEGATIVE CASE - Invalid Server Synatax
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.edit_sub_pool_invalid_servers_syntax }}"
+      register: result
+      failed_when: result.failed is false
+      tags: edit_sub_pool_invalid_servers_syntax
+
+    - name: Edit Sub Pools - POSITIVE CASE 
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - reserve_pool_details: "{{ vars_map.edit_reserve_pool }}"
+      tags: edit_subpool
+
+    - name: Release Sub-pool NEGATIVE CASE - Incorrect Site Name
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - reserve_pool_details: "{{ vars_map.release_pool_incorrect_site }}"
+      register: result
+      failed_when: result.failed is false
+      tags: release_pool_incorrect_site
+
+    - name: Release IP Pool NEGATIVE CASE - Incorrect Sub-Pool Name
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - reserve_pool_details: "{{ vars_map.release_pool_incorrect_subpool_name }}"
+      tags: release_pool_incorrect_subpool_name  
+
+    - name: Release IP Pool - POSITIVE CASE
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - reserve_pool_details: "{{ vars_map.release_pool_config }}"
+      tags: release_subpool
+
+    - name: Delete all Global Pools - NEGATIVE CASE - Incorrect Global Pool Name
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.delete_global_incorrect_name }}"
+      tags: delete_global_incorrect_name
+
+    - name: Delete all Global Pools - POSITIVE CASE
+      cisco.dnac.network_settings_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - global_pool_details:
+              settings:
+                ip_pool: "{{ vars_map.delete_ip_pool }}"
+      tags: delete_global

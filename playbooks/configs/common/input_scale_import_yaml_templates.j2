@@ -1,0 +1,10 @@
+import_details:
+{% for template_id in template_list %}
+  - import:
+      template:
+        template_file: "{{ template_import_json_scale | dirname }}/json/input_scale_import_json_templates_{{template_id}}.json"
+        project_name: scale
+        do_version: True
+{% endfor %}
+
+
