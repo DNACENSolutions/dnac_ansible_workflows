@@ -205,7 +205,75 @@ A- t the Provision Schedule, enter Task Name -> Configure.
 - Finally, check Preview Configuration -> Deploy.
 ![alt text](./images/configuretion_ap_16.png)
 
+### 2. Creating Bulk Accesspoint Configuration using JINJA template and using the playbook:
+#### a. JINJA Template
+```
+---
+accesspoints_details:
+{% for i in range(119,125) %} 
+  - management_ip_address: "204.20.208.{{i}}"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+{% endfor %}
+{% for i in range(127,130) %} 
+  - management_ip_address: "204.20.208.{{i}}"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 3
+    power_level: 3
+{% endfor %}
+```
+#### b. Input File Example
 
+```
+- management_ip_address: "204.20.208.119"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.120"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.121"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.122"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.123"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.124"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+```
 
 ## IV. References
 
