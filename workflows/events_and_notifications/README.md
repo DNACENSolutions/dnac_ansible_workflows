@@ -6,7 +6,7 @@ Catalyst Center platform supports the ability to send custom notifications when 
 
 ## This workflow manage the follow:
 
-```bash 
+``` yaml
 Configure various types of destinations to deliver event notifications from Cisco Catalyst Center Platform.  
 Configuring/Updating the Webhook destination details in Cisco Catalyst Center.  
 Configuring/Updating the Email destination details in Cisco Catalyst Center.  
