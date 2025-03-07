@@ -701,9 +701,7 @@ changed: [catalyst_center220] => {
 Note: The environment is used for the references in the above instructions.
 ```
   ansible: 9.9.0
-  ansible-core: 2.16.10
-  ansible-runner: 2.4.0
   dnacentersdk: 2.8.3
   cisco.dnac: 6.30.0
-  ansible.utils: 5.1.2
+  dnac version: 2.3.7.7-70047
 ```
