@@ -14,7 +14,7 @@
  - By leveraging this module, network administrators can efficiently manage access points, reducing manual effort and improving consistency across the network.
 
 ### 3. Detailed Input Specification
-![Access Point Workflow Manager]​(https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/accesspoint_workflow_manager)
+- [Access Point Workflow Manager]​(https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/accesspoint_workflow_manager)
 
 ### 4. Features
  - Automates bulk configuration changes for Access Points (APs).
@@ -213,11 +213,9 @@ Note: The environment is used for the references in the above instructions.
 
 ```
   ansible: 9.9.0
-  ansible-core: 2.16.10
-  ansible-runner: 2.4.0
   dnacentersdk: 2.8.3
   cisco.dnac: 6.30.0
-  ansible.utils: 5.1.2
+  dnac version: 2.3.7.7-70047
 ```
 Cisco Catalyst Center Ansible Module Documentation: [sda_extranet_policies_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/accesspoint_workflow_manager_module.html)
 
