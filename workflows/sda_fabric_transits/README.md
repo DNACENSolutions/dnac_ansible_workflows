@@ -20,12 +20,12 @@ Uses LISP/VxLAN encapsulation to connect two fabric sites. The SD-Access transit
 
 3. To create SD-Access Transit atleast one Transit CP device must be provided. 
 
-## Create Fabric transits: Running the Playbook
+## Create Fabric transits
 - Playbook: workflows/sda_fabric_transits/playbook/playbook/sda_fabric_transits_workflow_playbook.yml
 - Schema: workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_schema.yml
 - Input Variables: [Title](vars/sda_fabric_transits_workflow_inputs.yml)
 
-### Input example for Create/Update IP based transit, Lisp PUB/SUB Transit and Lisp BGP transits
+### Input example for Create IP based transit, Lisp PUB/SUB Transit and Lisp BGP transits
 ![Alt text](images/image.png)
 ``` yaml
 fabric_transits:
@@ -51,6 +51,45 @@ fabric_transits:
 
 ![Alt text](images/image-1.png)
 
+### Command to validate and running the playbook
+
+#### Validate the input
+``` bash
+yamale -s workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_schema.yml workflows/sda_fabric_transits/vars/sda_fabric_transits_workflow_inputs.yml
+```
+#### Running the playbook
+``` bash
+ansible-playbook -i inventory/iac2/host.yml  workflows/sda_fabric_transits/playbook/sda_fabric_transits_workflow_playbook.yml --e  VARS_FILE_PATH=../vars/sda_fabric_transits_workflow_inputs.yml > logs/transits.log -vvvvvv  
+```
+
+## Edit/Update Fabric transits
+- Playbook: workflows/sda_fabric_transits/playbook/playbook/sda_fabric_transits_workflow_playbook.yml
+- Schema: workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_schema.yml
+- Input Variables: [Title](vars/sda_fabric_transits_workflow_inputs.yml)
+
+### Input example for Edit/Update IP based transit, Lisp PUB/SUB Transit and Lisp BGP transits
+
+- SDA Transit are not allowed to change the autonomous_system_number of IP Based Transits after created
+- Add/Remove 2nd or more Control Plane Node are allowed in Lisp PUB/SUB Transit and Lisp BGP transits. Just change the IP address of device
+
+``` yaml
+fabric_transits:
+  - sda_fabric_transits:
+      - sda_transit_settings:
+          control_plane_network_device_ips:
+            - 204.1.2.5
+          is_multicast_over_transit_enabled: true
+        name: SDA_Transit_1
+        transit_type: SDA_LISP_PUB_SUB_TRANSIT
+      - sda_fabric_transits:
+        - name: BGP_transit
+        transit_type: SDA_LISP_BGP_TRANSIT
+        sda_transit_settings:
+          control_plane_network_device_ips:
+          - 204.1.2.5
+```
+
+![Alt text](./images/image-3.png)
 ### Command to validate and running the playbook
 
 #### Validate the input
@@ -100,13 +139,8 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_transits
 ## References
 
 ``` yaml
-  ansible: 9.9.0
-  ansible-core: 2.16.10
-  ansible-runner: 2.4.0
-
   dnacentersdk: 2.8.3
   cisco.dnac: 6.29.0
-  ansible.utils: 5.1.2
 ```
 
 ## Important Notes
