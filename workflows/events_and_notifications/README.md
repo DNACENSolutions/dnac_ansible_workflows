@@ -133,11 +133,11 @@ To ensure that syslog destination has been created or updated in Catalyst Center
 
 - Navigate to Systems -> Settings -> External Services -> Destinations then Select "Syslog" destination.
 
-Refrence Screenshot: Syslog Creation Success
+#### Refrence Screenshot: Syslog Creation Success
 
 ![alt text](images/Syslog_creation_successful.png)
 
-Refrence Screenshot: Syslog Details Updated 
+#### Refrence Screenshot: Syslog Details Updated 
 
 Note: Screenshot below indicates that the event description and hostname/IP for 'Syslog test 100' have been updated.
 
@@ -208,11 +208,11 @@ To ensure that webhook destination has been created or updated in Catalyst Cente
 
 - Navigate to Systems -> Settings -> External Services -> Destinations then Select "Webhook" destination.
 
-Refrence Screenshot: Webhook Creation Success
+#### Refrence Screenshot: Webhook Creation Success
 
 ![alt text](images/Webhook_destination_created_successfully.png)
 
-Refrence Screenshot: Webhook Details Updated
+#### Refrence Screenshot: Webhook Details Updated
 
 Note: Screenshot below indicates that the webhook description for 'webhook demo 110' and 'webhook demo 111' have been updated.
 
@@ -278,7 +278,7 @@ To ensure that SNMP destination has been created or updated in Catalyst Center, 
 
 - Navigate to Systems -> Settings -> External Services -> Destinations then Select "SNMP" destination.
 
-Refrence Screenshot: SNMP Creation Success
+#### Refrence Screenshot: SNMP Creation Success
 
 Note: Screenshot below indicates that the SNMP destination 'SNMP Testing' and 'Snmp test new' have been created.
 
@@ -339,13 +339,13 @@ To ensure that ITSM destination has been created or updated in Catalyst Center, 
 
 - Navigate to Systems -> Settings -> External Services -> Destinations then Select "ITSM" destination.
 
-Refrence Screenshot: ITSM Creation Success
+#### Refrence Screenshot: ITSM Creation Success
 
 Note: Screenshot below indicates that the ITSM destination 'Playbook itsm demo 01' and 'ITSM_Demo_test 02' have been created.
 
 ![alt text](images/ITSM_Created_Successfully.png)
 
-Refrence Screenshot: ITSM Details Updated
+#### Refrence Screenshot: ITSM Details Updated
 
 Note: Screenshot below indicates that the ITSM destination description for 'Playbook itsm demo 01' and 'ITSM_Demo_test 02' have been updated.
 
