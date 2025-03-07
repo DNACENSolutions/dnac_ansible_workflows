@@ -6,6 +6,7 @@ Catalyst Center platform supports the ability to send custom notifications when 
 
 ## This workflow manage the follow:
 
+```bash 
 Configure various types of destinations to deliver event notifications from Cisco Catalyst Center Platform.  
 Configuring/Updating the Webhook destination details in Cisco Catalyst Center.  
 Configuring/Updating the Email destination details in Cisco Catalyst Center.  
@@ -13,6 +14,7 @@ Configuring/Updating the Syslog destination details in Cisco Catalyst Center.
 Configuring/Updating the SNMP destination details in Cisco Catalyst Center.  
 Configuring/Updating the ITSM Integration Settings in Cisco Catalyst Center.  
 Create/Update Notification using the above destination in Cisco Catalyst Center.  
+```
 
 ## Configure Environment
 - Update hosts.yml with the connection details of your DNA Center instance. 
