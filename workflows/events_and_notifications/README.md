@@ -541,6 +541,8 @@ Upon successful completion, you should see a message similar to:
 
 This task demonstrates how to delete a specific Webhook Event Subscription from Cisco Catalyst Center.
 
+Note: Input for deleting a Email Event Subscription should be specified in "/vars/events_and_notifications_destinations_inputs.yml", as shown in the example below.
+
 ### Example: Input (YAML)
 ```bash
 ---
@@ -608,6 +610,8 @@ Upon successful completion, you should see a message similar to:
 
 This task demonstrates how to delete a specific Syslog Event Subscription from Cisco Catalyst Center.
 
+Note: Input for deleting a Syslog Event Subscription should be specified in "/vars/events_and_notifications_destinations_inputs.yml", as shown in the example below.
+
 ### Example: Input (YAML)
 ```bash
 ---
@@ -672,6 +676,8 @@ Upon successful completion, you should see a message similar to:
 
 This task demonstrates how to delete a specific Webhook Event Subscription from Cisco Catalyst Center.
 
+Note: Input for deleting a Webhook Event Subscription should be specified in "/vars/events_and_notifications_destinations_inputs.yml", as shown in the example below.
+
 ### Example: Input (YAML)
 ```bash
 ---
@@ -731,6 +737,8 @@ Upon successful completion, you should see a message similar to:
 ## 12. Delete ITSM Event Destination in Catalyst Center
 
 This task demonstrates how to delete a specific ITSM Event Destination from Cisco Catalyst Center.
+
+Note: Input for deleting ITSM Event Destination should be specified in "/vars/events_and_notifications_destinations_inputs.yml", as shown in the example below.
 
 ### Example: Input (YAML)
 ```bash
@@ -815,8 +823,7 @@ yamale -s workflows/events_and_notifications/schema/events_and_notifications_sch
 ## References
 
 ```yaml
-  ansible: 9.9.0
   dnacentersdk: 2.8.3
   cisco.dnac: 6.29.0
-  ansible.utils: 5.1.2
+  dnac version: 2.3.7.6
 ```
