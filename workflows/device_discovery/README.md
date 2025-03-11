@@ -194,8 +194,13 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_discovery/pl
 ## Referances
 
 ```yaml
+  ansible: 9.9.0
+  ansible-core: 2.16.10
+  ansible-runner: 2.4.0
+
   dnacentersdk: 2.8.3
   cisco.dnac: 6.29.0
+  ansible.utils: 5.1.2
 ```
 
 ## Important Notes

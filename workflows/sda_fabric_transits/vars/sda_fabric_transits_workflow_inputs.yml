@@ -7,17 +7,13 @@ fabric_transits:
       - ip_transit_settings:
           autonomous_system_number: "100"
           routing_protocol_name: BGP
-        name: IP_Transit_AS200
+        name: IP Transit_AS200
         transit_type: IP_BASED_TRANSIT
       - sda_transit_settings:
           control_plane_network_device_ips:
-            - 204.1.2.5
+            - "10.1.1.1"
+            - "10.1.1.2"
           is_multicast_over_transit_enabled: true
-        name: SDA_Transit_1
+        name: SDA Transit_1
         transit_type: SDA_LISP_PUB_SUB_TRANSIT
-      - sda_fabric_transits:
-        - name: BGP_transit
-        transit_type: SDA_LISP_BGP_TRANSIT
-        sda_transit_settings:
-          control_plane_network_device_ips:
-          - 204.1.2.5
+
