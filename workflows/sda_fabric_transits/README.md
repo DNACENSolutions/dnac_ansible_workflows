@@ -13,6 +13,32 @@ Uses LISP/VxLAN encapsulation to connect two fabric sites. The SD-Access transit
 
 ## Before you begin
 
+### Prepare Your Ansible Environment
+- Install ansible if you haven't already installed 
+- Ensure you have network connectivity to your Catalyst Center instance
+- Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
+
+###  Configure Hosts Inventory
+- Update hosts.yml with the connection details of your DNA Center instance. 
+
+#### The Sample host_inventory_dnac1/hosts.yml
+
+```bash
+catalyst_center_hosts:
+    hosts:
+        catalyst_center:
+            dnac_host: xx.xx.xx.xx.
+            dnac_password: XXXXXXXX
+            dnac_port: 443
+            dnac_timeout: 60
+            dnac_username: admin
+            dnac_verify: false
+            dnac_version: 2.3.7.6
+            dnac_debug: true
+            dnac_log_level: INFO
+            dnac_log: true
+```
+
 ### Note:
 1. You can’t add an SD-Access (LISP Pub/Sub) transit to a fabric site that uses LISP/BGP control plane. You can’t add SD-Access (LISP/BGP) transit to a fabric site that uses LISP Pub/Sub control plane.
 
@@ -139,6 +165,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_transits
 ## References
 
 ``` yaml
+  dnac_version: 2.3.7.6
   dnacentersdk: 2.8.3
   cisco.dnac: 6.29.0
 ```
