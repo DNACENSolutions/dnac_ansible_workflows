@@ -1,24 +1,33 @@
 
-# RMA Ansible workflow:
+# Catalyst Center Return Material Authorization Playbook:
 
-**OVERVIEW**
+## Return Material Authorization (RMA) Overview
 
 The Return Material Authorization (RMA) workflow lets you replace failed devices quickly. RMA provides a common workflow to replace routers, switches, and APs.
 
 For more information , Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/user_role_workflow_manager/
 
-# Procedure
+## Configure Environment
+- Update hosts.yml with the connection details of your DNA Center instance. 
 
-1. ## Prepare your RMA Ansible environment:
+```bash
+catalyst_center_hosts:
+    hosts:
+        catalyst_center220:
+            catalyst_center_host: xx.xx.xx.xx.
+            catalyst_center_password: XXXXXXXX
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            catalyst_center_username: admin
+            catalyst_center_verify: false
+            catalyst_center_version: 2.3.7.6
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
+```
 
-**Before starting, ensure the following requirements are met:**
 
-* **Ansible Installation:** Ansible must be installed on the machine managing the automation process.
-* **Yamale Python Library:** `yamale` Python library installed (`pip install yamale`)
-* **Cisco DNA Ansible Collection:** The cisco.dnac.rma_workflow_manager module must be available from the Cisco DNA Ansible Collection.
-* **dnacentersdk Python SDK:** This SDK is required to interact with Cisco Catalyst Center.
-
-2. ## Please ensure the following conditions are met before proceeding with the verification of the RMA (Return Merchandise Authorization) workflow:
+## Please ensure the following conditions are met before proceeding with the verification of the RMA (Return Merchandise Authorization) workflow:
 
 1. The software image version of the faulty device must be imported in the image repository before marking the device for replacement.
 2. The faulty device must be in an unreachable state.
@@ -102,9 +111,9 @@ ansible-playbook -i host_inventory_dnac1 workflows/device_replacement_rma/playbo
 ## References
   \* Note: The environment is used for the references in the above instructions.
   ```
-dnacentersdk: 2.9.4
-dnac version: 2.3.7.6
-cisco.dnac: 6.30.0
+  dnacentersdk: 2.8.3
+  cisco.dnac: 6.30.0
+  dnac version: 2.3.7.6
 
 
 
