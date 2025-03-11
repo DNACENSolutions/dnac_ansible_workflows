@@ -3,7 +3,7 @@
 # The playbook is executed with the following command
 # ansible-playbook -i inventory/hosts.yml provision_workflow_playbook.yml --extra-vars "VARS_FILES_PATH=../vars/provision_workflow_inputs.yml"
 - name: Provision devices Cisco Catalyst Center
-  hosts: dnac_hosts
+  hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
 
@@ -13,18 +13,18 @@
   vars:
     state: merged
     dnac_login: &dnac_login
-      dnac_host: "{{ dnac_host }}"
-      dnac_username: "{{ dnac_username }}"
-      dnac_password: "{{ dnac_password }}"
-      dnac_port: "{{ dnac_port }}"
-      dnac_verify: "{{ dnac_verify }}"
-      config_verify: "{{ dnac_config_verify | default(False) }}"
-      dnac_version: "{{ dnac_version  | default(dnac_version) }}"
-      dnac_debug: "{{ dnac_debug | default(dnac_debug) }}"
-      dnac_log: "{{ dnac_log | default(dnac_log) }}"
-      dnac_log_level: "{{ dnac_log_level | default(dnac_log_level) }}"
-      dnac_log_file_path: "{{ dnac_log_file_path | default(dnac_log_file_path) }}"
-      dnac_log_append: "{{ dnac_log_append | default(dnac_log_append) }}"
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(False) }}"
+      dnac_log: "{{ catalyst_center_log | default(False) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
   tasks:
     - name: Provision devices on Cisco Catalyst Center
       set_fact:
@@ -49,5 +49,5 @@
     - name: run command module to find python version
       ansible.builtin.command: which python
       register: ansible_play_path
-      delegate_to: dnac_hosts
+      delegate_to: catalyst_center_hosts
       connection: local
