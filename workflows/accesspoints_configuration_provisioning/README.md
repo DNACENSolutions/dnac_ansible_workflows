@@ -14,8 +14,7 @@
  - By leveraging this module, network administrators can efficiently manage access points, reducing manual effort and improving consistency across the network.
 
 ### 3. Detailed Input Specification
-- [Access Point Workflow Manager]​(https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/accesspoint_workflow_manager)
-
+- [Access Point Workflow Manager](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/accesspoint_workflow_manager)
 ### 4. Features
  - Automates bulk configuration changes for Access Points (APs).
  - Modify AP display names, AP names, or other parameters.
@@ -36,7 +35,7 @@
 ```bash
 catalyst_center_hosts:
     hosts:
-        catalyst_center220:
+        catalyst_center_hosts:
             #(Mandatory) CatC Ip address
             catalyst_center_host:  <CatC IP Address>
             #(Mandatory) CatC UI admin Password
@@ -283,7 +282,6 @@ Note: The environment is used for the references in the above instructions.
   ansible: 9.9.0
   dnacentersdk: 2.8.3
   cisco.dnac: 6.30.0
-  dnac version: 2.3.7.7-70047
 ```
 Cisco Catalyst Center Ansible Module Documentation: [sda_extranet_policies_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/accesspoint_workflow_manager_module.html)
 
