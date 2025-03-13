@@ -101,7 +101,9 @@ We have three ways to import images into DNAC:
       - import_image_details:
           type: CCO
           cco_image_details:
-              image_name: cat9k_iosxe.17.06.08.SPA.bin
+            image_name: 
+              - cat9k_iosxe_npe.17.09.06a.SPA.bin
+              - C9800-40-universalk9_wlc.17.09.06.SPA.bin
   ```
 
   * Note: we can only install the CCO image to be displayed on DNAC. The feature of installing images from CCO will have limitations; we can only install images that have been prepared for display on DNAC.
@@ -255,17 +257,17 @@ We can update the software image (SWIM) to the device with just one run by combi
   
 # Reference
 
-* Note: The environment is used for the references in the above instructions.
-```
-  python: 3.12.0
+*Note: The environment used for the references in the above instructions is as follows:*
 
-  dnac_version: 2.3.7.6
+```yaml
+python: 3.12.0
 
-  ansible: 9.9.0
-  ansible-core: 2.16.10
-  ansible-runner: 2.4.0
+dnac_version: 2.3.7.6
 
-  dnacentersdk: 2.8.3
-  cisco.dnac: 6.29.0
-  ansible.utils: 5.1.2
+ansible: 9.9.0
+ansible-core: 2.16.10
+ansible-runner: 2.4.0
+
+dnacentersdk: 2.8.6
+cisco.dnac: 6.30.2
 ```
