@@ -22,7 +22,8 @@ swim_details:
     - import_image_details:
         type: CCO
         cco_image_details:
-            image_name: cat9k_iosxe.17.06.06a.SPA.bin
+            image_name: 
+              - cat9k_iosxe.17.06.06a.SPA.bin
   # List of images to be tagged as golden images
   golden_tag_images:
     - tagging_details:
