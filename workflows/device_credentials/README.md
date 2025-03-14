@@ -122,6 +122,7 @@ catalyst_center_hosts:
 
   **Input example with creating cli credential**:
 
+-  Create CLI credentials
 
   ```yaml
   ---
@@ -138,6 +139,48 @@ catalyst_center_hosts:
           username: cli-2
           password: "sbs2@"
           enable_password: "8b!rn"
+  ```
+
+-  Create all credentials
+
+```yaml
+catalyst_center_version: 2.3.7.6
+device_credentials:
+  credentials_details: #Create multiple credentials for the same protocol
+  - global_credential_details: #Create global credentials for the device list
+      cli_credential: #Create CLI credentials list
+      - description: CLI Sample 1
+        username: cli-1
+        password: "5!meh"
+        enable_password: "q4^t^"
+      - description: CLI2
+        username: cli-2
+        password: "sbs2@"
+        enable_password: "8b!rn"
+      snmp_v2c_read:
+      - description: snmpRead-1
+        read_community: "@123"
+      snmp_v2c_write:
+      - description: snmpWrite-1
+        write_community: "#mea@"
+      snmp_v3: #Create SNMPv3 credentials list
+      - description: snmpV3 Sample 1 
+        auth_password: "hp!x6px&#@2xi5"
+        auth_type: SHA
+        snmp_mode: AUTHPRIV
+        privacy_password: "ai7tpci3j@*j5g"
+        privacy_type: AES128
+        username: admin
+      https_read: #Create HTTPS Read credentials list
+      - description: httpsRead Sample 1
+        username: admin
+        password: "2!x88yvqz*7"
+        port: 443
+      https_write: #Create HTTPS Write credentials list
+      - description: httpsWrite Sample 1
+        username: admin
+        password: "j@5wgm%s2g%"
+        port: 443
   ```
 
 - **Update Device Credential:**
@@ -210,6 +253,8 @@ catalyst_center_hosts:
 
   **Input example with delete cli credential**:
 
+  - Delete CLI credentials
+
   ```yaml
   ---
   catalyst_center_version: 2.3.7.6
@@ -219,6 +264,31 @@ catalyst_center_hosts:
         cli_credential:
         - description: CLI Sample 1
           username: cli-1
+  ```
+
+  - Delete all credentials
+
+  ```yaml
+  ---
+  catalyst_center_version: 2.3.7.6
+  device_credentials:
+    credentials_details:
+    - global_credential_details:
+        cli_credential:
+        - description: CLI Sample 1
+          username: cli-1
+        snmp_v2c_read:
+        - description: snmpRead-1 # use this for deletion
+        snmp_v2c_write:
+        - description: snmpWrite-1 # use this for deletion
+        snmp_v3:
+        - description: snmpV3 Sample 1 
+        https_read:
+        - description: httpsRead Sample 1
+          username: admin
+        https_write:
+        - description: httpsWrite Sample 1
+          username: admin
   ```
 
 - **Assign or Update Credentials to Sites:**
@@ -820,15 +890,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_credentials/
 
 * Note: The environment is used for the references in the above instructions.
 ```
-  python: 3.12.0
-
-  dnac_version: 2.3.7.6
-
   ansible: 9.9.0
-  ansible-core: 2.16.10
-  ansible-runner: 2.4.0
-
   dnacentersdk: 2.8.3
-  cisco.dnac: 6.29.0
-  ansible.utils: 5.1.2
+  cisco.dnac: 6.30.0
 ```
