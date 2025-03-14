@@ -10,6 +10,10 @@ This Playbook can be used to automate various host onboarding tasks, including:
 5. Onboard hosts on link aggregation (port Channels)
 6. Delete ALL port assignments and port channels for the fabric device using ip_address
 7. Remove provided hosts from interfaces and port channels.
+8. Add wireless SSIDs mapped to specific VLANs
+9. Update just wireless ssid mappings for a specific fabric site
+10. Delete specific wireless SSID mappings
+11. Delete just ALL wireless SSIDs mappings from a fabric site
 
 ## II. Procedure
 
@@ -417,6 +421,57 @@ sda_host_onboarding_details:
 
 ![alt text](./images/apply_delete_port_channel.png)
 
+### 7. wireless SSIDs mapped to specific VLANs
+
+#### 7.1. Generate Input
+
+- Add wireless SSIDs mapped to specific VLANs
+
+```yaml
+---
+#Select Catalyst Center version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+sda_host_onboarding_details:
+    - fabric_site_name_hierarchy: "Global/USA/New York"
+      wireless_ssids:
+        - vlan_name: "GP_nyc-WirelessVNFGuest"
+          ssid_details:
+            - ssid_name: "IAC-WLAN"
+            - ssid_name: "GUEST2"
+              security_group_name: "BYOD"
+```
+
+- Update just wireless ssid mappings for a specific fabric site
+
+```yaml
+---
+#Select Catalyst Center version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+sda_host_onboarding_details:
+    - fabric_site_name_hierarchy: "Global/USA/New York"
+      wireless_ssids:
+        - vlan_name: "GP_nyc-WirelessVNFGuest"
+          ssid_details:
+            - ssid_name: "IAC-WLAN"
+              security_group_name: "BYOD"
+```
+
+-  Delete specific wireless SSID mappings
+
+```yaml
+---
+#Select Catalyst Center version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+sda_host_onboarding_details:
+    - fabric_site_name_hierarchy: "Global/USA/New York"
+      wireless_ssids:
+        - vlan_name: "GP_nyc-WirelessVNFGuest"
+          ssid_details:
+            - ssid_name: "IAC-WLAN"
+```
+
+#### 7.2. Result
+![alt text](./images/vlan_ssid.png)
 
 ## III. How to execute playbook
 
@@ -703,5 +758,4 @@ Note: The environment is used for the references in the above instructions.
   ansible: 9.9.0
   dnacentersdk: 2.8.3
   cisco.dnac: 6.30.0
-  dnac version: 2.3.7.7-70047
 ```
