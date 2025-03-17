@@ -310,7 +310,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integrat
 # Reference
 
 * Note: The environment is used for the references in the above instructions.
-```
+```yaml
   python: 3.12.0
 
   dnac_version: 2.3.7.6
@@ -321,5 +321,4 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integrat
 
   dnacentersdk: 2.8.4
   cisco.dnac: 6.30.0
-  ansible.utils: 5.1.2
 ```
