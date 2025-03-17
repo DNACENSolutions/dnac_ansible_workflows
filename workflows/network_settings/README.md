@@ -1081,5 +1081,4 @@ ansible-runner: 2.4.0
 
 dnacentersdk: 2.8.4
 cisco.dnac: 6.30.0
-ansible.utils: 5.1.2
 ```
