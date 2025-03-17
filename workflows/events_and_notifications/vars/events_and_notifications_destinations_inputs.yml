@@ -58,9 +58,23 @@ events_notifications_destination_and_subscription_details:
       username: cisco
       mode: AUTH_PRIVACY
       auth_type: SHA
-      auth_password: authpass123
+      auth_password: xxxxxx
       privacy_type: AES128
-      privacy_password: privacy123
+      privacy_password: xxxxxx
+  - itsm_setting:
+      instance_name: "Playbook itsm demo 01"
+      description: "ITSM description updated"
+      connection_settings:
+        url: "https://ventest1.service-now.com/"
+        username: xxxxxx
+        password: xxxxxx
+  - itsm_setting:
+      instance_name: "ITSM_Demo_test 02"
+      description: "ITSM description test updated"
+      connection_settings:
+        url: "https://ventestupdate11.service-now.com/"
+        username: xxxxxx
+        password: xxxxxx
 
   #Configuring Subscription
 
