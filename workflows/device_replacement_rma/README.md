@@ -5,7 +5,9 @@
 
 The Return Material Authorization (RMA) workflow lets you replace failed devices quickly. RMA provides a common workflow to replace routers, switches, and APs.
 
-For more information , Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/user_role_workflow_manager/
+When using the RMA workflow with routers and switches, the software image, configuration, and license are restored from the failed device to the replacement device. For wireless APs, the replacement device is assigned to the same site, which is provisioned with primary wireless controller, RF profile, and AP group settings, and placed on the same floor map location in Catalyst Center as the failed AP. For Cisco switch stacks (hardware stacking), you don't need to follow a separate procedure in Catalyst Center for member switch replacement, which is handled by the active switch. The member switch is replaced by the active switch by providing the software image and configuration. Full stack replacement is handled by Catalyst Center.
+
+For more information , Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/rma_workflow_manager/
 
 # Procedure
 1. ## Prepare your Ansible environment:
@@ -24,16 +26,20 @@ Make sure the dnac_version in this file matches your actual Catalyst Center vers
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
-            dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
+            #(Mandatory) CatC Ip address
+            catalyst_center_host:  <DNAC IP Address>
+            #(Mandatory) CatC UI admin Password
+            catalyst_center_password: <DNAC UI admin Password>
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            #(Mandatory) CatC UI admin username
+            catalyst_center_username: <DNAC UI admin username> 
+            catalyst_center_verify: false
+            #(Mandatory) DNAC Release version
+            catalyst_center_version: <DNAC Release version>
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
 ```
 
 
@@ -116,6 +122,48 @@ ansible-playbook -i host_inventory_dnac1 workflows/device_replacement_rma/playbo
     If you don't want to replace the device, select the device and choose Actions > Unmark for Replacement.
     Figure3: Mark Faulty Device for replacement UI
     ![Alt text](./images/unmark_faulty_device.png)
+
+
+# Limitations of the RMA Workflow in Catalyst Center
+RMA supports replacement of all switches, routers, and Cisco SD-Access devices, except for the following:
+
+Devices with embedded wireless controllers
+
+Cisco Wireless Controllers
+
+Chassis-based Nexus 7700 Series Switches
+
+Switch stacks (SVL stacking)
+
+RMA supports devices with an external SCEP broker PKI certificate. The PKI certificate is created and authenticated for the replacement device during the RMA workflow. The PKI certificate of the replaced faulty device must be manually deleted from the certificate server.
+
+The RMA workflow supports device replacement only if:
+
+Both the faulty and replacement devices have the same extension cards.
+
+The number of ports in both devices does not vary because of the extension cards.
+
+The faulty device is managed by Catalyst Center with a static IP. (RMA is not supported for devices that are managed by Catalyst Center with a DHCP IP, except extended node and AP in fabric.)
+
+Make sure that the replacement device is connected to the same port to which the faulty device was connected.
+
+Fabric edge replacement does not support the DHCP server configuration in the neighbor device if the neighbor device is not part of the fabric. Because intermediate nodes are not part of the Cisco SD-Access fabric, the DHCP server with option 43 is not pushed.
+
+Catalyst Center does not support legacy license deployment.
+
+The RMA workflow deregisters the faulty device from Cisco SSM and registers the replacement device with Cisco SSM.
+
+If the software image installed on the faulty device is earlier than Cisco IOS XE 16.8, the License Details window does not display the Network and Feature License details and no warning message is displayed. Therefore, you should be aware of the legacy network license configured on the faulty device and manually apply the same legacy network license on the replacement device.
+
+If the software image installed on the faulty device is Cisco IOS XE 16.8 or later, the License Details window displays details of the network license (for example, Legacy or Network) and the feature license (for example, IP Base, IP Service, or LAN Base). The following warning message is displayed while marking the faulty device for replacement:
+
+Some of the faulty devices don't have a license. Please ensure your replacement device has the same Legacy license of the faulty device enabled.
+If the legacy network licenses of the replacement and faulty devices do not match, the following error message is displayed during the license deployment:
+
+Catalyst Center doesn't support legacy license deployment. So manually update the faulty device license on the replacement device and resync before proceeding.
+Catalyst Center supports PnP onboarding of the replacement device in a fabric network, except when:
+
+The faulty device is connected to an uplink device using multiple interfaces.
 
 
 ## References
