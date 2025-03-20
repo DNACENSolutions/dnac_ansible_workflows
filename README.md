@@ -1,6 +1,8 @@
+# catalyst-center-ansible-iac
 [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/DNACENSolutions/dnac_ansible_workflows)
 [![Run in Cisco Cloud IDE](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-runable-icon.svg)](https://developer.cisco.com/codeexchange/devenv/DNACENSolutions/dnac_ansible_workflows/)
 ![Catalyst Center Cisco Validated Ansible Playbooks Official](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git)
+
 
 # Catalyst Center Cisco Validated Playbooks
 This repository provides Cisco-validated Ansible playbooks to automate Catalyst Center configurations, accelerating your network automation journey. It includes:
@@ -56,6 +58,7 @@ Enhance scalability and flexibility with Jinja-based template support. These tem
 - [Catalyst Center Device Inventory and device management](./workflows/inventory#readme)
 - [Catalyst Center Plug and Play Device Onboarding](./workflows/plug_and_play/README.md)
 - [Catalyst Center Device Provisioning and Re-Provisioning Management](./workflows/provision/README.md)
+- [Catalyst Center Design and Deploy Device Templates](./workflows/device_templates/README.md)
 
 ## Day2 Configurations (Underlay automation and SD Access fabric)
 - [Catalyst Center Underlay Automation (LAN Automation) Management](./workflows/lan_automation/#readme)
@@ -71,21 +74,25 @@ Enhance scalability and flexibility with Jinja-based template support. These tem
 - [Catalyst Center Device compliance and remidiation](./workflows/network_compliance/README.md)
 - [Catalyst Center Notification Destination and Events Subscription](./workflows/events_and_notifications/README.md)
 - [Catalyst Center Devices Replacement Management](./workflows/device_replacement_rma/README.md)
-- [Catalyst Center Access Point Provisioning and Access Point Configuration Management](./workflows/wireless_ap_config/README.md)
+- [Catalyst Center Access Point Provisioning and Access Point Configuration Management](./workflows/accesspoints_configuration_provisioning/README.md)
 - [Device Configuration Customization using Catalyst Center Templates](./workflows/device_templates/README.md)
 - [Catalyst Center managed network devices configurations backup management](./workflows/device_config_backup/README.md)
 
 ## Demo Videos
 [IaC Demo Videos](http://3.136.0.140/index.html)
 
-# Compatibility Matrix
-| Deployed Catalyst Center Version | Catalyst Center Version in Input | Ansible Galaxy collection (cisco.dnac) Version | Python SDK (dnacentersdk) Version |
-|:--------------------------------:|:--------------------------------:|:---------------------------------------------:|:---------------------------------:|
-| 2.3.5.3                          | 2.3.5.3                          | latest                                        | latest                            |
-| 2.3.5.5                          | 2.3.5.3                          | latest                                        | latest                            |
-| 2.3.5.6                          | 2.3.5.3                          | latest                                        | latest                            |
-| 2.3.7.6                          | 2.3.7.6                          | latest                                        | latest                            |
-| 2.3.7.7                          | 2.3.7.6                          | latest                                        | latest                            |
+# CompatibilityMatrix
+| Deployed Catalyst Center Version   | Catalyst Center Version in Input   | Ansible Galaxy collection (cisco.dnac)Version    | Python SDK (dnacentersdk) Version    |
+| :--------------------------------: | :--------------------------------: | :-----------------------: | :-------------------: |
+| 2.3.5.3 | 2.3.5.3   | latest   | latest |
+| 2.3.5.5 | 2.3.5.3   | latest   | latest |
+| 2.3.5.6 | 2.3.5.3   | latest   | latest |
+| 2.3.7.6 | 2.3.7.6   | latest   | latest |
+| 2.3.7.7 | 2.3.7.6   | latest   | latest |
+| 2.3.7.9 | 2.3.7.9   | latest   | latest |
+
+# Released Versions
+v2.3.7.6.1
 
 # Prerequisites
 Before using these Ansible workflows, ensure that you have the following prerequisites:
@@ -97,10 +104,14 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 # Installation
 Follow these steps to install the Cisco Validated Playbooks, Schema, and Sample Input Variables:
 
-## Python Setup
-Python 3.9+ is required to install iac-validate. If you don't have Python 3.9 or later, see the [Python 3 Installation & Setup Guide](https://realpython.com/installing-python/).
+- Install Python 3.9 or later
+- Install  cisco.dnac collection including Python requirements.
+- Modify ansible.cfg file to support additional jinja2 extensions
 
-Create your Python virtual environment using the following commands:
+## Python
+    Python 3.9+ is required to install iac-validate. Don't have Python 3.9 or later? 
+    See Python 3 Installation & Setup Guide https://realpython.com/installing-python/
+    Create your python virtual environment using commend:
 ```bash
 python3 -m venv python3env --prompt "AnsiblePython3 VENV"
 source python3env/bin/activate
@@ -110,18 +121,21 @@ source python3env/bin/activate
 1. Clone this repository to your local machine:
 
 ```bash
-    git clone https://github.com/DNACENSolutions/dnac_ansible_workflows.git
+git clone https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git
 ```
-
+Cloning a released version:
+```bash
+git clone --depth 1 --branch v2.3.7.6.1 https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git
+```
 
 ## Navigate to the project directory:    
 ```bash
-    cd dnac_ansible_workflows
+cd dnac_ansible_workflows
 ```
 
 ## Install the required dependencies:
 ```bash
-    pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 ## Install the collection (Galaxy link):
 For installing or upgrading the cisco.dnac ansible collection follow steps:
@@ -132,7 +146,7 @@ For installing or upgrading the cisco.dnac ansible collection follow steps:
 ### Latest version
 Clone the dnacenter-ansible repository.
 ```bash
-    ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.dnac --force
 ```
 ### Sppecific version
 ```bash
@@ -270,19 +284,19 @@ export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 # Update
 Getting the latest/nightly collection build
 
-Clone the dnacenter-ansible repository.
+Clone the Catalyst Center ansible IaC repository if not already cloned.
 ```bash
- git clone git@github.com:DNACENSolutions/dnac_ansible_workflows.git
+git clone https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git
 ```
     
 Go to the dnacenter-ansible directory
 ```bash
- cd dnac_ansible_workflows
+cd catalyst-center-ansible-iac
 ```
     
 Pull the latest master from the repo
 ```bash
-    git pull origin master
+git pull origin master
 ```
 
 # Raising an issue or enhanceent request

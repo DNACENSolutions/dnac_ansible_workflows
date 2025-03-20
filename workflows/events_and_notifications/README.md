@@ -5,16 +5,22 @@
 Catalyst Center platform supports the ability to send custom notifications when specific events are triggered. This is valuable for third-party systems that take business actions based upon event type. For example, when a device in the network is out of compliance, a custom application may want to receive notifications and execute a software upgrade action.
 
 ## This workflow manage the follow:
+    Configure various types of destinations to deliver event notifications from Cisco Catalyst Center Platform.
+    Configuring/Updating the Webhook destination details in Cisco Catalyst Center.
+    Configuring/Updating the Email destination details in Cisco Catalyst Center.
+    Configuring/Updating the Syslog destination details in Cisco Catalyst Center.
+    Configuring/Updating the SNMP destination details in Cisco Catalyst Center.
+    Configuring/Updating the ITSM Integration Settings in Cisco Catalyst Center.
+    Create/Update Notification using the above destination in Cisco Catalyst Center.
 
-``` yaml
-Configure various types of destinations to deliver event notifications from Cisco Catalyst Center Platform.  
-Configuring/Updating the Webhook destination details in Cisco Catalyst Center.  
-Configuring/Updating the Email destination details in Cisco Catalyst Center.  
-Configuring/Updating the Syslog destination details in Cisco Catalyst Center.  
-Configuring/Updating the SNMP destination details in Cisco Catalyst Center.  
-Configuring/Updating the ITSM Integration Settings in Cisco Catalyst Center.  
-Create/Update Notification using the above destination in Cisco Catalyst Center.  
-```
+## Prerequisites
+
+Before starting, ensure the following requirements are met:
+- **Ansible Installation**: Ansible must be installed on the machine managing the automation process.
+- **Cisco DNA Ansible Collection**: The `cisco.dnac.eventes_and_notifications_workflow_manager` module must be available from the Cisco DNA Ansible Collection.
+- **dnacentersdk Python SDK**: This SDK is required to interact with Cisco Catalyst Center.
+- **Yamale Python Library**: The `yamale` Python library installed (`pip install yamale`)
+- **Cisco DNA Center or Events and Notifications Connect Access**: Ensure access is configured
 
 ## Configure Environment
 - Update hosts.yml with the connection details of your DNA Center instance. 
@@ -100,6 +106,18 @@ Upon successful completion, you should see a message similar to:
     }
 ```
 
+### Step 3: Upon successful completion, Email destination will be created or updated in UI
+
+To confirm that email destination has been created or updated, follow this step:
+
+- Navigate to Systems -> Settings -> External Services -> Destinations then Select "Email" destination.
+
+#### Reference Screenshots
+
+![alt text](images/create_update_email_dest_img1.png)
+
+![alt text](images/create_update_email_dest_img2.png)
+
 ## 2. Create/Update Syslog destination in Catalyst Center
 
 This task demonstrates how to create or update an Syslog destination in Cisco Catalyst Center for event notifications.
@@ -157,7 +175,20 @@ Upon successful completion, you should see a message similar to:
     }
 ```
 
-### Step 3: Verify the Syslog Destination in the Catalyst Center UI
+### Step 4: Verify the Syslog Destination in the Catalyst Center UI
+
+To ensure that syslog destination has been created or updated in Catalyst Center, follow this step:
+
+- Navigate to Systems -> Settings -> External Services -> Destinations then Select "Syslog" destination.
+
+Refrence Screenshot: Syslog Creation Success
+
+![alt text](images/Syslog_creation_successful.png)
+
+Refrence Screenshot: Syslog Details Updated 
+
+Note: Screenshot below indicates that the event description and hostname/IP for 'Syslog test 100' have been updated.
+![alt text](images/Syslog_details_updated_successfully.png)
 
 ## 3. Create/Update Webhook destination in Catalyst Center
 
@@ -232,6 +263,21 @@ Upon successful completion, you should see a message similar to:
     }
 ```
 
+### Step 3: Verify the Webhook Destination in the Catalyst Center UI
+
+To ensure that webhook destination has been created or updated in Catalyst Center, follow this step:
+
+- Navigate to Systems -> Settings -> External Services -> Destinations then Select "Webhook" destination.
+
+Refrence Screenshot: Webhook Creation Success
+
+![alt text](images/Webhook_destination_created_successfully.png)
+
+Refrence Screenshot: Webhook Details Updated
+
+Note: Screenshot below indicates that the webhook description for 'webhook demo 110' and 'webhook demo 111' have been updated.
+![alt text](images/Webhook_destination_updated_successfully.png)
+
 ## 4. Create/Update SNMP destination in Catalyst Center
 
 This task demonstrates how to create or update an SNMP destination in Cisco Catalyst Center for event notifications.
@@ -297,6 +343,17 @@ Upon successful completion, you should see a message similar to:
         "response": "Destination(s) '['SNMP Testing', 'Snmp test new']' created successfully in Cisco Catalyst Center."
     }
 ```
+
+### Step 3: Verify the SNMP Destination in the Catalyst Center UI
+
+To ensure that SNMP destination has been created or updated in Catalyst Center, follow this step:
+
+- Navigate to Systems -> Settings -> External Services -> Destinations then Select "SNMP" destination.
+
+Refrence Screenshot: SNMP Creation Success
+
+Note: Screenshot below indicates that the SNMP destination 'SNMP Testing' and 'Snmp test new' have been created.
+![alt text](images/SNMP_event_created_successfully.png)
 
 ## 5. Create/Update ITSM destination in Catalyst Center
 
@@ -365,6 +422,22 @@ Upon successful completion, you should see a message similar to:
     }
 ```
 
+### Step 3: Verify the ITSM Destination in the Catalyst Center UI
+
+To ensure that ITSM destination has been created or updated in Catalyst Center, follow this step:
+
+- Navigate to Systems -> Settings -> External Services -> Destinations then Select "ITSM" destination.
+
+Refrence Screenshot: ITSM Creation Success
+
+Note: Screenshot below indicates that the ITSM destination 'Playbook itsm demo 01' and 'ITSM_Demo_test 02' have been created.
+![alt text](images/ITSM_Created_Successfully.png)
+
+Refrence Screenshot: ITSM Details Updated
+
+Note: Screenshot below indicates that the ITSM destination description for 'Playbook itsm demo 01' and 'ITSM_Demo_test 02' have been updated.
+![alt text](images/ITSM_Updated_Successfully.png)
+
 ## 6. Create/Update Email Event Subscription in Catalyst Center
 
 This task demonstrates how to create or update an Email Event Subsription in Cisco Catalyst Center.
@@ -426,6 +499,16 @@ Upon successful completion, you should see a message similar to:
     }
 ```
 
+### Step 3: Verify the Event subscription notification in the Catalyst Center UI
+
+To ensure that Event subscription notification has been created or updated in Catalyst Center, follow this step:
+
+- Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
+
+Reference Screenshot:
+
+![alt text](images/Email_event_subscription_created.png)
+
 ## 7. Create/Update Syslog Event Subscription in Catalyst Center
 
 This task demonstrates how to create or update an Syslog Event Subsription in Cisco Catalyst Center.
@@ -483,6 +566,16 @@ msg":
     }
 ```
 
+### Step 3: Verify the Syslog subscription notification in the Catalyst Center UI
+
+To ensure that Syslog subscription notification has been created or updated in Catalyst Center, follow this step:
+
+- Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
+
+Reference Screenshot:
+
+![alt text](images/Syslog_even_subscription_created.png)
+
 ## 8. Create/Update Webhook Event Subscription in Catalyst Center
 
 This task demonstrates how to create or update an Webhook Event Subsription in Cisco Catalyst Center.
@@ -536,6 +629,16 @@ Upon successful completion, you should see a message similar to:
         "response": "Event subscription notification(s) '['Webhook Notification SEEN-4890-02']' created successfully in Cisco Catalyst Center."
     }
 ```
+
+### Step 3: Verify the Webhook subscription notification in the Catalyst Center UI
+
+To ensure that Webhook subscription notification has been created or updated in Catalyst Center, follow this step:
+
+- Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
+
+Reference Screenshot:
+
+![alt text](images/Webhook_event_subscription_created.png)
 
 ## 9. Delete Email Event Subscription in Catalyst Center
 
@@ -606,6 +709,20 @@ Upon successful completion, you should see a message similar to:
     }
 ```
 
+### Step 3: Verify the Email subscription notification in the Catalyst Center UI
+
+To ensure that Email subscription notification has been deleted in Catalyst Center, follow this step:
+
+- Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
+
+Reference Screenshot: 
+
+Note: Note: Ensure that specific Email Subscription Event Notification presents in Catalyst Centert:
+![alt text](images/Before_delete_email_event.png)
+
+Note: After executing the delete_events_and_notifications playbook, verify the deletion of the Email Event Subscription:
+![alt text](images/After_delete_email_event.png)
+
 ## 10. Delete Syslog Event Subscription in Catalyst Center
 
 This task demonstrates how to delete a specific Syslog Event Subscription from Cisco Catalyst Center.
@@ -671,6 +788,20 @@ Upon successful completion, you should see a message similar to:
         "response": "Events subscription notification(s) '['Syslog Notification 001']' deleted successfully from the Cisco Catalyst Center."
     }
 ```
+
+### Step 3: Verify the Syslog subscription notification in the Catalyst Center UI
+
+To ensure that Syslog subscription notification has been deleted in Catalyst Center, follow this step:
+
+- Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
+
+Reference Screenshot: 
+
+Note: Note: Ensure that specific Syslog Subscription Event Notification presents in Catalyst Center
+![alt text](images/Before_deleting_syslog_event.png)
+
+Note: After executing the delete_events_and_notifications playbook, verify the deletion of the Email Event Subscription:
+![alt text](images/After_deleting_syslog_event.png)
 
 ## 11. Delete Webhook Event Subscription in Catalyst Center
 
