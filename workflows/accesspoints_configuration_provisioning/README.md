@@ -35,7 +35,7 @@
 ```bash
 catalyst_center_hosts:
     hosts:
-        catalyst_center_hosts:
+        catalyst_center220:
             #(Mandatory) CatC Ip address
             catalyst_center_host:  <CatC IP Address>
             #(Mandatory) CatC UI admin Password
