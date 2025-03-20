@@ -2,44 +2,46 @@
 [![Run in Cisco Cloud IDE](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-runable-icon.svg)](https://developer.cisco.com/codeexchange/devenv/DNACENSolutions/dnac_ansible_workflows/)
 ![Catalyst Center Cisco Validated Ansible Playbooks Official](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git)
 
-
 # Catalyst Center Cisco Validated Playbooks
-This repository provides Cisco-validated Ansible playbooks to automate Catalyst Center configurations, accelerating your network automation journey. 
-It includes:
+This repository provides Cisco-validated Ansible playbooks to automate Catalyst Center configurations, accelerating your network automation journey. It includes:
 
-## Ready-to-use playbooks: 
+## Ready-to-use playbooks
 Streamline Catalyst Center provisioning with ready-to-use Ansible playbooks. Automate configurations and simplify network management tasks.
 
-## Input validation schemas: 
+## Input validation schemas
 Yamale-based input validation schemas ensure user input accuracy for the playbooks by validating user input before execution. This significantly reduces the potential for human error and ensures consistent, reliable results. Prevent costly mistakes and maintain configuration integrity with automated input checks.
 
-## Comprehensive guides: 
-Comprehensive guides provide detailed instructions and practical examples for various Catalyst Center configuration use cases. Learn how to  deploy, update, and maintain your network infrastructure with step-by-step guidance and best practices.  These resources empower you to effectively manage your network throughout its lifecycle.
+## Comprehensive guides
+Comprehensive guides provide detailed instructions and practical examples for various Catalyst Center configuration use cases. Learn how to deploy, update, and maintain your network infrastructure with step-by-step guidance and best practices. These resources empower you to effectively manage your network throughout its lifecycle.
 
-## Sample inputs: 
+## Sample inputs
 Jumpstart your automation journey with sample input files that demonstrate proper formatting and supported values. Quickly create your own input configurations by adapting these examples, saving time and reducing errors. Use these pre-populated templates as a foundation for customizing your Catalyst Center deployments.
 
-## Sample Jinja Based template:
-Enhance scalability and flexibility with Jinja-based template support.  These templates empower you to dynamically generate input configurations, adapting to various deployments with ease.  Simplify complex configurations and streamline repetitive tasks by leveraging the power of Jinja templating within your Ansible playbooks.
+## Sample Jinja Based template
+Enhance scalability and flexibility with Jinja-based template support. These templates empower you to dynamically generate input configurations, adapting to various deployments with ease. Simplify complex configurations and streamline repetitive tasks by leveraging the power of Jinja templating within your Ansible playbooks.
 
 ### Embrace infrastructure as code and manage your entire Catalyst Center configuration through Git. This repository provides the tools and guidance to make Git your single source of truth, ensuring:
 
-Complete version control: Track every change and easily revert to previous states.
-Increased collaboration: Simplify teamwork with a centralized and transparent platform.
-Improved reliability: Reduce errors and ensure consistent configurations across your network.
-Simplified deployments: Automate updates and rollbacks with confidence.
+- Complete version control: Track every change and easily revert to previous states.
+- Increased collaboration: Simplify teamwork with a centralized and transparent platform.
+- Improved reliability: Reduce errors and ensure consistent configurations across your network.
+- Simplified deployments: Automate updates and rollbacks with confidence.
+
 # Enterprise Usecases
-![Alt text](./images/enterpriseUsecases.png)
+![Enterprise Usecases](./images/enterpriseUsecases.png)
 
 # Table of Contents
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Examples](#examples)
+- [Troubleshooting](#troubleshooting)
 - [Update](#update)
 - [Contributing](#contributing)
 - [License](#license)
-- Cisco Validated Playbooks usage guides
+- [Cisco Validated Playbooks](#cisco-validated-playbooks)
+
+# Cisco Validated Playbooks
 
 ## Day0 Configurations (Access and Integrations)
 - [Catalyst Center Role Based Access Control and Users Management](./workflows/users_and_roles/README.md)
@@ -56,7 +58,7 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 - [Catalyst Center Device Provisioning and Re-Provisioning Management](./workflows/provision/README.md)
 
 ## Day2 Configurations (Underlay automation and SD Access fabric)
-- [Catalyst Cennter Underlay Automation (LAN Automation) Management](./workflows/lan_automation/#readme)
+- [Catalyst Center Underlay Automation (LAN Automation) Management](./workflows/lan_automation/#readme)
 - [Catalyst Center SDA Fabric Site and Fabric Zones](./workflows/sda_fabric_sites_zones/README.md)
 - [Catalyst Center SDA Fabric Transits (IP and SDA) Management](./workflows/sda_fabric_transits/README.md)
 - [Catalyst Center Virtual Networks and L3 Anycast Gateways and L2 Vlans](./workflows/sda_virtual_networks_l2l3_gateways/README.md)
@@ -77,13 +79,13 @@ Simplified deployments: Automate updates and rollbacks with confidence.
 [IaC Demo Videos](http://3.136.0.140/index.html)
 
 # Compatibility Matrix
-| Deployed Catalyst Center Version   | Catalyst Center Version in Input   | Ansible Galaxy collection (cisco.dnac)Version    | Python SDK (dnacentersdk) Version    |
-| :--------------------------------: | :--------------------------------: | :-----------------------: | :-------------------: |
-| 2.3.5.3 | 2.3.5.3   | latest   | latest |
-| 2.3.5.5 | 2.3.5.3   | latest   | latest |
-| 2.3.5.6 | 2.3.5.3   | latest   | latest |
-| 2.3.7.6 | 2.3.7.6   | latest   | latest |
-| 2.3.7.7 | 2.3.7.6   | latest   | latest |
+| Deployed Catalyst Center Version | Catalyst Center Version in Input | Ansible Galaxy collection (cisco.dnac) Version | Python SDK (dnacentersdk) Version |
+|:--------------------------------:|:--------------------------------:|:---------------------------------------------:|:---------------------------------:|
+| 2.3.5.3                          | 2.3.5.3                          | latest                                        | latest                            |
+| 2.3.5.5                          | 2.3.5.3                          | latest                                        | latest                            |
+| 2.3.5.6                          | 2.3.5.3                          | latest                                        | latest                            |
+| 2.3.7.6                          | 2.3.7.6                          | latest                                        | latest                            |
+| 2.3.7.7                          | 2.3.7.6                          | latest                                        | latest                            |
 
 # Prerequisites
 Before using these Ansible workflows, ensure that you have the following prerequisites:
@@ -92,20 +94,16 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 - Access to a Cisco Catalyst Center instance
 - Proper network connectivity to interact with the Catalyst Center APIs
 
+# Installation
+Follow these steps to install the Cisco Validated Playbooks, Schema, and Sample Input Variables:
 
-# Installation of Cisco Validated Playbooks, Schema and Sample Inputs Vars
+## Python Setup
+Python 3.9+ is required to install iac-validate. If you don't have Python 3.9 or later, see the [Python 3 Installation & Setup Guide](https://realpython.com/installing-python/).
 
-- Install Python 3.9 or later
-- Install  cisco.dnac collection including Python requirements.
-- Modify ansible.cfg file to support additional jinja2 extensions
-
-## Python
-    Python 3.9+ is required to install iac-validate. Don't have Python 3.9 or later? 
-    See Python 3 Installation & Setup Guide https://realpython.com/installing-python/
-    Create your python virtual environment using commend:
+Create your Python virtual environment using the following commands:
 ```bash
-    python3 -m venv python3env --prompt "AnsiblePython3 VENV"
-    source python3env/bin/activate
+python3 -m venv python3env --prompt "AnsiblePython3 VENV"
+source python3env/bin/activate
 ```
 
 ## Ansible Requirements
