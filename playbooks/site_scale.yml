@@ -1,0 +1,60 @@
+---
+- name: Playbook for Site Workflow Manager (Scale)
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - ./cc_config.yml
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+    count: "{{ COUNT }}"
+    start: "{{ START }}"
+    site_elements: "{{ range(start, count + start + 1) | list }}"
+
+  tasks:
+    - name: Generate Site Configurations from Template
+      template:
+        src: "./configs/site_scale_template.j2"
+        dest: "./configs/input_site_scale{{ start }}_{{ count }}.yml"
+      tags: generate
+
+    - name: Load design_sites config
+      include_vars:
+        file: "./configs/input_site_scale{{ start }}_{{ count }}.yml"
+        name: vars_map
+      tags: always
+
+    - name: Create sites
+      cisco.dnac.site_workflow_manager:
+        <<: *common_config
+        state: merged
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.design_sites }}"
+      async: 60
+      poll: 1
+      tags: create
+
+    - name: Delete sites
+      cisco.dnac.site_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config:
+          - "{{ item }}"
+      loop: "{{ vars_map.design_sites | reverse }}"
+      async: 60
+      poll: 1
+      tags: delete

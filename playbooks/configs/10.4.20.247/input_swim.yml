@@ -1,0 +1,147 @@
+---
+swim_task:
+  import:
+    - import_image_details:
+        type: remote
+        url_details:
+          payload:
+            - source_url: http://10.4.23.100/swim/V1712_1_CCO/cat9k_iosxe.17.12.01.SPA.bin
+              is_third_party: False
+
+  tag:
+    - tagging_details:
+        image_name: cat9k_iosxe.17.12.01.SPA.bin
+        device_role: ACCESS
+        site_name: Global/USA/San Jose
+        device_image_family_name: Cisco Catalyst 9300 Switch
+        tagging: True
+
+  untag:
+    - tagging_details:
+        image_name: cat9k_iosxe.17.12.01.SPA.bin
+        device_role: ACCESS
+        site_name: Global/USA/San Jose
+        device_image_family_name: Cisco Catalyst 9300 Switch
+        tagging: False
+
+  distribute:
+    - image_distribution_details:
+        image_name: cat9k_iosxe.17.12.01.SPA.bin
+        device_role: ACCESS
+        site_name: Global/USA/San Jose
+        device_family_name: Switches and Hubs
+        device_serial_number: FJC27161BCN
+        device_hostname: SJ-EN-9300-2.cisco.local
+
+  distribute_stack:
+    - image_distribution_details:
+        image_name: cat9k_iosxe.17.12.01.SPA.bin
+        device_role: ACCESS
+        site_name: Global/USA/San Jose
+        device_family_name: Switches and Hubs
+        device_serial_number: FOC2437LBH3
+        device_hostname: SJ-EN-9300-1.cisco.local
+
+  activate:
+    - image_activation_details:
+        image_name: cat9k_iosxe.17.12.01.SPA.bin
+        device_role: ACCESS
+        site_name: Global/USA/San Jose
+        device_serial_number: FJC27161BCN
+        device_hostname: SJ-EN-9300-2.cisco.local
+        activate_lower_image_version: true
+        distribute_if_needed: true
+        schedule_validate: false
+
+device_ewlc_ha:
+  - import_image_details:
+      type: remote
+      url_details:
+        payload:
+          - source_url: http://10.4.23.100/swim/V1713_1_CCO/C9800-40-universalk9_wlc.17.13.01.SPA.bin
+            is_third_party: False
+
+  - tagging_details:
+      image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/New York
+      device_image_family_name: Cisco Catalyst 9800-40 Wireless Controller
+      tagging: True
+
+  - image_distribution_details:
+      image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/New York
+      device_family_name: Wireless Controller
+      device_hostname: NY-EWLC-1.cisco.local
+
+  - image_activation_details:
+      image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/New York
+      device_hostname: NY-EWLC-1.cisco.local
+      activate_lower_image_version: true
+      distribute_if_needed: true
+      schedule_validate: false
+
+device_e2e:
+  - import_image_details:
+      type: remote
+      url_details:
+        payload:
+          - source_url: http://10.4.23.100/swim/V1713_1_CCO/cat9k_iosxe.17.13.01.SPA.bin
+            is_third_party: False
+
+  - tagging_details:
+      image_name: cat9k_iosxe.17.13.01.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/San Jose
+      device_image_family_name: Cisco Catalyst 9300 Switch
+      tagging: True
+
+  - image_distribution_details:
+      image_name: cat9k_iosxe.17.13.01.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/San Jose
+      device_family_name: Switches and Hubs
+      device_serial_number: FJC27161BCN
+      device_hostname: SJ-EN-9300-2.cisco.local
+
+  - image_activation_details:
+      image_name: cat9k_iosxe.17.13.01.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/San Jose
+      device_serial_number: FJC27161BCN
+      device_hostname: SJ-EN-9300-2.cisco.local
+      activate_lower_image_version: true
+      distribute_if_needed: true
+      schedule_validate: false
+
+filter_e2e:
+  - import_image_details:
+      type: remote
+      url_details:
+        payload:
+          - source_url: http://10.4.23.100/swim/V1713_1_CCO/cat9k_iosxe.17.13.01.SPA.bin
+            is_third_party: False
+
+  - tagging_details:
+      image_name: cat9k_iosxe.17.13.01.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/San Jose
+      device_image_family_name: Cisco Catalyst 9300 Switch
+      tagging: True
+
+  - image_distribution_details:
+      image_name: cat9k_iosxe.17.13.01.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/San Jose
+      device_family_name: Switches and Hubs
+
+  - image_activation_details:
+      image_name: cat9k_iosxe.17.13.01.SPA.bin
+      device_role: ACCESS
+      site_name: Global/USA/San Jose
+      activate_lower_image_version: true
+      distribute_if_needed: true
+      schedule_validate: false
