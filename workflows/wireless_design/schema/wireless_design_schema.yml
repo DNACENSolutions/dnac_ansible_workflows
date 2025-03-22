@@ -1,0 +1,353 @@
+# Wireless Design Schema
+# Reference: 
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+jinjatemplate: bool(required=False)
+jinjatemplate_file: str(required=False)
+passwords_file: str(required=False)
+wireless_design_details: list(include('wireless_design_details_type'), min=0, max=1000, required=False)
+---
+wireless_design_details_type:
+  ssids: list(include('ssids_type'), min=0, max=1000, required=False)
+  interfaces: list(include('interfaces_type'), min=0, max=1000, required=False)
+  power_profiles: list(include('power_profiles_type'), min=0, max=1000, required=False)
+  access_point_profiles: list(include('ap_profiles_type'), min=0, max=1000, required=False)
+  radio_frequency_profiles: list(include('rf_profiles_type'), min=0, max=1000, required=False)
+  anchor_groups: list(include('anchor_groups_type'), min=0, max=1000, required=False)
+
+# SSID schema definitions
+ssids_type:
+  ssid_name: str(required=True)
+  ssid_type: enum("Enterprise", "Guest", required=True)
+  wlan_profile_name: str(required=False)
+  radio_policy: include('radio_policy_type', required=False)
+  fast_lane: bool(required=False, default=False)
+  quality_of_service: include('quality_of_service_type', required=False)
+  ssid_state: include('ssid_state_type', required=False)
+  l2_security: include('l2_security_type', required=True)
+  fast_transition: enum("ADAPTIVE", "ENABLE", "DISABLE", required=False, default="DISABLE")
+  fast_transition_over_the_ds: bool(required=False, default=False)
+  wpa_encryption: list(enum("GCMP256", "CCMP256", "GCMP128", "CCMP128"), required=False)
+  auth_key_management: list(enum("802.1X-SHA1", "802.1X-SHA2", "FT+802.1x", "SUITE-B-1X", "SUITE-B-192X", "CCKM", 
+                              "PSK", "FT+PSK", "Easy-PSK", "PSK-SHA2", "SAE", "SAE-EXT-KEY", "FT+SAE", "FT+SAE-EXT-KEY", "OWE"), required=False)
+  cckm_timestamp_tolerance: int(required=False, default=0)
+  l3_security: include('l3_security_type', required=False)
+  aaa: include('aaa_type', required=False)
+  mfp_client_protection: enum("OPTIONAL", "DISABLED", "REQUIRED", required=False, default="OPTIONAL")
+  protected_management_frame: enum("OPTIONAL", "DISABLED", "REQUIRED", required=False, default="DISABLED")
+  11k_neighbor_list: bool(required=False, default=True)
+  coverage_hole_detection: bool(required=False, default=False)
+  wlan_timeouts: include('wlan_timeouts_type', required=False)
+  bss_transition_support: include('bss_transition_support_type', required=False)
+  nas_id: list(str(), required=False)
+  client_rate_limit: int(required=False, default=0)
+  sites_specific_override_settings: list(include('sites_specific_override_settings_type'), required=False)
+
+radio_policy_type:
+  radio_bands: list(num(), required=False)
+  2_dot_4_ghz_band_policy: enum("802.11-bg", "802.11-g", required=False, default="802.11-bg")
+  band_select: bool(required=False, default=False)
+  6_ghz_client_steering: bool(required=False, default=False)
+
+quality_of_service_type:
+  egress: enum("PLATINUM", "GOLD", "SILVER", "BRONZE", required=False)
+  ingress: enum("PLATINUM-UP", "GOLD-UP", "SILVER-UP", "BRONZE-UP", required=False)
+
+ssid_state_type:
+  admin_status: bool(required=False, default=False)
+  broadcast_ssid: bool(required=False, default=False)
+
+l2_security_type:
+  l2_auth_type: enum("WPA2_ENTERPRISE", "WPA3_ENTERPRISE", "WPA2_WPA3_ENTERPRISE", "WPA2_PERSONAL", 
+                    "WPA3_PERSONAL", "WPA2_WPA3_PERSONAL", "OPEN-SECURED", "OPEN", required=True)
+  ap_beacon_protection: bool(required=False, default=False)
+  open_ssid: str(required=False)
+  passphrase_type: enum("HEX", "ASCII", required=False, default="ASCII")
+  passphrase: str(required=False)
+  mpsk_settings: list(include('mpsk_settings_type'), required=False)
+
+mpsk_settings_type:
+  mpsk_priority: enum(0, 1, 2, 3, 4, required=False, default=0)
+  mpsk_passphrase_type: enum("HEX", "ASCII", required=False, default="ASCII")
+  mpsk_passphrase: str(required=True)
+
+l3_security_type:
+  l3_auth_type: enum("OPEN", "WEB_AUTH", required=False, default="OPEN")
+  auth_server: enum("central_web_authentication", "web_authentication_internal", "web_authentication_external", 
+                   "web_passthrough_internal", "web_passthrough_external", required=False, default="web_authentication_external")
+  web_auth_url: str(required=False)
+  enable_sleeping_client: bool(required=False, default=False)
+  sleeping_client_timeout: int(required=False, default=720)
+
+aaa_type:
+  auth_servers_ip_address_list: list(str(), required=False)
+  accounting_servers_ip_address_list: list(str(), required=False)
+  aaa_override: bool(required=False)
+  mac_filtering: bool(required=False)
+  deny_rcm_clients: bool(required=False)
+  enable_posture: bool(required=False)
+  pre_auth_acl_name: str(required=False)
+
+wlan_timeouts_type:
+  enable_session_timeout: bool(required=False, default=True)
+  session_timeout: int(required=False, default=1800)
+  enable_client_exclusion_timeout: bool(required=False, default=True)
+  client_exclusion_timeout: int(required=False, default=180)
+
+bss_transition_support_type:
+  bss_max_idle_service: bool(required=False, default=True)
+  bss_idle_client_timeout: int(required=False, default=300)
+  directed_multicast_service: bool(required=False, default=True)
+
+sites_specific_override_settings_type:
+  site_name_hierarchy: str(required=True)
+  wlan_profile_name: str(required=False)
+  l2_security: include('site_l2_security_type', required=False)
+  fast_transition: enum("ADAPTIVE", "ENABLE", "DISABLE", required=False)
+  fast_transition_over_the_ds: bool(required=False)
+  wpa_encryption: list(enum("GCMP256", "CCMP256", "GCMP128", "CCMP128"), required=False)
+  aaa: include('site_aaa_type', required=False)
+  protected_management_frame: enum("OPTIONAL", "DISABLED", "REQUIRED", required=False)
+  nas_id: list(str(), required=False)
+  client_rate_limit: int(required=False)
+  remove_override_in_hierarchy: bool(required=False)
+
+site_l2_security_type:
+  l2_auth_type: enum("WPA2_ENTERPRISE", "WPA3_ENTERPRISE", "WPA2_WPA3_ENTERPRISE", "WPA2_PERSONAL", 
+                    "WPA3_PERSONAL", "WPA2_WPA3_PERSONAL", "OPEN-SECURED", "OPEN", required=False)
+  open_ssid: str(required=False)
+  passphrase: str(required=False)
+  mpsk_settings: list(include('site_mpsk_settings_type'), required=False)
+
+site_mpsk_settings_type:
+  mpsk_priority: enum(0, 1, 2, 3, 4, required=False)
+  mpsk_passphrase_type: enum("HEX", "ASCII", required=False)
+  mpsk_passphrase: str(required=False)
+
+site_aaa_type:
+  auth_servers_ip_address_list: list(str(), required=False)
+  accounting_servers_ip_address_list: list(str(), required=False)
+  aaa_override: bool(required=False)
+  mac_filtering: bool(required=False)
+
+# Interface schema definitions
+interfaces_type:
+  interface_name: str(required=True)
+  vlan_id: int(required=True, min=1, max=4094)
+
+# Power profiles schema definitions
+power_profiles_type:
+  power_profile_name: str(required=True)
+  power_profile_description: str(required=False)
+  rules: list(include('power_profile_rule_type'), required=False)
+
+power_profile_rule_type:
+  interface_type: enum("ETHERNET", "RADIO", "USB", required=True)
+  interface_id: enum("GIGABITETHERNET0", "GIGABITETHERNET1", "LAN1", "LAN2", "LAN3", "6GHZ", "5GHZ", "SECONDARY_5GHZ", "2_4GHZ", "USB0", required=False)
+  parameter_type: enum("SPEED", "SPATIALSTREAM", "STATE", required=False)
+  parameter_value: enum("5000MBPS", "2500MBPS", "1000MBPS", "100MBPS", "EIGHT_BY_EIGHT", 
+                       "FOUR_BY_FOUR", "THREE_BY_THREE", "TWO_BY_TWO", "ONE_BY_ONE", "DISABLE", required=False)
+
+# AP profiles schema definitions
+ap_profiles_type:
+  access_point_profile_name: str(required=True)
+  access_point_profile_description: str(required=False)
+  remote_teleworker: bool(required=False, default=False)
+  management_settings: include('management_settings_type', required=False)
+  security_settings: include('security_settings_type', required=False)
+  mesh_enabled: bool(required=False, default=False)
+  mesh_settings: include('mesh_settings_type', required=False)
+  power_settings: include('power_settings_type', required=False)
+  country_code: enum("Afghanistan", "Albania", "Algeria", "Angola", "Argentina", "Australia", "Austria", "Bahamas", "Bahrain",
+                    "Bangladesh", "Barbados", "Belarus", "Belgium", "Bhutan", "Bolivia", "Bosnia", "Botswana", "Brazil", "Brunei",
+                    "Bulgaria", "Burundi", "Cambodia", "Cameroon", "Canada", "Chile", "China", "Colombia", "Costa Rica", "Croatia",
+                    "Cuba", "Cyprus", "Czech Republic", "Democratic Republic of the Congo", "Denmark", "Dominican Republic",
+                    "Ecuador", "Egypt", "El Salvador", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Georgia", "Germany",
+                    "Ghana", "Gibraltar", "Greece", "Guatemala", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia",
+                    "Iraq", "Ireland", "Isle of Man", "Israel", "Israel (Outdoor)", "Italy", "Ivory Coast (Cote dIvoire)",
+                    "Jamaica", "Japan 2(P)", "Japan 4(Q)", "Jersey", "Jordan", "Kazakhstan", "Kenya", "Korea Extended (CK)",
+                    "Kosovo", "Kuwait", "Laos", "Latvia", "Lebanon", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao",
+                    "Macedonia", "Malaysia", "Malta", "Mauritius", "Mexico", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco",
+                    "Myanmar", "Namibia", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Nigeria", "Norway", "Oman", "Pakistan",
+                    "Panama", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Puerto Rico", "Qatar", "Romania", "Russian Federation",
+                    "San Marino", "Saudi Arabia", "Serbia", "Singapore", "Slovak Republic", "Slovenia", "South Africa", "Spain", "Sri Lanka",
+                    "Sudan", "Sweden", "Switzerland", "Taiwan", "Thailand", "Trinidad", "Tunisia", "Turkey", "Uganda", "Ukraine", "United Arab Emirates",
+                    "United Kingdom", "United Republic of Tanzania", "United States", "Uruguay", "Uzbekistan", "Vatican City State",
+                    "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe", required=False)
+  time_zone: enum("NOT CONFIGURED", "CONTROLLER", "DELTA FROM CONTROLLER", required=False, default="NOT CONFIGURED")
+  time_zone_offset_hour: int(required=False, default=0, min=-12, max=14)
+  time_zone_offset_minutes: int(required=False, default=0, min=0, max=59)
+  maximum_client_limit: int(required=False, default=0, min=0, max=1200)
+
+management_settings_type:
+  access_point_authentication: enum("NO-AUTH", "EAP-TLS", "EAP-PEAP", "EAP-FAST", required=False, default="NO-AUTH")
+  dot1x_username: str(required=False)
+  dot1x_password: str(required=False)
+  ssh_enabled: bool(required=False, default=False)
+  telnet_enabled: bool(required=False, default=False)
+  management_username: str(required=False)
+  management_password: str(required=False)
+  management_enable_password: str(required=False)
+  cdp_state: bool(required=False, default=False)
+
+security_settings_type:
+  awips: bool(required=False, default=False)
+  awips_forensic: bool(required=False, default=False)
+  rogue_detection_enabled: bool(required=False, default=False)
+  minimum_rss: int(required=False, default=-90, min=-128, max=-70)
+  transient_interval: int(required=False, default=0)
+  report_interval: int(required=False, default=10, min=10, max=300)
+  pmf_denial: bool(required=False, default=False)
+
+mesh_settings_type:
+  range: int(required=False, default=12000, min=150, max=132000)
+  backhaul_client_access: bool(required=False, default=False)
+  rap_downlink_backhaul: enum("5 GHz", "2.4 GHz", required=False, default="5 GHz")
+  ghz_5_backhaul_data_rates: enum("auto", "802.11abg", "802.12ac", "802.11ax", "802.11n", required=False, default="auto")
+  ghz_2_4_backhaul_data_rates: enum("auto", "802.11abg", "802.11ax", "802.11n", required=False, default="auto")
+  bridge_group_name: str(required=False, default="default")
+
+power_settings_type:
+  ap_power_profile_name: str(required=False)
+  calendar_power_profiles: list(include('calendar_power_profile_type'), required=False)
+
+calendar_power_profile_type:
+  ap_power_profile_name: str(required=True)
+  scheduler_type: enum("DAILY", "WEEKLY", "MONTHLY", required=True)
+  scheduler_start_time: str(required=True)
+  scheduler_end_time: str(required=True)
+  scheduler_days_list: list(enum("sunday", "saturday", "tuesday", "wednesday", "thursday", "friday", "monday"), required=False)
+  scheduler_dates_list: list(str(), required=False)
+
+# RF profiles schema definitions
+rf_profiles_type:
+  radio_frequency_profile_name: str(required=True)
+  default_rf_profile: bool(required=False, default=False)
+  radio_bands: list(enum(2.4, 5, 6), required=False)
+  radio_bands_2_4ghz_settings: include('radio_bands_2_4ghz_settings_type', required=False)
+  radio_bands_5ghz_settings: include('radio_bands_5ghz_settings_type', required=False)
+  radio_bands_6ghz_settings: include('radio_bands_6ghz_settings_type', required=False)
+
+radio_bands_2_4ghz_settings_type:
+  parent_profile: enum("HIGH", "TYPICAL", "LOW", "CUSTOM", required=False, default="CUSTOM")
+  dca_channels_list: list(num("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"), required=False)
+  supported_data_rates_list: list(num("1", "2", "5.5", "6", "9", "11", "12", "18", "24", "36", "48", "54"), required=False)
+  mandatory_data_rates_list: list(num("1", "2", "5.5", "6", "9", "11", "12", "18", "24", "36", "48", "54"), required=False)
+  minimum_power_level: int(required=False, default=7, min=-10, max=30)
+  maximum_power_level: int(required=False, default=30, min=-10, max=30)
+  rx_sop_threshold: enum("HIGH", "MEDIUM", "LOW", "AUTO", "CUSTOM", required=False, default="MEDIUM")
+  custom_rx_sop_threshold: int(required=False, min=-85, max=-60)
+  tpc_power_threshold: int(required=False, default=-70, min=-80, max=-50)
+  coverage_hole_detection: include('coverage_hole_detection_type', required=False)
+  client_limit: int(required=False, default=200, min=0, max=500)
+  spatial_reuse: include('spatial_reuse_type', required=False)
+
+radio_bands_5ghz_settings_type:
+  parent_profile: enum("HIGH", "TYPICAL", "LOW", "CUSTOM", required=False, default="CUSTOM")
+  channel_width: enum("20", "40", "80", "160", "best", required=False, default="best")
+  preamble_puncturing: bool(required=False, default=False)
+  zero_wait_dfs: bool(required=False, default=False)
+  dca_channels_list: list(num("36", "40", "44", "48", "52", "56", "60", "64", "100", "104", "108", "112", "116", "120", "124", "128", "132", "136", "140", "144", "149", "153", "157", "161", "165", "169", "173"), 
+                         required=False)
+  supported_data_rates_list: list(num("6", "9", "12", "18", "24", "36", "48", "54"), required=False)
+  mandatory_data_rates_list: list(num("6", "9", "12", "18", "24", "36", "48", "54"), required=False)
+  minimum_power_level: int(required=False, default=-10, min=-10, max=30)
+  maximum_power_level: int(required=False, default=30, min=-10, max=30)
+  rx_sop_threshold: enum("HIGH", "MEDIUM", "LOW", "AUTO", "CUSTOM", required=False, default="LOW")
+  custom_rx_sop_threshold: int(required=False, min=-85, max=-60)
+  tpc_power_threshold: int(required=False, default=-60, min=-80, max=-50)
+  coverage_hole_detection: include('coverage_hole_detection_type', required=False)
+  client_limit: int(required=False, default=200, min=1, max=200)
+  flexible_radio_assignment: include('flexible_radio_assignment_type', required=False)
+  spatial_reuse: include('spatial_reuse_type', required=False)
+
+radio_bands_6ghz_settings_type:
+  parent_profile: enum("CUSTOM", required=False, default="CUSTOM")
+  minimum_dbs_channel_width: num("20", "40", "80", "160", "320", required=False)
+  maximum_dbs_channel_width: num("20", "40", "80", "160", "320", required=False)
+  preamble_puncturing: bool(required=False, default=False)
+  psc_enforcing_enabled: bool(required=False, default=False)
+  dca_channels_list: list(int(), required=False)
+  supported_data_rates_list: list(num("6", "9", "12", "18", "24", "36", "48", "54"), required=False)
+  mandatory_data_rates_list: list(num("6", "9", "12", "18", "24", "36", "48", "54"), required=False)
+  standard_power_service: bool(required=False, default=False)
+  minimum_power_level: int(required=False, default=-10, min=-10, max=30)
+  maximum_power_level: int(required=False, default=30, min=-10, max=30)
+  rx_sop_threshold: enum("HIGH", "MEDIUM", "LOW", "AUTO", "CUSTOM", required=False)
+  custom_rx_sop_threshold: int(required=False, min=-85, max=-60)
+  tpc_power_threshold: int(required=False, default=-70, min=-80, max=-50)
+  coverage_hole_detection: include('coverage_hole_detection_type', required=False)
+  client_limit: int(required=False, default=200, min=0, max=500)
+  flexible_radio_assignment: include('flexible_radio_assignment_6ghz_type', required=False)
+  discovery_frames_6ghz: enum("None", "Broadcast Probe Response", "FILS Discovery", required=False)
+  broadcast_probe_response_interval: int(required=False, default=20, min=5, max=25)
+  multi_bssid: include('multi_bssid_type', required=False)
+  spatial_reuse: include('spatial_reuse_type', required=False)
+
+coverage_hole_detection_type:
+  minimum_client_level: int(required=False, default=3, min=1, max=200)
+  data_rssi_threshold: int(required=False, default=-80, min=-90, max=-60)
+  voice_rssi_threshold: int(required=False, default=-80, min=-90, max=-60)
+  exception_level: int(required=False, default=25, min=0, max=100)
+
+flexible_radio_assignment_type:
+  client_aware: bool(required=False, default=False)
+  client_select: int(required=False, default=50, min=0, max=100)
+  client_reset: int(required=False, default=5, min=0, max=100)
+
+flexible_radio_assignment_6ghz_type:
+  client_reset_count: int(required=False, default=1, min=1, max=10)
+  client_utilization_threshold: int(required=False, default=5, min=1, max=100)
+
+multi_bssid_type:
+  dot_11ax_parameters: include('dot_11ax_parameters_type', required=False)
+  dot_11be_parameters: include('dot_11be_parameters_type', required=False)
+  target_waketime: bool(required=False, default=False)
+  twt_broadcast_support: bool(required=False, default=False)
+
+dot_11ax_parameters_type:
+  ofdma_downlink: bool(required=False, default=False)
+  ofdma_uplink: bool(required=False, default=False)
+  mu_mimo_downlink: bool(required=False, default=True)
+  mu_mimo_uplink: bool(required=False, default=True)
+
+dot_11be_parameters_type:
+  ofdma_downlink: bool(required=False, default=False)
+  ofdma_uplink: bool(required=False, default=False)
+  mu_mimo_downlink: bool(required=False, default=True)
+  mu_mimo_uplink: bool(required=False, default=True)
+  ofdma_multi_ru: bool(required=False, default=False)
+
+spatial_reuse_type:
+  non_srg_obss_pd: bool(required=False, default=False)
+  non_srg_obss_pd_max_threshold: int(required=False, default=-62, min=-82, max=-62)
+  srg_obss_pd: bool(required=False, default=False)
+  srg_obss_pd_min_threshold: int(required=False, default=-82, min=-82, max=-62)
+  srg_obss_pd_max_threshold: int(required=False, default=-62, min=-82, max=-62)
+
+# Anchor groups schema definitions
+anchor_groups_type:
+  anchor_group_name: str(required=True)
+  mobility_anchors: list(include('mobility_anchor_type'), required=True)
+
+mobility_anchor_type:
+  device_name: str(required=True)
+  device_ip_address: str(required=True)
+  device_mac_address: str(required=False)
+  device_type: enum("IOS-XE", "AIREOS", required=False)
+  device_priority: int(required=True, min=1, max=3)
+  device_nat_ip_address: str(required=False)
+  mobility_group_name: str(required=False)
+  managed_device: bool(required=True)
+
+supported_data_rates_list
+suppported_data_rates_list
+
+  radio_bands_2_4ghz_settings.
