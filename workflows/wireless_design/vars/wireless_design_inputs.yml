@@ -1,0 +1,242 @@
+catalyst_center_version: 2.3.7.9
+# Fabric Sites and Zones design.
+wireless_design_details:
+  # Wireless SSID design inputs
+  - ssids:
+    - ssid_name: "iac-open"
+      ssid_type: "Enterprise"
+      wlan_profile_name: "iac-open_profile"
+      radio_policy:
+        radio_bands: [2.4, 5, 6]
+        2_dot_4_ghz_band_policy: "802.11-bg"
+        band_select: true
+        6_ghz_client_steering: true
+      fast_lane: true
+      ssid_state:
+        admin_status: true
+        broadcast_ssid: true
+      l2_security:
+        l2_auth_type: "OPEN"
+      l3_security:
+        l3_auth_type: "OPEN"
+      fast_transition: "DISABLE"
+      aaa:
+        aaa_override: false
+        mac_filtering: true
+        deny_rcm_clients: false
+      mfp_client_protection: "OPTIONAL"
+      protected_management_frame: "REQUIRED"
+      11k_neighbor_list: true
+      coverage_hole_detection: true
+      wlan_timeouts:
+        enable_session_timeout: true
+        session_timeout: 3600
+        enable_client_exclusion_timeout: true
+        client_exclusion_timeout: 1800
+      bss_transition_support:
+        bss_max_idle_service: true
+        bss_idle_client_timeout: 300
+        directed_multicast_service: true
+      nas_id: ["AP Location"]
+      client_rate_limit: 90000
+    # SSID for employees with open Security for testing purpose
+    - ssid_name: iac-employees
+      ssid_type: "Enterprise"
+      wlan_profile_name: iac-employees_profile
+      radio_policy:
+        radio_bands: [2.4, 5, 6]
+        2_dot_4_ghz_band_policy: "802.11-bg"
+        band_select: true
+        6_ghz_client_steering: true
+      fast_lane: true
+      ssid_state:
+        admin_status: true
+        broadcast_ssid: true
+      l2_security:
+        l2_auth_type: "OPEN"
+      l3_security:
+        l3_auth_type: "OPEN"
+      fast_transition: "DISABLE"
+      aaa:
+        aaa_override: false
+        mac_filtering: true
+        deny_rcm_clients: false
+      mfp_client_protection: "OPTIONAL"
+      protected_management_frame: "REQUIRED"
+      11k_neighbor_list: true
+      coverage_hole_detection: true
+      wlan_timeouts:
+        enable_session_timeout: true
+        session_timeout: 3600
+        enable_client_exclusion_timeout: true
+        client_exclusion_timeout: 1800
+      bss_transition_support:
+        bss_max_idle_service: true
+        bss_idle_client_timeout: 300
+        directed_multicast_service: true
+      nas_id: ["AP Location"]
+      client_rate_limit: 90000
+    # SSID for guests with open Security for testing purpose
+    - ssid_name: iac-guests
+      ssid_type: "Guest"
+      wlan_profile_name: iac-guests_profile
+      radio_policy:
+        radio_bands: [2.4, 5, 6]
+        2_dot_4_ghz_band_policy: "802.11-bg"
+        band_select: true
+        6_ghz_client_steering: true
+      fast_lane: true
+      ssid_state:
+        admin_status: true
+        broadcast_ssid: true
+      l2_security:
+        l2_auth_type: "OPEN"
+      l3_security:
+        l3_auth_type: "OPEN"
+      fast_transition: "DISABLE"
+      aaa:
+        aaa_override: false
+        mac_filtering: true
+        deny_rcm_clients: false
+      mfp_client_protection: "OPTIONAL"
+      protected_management_frame: "REQUIRED"
+      11k_neighbor_list: true
+      coverage_hole_detection: true
+      wlan_timeouts:
+        enable_session_timeout: true
+        session_timeout: 3600
+        enable_client_exclusion_timeout: true
+        client_exclusion_timeout: 1800
+  # Wireless VLAN design inputs
+  - interfaces:
+    - interface_name: "data"
+      vlan_id: 10
+    - interface_name: "voice"
+      vlan_id: 11
+    - interface_name: "guest_access"
+      vlan_id: 12
+    - interface_name: "emp_access"
+      vlan_id: 13
+  # Wireless Power Profiles design inputs
+  - power_profiles:
+    - power_profile_name: "default"
+      rules:
+        - interface_type: "USB"
+        - interface_type: "RADIO"
+        - interface_type: "ETHERNET"
+    - power_profile_name: "RadioState"
+      power_profile_description: "Profile for radio state settings."
+      rules:
+        - interface_type: "RADIO"
+          interface_id: "6GHZ"
+          parameter_type: "STATE"
+          parameter_value: "DISABLE"
+        - interface_type: "RADIO"
+          interface_id: "5GHZ"
+          parameter_type: "STATE"
+          parameter_value: "DISABLE"
+        - interface_type: "RADIO"
+          interface_id: "SECONDARY_5GHZ"
+          parameter_type: "STATE"
+          parameter_value: "DISABLE"
+        - interface_type: "RADIO"
+          interface_id: "2_4GHZ"
+          parameter_type: "STATE"
+          parameter_value: "DISABLE"
+  # Wireless Access Point Profile design inputs
+  - access_point_profiles:
+    - access_point_profile_name: "Corporate-Office-AP"
+    - access_point_profile_name: "Guest-WiFi-AP"
+      access_point_profile_description: "Main office AP profile for guest network"
+    - access_point_profile_name: "Remote-Worker-AP"
+      access_point_profile_description: "Profile for remote teleworkers"
+      remote_teleworker: true
+    - access_point_profile_name: "Branch-Office-AP"
+      remote_teleworker: true
+    - access_point_profile_name: "Warehouse-AP"
+      remote_teleworker: true
+      management_settings:
+        access_point_authentication: "NO-AUTH"
+    - access_point_profile_name: "AUthenticated-EAP-TLS-AP"
+      remote_teleworker: false
+      management_settings:
+        access_point_authentication: "EAP-TLS"
+    - access_point_profile_name: "Authenticated-EAP-PEAP-AP"
+      management_settings:
+        access_point_authentication: "EAP-PEAP"
+        dot1x_username: "admin"
+        dot1x_password: "asdfasdfasdfsdf"
+    - access_point_profile_name: "Authenticated-EAP-FAST-AP"
+      management_settings:
+        access_point_authentication: "EAP-FAST"
+        dot1x_username: "admin"
+        dot1x_password: "asdfasdfasdfsdf"
+    - access_point_profile_name: "Authenticated-NO-AUTH-AP"
+      remote_teleworker: true
+      management_settings:
+        access_point_authentication: "NO-AUTH"
+        ssh_enabled: true
+        telnet_enabled: false
+        management_username: "admin"
+        management_password: "securePass"
+        management_enable_password: "adflmlssf"
+  #Define the RF profiles for the wireless network
+  - radio_frequency_profiles:
+    - radio_frequency_profile_name: "rf_profile_6ghz_basic"
+      default_rf_profile: false
+      radio_bands: [6]
+      radio_bands_6ghz_settings:
+        parent_profile: "CUSTOM"
+        minimum_dbs_channel_width: 40
+        maximum_dbs_channel_width: 80
+    - radio_frequency_profile_name: "cistom_rf_profile_2_4ghz"
+      default_rf_profile: false
+      radio_bands: [2.4]
+      radio_bands_2_4ghz_settings:
+        parent_profile: "TYPICAL"
+        dca_channels_list: [1, 6]
+        suppported_data_rates_list: [1, 11, 12, 18, 2, 24, 36, 48, 5.5, 54, 6, 9]
+        mandatory_data_rates_list: [12]
+    - radio_frequency_profile_name: "cistom_rf_5ghz_160mhz"
+      default_rf_profile: false
+      radio_bands: [5]
+      radio_bands_5ghz_settings:
+        parent_profile: "HIGH"
+        channel_width: "80"
+        dca_channels_list: [52, 56, 60, 64]
+        suppported_data_rates_list: [18, 24, 36, 48, 54]
+        mandatory_data_rates_list: [24]
+    - radio_frequency_profile_name: "cistom_rf_2_4ghz_custom"
+      default_rf_profile: false
+      radio_bands: [2.4]
+      radio_bands_2_4ghz_settings:
+        parent_profile: "LOW"
+        minimum_power_level: 1
+        maximum_power_level: 10
+    - radio_frequency_profile_name: "cistom_rf_5ghz_high"
+      default_rf_profile: false
+      radio_bands: [5]
+      radio_bands_5ghz_settings:
+        parent_profile: "TYPICAL"
+        channel_width: '20'
+        zero_wait_dfs: true
+  # Define the mobility groups for the wireless network
+  - anchor_groups:
+    - anchor_group_name: "Enterprise_Anchor_Group"
+      mobility_anchors:
+        - device_name: "WLC_Enterprise_1"
+          device_ip_address: "192.168.0.10"
+          device_mac_address: '00:1A:2B:3C:4D:5E'
+          device_type: "IOS-XE"
+          device_priority: 1
+          device_nat_ip_address: "10.0.0.10"
+          mobility_group_name: Enterprise_Mobility_Group
+          managed_device: false
+        - device_name: "WLC_Enterprise_2"
+          device_ip_address: "192.168.0.11"
+          device_mac_address: '00:1A:2B:3C:4D:5F'
+          device_type: "AIREOS"
+          device_priority: 2
+          device_nat_ip_address: "10.0.0.11"
+          mobility_group_name: "Enterprise_Mobility_Group"
+          managed_device: false

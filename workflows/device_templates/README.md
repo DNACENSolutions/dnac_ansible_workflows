@@ -60,7 +60,6 @@ catalyst_center_hosts:
             catalyst_center_log_level: INFO
             catalyst_center_log: true
 ```
-```
 ### 3. Define Playbook input:
 The /vars/template_workflow_inputs.yml file stores the sites details you want to configure.
 
