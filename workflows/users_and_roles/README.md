@@ -22,7 +22,7 @@ Users with the SUPER-ADMIN-ROLE can create custom roles to fine-tune access perm
 
 1. ## Prepare your Ansible environment:
 
-**Before starting, ensure the following requirements are met:**
+* **Before starting, ensure the following requirements are met:**
 
 * **Access to Cisco Catalyst Center:** Ensure that User and Role is enabled.
 * **Ansible Installation:** Ansible must be installed on the machine managing the automation process.
