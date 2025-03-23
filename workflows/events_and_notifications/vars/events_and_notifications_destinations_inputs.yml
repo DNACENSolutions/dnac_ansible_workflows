@@ -46,14 +46,14 @@ events_notifications_destination_and_subscription_details:
       name: SNMP Testing 
       description: Test Cisco SNMP V2C
       server_address: 22.10.30.34
-      port: 165
+      port: "165"
       snmp_version: V2C
       community: testcisco_secure
   - snmp_destination:
       name: Snmp test new
       description: Adding snmp destination for testing V3
       server_address: 10.30.0.90
-      port: 125
+      port: "125"
       snmp_version: V3
       username: cisco
       mode: AUTH_PRIVACY
@@ -76,7 +76,7 @@ events_notifications_destination_and_subscription_details:
         username: xxxxxx
         password: xxxxxx
 
-  #Configuring Subscription
+  # #Configuring Subscription
 
   - email_event_notification:
       name: EMAIL Notification Testing
@@ -90,7 +90,6 @@ events_notifications_destination_and_subscription_details:
       recipient_emails:
         - noc@cisco.com
         - soc@cisco.com
-        - mohmshai@cisco.com
       subject: Mail test
       instance: Email Instance test
       instance_description: Email Instance description 1
