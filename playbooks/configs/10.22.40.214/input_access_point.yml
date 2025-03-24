@@ -1,0 +1,66 @@
+---
+create_access_point:
+  - mac_address: a4:88:73:d0:53:60
+    ap_name: Cisco_9120AXE-B-Singular_TEST
+    admin_status: Enabled
+    led_status: Enabled
+    led_brightness_level: 8
+    ap_mode: Local
+    site: 
+      floor : 
+        name: FLOOR4
+        parent_name: "Global/USA/SAN JOSE/SJ_BLD23"
+    is_assigned_site_as_location: Enabled
+    failover_priority: Low
+    clean_air_si_2.4ghz: Enabled
+    clean_air_si_5ghz: Enabled
+    rf_profile: HIGH
+    primary_controller_name: SJ-EWLC-1.abc.com
+    primary_ip_address: 
+      address: 204.192.4.200
+    secondary_controller_name: Testcontroller1.cisco.local
+    secondary_ip_address: 
+      address: FE08::123
+    tertiary_controller_name: Testcontroller2.cisco.local
+    tertiary_ip_address: 
+      address: FE08::123
+    2.4ghz_radio:
+      admin_status: Enabled
+      channel_assignment_mode: Custom
+      radio_role_assignment: Client-Serving
+      channel_number: 13
+      power_level: 5
+    5ghz_radio:
+      admin_status: Enabled
+      radio_role_assignment: "Client-Serving"
+      antenna_name: Other                   #Applicable only for External Antenna platforms with 5,6 Ghz support
+      antenna_gain: 8                       #Applicable only for External Antenna platforms with 5,6 Ghz support
+      antenna_cable_name: Other             #Applicable only for External Antenna platforms with 5,6 Ghz support
+      cable_loss: 5                         #Applicable only for External Antenna platforms with 5,6 Ghz support
+      channel_assignment_mode: Custom
+      channel_number: 44
+      channel_width: "20 MHz"
+      powerlevel: 6
+    xor_radio: 
+      admin_status: Disabled
+      # antenna_name: Other 
+      # antenna_gain: 8                     #Applicable only for External Antenna platforms with 5,6 Ghz support
+      radio_band: "2.4 GHz"
+      channel_assignment_mode: Custom
+      radio_role_assignment: "Client-Serving"
+      channel_number: 6
+      powerlevel: 8
+
+
+
+ap_reboot_list:
+  - reboot_aps:
+      mac_addresses:
+        - a4:88:73:d4:dd:80
+        - a4:88:73:d0:53:60
+
+factory_reset_list:
+  - factory_reset_aps:
+      mac_addresses:
+        - e4:38:7e:42:bc:40
+        - a4:88:73:d0:53:60

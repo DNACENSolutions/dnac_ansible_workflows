@@ -1,0 +1,355 @@
+---
+ise_aaa_combine:
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 10.4.208.249
+      shared_secret: xxxx
+      protocol: RADIUS_TACACS
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 10.4.208.251
+      shared_secret: xxxx
+      protocol: RADIUS_TACACS
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 10.4.20.251
+      shared_secret: xxxx
+      protocol: RADIUS
+  - authentication_policy_server:
+    - server_type: ISE
+      server_ip_address: 10.4.20.240
+      shared_secret: xxxx
+      protocol: RADIUS_TACACS
+      encryption_scheme: KEYWRAP
+      encryption_key: xxxx
+      message_authenticator_code_key: xxxx
+      authentication_port: 1812
+      accounting_port: 1813
+      retries: 3
+      timeout: 4
+      role: primary
+      use_dnac_cert_for_pxgrid: False
+      pxgrid_enabled: True
+      cisco_ise_dtos:
+        - user_name: xxxx
+          password: xxxx
+          fqdn: IAC1-ISE-VM1.cisco.local
+          ip_address: 10.4.20.240
+          description: xxxx
+      trusted_server: True
+
+
+create_aaa:
+  #--------POSITIVE_CASE--------
+  # AAA full config
+  full_config:
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 11.11.11.1
+      shared_secret: "125s"
+      protocol: RADIUS_TACACS
+      encryption_scheme: KEYWRAP
+      encryption_key: xxxx
+      message_authenticator_code_key: asdfghjklasdfghjklas
+      authentication_port: 1812
+      accounting_port: 1813
+      port: 49
+      retries: 3
+      timeout: 4
+      role: secondary
+
+  # Only 'server_type', 'server_ip_address', 'shared_secret', 'protocol' is set
+  minimal_config:
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 10.4.208.249
+      shared_secret: xxxx
+      protocol: RADIUS_TACACS
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 10.4.208.251
+      shared_secret: xxxx
+      protocol: RADIUS_TACACS
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 10.4.20.251
+      shared_secret: xxxx
+      protocol: RADIUS
+
+  # Happy case: "encryption_scheme: KEYWRAP", "encryption_key", "message_authenticator_code_key" is set
+  all_encryption_scheme:
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 11.11.11.8
+      shared_secret: "125s"
+      protocol: RADIUS
+      encryption_scheme: KEYWRAP
+      encryption_key: xxxx
+      message_authenticator_code_key: asdfghjklasdfghjklas
+
+
+  #--------NEGATIVE_CASE--------
+  # Negative case: Protocol is RADIUS_TACAS
+  protocol_poor_value:
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 11.11.11.2
+      shared_secret: "125s"
+      protocol: RADIUS_TACAS
+
+  # Negative case: 'shared_secret' not set
+  shared_secret_not_set:
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 11.11.11.3
+      protocol: RADIUS_TACACS
+
+  # Negative case: 'shared_secret' not contain between 4 and 100 characters
+  shared_secret_poor_value:
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 11.11.11.4
+      shared_secret: "15s"
+      protocol: RADIUS_TACACS
+
+  # Negative case: 'shared_secret' contain whitespace
+  shared_secret_contain_whitespace:
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 11.11.11.5
+      shared_secret: "15 s"
+      protocol: RADIUS_TACACS
+
+  # Negative case: Only "encryption_scheme: KEYWRAP" is set
+  only_encryption_scheme:
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 11.11.11.7
+      shared_secret: "125s"
+      protocol: RADIUS
+      encryption_scheme: KEYWRAP
+
+  # Negative case: "encryption_key" set a poor value
+  encryption_key_poor_value:
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 11.11.11.9
+      shared_secret: "125s"
+      protocol: RADIUS
+      encryption_scheme: KEYWRAP
+      encryption_key: "1234567890123456l"
+      message_authenticator_code_key: asdfghjklasdfghjklas
+
+  # Negative case: "message_authenticator_code_key" set a poor value
+  message_key_poor_value:
+  - authentication_policy_server:
+    - server_type: AAA
+      server_ip_address: 11.11.11.10
+      shared_secret: "125s"
+      protocol: RADIUS
+      encryption_scheme: KEYWRAP
+      encryption_key: "1234567890123456l"
+      message_authenticator_code_key: asdfghjklasdfghjkla
+
+edit_aaa:
+  create_aaa:
+    - authentication_policy_server:
+      - server_type: AAA
+        server_ip_address: 2.2.2.2
+        shared_secret: "125s"
+        protocol: RADIUS_TACACS
+    - authentication_policy_server:
+      - server_type: AAA
+        server_ip_address: 3.3.3.3
+        shared_secret: "125s"
+        protocol: RADIUS_TACACS
+
+  edit_aaa:
+    - authentication_policy_server:
+      - server_ip_address: 3.3.3.3
+        protocol: RADIUS_TACACS
+    - authentication_policy_server:
+      - server_ip_address: 2.2.2.2
+        protocol: RADIUS_TACACS
+
+delete_aaa:
+  exist:
+    - authentication_policy_server:
+      - server_ip_address: 11.11.11.1
+    - authentication_policy_server:
+      - server_ip_address: 11.11.11.6
+    - authentication_policy_server:
+      - server_ip_address: 11.11.11.8
+    - authentication_policy_server:
+      - server_ip_address: 2.2.2.2
+    - authentication_policy_server:
+      - server_ip_address: 3.3.3.3
+
+  non_exist:
+    - authentication_policy_server:
+      - server_ip_address: 2.2.2.1
+
+create_ise:
+  full_config:
+  - authentication_policy_server:
+    - server_type: ISE
+      server_ip_address: 10.4.20.240
+      shared_secret: xxxx
+      protocol: RADIUS_TACACS
+      encryption_scheme: KEYWRAP
+      encryption_key: xxxx
+      message_authenticator_code_key: xxxx
+      authentication_port: 1812
+      accounting_port: 1813
+      retries: 3
+      timeout: 4
+      role: primary
+      use_dnac_cert_for_pxgrid: False
+      pxgrid_enabled: True
+      cisco_ise_dtos:
+        - user_name: xxxx
+          password: xxxx
+          fqdn: IAC1-ISE-VM1.cisco.local
+          ip_address: 10.4.20.240
+          description: xxxx
+      trusted_server: True
+
+  # ISE happy (only required parameter)
+  minimal_config:
+  - authentication_policy_server:
+    - server_type: ISE
+      server_ip_address: 10.4.20.240
+      shared_secret: xxxx
+      cisco_ise_dtos:
+        - user_name: xxxx
+          password: xxxx
+          fqdn: IAC1-ISE-VM1.cisco.local
+          ip_address: 10.4.20.240
+      trusted_server: True
+
+  new_ise:
+  - authentication_policy_server:
+    - server_type: ISE
+      server_ip_address: 172.23.241.229
+      shared_secret: xxxx
+      cisco_ise_dtos:
+        - user_name: xxxx
+          password: xxxx
+          fqdn: IAC2-ISE-VM.cisco.com
+          ip_address: 172.23.241.229
+      trusted_server: True
+
+  fqdn_not_match:
+  - authentication_policy_server:
+    - server_type: ISE
+      server_ip_address: 10.4.20.240
+      shared_secret: xxxx
+      cisco_ise_dtos:
+        - user_name: xxxx
+          password: xxxx
+          fqdn: a.cisco.com
+          ip_address: 10.4.20.240
+      trusted_server: True
+
+  not_trusted:
+  - authentication_policy_server:
+    - server_type: ISE
+      server_ip_address: 10.4.20.240
+      shared_secret: xxxx
+      cisco_ise_dtos:
+        - user_name: xxxx
+          password: xxxx
+          fqdn: IAC1-ISE-VM1.cisco.local
+          ip_address: 10.4.20.240
+      trusted_server: False
+
+  # ISE server during PxGrid Failover scenario ('use_dnac_cert_for_pxgrid: True', 'pxgrid_enabled: True') - DNAC certificate for pxGrid not available
+  pxgrid_failover:
+  - authentication_policy_server:
+    - server_type: ISE
+      server_ip_address: 10.4.20.240
+      shared_secret: xxxx
+      protocol: RADIUS_TACACS
+      role: primary
+      use_dnac_cert_for_pxgrid: True
+      pxgrid_enabled: True
+      cisco_ise_dtos:
+        - user_name: xxxx
+          password: xxxx
+          fqdn: IAC1-ISE-VM1.cisco.local
+          ip_address: 10.4.20.240
+      trusted_server: True
+
+edit_ise:
+  # Edit ISE Password with new password (invalid)
+  invalid_password:
+  - authentication_policy_server:
+    - server_type: ISE
+      server_ip_address: 10.4.20.240
+      cisco_ise_dtos:
+        - password: xxxx
+          ip_address: 10.4.20.240
+
+  # Edit ISE Username/Password (The xxxx credentials provided are invalid)
+  invalid_credential:
+  - authentication_policy_server:
+    - server_type: ISE
+      server_ip_address: 10.4.20.240
+      protocol: RADIUS_TACACS
+      retries: 2
+      timeout: 6
+      cisco_ise_dtos:
+        - user_name: xxxx
+          password: xxxx
+          fqdn: IAC1-ISE-VM1.cisco.local
+          ip_address: 10.4.20.240
+
+  # Edit ISE Username/Password (The xxxx credentials provided are valid)
+  valid_credential:
+  - authentication_policy_server:
+    - server_type: ISE
+      server_ip_address: 10.4.20.240
+      cisco_ise_dtos:
+        - user_name: xxxx
+          password: xxxx
+          fqdn: IAC1-ISE-VM1.cisco.local
+          ip_address: 10.4.20.240
+
+  # Edit ISE full config
+  full_config:
+  - authentication_policy_server:
+    - server_type: ISE
+      server_ip_address: 10.4.20.240
+      protocol: RADIUS_TACACS
+      retries: 3
+      timeout: 4
+      use_dnac_cert_for_pxgrid: False
+      pxgrid_enabled: True
+      cisco_ise_dtos:
+        - user_name: xxxx
+          password: xxxx
+          fqdn: IAC1-ISE-VM1.cisco.local
+          ip_address: 10.4.20.240
+
+delete_ise:
+- authentication_policy_server:
+  - server_ip_address: 10.4.20.240
+
+delete_clean:
+- authentication_policy_server:
+  - server_ip_address: 10.4.208.249
+- authentication_policy_server:
+  - server_ip_address: 10.4.208.251
+- authentication_policy_server:
+  - server_ip_address: 10.4.20.251
+- authentication_policy_server:
+  - server_ip_address: 10.4.20.240
+
+associate_ise:
+- network_management_details:
+  - settings:
+      network_aaa:
+        pan_address: 10.4.20.240
+        primary_server_address: 10.4.20.240
+        protocol: RADIUS
+        server_type: ISE

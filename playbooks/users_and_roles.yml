@@ -1,0 +1,321 @@
+---
+- name: Playbook for Users and Roles Workflow Manager module
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars_files:
+      - ../cc_config.yml
+      - "{{ config_user_role }}"
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+  tasks:
+    - name: Includes templates info
+      include_vars:
+        file: "{{ input_file }}"
+        name: vars_map
+      no_log: True
+      tags: always
+
+    - name: Create SUPER-ADMIN-ROLE user
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: merged
+        config:
+          "{{ vars_map.admin }}"
+      tags: super-admin
+
+    - name: Create NETWORK-ADMIN-ROLE user
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: merged
+        config:
+          "{{ vars_map.network_admin }}"
+      tags: net-admin
+
+    - name: Create OBSERVER-ROLE user
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: merged
+        config:
+          "{{ vars_map.observer }}"
+      tags: observer
+
+    - name: Create default user
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: merged
+        config:
+          "{{ vars_map.default }}"
+      tags: default
+
+
+    - name: Test Update user
+      block:
+      - name: Create new user (Test Update user)
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ dnac_username }}"
+          dnac_password: "{{ dnac_password }}"
+          state: merged
+          config:
+            "{{ vars_map.test_edit.upd_create }}"
+        tags: upd_create
+
+      - name:  Update a user for first name, last name, email, and role list (Test Update user)
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ dnac_username }}"
+          dnac_password: "{{ dnac_password }}"
+          state: merged
+          config:
+            "{{ vars_map.test_edit.upd_update_cred }}"
+        tags: upd_update_cred
+
+      - name: Update the user password (Test Update user)
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ dnac_username }}"
+          dnac_password: "{{ dnac_password }}"
+          state: merged
+          config:
+            "{{ vars_map.test_edit.upd_update_pw }}"
+        tags: upd_update_pw
+        
+      - name: Verify change password (Test Update user)
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ vars_map.test_edit.upd_update_pw.user_details[0].username }}"
+          dnac_password: "{{ vars_map.test_edit.upd_update_pw.user_details[0].password }}"
+          state: merged
+          config: {}
+        tags: upd_verify_pw
+
+      - name: Delete a user using username or email address (Test Update user)
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ dnac_username }}"
+          dnac_password: "{{ dnac_password }}"
+          state: deleted
+          config:
+            "{{ vars_map.test_edit.upd_delete }}"
+        tags: upd_delete
+      tags: test_edit
+
+
+    - name: Test Delete user
+      block:
+      - name: Create new user (Test Delete user)
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ dnac_username }}"
+          dnac_password: "{{ dnac_password }}"
+          state: merged
+          config:
+            "{{ vars_map.test_delete_user.del_create }}"
+        tags: del_create
+        
+      - name: Login with new user valid (Test Delete user)
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ vars_map.test_delete_user.del_create.user_details[0].username }}"
+          dnac_password: "{{ vars_map.test_delete_user.del_create.user_details[0].password }}"
+          state: merged
+          config: {}
+        tags: del_login_valid
+
+      - name: Delete a user using username or email address (Test Delete user)
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ dnac_username }}"
+          dnac_password: "{{ dnac_password }}"
+          state: deleted
+          config:
+            "{{ vars_map.test_delete_user.del_delete }}"
+        tags: del_delete_1
+
+      - name: Rerun delete a user again (Test Delete user)
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ dnac_username }}"
+          dnac_password: "{{ dnac_password }}"
+          state: deleted
+          config:
+            "{{ vars_map.test_delete_user.del_delete }}"
+        tags: del_delete_2
+
+      - name: Login with new user invalid (Test Delete user)
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ vars_map.test_delete_user.del_create.user_details[0].username }}"
+          dnac_password: "{{ vars_map.test_delete_user.del_create.user_details[0].password }}"
+          state: merged
+          config: {}
+        register: del_login_invalid
+        failed_when: >
+          ("[401] Unauthorized - Authentication credentials were missing or incorrect") not in del_login_invalid.exception
+        tags: del_login_invalid
+      tags: test_delete_user
+
+
+    - name: Create multiple users at same time
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: merged
+        config:
+          "{{ vars_map.multiple }}"
+      tags: multiple
+
+    - name: Test change user role
+      block:
+      - name: Create test change role
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ dnac_username }}"
+          dnac_password: "{{ dnac_password }}"
+          state: merged
+          config:
+            "{{ vars_map.change_role.create }}"
+        tags: change_role
+        
+      - name: Create CLI Credentials
+        cisco.dnac.device_credential_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ vars_map.change_role.create.user_details[0].username }}"
+          dnac_password: "{{ vars_map.change_role.create.user_details[0].password }}"
+          state: merged
+          config:
+            - global_credential_details:
+                cli_credential:
+                  - description: testing
+                    username: axvderbv
+                    password: test2#123
+                    enable_password: test2#123
+        ignore_errors: true
+        tags: change_role
+
+      - name: Change user's role
+        cisco.dnac.user_role_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ dnac_username }}"
+          dnac_password: "{{ dnac_password }}"
+          state: merged
+          config:
+            "{{ vars_map.change_role.change }}"
+        tags: change_role
+
+      - name: Pause for 3 minutes
+        ansible.builtin.pause:
+          minutes: 3
+        tags: change_role
+
+      - name: Create CLI Credentials
+        cisco.dnac.device_credential_workflow_manager:
+          <<: *common_config
+          dnac_username: "{{ vars_map.change_role.create.user_details[0].username }}"
+          dnac_password: "{{ vars_map.change_role.create.user_details[0].password }}"
+          state: merged
+          config:
+            - global_credential_details:
+                cli_credential:
+                  - description: testing
+                    username: axvderbv
+                    password: test2#123
+                    enable_password: test2#123
+        tags: change_role
+      tags: change_role
+
+    - name: Create default role 
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: merged
+        config:
+          "{{ vars_map.role.default }}"
+      tags: role_creation
+
+    - name: Create new role but only using write permission
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: merged
+        config:
+          "{{ vars_map.role.write_only }}"
+      tags: write_only
+
+    - name: Create new role but only using read permission
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: merged
+        config:
+          "{{ vars_map.role.read_only }}"
+      tags: read_only
+      
+    - name: Create new role but only using deny permission
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: merged
+        config:
+          "{{ vars_map.role.deny_only }}"
+      failed_when: result.failed is false
+      tags: deny_only
+
+    - name: Update role
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: merged
+        config:
+          "{{ vars_map.role.role_update }}"
+      tags: role_update
+
+    - name: Delete role
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: deleted
+        config:
+          "{{ vars_map.role.role_deletion }}"
+      tags: role_deletion_
+
+    - name: User delete itself
+      cisco.dnac.user_role_workflow_manager:
+        <<: *common_config
+        dnac_username: "{{ dnac_username }}"
+        dnac_password: "{{ dnac_password }}"
+        state: deleted
+        config:
+          user_details:
+          - username: "{{ dnac_username }}"
+      register: result
+      ignore_errors: true
+      changed_when: result.failed is true
+      tags: self_delete
