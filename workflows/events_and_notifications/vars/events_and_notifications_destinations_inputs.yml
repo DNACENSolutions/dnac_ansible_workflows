@@ -76,7 +76,7 @@ events_notifications_destination_and_subscription_details:
         username: xxxxxx
         password: xxxxxx
 
-  # #Configuring Subscription
+  #Configuring Subscription
 
   - email_event_notification:
       name: EMAIL Notification Testing
