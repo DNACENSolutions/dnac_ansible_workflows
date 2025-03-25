@@ -346,8 +346,3 @@ mobility_anchor_type:
   device_nat_ip_address: str(required=False)
   mobility_group_name: str(required=False)
   managed_device: bool(required=True)
-
-supported_data_rates_list
-suppported_data_rates_list
-
-  radio_bands_2_4ghz_settings.

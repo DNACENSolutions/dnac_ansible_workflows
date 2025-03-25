@@ -3,7 +3,6 @@
 This Playbooks collection provides functionality to manage wireless network design in Cisco Catalyst Center, including SSIDs, interfaces, power profiles, AP profiles, RF profiles, and anchor groups.
 
 ## Requirements
-
 - Python 3.6 or higher
 - Ansible 2.9 or higher
 - Cisco Catalyst Center 2.3.7.9 or higher
@@ -42,6 +41,7 @@ catalyst_center_hosts:
 ```
 ## Usage
 The Wireless Design module allows you to configure and manage various aspects of your wireless network through Cisco Catalyst Center. The configuration is structured into several key components:
+![Wireless Design UI Page](./images/wireless_design.png)
 
 ### SSIDs
 Configure enterprise and guest wireless networks with detailed security, QoS, and radio settings.
