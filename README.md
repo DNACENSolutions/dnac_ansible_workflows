@@ -54,7 +54,7 @@ Enhance scalability and flexibility with Jinja-based template support. These tem
 - [Catalyst Center Device Credentials configurations and assignment](./workflows/device_credentials/#readme)
 - [Catalyst Center Network Settings (Servers, Banners, TZ, SNMP, Logging, Telemetry Management](./workflows/network_settings/#readme)
 - [Catalyst Center Network Settings Global Ip Pools and Site Pools reservation Management](./workflows/network_settings/#readme)
-- [Catalyst Center Devces Discovery](./workflows/device_discovery/#readme)
+- [Catalyst Center Device Discovery](./workflows/device_discovery/#readme)
 - [Catalyst Center Device Inventory and device management](./workflows/inventory#readme)
 - [Catalyst Center Plug and Play Device Onboarding](./workflows/plug_and_play/README.md)
 - [Catalyst Center Device Provisioning and Re-Provisioning Management](./workflows/provision/README.md)
@@ -70,13 +70,13 @@ Enhance scalability and flexibility with Jinja-based template support. These tem
 - [Catalyst Center SDA Extranet Policies Management](./workflows/sda_fabric_extranet_policy/README.md)
 
 ## DayN Operation (Software Upgrade, Compliance, Events, Provisioning, backups and Assurance)
-- [Catalyst Center Devces Software image management (SWIM)](./workflows/swim/README.md)
-- [Catalyst Center Device compliance and remidiation](./workflows/network_compliance/README.md)
+- [Catalyst Center Device Software Image Management (SWIM)](./workflows/swim/README.md)
+- [Catalyst Center Device Compliance and Remidiation](./workflows/network_compliance/README.md)
 - [Catalyst Center Notification Destination and Events Subscription](./workflows/events_and_notifications/README.md)
-- [Catalyst Center Devices Replacement Management](./workflows/device_replacement_rma/README.md)
+- [Catalyst Center Device Replacement Management](./workflows/device_replacement_rma/README.md)
 - [Catalyst Center Access Point Provisioning and Access Point Configuration Management](./workflows/accesspoints_configuration_provisioning/README.md)
 - [Device Configuration Customization using Catalyst Center Templates](./workflows/device_templates/README.md)
-- [Catalyst Center managed network devices configurations backup management](./workflows/device_config_backup/README.md)
+- [Catalyst Center Network Device Configuration Backup Management](./workflows/device_config_backup/README.md)
 
 ## Demo Videos
 [IaC Demo Videos](http://3.136.0.140/index.html)
@@ -111,7 +111,7 @@ Follow these steps to install the Cisco Validated Playbooks, Schema, and Sample 
 ## Python
     Python 3.9+ is required to install iac-validate. Don't have Python 3.9 or later? 
     See Python 3 Installation & Setup Guide https://realpython.com/installing-python/
-    Create your python virtual environment using commend:
+    Create your python virtual environment using command:
 ```bash
 python3 -m venv python3env --prompt "AnsiblePython3 VENV"
 source python3env/bin/activate
@@ -148,12 +148,12 @@ Clone the dnacenter-ansible repository.
 ```bash
 ansible-galaxy collection install cisco.dnac --force
 ```
-### Sppecific version
+### Specific version
 ```bash
 ansible-galaxy collection install cisco.dnac:==6.29.0 --force
 ```
 
-### Install latest devel version from  GitHub abd build
+### Install latest devel version from  GitHub and build
 ```bash
 git clone https://github.com/cisco-en-programmability/dnacenter-ansible.git
 ```
@@ -182,7 +182,7 @@ pip install dnacentersdk
 ```
 
 ### Upgrading to the latest Version
-Use --upgrade opton to upgrde to latest version available.
+Use --upgrade option to upgrade to latest version available.
 ```bash
 pip install dnacentersdk --upgrade
 ```
@@ -204,7 +204,7 @@ duplicate_dict_key=error
 
 # Create your inventory
 ## Inventory:
-This folder contains inventory file for your dev, lab, sandbox or production env which will be utilised by swim playbooks.
+This folder contains inventory file for your dev, lab, sandbox or production env which will be utilized by swim playbooks.
 
 Create your inventory file in below template format to utilize the swim playbooks.
 
@@ -213,9 +213,9 @@ The template for the inventory file is:
 cat inventory/demo_lab/001-dnac_inventory_template.yml
 ```
 
-Setup up your ansible python interpretor following suitable method for your environment : https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
+Set up your ansible Python interpreter following suitable method for your environment : https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
     
-### Hairarchical variable files for inputs
+### Hierarchical variable files for inputs
 
 The second folder of the workflows contains playbook and var files for workflows.
 Example:
@@ -253,7 +253,7 @@ catalyst_center_hosts:
 Here are a few examples of Cisco Validated Playbooks in the repo. For details documentation of the playbook usage refer the guide inside the corresponding module.
 
 ## Example 1: 
-Swim upgrade, this include uploading the images, golden tagging the image filtered location and device family and distributed and activating images on the networkk devices.
+Swim upgrade, this include uploading the images, golden tagging the image filtered location and device family and distributed and activating images on the network devices.
 ```bash
 ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=< Vars File PATH (Full Path or relative path from playbook)> -vvvv
 ```
@@ -299,7 +299,7 @@ Pull the latest master from the repo
 git pull origin master
 ```
 
-# Raising an issue or enhanceent request
+# Raising an issue or enhancement request
 - Visit the Catalyst Center Ansible repository: https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/issues
 - Click the "New Issue" button.
 - Carefully follow the provided issue template, ensuring you include:
