@@ -1,20 +1,13 @@
 
-# SDA Fabric Virtual Networks Automation and Onboarding Anycast Gateways on Fabric Sites
-These Ansible playbooks are designed to automate the configuration of Fabric VLANs, Virtual Networks, and Anycast Gateways within a Cisco SD-Access fabric using Cisco DNA Center.
+# SDA Fabric Virtual Networks Automation and Onboarding Anycast Gateways on Fabric Sites Playbook
 
-# Requirements:
-  - Cisco Catalyst Center (DNAC) version: 2.3.7.6 (minimum version)
-  - DnacenterSDK 2.9.4 (minimum version)
-  - Ansible 2.9.10 (minimum version)
-  - Python 3.10.0 (minimum version)
+This Ansible playbook is designed to automate the configuration of Fabric VLANs, Virtual Networks, and Anycast Gateways within a Cisco SD-Access fabric using Cisco Catalyst Center.
 
-## Playbook: 
-sda_virtual_networks_l2_l3_gateways_playbook.yml
-This playbook utilizes the cisco.dnac.sda_fabric_virtual_networks_workflow_manager Ansible module to manage various aspects of SD-Access virtual networks 
-### including:
-Fabric VLANs: Create, update, and delete Layer 2 Fabric VLANs.
-Virtual Networks: Create, update, and delete Layer 3 Virtual Networks.
-Anycast Gateways: Create, update, and delete Anycast Gateways for providing Layer 3 connectivity within the SD-Access fabric.
+# Playbook includes the following:
+- Fabric VLANs: Create, update, and delete Layer 2 Fabric VLANs.
+- Virtual Networks: Create, update, and delete Layer 3 Virtual Networks.
+- Anycast Gateways: Create, update, and delete Anycast Gateways for providing Layer
+- 3 connectivity within the SD-Access fabric.
 
 # How to execute playbook:
 
@@ -574,7 +567,7 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
   ```
 
 ## Creating Bulk SDA Fabric Virtual Networks configurations using JINJA template and using the playbook
-Create a Jinja template for your desired inopout, Example Jinja template for layer2, layer3 is as below.
+Create a Jinja template for your desired input, Example Jinja template for layer2, layer3 is as below.
 **Need to scale the site hierarchy and scale the fabric site beforehand to create corresponding Layer 2 and Layer 3 for the associated site.**
 This example can be reused and customized to your requirement and increase the requirement scale.
 

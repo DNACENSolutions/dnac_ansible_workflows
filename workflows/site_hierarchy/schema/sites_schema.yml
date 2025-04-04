@@ -41,3 +41,4 @@ floor_type:
     height: num()
     upload_floor_image_path: str(required=False)
     units_of_measure: str(include('feet','meters'), required=False)
+    force_upload_floor_image: bool()
