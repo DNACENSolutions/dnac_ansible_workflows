@@ -1,4 +1,4 @@
-# Catalyst Center SDA Fabric Extranet Policies Playbooks
+# Catalyst Center SDA Fabric Extranet Policies Playbook
 
 ## I. Overview
 ### 1. Extranet Policy Playbook Overview

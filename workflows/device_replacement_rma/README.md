@@ -2,7 +2,7 @@
 # Replace a Faulty Device
 The Return Material Authorization (RMA) workflow lets you replace failed devices quickly. RMA provides a common workflow to replace routers, switches, and APs.
 
-When using the RMA workflow with routers and switches, the software image, configuration, and license are restored from the failed device to the replacement device. For wireless APs, the replacement device is assigned to the same site, which is provisioned with primary wireless controller, RF profile, and AP group settings, and placed on the same floor map location in Catalyst Center as the failed AP. For Cisco switch stacks (hardware stacking), you don't need to follow a separate procedure in Catalyst Center for member switch replacement, which is handled by the active switch. The member switch is replaced by the active switch by providing the software image and configuration. Full stack replacement is handled by Catalyst Center.
+When using the RMA workflow with routers and switches, the software image, configuration, and license are restored from the failed device to the replacement device. For wireless APs, the replacement device is assigned to the same site and provisioned with the primary wireless controller, RF profile, and AP group settings, and it placed on the same floor map location in Catalyst Center as the failed AP. For Cisco switch stacks (hardware stacking), you don't need to follow a separate procedure in Catalyst Center for member switch replacement, which is handled by the active switch. The member switch is replaced by the active switch by providing the software image and configuration. Full stack replacement is handled by Catalyst Center.
 
 
 ##  Before you begin
@@ -12,7 +12,7 @@ When using the RMA workflow with routers and switches, the software image, confi
 4. The replacement device must not be in a provisioning state while triggering the RMA workflow.
 5. For switch stacks replacement, the number of stacks for the faulty and replacement device must be the same.
 
-## The Steps coverd by the automation
+## The Steps covered by the automation
 1. Mark the faulty device for replacement
     From the top-left corner, click the menu icon and choose Provision > Inventory.
     From the Actions drop-down list, choose Inventory > Device Replacement > Mark Device for Replacement.
@@ -71,8 +71,8 @@ Validation success! 👍
 ansible-playbook -i host_inventory_dnac1 workflows/device_replacement_rma/playbook/device_replacement_rma_playbook.yml --e VARS_FILE_PATH=../vars/device_replacement_rma_input.yml  -vvv
 ```
 
-3. Unmark the faulty devicew replacement
-    If you your faulty device came up and is not more required to be replace, you can un marked the already marked faulty device from replacement as below. 
+3. Unmark the faulty device replacement
+    If you your faulty device came up and is not more required to be replace, you can unmarked the already marked faulty device from replacement as below. 
     From the Inventory drop-down list, choose Marked for Replacement.
     A list of devices that are marked for replacement is displayed.
     If you don't want to replace the device, select the device and choose Actions > Unmark for Replacement.
