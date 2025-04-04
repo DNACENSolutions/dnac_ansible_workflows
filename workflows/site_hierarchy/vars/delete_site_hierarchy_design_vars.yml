@@ -1,15 +1,66 @@
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+#Select Catalyst Center version, this will overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 catalyst_center_verify: false
-design_sites:  
+design_sites:
   - site:
       area:
-        name: China
+        name: USA
         parent_name: Global
     type: area
   - site:
       area:
-        name: AREA1
+        name: SAN JOSE
         parent_name: Global/USA
     type: area
+  - site:
+      area:
+        name: SAN-FRANCISCO
+        parent_name: Global/USA
+    type: area
+  - site:
+      area:
+        name: New York
+        parent_name: Global/USA
+    type: area
+  - site:
+      area:
+        name: BERKELEY
+        parent_name: Global/USA
+    type: area
+  - site:
+      area:
+        name: RTP
+        parent_name: Global/USA
+    type: area
+  - site:
+      area:
+        name: BayAreaGuest
+        parent_name: Global/USA
+    type: area
+
+  - site:
+      building:
+        name: BLD_SF
+        parent_name: Global/USA/SAN-FRANCISCO
+    type: building
+  - site:
+      building:
+        name: BLD_SF1
+        parent_name: Global/USA/SAN-FRANCISCO
+    type: building
+  - site:
+      building:
+        name: BLDBERK
+        parent_name: Global/USA/BERKELEY
+    type: building
+  - site:
+      floor:
+        name: BLD10_FLOOR1
+        parent_name: Global/USA/RTP/BLD10
+    type: floor
+  - site:
+      floor:
+        name: BLD10_FLOOR2
+        parent_name: Global/USA/RTP/BLD10
+    type: floor

@@ -1,18 +1,18 @@
-# Network Settings and Ip Pools reservation workflow !!
-Workflow Playbook for configuring and updatings Network Settings and Ip Pools reservation on sites
+# Network Settings and IP Pool Reservation Workflow Playbook
+This Workflow Playbook configures and updates Network Settings and reserves IP Pools for sites.
 This workflow playbook is supported from Catalyst Center Release version 2.3.7.6
 
 catalyst_center_version: Define the version of Catalyst Center for which Scripts to run for legacy configs, you could keep it same.
-role_details defines the accesss destails for the role.
+role_details defines the access destails for the role.
 network_settings_details: Details of Network settings 
-To define the details you can refer the full workflow specification: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network_settings_workflow_manager/
+Refer to the full workflow specification to define the details: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network_settings_workflow_manager/
 
-To run this workflow, you follow the README.md 
+Follow the instructions in this README.md file to run the workflow.
 
-## Example run: (Create network settings)
+## Example run: Create Network Setting
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_settings/playbook/network_settings_playbook.yml --e VARS_FILE_PATH=../vars/network_settings_vars.yml -vvv 
 
-## Example run: (Create IP Pools and Reserve IP pools on sites)
+## Example run: Create IP Pools and Reserve IP pools on Sites
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_settings/playbook/network_settings_playbook.yml --e VARS_FILE_PATH=../vars/global_pool_and_reserve_pools_on_sites.yml -vvv 
 
 ## Updating servers on sites AAA NTP, DNS, DHCP, TimeZone, SNMP, Logging, Banner etc.
@@ -41,7 +41,7 @@ catalyst_center_hosts:
 ```
 User Inputs for Users and roles are stored in  workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml
 
-##Validate user input before running though ansible
+##Validate user input before running through Ansible
 ```bash
 (pyats) pawansi@PAWANSI-M-81A3 dnac_ansible_workflows % ./tools/validate.sh -s workflows/network_settings/schema/nw_settings_schema.yml -d workflows/network_settings/vars/network_settings_vars.yml
 workflows/network_settings/schema/nw_settings_schema.yml

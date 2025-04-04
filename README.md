@@ -158,7 +158,7 @@ ansible-galaxy collection install cisco.dnac --force
 ansible-galaxy collection install cisco.dnac:==6.29.0 --force
 ```
 
-### Install latest devel version from  GitHub abd build
+### Install latest devel version from  GitHub and build
 ```bash
 git clone https://github.com/cisco-en-programmability/dnacenter-ansible.git
 ```
@@ -187,7 +187,7 @@ pip install dnacentersdk
 ```
 
 ### Upgrading to the latest Version
-Use --upgrade opton to upgrde to latest version available.
+Use --upgrade option to upgrade to latest version available.
 ```bash
 pip install dnacentersdk --upgrade
 ```
@@ -218,11 +218,11 @@ The template for the inventory file is:
 cat inventory/demo_lab/001-dnac_inventory_template.yml
 ```
 
-Set up your Ansible Python interpreter following a suitable method for your environment: https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
+Follow the Ansible documentation to set up your Python interpreter:: https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
 
 
     
-### Hairarchical variable files for inputs
+### Hierarchical variable files for inputs
 
 The second folder of the workflows contains playbook and var files for workflows. Example:
 
@@ -260,19 +260,19 @@ catalyst_center_hosts:
 Here are a few examples of Cisco Validated Playbooks in the repo. For details documentation of the playbook usage refer the guide inside the corresponding module.
 
 ## Example 1: 
-Swim upgrade, this include uploading the images, golden tagging the image filtered location and device family and distributed and activating images on the networkk devices.
+SWIM upgrade: This includes uploading the images, golden tagging the image filtered location and device family and distributed and activating images on the network devices.
 ```bash
 ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workflow_playbook.yml --extra-vars VARS_FILE_PATH=< Vars File PATH (Full Path or relative path from playbook)> -vvvv
 ```
     
 ## Example 2: 
-Create Sites, buildings floors using playbook : workflows/sites/playbook/site_hierarchy_playbook.yml
+Create sites, buildings floors using playbook: workflows/sites/playbook/site_hierarchy_playbook.yml
     
 ```bash
  ansible-playbook -i ./inventory_dnaccluster ./workflows/sites/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/site_hierarchy_design_vars_.yml
 ```
     
-Feel free to explore the playbooks/ directory for more examples and use cases.
+Explore the playbooks/ directory for additional examples and use cases.
 
 # Attention macOS users:
 
