@@ -1,8 +1,8 @@
-# Catalyst Center SDA Fabric Sites and Fabric Zones Playbooks
+# Catalyst Center SDA Fabric Sites and Fabric Zones Playbook
 
 ## Fabric Sites
 
-A fabric site is an independent fabric area with a unique set of network devices: control plane, border, edge, wireless controller, and ISE PSN. Different levels of redundancy and scale can be designed per site by including local resources such as DHCP, AAA, DNS, and Internet.
+A fabric site is an independent area with a unique set of network devices, including control plane, border, edge, wireless controllers, and ISE PSNs. Different levels of redundancy and scale can be designed per site by including local resources such as DHCP, AAA, DNS, and Internet.
 
 A fabric site can cover a single physical location, multiple locations, or only a subset of a location:
 
@@ -54,7 +54,7 @@ Refer to the official documentation for detailed information on defining workflo
 
 
 ## Create an Fabric sites and fabric zones: Running the Playbook
-Figure 1 Creating Fabric site and fabric Zones
+Figure 1: Creating Fabric Sites and Fabric Zones
 ![Alt text](./images/Fabric_sites.png)
 
 Figure 2 Select the Authentication profile for the fabric site
@@ -130,11 +130,11 @@ Figure 6 Post Creation UI View
 ```bash
  ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_sites_zones/playbook/delete_sda_fabric_sites_zones_playbook.yml --e VARS_FILE_PATH=../vars/sda_fabric_sites_zones_inputs.yml
 ```
-## Creating Bulk Site confiogurations using JINJA template and using the playbook
+## Creating Bulk Site Configurations using JINJA Template and Using the Playbook
 
-Create a Jinja template for your desired inopout, Example Jinja template for sites is as below
+Create a Jinja template for your desired input. An example Jinja template for sites is shown below.
 This Example create 3 Areas and in Each Areas create 3 buildings and in each building it creates 3 floors. 
-This example can be reused and customized to your requirement and increase the requirement scale.
+This example can be reused and customized to meet your requirements and scale as needed.
 
 ### Creating bulk sites with jinja template
 workflow/sites/jinja_template/site_generation_template.j2 template can be used to customize the template and generate bulk sites.
@@ -159,7 +159,7 @@ fabric_sites_and_zones:
 {% endfor %}
 ```
 
-Use the input var file: jinja_template_site_hierarchy_design_vars.yml and secify the name of you Jinja template in the input vars file.
+Use the input var file: jinja_template_site_hierarchy_design_vars.yml and specify the name of your Jinja template in the input vars file.
 
 5. Execute with Jinja template:
 ```bash
@@ -196,7 +196,7 @@ Figure 5 Jinja created fabric sites
 ![Alt text](./images/fabric_sites_with_jinja.png)
 
 
-## Referances
+## References
 
 ```yaml
   ansible: 9.9.0

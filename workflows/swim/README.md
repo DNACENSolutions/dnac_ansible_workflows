@@ -1,4 +1,4 @@
-# Catalyst Center Device Software Image Management
+# Catalyst Center Device Software Image Management (SWIM) Playbook
 ## Overview
 
 The SWIM protocol provides a standardized way to manage and upgrade software images on Cisco devices. This workflow leverages Ansible's automation capabilities to streamline the upgrade process, reducing manual effort and potential errors.
@@ -24,7 +24,7 @@ The SWIM protocol provides a standardized way to manage and upgrade software ima
 
 # Detailed steps to perform
 1. ## Import image:
-We have three ways to import images into DNAC:
+We have three ways to import images into Catalyst Center:
 ![alt text](./images/import.png)
 
   ### a. local
@@ -61,7 +61,7 @@ We have three ways to import images into DNAC:
     is_third_party: Flag indicates whether the image is uploaded from a third party (optional).
   ```
 
-  * If we want install parallel image (maximum 4), we can use with an input list in:
+  * If you want to install parallel images (up to a maximum of 4), we can use with an input list in:
   ```yaml
               - source_url: 
                   - 
@@ -88,7 +88,7 @@ We have three ways to import images into DNAC:
                   - http://xx.xx.xx.xx/swim/V1715_1PRD18_FC1/C9800-universalk9_wlc.17.15.01prd18.SPA.bin	
                 is_third_party: False
   ```
-  DNAC will install in parallel with the two images: 'cat9k_iosxe.17.15.01prd18.SPA.bin' and 'C9800-SW-iosxe-wlc.17.15.01prd18.SPA.bin'. After the import is completed, DNAC will continue to install the image 'C9800-universalk9_wlc.17.15.01prd18.SPA.bin'.
+  Catalyst Center will install in parallel with the two images: 'cat9k_iosxe.17.15.01prd18.SPA.bin' and 'C9800-SW-iosxe-wlc.17.15.01prd18.SPA.bin'. After the import is completed, Catalyst Center will continue to install the image 'C9800-universalk9_wlc.17.15.01prd18.SPA.bin'.
   ![alt text](./images/import_parallel_image_1.png)
   ![alt text](./images/import_parallel_image_2.png)
 
@@ -106,9 +106,9 @@ We have three ways to import images into DNAC:
               - C9800-40-universalk9_wlc.17.09.06.SPA.bin
   ```
 
-  * Note: we can only install the CCO image to be displayed on DNAC. The feature of installing images from CCO will have limitations; we can only install images that have been prepared for display on DNAC.
+  * Note: we can only install the CCO image to be displayed on Catalyst Center. The feature of installing images from CCO has limitations; we can only install images that have been prepared for display on Catalyst Center.
   ![alt text](./images/cco_image_suggest.png)
-  For example, with the above images, we can see some CCO images that are proposed on DNAC (cat9k_iosxe.17.06.08.SPA.bin, cat9k_iosxe.17.09.05.SPA.bin, cat9k_iosxe.17.09.06a.SPA.bin, ...). We can only install CCO type with those proposed images.
+  For example, with the above images, we can see some CCO images that are proposed on Catalyst Center (cat9k_iosxe.17.06.08.SPA.bin, cat9k_iosxe.17.09.05.SPA.bin, cat9k_iosxe.17.09.06a.SPA.bin, ...). We can only install CCO type with those proposed images.
 
 
 2. ## Tag/untag golden image:
@@ -143,7 +143,7 @@ If you tag a different image with the same device_image_family_name, then the ex
 Distribute the image to the device. In the playbook, we can have two types for distribution: distribute to a specific device (device_e2e) and distribute to multiple devices in parallel using device role and site filters (filter_e2e).
 
   ### a. Device End to End
-  You can provide a value for one of the following parameters: 'device_ip_address', 'device_hostname', 'device_serial_number', 'device_mac_address' to specify the exact device you want to distribute the image to.
+  Provide a value for one of the following parameters: 'device_ip_address', 'device_hostname', 'device_serial_number', 'device_mac_address' to specify the exact device you want to distribute the image to.
   ```yaml
       - image_distribution_details:
           image_name: cat9k_iosxe.17.06.08.SPA.bin
@@ -163,7 +163,7 @@ Distribute the image to the device. In the playbook, we can have two types for d
           device_family_name: Switches and Hubs
           device_series_name: Cisco Catalyst 9300 Series Switches
   ```
-  UI action (include distribute and activate):
+  UI action (includes distribute and activate):
 ![alt text](./images/distribute-activate_filter.png)
 
 4. ## Activate
@@ -205,11 +205,11 @@ Activate the image to the device after successful distribution. In the playbook,
     distribute_if_needed: true: If the image isn't already present on the target devices, it will be distributed before activation.
     device_upgrade_mode: currentlyExists: This likely indicates that the activation process will target devices that already have the image in their inventory.
   ```
-  UI action (include distribute and activate):
+  UI action (includes distribute and activate):
   ![alt text](./images/distribute-activate_filter.png)
 
 5. ## All steps are specified in one step
-We can update the software image (SWIM) to the device with just one run by combining all the steps (import, tag, distribute, activate) into one input.
+The software image (SWIM) can be updated on the device in a single run by combining all the steps (import, tag, distribute, activate) into one input.
 ```yaml
   swim_details:
     ...
@@ -249,7 +249,7 @@ We can update the software image (SWIM) to the device with just one run by combi
   Example command to run the swim playbook:
   ```bash
   ansible-playbook 
-    -i ./inventory/demo_lab/inventory_demo_lab.yml # refer to DNAC to run
+    -i ./inventory/demo_lab/inventory_demo_lab.yml # refer to Catalyst Center to run
     ./workflows/swim/playbook/swim_workflow_playbook.yml # playbook will run this
     --extra-vars VARS_FILE_PATH=./../vars/swim_vars.yml # location of the input file for the playbook to execute
     -vvv # return detailed information about the message; the more 'v', more detailed
@@ -261,13 +261,8 @@ We can update the software image (SWIM) to the device with just one run by combi
 
 ```yaml
 python: 3.12.0
-
 dnac_version: 2.3.7.6
-
 ansible: 9.9.0
-ansible-core: 2.16.10
-ansible-runner: 2.4.0
-
 dnacentersdk: 2.8.6
 cisco.dnac: 6.30.2
 ```

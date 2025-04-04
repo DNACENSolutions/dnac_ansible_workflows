@@ -7,10 +7,10 @@ The device configuration backup workflow in Cisco Catalyst Center focuses on cre
 
 ### Features
 
-- Backup device configurations using hostnames.
-- Backup device configurations without requiring passwords.
-- Backup device configurations for all devices.
-- Backup device configurations using site names.
+- Back up device configurations using host names.
+- Back up device configurations without requiring passwords.
+- Back up device configurations for all devices.
+- Back up device configurations using site names.
 
 ### Important Notes:
 1. Ensure the Catalyst Center version is compatible.
@@ -80,7 +80,7 @@ device_configs_backup_details_type:
 
 ### 4. Generate your Input:
 The workflows/device_config_backup/vars/device_config_backup_workflow_input.yml file should be configured with device details
-Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/device_configs_backup_workflow_manager
+Refer to the full workflow specification for detailed instructions on available options and their configuration structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/device_configs_backup_workflow_manager
 
 
 ### 5. Validate Input (Recommended):
@@ -152,7 +152,7 @@ device_configs_backup_details:
     file_path: "./"
     unzip_backup: true
 ```
-- ip_address_list: A list of ipaddress for which the device configurations will be backed up.
+- ip_address_list: A list of IP address for which the device configurations will be backed up.
 - file_path: The directory path where the backup files will be stored.
 
 ### 4. Take Backup with collection_status_list
@@ -214,7 +214,7 @@ device_configs_backup_details:
   - mac_address_list: ['34:88:18:f0:a1:80']
     file_path: "./"
 ```
-- mac_address_list: A list of mac-address for which the device configurations will be backed up.
+- mac_address_list: A list of MAC Address for which the device configurations will be backed up.
 - file_path: The directory path where the backup files will be stored.
 
 ### 7. Take Backup with serial_number_list
@@ -274,7 +274,7 @@ device_configs_backup_details:
   - site_list: ['Global']
     file_path: "./"
 ```
-- site_list: A list of site for which the device configurations will be backed up.
+- site_list: A list of sites for which the device configurations will be backed up.
 - file_path: The directory path where the backup files will be stored.
 
 
