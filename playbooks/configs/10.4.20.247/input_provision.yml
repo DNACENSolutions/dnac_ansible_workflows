@@ -1,0 +1,252 @@
+asgn_wired:
+  assign_wired:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD1
+      management_ip_address: 10.4.213.7
+      provisioning: False
+  unknow_ip:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD1
+      management_ip_address: 1.1.1.11111
+      provisioning: False
+  unknow_site:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD1333333
+      management_ip_address: 10.4.213.8
+      provisioning: False
+  to_area:
+    - site_name_hierarchy: Global
+      management_ip_address: 10.4.213.8
+      provisioning: False
+  to_area_2:
+    - site_name_hierarchy: Global/USA
+      management_ip_address: 10.4.213.8
+      provisioning: False
+  to_floor:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD1/FLOOR1
+      management_ip_address: 10.4.213.8
+      provisioning: False
+
+prov_wired:
+  wired_dev:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD20
+      management_ip_address: 10.4.213.5
+  without_assign:
+    - management_ip_address: 10.4.213.1
+  unknow_site:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD20111111111111
+      management_ip_address: 10.4.213.1
+  to_area:
+    - site_name_hierarchy: Global
+      management_ip_address: 10.4.213.1
+  unknow_ip:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD20
+      management_ip_address: 10.4.213.133333
+
+prov_wlc:
+  wireless:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR4
+  without_ap_location:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.210.200
+  ap_location_string:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+          Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+          Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
+          Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR4
+  ap_location_area:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA
+        - Global/USA
+        - Global/USA
+  ap_location_site:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN JOSE
+        - Global/USA/SAN JOSE
+        - Global/USA/SAN JOSE
+  ap_location_building:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2
+  ap_location_not_assign_to_nw_profile:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR4
+  unknow_ap_location:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD23333/FLOOR1
+        - Global/USA/SAN-FRANCISCO/SF_BLD23333/FLOOR2
+        - Global/USA/SAN-FRANCISCO/SF_BLD23333/FLOOR3
+        - Global/USA/SAN-FRANCISCO/SF_BLD23333/FLOOR4
+  to_area:
+    - site_name_hierarchy: Global/USA
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR4
+  to_site:
+    - site_name_hierarchy: Global/USA/SAN JOSE
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR4
+  to_floor:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR4
+  unknow_ip:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 204.192.6.202222222222
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR4
+
+re_prov_wired:
+  wired:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD20
+      management_ip_address: 10.4.213.5
+  without_site:
+    - management_ip_address: 10.4.213.5
+  to_diff_site:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD4
+      management_ip_address: 10.4.213.5
+
+re_prov_wlc:
+  wireless:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR4
+  without_site:
+    - management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR4
+  to_diff_site:
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN JOSE/SJ_BLD21/FLOOR1
+        - Global/USA/SAN JOSE/SJ_BLD21/FLOOR2
+        - Global/USA/SAN JOSE/SJ_BLD21/FLOOR3
+        - Global/USA/SAN JOSE/SJ_BLD21/FLOOR4
+  fewer_ap:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+
+un_prov:
+  clean_true:
+    - ip_address_list: 
+      - 10.4.213.7
+      clean_config: true
+  clean_false:
+    - ip_address_list: 
+      - 10.4.213.8
+      clean_config: false
+  method_merged:
+    - ip_address_list: 
+      - 10.4.213.5
+      clean_config: false
+  unknow_ip:
+    - ip_address_list: 
+      - 204.1.2.122222
+      clean_config: false
+  non_prov_dev:
+    - ip_address_list: 
+      - 10.4.213.6
+      clean_config: false
+
+multi_wired:
+  assign:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD2
+      management_ip_address: 10.4.213.4
+      provisioning: False
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.213.3
+      provisioning: False
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 10.4.213.1
+      provisioning: False
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 10.4.213.2
+      provisioning: False
+
+  provision:
+    - site_name_hierarchy: Global/USA/New York/NY_BLD1
+      management_ip_address: 10.4.213.7
+    - site_name_hierarchy: Global/USA/New York/NY_BLD1
+      management_ip_address: 10.4.213.8
+    - site_name_hierarchy: Global/USA/New York/NY_BLD2
+      management_ip_address: 10.4.213.4
+
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD1
+      management_ip_address: 10.4.213.6
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.213.3
+
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD20
+      management_ip_address: 10.4.213.5
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 10.4.213.1
+    - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      management_ip_address: 10.4.213.2
+
+  un_provision:
+    - ip_address_list: 
+      - 10.4.213.4
+      clean_config: false
+    - ip_address_list: 
+      - 10.4.213.3
+      clean_config: false
+    - ip_address_list: 
+      - 10.4.213.1
+      clean_config: false
+    - ip_address_list: 
+      - 10.4.213.2
+      clean_config: false
+
+multi_wireless:
+    - site_name_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD2
+      management_ip_address: 10.4.210.200
+      managed_ap_locations: 
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR1
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR2
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR3
+        - Global/USA/SAN-FRANCISCO/SF_BLD2/FLOOR4

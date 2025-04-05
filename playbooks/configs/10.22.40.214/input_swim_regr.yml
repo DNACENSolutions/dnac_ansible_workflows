@@ -1,0 +1,88 @@
+---
+swim_task:
+  import:
+    - import_image_details:
+        type: remote
+        url_details:
+          payload:
+            - source_url: 
+                - http://172.21.236.183/swim/V1715_1PRD18_FC1/cat9k_iosxe.17.15.01prd18.SPA.bin
+                - http://172.21.236.183/swim/V1715_1PRD18_FC1/C9800-SW-iosxe-wlc.17.15.01prd18.SPA.bin
+              is_third_party: False
+    - import_image_details:
+        type: remote
+        url_details:
+          payload:
+            - source_url: 
+                - http://172.21.236.183/swim/V1715_1PRD18_FC1/C9800-universalk9_wlc.17.15.01prd18.SPA.bin
+              is_third_party: False
+
+  device_e2e:
+    tag:
+      - tagging_details:
+          image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
+          device_role: ACCESS
+          site_name: Global
+          device_image_family_name: Cisco Catalyst 9300 Switch
+          tagging: True
+      - tagging_details:
+          image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
+          device_role: CORE
+          site_name: Global/USA/SAN JOSE/SJ_BLD23
+          device_image_family_name: Cisco Catalyst 9300 Switch
+          tagging: True
+
+    untag:
+      - tagging_details:
+          image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
+          device_role: CORE
+          site_name: Global/USA/SAN JOSE/SJ_BLD23
+          device_image_family_name: Cisco Catalyst 9300 Switch
+          tagging: False
+
+    distribute:
+      - image_distribution_details:
+          image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
+          device_serial_number: null
+          device_hostname: null
+          device_mac_address: null
+          device_ip_address: 204.1.2.1
+
+    activate:
+      - image_activation_details:
+          image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
+          schedule_validate: False
+          activate_lower_image_version: True
+          distribute_if_needed: True
+          device_serial_number: null
+          device_hostname: null
+          device_mac_address: null
+          device_ip_address: 204.1.2.1
+          device_upgrade_mode: currentlyExists
+
+  filter_e2e:
+    tag:
+      - tagging_details:
+          image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE/SJ_BLD23
+          device_image_family_name: Cisco Catalyst 9300 Switch
+          tagging: True
+
+    distribute:
+      - image_distribution_details:
+          image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE/SJ_BLD23
+          device_family_name: Switches and Hubs
+
+    activate:
+      - image_activation_details:
+          image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE/SJ_BLD23
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+          activate_lower_image_version: true
+          distribute_if_needed: true
+          schedule_validate: false
