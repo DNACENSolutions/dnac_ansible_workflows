@@ -195,7 +195,7 @@ wireless_design_details:
       radio_bands_2_4ghz_settings:
         parent_profile: "TYPICAL"
         dca_channels_list: [1, 6]
-        suppported_data_rates_list: [1, 11, 12, 18, 2, 24, 36, 48, 5.5, 54, 6, 9]
+        supported_data_rates_list: [1, 11, 12, 18, 2, 24, 36, 48, 5.5, 54, 6, 9]
         mandatory_data_rates_list: [12]
     - radio_frequency_profile_name: "cistom_rf_5ghz_160mhz"
       default_rf_profile: false
@@ -204,7 +204,7 @@ wireless_design_details:
         parent_profile: "HIGH"
         channel_width: "80"
         dca_channels_list: [52, 56, 60, 64]
-        suppported_data_rates_list: [18, 24, 36, 48, 54]
+        supported_data_rates_list: [18, 24, 36, 48, 54]
         mandatory_data_rates_list: [24]
     - radio_frequency_profile_name: "cistom_rf_2_4ghz_custom"
       default_rf_profile: false
