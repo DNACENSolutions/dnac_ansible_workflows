@@ -1,3 +1,19 @@
-
 ---
-
+accesspoints_details:
+{% for i in range(119,126) %} 
+  - management_ip_address: "204.20.208.{{i}}"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+{% endfor %}
+{% for i in range(127,130) %} 
+  - management_ip_address: "204.20.208.{{i}}"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 3
+    power_level: 3
+{% endfor %}

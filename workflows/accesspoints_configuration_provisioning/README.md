@@ -14,8 +14,7 @@
  - By leveraging this module, network administrators can efficiently manage access points, reducing manual effort and improving consistency across the network.
 
 ### 3. Detailed Input Specification
-![Access Point Workflow Manager]​(https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/accesspoint_workflow_manager)
-
+- [Access Point Workflow Manager](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/accesspoint_workflow_manager)
 ### 4. Features
  - Automates bulk configuration changes for Access Points (APs).
  - Modify AP display names, AP names, or other parameters.
@@ -205,7 +204,75 @@ A- t the Provision Schedule, enter Task Name -> Configure.
 - Finally, check Preview Configuration -> Deploy.
 ![alt text](./images/configuretion_ap_16.png)
 
+### 2. Creating Bulk Accesspoint Configuration using JINJA template and using the playbook:
+#### a. JINJA Template
+```
+---
+accesspoints_details:
+{% for i in range(119,125) %} 
+  - management_ip_address: "204.20.208.{{i}}"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+{% endfor %}
+{% for i in range(127,130) %} 
+  - management_ip_address: "204.20.208.{{i}}"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 3
+    power_level: 3
+{% endfor %}
+```
+#### b. Input File Example
 
+```
+- management_ip_address: "204.20.208.119"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.120"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.121"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.122"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.123"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.124"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+```
 
 ## IV. References
 
@@ -213,11 +280,8 @@ Note: The environment is used for the references in the above instructions.
 
 ```
   ansible: 9.9.0
-  ansible-core: 2.16.10
-  ansible-runner: 2.4.0
   dnacentersdk: 2.8.3
   cisco.dnac: 6.30.0
-  ansible.utils: 5.1.2
 ```
 Cisco Catalyst Center Ansible Module Documentation: [sda_extranet_policies_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/accesspoint_workflow_manager_module.html)
 

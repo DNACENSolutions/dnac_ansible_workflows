@@ -4,5 +4,5 @@
 catalyst_center_version: 2.3.7.6
 catalyst_center_verify: false
 jinjatemplate: true
-jinjatemplate_file: ../jinja_template/sites_generation_template.j2
+jinjatemplate_file: ../jinja_template/accesspoints_configuration_template.j2
 design_sites: []

@@ -148,7 +148,7 @@ This task demonstrates how to delete a device from Plug and Play (PnP).
 ---
 catalyst_center_version: 2.3.7.6
 pnp_details:
-  delete_network_device:
+  network_devices:
     - site_name: Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
       project_name: Onboarding Configuration
       template_name: PnP-Devices_No-Vars
@@ -198,7 +198,7 @@ To ensure the device has been successfully removed, verify the PnP UI.
 ---
 catalyst_center_version: 2.3.7.6
 pnp_details:
-  delete_bulk_network_devices:
+  network_devices:
     - device_info:
       - serial_number: FXS2502Q2HC
         hostname: SF-BN-2-ASR.cisco.local
@@ -256,18 +256,18 @@ This task demonstrates how to add and claim a Cisco Catalyst 9K switch using the
 catalyst_center_version: 2.3.7.6
 pnp_details:
   claim_switching_devices:
-      - site_name: Global/USA/SAN JOSE/SJ_BLD21
-        project_name: Onboarding Configuration
-        template_name: PnP-Devices-SW
-        image_name: cat9k_iosxe.17.12.04.SPA.bin
-        template_params:
-          PNP_VLAN_ID: 2000
-          LOOPBACK_IP: 204.1.2.100
-        device_info:
-          - serial_number: FJC272127LW
-            hostname: DC-FR-9300.cisco.local
-            state: Unclaimed
-            pid: C9300-48T
+    - site_name: Global/USA/SAN JOSE/SJ_BLD21
+      project_name: Onboarding Configuration
+      template_name: PnP-Devices-SW
+      image_name: cat9k_iosxe.17.12.04.SPA.bin
+      template_params:
+        PNP_VLAN_ID: 2000
+        LOOPBACK_IP: 204.1.2.100
+      device_info:
+        - serial_number: FJC272127LW
+          hostname: DC-FR-9300.cisco.local
+          state: Unclaimed
+          pid: C9300-48T
 ```
 
 ### Step 1: Execute the PnP playbook
@@ -309,7 +309,7 @@ Similar to the task for claiming a single switch, this task relies on a predefin
 ---
 catalyst_center_version: 2.3.7.6
 pnp_details:
-  claim_cat9k_switch_stack:
+  claim_switching_devices:
     - site_name:  Global/USA/New York/NY_BLD1
       project_name: Onboarding Configuration
       template_name: PnP-Devices-SW
@@ -379,7 +379,7 @@ In the Cisco Catalyst Center UI, onboarding a Cisco Embedded Wireless Controller
 ---
 catalyst_center_version: 2.3.7.6
 pnp_details:
-  claim_embedded_wireless_controller:
+  claim_wireless_controllers:
     - site_name: Global/USA/SAN JOSE/SJ_BLD23
       project_name: Onboarding Configuration
       image_name: C9800-40-universalk9_wlc.17.12.02.SPA.bin
@@ -419,7 +419,7 @@ pnp_details:
 ---
 catalyst_center_version: 2.3.7.6
 pnp_details:
-  claim_multiple_ewlc_ha:
+  claim_wireless_controllers:
     - site_name: Global/USA/New York/NY_BLD2
       project_name: Onboarding Configuration
       image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
@@ -486,7 +486,7 @@ In scenarios where a device encounters errors during onboarding, it can be reset
 ---
 catalyst_center_version: 2.3.7.6
 pnp_details:
-  pnp_ewlc_reset:
+  claim_wireless_controllers:
     - site_name: Global/USA/SAN JOSE/SJ_BLD23
       project_name: Onboarding Configuration
       template_name: PnP-Devices_SJ-EWLC_No-Vars

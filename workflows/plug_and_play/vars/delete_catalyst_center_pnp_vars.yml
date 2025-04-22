@@ -2,19 +2,12 @@
 #Select Catalyst Cennter version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 pnp_details:
-  delete_network_device:
-    - site_name: Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
-      project_name: Onboarding Configuration
-      template_name: PnP-Devices_No-Vars
-      image_name: cat9k_iosxe.17.09.04a.SPA.bin
-      device_info:
-          - serial_number: FJC272127LW
-            hostname: DC-FR-9300.cisco.local
-            state: Unclaimed
-            pid: C9300-48T     
-
-  delete_bulk_network_devices:
+  network_devices:
     - device_info:
+      - serial_number: FOX2639PAYD
+        hostname: SJ-EWLC-1
+        state: Unclaimed
+        pid: C9800-40-K9
       - serial_number: FXS2502Q2HC
         hostname: SF-BN-2-ASR.cisco.local
         state: Unclaimed
@@ -22,8 +15,4 @@ pnp_details:
       - serial_number: FJC271923AK
         hostname: NY-EN-9300
         state: Unclaimed
-        pid: C9300-48UXM
-      - serial_number: FOX2639PAYD
-        hostname: SJ-EWLC-1.cisco.local
-        state: Unclaimed
-        pid: C9800-40-K9
+        pid: C9300-48UXM   
