@@ -22,8 +22,7 @@ Users with the SUPER-ADMIN-ROLE can create custom roles to fine-tune access perm
 
 1. ## Prepare your Environment:
 
-**Before starting, ensure your run the requirements.txt and enable Users and Roles in Catalyst Center:**
-
+* **Before starting, ensure the following requirements are met:**
 
 2. ## Configure Host Inventory:
 
