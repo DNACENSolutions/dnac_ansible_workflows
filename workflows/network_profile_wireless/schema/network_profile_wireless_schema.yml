@@ -1,0 +1,181 @@
+
+#   wireless_nw_profiles:
+#     description: A list containing the details for network wireless profile creation.
+#     type: list
+#     elements: dict
+#     required: true
+#     suboptions:
+#       profile_name:
+#         description: Name the wireless profile needs to be created.
+#         type: str
+#         required: true
+#       site_names:
+#         description: |
+#           List of site names assigned to the profile. For example, ["Global/USA/New York/BLDNYC"].
+#         type: list
+#         elements: str
+#         required: false
+#       ssid_details:
+#         description: |
+#             Contains ssid details to update for the wireless network profile.
+#         type: list
+#         elements: dict
+#         required: false
+#         suboptions:
+#           ssid:
+#             description: The name of the SSID (Service Set Identifier) to be configured.
+#             type: str
+#             required: true
+#           dot11be_profile_name:
+#             description: |
+#               The 802.11be profile name to be assigned to this SSID.
+#               This profile defines advanced Wi-Fi 7 (802.11be) parameters to optimize
+#               network performance and efficiency.
+#             type: str
+#             required: true
+#           enable_fabric:
+#             description: |
+#               Set to `True` to enable fabric mode for this SSID.
+#               When enabled, the SSID operates within a Cisco SD-Access fabric network,
+#               leveraging policy-based segmentation and automation.
+#             type: bool
+#             required: false
+#           vlan_group_name:
+#             description: |
+#               The VLAN group name to which this SSID belongs, if applicable.
+#               VLAN groups allow multiple VLANs to be logically grouped for efficient
+#               traffic segmentation and policy enforcement.
+#             type: str
+#             required: false
+#           interface_name:
+#             description: |
+#               The name of the network interface where this SSID is configured.
+#               If specified, the SSID will be mapped to this interface instead of
+#               being part of a VLAN group.
+#             type: str
+#             required: false
+#           anchor_group_name:
+#             description: |
+#               The name of the anchor group if SSID anchoring is required.
+#               SSID anchoring is used in mobility architectures where traffic
+#               for a particular SSID is tunneled to a designated anchor controller.
+#             type: str
+#             required: false
+#           local_to_vlan:
+#             description: |
+#               The VLAN ID to which the SSID is mapped. This must be a numeric value
+#               between 1 and 4094, ensuring proper network segmentation.
+#             type: int
+#             required: false
+#       ap_zones:
+#         description: |
+#           Defines AP (Access Point) zones that need to be associated with
+#           the wireless network profile.
+#           Note: AP zone details cannot be modified after creation. To update AP zones,
+#           the profile must be deleted and re-created with the new AP zone details
+#           due to API/SDK limitations.
+#         type: list
+#         elements: dict
+#         required: false
+#         suboptions:
+#           ap_zone_name:
+#             description: Name of the AP zone to be created and associated with the wireless profile.
+#             type: str
+#             required: true
+#           ssids:
+#             description: |
+#               A list of SSIDs to be linked to this AP zone.
+#               For example, ["SSID1", "SSID2"].
+#             type: list
+#             elements: str
+#             required: false
+#           rf_profile_name:
+#             description: |
+#               Specifies the Radio Frequency (RF) profile to be assigned to the AP zone.
+#               This can be a predefined profile such as "HIGH", "LOW", "TYPICAL",
+#               or a custom RF profile created by the user.
+#               For example, "HIGH".
+#             type: str
+#             required: false
+#       onboarding_templates:
+#         description: |
+#           List of onboarding template names assigned to the profile.
+#           Note: Onboarding templates cannot be modified after assignment.
+#           To update onboarding templates, the profile must be deleted and re-created with
+#           the desired templates due to API/SDK limitations.
+#         type: list
+#         elements: str
+#         required: false
+#       day_n_templates:
+#         description: |
+#           To update Day-N templates, the profile must be deleted and re-created with
+#           the desired templates due to API/SDK limitations.
+#         type: list
+#         elements: str
+#         required: false
+#       additional_interfaces:
+#         description: |
+#           Specifies additional interfaces to be added to this wireless profile.
+#           If the specified interface name and VLAN ID do not exist, they will be created.
+#           Note: Additional interfaces cannot be modified after assignment.
+#           To update additional interfaces, the profile must be deleted and re-created with
+#           the new interfaces due to API/SDK limitations.
+#         type: list
+#         elements: dict
+#         required: false
+#         suboptions:
+#           interface_name:
+#             description: Name of the additional interface.
+#             type: str
+#             required: true
+#           vlan_id:
+#             description: |
+#               VLAN ID for the interface. It must be a numeric value between 1 and 4094.
+#               This field is required if the VLAN interface and ID do not already exist.
+#             type: int
+#             required: true
+#=======================================================================
+# Yamale Schema for Network Profile Wireless
+
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+jinjatemplate: bool(required=False)
+jinjatemplate_file: str(required=False)
+passwords_file: str(required=False)
+wireless_nw_profiles_details: list(include('wireless_nw_profiles_type'), min=0, max=1000, required=True)
+
+---
+wireless_nw_profiles_type:
+  profile_name: str(required=True)
+  site_names: list(str(), required=False)
+  ssid_details: list(include('ssid_details_type'), required=False)
+  ap_zones: list(include('ap_zones_type'), required=False)
+  onboarding_templates: list(str(), required=False)
+  day_n_templates: list(str(), required=False)
+  additional_interfaces: list(include('additional_interfaces_type'), required=False)
+  
+
+ssid_details_type:
+  ssid: str(required=True)
+  dot11be_profile_name: str(required=False)
+  enable_fabric: bool(required=False)
+  vlan_group_name: str(required=False)
+  interface_name: str(required=False)
+  anchor_group_name: str(required=False)
+  local_to_vlan: int(required=False, min=1, max=4094)
+
+ap_zones_type:
+  ap_zone_name: str(required=True)
+  ssids: list(str(), required=False)
+  rf_profile_name: str(required=False)
+
+additional_interfaces_type:
+  interface_name: str(required=True)
+  vlan_id: int(required=True, min=1, max=4094)

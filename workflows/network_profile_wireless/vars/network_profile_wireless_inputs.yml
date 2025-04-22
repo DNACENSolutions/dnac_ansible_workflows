@@ -1,0 +1,32 @@
+---
+catalyst_center_version: 2.3.7.9
+# network_profile_wireless/vars/merged.yml
+wireless_nw_profiles_details
+  - profile_name: "Corporate_Wireless_Profile"
+    site_names:
+      - "Global/USA/SAN_JOSE"
+      - "Global/USA/SAN-FRANCISCO"
+    ssid_details:
+      - ssid: "iac-open"
+        enable_fabric: true
+        enable_broadcast: true
+      - ssid: "iac-employees"
+        enable_fabric: true
+        enable_broadcast: true
+      - ssid: "iac-guests"
+        enable_fabric: true
+        enable_broadcast: true
+    ap_zones:
+      - ap_zone_name: "HQ_AP_Zone"
+        rf_profile_name: "HIGH"
+        ssids:
+          - "iac-open"
+      - ap_zone_name: "Branch_AP_Zone"
+        rf_profile_name: "TYPICAL"
+        ssids:
+          - "iac-guests"
+    additional_interfaces:
+      - interface_name: "Corp_Interface_1"
+        vlan_id: 100
+      - interface_name: "Guest_Interface_1"
+        vlan_id: 3002
