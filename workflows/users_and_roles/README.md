@@ -1,6 +1,6 @@
-# User and Role Ansible Playbbok:
+# Users and Roles Playbook:
 
-**OVERVIEW**
+**Overview**
 
 This Ansible playbook automates both users and roles to manage access. Each user is assigned roles to access controller functionality.
 
@@ -20,15 +20,9 @@ Users with the SUPER-ADMIN-ROLE can create custom roles to fine-tune access perm
 
 # Procedure
 
-1. ## Prepare your Ansible environment:
+1. ## Prepare your Environment:
 
 * **Before starting, ensure the following requirements are met:**
-
-* **Access to Cisco Catalyst Center:** Ensure that User and Role is enabled.
-* **Ansible Installation:** Ansible must be installed on the machine managing the automation process.
-* **Yamale Python Library:** `yamale` Python library installed (`pip install yamale`)
-* **Cisco DNA Ansible Collection:** The cisco.dnac.user_role_workflow_manager module must be available from the Cisco DNA Ansible Collection.
-* **dnacentersdk Python SDK:** This SDK is required to interact with Cisco Catalyst Center.
 
 2. ## Configure Host Inventory:
 
@@ -246,39 +240,38 @@ Run the create Playbook
         
 ```
 
-Post the user and the roles will start reflecting in the catalyst center.
+Once the users and roles are created, they will be reflected in the Catalyst Center.
 
-Figure 1: User mapping with the default and customised roles.
+Figure 1: User mapping with the default and customized roles.
 ![Alt text](./images/user_roles_mapping.png)
 
-Figure 2: Customised Role 1 creation with the permissions.
+Figure 2: Customized Role 1 creation with the permissions.
 ![Alt text](./images/customized_role_permissions1.png)
 
-Figure 3: Customised Role 2 creation with the permissions.
+Figure 3: Customized Role 2 creation with the permissions.
 ![Alt text](./images/customized_role_permissions2.png)
 
-## Running playbook with passowrd in Ansible vault. 
-Create your password file in folder: vaulted_passwords/<filename>
-write your password in yaml format there example
+## Run the playbook with password in Ansible vault. 
+Create your password file in the folder: vaulted_passwords/<filename>
+and write your password in yaml format as shown below.
 
 ---
 test_password: sample123
 
-### Generate encrypt the password file
+### Generate and encrypt the password file
 ```bash
     ansible-vault encrypt vaulted_passwords/<filename>
 ```
-It will ask vault password, setup and remember it
-in jinja template in jinja_template folder update your vault passowrd file
+
+It will prompt for the vault password. Set it up and remember it.
+In the Jinja template located in the jinja_template folder, update your vault password file as follows:
 passwords_file: ../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml
 
-it will prompt for vault password. Enter the val password which was used to encrypt the password. 
-
-### Generate the password file Alternatively
+### Generate the password file alternatively
 1. Create vault password hidden file:
 ~/.vault_secret.sh
 
-## file content:
+## File Content:
 ```bash
 #!/bin/bash
 echo password
@@ -295,16 +288,16 @@ vi ~/.ansible.cfg
 vault_password_file=~/.vault_secret.sh
 ```
 
-### Create User and Roles with jinja template and Vault password
+### Create User and Roles with Jinja template and Vault password
 ```bash
     dnac_ansible_workflows % ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml --ask-vault-pass --e VARS_FILE_PATH=../jinja_template/template_users_and_roles_workflow_inputs.j2 -vvvv
 ```
 
 ```jinja_template
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+---
 roles_users_details:
   # Define roles and users to be created or updated, and their permissions
-  # Assign users with customed roles
+  # Assign users with custom roles
   role_details:
     - role_name: Admin_customized_role
       description: This role is created for Ansible module testing
@@ -376,7 +369,7 @@ roles_users_details:
       first_name: ai_users
       last_name: Solutions
       email: 'net_ai_automate@cisco.com'
-      password: "{{ ai_users_vaule_password }}"
+      password: "{{ ai_users_vault_password }}"
       role_list: 
         - NETWORK-ADMIN-ROLE
     - username: testuser2
@@ -387,27 +380,31 @@ roles_users_details:
       role_list: 
         - Assurance-role
 ```
-Figure 4: User associated with roles using jinja template.
+Figure 4: User associated with roles using Jinja template.
 ![Alt text](./images/user_with_roles_associated_with_jina_template.png)
 
-Figure 5: Role creation and assigned role to the user with jinja template.
+Figure 5: Role creation and assigned role to the user with Jinja template.
 ![Alt text](./images/role_defined_with_jinja_template.png)
 
-### ## Deleting the users and the roles with jinja template and Vault password
+### ## Deleting the users and the roles with Jinja template and Vault password
 ```bash
     dnac_ansible_workflows % ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/users_and_roles/playbook/delete_users_and_roles_workflow_playbook.yml  --ask-vault-pass --e VARS_FILE_PATH=../jinja_template/template_users_and_roles_workflow_inputs.j2 -vvvv
 ```
 
-Figure 6: User deleted using jinja template.
+Figure 6: User deleted using Jinja template.
 ![Alt text](./images/Deleted_users_with_jinja_template.png)
 
-Figure 7: Role deleted using jinja template.
+Figure 7: Role deleted using Jinja template.
 ![Alt text](./images/Deleted_roles_with_jinja_template.png)
 
 
 ## References
-  \* Note: The environment is used for the references in the above instructions.
-  ```
+*Note: The environment used for the references in the above instructions is as follows:*
 
-  dnacentersdk: 2.8.6
-  cisco.dnac: 6.30.0
+```yaml
+python: 3.12.0
+dnac_version: 2.3.7.6
+ansible: 9.9.0
+dnacentersdk: 2.8.6
+cisco.dnac: 6.30.2
+```
