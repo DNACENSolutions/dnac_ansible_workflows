@@ -13,12 +13,7 @@
   vars_files:
     - "{{ VARS_FILE_PATH }}"
 
-  # pre_tasks:
-  #   - name: Verify Ansible meets Catalyst Center requirements
-  #     assert:
-  #       that: "cisco.dnac is version_compare('6.19.0', '>=')"
-  #       msg: >
-  #         "You must update ansible collection to version 6.19.0 or later to use this playbook."
+
   vars:
     state: deleted
     dnac_login: &dnac_login

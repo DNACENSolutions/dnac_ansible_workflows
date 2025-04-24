@@ -4,7 +4,7 @@ This Ansible playbook streamlines the management of device compliance within you
 
 * Perform compliance checks or sync configurations on reachable devices using IP Address(s) or Site.
 * Perform full compliance checks or specific category checks on reachable device(s).
-* Sync device configuration on device(s), running_configuration with Startup_config, if the they are our of sync.
+* Sync device configuration on device(s), running_configuration with Startup_config, if they are out of sync.
 
 ![Alt text](./images/complian.png)
 
@@ -63,7 +63,7 @@ catalyst_center_hosts:
 
 - User inputs are stored in **workflows/network_compliance/vars/network_compliance_workflow_inputs.yml**.
 
-### Validate user input before running though ansible
+### Validate user input before running through Ansible
 
 command to validate:
 ```bash

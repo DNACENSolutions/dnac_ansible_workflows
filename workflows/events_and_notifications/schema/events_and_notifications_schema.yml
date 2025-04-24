@@ -322,7 +322,7 @@ catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG",
 catalyst_center_task_poll_interval: int(required=False)
 catalyst_center_config_verify: bool(required=False)
 events_notifications_destination_and_subscription_details: list(include('events_notifications_destination_and_subscription_details_type'), required=False)
-#Subtype Definitions
+#====================
 ---
 events_notifications_destination_and_subscription_details_type:
   email_destination: include('email_destination_type', required=False)
@@ -332,13 +332,14 @@ events_notifications_destination_and_subscription_details_type:
   syslog_destination: include('syslog_destination_type', required=False)
   webhook_destination: include('webhook_destination_type', required=False)
   webhook_event_notification: include('webhook_event_notification_type', required=False)
+  syslog_event_notification: include('syslog_event_notification_type', required=False)
 email_destination_type:
   primary_smtp_config: include('primary_smtp_config_type', required=False)
   recipient_email: str(required=True)
   secondary_smtp_config: include('secondary_smtp_config_type', required=False)
   sender_email: str(required=True)
   subject: str(required=True)
-email_event_notification:
+email_event_notification_type:
   description: str(required=True)
   domain: str(required=False)
   event_categories: list(str(), required=False)
@@ -378,14 +379,30 @@ syslog_destination_type:
   port: int(required=True)
   protocol: str(required=True)
   server_address: str(required=True)
+syslog_event_notification_type:
+  description: str(required=True)
+  destination: str(required=True)
+  domain: str(required=False)
+  event_categories: list(str(), required=False)
+  event_severities: list(str(), required=False)
+  event_sources: list(str(), required=False)
+  event_types: list(str(), required=False)
+  events: list(str(), required=True)
+  name: str(required=True)
+  sites: list(str(), required=False)
+  subdomains: list(str(), required=False)
+  version: str(required=False)
 webhook_destination_type:
   description: str(required=False)
   headers: list(include('headers_type', required=False), required=False)
+  headers_list: include('headers_list_type', required=False)
   is_proxy_route: bool(required=False)
   method: str(required=False)
   name: str(required=True)
   trust_cert: bool(required=False)
   url: str(required=True)
+headers_list_type:
+  headers: list(include('headers_type', required=False), required=False)
 webhook_event_notification_type:
   description: str(required=True)
   destination: str(required=True)
@@ -416,7 +433,7 @@ primary_smtp_config_type:
   username: str(required=False)
 secondary_smtp_config_type:
   password: str(required=False)
-  port: str(required=False)
+  port: str(required=False)  
   server_address: str(required=False)
   smtp_type: str(required=False)
   username: str(required=False)

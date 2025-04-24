@@ -1,6 +1,6 @@
 # SDA Host Onboarding Workflow Manager
 This Ansible workflow playbook manages host onboarding operations within a Cisco SD-Access fabric through the Cisco DNA Center. It provides the ability to add, update, and delete port assignments and port channels for network devices, enabling seamless automation of host onboarding workflows on single or bulk interfaces on a single or a number of access devices.
-### Minimum Catalyst Cennter Version Supported : 2.3.7.6
+### Minimum Catalyst Center Version Supported : 2.3.7.6
 
 # Playbook Use Cases
 This Playbook can be used to automate various host onboarding tasks, including:
@@ -77,7 +77,7 @@ catalyst_center_hosts:
 
 #### 4.1 Add port interfaces.
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
@@ -96,23 +96,23 @@ catalyst_center_hosts:
 
 #### 4.2. Add port channel. 
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
-- Select More Actions Tab -> Chose Create Port Channel
+- Select More Actions Tab -> Choose Create Port Channel
 
 ![alt text](./images/create-port-channel.png)
 
-- Chose Device
+- Choose Device
 
 ![alt text](./images/Chose-device.png)
 
-- Chose parameter (Note: Connected Device Type: Extended Node can only select Protocol PAgP)
+- Choose parameter (Note: Connected Device Type: Extended Node can only select Protocol PAgP.)
 
 ![alt text](./images/Chose_parameter_port_channel.png)
 
-- Chose Interface 
+- Choose Interface 
 
 ![alt text](./images/Chose_interface_port_channel.png)
 
@@ -171,7 +171,7 @@ sda_host_onboarding_details:
 
 #### 7.1. Update port interfaces.
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
@@ -179,13 +179,13 @@ sda_host_onboarding_details:
 
 ![alt text](./images/edit-port-assignment.png)
 
-- Chose parameter -> update new parameter
+- Choose parameter -> update new parameter
 
 ![alt text](./images/update_port_assignment.png)
 
 #### 7.2. Update port channel.
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
@@ -193,7 +193,7 @@ sda_host_onboarding_details:
 
 ![alt text](./images/edit_port_channel.png)
 
-- Chose parameter -> update new parameter
+- Choose parameter -> update new parameter
 
 ![alt text](./images/update_port_channel.png)
 
@@ -249,7 +249,7 @@ sda_host_onboarding_details:
 
 #### 8.1. Delete port interfaces:
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
@@ -267,7 +267,7 @@ sda_host_onboarding_details:
 
 #### 8.2. Delete Port Channel.
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
