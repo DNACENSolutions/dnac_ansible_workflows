@@ -1,0 +1,5 @@
+{
+  "summary": "Automate the generation of Cisco DNA Center inventory files effortlessly with our Ansible playbook.",
+  "status": "active",
+  "managed_by": "cisco"
+}

@@ -1,0 +1,5 @@
+{
+  "summary": "Automate and manage your network configurations with ease using the Ansible Device Template Workflow Manager, enabling you to create, update, deploy, and delete templates efficiently.",
+  "status": "active",
+  "managed_by": "cisco"
+}

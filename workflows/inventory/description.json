@@ -1,0 +1,5 @@
+{
+  "summary": "Automate and streamline your network inventory management with Ansible, enabling efficient device configuration, provisioning, and updates in Catalyst Center.",
+  "status": "active",
+  "managed_by": "cisco"
+}
