@@ -23,6 +23,7 @@
       dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
       dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
       dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
+      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
   tasks:
     - name: SDA Host Onboarding Playbook start time
       set_fact:
@@ -42,8 +43,6 @@
     - name: Onboard hosts from design_hosts config
       cisco.dnac.sda_host_port_onboarding_workflow_manager:
         <<: *dnac_login
-        dnac_version: "{{ dnac_version }}"
-        dnac_verify: "{{ dnac_verify }}"
         state: "{{state}}"
         config: "{{sda_host_onboarding_details}}"
       register: sda_host_output

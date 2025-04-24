@@ -19,7 +19,15 @@ swim_details:
               - http://<server IP>/swim/V1712_20230427_143746/cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
               - http://<server IP>/swim/V1712_20230427_143746/C9800-SW-iosxe-wlc.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
             third_party: false
-    # List of images to be tagged as golden images
+  # List of images to be imported by CCO
+    - import_image_details:
+        type: CCO
+        cco_image_details:
+          image_name: 
+            - cat9k_iosxe_npe.17.09.06a.SPA.bin # Cisco Catalyst 9300 Switch - Dynamic (Need change name in local)
+            - C9800-40-universalk9_wlc.17.09.06.SPA.bin # Cisco Catalyst 9800-40 Wireless Controller - Dynamic (Need change name in local)
+  
+  # List of images to be tagged as golden images
   golden_tag_images:
     - tagging_details:
         image_name: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin

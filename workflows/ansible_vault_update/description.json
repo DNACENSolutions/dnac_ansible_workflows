@@ -1,0 +1,5 @@
+{
+  "summary": "Encrypt, add, update, and delete variables in Ansible Vault efficiently using our playbooks for secure and streamlined configuration management.",
+  "status": "active",
+  "managed_by": "cisco"
+}

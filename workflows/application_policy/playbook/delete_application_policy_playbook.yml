@@ -1,0 +1,54 @@
+---
+- name: Playbook to delete application policy, queueing profile, applications and application sets
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+  vars:
+    state: deleted
+    dnac_login: &dnac_login
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(False) }}"
+      dnac_log: "{{ catalyst_center_log | default(False) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
+  tasks:
+    - name: print VARS_FILE_PATH
+      debug:
+        msg: "Input file selected {{ VARS_FILE_PATH }}"
+    - name: Playbook start time for the application policy playbook
+      set_fact:
+        long_op_start: "{{ now() }}"
+    - name: Delete application policy, queueing profile, applications and application sets from file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.application_policy_workflow_manager:
+        <<: *dnac_login
+        state: "{{ state }}"
+        config: "{{ application_policy_details }}" 
+      register: application_policy_output
+      when: application_policy_details is defined
+    - name: Print output of the application policy playbook
+      debug:
+        msg: "{{ application_policy_output }}"
+    - name: Playbook end time for the application policy playbook
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print application policy playbook execution time
+      debug:
+        msg: "Application Policy playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
+  
+
