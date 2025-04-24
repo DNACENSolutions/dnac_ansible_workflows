@@ -45,7 +45,7 @@
         file: ../tmp/template_generated_file.yaml
       when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     # Create, update, or delete layer2 Fabric VLAN(s) for SDA operations in Cisco Catalyst Center
-    - name: Create, update, Fabric VLAN(s) for SDA operations in Cisco Catalyst Center
+    - name: Delete Fabric VLAN(s) for SDA operations in Cisco Catalyst Center
       cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
         <<: *dnac_login
         state: "{{state}}"

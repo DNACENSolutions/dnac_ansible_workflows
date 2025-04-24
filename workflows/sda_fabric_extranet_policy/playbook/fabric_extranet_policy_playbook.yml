@@ -29,14 +29,6 @@
       dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
       dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
       dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
-  # pre_tasks:
-  #   - name: Gather the package facts
-  #     ansible.builtin.package_facts:
-  #       manager: auto
-
-  #   - name: Print the package facts
-  #     ansible.builtin.debug:
-  #       var: ansible_facts.packages
 
   tasks:
   #write tasks for extranet policies creations

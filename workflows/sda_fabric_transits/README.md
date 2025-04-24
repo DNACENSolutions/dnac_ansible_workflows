@@ -44,9 +44,10 @@ catalyst_center_hosts:
 
 2. To complete the native multicast configuration over multiple sites that are connected to the SD-Access transit, ensure that you enable multicast over SD-Access transit on the border nodes.
 
-3. To create SD-Access Transit atleast one Transit CP device must be provided. 
+3. To create SD-Access Transit at least one Transit CP device must be provided. 
 
 ## Create Fabric transits
+=======
 - Playbook: workflows/sda_fabric_transits/playbook/playbook/sda_fabric_transits_workflow_playbook.yml
 - Schema: workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_schema.yml
 - Input Variables: [Title](vars/sda_fabric_transits_workflow_inputs.yml)

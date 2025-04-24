@@ -1,34 +1,33 @@
 # Wireless Accesspoint Configuration
-    Provision and customize access points configuration.​
+- Provision and customize access points configuration.​
 
-    Bulk AP Configuration: Automate multi-AP setup, including frequency and power settings across sites.​
+- Bulk AP Configuration: Automate multi-AP setup, including frequency and power settings across sites.​
 
-    Dynamic Channel and Power Assignment: Assign channels and power levels globally or customize individually to minimize interference and enhance signal strength.​
+- Dynamic Channel and Power Assignment: Assign channels and power levels globally or customize individually to minimize interference and enhance signal strength.​
 
-    Centralized AP Location Management: Assign APs to specific sites and floors, facilitating organized and efficient AP deployment.​
+- Centralized AP Location Management: Assign APs to specific sites and floors, facilitating organized and efficient AP deployment.​
 
-    Reboot and Update Management: Easily reboot individual or multiple APs and update configurations through Catalyst Center with logging for audits and compliance.
-## I. Overview.
-### 1. Wireless Accesspoint Configuration Overview.
+- Reboot and Update Management: Easily reboot individual or multiple APs and update configurations through Catalyst Center with logging for audits and compliance.
+## I. Overview
+### 1. Wireless Accesspoint Configuration Overview
  - The access point management workflow in Cisco Catalyst Center focuses on provisioning, configuring, and managing access points. These tasks include creating access points, rebooting them, and performing factory resets. The cisco.catalyst_center.accesspoint_workflow_manager module is designed to automate these processes, ensuring consistency and reducing manual effort.
  - By leveraging this module, network administrators can efficiently manage access points, reducing manual effort and improving consistency across the network.
 
-### 3. Detailed Input Specification.
-![Access Point Workflow Manager]​(https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/accesspoint_workflow_manager)
-
-### 4. Features.
+### 3. Detailed Input Specification
+- [Access Point Workflow Manager](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/accesspoint_workflow_manager)
+### 4. Features
  - Automates bulk configuration changes for Access Points (APs).
  - Modify AP display names, AP names, or other parameters.
  - Filter specific device details, such as selecting devices with hostnames matching "NFW-AP1-9130AXE".
  - Compares input details with current AP configurations and applies desired changes only to relevant APs.
 
-## II. Procedure.
-### 1. Prepare your Ansible environment.
+## II. Procedure
+### 1. Prepare your Ansible environment
  - Install Ansible if you haven't already.
  - Ensure you have network connectivity to your Catalyst Center instance.
  - Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git.
 
-### 2. Configure Host Inventory.
+### 2. Configure Host Inventory
  - The host_inventory_catalyst_center1/hosts.yml file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
  - Make sure the catalyst_center_version in this file matches your actual Catalyst Center version.
  - The Sample host_inventory_catalyst_center1/hosts.yml.
@@ -38,21 +37,21 @@ catalyst_center_hosts:
     hosts:
         catalyst_center220:
             #(Mandatory) CatC Ip address
-            catalyst_center_host:  <DNAC IP Address>
+            catalyst_center_host:  <CatC IP Address>
             #(Mandatory) CatC UI admin Password
-            catalyst_center_password: <DNAC UI admin Password>
+            catalyst_center_password: <CatC UI admin Password>
             catalyst_center_port: 443
             catalyst_center_timeout: 60
             #(Mandatory) CatC UI admin username
-            catalyst_center_username: <DNAC UI admin username> 
+            catalyst_center_username: <CatC UI admin username> 
             catalyst_center_verify: false
-            #(Mandatory) DNAC Release version
-            catalyst_center_version: <DNAC Release version>
+            #(Mandatory) CatC Release version
+            catalyst_center_version: <CatC Release version>
             catalyst_center_debug: true
             catalyst_center_log_level: INFO
             catalyst_center_log: true
 ```
-### 3. Define input.
+### 3. Define input
 The /vars/fabric_extranet_policy_inputs.yml file stores the sites details you want to configure.
 
 ```bash
@@ -115,12 +114,12 @@ The /vars/fabric_extranet_policy_inputs.yml file stores the sites details you wa
       channel_width: "40 MHz"
 ```
 
-### 4. How to Validate Input.
+### 4. How to Validate Input
 
 **a. Validate Your Input.**
 
 ```bash
-   yaml -s workflows/accesspoints_configuration_provisioning/vars/accesspoints_configuration_vars.yml
+   yamale -s workflows/accesspoints_configuration_provisioning/schema/accesspoints_config_schema.yml workflows/accesspoints_configuration_provisioning/vars/accesspoints_configuration_vars.yml
 ```
 
 **b. Execute the Playbook.**
@@ -137,9 +136,9 @@ The /vars/fabric_extranet_policy_inputs.yml file stores the sites details you wa
  ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/accesspoints_configuration_provisioning/playbook/delete_accesspoints_config_playbook.yml --e VARS_FILE_PATH=../vars/accesspoints_configuration_vars.yml
 ```
 
-## III. Detailed steps to perform.
+## III. Detailed steps to perform
 
-### 1. Update Wireless Accesspoint Configuration.
+### 1. Update Wireless Accesspoint Configuration
 
 #### **a. Example Input File.**
 ```bash
@@ -164,47 +163,10 @@ The /vars/fabric_extranet_policy_inputs.yml file stores the sites details you wa
     5ghz_radio:
       admin_status: "Enabled"
       radio_role_assignment: "Client-Serving"
+      radio_role_assignment: "Monitor"
       channel_number: 44
       power_level: 3
       channel_width: "20 MHz"
-    xor_radio:
-      admin_status: "Enabled"
-      radio_role_assignment: "Client-Serving"
-      channel_number: 1
-      power_level: 3
-      radio_band: "6 GHz"
-      channel_width: "40 MHz"
-  - mac_address: e4:38:7e:42:bc:00
-    ap_name: "LTTS_Test_9166_T3"
-    admin_status: "Enabled"
-    led_status: "Enabled"
-    led_brightness_level: 3
-    ap_mode: "Local"
-    is_assigned_site_as_location: "Enabled"
-    failover_priority: "Low"
-    primary_controller_name: "NY-IAC-EWLC"
-    primary_ip_address:
-      address: "204.192.6.200"
-    secondary_controller_name: "Inherit from site / Clear"
-    tertiary_controller_name: "Inherit from site / Clear"
-    2.4ghz_radio:
-      admin_status: "Enabled"
-      radio_role_assignment: "Client-Serving"
-      channel_number: 3
-      power_level: 3
-    5ghz_radio:
-      admin_status: "Enabled"
-      radio_role_assignment: "Client-Serving"
-      channel_number: 44
-      power_level: 3
-      channel_width: "20 MHz"
-    xor_radio:
-      admin_status: "Enabled"
-      radio_role_assignment: "Client-Serving"
-      channel_number: 1
-      power_level: 3
-      radio_band: "6 GHz"
-      channel_width: "40 MHz"
 ```
 
 
@@ -242,19 +204,84 @@ A- t the Provision Schedule, enter Task Name -> Configure.
 - Finally, check Preview Configuration -> Deploy.
 ![alt text](./images/configuretion_ap_16.png)
 
+### 2. Creating Bulk Accesspoint Configuration using JINJA template and using the playbook:
+#### a. JINJA Template
+```
+---
+accesspoints_details:
+{% for i in range(119,125) %} 
+  - management_ip_address: "204.20.208.{{i}}"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+{% endfor %}
+{% for i in range(127,130) %} 
+  - management_ip_address: "204.20.208.{{i}}"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 3
+    power_level: 3
+{% endfor %}
+```
+#### b. Input File Example
 
+```
+- management_ip_address: "204.20.208.119"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.120"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.121"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.122"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.123"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+- management_ip_address: "204.20.208.124"
+    ap_mode: Local
+    admin_status: "Enabled"
+    radio_role_assignment: "Client-Serving"
+    channel_number: 44
+    power_level: 3
+    channel_width: "20 MHz"
+```
 
-## IV. References.
+## IV. References
 
 Note: The environment is used for the references in the above instructions.
 
 ```
   ansible: 9.9.0
-  ansible-core: 2.16.10
-  ansible-runner: 2.4.0
   dnacentersdk: 2.8.3
   cisco.dnac: 6.30.0
-  ansible.utils: 5.1.2
 ```
 Cisco Catalyst Center Ansible Module Documentation: [sda_extranet_policies_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/accesspoint_workflow_manager_module.html)
 
