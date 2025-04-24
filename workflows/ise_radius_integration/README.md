@@ -1,11 +1,11 @@
 # ISE and AAA Integration Workflow Playbook
-This Workflow Playbook is for Integrating the ISE with Catalyst Center also add Additional external AAA servers to catalyst Center. 
+This Workflow Playbook integrates ISE with Catalyst Center and adds external AAA servers to Catalyst Center.
 This workflow playbook is supported from Catalyst Center Release version 2.3.7.6
 
-ise_radius_integration_details  defines the list of devices and devices details for the devices to be run rough the playbooks
+ise_radius_integration_details  defines the list of devices and devices details for the devices to be run through the playbooks.
 
 
-To define the details you can refer the full workflow specification: https://docs.ansible.com/ansible/latest/collections/cisco/dnac/ise_radius_integration_workflow_manager_module.html
+Refer to the full workflow specification to define the details: https://docs.ansible.com/ansible/latest/collections/cisco/dnac/ise_radius_integration_workflow_manager_module.html
 
 
 ## The Sample host_inventory_dnac1/hosts.yml
@@ -14,16 +14,20 @@ To define the details you can refer the full workflow specification: https://doc
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
-            dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
+            #(Mandatory) CatC Ip address
+            catalyst_center_host:  <DNAC IP Address>
+            #(Mandatory) CatC UI admin Password
+            catalyst_center_password: <DNAC UI admin Password>
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            #(Mandatory) CatC UI admin username
+            catalyst_center_username: <DNAC UI admin username> 
+            catalyst_center_verify: false
+            #(Mandatory) DNAC Release version
+            catalyst_center_version: <DNAC Release version>
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
 ```
 User Inputs for Users and roles are stored in  workflows/network compliance/vars/network_compliance_workflow_inputs.yml
 
@@ -62,7 +66,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integrat
         retries: 3
         timeout: 4
   ```
-  mapping config to UI Actions:
+  Mapping Config to UI Actions:
   ![alt text](./images/aaa_full_config.png)
 
   * It also can be add with minimal config, for example (default: authentication_port: 1812, accounting_port: 1813, retries: 3, timeout: 4):
@@ -158,7 +162,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integrat
   * If the provided credentials are invalid, ISE will return a Fail status.
   ![alt text](./images/ise_fail.png)
   
-3. ### Add combine bulk ISE and AAA.
+3. ### Add combined bulk ISE and AAA.
   Add combine the ISE and AAA server with a single input, for example input config.
   ```yaml
   ise_radius_integration_details:
@@ -257,7 +261,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integrat
 ### Jinja Template file: ise_radius_inegration_jinja_template.j2
 ```yaml
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+#Select Catalyst Center version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 ise_radius_integration_details:
     - authentication_policy_server:
@@ -296,7 +300,7 @@ ise_radius_integration_details:
 ### Jinja file selection
 
 
-### Eecution of playbook with jinja inputs
+### Execution of playbook with jinja inputs
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml --e VARS_FILE_PATH=../vars/ise_radius_integration_workflow_jinja_input.yml -vvv
 
 ### Deletion with Jinja Template
@@ -306,7 +310,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integrat
 # Reference
 
 * Note: The environment is used for the references in the above instructions.
-```
+```yaml
   python: 3.12.0
 
   dnac_version: 2.3.7.6
@@ -317,5 +321,4 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integrat
 
   dnacentersdk: 2.8.4
   cisco.dnac: 6.30.0
-  ansible.utils: 5.1.2
 ```

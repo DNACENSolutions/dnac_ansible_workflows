@@ -1,4 +1,5 @@
 # Description: This file contains the input variables for the fabric extranet policy workflow.
+---
 catalyst_center_version: 2.3.7.6
 extranet_policies:
     - extranet_policy_name: ex_policy_infra_vn_provider

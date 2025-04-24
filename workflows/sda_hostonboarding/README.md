@@ -1,21 +1,31 @@
 # SDA Host Onboarding Workflow Manager
 This Ansible workflow playbook manages host onboarding operations within a Cisco SD-Access fabric through the Cisco DNA Center. It provides the ability to add, update, and delete port assignments and port channels for network devices, enabling seamless automation of host onboarding workflows on single or bulk interfaces on a single or a number of access devices.
 
-## I. Playbook Use Cases
-This Playbook can be used to automate various host onboarding tasks, including:
-1. Adding a group of hosts or different types of host on one or more edge devices.
-2. Updating host port assignment: Move a host to a different port or port channel.
-3. Deleting host port assignment: Remove a host's port assignment, effectively disconnecting it from the network.
-4. Creating and managing port channels: Configure port channels for link aggregation and redundancy.
-5. Onboard hosts on link aggregation (port Channels)
-6. Delete ALL port assignments and port channels for the fabric device using ip_address
-7. Remove provided hosts from interfaces and port channels.
-8. Add wireless SSIDs mapped to specific VLANs
-9. Update just wireless ssid mappings for a specific fabric site
-10. Delete specific wireless SSID mappings
-11. Delete just ALL wireless SSIDs mappings from a fabric site
+### Minimum Catalyst Center Version Supported : 2.3.7.6
 
-## II. Procedure
+## Playbook parameters spec
+https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_host_port_onboarding_workflow_manager/
+
+Host Onboarding Figure:
+![alt text](./images/host_onboarding.png)
+
+## I. Key Features.
+### 1. Port Assignments Management.
+    - Add, Update, and Delete Ports: The Workflow Manager enables administrators to easily add, update, or delete port assignments for network devices. This functionality ensures accurate and efficient configuration for each device.
+
+### 2. Port Channel Management.
+    - The tool supports the configuration and management of port channels for network devices. This capability ensures that network traffic is optimized and evenly distributed across ports.
+
+### 3. Automation of Onboarding Processes.
+    - The Workflow Manager provides the ability to automate the onboarding processes for devices, not only for a single interface but also for multiple interfaces across one or several access devices. This significantly reduces the time and effort required for network configuration.
+
+### 4. Bulk Operations Support.
+    - The tool can perform bulk operations, allowing administrators to implement changes across multiple devices simultaneously, enhancing network management efficiency.
+
+### 5. Integration with Cisco DNA Center.
+    - The Workflow Manager seamlessly integrates with Cisco DNA Center, enabling the use of existing management and monitoring features within the platform. This integration facilitates easy tracking of changes and updates within the network.
+
+## II. Procedure.
 
 ### 1. Prepare your environment
 
@@ -105,7 +115,7 @@ sda_host_onboarding_details:
 
 #### 4.2 Add port interfaces
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
@@ -124,23 +134,23 @@ sda_host_onboarding_details:
 
 #### 4.3. Add port channel
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
-- Select More Actions Tab -> Chose Create Port Channel
+- Select More Actions Tab -> Choose Create Port Channel
 
 ![alt text](./images/create-port-channel.png)
 
-- Chose Device
+- Choose Device
 
 ![alt text](./images/Chose-device.png)
 
-- Chose parameter (Note: Connected Device Type: Extended Node can only select Protocol PAgP)
+- Choose parameter (Note: Connected Device Type: Extended Node can only select Protocol PAgP.)
 
 ![alt text](./images/Chose_parameter_port_channel.png)
 
-- Chose Interface 
+- Choose Interface 
 
 ![alt text](./images/Chose_interface_port_channel.png)
 
@@ -274,7 +284,7 @@ sda_host_onboarding_details:
 
 #### 5.2. Update port interfaces
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
@@ -282,13 +292,13 @@ sda_host_onboarding_details:
 
 ![alt text](./images/edit-port-assignment.png)
 
-- Chose parameter -> update new parameter
+- Choose parameter -> update new parameter
 
 ![alt text](./images/update_port_assignment.png)
 
 #### 5.3. Update port channel
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
@@ -296,7 +306,7 @@ sda_host_onboarding_details:
 
 ![alt text](./images/edit_port_channel.png)
 
-- Chose parameter -> update new parameter
+- Choose parameter -> update new parameter
 
 ![alt text](./images/update_port_channel.png)
 
@@ -391,7 +401,7 @@ sda_host_onboarding_details:
 
 #### 6.2. Delete port interfaces
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 
@@ -409,7 +419,7 @@ sda_host_onboarding_details:
 
 #### 6.3. Delete Port Channel
 
-- Provision -> Fabric Sites -> Chose Fabric Site -> Port Assignment Tab
+- Provision -> Fabric Sites -> Choose Fabric Site -> Port Assignment Tab
 
 ![alt text](./images/port-assign.png)
 

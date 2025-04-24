@@ -1,0 +1,18 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+pnp_details:
+  network_devices:
+    - device_info:
+      - serial_number: FOX2639PAYD
+        hostname: SJ-EWLC-1
+        state: Unclaimed
+        pid: C9800-40-K9
+      - serial_number: FXS2502Q2HC
+        hostname: SF-BN-2-ASR.cisco.local
+        state: Unclaimed
+        pid: ASR1001-X
+      - serial_number: FJC271923AK
+        hostname: NY-EN-9300
+        state: Unclaimed
+        pid: C9300-48UXM   

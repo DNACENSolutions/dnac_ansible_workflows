@@ -27,10 +27,6 @@
       include_vars:
         file: "{{ VARS_FILE_PATH }}"
       when: VARS_FILE_PATH is defined
-    - set_fact:
-        dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
-    - debug:
-        msg: "Catalyst Center version: {{ dnac_version }}"
 
     - name: SDA Fabric Device Playbook start time
       set_fact:
