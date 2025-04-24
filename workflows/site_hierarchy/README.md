@@ -1,4 +1,4 @@
-# Network Design Site Hierarchy
+# Network Design Site Hierarchy Playbook
 
 You can create a network hierarchy that represents your network's geographical locations. The hierarchical organization enables you to easily apply design settings or configurations to a specific hierarchical element. For example, you can apply design settings to an entire area or to only a floor.
 
@@ -14,20 +14,20 @@ Global: Default element under which all other hierarchical elements reside. Area
 
 Areas and Sites (Site and area icon in network hierarchy tree): Areas and sites reside under Global or under other areas or sites. They do not have a physical address. As the largest element, they identify a geographic region. They provide a way to group areas or sites.
 
-Buildings (Buildings icon in network hierarchy tree): Buildings reside under areas or sites. When you create a building, specify a physical address or latitude and longitude coordinates. Buildings can't contain areas. However, they can contain floors.
+Buildings (represented by the Buildings icon in the network hierarchy tree) reside under areas or sites. When creating a building, you must specify a physical address or latitude and longitude coordinates. Buildings cannot contain areas, but they can contain floors.
 
 Floors (Floor icon in network hierarchy tree): Floors reside under buildings. You can add floors to buildings with or without maps that contain various building components, like walls and windows. If you decide to use floor maps, you can manually create them or import them from files, such as DXF, DWG, JPG, GIF, PNG, or PDF file types. Then you can position your wireless devices on the floor maps to visualize your wireless network coverage.
 
 You can change the site hierarchy for unprovisioned devices while preserving AP locations on floor maps. Note, however, that you can't move an existing floor to a different building.
 
 ## RBAC access to create and modify sites
-Users with the SUPER-ADMIN-ROLE, NETWORK-ADMIN-ROLE can create,update, delete sites
-Users with custome role with access to network design can create,update, delete sites
+Users with the SUPER-ADMIN-ROLE, NETWORK-ADMIN-ROLE can create,update, delete sites.
+Users with a custom role that includes network design access can create, update, and delete sites.
 
 # Procedure
 1. ## Prepare your Ansible environment:
 
-Install Ansible if you haven't already
+Install Ansible if you haven't already.
 Ensure you have network connectivity to your Catalyst Center instance.
 Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
 
@@ -52,17 +52,18 @@ catalyst_center_hosts:
             dnac_log_level: INFO
             dnac_log: true
 ```
-3. ## Define Playbook input:
+3. ## Define Playbook Input:
 The workflow/sites/vars/site_hierarchy_design_vars.yaml file stores the sites details you want to configure.
 Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/site_workflow_manager/
 
-To create a Area, SAN JOSE under existing Area USA, and Defining the building BLD23 and FLOOR1 under Building 23. You can define the inputs like this.
+To create an area named SAN JOSE under the existing area USA, and to define the building BLD23 along with FLOOR1 under Building 23, you can structure the input as follows:
+
 ```bash
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+#Select Catalyst Center version, this will overwrite the default version from host file
 # Provide the Catalyst Center Version
 catalyst_center_version: 2.3.7.6
-# Sites Inputs a list 
+# Sites Input List 
 design_sites:
   - site:
       area:
@@ -91,81 +92,103 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: /workflows/sites/images/floor_image1.png
     type: floor
 ```
-You can organize by putting all teh sites togather i.e. all fllor under one building next to the building.
+You can organize all the sites together, for example, grouping all floors under a single building and placing the building within the appropriate hierarchy.
 
-4. Execute: Execute the playbooks with your inputs and Inventory, specify your input file using the --e variable VARS_FILE_PATH
+4. Execute: Execute the playbook with your inputs and inventory. Specify your input file using the --e variable VARS_FILE_PATH.
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/site_hierarchy_design_vars.yml -vvv
 ```
-## Creating Bulk Site confiogurations using JINJA template and using the playbook
+## Creating Bulk Site configurations using JINJA template and using the playbook
 
-Create a Jinja template for your desired inopout, Example Jinja template for sites is as below
-This Example create 3 Areas and in Each Areas create 3 buildings and in each building it creates 3 floors. 
+Below we have provided an example of Jinja template for sites.
+This Example creates 3 Areas and in each area it creates 3 buildings and in each building it creates 3 floors. 
 This example can be reused and customized to your requirement and increase the requirement scale.
 
-### Creating bulk sites with jinja template
+### Creating bulk sites with JINJA template
 workflow/sites/jinja_template/site_generation_template.j2 template can be used to customize the template and generate bulk sites.
 
 ```bash
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+# Define the Catalyst Center version
 catalyst_center_version: 2.3.7.6
+
+# List of floor images to be used for upload
+{% set floor_images = ['floor_image1.png', 'floor_image2.jpg', 'floor_image3.jpeg', 'floor_image4.pdf'] %}
+
 design_sites:
+  # Define the top-level area
   - site:
       area:
         name: USA
         parent_name: Global
     type: area
-{% for i in range(1, 4) %}
+
+  # Loop through areas
+  {% for i in range(1, 4) %}
   - site:
       area:
         name: AREA{{i}}
         parent_name: Global/USA
     type: area
-{% for j in range(1, 4) %}
-  - site:
-      building:
-        name: AREA{{i}} BLD{{j}}
-        parent_name: Global/USA/AREA{{i}}
-        address: McCarthy Blvd, San Jose, California 95131, United States
-        latitude: 37.398188
-        longitude: -121.912974
-        country: United States
-    type: building
-{% for l in range(1, 4) %}
-  - site:
-      floor:
-        name: AREA{{i}} BLD{{j}} FLOOR{{l}}
-        parent_name: Global/USA/AREA{{i}}/AREA{{i}} BLD{{j}}
-        rfModel: Cubes And Walled Offices
-        width: 100.00
-        length: 100.00
-        height: 10.00
-    type: floor
-{% endfor %}
-{% endfor %}
-{% endfor %}
+
+    # Loop through buildings in each area
+    {% for j in range(1, 4) %}
+    - site:
+        building:
+          name: AREA{{i}} BLD{{j}}
+          parent_name: Global/USA/AREA{{i}}
+          address: McCarthy Blvd, San Jose, California 95131, United States
+          latitude: 37.398188
+          longitude: -121.912974
+          country: United States
+      type: building
+
+      # Loop through floors in each building
+      {% for l in range(1, 4) %}
+      - site:
+          floor:
+            name: AREA{{i}} BLD{{j}} FLOOR{{l}}
+            parent_name: Global/USA/AREA{{i}}/AREA{{i}} BLD{{j}}
+            rfModel: Cubes And Walled Offices
+            width: 100.00
+            length: 100.00
+            height: 10.00
+            floor_number: {{ l }}
+            units_of_measure: feet
+            upload_floor_image_path: workflows/sites/images/{{ floor_images[(l - 1) % floor_images|length] }}
+            force_upload_floor_image: True
+        type: floor
+      {% endfor %}
+    {% endfor %}
+  {% endfor %}
 ```
 
-Use the input var file: jinja_template_site_hierarchy_design_vars.yml and secify the name of you Jinja template in the input vars file.
+Use the input var file: jinja_template_site_hierarchy_design_vars.yml and specify the name of your Jinja template in the input vars file.
 
 5. Execute with Jinja template:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/jinja_template_site_hierarchy_design_vars.yml -vvv
 ```
 
-### Template Created sites example
-Figure 2: Jinja Template created site design
+### Example of Sites Created Using a Jinja Template
+Figure 2: Example of a site design created using a Jinja template.
+
 ![Alt text](./images/template_created_sites.png)
 
-Deleting sites delete all teh sites under the site provided.
+Figure 3: Example of a site created using a Jinja template, including floor image design.
+![Alt text](./images/template_created_floor_image.png)
 
-With the belo input the delete playbooks Delete all the floors and building under the site hierarchy Global/USA/AREA1 and site AREA1.
+Delete all the sites under a specified hierarchy.
+
+You can use the below example to delete all the floors and buildings under the site hierarchy Global/USA/AREA1 and site AREA1.
+
 ```bash
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 design_sites:  
   - site:
@@ -175,10 +198,23 @@ design_sites:
     type: area
 ```
 
-## Deleting the sites
-Playbook can be used to delete roles and users
-6. Run the delete Playbook
+## Site Deletion
+Playbook can be used to delete sites under a specified hierarchy.
+6. Run the delete Playbook:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/delete_site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/delete_site_hierarchy_design_vars.yml -vvv
 ```
-Roles and Users will get deleted from the Catalyst Center
+Sites will be deleted from the Catalyst Center.
+
+
+# Reference
+
+*Note: The environment used for the references in the above instructions is as follows:*
+
+```yaml
+python: 3.12.0
+dnac_version: 2.3.7.6
+ansible: 9.9.0
+dnacentersdk: 2.8.6
+cisco.dnac: 6.30.2
+```
