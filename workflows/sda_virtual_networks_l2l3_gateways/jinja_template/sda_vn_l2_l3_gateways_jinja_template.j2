@@ -1,0 +1,61 @@
+---
+{% set valid_vlan_ids = namespace (vlan = []) %}
+{% for vlan_id in range(2, 4095) %}
+    {% if vlan_id not in range(1002, 1006) and vlan_id != 2046 %}
+        {% set valid_vlan_ids.vlan = valid_vlan_ids.vlan + [vlan_id] %}
+    {% endif %}
+{% endfor %}
+
+
+{% set site_name = 'site_scale' %}
+{% set range_site = 10 %}
+### -------------------- Scale site hierarchy -------------------- ###
+design_sites:
+  - site:
+      area:
+        name: SDA Sites
+        parent_name: Global
+    site_type: area
+{% for i in range(range_site|int) %}
+  - site:
+      area:
+        name: {{ site_name }}-{{ i|string }}
+        parent_name: Global/SDA Sites
+    site_type: area
+{% endfor %}
+
+### -------------------- Scale Fabric Site Zone -------------------- ###
+fabric_sites_and_zones:
+  - fabric_sites:
+{% for i in range(range_site|int) %}
+    - site_name_hierarchy: Global/SDA Sites/{{ site_name }}-{{ i|string }}
+      fabric_type: "fabric_site"
+      authentication_profile: "No Authentication"
+      is_pub_sub_enabled: false
+{% endfor %}
+
+{% set l3_name = 'l3_scale' %}
+### -------------------- Scale layer3 -------------------- ###
+sda_fabric_virtual_networks_details:
+  - virtual_networks:
+{% for i in range(range_site|int) %}
+    - vn_name: {{ l3_name }}_{{ i|string }}
+      fabric_site_locations:
+        - site_name_hierarchy: Global/SDA Sites/{{ site_name }}-{{ i|string }}
+          fabric_type: "fabric_site"
+{% endfor %}
+
+{% set l2_name = 'l2_scale' %}
+### -------------------- Scale layer2 -------------------- ###
+  - fabric_vlan:
+{% for i in range(range_site|int) %}
+    - vlan_name: {{ l2_name }}
+      fabric_site_locations:
+      - site_name_hierarchy: Global/SDA Sites/{{ site_name }}-{{ i|string }}
+        fabric_type: "fabric_site"
+      vlan_id: {{ valid_vlan_ids.vlan[i % (valid_vlan_ids.vlan | length)] }}
+{% if i % 2 == 1 %}
+      traffic_type: "VOICE"
+      fabric_enabled_wireless: True
+{% endif %}
+{% endfor %}
