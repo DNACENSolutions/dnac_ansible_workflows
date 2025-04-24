@@ -2,7 +2,7 @@
 
 ## I. Overview.
 
-This Ansible workflow automates crating and managing template projects, device templates and deploying the templates to the devices. One of the many powerful features of Cisco's DNA Center is its templating engine. You can configure nearly your entire network from here.
+This Ansible workflow automates creating and managing template projects, device templates and deploying the templates to the devices. One of the many powerful features of Cisco's Catalyst Center is its templating engine, which allows you to configure nearly your entire network.
 
 ### 1. Detailed Input Spec.
 Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/template_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/template_workflow_manager/)
@@ -14,7 +14,7 @@ Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/modul
 
 ### 3. Main Task.
 
-*  Manage operations create, update and delete of the resource Configuration Template.
+*  Manage operations such as creating, updating, and deleting configuration templates.
 *    API to create a template by project name and template name.
 *    API to update a template by template name and project name.
 *    API to delete a template by template name and project name.
@@ -59,7 +59,6 @@ catalyst_center_hosts:
             catalyst_center_debug: true
             catalyst_center_log_level: INFO
             catalyst_center_log: true
-```
 ```
 ### 3. Define Playbook input:
 The /vars/template_workflow_inputs.yml file stores the sites details you want to configure.
@@ -116,9 +115,9 @@ template_details:
 ```
 - Deploy templates
 ```bash
-deploy_device_details:
+template_details:
   - deploy_template:
-    - project_name: Onboarding Configuration
+      project_name: Onboarding Configuration
       template_name: PnP-Upstream-SW
       force_push: true
       template_parameters:
@@ -128,7 +127,7 @@ deploy_device_details:
         - site_name: "Global/Bangalore/Building14/Floor1"
           device_family: "Switches and Hubs"
   - deploy_template:
-    - project_name: Onboarding Configuration
+      project_name: Onboarding Configuration
       template_name: PnP-Upstream-SW
       force_push: true
       template_parameters:
@@ -257,11 +256,11 @@ template_details:
 ### 3. Deploy Templates
 
 #### **Mapping config to UI Actions**
-- Acttach Template to Network Profile: Choose Template -> Attach.
+- Attach Template to Network Profile: Choose Template -> Attach.
 ![alt text](./images/deploy1.png)
-- Choose Network Profile need to attach -> "Save".
+- Choose the Network Profile to attach -> Save.
 ![alt text](./images/deploy2.png)
-- Check Template attach successfully
+- Verify that the template was successfully attached.
 ![alt text](./images/deploy3.png)
 - Choose Template deploy -> Provision Templates.
 ![alt text](./images/deploy4.png)
@@ -271,7 +270,7 @@ template_details:
 ![alt text](./images/deploy6.png)
 - Click Next.
 ![alt text](./images/deploy7.png)
-- click on Apply to deploy the template.
+- Click Apply to deploy the template.
 ![alt text](./images/deploy8.png)
 
 #### **Example Input File**
@@ -303,12 +302,10 @@ template_details:
 Note: The environment is used for the references in the above instructions.
 
 ```
-  ansible: 9.9.0
-  ansible-core: 2.16.10
-  ansible-runner: 2.4.0
+
   dnacentersdk: 2.8.3
   cisco.dnac: 6.30.0
-  ansible.utils: 5.1.2
+
 ```
 Cisco Catalyst Center Ansible Module Documentation: [template_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/template_workflow_manager_module.html)
 

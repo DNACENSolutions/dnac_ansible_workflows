@@ -79,8 +79,18 @@ Run the following command to create/update the Email destination
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
-#### Expected Outcome
+#### Expected Outcome:
 The email destination will be created or updated successfully in Cisco Catalyst Center.
+
+To confirm that email destination has been created or updated, follow these steps:
+
+- Navigate to Systems -> Settings -> External Services -> Destinations then Select "Email" destination.
+
+#### Reference Screenshots
+
+![alt text](images/create_update_email_dest_img1.png)
+
+![alt text](images/create_update_email_dest_img2.png)
 
 ### Step 2: Verify the playbook output
  
@@ -134,8 +144,22 @@ Run the following command to create/update the Syslog destination
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
-#### Expected Outcome
+#### Expected Outcome:
 Upon successful execution, the specified Syslog destination will be created or updated in Cisco Catalyst Center.
+
+To ensure that syslog destination has been created or updated in Catalyst Center, follow these steps:
+
+- Navigate to Systems -> Settings -> External Services -> Destinations then Select "Syslog" destination.
+
+#### Refrence Screenshot: Syslog Creation Success
+
+![alt text](images/Syslog_creation_successful.png)
+
+#### Refrence Screenshot: Syslog Details Updated 
+
+Note: Screenshot below indicates that the event description and hostname/IP for 'Syslog test 100' have been updated.
+
+![alt text](images/Syslog_details_updated_successfully.png)
 
 ### Step 2: Verify the playbook output
  
@@ -151,7 +175,7 @@ Upon successful completion, you should see a message similar to:
     }
 ```
 
-### Step 3: Verify the Syslog Destination in the Catalyst Center UI
+### Step 4: Verify the Syslog Destination in the Catalyst Center UI
 
 To ensure that syslog destination has been created or updated in Catalyst Center, follow this step:
 
@@ -208,8 +232,22 @@ Run the following command to create/update the Webhook destination
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
-#### Expected Outcome
+#### Expected Outcome:
 Upon successful execution, the specified Webhook destination will be created or updated in Cisco Catalyst Center.
+
+To ensure that webhook destination has been created or updated in Catalyst Center, follow these steps:
+
+- Navigate to Systems -> Settings -> External Services -> Destinations then Select "Webhook" destination.
+
+#### Refrence Screenshot: Webhook Creation Success
+
+![alt text](images/Webhook_destination_created_successfully.png)
+
+#### Refrence Screenshot: Webhook Details Updated
+
+Note: Screenshot below indicates that the webhook description for 'webhook demo 110' and 'webhook demo 111' have been updated.
+
+![alt text](images/Webhook_destination_updated_successfully.png)
 
 ### Step 2: Verify the playbook output
  
@@ -279,8 +317,18 @@ Run the following command to create/update the SNMP destination
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
-#### Expected Outcome
+#### Expected Outcome:
 Upon successful execution, the specified SNMP destination will be created or updated in Cisco Catalyst Center.
+
+To ensure that SNMP destination has been created or updated in Catalyst Center, follow these steps:
+
+- Navigate to Systems -> Settings -> External Services -> Destinations then Select "SNMP" destination.
+
+#### Refrence Screenshot: SNMP Creation Success
+
+Note: Screenshot below indicates that the SNMP destination 'SNMP Testing' and 'Snmp test new' have been created.
+
+![alt text](images/SNMP_event_created_successfully.png)
 
 ### Step 2: Verify the playbook output
  
@@ -322,15 +370,15 @@ events_notifications_destination_and_subscription_details:
       description: "ITSM description for testing"
       connection_settings:
         url: "https://ventest1.service-now.com/"
-        username: cisco123
-        password: itsmcis11
+        username: xxxxx
+        password: xxxxxxxx
   - itsm_setting:
       instance_name: "ITSM_Demo_test 02"
       description: "ITSM description for testing"
       connection_settings:
         url: "https://ventest2.service-now.com/"
-        username: cisco111
-        password: itsmcisco2
+        username: xxxxx
+        password: xxxxxxxx
 ```
 
 ### Step 1: Execute events_and_notifications playbook
@@ -341,8 +389,24 @@ Run the following command to create/update the ITSM destination
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
-#### Expected Outcome
+#### Expected Outcome:
 Upon successful execution, the specified ITSM destination will be created or updated in Cisco Catalyst Center.
+
+To ensure that ITSM destination has been created or updated in Catalyst Center, follow these steps:
+
+- Navigate to Systems -> Settings -> External Services -> Destinations then Select "ITSM" destination.
+
+#### Refrence Screenshot: ITSM Creation Success
+
+Note: Screenshot below indicates that the ITSM destination 'Playbook itsm demo 01' and 'ITSM_Demo_test 02' have been created.
+
+![alt text](images/ITSM_Created_Successfully.png)
+
+#### Refrence Screenshot: ITSM Details Updated
+
+Note: Screenshot below indicates that the ITSM destination description for 'Playbook itsm demo 01' and 'ITSM_Demo_test 02' have been updated.
+
+![alt text](images/ITSM_Updated_Successfully.png)
 
 ### Step 2: Verify the playbook output
  
@@ -410,8 +474,16 @@ Run the following command to create/update the Email Event Subscription
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
-#### Expected Outcome
+#### Expected Outcome:
 Upon successful execution, the specified Email Event Subscription will be created or updated in Cisco Catalyst Center.
+
+To ensure that Event subscription notification has been created or updated in Catalyst Center, follow these steps:
+
+- Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
+
+#### Reference Screenshot:
+
+![alt text](images/Email_event_subscription_created.png)
 
 ### Step 2: Verify the playbook output
  
@@ -469,8 +541,16 @@ Run the following command to create/update the Syslog Event Notification Subscri
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
-#### Expected Outcome
+#### Expected Outcome:
 Upon successful execution, the specified Syalog Event Notification Subscription will be created or updated in Cisco Catalyst Center.
+
+To ensure that Syslog subscription notification has been created or updated in Catalyst Center, follow these steps:
+
+- Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
+
+#### Reference Screenshot:
+
+![alt text](images/Syslog_even_subscription_created.png)
 
 ### Step 2: Verify the playbook output
  
@@ -525,8 +605,16 @@ Run the following command to create/update the Webhook Event Notification Subscr
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
-#### Expected Outcome
+#### Expected Outcome:
 Upon successful execution, the specified Webhook Event Notification Subscription will be created or updated in Cisco Catalyst Center.
+
+To ensure that Webhook subscription notification has been created or updated in Catalyst Center, follow these steps:
+
+- Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
+
+#### Reference Screenshot:
+
+![alt text](images/Webhook_event_subscription_created.png)
 
 ### Step 2: Verify the playbook output
  
@@ -555,6 +643,8 @@ Reference Screenshot:
 ## 9. Delete Email Event Subscription in Catalyst Center
 
 This task demonstrates how to delete a specific Webhook Event Subscription from Cisco Catalyst Center.
+
+Note: Input for deleting a Email Event Subscription should be specified in "/vars/events_and_notifications_destinations_inputs.yml", as shown in the example below.
 
 ### Example: Input (YAML)
 ```bash
@@ -585,11 +675,25 @@ events_notifications_destination_and_subscription_details:
 Run the following command to delete the Email Event Notification Subscription
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/delete_events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
-#### Expected Outcome
+#### Expected Outcome:
 Upon successful execution, the specified Webhook Event Notification Subscription will be removed from Cisco Catalyst Center.
+
+To ensure that Email subscription notification has been deleted in Catalyst Center, follow these steps:
+
+- Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
+
+#### Reference Screenshot: 
+
+Note: Note: Ensure that specific Email Subscription Event Notification presents in Catalyst Centert:
+
+![alt text](images/Before_delete_email_event.png)
+
+Note: After executing the delete_events_and_notifications playbook, verify the deletion of the Email Event Subscription:
+
+![alt text](images/After_delete_email_event.png)
 
 ### Step 2: Verify the playbook output
  
@@ -623,6 +727,8 @@ Note: After executing the delete_events_and_notifications playbook, verify the d
 
 This task demonstrates how to delete a specific Syslog Event Subscription from Cisco Catalyst Center.
 
+Note: Input for deleting a Syslog Event Subscription should be specified in "/vars/events_and_notifications_destinations_inputs.yml", as shown in the example below.
+
 ### Example: Input (YAML)
 ```bash
 ---
@@ -648,11 +754,26 @@ events_notifications_destination_and_subscription_details:
 Run the following command to delete the Syslog Event Notification Subscription
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/delete_events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
-#### Expected Outcome
+#### Expected Outcome:
 Upon successful execution, the specified Syslog Event Notification Subscription will be removed from Cisco Catalyst Center.
+
+To ensure that Syslog subscription notification has been deleted in Catalyst Center, follow these steps:
+
+- Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
+
+#### Reference Screenshot: 
+
+Note: Note: Ensure that specific Syslog Subscription Event Notification presents in Catalyst Center
+
+![alt text](images/Before_deleting_syslog_event.png)
+
+Note: After executing the delete_events_and_notifications playbook, verify the deletion of the Email Event Subscription:
+
+![alt text](images/After_deleting_syslog_event.png)
+
 
 ### Step 2: Verify the playbook output
  
@@ -686,6 +807,8 @@ Note: After executing the delete_events_and_notifications playbook, verify the d
 
 This task demonstrates how to delete a specific Webhook Event Subscription from Cisco Catalyst Center.
 
+Note: Input for deleting a Webhook Event Subscription should be specified in "/vars/events_and_notifications_destinations_inputs.yml", as shown in the example below.
+
 ### Example: Input (YAML)
 ```bash
 ---
@@ -705,14 +828,28 @@ events_notifications_destination_and_subscription_details:
 
 ### Step 1: Execute events_and_notifications playbook
 
-Run the following command to delete the Syslog Event Notification Subscription
+Run the following command to delete the Webhook Event Notification Subscription
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/delete_events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
-#### Expected Outcome
+#### Expected Outcome:
 Upon successful execution, the specified Webhook Event Notification Subscription will be removed from Cisco Catalyst Center.
+
+To ensure that Webhook subscription notification has been deleted in Catalyst Center, follow these steps:
+
+- Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
+
+#### Reference Screenshot: 
+
+Note: Ensure that specific Webhook Subscription Event Notification presents in Catalyst Center
+
+![alt text](images/Before_deleting_webhook_event.png)
+
+Note: After executing the delete_events_and_notifications playbook, verify the deletion of the Webhook Event Subscription:
+
+![alt text](images/After_deleting_webhook_event.png)
 
 ### Step 2: Verify the playbook output
  
@@ -728,19 +865,72 @@ Upon successful completion, you should see a message similar to:
     }
 ```
 
-### Step 3: Verify the Webhook Subscription Notification in the Catalyst Center UI
+## 12. Delete ITSM Event Destination in Catalyst Center
 
-To ensure that Webhook subscription notification has been deleted in Catalyst Center, follow this step:
+This task demonstrates how to delete a specific ITSM Event Destination from Cisco Catalyst Center.
+
+Note: Input for deleting ITSM Event Destination should be specified in "/vars/events_and_notifications_destinations_inputs.yml", as shown in the example below.
+
+### Example: Input (YAML)
+```bash
+---
+catalyst_center_version: 2.3.7.6
+catalyst_center_verify: false
+events_notifications_destination_and_subscription_details:
+  - itsm_setting:
+      instance_name: "Playbook itsm demo 01"
+      description: "ITSM description updated"
+      connection_settings:
+        url: "https://ventest1.service-now.com/"
+        username: xxxxx
+        password: xxxxxxxx
+  - itsm_setting:
+      instance_name: "ITSM_Demo_test 02"
+      description: "ITSM description test updated"
+      connection_settings:
+        url: "https://ventestupdate11.service-now.com/"
+        username: xxxxx
+        password: xxxxxxxx
+```
+
+### Step 1: Execute events_and_notifications playbook
+
+Run the following command to delete the ITSM Event Destination 
+
+```bash
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+```
+
+#### Expected Outcome:
+Upon successful execution, the specified ITSM Event Destination will be removed from Cisco Catalyst Center.
+
+To ensure that ITSM event destination has been deleted in Catalyst Center, follow these steps:
 
 - Navigate to Platform -> Developer ToolKit -> Event Notifications and then select Notifications
 
-Reference Screenshot: 
+#### Reference Screenshot: 
 
-Note: Ensure that specific Webhook Subscription Event Notification presents in Catalyst Center
-![alt text](images/Before_deleting_webhook_event.png)
+Note: Ensure that specific ITSM Event Destination presents in Catalyst Center
 
-Note: After executing the delete_events_and_notifications playbook, verify the deletion of the Email Event Subscription:
-![alt text](images/After_deleting_webhook_event.png)
+![alt text](images/ITSM_Destination_Presents.png)
+
+Note: After executing the delete_events_and_notifications playbook, verify the deletion of the ITSM Event Destination:
+
+![alt text](images/ITSM_Destination_Deleted.png)
+
+### Step 2: Verify the playbook output
+ 
+Upon successful completion, you should see a message similar to:
+
+``` yaml
+"msg": 
+    {
+        "changed": true,
+        "diff": [],
+        "failed": false,
+        "response": "Destination(s) '['Playbook itsm demo 01', 'ITSM_Demo_test 02']' deleted successfully from the Cisco Catalyst Center."
+    }
+```
 
 ## How to Validate Input
 Playbook: workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml
@@ -764,11 +954,7 @@ yamale -s workflows/events_and_notifications/schema/events_and_notifications_sch
 ## References
 
 ```yaml
-  ansible: 9.9.0
-  ansible-core: 2.16.10
-  ansible-runner: 2.4.0
-
   dnacentersdk: 2.8.3
   cisco.dnac: 6.29.0
-  ansible.utils: 5.1.2
+  dnac version: 2.3.7.6
 ```

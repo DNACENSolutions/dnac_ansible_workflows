@@ -1,7 +1,7 @@
-# Catalyst Center SDA Fabric Extranet Policies Playbooks
+# Catalyst Center SDA Fabric Extranet Policies Playbook
 
 ## I. Overview
-### 1. Extranet Policy Overview
+### 1. Extranet Policy Playbook Overview
 
 Configure an Extranet Policy to allow route leaks between Layer 3 virtual networks (VNs), without using a fusion device. Use an Extranet Policy to provide the endpoints (hosts or users) with access to shared services like DHCP, DNS, Internet, and so on, through Catalyst Center automation. The shared services connect to a Provider VN. The endpoints that use the shared services reside in a Subscriber VN. An Extranet Policy establishes communication between the Provider VN and the Subscriber VNs.
 
