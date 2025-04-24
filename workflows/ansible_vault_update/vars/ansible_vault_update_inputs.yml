@@ -1,4 +1,5 @@
 ---
+#Demo Keys only
 passwords_details:
 - key: testuser1password
   value: 'testuser1@123'
@@ -35,7 +36,6 @@ passwords_details:
 # for users and role module
 - key: testuser1_vault_password
   value: 'Lablab#!23@45'
-<<<<<<< Updated upstream
 - key: ise_admin_password
   value: 'Maglev#123'
 - key: aaa_shared_secret
@@ -46,7 +46,5 @@ passwords_details:
   value: 'Lablab#123'
 - key: ai_users_vaule_password
   value: 'Lablab#12Ai'
-=======
 - key: admin
   value: 'Maglev123'
->>>>>>> Stashed changes

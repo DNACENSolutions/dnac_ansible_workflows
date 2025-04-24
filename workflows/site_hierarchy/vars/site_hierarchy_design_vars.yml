@@ -1,5 +1,5 @@
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+#Select Catalyst Center version, this will overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 catalyst_center_verify: false
 design_sites:
@@ -127,6 +127,9 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image1.png
     type: floor
   - site:
       floor:
@@ -136,6 +139,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image1.png
+        
     type: floor
   - site:
       floor:
@@ -145,6 +152,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image1.png
+        
     type: floor
   - site:
       floor:
@@ -154,6 +165,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image1.png
+        
     type: floor
   - site:
       floor:
@@ -163,6 +178,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image1.png
+       
     type: floor
   - site:
       floor:
@@ -172,6 +191,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image2.jpg
+        
     type: floor
   - site:
       floor:
@@ -181,6 +204,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image2.jpg
+        
     type: floor
   - site:
       floor:
@@ -190,6 +217,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image2.jpg
+       
     type: floor
   - site:
       floor:
@@ -199,6 +230,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image2.jpg
+        
     type: floor
   - site:
       floor:
@@ -208,6 +243,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image2.jpg
+        force_upload_floor_image: True
     type: floor
   - site:
       floor:
@@ -217,6 +256,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image3.jpeg
+        force_upload_floor_image: True
     type: floor
   - site:
       floor:
@@ -226,6 +269,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image3.jpeg
+        force_upload_floor_image: True
     type: floor
   - site:
       floor:
@@ -235,6 +282,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image3.jpeg
+        force_upload_floor_image: True
     type: floor
   - site:
       floor:
@@ -244,6 +295,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image3.jpeg
+        force_upload_floor_image: True
     type: floor
   - site:
       floor:
@@ -253,6 +308,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image3.jpeg
+        force_upload_floor_image: True
     type: floor
   - site:
       floor:
@@ -262,6 +321,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image3.jpeg
+        force_upload_floor_image: True
     type: floor
   - site:
       floor:
@@ -271,6 +334,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image4.pdf
+        force_upload_floor_image: True
     type: floor
   - site:
       floor:
@@ -280,6 +347,10 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image4.pdf
+        force_upload_floor_image: True
     type: floor
   - site:
       floor:
@@ -289,4 +360,8 @@ design_sites:
         width: 100.00
         length: 100.00
         height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: workflows/sites/images/floor_image4.pdf
+        force_upload_floor_image: True
     type: floor

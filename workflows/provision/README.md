@@ -1,6 +1,6 @@
-# PROVISION Workflow Playbook
+# Provision Workflow Playbook
 This workflow playbook automates the process of assigning device to sites, provisioning, reprovisioning and deleting devices in Cisco DNA (Catalyst Center) inventory.
-it is supported from Catalyst Center Release version 2.3.7.6
+It is supported from Catalyst Center Release version 2.3.7.6
 
 ## Workflow Main Tasks
 - **Site Assignment**: Assign a device to a site_hierarchy without provisioning
@@ -105,7 +105,7 @@ response: []
 ![alt text](images/Detail_site_Assignment.png)
 
 ### Notes: 
-- Site Assignment for wirless device via playbook is not supported yet (Work in progress).
+- Site Assignment for wireless device via playbook is not supported yet (Work in progress).
 - Site Assignment for bulk wired devices is supported. Please refer to the "Assign devices to sites without provisioning" section in the provision_workflow_inputs.yml.
 
 ## 2. Provisioning:
@@ -170,7 +170,7 @@ provision_details:
 
 ### Notes: 
 - Ensure that the WLC device provision configuration details are added in provision_workflow_inputs.yml before running the playbook.
-- Bulk device provision operation can perform on wired and wirless devices.
+- Bulk device provision operation can be performed on wired and wirless devices.
 
 ### Step 1: WLC Device is in Non-Provisioned State
 
@@ -360,7 +360,7 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/prov
 - `-vvvv`: Enables verbose mode for detailed output.  
 
 ## Reference 
-The enviornment used for the references in above examples.
+The environment used for the references in the above examples.
 
 ```bash
 ansible: 9.9.0
