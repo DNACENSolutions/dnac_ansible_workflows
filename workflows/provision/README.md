@@ -363,11 +363,7 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/prov
 The environment used for the references in the above examples.
 
 ```bash
-ansible: 9.9.0
-ansible-runner: 2.4.0
-ansible-core: 2.16.10
 
 dnacentersdk: 2.8.3
-cisco.dnac: 6.27.0
-ansible.utils: 5.1.2
+cisco.dnac: 6.31.0
 ```

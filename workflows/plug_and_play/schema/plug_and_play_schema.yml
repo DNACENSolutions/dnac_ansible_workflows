@@ -106,7 +106,7 @@ claim_router_device_type:
 
 device_info_type:
   serial_number: str(required=True)
-  hostname: str(required=True)
+  hostname: str(required=False)
   state: enum('Unclaimed', 'Claimed', 'Provisioned',  'Error', required=False)
   pid: str(required=True)
   add_device_method: str(required=False)

@@ -1,0 +1,8 @@
+---
+- name: Delete assurance health score playbook
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Example task
+      debug:
+        msg: "This is a placeholder for the delete_assurance_health_score_playbook playbook."

@@ -1,5 +1,5 @@
 
-# Catalyst Center Return Material Authorization Playbook:
+# Catalyst Center Return Material Authorization Playbook to replace faulty routers, switches, and APs:
 
 ## Return Material Authorization (RMA) Overview
 
@@ -166,13 +166,8 @@ Catalyst Center supports PnP onboarding of the replacement device in a fabric ne
 
 The faulty device is connected to an uplink device using multiple interfaces.
 
+LAN automation uses overlapping pools.
 
-## References
-  \* Note: The environment is used for the references in the above instructions.
-  ```
-  dnacentersdk: 2.8.3
-  cisco.dnac: 6.30.0
-  dnac version: 2.3.7.6
-
+** If the replacement device onboards through the PnP-DHCP functionality, make sure that the device gets the same IP address after every reload and the lease timeout of DHCP is longer than two hours. **
 
 
