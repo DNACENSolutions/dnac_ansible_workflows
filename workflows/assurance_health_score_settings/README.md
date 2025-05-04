@@ -1,7 +1,7 @@
 # Assurance Health Score Settings Playbook
 ## Module Reference
 
-Module: `assurance_device_health_score_settings_workflow_manager`
+Playbook for workflow Module: `assurance_device_health_score_settings_workflow_manager`
 
 ## Overview
 

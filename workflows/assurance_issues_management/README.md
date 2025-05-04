@@ -1,12 +1,12 @@
 # Assurance Issues Management Workflow Playbook
 
-This workflow playbook automates the management of assurance issues within Cisco Catalyst Center (formerly Cisco DNA Center). It provides tasks to interact with assurance issues, such as retrieving, acknowledging, or clearing them using the `cisco.catalyst_center.path_trace_workflow_manager` module (Note: This module name seems incorrect based on the workflow name, it should likely be an assurance issues module. Please verify the correct module name used in the playbook).
+This workflow playbook automates the management of assurance issues within Cisco Catalyst Center (formerly Cisco DNA Center). It provides tasks to interact with assurance issues, such as retrieving, acknowledging, or clearing them using the `cisco.dnac.path_trace_workflow_manager` module (Note: This module name seems incorrect based on the workflow name, it should likely be an assurance issues module. Please verify the correct module name used in the playbook).
 
 ## Prerequisites
 
 *   An active Cisco Catalyst Center instance.
 *   Ansible installed and configured.
-*   The `cisco.catalyst_center` Ansible collection installed (`ansible-galaxy collection install cisco.catalyst_center`).
+*   The `cisco.dnac` Ansible collection installed (`ansible-galaxy collection install cisco.dnac`).
 *   Appropriate API credentials for Cisco Catalyst Center with necessary permissions to manage assurance issues.
 
 ## Configure Host Inventory

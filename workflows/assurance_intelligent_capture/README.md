@@ -10,19 +10,19 @@ The `assurance_intelligent_capture` workflow utilizes Cisco DNA Center Ansible m
 
 *   An active Cisco Catalyst Center instance.
 *   Ansible installed and configured.
-*   The `cisco.catalyst_center` Ansible collection installed (`ansible-galaxy collection install cisco.catalyst_center`).
+*   The `cisco.dnac` Ansible collection installed (`ansible-galaxy collection install cisco.dnac`).
 *   Appropriate API credentials for Cisco Catalyst Center with necessary permissions to configure Intelligent Capture.
 
 ## Step 1: Prepare Your Environment
 
-### Install Ansible and Cisco.catalyst_center Collection
+### Install Ansible and Cisco.dnac Collection
 
 Ensure you have Ansible installed (version 9.9.0 or higher is recommended). If not, follow the official Ansible installation guide.
 
-Install the `cisco.catalyst_center` Ansible collection:
+Install the `cisco.dnac` Ansible collection:
 
 ```bash
-ansible-galaxy collection install cisco.catalyst_center
+ansible-galaxy collection install cisco.dnac
 ```
 
 ### Configure Host Inventory
