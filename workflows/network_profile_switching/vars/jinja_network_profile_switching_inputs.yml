@@ -1,0 +1,5 @@
+---
+catalyst_center_version: 2.3.7.6
+jinjatemplate: false
+jinjatemplate_file: ./../jinja_templates/jinja_network_profile_switching.j2
+switching_network_profile_details: []

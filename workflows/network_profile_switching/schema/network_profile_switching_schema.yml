@@ -1,0 +1,66 @@
+# options:
+#   config_verify:
+#     description: >
+#       Set to `True` to enable configuration verification on Cisco Catalyst Center after
+#       applying the playbook configuration. This ensures that the system validates
+#       the configuration state after the change is applied.
+#     type: bool
+#     default: false
+#   state:
+#     description: >
+#       Specifies the desired state for the configuration. If `merged`,
+#       the module will create or update the configuration, adding new settings or
+#       modifying existing ones. If `deleted`, it will remove the specified settings.
+#     type: str
+#     choices: ["merged", "deleted"]
+#     default: merged
+#   config:
+#     description: A list containing the details for network switch profile creation.
+#     type: list
+#     elements: dict
+#     required: true
+#     suboptions:
+#       profile_name:
+#         description: Name of the switch profile to be created.
+#         type: str
+#         required: true
+#       site_names:
+#         description: >
+#           Site names must be specified in the full site hierarchy format for
+#           example 'Global/Country/City/Building'.
+#         type: list
+#         elements: str
+#         required: false
+#       onboarding_templates:
+#         description: >
+#           List of onboarding template names assigned to the profile.
+#           Note: Onboarding templates are currently unavailable due to SDK/API constraints.
+#         type: list
+#         elements: str
+#         required: false
+#       day_n_templates:
+#         description: List of Day-N template names assigned to the profile.
+#         type: list
+#         elements: str
+#         required: false
+#=======================================================================
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+jinjatemplate: bool(required=False)
+passwords_file: str(required=False)
+jinjatemplate_file: str(required=False)
+switching_network_profile_details: list(include('switching_network_profile_details_type'), required=True, min=0, max=500)
+---
+switching_network_profile_details_type:
+  profile_name: str(required=True)
+  profile_description: str(required=False)
+  day_n_templates: list(str(required=False), min=0, max=500, required=False)
+  onboarding_templates: list(str(required=False), min=0, max=500, required=False)
+  site_names: list(str(required=False), min=0, max=10000, required=False)
