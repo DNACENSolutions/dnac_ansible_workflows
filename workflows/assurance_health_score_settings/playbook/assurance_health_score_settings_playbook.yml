@@ -1,5 +1,5 @@
 ---
-- name: Assurance issues management playbook
+- name: Assurance health score settings playbook
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -21,15 +21,18 @@
       dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
       dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
       dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
+
   tasks:
     - name: print VARS_FILE_PATH
       debug:
         msg: "Input file selected {{ VARS_FILE_PATH }}"
-    - name: Playbook start time for the issues management playbook
+
+    - name: Playbook start time for the assurance health score settings playbook
       set_fact:
         long_op_start: "{{ now() }}"
-    # load the template jinja file
-    - name: Load template file to generate the issues management inputs
+
+    # load ise_radius_integration_details template jinja file
+    - name: Load template file to generate the assurance health score settings
       template: 
         src: "{{ jinjatemplate_file }}"
         dest: ../tmp/template_generated_file.yaml
@@ -39,28 +42,34 @@
       include_vars:
         file: ../tmp/template_generated_file.yaml
       when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
-    - name: Configure issues management input from file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
-      cisco.dnac.assurance_issue_workflow_manager:
+    - name: Configure assurance health score settings from file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      # Replace with the actual Cisco DNAC module for health score settings
+      # Example placeholder module name: cisco.dnac.assurance_health_score_settings
+      cisco.dnac.assurance_device_health_score_settings_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ assurance_issues_settings }}" # Assuming variable name for health score details
-      register: assurance_issues_output
-      when: assurance_issues_settings is defined
-    - name: Print output of the issues management playbook
+        config: "{{ assurance_health_score_settings }}" # Assuming variable name for health score details
+      register: health_score_output
+      when: assurance_health_score_settings is defined
+
+    - name: Print output of the assurance health score settings playbook
       debug:
-        msg: "{{ assurance_issues_output }}"
+        msg: "{{ health_score_output }}"
 
     # delete the template file
     - name: Delete the template file
       ansible.builtin.command: rm ../tmp/template_generated_file.yaml
       when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
-    - name: Playbook end time for the issues management playbook
+    - name: Playbook end time for the assurance health score settings playbook
       set_fact:
         long_op_end: "{{ now() }}"
 
-    - name: Print the run time for the issues management playbook
+    - name: Print assurance health score settings playbook execution time
       debug:
-        msg: "Assurance Issues Management playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
-#=========================================================================
-#  End of Playbook
-#=========================================================================
+        msg: "Assurance Health Score Settings playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+
+  post_tasks:
+    # Add any post-execution tasks here if needed
+    - name: Example post-task
+      debug:
+        msg: "Assurance health score settings playbook execution finished."

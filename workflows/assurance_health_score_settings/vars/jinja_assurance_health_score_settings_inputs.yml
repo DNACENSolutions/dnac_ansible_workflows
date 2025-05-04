@@ -1,0 +1,9 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+catalyst_center_verify: false
+jinjatemplate: true
+#Provide the path to the jinja template file
+jinjatemplate_file: ../jinja_template/assurance_health_score_settings_template.j2
+# device_credentials could be empty or have a list of device credentials, if jinjatemplate  is true device_credentials value is taken from jinja template
+assurance_health_score_settings: []

@@ -1,0 +1,64 @@
+# assurance health_score_settings schema
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_config_verify: bool(required=False)
+catalyst_center_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_task_poll_interval: int(required=False)
+assurance_health_score_settings: list(include('assurance_health_score_settings_type'), min=0, max=1000, required=False)
+---
+assurance_health_score_settings_type:
+  device_health_score: list(include('device_health_score_type'), min=0, max=1000, required=False)
+  
+device_health_score_type:
+  device_family: enum("ROUTER", "SWITCH_AND_HUB", "WIRELESS_CONTROLLER", "UNIFIED_AP", "WIRELESS_CLIENT", "WIRED_CLIENT", required=True)
+  kpi_name: enum("BGP Session from Border to Control Plane (BGP)",
+                  "BGP Session from Border to Control Plane (PubSub)",
+                  "BGP Session from Border to Peer Node for INFRA VN",
+                  "BGP Session from Border to Peer Node",
+                  "BGP Session from Border to Transit Control Plane",
+                  "BGP Session to Spine",
+                  "Cisco TrustSec environment data download status",
+                  "CPU Utilization",
+                  "Extended Node Connectivity",
+                  "Fabric Control Plane Reachability",
+                  "Fabric Multicast RP Reachability",
+                  "Inter-device Link Availability",
+                  "Internet Availability",
+                  "Link Discard",
+                  "Link Error",
+                  "Link Utilization",
+                  "LISP Session from Border to Transit Site Control Plane",
+                  "LISP Session Status",
+                  "Memory Utilization",
+                  "Peer Status",
+                  "Pub-Sub Session from Border to Transit Site Control Plane",
+                  "Pub-Sub Session Status for INFRA VN",
+                  "Pub-Sub Session Status",
+                  "Remote Internet Availability",
+                  "VNI Status",
+                  "Free Mbuf",
+                  "Free Timer",
+                  "Packet Pool",
+                  "WQE Pool",
+                  "Air Quality 2.4 GHz",
+                  "Air Quality 5 GHz",
+                  "Air Quality 6 GHz",
+                  "Interference 2.4 GHz",
+                  "Interference 5 GHz",
+                  "Interference 6 GHz",
+                  "Noise 2.4 GHz",
+                  "Noise 5 GHz",
+                  "Noise 6 GHz",
+                  "RF Utilization 2.4 GHz",
+                  "RF Utilization 5 GHz",
+                  "RF Utilization 6 GHz",
+                  "Connectivity RSSI",
+                  "Connectivity SNR", required=True)
+  include_for_overall_health: bool(required=True)
+  threshold_value: int(required=False)
+  synchronize_to_issue_threshold: bool(required=False)

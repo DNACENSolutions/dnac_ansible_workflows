@@ -1,12 +1,13 @@
 ---
-- name: Assurance Path Trace Playbook
+- name: Assurance issues management playbook
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
+
   vars_files:
     - "{{ VARS_FILE_PATH }}"
   vars:
-    state: merged
+    state: deleted
     catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
@@ -20,20 +21,15 @@
       dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
       dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
       dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
-      
   tasks:
-    # Include the variables file {{ VARS_FILE_PATH }} for the playbook
-    - name: Assurance Path Trace Playbook start time
+    - name: print VARS_FILE_PATH
+      debug:
+        msg: "Input file selected {{ VARS_FILE_PATH }}"
+    - name: Playbook start time for the issues management playbook
       set_fact:
         long_op_start: "{{ now() }}"
-
-    - name: load password file
-      include_vars:
-        file: "{{ passwords_file }}"
-      when: jinjatemplate is defined and jinjatemplate is true and passwords_file is defined
-
-    # load site template jinja file
-    - name: Create Template
+    # load the template jinja file
+    - name: Load template file to generate the issues management inputs
       template: 
         src: "{{ jinjatemplate_file }}"
         dest: ../tmp/template_generated_file.yaml
@@ -42,30 +38,29 @@
     - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
       include_vars:
         file: ../tmp/template_generated_file.yaml
-      when: jinjatemplate is defined
-
-    # Create or Update existing Path Trace with provided details in "{{ VARS_FILES_PATH }}"
-    - name: Create or Update existing Path Trace with provided details in "{{ VARS_FILE_PATH }}"
-      cisco.dnac.path_trace_workflow_manager:
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    - name: Configure issues management input from file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.assurance_issue_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ pathtrace_details }}"
-      when: pathtrace_details is defined and pathtrace_details | length > 0
+        config: "{{ assurance_issues_settings }}" # Assuming variable name for health score details
+      register: assurance_issues_output
+      when: assurance_issues_settings is defined
+    - name: Print output of the issues management playbook
+      debug:
+        msg: "{{ assurance_issues_output }}"
 
-    - name: delete the tmp files
+    # delete the template file
+    - name: Delete the template file
       ansible.builtin.command: rm ../tmp/template_generated_file.yaml
-      when : jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
-
-    - name: Assurance Path Trace Playbook end time
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    - name: Playbook end time for the issues management playbook
       set_fact:
         long_op_end: "{{ now() }}"
-    - name: Print the run time
+
+    - name: Print the run time for the issues management playbook
       debug:
-        msg: "Assurance Path Trace Playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
-  # run command module to find python version
-  post_tasks:
-    - name: run command module to find python version
-      ansible.builtin.command: which python
-      register: ansible_play_path
-      delegate_to: catalyst_center_hosts
-      connection: local
+        msg: "Assurance Issues Management playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+#=========================================================================
+#  End of Playbook
+#=========================================================================

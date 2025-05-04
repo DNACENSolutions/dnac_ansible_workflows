@@ -1,8 +1,8 @@
 ---
-catalyst_center_version: 2.3.7.6
 pathtrace_details: 
-  - source_ip: "204.101.16.2"  # required field
-    dest_ip: "204.101.16.1"  # required field
+{% for i in range(2, 4) %}
+  - source_ip: "204.101.16.1"  # required field
+    dest_ip: "204.101.16.$i"  # required field
     source_port: 4020  # optional field
     dest_port: 4021  # optional field
     protocol: "TCP"  # optional field
@@ -15,6 +15,4 @@ pathtrace_details:
     periodic_refresh: false  # optional field
     control_path: false  # optional field
     delete_on_completion: true  # optional field
-  - source_ip: "204.101.16.2"  # required field
-    dest_ip: "204.192.3.40"  # required field
-    get_last_pathtrace_result: true
+{% endfor %}

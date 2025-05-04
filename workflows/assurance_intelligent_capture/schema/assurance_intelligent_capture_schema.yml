@@ -1,0 +1,145 @@
+# options:
+#   config_verify:
+#    description: Set to 'true' to verify the ICAP configuration on Cisco Catalyst Center after deployment.
+#    type: bool
+#    default: true
+#   state:
+#     description:
+#       - The state of Cisco Catalyst Center after module completion.
+#     type: str
+#     choices: ["merged"]
+#     default: merged
+#   config:
+#     description:
+#       - List of parameters required to configure, create, and deploy ICAP settings in Cisco Catalyst Center.
+#     type: list
+#     elements: dict
+#     required: true
+#     suboptions:
+#       assurance_icap_settings:
+#         description:
+#           - Defines ICAP settings for capturing client and network device information.
+#           - Used for onboarding, monitoring, and troubleshooting network connectivity issues.
+#         type: list
+#         elements: dict
+#         suboptions:
+#           capture_type:
+#             description: The type of Intelligent Capture to be performed (e.g., onboarding).
+#             type: str
+#             choices:
+#             - FULL  # Captures complete network traffic for deep analysis.
+#             - ONBOARDING  # Captures packets related to client onboarding processes.
+#             - OTA  # Captures over-the-air (OTA) wireless traffic.
+#             - RFSTATS  # Captures RF statistics to analyze signal and interference levels.
+#             - ANOMALY  # Captures specific anomalies detected in the network.
+#           duration_in_mins:
+#             description: The duration of the Intelligent Capture session in minutes.
+#             type: int
+#           preview_description:
+#             description: A short summary or metadata about the Intelligent Capture session,
+#               providing details such as purpose, expected outcomes, or session context.
+#             type: str
+#           client_mac:
+#             description: The MAC address of the client device for which the capture is being performed.
+#             type: str
+#           wlc_name:
+#             description: The name of the Wireless LAN Controller (WLC) involved in the Intelligent Capture.
+#             type: str
+#           ap_name:
+#             description: The name of the Access Point (AP) for the capture.
+#             type: str
+#           slot:
+#             description: List of slot numbers for the capture session.
+#             type: list
+#             elements: int
+#           ota_band:
+#             description:
+#               - Specifies the wireless frequency band for the ICAP capture.
+#               - Ensure the selected band is valid for the region and device capabilities.
+#             type: str
+#             choices:
+#               - 2.4GHz  # Supports legacy devices, may have interference.
+#               - 5GHz    # Faster speeds, DFS (Dynamic Frequency Selection) may apply for some channels.
+#               - 6GHz    # Wi-Fi 6E and Wi-Fi 7 only, check regional availability.
+#           ota_channel:
+#             description:
+#                 - Wireless channel used for the ICAP capture (For example, 36, 40).
+#                 - Available channels depend on the selected `ota_band` and regulatory restrictions.
+#             type: int
+#           ota_channel_width:
+#             description:
+#                 - Specifies the channel width in MHz for the ICAP capture (For example, 20, 40).
+#                 - Ensure compatibility with the selected `ota_band` and regulatory requirements.
+#             type: int
+
+#       assurance_icap_download:
+#         description:
+#             - Defines settings for downloading Intelligent Capture (ICAP) data.
+#             - Used to configure the parameters for capturing client data during a specific timeframe.
+#         type: dict
+#         suboptions:
+#           capture_type:
+#             description: The type of ICAP session to be executed.
+#             type: str
+#             choices:
+#                 - FULL # Captures complete network traffic for deep analysis.
+#                 - ONBOARDING  # Captures packets related to client onboarding processes.
+#                 - OTA # Captures over-the-air (OTA) wireless traffic.
+#                 - RFSTATS  # Captures RF statistics to analyze signal and interference levels.
+#                 - ANOMALY # Captures specific anomalies detected in the network.
+#           client_mac:
+#             description: The MAC address of the client device for which the capture is being performed.
+#             type: str
+#             required: true
+#           ap_mac:
+#             description: The Ap mac address of the AP for which the capture will be performed through.
+#             type: str
+#             required: true
+#           start_time:
+#             description: "The start date and time of the ICAP session in the format 'YYYY-MM-DD HH:MM:SS'."
+#             type: str
+#             required: false
+#           end_time:
+#             description: "The end date and time of the ICAP session in the format 'YYYY-MM-DD HH:MM:SS'."
+#             type: str
+#             required: false
+#           file_path:
+#             description: The file system path where the captured data will be saved.
+#             type: str
+#             required: true
+# assurance intelligent capture schema
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_config_verify: bool(required=False)
+catalyst_center_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_task_poll_interval: int(required=False)
+assurance_inteligent_capture_settings: list(include('assurance_inteligent_capture_settings_type'), min=0, max=1000, required=False)
+---
+assurance_inteligent_capture_settings_type:
+  assurance_icap_settings: list(include('assurance_icap_settings_type'), min=0, max=1000, required=False)
+  assurance_icap_download: list(include('assurance_icap_download_type'), min=0, max=1000, required=False)
+assurance_icap_download_type:
+    capture_type: enum("FULL", "ONBOARDING", "OTA", "RFSTATS", "ANOMALY", required=True)
+    client_mac: str(required=True)
+    ap_mac: str(required=False)
+    start_time: str(required=False)
+    end_time: str(required=False)
+    file_path: str(required=False)
+    file_name: str(required=False)
+assurance_icap_settings_type:
+  capture_type: enum("FULL", "ONBOARDING", "OTA", "RFSTATS", "ANOMALY", required=True)
+  duration_in_mins: num(required=False)
+  preview_description: str(required=False)
+  client_mac: str(required=False)
+  wlc_name: str(required=False)
+  ap_name: str(required=False)
+  slot: list(include ('slot_type'), min=0, max=100, required=False)
+  ota_band: enum("2.4GHz", "5GHz", "6GHz", required=False)
+  ota_channel: num(required=False)
+  ota_channel_width: int(required=False)
+slot_type: int(required=True)
