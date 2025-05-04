@@ -53,9 +53,9 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - [Catalyst Center Device Credentials configurations and assignment](./workflows/device_credentials/#readme)
 - [Catalyst Center Network Settings (Servers, Banners, TZ, SNMP, Logging, Telemetry Management](./workflows/network_settings/#readme)
 - [Catalyst Center Network Settings Global IP Address Pools and Site IP Address Pools reservation Management](./workflows/network_settings/#readme)
-- [Catalyst Center Network Settings Wireless Design Management](./workflows/wireless_design/#readme)
-- [Catalyst Center Wireless Network Profile Management](./workflows/network_profile_wireless/#readme) 
-- [Catalyst Center Network Profile Switching Management](./workflows/network_profile_switching/#readme)
+- [Catalyst Center Network Settings Wireless Design Management](./workflows/wireless_design/#readme) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Wireless Network Profile Management](./workflows/network_profile_wireless/#readme) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Network Profile Switching Management](./workflows/network_profile_switching/#readme) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 - [Catalyst Center Devices Discovery](./workflows/device_discovery/#readme)
 - [Catalyst Center Device Inventory and device management](./workflows/inventory#readme)
 - [Catalyst Center Plug and Play Device Onboarding](./workflows/plug_and_play/README.md)
@@ -70,7 +70,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - [Catalyst Center SDA Fabric Device assignment to fabric sites and zones](./workflows/sda_fabric_device_roles/README.md)
 - [Catalyst Center SDA Fabric Devices and Host Onboarding](./workflows/sda_hostonboarding/README.md)
 - [Catalyst Center SDA Extranet Policies Management](./workflows/sda_fabric_extranet_policy/README.md)
-- [Catalyst Center Application Policy Management](./workflows/application_policy/README.md)
+- [Catalyst Center Application Policy Management](./workflows/application_policy/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.6**</span></mark>
 
 ## Day N Operation (Software Upgrade, Compliance, Events, Provisioning, backups and Assurance)
 - [Catalyst Center Devices Software image management (SWIM)](./workflows/swim/README.md)
@@ -80,10 +80,10 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - [Catalyst Center Access Point Provisioning and Access Point Configuration Management](./workflows/accesspoints_configuration_provisioning/README.md)
 - [Device Configuration Customization using Catalyst Center Templates](./workflows/device_templates/README.md)
 - [Catalyst Center managed network devices configurations backup management](./workflows/device_config_backup/README.md)
-- [Catalyst Center Assurance Health Score KPIs settings and thresholds management](./workflows/assurance_health_score_settings/README.md)
-- [Catalyst Center Assurance Path Trace Management](./workflows/assurance_pathtrace/README.md)
-- [Catalyst Center Assurance issues and events management](./workflows/assurance_issues_management/README.md)
-- [Catalyst Center Assurance ICAP Management](./workflows/assurance_intelligent_capture/README.md)
+- [Catalyst Center Assurance Health Score KPIs settings and thresholds management](./workflows/assurance_health_score_settings/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Assurance Path Trace Management](./workflows/assurance_pathtrace/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Assurance issues and events management](./workflows/assurance_issues_management/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Assurance ICAP Management](./workflows/assurance_intelligent_capture/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 
 ## Demo Videos
 [IaC Demo Videos](http://3.136.0.140/index.html)
