@@ -7,21 +7,37 @@ application_policy_details:
   - queuing_profile:
     - profile_name: "Enterprise-QoS-Profile"
       profile_description: "QoS profile optimized for business-critical applications"
-      interface_speed_bandwidth_clauses:
-        interface_speed: "ONE_GBPS"
-        bandwidth_percentages:
-          transactional_data: "5"
-          best_effort: "10"
-          voip_telephony: "15"
-          multimedia_streaming: "10"
-          real_time_interactive: "20"
-          multimedia_conferencing: "10"
-          signaling: "10"
-          scavenger: "5"
-          ops_admin_mgmt: "5"
-          broadcast_video: "2"
-          network_control: "3"
-          bulk_data: "5"
+      bandwidth_settings:
+        is_common_between_all_interface_speeds: false
+        interface_speed_settings:
+          - interface_speed: "ALL"
+            bandwidth_percentages:
+              transactional_data: "5"
+              best_effort: "10"
+              voip_telephony: "15"
+              multimedia_streaming: "10"
+              real_time_interactive: "20"
+              multimedia_conferencing: "10"
+              signaling: "10"
+              scavenger: "5"
+              ops_admin_mgmt: "5"
+              broadcast_video: "2"
+              network_control: "3"
+              bulk_data: "5"
+          - interface_speed: "TEN_GBPS"
+            bandwidth_percentages:
+              transactional_data: "5"
+              best_effort: "10"
+              voip_telephony: "15"
+              multimedia_streaming: "10"
+              real_time_interactive: "20"
+              multimedia_conferencing: "10"
+              signaling: "10"
+              scavenger: "5"
+              ops_admin_mgmt: "5"
+              broadcast_video: "2"
+              network_control: "3"
+              bulk_data: "5"
       dscp_settings:
         multimedia_conferencing: "20"
         ops_admin_mgmt: "23"
@@ -35,21 +51,22 @@ application_policy_details:
         bulk_data: "10"
         scavenger: "2"
         real_time_interactive: "34"
+
     - profile_name: "Enterprise_DSCP_Profile"
-        profile_description: "DSCP-based queuing profile for traffic prioritization."
-        dscp_settings:
-          multimedia_conferencing: "20"
-          ops_admin_mgmt: "23"
-          transactional_data: "28"
-          voip_telephony: "45"
-          multimedia_streaming: "27"
-          broadcast_video: "46"
-          network_control: "48"
-          best_effort: "0"
-          signaling: "4"
-          bulk_data: "10"
-          scavenger: "2"
-          real_time_interactive: "34"
+      profile_description: "DSCP-based queuing profile for traffic prioritization."
+      dscp_settings:
+        multimedia_conferencing: "20"
+        ops_admin_mgmt: "23"
+        transactional_data: "28"
+        voip_telephony: "45"
+        multimedia_streaming: "27"
+        broadcast_video: "46"
+        network_control: "48"
+        best_effort: "0"
+        signaling: "4"
+        bulk_data: "10"
+        scavenger: "2"
+        real_time_interactive: "34"
   - application:
     - name: "Security_Gateway_App"
       help_string: "Application for network security and access control"
@@ -57,9 +74,9 @@ application_policy_details:
       type: "server_name"
       server_name: "www.securitygateway.com"
       traffic_class: "BROADCAST_VIDEO"
-      ignore_conflict: "true"
-      rank: 23
-      engineId: 4
+      ignore_conflict: true
+      rank: "23"
+      engine_id: "4"
       application_set_name: "local-services"
     - name: "Security_Gateway_IP_App"
       help_string: "Security Gateway Application based on IP"
@@ -69,18 +86,18 @@ application_policy_details:
         protocol: "UDP"
         port: "2000"
         ip_subnet: ["1.1.1.1","2.2.2.2","3.3.3.3"]
-        lower_port: 10
-        upper_port: 100
+        lower_port: "10"
+        upper_port: "100"
       dscp: 2
       traffic_class: "BROADCAST_VIDEO"
-      ignore_conflict: "true"
+      ignore_conflict: true
       rank: "23"
       engine_id: "4"
       application_set_name: "local-services"
 
   - application_policy:
     - name: "WiredTrafficOptimizationPolicy"
-      policy_status: "deployed"
+      policy_status: "NONE"
       site_names: ["Global/INDIA"]
       device_type: "wired"
       application_queuing_profile_name: "WiredStreamingQueuingProfile"
@@ -94,7 +111,7 @@ application_policy_details:
             - relevance: "DEFAULT"
               application_set_name: ["backup-and-storage", "general-media", "file-sharing"]
     - name: "wireless_traffic_optimization_policy"
-      policy_status: "deployed"
+      policy_status: "NONE"
       site_names: ["global/Chennai/FLOOR1"]
       device_type: "wireless"
       device:
