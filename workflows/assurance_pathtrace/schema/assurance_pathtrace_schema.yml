@@ -1,0 +1,124 @@
+# options:
+#   config_verify:
+#     description: |
+#       Set to `true` to enable configuration verification on Cisco DNA Center after applying
+#       the playbook configuration. This ensures that the system validates the configuration
+#       state after the change is applied.
+#     type: bool
+#     default: true
+#   state:
+#     description: |
+#       Specifies the desired state for the configuration. If `merged`, the module will create
+#       or update the configuration, adding new settings or modifying existing ones. If `deleted`,
+#       it will remove the specified settings.
+#     type: str
+#     choices: ["merged", "deleted"]
+#     default: merged
+#   config:
+#     description: A list containing the details for Path Trace configuration.
+#     type: list
+#     elements: dict
+#     required: true
+#     suboptions:
+#       source_ip:
+#         description: |
+#           The source IP address for the path trace. Either flow_analysis_id or
+#           both source_ip and dest_ip are required.
+#         type: str
+#         required: false
+#       dest_ip:
+#         description: |
+#           The destination IP address for the path trace. Either flow_analysis_id or
+#           both source_ip and dest_ip are required.
+#         type: str
+#         required: false
+#       source_port:
+#         description: The source port for the path trace (optional).
+#         type: int
+#         required: false
+#       dest_port:
+#         description: The destination port for the path trace (optional).
+#         type: int
+#         required: false
+#       protocol:
+#         description: The protocol to use for the path trace, e.g., TCP, UDP (optional).
+#         type: str
+#         choices: ["TCP", "UDP"]
+#         required: false
+#       include_stats:
+#         description: |
+#           A list of optional statistics (multiple choice) to include in the path trace,
+#           such as QOS statistics or additional details. Examples: "DEVICE_STATS",
+#           "INTERFACE_STATS", "QOS_STATS", "PERFORMANCE_STATS", "ACL_TRACE".
+#           - DEVICE_STATS - Collects hardware-related statistics of network devices
+#             along the path, including CPU usage, memory, uptime, and interface status.
+#           - INTERFACE_STATS - Gathers details about interfaces used in the path,
+#             such as interface type, bandwidth usage, errors, and drops.
+#           - QOS_STATS - Displays Quality of Service (QoS) settings on interfaces,
+#             including traffic classification, priority settings, and congestion management.
+#           - PERFORMANCE_STATS: Provides network performance metrics like latency,
+#             jitter, and packet loss.
+#           - ACL_TRACE: Analyzes Access Control List (ACL) rules applied along
+#             the path to identify blocked traffic or policy mismatches.
+#         type: list
+#         elements: str
+#         required: false
+#       periodic_refresh:
+#         description: Boolean value to enable periodic refresh for the path trace.
+#         type: bool
+#         required: false
+#         default: true
+#       control_path:
+#         description: |
+#           Boolean value to specify whether the path trace should include
+#           the control path (optional).
+#         type: bool
+#         required: false
+#         default: false
+#       get_last_pathtrace_result:
+#         description: Boolean value to display the last result again for the path trace.
+#         type: bool
+#         required: false
+#         default: true
+#       delete_on_completion:
+#         description: |
+#           Boolean value indicating whether to delete the path trace after generation.
+#           This applies only when periodic_refresh is set to false..
+#         type: bool
+#         required: false
+#         default: true
+#       flow_analysis_id:
+#         description: |
+#           The Flow Analysis ID for the path trace, used to delete an existing path trace
+#           when in the 'deleted' state. If not provided, the module will search and delete
+#           based on the following search parameters.
+#           When create a path trace, it returns a flow_analysis_id (the "id" from the "request"
+#           section), which should be shown in a register
+#         type: str
+#         required: false
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+jinjatemplate: bool(required=False)
+passwords_file: str(required=False)
+jinjatemplate_file: str(required=False)
+pathtrace_details: list(include('pathtrace_details_type', required=False), min=0, max=100, required=False)
+---
+pathtrace_details_type:
+  source_ip: str(required=False)
+  dest_ip: str(required=False)
+  source_port: int(required=False)
+  dest_port: int(required=False)
+  protocol: enum("TCP", "UDP", required=False)
+  include_stats: list(enum("DEVICE_STATS", "INTERFACE_STATS", "QOS_STATS", "PERFORMANCE_STATS", "ACL_TRACE", required=False), min=0, max=100, required=False)
+  periodic_refresh: bool(required=False)
+  control_path: bool(required=False)
+  get_last_pathtrace_result: bool(required=False)
+  delete_on_completion: bool(required=False)
+  flow_analysis_id: str(required=False)

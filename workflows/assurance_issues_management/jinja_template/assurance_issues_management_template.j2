@@ -1,0 +1,15 @@
+---
+assurance_issues_settings:
+  - assurance_user_defined_issue_settings:
+      - name: High CPU Usage Alert
+        description: Triggers an alert when CPU usage exceeds threshold
+        rules:
+          - severity: Warning
+            facility: REDUNDANCY
+            mnemonic: PEER_MONITOR_EVENT
+            pattern: issue test
+            occurrences: 1
+            duration_in_minutes: 2
+        is_enabled: false
+        priority: P1
+        is_notification_enabled: false
