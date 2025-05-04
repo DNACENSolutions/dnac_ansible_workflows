@@ -1,0 +1,42 @@
+# Description: This file contains the variables for the assurance issues management workflow.
+# It is used to configure the assurance issues management workflow in Catalyst Center.
+catalyst_center_version: 2.3.7.9
+catalyst_center_verify: false
+assurance_issues_settings:
+  - assurance_user_defined_issue_settings:
+      - name: High CPU Usage Alert
+        description: Triggers an alert when CPU usage exceeds threshold
+        rules:
+          - severity: Warning
+            facility: REDUNDANCY
+            mnemonic: PEER_MONITOR_EVENT
+            pattern: issue test
+            occurrences: 1
+            duration_in_minutes: 2
+        is_enabled: false
+        priority: P1
+        is_notification_enabled: false
+  - assurance_user_defined_issue_settings:
+      - prev_name: High CPU Usage Alert
+        name: Excessive CPU Utilization Alert
+        description: testing
+        rules:
+          - severity: "2"
+            facility: REDUNDANCY
+            mnemonic: PEER_MONITOR_EVENT
+            pattern: issue test
+            occurrences: 1
+            duration_in_minutes: 2
+        is_enabled: false
+        priority: P1
+        is_notification_enabled: false
+  - assurance_user_defined_issue_settings:
+      - name: High CPU Usage Alert
+  - assurance_system_issue_settings:
+      - name: "Assurance telemetry status is poor"
+        description: RF Noise (5GHz)
+        device_type: WIRED_CLIENT
+        synchronize_to_health_threshold: true
+        priority: P1
+        issue_enabled: false
+        threshold_value: -10

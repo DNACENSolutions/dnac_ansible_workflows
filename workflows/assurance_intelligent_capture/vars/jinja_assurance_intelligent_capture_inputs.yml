@@ -1,0 +1,6 @@
+---
+catalyst_center_version: 2.3.7.9
+catalyst_center_verify: false
+jinjatemplate: true
+jinjatemplate_file: ./../jinja_template/assurance_intelligent_capture_template.j2
+assurance_inteligent_capture_settings: []

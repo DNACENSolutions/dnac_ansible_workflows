@@ -1,0 +1,71 @@
+---
+- name: Assurance Path Trace Playbook
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+  vars:
+    state: deleted
+    catalyst_center_login: &catalyst_center_login
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(False) }}"
+      dnac_log: "{{ catalyst_center_log | default(False) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
+
+  tasks:
+    # Include the variables file {{ VARS_FILE_PATH }} for the playbook
+    - name: Assurance Path Trace Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+
+    - name: load password file
+      include_vars:
+        file: "{{ passwords_file }}"
+      when: jinjatemplate is defined and jinjatemplate is true and passwords_file is defined
+
+    # load site template jinja file
+    - name: Create Template
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined
+
+    # Create or Update existing Path Trace with provided details in "{{ VARS_FILES_PATH }}"
+    - name: Create or Update existing Path Trace with provided details in "{{ VARS_FILE_PATH }}"
+      cisco.dnac.path_trace_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config: "{{ pathtrace_details }}"
+      when: pathtrace_details is defined and pathtrace_details | length > 0
+
+    - name: delete the tmp files
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when : jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+
+    - name: Assurance Path Trace Playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Print the run time
+      debug:
+        msg: "Assurance Path Trace Playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  # run command module to find python version
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

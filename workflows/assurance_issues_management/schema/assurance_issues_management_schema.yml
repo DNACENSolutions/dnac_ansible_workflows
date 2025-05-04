@@ -1,0 +1,131 @@
+# Copyright (c) 2023 Cisco and/or its affiliates.
+# Licensed under the Apache License, Version 2.0 (the "License");
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_config_verify: bool(required=False)
+catalyst_center_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_task_poll_interval: int(required=False)
+assurance_issues_settings: list(include('assurance_issues_settings_type'), min=0, max=1000, required=False)
+---
+assurance_issues_settings_type:
+  assurance_user_defined_issue_settings: list(include('assurance_user_defined_issue_settings_type'), min=0, max=1000, required=False)
+  assurance_system_issue_settings: list(include('assurance_system_issue_settings_type'), min=0, max=1000, required=False)
+
+assurance_user_defined_issue_settings_type:
+  name: str(required=True)
+  description: str(required=False)
+  rules: list(include('rules_type'), min=0, max=1000, required=False)
+  is_enabled: bool(required=False)
+  priority: enum("P1", "P2", "P3", "P4", required=False)
+  is_notification_enabled: bool(required=False)
+  prev_name: str(required=False)
+
+rules_type:
+  pattern: str(required=False)
+  occurrences: num(required=False)
+  duration_in_minutes: num(required=False)
+  severity: enum("0", "1", "2", "3", "4", "5", "6", "Emergency", "Alert", "Critical", "Error", "Warning", "Notice", "Info", required=False)
+  facility: enum("CI", "PLATFORM_ENV", "PLATFORM_THERMAL", "PLATFORM_FEP", "ENVMON", "HARDWARE", "SYS", "ENVM",
+                 "PLATFORM", "CTS", "THERMAL", "SPA", "IOSXE_RP_ALARM",
+                 "ENVIRONMENT", "SPANTREE", "CMRP_ENVMON",
+                 "LISP", "PM", "UDLD",
+                 "IP", "SW_MATM",
+                 "CMRP_PFU",
+                 "C4K_IOSMODPORTMAN",
+                 "C6KENV",
+                 "MAC_MOVE",
+                 "OSP",
+                 "SFF8472",
+                 "DUAL",
+                 "DMI",
+                 "BGP",
+                 "REDUNDANCY",
+                 "IFDAMP",
+                 "CAPWAPAC_SMGR_TRACE_MESSAGE",
+                 "OSPF", "DOT1X", "ILPOWER",
+                 "IOSXE_OIR",
+                  "TRANSCEIVER",
+                  "SMART_LIC",
+                  "STANDBY",
+                  "IOSXE_PEM",
+                  "PLATFORM_STACKPOWER",
+                  "ENV_MON",
+                  "IOSXE_INFRA",
+                  "STACKMGR", required=False)
+  mnemonic: enum("SHUT_LC_FANGONE", "SHUTFANGONE", "SHUTFANFAIL", "SHUT_LC_FANFAIL",
+                 "FRU_PS_FAN_FAILED", "RPS_FAN_FAILED", "FRU_PS_FAN_OK", "FAN",
+                 "FAN_NOT_PRESENT", "FRU_FAN_OK", "PLATFORM_FAN_CRITICAL",
+                 "RPS_PS_FAN_FAILED", "FRU_FAN_FAILURE", "FRU_FAN_RECOVERY",
+                 "FAN_CRITICAL", "FRU_FAN_NOT_PRESENT", "FRU_FAN_DISABLED",
+                 "FRU_FAN_INSUFFICIENTFANTRAYSDETECTEDPOWERDOWN",
+                 "FRU_PS_SIGNAL_FAULTY", "FAN_FAILURE_LC_SHUT",
+                 "FAN_MISSING", "TOTALFANFAIL", "NOFAN",
+                 "THERMAL_CRITICAL", "OVERTEMP", "OVERTEMP_ALERT",
+                 "PFM_ALERT", "PFU_FAN_FAILED", "MODULECRITICALTEMP",
+                 "CRITICALTEMP",
+                 "AUTHZ_POLICY_SGACL_ACE_FAILED",
+                 "THERMAL_YELLOW_THRESHOLD",
+                 "THERMAL_RED_THRESHOLD",
+                 "TEMP_CRITICAL",
+                 "PEER_MONITOR_EVENT",
+                 "PEER_MONITOR",
+                 "SWITCHOVER",
+                 "STANDBY_LOST",
+                 "PARTIAL_FAN_FAIL", "PARTFANFAIL", "PSFANFAIL",
+                 "DUPADDR",
+                 "PEMCHASFSERR", "PEMFAIL", "FAN_FAIL_SHUTDOWN_PENDING",
+                 "FANFAIL", "TEMP_SYS_SHUTDOWN_PENDING",
+                 "TEMP_WARN_CRITICAL", "TEMP_FRU_SHUTDOWN_PENDING",
+                 "MAP_CACHE_WARNING_THRESHOLD_REACHED",
+                 "LOCAL_EID_NO_ROUTE", "LOCAL_EID_MAP_REGISTER_FAILURE",
+                 "CEF_DISABLED", "ERR_DISABLE",
+                 "UNDER_BUDGET", "VERSION_MISMATCH",
+                 "TOO_MANY_ERRORS", "INSUFFICIENT_PWR",
+                 "REDUNDANCY_LOSS", "UDLD_PORT_DISABLED",
+                 "DUPADDR", "MACFLAP_NOTIF",
+                 "PFU_FAN_WARN", "MODULETEMPHIGH",
+                 "POWERSUPPLYBAD", "CRITICALTEMP",
+                 "MODULECRITICALTEMP", "TEMPHIGH",
+                 "FANTRAYREMOVED", "TERMINATOR_PS_TEMP_MAJORALARM",
+                 "NOTIF", "THRESHOLD_VIOLATION",
+                 "NBRCHANGE", "SUCCESS",
+                 "FAIL", "SYNC_NEEDED",
+                 "SYNC_START", "ADJCHANGE",
+                 "PEER_MONITOR_EVENT", "UPDOWN",
+                 "ILPOWER_POWER_DENY", "REMSPA",
+                 "INSSPA", "OFFLINECARD",
+                 "REMOVED", "INSERTED",
+                 "AGENT_READY", "HA_ROLE_CHANGED",
+                 "AGENT_ENABLED", "STATECHANGE",
+                 "REMPEM_FM", "PEMOK",
+                 "FAN_FAIL_SHUTDOWN_PENDING",
+                 "CABLE_EVENT", "LINK_EVENT",
+                 "REMPEM", "HASTATUS_DETAIL",
+                 "HASTATUS", "PROCPATH_CLIENT_HOG",
+                 "STACK_LINK_CHANGE", required=False)
+
+assurance_system_issue_settings_type:
+  name: str(required=True)
+  description: str(required=True)
+  device_type: enum("Router", "SWITCH_AND_HUB", "UNIFIED_AP", "FIREWALL", "CONTROLLER","WIRED_CLIENT", required=True)
+  synchronize_to_health_threshold: bool(required=True)
+  priority: enum("P1", "P2", "P3", "P4", required=True)
+  issue_enabled: bool(required=True)
+  threshold_value: int(required=True)
+  prev_name: str(required=False)
+  issue_name: str(required=False)
+  issue_process_type: enum("resolution", "ignore", "command_execution", required=False)
+  start_datetime: str(required=False)
+  end_datetime: str(required=False)
+  site_hierarchy: str(required=False)
+  priority: enum("P1", "P2", "P3", "P4", required=False)
+  issue_status: enum("ACTIVE", "RESOLVED", "IGNORED", required=False)
+  device_name: str(required=False)
+  mac_address: str(required=False)
+  network_device_ip_address: str(required=False)
+    

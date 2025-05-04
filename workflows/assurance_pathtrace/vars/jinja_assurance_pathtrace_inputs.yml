@@ -1,0 +1,5 @@
+---
+catalyst_center_version: 2.3.7.6
+jinjatemplate: true
+jinjatemplate_file: ./../jinja_template/assurance_pathtrace_template.j2
+pathtrace_details: []

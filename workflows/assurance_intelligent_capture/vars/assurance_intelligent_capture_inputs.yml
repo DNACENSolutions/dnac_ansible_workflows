@@ -1,0 +1,23 @@
+# This file contains the inputs for the assurance_intelligent_capture workflow.
+# It is used by the playbook to configure the assurance intelligent capture settings.
+---
+catalyst_center_version: 2.3.7.9
+catalyst_center_verify: false
+assurance_inteligent_capture_settings:
+  - assurance_icap_settings:
+    - capture_type: ONBOARDING
+      preview_description: "ICAP onboarding capture"
+      duration_in_mins: 30
+      client_mac: 50:91:E3:47:AC:9E  # required field
+      wlc_name: NY-IAC-EWLC.cisco.local  # required field
+    - capture_type: FULL
+      preview_description: "Full ICAP capture for troubleshooting"
+      duration_in_mins: 30
+      client_mac: 50:91:E3:47:AC:9E  # required field
+      wlc_name: NY-IAC-EWLC.cisco.local  # required field
+  - assurance_icap_download:
+    - capture_type: FULL
+      client_mac: 50:91:E3:47:AC:9E
+      start_time: "2025-03-05 11:56:00"
+      end_time: "2025-03-05 12:01:00"
+      file_path: ./
