@@ -1,0 +1,16 @@
+---
+catalyst_center_version: 2.3.7.9
+switching_network_profile_details:
+  - profile_name: "Campus_Switching_Profile"
+    day_n_templates:
+      - "Campus_Switch_Config_Update"
+    site_names:
+      - "Global/Chennai"
+      - "Global/Abc"
+  - profile_name: "Enterprise_Switching_Profile"
+    day_n_templates:
+      - "Periodic_Config_Audit"
+    site_names:
+      - "Global/India/Chennai/Main_Office"
+      - "Global/India/Madurai/Branch_Office"
+      - "Global/USA/San Francisco/Regional_HQ"
