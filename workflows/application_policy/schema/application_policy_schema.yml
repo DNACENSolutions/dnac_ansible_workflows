@@ -1,3 +1,4 @@
+#====================================================================
 # Yamale validation schema for application_policy
 # This schema is used to validate the input data for the application policy workflow
 catalyst_center_version: str(required=False)
@@ -23,31 +24,29 @@ queuing_profile_type:
   new_profile_name: str(required=False)
   profile_description: str(required=False)
   bandwidth_settings: include('bandwidth_settings_type', required=False)
-  dscp_settings: list(include('dscp_settings_type'), required=False)
+  dscp_settings:
+    transactional_data: str(required=False)
+    best_effort: str(required=False)
+    voip_telephony: str(required=False)
+    multimedia_streaming: str(required=False)
+    real_time_interactive: str(required=False)
+    multimedia_conferencing: str(required=False)
+    signaling: str(required=False)
+    scavenger: str(required=False)
+    ops_admin_mgmt: str(required=False)
+    broadcast_video: str(required=False)
+    network_control: str(required=False)
+    bulk_data: str(required=False)
 
 bandwidth_settings_type:
   is_common_between_all_interface_speeds: bool(required=False)
-  interface_speed_bandwidth_clauses: list(include('interface_speed_bandwidth_clauses_type'), required=False)
+  interface_speed_settings: list(include('interface_speed_settings_type'), required=False)
 
-interface_speed_bandwidth_clauses_type:
+interface_speed_settings_type:
   interface_speed: enum("ALL", "HUNDRED_GBPS", "TEN_GBPS", "ONE_GBPS", "HUNDRED_MBPS", "TEN_MBPS", "ONE_MBPS", required=False)
   bandwidth_percentages: include('bandwidth_percentages_type', required=False)
 
 bandwidth_percentages_type:
-  transactional_data: str(required=False)
-  best_effort: str(required=False)
-  voip_telephony: str(required=False)
-  multimedia_streaming: str(required=False)
-  real_time_interactive: str(required=False)
-  multimedia_conferencing: str(required=False)
-  signaling: str(required=False)
-  scavenger: str(required=False)
-  ops_admin_mgmt: str(required=False)
-  broadcast_video: str(required=False)
-  network_control: str(required=False)
-  bulk_data: str(required=False)
-
-dscp_settings_type:
   transactional_data: str(required=False)
   best_effort: str(required=False)
   voip_telephony: str(required=False)
@@ -70,12 +69,12 @@ application_type:
   help_string: str(required=False)
   type: enum("server_name", "url", "server_ip", required=False)
   server_name: str(required=False)
-  dscp: str(required=False)
-  network_identity: list(include('network_identity_type'), required=False)
+  dscp: int(required=False, min=0, max=63)
+  network_identity: include('network_identity_type', required=False)
   app_protocol: enum("TCP", "UDP", "TCP_UDP", "IP", required=False)
   url: str(required=False)
   traffic_class: enum("BROADCAST_VIDEO", "BULK_DATA", "MULTIMEDIA_CONFERENCING", "MULTIMEDIA_STREAMING", "NETWORK_CONTROL", "OPS_ADMIN_MGMT", "REAL_TIME_INTERACTIVE", "SIGNALING", "TRANSACTIONAL_DATA", "VOIP_TELEPHONY", "BEST_EFFORT", "SCAVENGER", required=False)
-  ignore_conflict: str(required=False)
+  ignore_conflict: bool(required=False)
   rank: str(required=False)
   engine_id: str(required=False)
   application_set_name: str(required=False)
@@ -90,7 +89,7 @@ network_identity_type:
 application_policy_type:
   name: str(required=True)
   application_set_name: str(required=False)
-  policy_details: enum("NONE", "DELETED", "RESTORED", required=False)
+  policy_status: enum("NONE", "DELETED", "RESTORED", required=False)
   site_names: list(str(), required=False)
   device_type: str(required=True)
   device: include('device_type_type', required=False)
@@ -107,7 +106,7 @@ clause_details_type:
 
 relevance_details_type:
   relevance: enum("BUSINESS_RELEVANT", "BUSINESS_IRRELEVANT", "DEFAULT", required=False)
-  application_set_name: str(required=False)
+  application_set_name: list(str(), required=False)
 #====================================================================
 #   End of schema
 #====================================================================
