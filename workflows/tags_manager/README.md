@@ -21,7 +21,7 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
     ```bash
     ansible-galaxy collection install cisco.dnac
     ```
-3.  **Generate Inventory:** Create an Ansible inventory file (e.g., `inventory.yml`) that includes your Cisco Catalyst Center appliance details. You will need to define variables such as the host, username, and password (or other authentication methods).
+3.  **Generate Inventory:** Create an Ansible inventory file (e.g., `hosts.yml`) that includes your Cisco Catalyst Center appliance details. You will need to define variables such as the host, username, and password (or other authentication methods).
     ```yaml
     catalyst_center_hosts:
         hosts:
@@ -49,7 +49,7 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
     ```
 6. **Run the Workflow:**  
    Execute the main playbook to manage tags as needed.
-    
+
 7. **Example Variable File:**
   vars/tags_manager_inputs.yml
 ```yaml

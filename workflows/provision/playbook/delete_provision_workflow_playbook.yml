@@ -12,7 +12,7 @@
 
   vars:
     state: deleted
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -32,7 +32,7 @@
         long_op_start: "{{ now() }}"
     - name: Un-Provision devices on Cisco Catalyst Center
       cisco.dnac.provision_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{provision_details}}"
       register: unprovision_output
