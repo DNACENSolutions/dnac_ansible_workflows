@@ -11,7 +11,7 @@
   vars_files:
     - "{{ VARS_FILE_PATH }}"
   vars:
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -32,7 +32,7 @@
     #Create Global Pools, and Network Settings etc 
     - name: Delete Global Pools, Subpools and Network Settings etc 
       cisco.dnac.network_settings_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: deleted
         config: "{{ network_settings_details }}"
       when: network_settings_details is defined

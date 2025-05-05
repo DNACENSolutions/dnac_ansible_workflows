@@ -9,7 +9,7 @@
 
   vars:
     # Define the default values for the DNAC login in inventory file under host. Refer the host.yml file for more details
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -26,7 +26,7 @@
     #Import an image from a URL
     - name: Import an image from an URL or from Local disc provided in import_images in file {{ VARS_FILE_PATH }}
       cisco.dnac.swim_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         config:
         - "{{ item }}"
       loop: "{{ swim_details.import_images }}"
@@ -35,7 +35,7 @@
     #Golden tag images on Catalyst Center sites
     - name: Golden tag images on Catalyst Center sites input provided in golden_tag_images in file {{ VARS_FILE_PATH }}
       cisco.dnac.swim_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         config:
         - "{{ item }}"
       loop: "{{ swim_details.golden_tag_images }}"
@@ -44,7 +44,7 @@
     #Distribution of images on Catalyst Center sites
     - name: Distribution of images on Catalyst Center sites input provided in distribute_images in file {{ VARS_FILE_PATH }}
       cisco.dnac.swim_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         config:
         - "{{ item }}"
       loop: "{{ swim_details.distribute_images }}"
@@ -53,7 +53,7 @@
     #Activate an image on Catalyst Center sites
     - name: Activate an image on Catalyst Center sites input provided in activate_images in file {{ VARS_FILE_PATH }}
       cisco.dnac.swim_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         config:
         - "{{ item }}"
       loop: "{{ swim_details.activate_images }}"
@@ -62,7 +62,7 @@
     #SWIM Full workflow Import an image from a URL, tag it as golden and load it on device
     - name: Import an image from a URL, tag it as golden and load it on device for details provided in {{ VARS_FILE_PATH }}
       cisco.dnac.swim_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         config:
         - "{{ item }}"
       loop: "{{ swim_details.upload_tag_dis_activate_images }}"
