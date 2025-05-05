@@ -1,0 +1,78 @@
+# Playbook to Manage create tags and update tags in Cisco Catalyst Center.
+# Creating tags for the SDA operation in Cisco Catalyst Center.
+# Updating tags for the SDA operation in Cisco Catalyst Center.
+# module: tags_workflow_manager
+# requirements:
+#   - cisco.dnac >= 6.32.0
+#   - Catalyst Center >=2.3.7.9
+---
+- name: Playbook to manage tags and update the tags in Cisco Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: merged
+    catalyst_center_login: &catalyst_center_login
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(False) }}"
+      dnac_log: "{{ catalyst_center_log | default(False) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
+  tasks:
+  #write tasks for tags creations
+    - name: Playbook start time for the tags playbook
+      set_fact:
+        long_op_start: "{{ now() }}"
+    # load tag template jinja file
+    - name: Load template file to create tags
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+
+    - name: Add/Update tags for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.tags_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config: "{{ tags_details }}" 
+      register: tags_output
+      when: tags_details is defined
+    - name: Print the tags output
+      debug:
+        msg: "{{tags_output}}"
+    - name: Playbook end time for the tags playbook
+      set_fact:
+        long_op_end: "{{ now() }}"
+    - name: Playbook execution time for the tags playbook
+      set_fact:
+        long_op_duration: "{{ (long_op_end - long_op_start) | to_datetime('%H:%M:%S') }}"
+    - name: Print the playbook execution time for the tags playbook
+      debug:
+        msg: "Playbook execution time for the tags playbook is {{ long_op_duration }}"
+    # delete the template file
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+  post_tasks:
+    - name: Print the tags playbook execution time
+      debug:
+        msg: "Tags playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+#====================================================================
+#  End of playbook to manage tags and update the tags in Cisco Catalyst Center
+#====================================================================
