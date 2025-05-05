@@ -12,7 +12,7 @@
     - "{{ VARS_FILE_PATH }}"
   vars:
     state: deleted
-    catalyst_center_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -43,7 +43,7 @@
       when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     - name: Delete tags for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       cisco.dnac.tags_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ tags_details }}" 
       register: tags_output

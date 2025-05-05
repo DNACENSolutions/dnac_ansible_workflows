@@ -24,20 +24,22 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/network_settings/pl
 
 ##The Sample host_inventory_dnac1/hosts.yml
 
-```bash
+## Generate Inventory 
+Create an Ansible inventory file (e.g., `hosts.yml`) that includes your Cisco Catalyst Center appliance details. You will need to define variables such as the host, username, and password (or other authentication methods).
+```yaml
 catalyst_center_hosts:
     hosts:
-        catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
-            dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
+        your_catalyst_center_instance_name:
+            catalyst_center_host: xx.xx.xx.xx
+            catalyst_center_password: XXXXXXXX
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            catalyst_center_username: admin
+            catalyst_center_verify: false # Set to true for production with valid certificates
+            catalyst_center_version: 2.3.7.6 # Specify your DNA Center version
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
 ```
 User Inputs for Users and roles are stored in  workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml
 

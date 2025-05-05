@@ -6,7 +6,7 @@
 
   vars:
     state: merged
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -35,7 +35,7 @@
     - name: Templates Playbook start time
       #Import an image from a URL
       cisco.dnac.template_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ template_details }}"
       register: template_output

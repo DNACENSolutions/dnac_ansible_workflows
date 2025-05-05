@@ -8,7 +8,7 @@
     - "{{ VARS_FILE_PATH }}"
   vars:
     state: deleted
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -30,7 +30,7 @@
         long_op_start: "{{ now() }}"
     - name: Create/Update application policy, queueing profile, applications and application sets from file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       cisco.dnac.application_policy_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ application_policy_details }}" 
       register: application_policy_output
