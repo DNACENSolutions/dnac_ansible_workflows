@@ -24,7 +24,7 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
 1.  **Install Ansible:** Follow the official Ansible documentation for installation instructions.
 2.  **Install Cisco Catalyst Center Collection:**
     ```bash
-    ansible-galaxy collection install cisco.catalystcenter
+    ansible-galaxy collection install cisco.dnac
     ```
 3.  **Generate Inventory:** Create an Ansible inventory file (e.g., `inventory.yml`) that includes your Cisco Catalyst Center appliance details. You will need to define variables such as the host, username, and password (or other authentication methods).
     ```yaml
@@ -108,5 +108,4 @@ This is the final step where you deploy the configuration to Cisco Catalyst Cent
     (Assuming you have a `verify_wireless_profiles.yml` playbook).
 
 ---
-
 Refer to the individual playbook files within this directory for specific usage examples and required variables.
