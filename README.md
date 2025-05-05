@@ -61,6 +61,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - [Catalyst Center Plug and Play Device Onboarding](./workflows/plug_and_play/README.md)
 - [Catalyst Center Device Provisioning and Re-Provisioning Management](./workflows/provision/README.md)
 - [Catalyst Center Design and Deploy Device Templates](./workflows/device_templates/README.md)
+- [Catalyst Center Tags Management](./workflows/tags_manager/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 
 ## Day 2 Configurations (Underlay automation and SD Access fabric)
 - [Catalyst Center Underlay Automation (LAN Automation) Management](./workflows/lan_automation/#readme)
