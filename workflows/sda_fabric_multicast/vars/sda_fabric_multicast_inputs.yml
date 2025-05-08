@@ -1,0 +1,71 @@
+      
+# Copyright (c) 2023 Cisco and/or its affiliates.
+---
+catalyst_center_version: 2.3.7.6
+fabric_multicast_details:
+  - fabric_multicast:
+    - fabric_name: Global/USA/SAN JOSE
+      layer3_virtual_network: Employee_VN
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL_sjc
+      asm:
+        - rp_device_location: "EXTERNAL"
+          ex_rp_ipv4_address: "204.192.3.40"
+          is_default_v4_rp: true
+        - rp_device_location: "EXTERNAL"
+          ex_rp_ipv6_address: "2004:192:3:40::1"
+          is_default_v6_rp: true
+    - fabric_name: "Global/USA/SAN JOSE"
+      layer3_virtual_network: "Mgmt_VN"
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL1_sjc
+      ssm:
+        ipv4_ssm_ranges: 
+          - "234.0.0.0/8"
+    - fabric_name: "Global/USA/SAN JOSE"
+      layer3_virtual_network: "Guest_VN"
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL2_sjc
+      asm:
+        - rp_device_location: "FABRIC"
+          is_default_v4_rp: true
+          network_device_ips: 
+            - 204.101.16.1
+  - fabric_multicast:
+    - fabric_name: "Global/USA/SAN-FRANCISCO"
+      layer3_virtual_network: "Employee_VN"
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL_sf
+      asm:
+        - rp_device_location: "EXTERNAL"
+          ex_rp_ipv4_address: "204.192.3.40"
+          ipv4_asm_ranges:
+            - "234.0.0.0/8"
+        - rp_device_location: "EXTERNAL"
+          ex_rp_ipv6_address: "2004:192:3:40::1"
+          ipv6_asm_ranges:
+            - "FF03::/64"
+        - rp_device_location: "EXTERNAL"
+          ex_rp_ipv4_address: "204.192.3.41"
+          ipv4_asm_ranges:
+            - "235.0.0.0/8"
+        - rp_device_location: "EXTERNAL"
+          ex_rp_ipv6_address: "2004:192:3:41::1"
+          ipv6_asm_ranges:
+            - "FF04::/64"
+    - fabric_name: "Global/USA/SAN-FRANCISCO"
+      layer3_virtual_network: "Mgmt_VN"
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL1_sf
+      ssm:
+        ipv4_ssm_ranges: 
+          - "234.0.0.0/8"
+    - fabric_name: "Global/USA/SAN-FRANCISCO"
+      layer3_virtual_network: "Guest_VN"
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL2_sf
+      asm:
+        - rp_device_location: "FABRIC"
+          is_default_v4_rp: true
+          network_device_ips: 
+            - 204.101.16.2

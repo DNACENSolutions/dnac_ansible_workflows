@@ -25,7 +25,7 @@ catalyst_center_log_append: bool(required=False, default=True)
 catalyst_center_log_file_path: str(required=False, default='dnac.log')
 catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
 catalyst_center_config_verify: bool(required=False)
-extranet_policies: list(include('extranet_policies_type'), min=0, max=1000, required=False)
+extranet_policies: list(include('extranet_policies_type'), min=0, max=10000, required=False)
 # Schema for the fabric extranet policy details.
 ---
 extranet_policies_type:
