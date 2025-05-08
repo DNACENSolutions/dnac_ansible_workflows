@@ -1,0 +1,70 @@
+---
+
+{% set start_octets = start_ip.split('.') %}
+{% set end_octets = end_ip.split('.') %}
+
+{% set si = namespace (start_ip_int = 0) %}
+{% for i in range(4) %}
+  {% set si.start_ip_int = si.start_ip_int + (start_octets[i]|int * (256 ** (3 - i))) %}
+{% endfor %}
+
+{% set ei = namespace (end_ip_int = 0) %}
+{% for i in range(4) %}
+  {% set ei.end_ip_int = ei.end_ip_int + (end_octets[i]|int * (256 ** (3 - i))) %}
+{% endfor %}
+
+{% set ip_address_list = namespace (ips = []) %}
+{% for ip_int in range(si.start_ip_int, ei.end_ip_int + 1) %}
+  {% set io = namespace (ip_octets = []) %}
+  {% for i in range(4) %}
+    {% set ip_octet = (ip_int // (256 ** (3 - i))) % 256 %}
+    {% set io.ip_octets = io.ip_octets + [ip_octet|string] %}
+  {% endfor %}
+  {% if io.ip_octets[-1]|int != 0 and io.ip_octets[-1]|int != 255 %}
+    {% set ip_address_list.ips = ip_address_list.ips + [io.ip_octets|join('.')] %}
+  {% endif %}
+{% endfor %}
+
+{% if num_hosts is not false %}
+  {% set ip_list_specific = ip_address_list.ips[0:num_hosts|int] %}
+{% else %}
+  {% set ip_list_specific = ip_address_list.ips %}
+{% endif %}
+
+
+network_device_add:
+  - ip_address_list: {{ ip_list_specific }}
+    ipv6Enabled: false
+    type: NETWORK_DEVICE
+    compute_device: false
+    cli_transport: ssh
+    username: cisco
+    password: Cisco#123
+    enable_password: Cisco#123
+    snmp_version: v3
+    snmp_username: v3Public1
+    snmp_mode: AUTHPRIV
+    snmp_auth_protocol: SHA
+    snmp_auth_passphrase: Cisco#123456789
+    snmp_priv_protocol: AES128
+    snmp_priv_passphrase: Cisco#1234567890
+    snmp_retry: 3
+    snmp_timeout: 5
+    netconf_port: 830
+
+network_device_update:
+  - ip_address_list: {{ ip_list_specific }}
+    username: datcpham
+    password: Cisco#123
+    snmp_retry: 1
+    snmp_timeout: 1
+    credential_update: True
+
+network_device_resync:
+  - ip_address_list: {{ ip_list_specific }}
+    device_resync: True
+    force_sync: False
+
+network_device_delete:
+  - ip_address_list: {{ ip_list_specific }}
+    clean_config: False

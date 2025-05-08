@@ -1,0 +1,32 @@
+start_lan_auto:
+# Start a LAN Automation session without waiting for it to finish
+  - lan_automation:
+      discovered_device_site_name_hierarchy: Global/USA/New York/NY_BLD1
+      primary_device_management_ip_address: 204.1.2.4
+      primary_device_interface_names:
+        - TenGigabitEthernet1/0/1
+      ip_pools:
+        - ip_pool_name: test3
+          ip_pool_role: "MAIN_POOL"
+      multicast_enabled: true
+      redistribute_isis_to_bgp: false
+      launch_and_wait: false
+      pnp_authorization: false
+
+stop_lan_auto:
+  - lan_automation:
+    primary_device_management_ip_address: 204.1.2.4
+
+start_lan_auto_with_pnp:
+  - lan_automation:
+      discovered_device_site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+      primary_device_management_ip_address: 204.1.2.70
+      primary_device_interface_names:
+        - TenGigabitEthernet1/0/11
+      ip_pools:
+        - ip_pool_name: testLan
+          ip_pool_role: "MAIN_POOL"
+      multicast_enabled: true
+      redistribute_isis_to_bgp: false
+      launch_and_wait: false
+      pnp_authorization: True

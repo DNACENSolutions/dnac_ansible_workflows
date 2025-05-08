@@ -1,0 +1,276 @@
+---
+- name: SDA Fabric Virtual networks suite
+  hosts: dnac
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - ../cc_config.yml
+    - "{{ config_sda_vn }}"
+
+  vars:
+    common_config: &common_config
+      dnac_host: "{{ dnac_host }}"
+      dnac_username: "{{ dnac_username }}"
+      dnac_password: "{{ dnac_password }}"
+      dnac_verify: "{{ dnac_verify }}"
+      dnac_port: "{{ dnac_port }}"
+      dnac_version: "{{ dnac_version }}"
+      dnac_debug: "{{ dnac_debug }}"
+      dnac_log: "{{ dnac_log }}"
+      dnac_log_level: "{{ dnac_log_level }}"
+      config_verify: True
+
+  tasks:
+    - name: Includes SDA Fabric Virtual Network input
+      include_vars:
+        file: "{{ input_file }}"
+        name: vars_map
+      tags: always
+
+    - name: Set up site and fabric site for test
+      block:
+        - name: Create site hierarchy
+          cisco.dnac.site_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.setup.setup_site }}"
+          tags: setup_site
+        - name: Create Fabric site
+          cisco.dnac.sda_fabric_sites_zones_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.setup.setup_fb_site }}"
+          tags: setup_fb_site
+      tags: setup
+
+    - name: Create Layer 3 Virtual Networks
+      block:
+        - name: Create a group of L3 VNs include (non_associate and associate multiple sites)
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.layer3.layer3_create }}"
+          tags: layer3_create
+        - name: Update by (remove certain fabric site, remove all fabric site, same input)
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.layer3.layer3_update }}"
+          tags: layer3_update
+      tags: layer3_create_update
+
+    - name: Deleting layer3 Virtual Network from the Cisco Catalyst Center.
+      block:
+        - name: Delete multiple L3 VNs (associate, non_associate, non_exist)
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: deleted
+            config: "{{ vars_map.layer3.layer3_delete }}"
+          tags: layer3_delete
+
+    - name: Anchor VN to a Fabric Site
+      block:
+        - name: Create Fabric site (anchor)
+          cisco.dnac.sda_fabric_sites_zones_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.anchor_vn.anchor_fb_site_create }}"
+          tags: anchor_fb_site_create
+        - name: Set up for Virtual Network is anchored at the site, at least one CP and External Border must be present
+          block:
+            - name: Create SDA fabric device with device role as CONTROL_PLANE_NODE, BORDER_NODE
+              cisco.dnac.sda_fabric_devices_workflow_manager:
+                <<: *common_config
+                state: merged
+                config: "{{ vars_map.anchor_vn.anchor_setup_sda_device }}"
+              tags: anchor_setup_sda_device
+        - name: Add Anchor VN to site
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.anchor_vn.anchor_vn_to_site }}"
+          tags: anchor_vn_to_site
+        - name: Extend Anchor to multiple Fabric sites
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.anchor_vn.anchor_extend_site }}"
+          tags: anchor_extend_site
+      tags: anchor_vn
+
+    - name: Remove sites from the Anchor VN
+      block:
+        - name: (Negative) Remove main site from the Anchor VN without removing the extended sites
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.anchor_vn.anchor_remome_main_without_extended_site }}"
+          register: negative_message
+          failed_when: >
+            ("Cannot delete an Anchored Virtual Network when the inherited Virtual Network is still present" not in negative_message.msg) and
+            ("the fabricIds do not contain the anchoredSiteId" not in negative_message.msg)
+          tags: anchor_remome_main_without_extended_site
+        - name: Remove sites that were extended after anchoring
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.anchor_vn.anchor_remove_extended_site }}"
+          tags: anchor_remove_extended_site
+        - name: Remove sites that are main Anchor VN
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.anchor_vn.anchor_remome_main_site }}"
+          tags: anchor_remove_main_site
+      tags: remove_site_from_anchor
+
+    - name: Remove Anchor VN from the Fabric site
+      block:
+        - name: Add Anchor VN to site
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.anchor_vn.anchor_vn_to_site }}"
+        - name: Remove Anchor VN from the Fabric site
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.remove_anchor_from_site }}"
+      tags: remove_anchor_from_site
+
+    - name: Delete the device along with device role as CONTROL_PLANE_NODE, BORDER_NODE
+      cisco.dnac.sda_fabric_devices_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config: "{{ vars_map.anchor_remove_fabric_device }}"
+      tags: remove_fb_device
+
+    - name: Create Layer 2 Fabric VLANs
+      cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.layer2.layer2_create }}"
+      tags: layer2_create
+
+    - name: Edit Layer 2 Fabric VLANs
+      cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+        <<: *common_config
+        state: merged
+        config: "{{ vars_map.layer2.layer2_update }}"
+      tags: layer2_update
+
+    - name: Delete Layer 2 Fabric VLANs
+      cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+        <<: *common_config
+        state: deleted
+        config: "{{ vars_map.layer2.layer2_delete }}"
+      tags: layer2_delete
+
+    - name: Edit Layer 2 Fabric Zone Associations
+      block:
+        - name: Create Fabric site with two Zones
+          block:
+            - name: Create Fabric site
+              cisco.dnac.sda_fabric_sites_zones_workflow_manager:
+                <<: *common_config
+                state: merged
+                config: "{{ vars_map.layer2_associate.layer2_fb_site_create }}"
+              tags: layer2_fb_site_create
+            - name: Create two Zones
+              cisco.dnac.sda_fabric_sites_zones_workflow_manager:
+                <<: *common_config
+                state: merged
+                config: "{{ vars_map.layer2_associate.layer2_fb_zone_create }}"
+              tags: layer2_fb_zone_create
+          tags: layer2_fb_site_zone_create
+        - name: Create five L2 VN on the Fabric site
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.layer2_associate.layer2_associate_site }}"
+          tags: layer2_associate_site
+        - name: Associate two of the L2 VNs to the Fabric zone and another two to the Fabric zone. One L2 VN is shared on both Fabric zone
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.layer2_associate.layer2_associate_site_zone }}"
+          tags: layer2_associate_site_zone
+        - name: Remove Layer 2 include associate (site and zone)
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: deleted
+            config: "{{ vars_map.layer2_associate.remove_layer2_associate_site_zone }}"
+          tags: remove_layer2_associate_site_zone
+        - name: Re-add L2 asociate to site and zone
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: "{{ vars_map.layer2_associate.re_add_layer2_associate_site_zone }}"
+          tags: re_add_layer2_associate_site_zone
+      tags: edit_l2_fb_zone_associate
+
+    - name: (Negative) Delete L3 VNs with Anycast GW associated
+      block:
+        - name: Create Global Pool 
+          cisco.dnac.network_settings_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: 
+              "{{ vars_map.l3_associate_anycast_gw.create_global_pool }}"
+          tags: l3_associate_create_global_pool
+            
+        - name: Create reserve an ip pool
+          cisco.dnac.network_settings_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.l3_associate_anycast_gw.create_sub_pool }}"
+          tags: l3_associate_reserve_ippool
+
+        - name: Create L3 VNs 
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.l3_associate_anycast_gw.create_l3 }}"
+          tags: l3_associate_create_l3
+
+        - name: Create the Anycast gateway(s) associate layer3.
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.l3_associate_anycast_gw.create_anycast_gw }}"
+          tags: l3_associate_create_anycast
+
+        - name: (Negative) Delete L3 VNs with Anycast GW associated
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: deleted
+            config:
+              "{{ vars_map.l3_associate_anycast_gw.delete_l3 }}"
+          register: negative_message
+          failed_when: >
+            ("cannot be deleted as it is still in use" not in negative_message.msg) or
+            ("Remove all the Anycast Gateways and/or Layer 2 Virtual Networks associated with the Layer 3 Virtual Network before deleting it" not in negative_message.msg)
+          tags: l3_associate_delete_l3
+      tags: l3_associate_anycast_gw
+
+    - name: Advance attribute layer2 associate layer 3
+      block:
+        - name: Create L3 VNs 
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config: 
+              "{{ vars_map.l2_advance_attribute.create_l3 }}"
+          tags: l2_advance_attribute_create_l3
+        - name: Create layer2 with advance attribute (layer2 associate layer3)
+          cisco.dnac.sda_fabric_virtual_networks_workflow_manager:
+            <<: *common_config
+            state: merged
+            config:
+              "{{ vars_map.l2_advance_attribute.l2_advance_attribute }}"
+          tags: l2_advance_attribute
+      tags: l2_advance_attribute

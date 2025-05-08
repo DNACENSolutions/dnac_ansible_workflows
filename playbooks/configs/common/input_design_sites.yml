@@ -1,0 +1,702 @@
+---
+design_sites:
+  - site:
+      area:
+        name: USA
+        parentName: Global
+    type: area
+  - site:
+      area:
+        name: SAN JOSE
+        parentName: Global/USA
+    type: area
+  - site:
+      area:
+        name: RTP
+        parentName: Global/USA
+    type: area
+  - site:
+      area:
+        name: New York
+        parentName: Global/USA
+    type: area
+  - site:
+      area:
+        name: SAN-FRANCISCO
+        parentName: Global/USA
+    type: area
+  - site:
+      building:
+        name: SJ_BLD20
+        parentName: Global/USA/SAN JOSE
+        address: 725 Alder Drive, Milpitas, California 95035, United States
+        latitude: 37.415947
+        longitude: -121.916327
+        country: United States
+    type: building
+  - site:
+      building:
+        name: SJ_BLD21
+        parentName: Global/USA/SAN JOSE
+        address: 771 Alder Dr, Milpitas, California 95035, United States
+        latitude: 37.416577
+        longitude: -121.917496
+        country: United States
+    type: building
+  - site:
+      building:
+        name: SJ_BLD22
+        parentName: Global/USA/SAN JOSE
+        address: 821 Alder Drive, Milpitas, California 95035, United States
+        latitude: 37.416528
+        longitude: -121.919221
+        country: United States
+    type: building
+  - site:
+      building:
+        name: SJ_BLD23
+        parentName: Global/USA/SAN JOSE
+        address: 560 McCarthy Blvd, Milpitas, California 95035, United States
+        latitude: 37.41864
+        longitude: -121.919296
+        country: United States
+    type: building
+  - site:
+      building:
+        name: SF_BLD1
+        parentName: Global/USA/SAN-FRANCISCO
+        address: Salesforce Tower, 415 Mission St, San Francisco, California 94105, United States
+        latitude: 37.789858
+        longitude: -122.3969525
+        country: United States
+    type: building
+  - site:
+      building:
+        name: SF_BLD2
+        parentName: Global/USA/SAN-FRANCISCO
+        address: Flatiron Building, 548 Market St, San Francisco, California 94104, United States
+        latitude: 37.7900305
+        longitude: -122.400899
+        country: United States
+    type: building
+  - site:
+      building:
+        name: SF_BLD3
+        parentName: Global/USA/SAN-FRANCISCO
+        address: Palace Hotel, 2 New Montgomery St, San Francisco, California 94105, United States
+        latitude: 37.788215
+        longitude: -122.40193
+        country: United States
+    type: building
+  - site:
+      building:
+        name: SF_BLD4
+        parentName: Global/USA/SAN-FRANCISCO
+        address: San Francisco City Hall, 1 Carlton B Goodlett Pl, San Francisco, California 94102, United States
+        latitude: 37.779241
+        longitude: -122.41896700000001
+        country: United States
+    type: building
+  - site:
+      building:
+        name: NY_BLD1
+        parentName: Global/USA/New York
+        address: 1 Pennsylvania Plaza, New York, New York 10119, United States
+        latitude: 40.751206
+        longitude: -73.992232
+        country: United States
+    type: building
+  - site:
+      building:
+        name: NY_BLD2
+        parentName: Global/USA/New York
+        address: Empire State Building, 350 5th Ave, New York, New York 10118, United States
+        latitude: 40.748466500000006
+        longitude: -73.985542
+        country: United States
+    type: building
+  - site:
+      building:
+        name: NY_BLD3
+        parentName: Global/USA/New York
+        address: Chrysler Building, 405 Lexington Ave, New York, New York 10174, United States
+        latitude: 40.751569
+        longitude: -73.975646
+        country: United States
+    type: building
+  - site:
+      building:
+        name: NY_BLD4
+        parentName: Global/USA/New York
+        address: Woolworth Building, 2 Park Pl, New York, New York 10007, United States
+        latitude: 40.712389
+        longitude: -74.0080125
+        country: United States
+    type: building
+  - site:
+      building:
+        name: RTP_BLD10
+        parentName: Global/USA/RTP
+        address: 7200-10 Kit Creek Rd, Morrisville, North Carolina 27560, United States
+        latitude: 35.85992111421487
+        longitude: -78.8829258991226
+        country: United States
+    type: building
+  - site:
+      building:
+        name: RTP_BLD11
+        parentName: Global/USA/RTP
+        address: 7200-11 Kit Creek Rd, Morrisville, North Carolina 27560, United States
+        latitude: 35.86059627310624
+        longitude: -78.88105620286412
+        country: United States
+    type: building
+  - site:
+      building:
+        name: RTP_BLD12
+        parentName: Global/USA/RTP
+        address: 7200-12 Kit Creek Rd, Morrisville, North Carolina 27560, United States
+        latitude: 35.8611847591779
+        longitude: -78.88217248318003
+        country: United States
+    type: building
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/RTP/RTP_BLD10
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/RTP/RTP_BLD10
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/RTP/RTP_BLD10
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/RTP/RTP_BLD10
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/RTP/RTP_BLD11
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/RTP/RTP_BLD11
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/RTP/RTP_BLD11
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/RTP/RTP_BLD11
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/RTP/RTP_BLD12
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/RTP/RTP_BLD12
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/RTP/RTP_BLD12
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/RTP/RTP_BLD12
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/SAN JOSE/SJ_BLD20
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/SAN JOSE/SJ_BLD20
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/SAN JOSE/SJ_BLD20
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/SAN JOSE/SJ_BLD20
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/SAN JOSE/SJ_BLD21
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/SAN JOSE/SJ_BLD21
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/SAN JOSE/SJ_BLD21
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/SAN JOSE/SJ_BLD21
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/SAN JOSE/SJ_BLD22
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/SAN JOSE/SJ_BLD22
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/SAN JOSE/SJ_BLD22
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/SAN JOSE/SJ_BLD22
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/SAN JOSE/SJ_BLD23
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/SAN JOSE/SJ_BLD23
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/SAN JOSE/SJ_BLD23
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/SAN JOSE/SJ_BLD23
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/New York/NY_BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/New York/NY_BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/New York/NY_BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/New York/NY_BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/New York/NY_BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/New York/NY_BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/New York/NY_BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/New York/NY_BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/New York/NY_BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/New York/NY_BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/New York/NY_BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/New York/NY_BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/New York/NY_BLD4
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/New York/NY_BLD4
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/New York/NY_BLD4
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/New York/NY_BLD4
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD2
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD3
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR1
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD4
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR2
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD4
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR3
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD4
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor
+  - site:
+      floor:
+        name: FLOOR4
+        parentName: Global/USA/SAN-FRANCISCO/SF_BLD4
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+    type: floor

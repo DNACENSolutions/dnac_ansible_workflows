@@ -1,0 +1,1991 @@
+---
+global_ippools:
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 123.123.0.1
+    cidr: 123.123.0.0/20
+    name: SGT_Port_test
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 204.1.16.1
+    cidr: 204.1.16.0/20
+    name: BorderHandOff
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 2004:1:16::1
+    cidr: 2004:1:16::0/64
+    name: BorderHandOff_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 204.1.51.1
+    cidr: 204.1.48.0/20
+    name: SENSORPool
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:48::1
+    cidr: 2004:1:48::0/64
+    name: SENSORPool_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 204.1.64.1
+    cidr: 204.1.64.0/20
+    name: 64net
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:64::1
+    cidr: 2004:1:64::0/64
+    name: 64net_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 204.1.80.1
+    cidr: 204.1.80.0/20
+    name: 80net
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:80::1
+    cidr: 2004:1:80::0/64
+    name: 80net_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 204.1.96.1
+    cidr: 204.1.96.0/20
+    name: 96net
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:96::1
+    cidr: 2004:1:96::0/64
+    name: 96net_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 204.1.112.1
+    cidr: 204.1.112.0/20
+    name: 112net
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:112::1
+    cidr: 2004:1:112::0/64
+    name: 112net_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 204.1.224.1
+    cidr: 204.1.224.0/20
+    name: WClients
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:224::1
+    cidr: 2004:1:224::0/64
+    name: WClients_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 204.1.176.1
+    cidr: 204.1.176.0/20
+    name: overlapping
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips: []
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:176::1
+    cidr: 2004:1:176::0/64
+    name: overlapping_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 204.1.240.1
+    cidr: 204.1.240.0/20
+    name: WSClients
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:240::1
+    cidr: 2004:1:240::0/64
+    name: WSClients_V6
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:128::1
+    cidr: 2004:1:128::0/64
+    name: GP_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 204.1.128.1
+    cidr: 204.1.128.0/20
+    name: GP
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 204.1.208.1
+    cidr: 204.1.208.0/20
+    name: APPool
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 14.14.0.1
+    cidr: 14.14.0.0/16
+    name: multicast
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:14:14::1
+    cidr: 2004:14:14::0/64
+    name: multicast_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 15.14.0.1
+    cidr: 15.14.0.0/16
+    name: multicast1
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:15:14::1
+    cidr: 2004:15:14::0/64
+    name: multicast1_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 16.14.0.1
+    cidr: 16.14.0.0/16
+    name: multicast2
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 17.14.0.1
+    cidr: 17.14.0.0/16
+    name: multicast3
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:17:14::1
+    cidr: 2004:17:14::0/64
+    name: multicast3_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.40.1
+    cidr: 40.40.40.0/24
+    name: VN1-POOL1
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:40:40::1
+    cidr: 2040:40:40::0/64
+    name: VN1-POOL1_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.41.1
+    cidr: 40.40.41.0/24
+    name: VN1-POOL2
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:40:41::1
+    cidr: 2040:40:41::0/64
+    name: VN1-POOL2_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.42.1
+    cidr: 40.40.42.0/24
+    name: VN2-POOL1
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.43.1
+    cidr: 40.40.43.0/24
+    name: VN2-POOL2
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.44.1
+    cidr: 40.40.44.0/24
+    name: VN3-POOL1
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.45.1
+    cidr: 40.40.45.0/24
+    name: VN3-POOL2
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.46.1
+    cidr: 40.40.46.0/24
+    name: VN4-POOL1
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.47.1
+    cidr: 40.40.47.0/24
+    name: VN4-POOL2
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.48.1
+    cidr: 40.40.48.0/24
+    name: VN5-POOL1
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.49.1
+    cidr: 40.40.49.0/24
+    name: VN5-POOL2
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.50.1
+    cidr: 40.40.50.0/24
+    name: VN6-POOL1
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.51.1
+    cidr: 40.40.51.0/24
+    name: VN6-POOL2
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.52.1
+    cidr: 40.40.52.0/24
+    name: VN7-POOL1
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.53.1
+    cidr: 40.40.53.0/24
+    name: VN7-POOL2
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.10.0.1
+    cidr: 40.10.0.0/16
+    name: Fabric_VN
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:40:52::1
+    cidr: 2040:40:52::0/64
+    name: VN7-POOL1_V6
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:40:53::1
+    cidr: 2040:40:53::0/64
+    name: VN7-POOL2_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 204.1.32.1
+    cidr: 204.1.32.0/20
+    name: EXT_POOL
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:32::1
+    cidr: 2004:1:32::0/64
+    name: EXT_POOL_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.50.0.1
+    cidr: 40.50.0.0/16
+    name: CR_POOL
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:50:0::1
+    cidr: 2040:50:0::0/64
+    name: CR_POOL_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.51.0.1
+    cidr: 40.51.0.0/16
+    name: AnchorVN1
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:51:0::1
+    cidr: 2040:51:0::0/64
+    name: AnchorVN1_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.52.0.1
+    cidr: 40.52.0.0/16
+    name: AnchorVN2
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:52:0::1
+    cidr: 2040:52:0::0/64
+    name: AnchorVN2_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.53.0.1
+    cidr: 40.53.0.0/16
+    name: AnchorVN3
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:53:0::1
+    cidr: 2040:53:0::0/64
+    name: AnchorVN3_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.54.0.1
+    cidr: 40.54.0.0/16
+    name: AnchorVN4
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:54:0::1
+    cidr: 2040:54:0::0/64
+    name: AnchorVN4_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.55.0.1
+    cidr: 40.55.0.0/16
+    name: MDNAC1
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:55:0::1
+    cidr: 2040:55:0::0/64
+    name: MDNAC1_V6
+    type: Generic
+  - ip_address_space: IPv4
+    gateway: 204.1.1.1
+    cidr: 204.1.1.0/24
+    name: underlay
+    type: Generic
+  - ip_address_space: IPv4
+    gateway: 204.1.2.1
+    cidr: 204.1.2.0/24
+    name: underlay1
+    type: Generic
+  - ip_address_space: IPv4
+    gateway: 204.1.3.1
+    cidr: 204.1.3.0/24
+    name: underlay2
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 208.1.208.1
+    cidr: 208.1.208.0/20
+    name: APPool2
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 208.1.16.1
+    cidr: 208.1.16.0/20
+    name: ClientPool1
+    type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2008:1:16::1
+    cidr: 2008:1:16::0/64
+    name: ClientPool1_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 207.1.1.1
+    cidr: 207.1.1.0/24
+    name: Prime_APPOOL
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 87.1.1.152
+    cidr: 87.1.1.0/24
+    name: Prime_CLIENTPOOL
+    type: Generic
+
+global_invalid_name:
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 10.0.1.1
+    cidr: 10.0.1.0/24
+    name: POOL-1!@#$#@$
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 10.0.1.1
+    cidr: 10.0.1.0/24
+    name: IP4-POOL-1!@#$#@$-_./
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 10.0.1.1
+    cidr: 10.0.1.0/24
+    name: abc@#$#@$-_./
+    pool_type: Generic
+
+global_invalid_addr_space:
+  - ip_address_space: ipv46
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 10.0.1.1
+    cidr: 10.0.1.0/24
+    name: IP4-POOL-1
+    pool_type: Generic
+  - ip_address_space: ""
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 10.0.1.1
+    cidr: 10.0.1.0/24
+    name: IP4-POOL-1
+    pool_type: Generic
+
+global_pool_name_char_limit:
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.47.1
+    cidr: 40.40.47.0/24
+    name: IPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIP1
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.47.1
+    cidr: 40.40.47.0/24
+    name: IPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIP2
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.47.1
+    cidr: 40.40.47.0/24
+    name: IPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIP3
+    pool_type: Generic
+
+global_invalid_ipv4_ips:
+  - ip_address_space: IPv4
+    dhcp_server_ips: 204.192.3.40
+    dns_server_ips: 171.70.168.183
+    gateway: 40.40.47.1/24
+    cidr: 40.40.47.0/0
+    name: VN7-POOL2_V6
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips: 
+      - 2004:192:3::40
+    dns_server_ips: 
+      - 2006:1:1::1
+    gateway: 40.40.47.1/24
+    cidr: 40.40.47.0/0
+    name: VN7-POOL2_V6
+    pool_type: Generic
+
+global_invalid_ipv6_ips:
+  - ip_address_space: IPv6
+    dhcp_server_ips: 2004:192:3::40
+    dns_server_ips: 2006:1:1::1
+    gateway: 2040:40:53::1/24
+    cidr: 2040:40:53::/999
+    name: VN7-POOL2_V6
+    pool_type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips: 
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 2040:40:53::1/24
+    cidr: 2040:40:53::/999
+    name: VN7-POOL2_V6
+    pool_type: Generic
+
+# global_invalid_gateway:
+#   - ip_address_space: IPv6
+#     dhcp_server_ips:
+#       - 2004:192:3::40
+#     dns_server_ips:
+#       - 2006:1:1::1
+#     gateway: 2004:1:32::1/64
+#     cidr: 2004:1:32::0/64
+#     name: EXT_POOL_V6
+#     pool_type: Generic
+
+# global_invalid_dhcp:
+#   - ip_address_space: IPv6
+#     dhcp_server_ips: 204.192.3.40
+#     dns_server_ips:
+#       - 2171.70.168.183
+#     gateway: 2004:1:32::1/64
+#     cidr: 2004:1:32::0/64
+#     name: EXT_POOL_V6
+#     pool_type: Generic
+
+# global_invalid_dns:
+#   - ip_address_space: IPv6
+#     dhcp_server_ips:
+#       - 204.192.3.40
+#     dns_server_ips: 
+#       - 171.70.168.183
+#     gateway: 2004:1:32::1/64
+#     cidr: 2004:1:32::0/64
+#     name: EXT_POOL_V6
+#     pool_type: Generic
+
+global_invalid_type:
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.46.1
+    cidr: 40.40.46.0/24
+    name: VN4-POOL-1
+    pool_type: xyz
+    
+add_ip_pool:
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.46.1
+    cidr: 40.40.46.0/24
+    name: VN4-POOL-1
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 10.0.1.1
+    cidr: 10.0.1.0/24
+    name: IP4-POOL-1
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.47.1
+    cidr: 40.40.47.0/24
+    name: VN4-POOL-2
+    pool_type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:40:53::1
+    cidr: 2040:40:53::/64
+    name: VN7-POOL2_V6
+    pool_type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:32::1
+    cidr: 2004:1:32::0/64
+    name: EXT_POOL_V6
+    pool_type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2001:db8:1:1::1
+    cidr: 2001:db8:1:1::/120
+    name: TestingEnvironment_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 192.168.1.1
+    cidr: 192.168.1.0/30
+    name: TestingEnvironment_V4
+    type: Generic
+
+edit_global_invalid_name:
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 10.0.1.2
+    cidr: 10.0.1.0/24
+    name: IP4-POOL-1-!@#$#4
+    prev_name: IP4-POOL-1
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.47.2
+    cidr: 40.40.47.0/24
+    name: IPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIP
+    prev_name: VN4-POOL-2
+    pool_type: Generic
+
+edit_global_char_limit:
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.46.1
+    cidr: 40.40.46.0/24
+    name: IPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIP1
+    prev_name: VN4-POOL-1
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.47.2
+    cidr: 40.40.47.0/24
+    name: IPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIP2
+    prev_name: VN4-POOL-2
+    pool_type: Generic
+
+edit_global_invalid_ipv4_ips:
+  - ip_address_space: IPv4
+    dhcp_server_ips: 204.192.3.40
+    dns_server_ips: 171.70.168.183
+    gateway: 40.40.46.1/24
+    cidr: 40.40.46.0/24
+    name: VN4-POOL-1
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 10.0.1.1/24
+    cidr: 10.0.1.0/24
+    name: IP4-POOL-1
+    pool_type: Generic
+
+edit_global_invalid_ipv6_ips:
+  - ip_address_space: IPv6
+    dhcp_server_ips: 2004:192:3::40
+    dns_server_ips: 2006:1:1::1
+    gateway: 2040:40:53::1
+    cidr: 2040:40:53::/64
+    name: VN7-POOL2_V6
+    pool_type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 2004:1:32::1
+    cidr: 2004:1:32::0/64
+    name: EXT_POOL_V6
+    pool_type: Generic
+
+edit_global_invalid_dhcp:
+  - ip_address_space: IPv6
+    dhcp_server_ips: 204.192.3.40
+    dns_server_ips: []
+    gateway: 2004:1:32::1
+    cidr: 2004:1:32::0/64
+    name: EXT_POOL_V6
+    pool_type: Generic
+
+edit_global_invalid_dns:
+  - ip_address_space: IPv6
+    dhcp_server_ips: []
+    dns_server_ips: 171.70.168.183
+    gateway: 2004:1:32::1
+    cidr: 2004:1:32::0/64
+    name: EXT_POOL_V6
+    pool_type: Generic
+
+edit_ip_pool:
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.46.2
+    cidr: 40.40.46.0/24
+    name: VN4-POOL-1-edited
+    pool_type: Generic
+    prev_name: VN4-POOL-1
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 10.0.1.2
+    cidr: 10.0.1.0/24
+    name: IP4-POOL-1
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.47.2
+    cidr: 40.40.47.0/24
+    name: VN4-POOL-2
+    pool_type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 2040:40:53::1
+    cidr: 2040:40:53::0/64
+    name: VN7-POOL2_V6
+    pool_type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 2004:1:32::1
+    cidr: 2004:1:32::0/64
+    name: EXT_POOL_V6
+    pool_type: Generic
+
+  
+reserve_pool_invalid_site: #separte
+  - site_name: Global/XYZ
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 299
+    ipv4_subnet: 40.40.46.0
+    name: dual_stack_1
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+    
+reserve_pool_name_spl_char: #separate
+  - site_name: Global/India
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.32
+    name: dual_stack_2!@#$%^
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:1000::'
+    slaac_support: False
+    pool_type: Generic
+
+reserve_pool_name_char_limit: #separate
+  - site_name: Global/India
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.64
+    name: IPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIP
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:2000::'
+    slaac_support: False
+    pool_type: Generic
+
+reserve_pool_invalid_global: #separate #raise bug 
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '10.10.10.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.96
+    name: dual_stack_4
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:64::/64'
+    ipv6_subnet: '2040:40:53:0:3000::'
+    slaac_support: False
+    pool_type: Generic
+
+reserve_pool_invalid_subnet:
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.1
+    ipv4_gateway: 40.40.46.1
+    name: dual_stack_4
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::1'
+    ipv6_gateway: '2040:40:53::1'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.1
+    ipv4_gateway: 40.40.47.1
+    name: dual_stack_5
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2004:1:32::/64'
+    ipv6_subnet: '2004:1:32::1'
+    ipv6_gateway: '2004:1:32::1'
+    slaac_support: False
+    pool_type: Generic
+  
+
+reserve_pool_invalid_gateway:
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    ipv4_gateway: 40.40.46.0
+    name: dual_stack_4
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    ipv6_gateway: '2040:40:53::0'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.0
+    ipv4_gateway: 40.40.47.0
+    name: dual_stack_5
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2004:1:32::/64'
+    ipv6_subnet: '2004:1:32::'
+    ipv6_gateway: '2004:1:32::0'
+    slaac_support: False
+    pool_type: Generic
+
+reserve_pool_invalid_ipv4_prefix_len:
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 31
+    ipv4_subnet: 40.40.46.0
+    ipv4_gateway: 40.40.46.1
+    name: dual_stack_4
+    ipv6_prefix: True
+    ipv6_prefix_length: 121
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    ipv6_gateway: '2040:40:53::1'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 23
+    ipv4_subnet: 40.40.47.0
+    ipv4_gateway: 40.40.47.1
+    name: dual_stack_5
+    ipv6_prefix: True
+    ipv6_prefix_length: 63
+    ipv6_global_pool: '2004:1:32::/64'
+    ipv6_subnet: '2004:1:32::'
+    ipv6_gateway: '2004:1:32::1'
+    slaac_support: False
+    pool_type: Generic
+  
+reserve_pool_invalid_ipv4_total_host:
+  - site_name: Global/USA
+    ipv6_address_space: False
+    ipv4_global_pool: '192.168.1.0/30'
+    ipv4_prefix: False
+    ipv4_total_host: 5
+    name: dual_stack_9
+    slaac_support: False
+    pool_type: Generic
+
+reserve_pool_invalid_dhcp_dns:
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    ipv4_gateway: 40.40.46.1
+    ipv4_dhcp_servers: 204.192.3.40
+    ipv4_dns_servers: 171.70.168.183
+    name: dual_stack_4
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    ipv6_gateway: '2040:40:53::1'
+    ipv6_dhcp_servers: 2004:192:3::40
+    ipv6_dns_servers: 2006:1:1::1
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.0
+    ipv4_gateway: 40.40.47.1
+    ipv4_dhcp_servers: 
+      - 2004:192:3::40
+    ipv4_dns_servers: 
+      - 2006:1:1::1
+    name: dual_stack_5
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2004:1:32::/64'
+    ipv6_subnet: '2004:1:32::'
+    ipv6_gateway: '2004:1:32::1'
+    ipv6_dhcp_servers: 
+      - 204.192.3.40
+    ipv6_dns_servers: 
+      - 171.70.168.183
+    slaac_support: False
+    pool_type: Generic
+
+reserve_pool_invalid_ipv6_global:
+  - site_name: Global/India
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: dual_stack_1
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:1::/64'
+    ipv6_subnet: '2040:40:1::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.0
+    name: dual_stack_2
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2004:17:14::/64'
+    ipv6_subnet: '2004:17:14::0'
+    slaac_support: False
+    pool_type: Generic
+
+reserve_pool_invalid_ipv6_prefix_len:
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    ipv4_gateway: 40.40.46.1
+    name: dual_stack_4
+    ipv6_prefix: True
+    ipv6_prefix_length: 121
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    ipv6_gateway: '2040:40:53::1'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.0
+    ipv4_gateway: 40.40.47.1
+    name: dual_stack_5
+    ipv6_prefix: True
+    ipv6_prefix_length: 63
+    ipv6_global_pool: '2004:1:32::/64'
+    ipv6_subnet: '2004:1:32::'
+    ipv6_gateway: '2004:1:32::1'
+    slaac_support: False
+    pool_type: Generic
+  
+reserve_pool_invalid_ipv6_total_host:
+  # - site_name: Global/USA
+  #   ipv6_address_space: True
+  #   ipv4_global_pool: '192.168.1.0/30'
+  #   ipv4_prefix: False
+  #   ipv4_total_host: 5
+  #   # ipv4_prefix_length: 27
+  #   # ipv4_subnet: 192.168.1.0
+  #   # ipv4_gateway: 192.168.1.1
+  #   name: dual_stack_9
+  #   ipv6_prefix: False
+  #   # ipv6_prefix_length: 120
+  #   ipv6_global_pool: '2001:db8:1:1::/120'
+  #   ipv6_total_host: 257
+  #   # ipv6_subnet: '2001:db8:1:1::'
+  #   # ipv6_gateway: '2001:db8:1:1::1'
+  #   slaac_support: False
+  #   pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '192.168.1.0/30'
+    ipv4_prefix: True
+    # ipv4_total_host: 5
+    ipv4_prefix_length: 27
+    ipv4_subnet: 192.168.1.0
+    ipv4_gateway: 192.168.1.1
+    name: dual_stack_9
+    ipv6_prefix: False
+    # ipv6_prefix_length: 120
+    ipv6_global_pool: '2001:db8:1:1::/120'
+    ipv6_total_host: 257
+    # ipv6_subnet: '2001:db8:1:1::'
+    # ipv6_gateway: '2001:db8:1:1::1'
+    slaac_support: False
+    pool_type: Generic
+
+
+reserve_pool_invalid_ipv6_subnet:
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    ipv4_gateway: 40.40.46.1
+    name: dual_stack_4
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::1'
+    ipv6_gateway: '2040:40:53::1'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.0
+    ipv4_gateway: 40.40.47.1
+    name: dual_stack_5
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2004:1:32::/64'
+    ipv6_subnet: '2004:1:32::1'
+    ipv6_gateway: '2004:1:32::1'
+    slaac_support: False
+    pool_type: Generic
+  
+
+reserve_pool_invalid_ipv6_gw:
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    ipv4_gateway: 40.40.46.1
+    name: dual_stack_4
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    ipv6_gateway: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.0
+    ipv4_gateway: 40.40.47.1
+    name: dual_stack_5
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2004:1:32::/64'
+    ipv6_subnet: '2004:1:32::'
+    ipv6_gateway: '2004:1:33::1'
+    slaac_support: False
+    pool_type: Generic
+    
+
+reserve_pool_config:
+  - site_name: Global/India
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: dual_stack_1
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    ipv4_dhcp_servers:
+      - 204.192.3.40
+    ipv4_dns_servers:
+      - 204.192.3.40
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/India
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.32
+    name: dual_stack_2
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:1000::'
+    ipv6_dhcp_servers:
+      - 2004:192:3::40
+    ipv6_dns_servers:
+      - 2006:1:1::1
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/India
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.64
+    name: dual_stack_3
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:2000::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/India
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.96
+    name: dual_stack_4
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:3000::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.128
+    name: dual_stack_5
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: False
+    ipv4_global_pool: '10.0.1.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 10.0.1.0
+    name: dual_stack_6
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.0
+    name: dual_stack_7
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.32
+    name: dual_stack_8
+    slaac_support: False
+    pool_type: Generic
+  
+subpool_total_host:
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '192.168.1.0/30'
+    ipv4_prefix: False
+    ipv4_total_host: 4
+    name: dual_stack_9
+    ipv6_prefix: False
+    ipv6_global_pool: '2001:db8:1:1::/120'
+    ipv6_total_host: 256
+    slaac_support: False
+    pool_type: Generic
+
+edit_sub_pool_invalid_name:
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: dual_stack1-edited!@#$
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+    prev_name: dual_stack_1
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: dual_stack1-edited!@#$fsdf
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+    prev_name: dual_stack_2
+
+edit_sub_pool_name_char_limit:
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: IPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIP1
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+    prev_name: dual_stack_1
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: IPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIP2
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+    prev_name: dual_stack_2
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: IPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIPPOOLLLLLIP3
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+    prev_name: dual_stack_3
+  
+edit_sub_pool_invalid_addr_space:
+  - site_name: Global/India
+    ipv6_address_space: TrueFalse
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: dual_stack_1
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  
+edit_sub_pool_invalid_ipv4_gw:
+  - site_name: Global/India
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: '40.40.46.0'
+    ipv4_gateway: '40.40.46.0'
+    name: dual_stack_1
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    ipv6_gateway: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+
+edit_sub_pool_invalid_ipv6_gw:
+  - site_name: Global/India
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: '40.40.46.0'
+    ipv4_gateway: '40.40.46.1'
+    name: dual_stack_1
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    ipv6_gateway: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+
+edit_sub_pool_invalid_servers:
+  - site_name: Global/India
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: '40.40.46.0'
+    ipv4_dhcp_servers: 
+      - 2004:192:3::40
+    ipv4_dns_servers: 
+      - 2006:1:1::1
+    name: dual_stack_1
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    ipv6_dhcp_servers:
+      - 204.192.3.40
+    ipv6_dns_servers:
+      - 204.192.3.40
+    slaac_support: False
+    pool_type: Generic
+
+edit_sub_pool_invalid_servers_syntax:
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: '40.40.46.0'
+    ipv4_dhcp_servers: '204.192.3.40'
+    ipv4_dns_servers: '204.192.3.40'
+    name: dual_stack1
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    ipv6_dhcp_servers: '2004:192:3::40'
+    ipv6_dns_servers: '2006:1:1::1'
+    slaac_support: False
+    pool_type: Generic
+  
+edit_reserve_pool:
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: dual_stack1-edited
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    ipv4_dhcp_servers: []
+    ipv4_dns_servers: []
+    pool_type: Generic
+    prev_name: dual_stack_1
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.32
+    name: dual_stack_2
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::0/64'
+    ipv6_subnet: '2040:40:53::'
+    ipv6_dhcp_servers: []
+    ipv6_dns_servers: []
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.64
+    name: dual_stack_3
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.96
+    name: dual_stack_4
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.128
+    name: dual_stack_5
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '10.0.1.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 10.0.1.0
+    name: dual_stack_6
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:1000::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.0
+    name: dual_stack_7
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:2000::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.32
+    name: dual_stack_8
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:3000::'
+    slaac_support: False
+    pool_type: Generic
+
+release_pool_incorrect_site:
+  - site_name: Global/XYZ
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: dual_stack_1-edited
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.0
+    name: dual_stack_7
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:2000::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: India
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.32
+    name: dual_stack_8
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:3000::'
+    slaac_support: False
+    pool_type: Generic
+
+release_pool_incorrect_subpool_name:
+  - site_name: Global/USA
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: xyz
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: IPPOOL
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: dual_stack_1
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    ipv4_dhcp_servers: []
+    ipv4_dns_servers: []
+    pool_type: Generic
+
+release_pool_config:
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.0
+    name: dual_stack1-edited
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.32
+    name: dual_stack_2
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::0/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.64
+    name: dual_stack_3
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/India
+    ipv6_address_space: False
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.96
+    name: dual_stack_4
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.46.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.46.128
+    name: dual_stack_5
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '10.0.1.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 10.0.1.0
+    name: dual_stack_6
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:1000::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.0
+    name: dual_stack_7
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:2000::'
+    slaac_support: False
+    pool_type: Generic
+  - site_name: Global/USA
+    ipv6_address_space: True
+    ipv4_global_pool: '40.40.47.0/24'
+    ipv4_prefix: True
+    ipv4_prefix_length: 27
+    ipv4_subnet: 40.40.47.32
+    name: dual_stack_8
+    ipv6_prefix: True
+    ipv6_prefix_length: 68
+    ipv6_global_pool: '2040:40:53::/64'
+    ipv6_subnet: '2040:40:53:0:3000::'
+    slaac_support: False
+    pool_type: Generic
+
+delete_global_incorrect_name:
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.46.1
+    cidr: 40.40.46.0/24
+    name: NOT-FOUND
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.46.1
+    cidr: 40.40.46.0/24
+    name: GlobalPools
+    pool_type: Generic
+
+delete_ip_pool:
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.46.1
+    cidr: 40.40.46.0/24
+    name: VN4-POOL-1-edited
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 10.0.1.1
+    cidr: 10.0.1.0/24
+    name: IP4-POOL-1
+    pool_type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips:
+      - 204.192.3.40
+    dns_server_ips:
+      - 171.70.168.183
+    gateway: 40.40.47.1
+    cidr: 40.40.47.0/24
+    name: VN4-POOL-2
+    pool_type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2040:40:53::1
+    cidr: 2040:40:53::0/64
+    name: VN7-POOL2_V6
+    pool_type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2004:1:32::1
+    cidr: 2004:1:32::0/64
+    name: EXT_POOL_V6
+    pool_type: Generic
+  - ip_address_space: IPv6
+    dhcp_server_ips:
+      - 2004:192:3::40
+    dns_server_ips:
+      - 2006:1:1::1
+    gateway: 2001:db8:1:1::1
+    cidr: 2001:db8:1:1::/120
+    name: TestingEnvironment_V6
+    type: Generic
+  - ip_address_space: IPv4
+    dhcp_server_ips: []
+    dns_server_ips: []
+    gateway: 192.168.1.1
+    cidr: 192.168.1.0/30
+    name: TestingEnvironment_V4
+    type: Generic
