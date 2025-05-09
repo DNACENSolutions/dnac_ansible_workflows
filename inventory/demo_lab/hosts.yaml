@@ -16,3 +16,4 @@ catalyst_center_hosts:
             catalyst_center_debug: true
             catalyst_center_log_level: INFO
             catalyst_center_log: true
+            ansible_python_interpreter: /usr/bin/python3
