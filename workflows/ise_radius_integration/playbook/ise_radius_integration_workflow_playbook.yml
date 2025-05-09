@@ -15,7 +15,7 @@
 
   vars:
     state: merged
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -57,7 +57,7 @@
       when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     - name: Authentication and Policy Servers configurations on Cisco Catalyst Center
       cisco.dnac.ise_radius_integration_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: merged
         config: "{{ise_radius_integration_details}}"
       register: ise_radius_integration_output

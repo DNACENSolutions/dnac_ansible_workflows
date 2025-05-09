@@ -24,7 +24,7 @@
 
   vars:
     state: merged
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -45,7 +45,7 @@
     # Create sites, building and floors in catalyst center from the design_sites config
     - name: Create sites from design_sites config
       cisco.dnac.site_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{state}}"
         config:
           - "{{ item }}"
@@ -54,7 +54,7 @@
     # Create or Update existing Credentials with provided details in "{{ VARS_FILES_PATH }}"
     - name: Create or Update existing Credentials with provided details in "{{ VARS_FILE_PATH }}"
       cisco.dnac.device_credential_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -64,7 +64,7 @@
     # Assign Credentials to sites if defined in "{{ VARS_FILES_PATH }}"
     - name: Assign Credentials to sites for credentials and sites maps in variables file "{{ VARS_FILE_PATH }}"
       cisco.dnac.device_credential_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -73,7 +73,7 @@
       tags: credential
     - name: Discover a singe device IP Address for a list of discoveries from "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -82,7 +82,7 @@
       tags: discovery
     - name: Discover devices for an IP Address Range if defined in file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -91,7 +91,7 @@
       tags: discovery
     - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -100,7 +100,7 @@
       tags: discovery
     - name: Discover devices from a CDP seed if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -109,7 +109,7 @@
       tags: discovery
     - name: Discover devices from an LLDP seed if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -118,7 +118,7 @@
       tags: discovery
     - name: Configure and run an CIDR Discovery if defined in the file "{{ VARS_FILE_PATH }}"
       cisco.dnac.discovery_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -127,7 +127,7 @@
       tags: discovery
     - name: Add/Update/assig to site/Provision or delete devices provided in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       cisco.dnac.inventory_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config:
           - "{{ item }}"
