@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="32aef4ea-1215-46c3-800e-8c401a535f5f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/inventory/demo_lab/hosts.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/inventory/demo_lab/hosts.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows/network_profile_wireless/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/network_profile_wireless/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows/network_profile_wireless/vars/network_profile_wireless_inputs.yml" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/network_profile_wireless/vars/network_profile_wireless_inputs.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml" beforeDir="false" afterPath="$PROJECT_DIR$/workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2eWLFnTSzUTzJVksRsZogr6108d" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/majlona/Desktop/dnac_ansible_workflows&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  }
+}</component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="32aef4ea-1215-46c3-800e-8c401a535f5f" name="Changes" comment="" />
+      <created>1712015286255</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1712015286255</updated>
+      <workItem from="1712015289176" duration="56000" />
+      <workItem from="1712015475695" duration="19075000" />
+      <workItem from="1712936205479" duration="53121000" />
+      <workItem from="1714412254090" duration="188000" />
+      <workItem from="1714584792539" duration="13443000" />
+      <workItem from="1715017919856" duration="3703000" />
+      <workItem from="1715183433296" duration="4045000" />
+      <workItem from="1716931571728" duration="525000" />
+      <workItem from="1717188610067" duration="470000" />
+      <workItem from="1717541038504" duration="211772000" />
+      <workItem from="1718756186819" duration="592000" />
+      <workItem from="1719035517644" duration="598000" />
+      <workItem from="1719335614580" duration="978000" />
+      <workItem from="1719364546063" duration="510000" />
+      <workItem from="1720039329165" duration="1442000" />
+      <workItem from="1720667637237" duration="592000" />
+      <workItem from="1720990932821" duration="2669000" />
+      <workItem from="1721773167954" duration="3521000" />
+      <workItem from="1724175907366" duration="623000" />
+      <workItem from="1724866799104" duration="487000" />
+      <workItem from="1724952231921" duration="542000" />
+      <workItem from="1725903628001" duration="598000" />
+      <workItem from="1726767019283" duration="565000" />
+      <workItem from="1728683412963" duration="2470000" />
+      <workItem from="1729809416297" duration="599000" />
+      <workItem from="1730477045687" duration="516000" />
+      <workItem from="1731453733168" duration="540000" />
+      <workItem from="1732573717179" duration="610000" />
+      <workItem from="1733165036992" duration="286000" />
+      <workItem from="1735859562123" duration="257000" />
+      <workItem from="1735919752590" duration="326000" />
+      <workItem from="1736192562084" duration="293000" />
+      <workItem from="1736273012890" duration="598000" />
+      <workItem from="1737561798582" duration="463000" />
+      <workItem from="1738183968350" duration="599000" />
+      <workItem from="1738731151163" duration="426000" />
+      <workItem from="1741812052944" duration="598000" />
+      <workItem from="1742579948480" duration="597000" />
+      <workItem from="1742619892451" duration="598000" />
+      <workItem from="1742973967923" duration="598000" />
+      <workItem from="1743135525922" duration="598000" />
+      <workItem from="1744331487605" duration="598000" />
+      <workItem from="1745864788375" duration="598000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
