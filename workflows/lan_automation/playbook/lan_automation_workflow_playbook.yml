@@ -10,7 +10,7 @@
 
   vars:
     state: merged
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -35,7 +35,7 @@
 
     - name: Run LAN Automation Workflows
       cisco.dnac.lan_automation_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         config: 
           - "{{ item }}"
       loop: "{{ lan_automation_details.lan_automation_session }}"
@@ -49,7 +49,7 @@
 
     - name: Update LAN Automated devices
       cisco.dnac.lan_automation_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         config: 
           - "{{ item }}"
       register: loopback_update_output

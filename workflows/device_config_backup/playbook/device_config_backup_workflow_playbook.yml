@@ -14,7 +14,7 @@
     default_catalyst_center_task_timeout: 1200
     default_catalyst_center_task_poll_interval: 60
     
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -33,7 +33,7 @@
         long_op_start: "{{ now() }}"
     - name: Manage operation related to taking the backup of running config on Cisco Catalyst Center
       cisco.dnac.device_configs_backup_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: merged
         config: "{{device_configs_backup_details}}"
       register: device_configs_backup_output

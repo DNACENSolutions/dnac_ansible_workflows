@@ -13,7 +13,7 @@
 
   vars:
     state: merged
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -34,7 +34,7 @@
         long_op_start: "{{ now() }}"
     - name: Add Update Events and Notifications for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       cisco.dnac.events_and_notifications_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ events_notifications_destination_and_subscription_details }}" 
       register: events_notifications_destination_and_subscription_output

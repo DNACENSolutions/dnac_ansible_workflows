@@ -1,0 +1,77 @@
+---
+- name: This playbook manages enabling and disabling SDA fabric multicast on Cisco Catalyst Center.
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: merged
+    catalyst_center_login: &catalyst_center_login
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(False) }}"
+      dnac_log: "{{ catalyst_center_log | default(False) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
+  tasks:
+    - name: SDA Fabric Multicast Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+
+    # Create a Jinja-based template file if enabled
+    - name: Create Template
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate | bool and jinjatemplate_file is defined
+
+    # Include variables from the generated template file
+    - name: Include the variables file ../tmp/template_generated_file.yaml
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate | bool and jinjatemplate_file is defined
+
+    # Manage SDA fabric devices
+    - name: Create or Update SDA fabric multicast 
+      cisco.dnac.sda_fabric_multicast_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config: "{{ fabric_multicast_details }}"
+      register: fabric_multicast_output
+      when: fabric_multicast_details is defined and fabric_multicast_details | length > 0
+
+    # Print SDA Fabric Multicast Output
+    - name: Print SDA Fabric Multicast Output
+      debug:
+        msg: "{{ fabric_multicast_output }}"
+      when: fabric_multicast_output is defined
+
+    #Delete the template file after use
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate | bool and jinjatemplate_file is defined
+
+    # Record the playbook end time
+    - name: SDA Fabric Multicast Playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+
+    # Display Playbook Execution Time
+    - name: Display Playbook Execution Time
+      debug:
+        msg: "SDA Fabric Multicast Role playbook runtime: Start {{ long_op_start }}, End {{ long_op_end }}"
+  post_tasks:
+    - name: Verify Python version on Catalyst Center host
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

@@ -1,0 +1,351 @@
+# This schema is used to validate the input parameters for the Ansible playbook.
+# config:
+#     description: >
+#       A list of dictionaries defining attributes and parameters required for managing tags and tag memberships.
+#       It is used to configure tag and tag membership operations in Cisco Catalyst Center.
+#     type: list
+#     elements: dict
+#     required: true
+#     suboptions:
+#       tag:
+#         description: A dictionary containing detailed configurations for creating, updating, or deleting tags.
+#         type: dict
+#         suboptions:
+#           name:
+#             description: >
+#               The unique name identifying the tag for operations such as creation, update, or deletion.
+#               This parameter is mandatory for any tag management operation.
+#             type: str
+#             required: true
+#           description:
+#             description: >
+#               A brief description of the tag. This field is optional but provides additional context.
+#             type: str
+#           force_delete:
+#             description: >
+#               When set to 'true', forces tag deletion even if it is associated with devices and ports.
+#               Typically used when the 'state' is 'deleted', this option removes all associated dynamic rules,
+#               detaches the tag from all devices and ports, and then deletes the tag.
+#             type: bool
+#             default: false
+#           device_rules:
+#             description: >
+#               Defines rules for dynamically tagging devices based on attributes such as device name,
+#               device family, device series, IP address, location, and version.
+#               Devices that match the specified criteria are automatically tagged.
+#               If multiple rules are provided
+#               - Rules with the same 'rule_name' are evaluated using OR logic (i.e., a device matching any of them is tagged).
+#               - Rules with different 'rule_name' values are evaluated using AND logic (i.e., a device must match all such rules to be tagged).
+#             type: dict
+#             suboptions:
+#               rule_descriptions:
+#                 description: List of rules that define how devices will be tagged.
+#                 type: list
+#                 elements: dict
+#                 required: true
+#                 suboptions:
+#                   rule_name:
+#                     description: >
+#                       The name of the rule that determines which device attribute is used for tagging.
+#                       Available options correspond to different device attributes.
+#                     type: str
+#                     choices: [device_name, device_family, device_series, ip_address, location, version]
+#                     required: true
+#                   search_pattern:
+#                     description: >
+#                       The pattern used to search for the specified device attribute.
+#                       Determines how the 'value' should be matched.
+#                     type: str
+#                     choices: [contains, equals, starts_with, ends_with]
+#                     required: true
+#                   value:
+#                     description: >
+#                       The specific value that the rule will match against.
+#                       For example, a device name, an IP address, or a MAC address.
+#                     type: str
+#                     required: true
+#                   operation:
+#                     description: >
+#                       Defines how the 'value' is matched against device attributes.
+#                       - 'ILIKE' -  Performs a case-insensitive match.
+#                       - 'LIKE' -  Performs a case-sensitive match.
+#                     type: str
+#                     choices: [ILIKE, LIKE]
+#                     default: ILIKE
+#           port_rules:
+#             description: >
+#               Rules for dynamically tagging ports based on attributes such as
+#               Port Name, Port Speed, Admin Status, Operational Status, Description.
+#               A port that meets the specified criteria will be automatically tagged.
+#               If multiple rules are provided
+#               - Rules with the same 'rule_name' are evaluated using OR logic (i.e., a port matching any of them is tagged).
+#               - Rules with different 'rule_name' values are evaluated using AND logic (i.e., a port must match all such rules to be tagged).
+#             type: dict
+#             suboptions:
+#               scope_description:
+#                 description: >
+#                   Defines the device scope for the rule, including scope category and scope members.
+#                   The port rules apply only to ports of devices within the specified scope.
+#                 type: dict
+#                 suboptions:
+#                   scope_category:
+#                     description: >
+#                       Specifies whether the scope is based on tags or site hierarchies.
+#                       - If `TAG`, the `scope_members` must contain tag names from Cisco Catalyst Center.
+#                       - If `SITE`, the `scope_members` must contain site hierarchy names from Cisco Catalyst Center.
+#                     choices: [TAG, SITE]
+#                     type: str
+#                     required: true
+#                   scope_members:
+#                     description: >
+#                       A list of scope members to include.
+#                       - When `scope_category` is `TAG`, this list contains tag names.
+#                       - When `scope_category` is `SITE`, this list contains site hierarchy names.
+#                     type: list
+#                     elements: str
+#                     required: true
+#                   inherit:
+#                     description: >
+#                       Determines whether the selected site inherits devices from its child sites
+#                       within the specified scope. This flag is relevant only when 'scope_category' is 'SITE'.
+#                       - When `scope_category` is `SITE`, the default value is `true`.
+#                       - When `scope_category` is `TAG`, the default value is `false`.
+#                     type: bool
+#               rule_descriptions:
+#                 description: List of rules that define how ports will be tagged.
+#                 type: list
+#                 elements: dict
+#                 suboptions:
+#                   rule_name:
+#                     description: >
+#                       The name of the rule that determines which port attribute is used for tagging.
+#                       Available options correspond to different port attributes.
+#                     type: str
+#                     choices: [speed, admin_status, port_name, operational_status, description]
+#                     required: true
+#                   search_pattern:
+#                     description: >
+#                       The pattern used to search for the specified port attribute.
+#                       Determines how the 'value' should be matched.
+#                     type: str
+#                     choices: [contains, equals, starts_with, ends_with]
+#                     required: true
+#                   value:
+#                     description: The value that the rule will match against, such as port name or port speed.
+#                     type: str
+#                     required: true
+#                   operation:
+#                     description: >
+#                       Defines how the 'value' is matched against port attributes.
+#                       - 'ILIKE' -  Performs a case-insensitive match.
+#                       - 'LIKE' -  Performs a case-sensitive match.
+#                     type: str
+#                     choices: [ILIKE, LIKE]
+#                     default: 'ILIKE'
+#           network_device_tag_retrieval_batch_size:
+#             description: >
+#                 This constant defines the batch size for retrieving tags associated with network devices in the Cisco Catalyst Center.
+#                 The retrieval process involves processing network devices in smaller chunks, and this value determines how many devices
+#                 are included in each batch.
+#                 - Minimum - 1
+#                 - Maximum - 500
+#             type: int
+#             required: false
+#             default: 500
+#           interface_tag_retrieval_batch_size:
+#             description: >
+#                 This constant defines the batch size for retrieving tags associated with interfaces in the Cisco Catalyst Center.
+#                 The retrieval process involves processing interfaces in smaller chunks, and this value determines how many devices are included
+#                 in each batch.
+#                 - Minimum - 1
+#                 - Maximum - 500
+#             type: int
+#             required: false
+#             default: 500
+#           network_device_tag_update_batch_size:
+#             description: >
+#                 This constant specifies the batch size for updating tags associated with network devices in the Cisco Catalyst Center.
+#                 During the update process, network devices are grouped into batches, and the batch size determines how many devices are
+#                 included in each update request.
+#                 - Minimum - 1
+#                 - Maximum - 500
+#             type: int
+#             required: false
+#             default: 500
+#           interface_tag_update_batch_size:
+#             description: >
+#                 This constant defines the batch size for updating tags associated with interfaces in the Cisco Catalyst Center.
+#                 During the update process, interfaces are grouped into batches, and the batch size determines how many devices are included
+#                 in each update request.
+#                 - Minimum - 1
+#                 - Maximum - 500
+#             type: int
+#             required: false
+#             default: 500
+#       tag_memberships:
+#         description: A dictionary containing detailed configuration for managing tag memberships for devices and interfaces.
+#         type: dict
+#         suboptions:
+#           tags:
+#             description: >
+#               List of tag names to assign to devices or interfaces.
+#               These tags should be present in Cisco Catalyst Center.
+#             type: list
+#             elements: str
+#             required: true
+#           device_details:
+#             description: Details about the devices and interfaces to which tags are to be assigned.
+#             type: list
+#             elements: dict
+#             suboptions:
+#               ip_addresses:
+#                 description: List of IP addresses for the devices.
+#                 type: list
+#                 elements: str
+#               hostnames:
+#                 description: List of hostnames for the devices.
+#                 type: list
+#                 elements: str
+#               mac_addresses:
+#                 description: List of MAC addresses for the devices.
+#                 type: list
+#                 elements: str
+#               serial_numbers:
+#                 description: List of serial numbers for the devices.
+#                 type: list
+#                 elements: str
+#               port_names:
+#                 description: >
+#                   List of port names to which the tags are to be assigned under the devices.
+#                   It is an optional parameter, used as per requirement.
+#                   If port_names is not given, the tags will be assigned to devices.
+#                   If port_names is given, the tags will be assigned to the ports under the respective devices.
+#                 type: list
+#                 elements: str
+#           site_details:
+#             description:  Details about the sites under which devices or interfaces will be tagged.
+#             type: list
+#             elements: dict
+#             suboptions:
+#               site_names:
+#                 description: List of the site name hierarchies under which devices or interfaces will be tagged.
+#                 type: list
+#                 elements: str
+#                 required: true
+#               port_names:
+#                 description: >
+#                   List of port names to which the tags are to be assigned under the devices belonging to the
+#                   given sites. It is an optional parameter, used as per requirement.
+#                   If port_names is not given, the tags will be assigned to devices under the given sites.
+#                   If port_names is given, the tags will be assigned to these ports under devices belonging to the given sites.
+#                 type: list
+#                 elements: str
+#           network_device_tag_retrieval_batch_size:
+#             description: >
+#                 Controls This constant defines the batch size for retrieving tags associated with network devices in the Cisco Catalyst Center.
+#                 The retrieval process involves processing network devices in smaller chunks, and this value determines how many devices are
+#                 included in each batch.
+#                 - Minimum - 1
+#                 - Maximum - 500
+#             type: int
+#             required: false
+#             default: 500
+#           interface_tag_retrieval_batch_size:
+#             description: >
+#                 Controls This constant defines the batch size for retrieving tags associated with interfaces in the Cisco Catalyst Center.
+#                 The retrieval process involves processing interfaces in smaller chunks, and this value determines how many devices are
+#                 included in each batch.
+#                 - Minimum - 1
+#                 - Maximum - 500
+#             type: int
+#             required: false
+#             default: 500
+#           network_device_tag_update_batch_size:
+#             description: >
+#                 This constant specifies the batch size for updating tags associated with network devices in the Cisco Catalyst Center.
+#                 During the update process, network devices are grouped into batches, and the batch size determines how many devices are
+#                 included in each update request.
+#                 - Minimum - 1
+#                 - Maximum - 500
+#             type: int
+#             required: false
+#             default: 500
+#           interface_tag_update_batch_size:
+#             description: >
+#                 This constant defines the batch size for updating tags associated with interfaces in the Cisco Catalyst Center.
+#                 During the update process, interfaces are grouped into batches, and the batch size determines how many devices are
+#                 included in each update request.
+#                 - Minimum - 1
+#                 - Maximum - 500
+#             type: int
+#             required: false
+#             default: 500
+#====================================================================
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+jinjatemplate: bool(required=False)
+jinjatemplate_file: str(required=False)
+passwords_file: str(required=False)
+tags_details: list(include('tag_detail_type'), required=False)
+---
+tag_detail_type:
+  tag: include('tags_type', required=False)
+  tag_memberships: include('tag_membership_type', required=False)
+tags_type:
+    name: str(required=True)
+    description: str(required=False)
+    force_delete: bool(required=False, default=False)
+    device_rules: include('device_rules_type', required=False)
+    port_rules: include('port_rules_type', required=False)
+    network_device_tag_retrieval_batch_size: int(required=False, default=500)
+    interface_tag_retrieval_batch_size: int(required=False, default=500)
+    network_device_tag_update_batch_size: int(required=False, default=500)
+    interface_tag_update_batch_size: int(required=False, default=500)
+device_rules_type:
+  rule_descriptions: list(include('device_rule_descriptions_type'), required=True)
+  scope_description: include('scope_description_type', required=False)
+port_rules_type:
+  rule_descriptions: list(include('port_rule_descriptions_type'), required=True)
+  scope_description: include('scope_description_type', required=False)
+tag_membership_type:
+    tags: list(str, required=True)
+    device_details: list(include('device_details_type'), required=False)
+    site_details: list(include('site_details_type'), required=False)
+    network_device_tag_retrieval_batch_size: int(required=False, default=500)
+    interface_tag_retrieval_batch_size: int(required=False, default=500)
+    network_device_tag_update_batch_size: int(required=False, default=500)
+    interface_tag_update_batch_size: int(required=False, default=500)
+device_details_type:
+  ip_addresses: list(str, required=False)
+  hostnames: list(str, required=False)
+  mac_addresses: list(str, required=False)
+  serial_numbers: list(str, required=False)
+  port_names: list(str, required=False)
+site_details_type:
+  site_names: list(str, required=True)
+  port_names: list(str, required=False)
+device_rule_descriptions_type:
+  rule_name: enum("device_name", "device_family", "device_series", "ip_address", "location", "version", required=True)
+  search_pattern: enum("contains", "equals", "starts_with", "ends_with", required=True)
+  value: str(required=True)
+  operation: enum("ILIKE", "LIKE", required=False, default="ILIKE")
+port_rule_descriptions_type:
+  rule_name: enum("speed", "admin_status", "port_name", "operational_status", "description", required=True)
+  search_pattern: enum("contains", "equals", "starts_with", "ends_with", required=True)
+  value: str(required=True)
+  operation: enum("ILIKE", "LIKE", required=False, default="ILIKE")
+scope_description_type:
+  scope_category: enum("TAG", "SITE", required=True)
+  scope_members: list(str, required=True)
+  inherit: bool(required=False, default=False)
+#===================================================================
+# End of Schema
+#===================================================================
+

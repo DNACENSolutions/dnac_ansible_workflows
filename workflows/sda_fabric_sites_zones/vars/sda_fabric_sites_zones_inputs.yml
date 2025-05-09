@@ -2,17 +2,33 @@
 catalyst_center_version: 2.3.7.6
 # Fabric Sites and Zones design.
 fabric_sites_and_zones:
-    - fabric_sites:
-        - fabric_type: fabric_site
-          site_name_hierarchy: Global/USA/SAN JOSE
-          authentication_profile: No Authentication
-          is_pub_sub_enabled: true
-        - fabric_type: fabric_site
-          site_name_hierarchy: Global/USA/SAN-FRANCISCO
-          authentication_profile: Closed Authentication
-          is_pub_sub_enabled: true
-          update_authentication_profile:
-            authentication_order: "dot1x"
-            dot1x_fallback_timeout: 28
-            wake_on_lan: True
-            number_of_hosts: "Single"
+  - fabric_sites:
+    - fabric_type: fabric_site
+      site_name_hierarchy: Global/USA/SAN JOSE
+      authentication_profile: No Authentication
+      is_pub_sub_enabled: true
+      apply_pending_events: true
+    - fabric_type: fabric_site
+      site_name_hierarchy: Global/USA/SAN-FRANCISCO
+      authentication_profile: Closed Authentication
+      is_pub_sub_enabled: true
+      update_authentication_profile:
+        authentication_order: "dot1x"
+        dot1x_fallback_timeout: 28
+        wake_on_lan: True
+        number_of_hosts: "Single"
+        pre_auth_acl:
+          enabled: true
+          implicit_action: "PERMIT"
+          description: "low auth profile description"
+          access_contracts:
+            - action: "PERMIT"
+              protocol: "UDP"
+              port: "bootps"
+            - action: "PERMIT"
+              protocol: "UDP"
+              port: "bootpc"
+            - action: "PERMIT"
+              protocol: "UDP"
+              port: "domain"
+      apply_pending_events: true

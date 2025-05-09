@@ -8,7 +8,7 @@
     - "{{ VARS_FILE_PATH }}"
   vars:
     state: deleted
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -29,7 +29,7 @@
     # Remove pnp devices on Cisco Catalyst Center
     - name: Remove pnp devices to Cisco Catalyst Center
       cisco.dnac.pnp_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ pnp_details.network_devices }}"
       register: network_devices_output
@@ -42,7 +42,7 @@
     # Remove Routing devices through PnP 
     - name: Remove Routing devices through PnP
       cisco.dnac.pnp_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ pnp_details.claim_router_devices }}"
       register: router_devices_output
@@ -55,7 +55,7 @@
     # Remove Switching devices through PnP
     - name: Remove Switching devices through PnP
       cisco.dnac.pnp_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ pnp_details.claim_switching_devices }}"
       register: switching_devices_output
@@ -68,7 +68,7 @@
     # Remove Wireless Controller EWLC devices through PnP
     - name: Remove Wireless Controller EWLC devices through PnP
       cisco.dnac.pnp_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ pnp_details.claim_wireless_controllers }}"
       register: wireless_controllers_output
@@ -80,7 +80,7 @@
     # Remove Access Point device through PnP
     - name: Remove Point device through PnP
       cisco.dnac.pnp_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ pnp_details.claim_access_points }}"
       register: access_points_output

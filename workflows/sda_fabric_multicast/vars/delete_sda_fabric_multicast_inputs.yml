@@ -1,0 +1,30 @@
+# Copyright (c) 2023 Cisco and/or its affiliates.
+---
+catalyst_center_version: 2.3.7.6
+fabric_multicast_details:
+  - fabric_multicast:
+    - fabric_name: Global/USA/SAN JOSE
+      layer3_virtual_network: Employee_VN
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL_sjc
+    - fabric_name: "Global/USA/SAN JOSE"
+      layer3_virtual_network: "Mgmt_VN"
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL_sjc
+    - fabric_name: "Global/USA/SAN JOSE"
+      layer3_virtual_network: "Guest_VN"
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL_sjc
+  - fabric_multicast:
+    - fabric_name: "Global/USA/SAN-FRANCISCO"
+      layer3_virtual_network: "Employee_VN"
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL_sf
+    - fabric_name: "Global/USA/SAN-FRANCISCO"
+      layer3_virtual_network: "Mgmt_VN"
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL_sf
+    - fabric_name: "Global/USA/SAN-FRANCISCO"
+      layer3_virtual_network: "Guest_VN"
+      replication_mode: HEADEND_REPLICATION
+      ip_pool_name: MULTICASTPOOL_sf

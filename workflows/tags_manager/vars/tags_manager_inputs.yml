@@ -1,0 +1,54 @@
+
+catalyst_center_version: 2.3.7.9
+# Fabric Sites and Zones design.
+tags_details:
+  - tag:
+      name: Server_Connected_Devices_and_Ports
+      description: "Tag for devices and interfaces connected to servers"
+  - tag:
+      name: Border_9400_Tag
+      description: Tag for border devices belonging to the Cisco Catalyst 9400 family.
+      device_rules:
+        rule_descriptions:
+          - rule_name: device_name
+            search_pattern: contains
+            value: Border
+            operation: ILIKE
+          - rule_name: device_series
+            search_pattern: ends_with
+            value: "9400"
+            operation: ILIKE
+  - tag:
+      name: HighSpeed_Server_Interfaces
+      description: Tag for 10G interfaces connected to servers.
+      port_rules:
+        scope_description:
+          scope_category: TAG
+          scope_members: []
+        rule_descriptions:
+          - rule_name: speed
+            search_pattern: equals
+            value: "10000"
+            operation: ILIKE
+          - rule_name: port_name
+            search_pattern: contains
+            value: TenGigabitEthernet1/0/1
+            operation: ILIKE
+  - tag_memberships:
+      tags:
+        - High_Speed_Interfaces
+      device_details:
+        - serial_numbers:
+            - FJC2330E0HZ
+          port_names:
+            - TwentyFiveGigE3/0/1
+            - TwentyFiveGigE3/0/2
+  - tag_memberships:
+      tags:
+        - High_Speed_Interfaces
+      site_details:
+        - site_names:
+            - Global/USA/SAN-FRANCISCO/BLD_SF
+          port_names:
+            - TwentyFiveGigE1/1/1
+            - TwentyFiveGigE1/1/2

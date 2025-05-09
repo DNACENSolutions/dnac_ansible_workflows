@@ -1,4 +1,4 @@
-# Assurance Health Score
+# Sda Fabric Multicast
 
 This module was generated using the workflow generator.
 
@@ -16,6 +16,6 @@ Edit the playbooks in `playbook/` and fill in the required tasks for your workfl
 
 ## Generated Files
 
-- `playbook/assurance_health_score_playbook.yml`
-- `playbook/delete_assurance_health_score_playbook.yml`
+- `playbook/sda_fabric_multicast_playbook.yml`
+- `playbook/delete_sda_fabric_multicast_playbook.yml`
 - `README.md`
