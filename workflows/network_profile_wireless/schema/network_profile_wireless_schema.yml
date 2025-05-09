@@ -163,7 +163,7 @@ wireless_nw_profiles_type:
   
 
 ssid_details_type:
-  ssid: str(required=True)
+  ssid_name: str(required=True)
   dot11be_profile_name: str(required=False)
   enable_fabric: bool(required=False)
   vlan_group_name: str(required=False)
