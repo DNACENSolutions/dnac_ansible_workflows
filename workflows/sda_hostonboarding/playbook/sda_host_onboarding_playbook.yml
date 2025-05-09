@@ -10,7 +10,7 @@
 
   vars:
     state: merged
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -42,7 +42,7 @@
     # Onboard hosts from design_hosts config
     - name: Onboard hosts from design_hosts config
       cisco.dnac.sda_host_port_onboarding_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{state}}"
         config: "{{sda_host_onboarding_details}}"
       register: sda_host_output

@@ -18,7 +18,7 @@
 
   vars:
     state: merged
-    dnac_login: &dnac_login
+    catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
       dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
@@ -50,7 +50,7 @@
 
     - name: Add/Update fabric site(s) and zone(s) for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       cisco.dnac.sda_fabric_sites_zones_workflow_manager:
-        <<: *dnac_login
+        <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ fabric_sites_and_zones }}" 
       register: fabric_sites_and_zones_output
