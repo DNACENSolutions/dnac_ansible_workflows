@@ -61,6 +61,59 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
 
 ### Step 2: Define Inputs and Validate
 
+This step involves preparing the input data for creating or managing wireless network profiles and validating your setup.
+
+1.  **Define Input Variables:** Create variable files (e.g., `vars/network_profile_wireless_inputs.yml`) that define the desired state of your wireless network profiles, including details for creation, update, and deletion. 
+
+#### Schema for Wireless Network Profiles
+This schema defines the structure of the input file for configuring wireless network profiles in Cisco Catalyst Center. Below is a breakdown of the parameters, including their requirements and descriptions.
+
+| **Parameter**                | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+|------------------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `wireless_nw_profiles_details` | List       | Yes          | N/A               | A list of wireless network profiles to be created or managed.                  |
+
+#### Wireless Network Profile (`wireless_nw_profiles_type`)
+
+| **Parameter**         | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+|-----------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `profile_name`        | String     | Yes          | N/A               | The name of the wireless network profile.                                      |
+| `site_names`          | List       | No           | N/A               | A list of site hierarchies where the profile will be applied.                  |
+| `ssid_details`        | List       | No           | N/A               | A list of SSIDs to be associated with the profile. See `ssid_details_type`.    |
+| `ap_zones`            | List       | No           | N/A               | A list of AP zones to be associated with the profile. See `ap_zones_type`.     |
+| `onboarding_templates`| List       | No           | N/A               | A list of onboarding templates to be associated with the profile.              |
+| `day_n_templates`     | List       | No           | N/A               | A list of Day-N templates to be associated with the profile.                   |
+| `additional_interfaces`| List      | No           | N/A               | A list of additional interfaces to be configured. See `additional_interfaces_type`. |
+
+#### SSID Details (`ssid_details_type`)
+
+| **Parameter**         | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+|-----------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `ssid`               | String     | Yes          | N/A               | The name of the SSID.                                                          |
+| `dot11be_profile_name`| String     | No           | N/A               | The name of the 802.11be profile associated with the SSID.                     |
+| `enable_fabric`       | Boolean    | No           | `false`           | Indicates whether fabric is enabled for the SSID.                              |
+| `vlan_group_name`     | String     | No           | N/A               | The VLAN group name associated with the SSID.                                  |
+| `interface_name`      | String     | No           | N/A               | The interface name associated with the SSID.                                   |
+| `anchor_group_name`   | String     | No           | N/A               | The anchor group name associated with the SSID.                                |
+| `local_to_vlan`       | Integer    | No           | N/A               | The VLAN ID for local-to-VLAN mapping (range: 1–4094).                         |
+
+#### AP Zones (`ap_zones_type`)
+
+| **Parameter**         | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+|-----------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `ap_zone_name`        | String     | Yes          | N/A               | The name of the AP zone.                                                       |
+| `ssids`               | List       | No           | N/A               | A list of SSIDs to be associated with the AP zone.                             |
+| `rf_profile_name`     | String     | No           | N/A               | The name of the RF profile associated with the AP zone.                        |
+
+#### Additional Interfaces (`additional_interfaces_type`)
+
+| **Parameter**         | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+|-----------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `interface_name`      | String     | Yes          | N/A               | The name of the interface.                                                     |
+| `vlan_id`             | Integer    | Yes          | N/A               | The VLAN ID to be assigned to the interface (range: 1–4094).                   |
+
+
+### Step 2: Define Inputs and Validate
+
 **Define Input Variables:** Create variable files (e.g., `vars/network_profile_wireless_inputs.yml`) that define the desired state of your wireless network profiles, including details for creation, update, and deletion. 
 
 ### Full Workflow Specification: 
@@ -139,8 +192,8 @@ wireless_nw_profiles_details:
 2.  **Validate Configuration:** 
 To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
 
-*Input Validation*:
-Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
+    **Input Validation**:
+    Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
 
 ```bash
 ./tools/validate.sh -s ./workflows/network_profile_wireless/schema/network_profile_wireless_schema.yml -d ./workflows/network_profile_wireless/vars/network_profile_wireless_inputs.yml
