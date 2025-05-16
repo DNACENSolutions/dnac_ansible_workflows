@@ -20,11 +20,11 @@ This playbook provides functionality to manage wireless network design in Cisco 
 -  Clone the project and playbooks:
   ```bash
   git clone git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
-
+  ```
 
 ### 2. Configure Host Inventory
 
-Update the host_inventory_dnac1/hosts.yml file with your Catalyst Center details (IP address, credentials, etc.) and ensure the dnac_version in this file matches your actual Catalyst Center version as below:
+Update the inventory/demo_lab/hosts.yml file with your Catalyst Center details (IP address, credentials, etc.) and ensure the dnac_version in this file matches your actual Catalyst Center version as below:
 
 ```bash
 ---
@@ -88,7 +88,7 @@ wireless_design_details:
       auth_key_management: ["802.1X-SHA2", "FT+802.1x", "SUITE-B-1X", "SUITE-B-192X"]
       cckm_timestamp_tolerance: 2000
       aaa:
-        auth_servers_ip_address_list: ["10.195.247.251"]
+        auth_servers_ip_address_list: ["172.23.241.229"]
         accounting_servers_ip_address_list: ["172.23.241.229"]
         aaa_override: true
         mac_filtering: true
@@ -109,6 +109,8 @@ wireless_design_details:
       nas_id: ["AP ETH Mac Address"]
       client_rate_limit: 90000
 ```
+mapping config to UI Actions:
+![Create an Enterprise SSID](./images/create_enterprise_ssid.png)
 
 ##### Edit Enerprise SSID
 
@@ -120,21 +122,16 @@ wireless_design_details:
     - ssid_name: "iac_ssid"
       ssid_type: "Enterprise"
       l2_security:
-        l2_auth_type: "OPEN"
-      wlan_profile_name: "iac_profile"
-      radio_policy:
-        radio_bands: [2.4, 5]
-        2_dot_4_ghz_band_policy: "802.11-g"
-        band_select: true
-        6_ghz_client_steering: false
-      fast_lane: false
-      quality_of_service:
-        egress: SILVER
-        ingress: BRONZE-UP
-      ssid_state:
-        admin_status: true
-        broadcast_ssid: true
+        l2_auth_type: "WPA2_WPA3_ENTERPRISE"
+      aaa:
+        auth_servers_ip_address_list: []
+        accounting_servers_ip_address_list: []
+        aaa_override: false
+        mac_filtering: false
+        deny_rcm_clients: false
 ```
+mapping config to UI Actions:
+![Edit an Enterprise SSID](./images/edit_enterprise_ssid.png)
 
 ##### Configure Guest SSID
 
@@ -166,10 +163,12 @@ wireless_design_details:
         l3_auth_type: WEB_AUTH
         auth_server: central_web_authentication
       aaa:
-        auth_servers_ip_address_list: ["10.195.247.251"]
+        auth_servers_ip_address_list: ["172.23.241.229"]
         accounting_servers_ip_address_list: ["172.23.241.229"]
 
 ```
+mapping config to UI Actions:
+![Create an Guest SSID](./images/create_guest_ssid.png)
 
 ##### Edit Guest SSID
 
@@ -185,6 +184,8 @@ wireless_design_details:
       l3_security:
         l3_auth_type: "OPEN"
 ```
+mapping config to UI Actions:
+![Edit an Guest SSID](./images/edit_guest_ssid.png)
 
 ##### Delete SSID
 
@@ -217,6 +218,8 @@ wireless_design_details:
     - interface_name: "emp_access"
       vlan_id: 13
 ```
+mapping config to UI Actions:\
+![Create interfaces](./images/create_interface.png)
 
 ##### Update Wireless Interfaces and VLANs
 To modify existing wireless interfaces or update their associated VLANs, specify the updated *interface_name* and *vlan_id* in the playbook. The following example demonstrates how to update the VLAN IDs for the *data* and *voice* interfaces.
@@ -229,6 +232,8 @@ wireless_design_details:
     - interface_name: "voice"
       vlan_id: 8
 ```
+mapping config to UI Actions:\
+![Edit interfaces](./images/edit_interface.png)
 
 ##### Delete Wireless Interfaces
 
@@ -271,6 +276,9 @@ wireless_design_details:
             parameter_value: "DISABLE"
 
 ```
+mapping config to UI Actions:
+![Create power](./images/create_power.png)
+
 ##### Update Power Profile
 
 To update an existing power profile, modify the desired settings in the playbook. The following example demonstrates how to update the *iac_radio_state* profile to disable the 2.4GHz radio interface.
@@ -286,6 +294,8 @@ wireless_design_details:
             parameter_type: "STATE"
             parameter_value: "DISABLE"
 ```
+mapping config to UI Actions:
+![Update power](./images/update_power.png)
 
 ##### Delete Power Profile
 
@@ -298,6 +308,9 @@ wireless_design_details:
       - power_profile_name: "Ethernet State"
         
 ```
+
+In the playbook log, it will return exactly how many items were deleted and the names of the deleted items:
+![Delete power](./images/delete_power.png)
 
 ### Access Point (AP) Profile
 
@@ -313,8 +326,8 @@ wireless_design_details:
     - access_point_profile_name: "ap_profile_eap_fast"
       management_settings:
         access_point_authentication: "EAP-FAST"
-        dot1x_username: "xxxx"
-        dot1x_password: "xxxxxxx"
+        dot1x_username: "adhi1"
+        dot1x_password: "adhi1234"
 
     - access_point_profile_name: "Office AP Profile"
       remote_teleworker: true
@@ -322,16 +335,16 @@ wireless_design_details:
         access_point_authentication: "NO-AUTH"
         ssh_enabled: true
         telnet_enabled: false
-        management_username: "xxxx"
-        management_password: "xxxxxxx"
-        management_enable_password: "xxxxxxx"
+        management_username: "adhi1"
+        management_password: "adhi1lkm"
+        management_enable_password: "adhi1lkm"
 
     - access_point_profile_name: "Staging-AP"
       access_point_profile_description: "Main office AP profile"
       management_settings:
         access_point_authentication: "EAP-PEAP"
-        dot1x_username: "xxxx"
-        dot1x_password: "xxxxxxx"
+        dot1x_username: "adhi1"
+        dot1x_password: "adhi1234"
         ssh_enabled: false
         telnet_enabled: false
       security_settings:
@@ -352,7 +365,7 @@ wireless_design_details:
       power_settings:
         ap_power_profile_name: "iac_radio_state"
         calendar_power_profiles:
-          - ap_power_profile_name: "Schedule-Mode"
+          - ap_power_profile_name: "iac_radio_state"
             scheduler_type: "MONTHLY"
             scheduler_dates_list: ["2", "9", "28"]
             scheduler_start_time: "08:00 AM"
@@ -363,6 +376,11 @@ wireless_design_details:
       maximum_client_limit: 900
         
 ```
+mapping config to UI Actions:\
+![Create AP](./images/create_ap.png)
+Playbook log return:\
+![Playbook log ap](./images/playbook_log_ap.png)
+
 ##### Update access point profile
 
 We can modify the access point profiles by providing the specific settings we want to update. In the following example, we update the access point power settings to include a calendar-based power profile for a specific period or time range:
@@ -478,6 +496,11 @@ wireless_design_details:
           srg_obss_pd_max_threshold: -62
 
 ```
+mapping config to UI Actions:
+![Create RF](./images/create_rf.png)
+Playbook log return:\
+![Playbook log RF](./images/playbook_log_rf.png)
+
 
 ##### Update RF Profile
 We can update the RF Profile by modifying any of the configurations in the RF Profile section of the playbook. In the following examples, we are updating the RF Profile "iac_rf_profile_2_4ghz" by changing the parent profile and adjusting the power levels.
@@ -545,6 +568,10 @@ wireless_design_details:
           mobility_group_name: "Enterprise_Mobility_Group"
           managed_device: false
 ```
+mapping config to UI Actions:
+![Create anchor](./images/create_anchor.png)
+Playbook log return:\
+![Playbook log anchor](./images/playbook_log_anchor.png)
 
 ##### Update Anchor Group
 
@@ -711,8 +738,20 @@ Input Validation:
 Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
 
 ```bash
+  ./tools/validate.sh \
+  -s workflows/wireless_design/schema/wireless_design_schema.yml \
+  -d workflows/wireless_design/vars/wireless_design_inputs.yml
+```
 
-     ./tools/validate.sh -s /Users/majlona/Desktop/dnac_ansible_workflows_vs_copilot/workflows/wireless_design/schema/wireless_design_schema.yml -d /Users/majlona/Desktop/dnac_ansible_workflows_vs_copilot/workflows/wireless_design/vars/wireless_design_inputs.yml
+Return result validate:
+```code
+  (pyats-ansible-phamdat) bash-4.4$ ./tools/validate.sh -s workflows/wireless_design/schema/wireless_design_schema.yml -d workflows/wireless_design/vars/wireless_design_inputs.yml 
+  workflows/wireless_design/schema/wireless_design_schema.yml
+  workflows/wireless_design/vars/wireless_design_inputs.yml
+  yamale   -s workflows/wireless_design/schema/wireless_design_schema.yml  workflows/wireless_design/vars/wireless_design_inputs.yml
+  Validating workflows/wireless_design/vars/wireless_design_inputs.yml...
+  Validation success! 👍
+  (pyats-ansible-phamdat) bash-4.4$ 
 ```
 
 ### 4. Running the Playbook
@@ -720,8 +759,11 @@ Before executing the playbook, it is essential to validate the input schema. Thi
 Once the input validation is complete and no errors are found, you can run the playbook. Provide your input file path using the --e variable as VARS_FILE_PATH:
 
 ```bash
-
-     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/wireless_design/playbook/wireless_design_playbook.yml --e VARS_FILE_PATH=/Users/majlona/Desktop/dnac_ansible_workflows_vs_copilot/workflows/wireless_design/vars/wireless_design_inputs.yml -vvv
+  ansible-playbook \
+    -i inventory/demo_lab/hosts.yaml \
+    workflows/wireless_design/playbook/wireless_design_playbook.yml \
+    --e VARS_FILE_PATH=./../vars/wireless_design_inputs.yml \
+    -vvv
 ```
 
 If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
@@ -731,7 +773,7 @@ If there is an error in the input or an issue with the API call during execution
 The Jinja Template allows you to create bulk configurations for wireless design, simplifying the process of generating multiple configurations. To use the Jinja Template, modify and run the playbook with the following command:
 
 ```bash
-      ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/wireless_design/playbook/wireless_design_playbook.yml --extra-vars VARS_FILE_PATH=/Users/majlona/Desktop/dnac_ansible_workflows_vs_copilot/workflows/wireless_design/vars/jinja_wireless_design_inputs.yml -vvvv
+  ansible-playbook -i inventory/demo_lab/hosts.yaml workflows/wireless_design/playbook/wireless_design_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/jinja_wireless_design_inputs.yml -vvvv
 ```
 
 Post-Execution Verification:
@@ -745,5 +787,6 @@ After executing the playbook, check the Catalyst Center UI to verify wireless de
 python: 3.12.0
 dnac_version: 2.3.7.9
 ansible: 9.9.0
-dnacentersdk: 2.8.8
+dnacentersdk: 2.8.14
+cisco.dnac: 6.33.2
 ```
