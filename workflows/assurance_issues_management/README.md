@@ -1,6 +1,7 @@
 # Assurance Issues Management Workflow Playbook
 
-This workflow playbook automates the management of assurance issues within Cisco Catalyst Center (formerly Cisco DNA Center). It provides tasks to interact with assurance issues, such as creating, updating and deleting custom assurance issues using `cisco.dnac.assurance_issue_workflow_manager` module. The workflow also enables configuration of thresholds, rules, and other assurance settings, helping streamline issue detection and response within the Catalyst Center platform. 
+This workflow playbook automates the management of assurance issues within Cisco Catalyst Center (formerly Cisco DNA Center).      
+It provides tasks to interact with assurance issues, such as creating, updating and deleting custom assurance issues using `cisco.dnac.assurance_issue_workflow_manager` module. The workflow also enables configuration of thresholds, rules, and other assurance settings, helping streamline issue detection and response within the Catalyst Center platform. 
 
 ## Workflow Key Features
 - **Create, Update, and Delete Assurance Issues**: Automate the management of custom assurance issues.
@@ -64,21 +65,6 @@ To ensure a successful execution of the playbooks with your specified inputs, fo
 
 #### Schema for Assurance Issues Management
 The schema file (e.g., `schema/assurance_issues_management_schema.yml`) defines the structure and validation rules for the input variables. It includes details such as required fields, data types, and constraints.
-
-
-| **Parameter**                       | **Type**   | **Required** | **Allowed Values / Default**                                                                 | **Description**                          |
-|--------------------------------------|------------|--------------|---------------------------------------------------------------------------------------------|------------------------------------------|
-| catalyst_center_version              | string     | No           |                                                                                             | Catalyst Center version                  |
-| catalyst_center_verify               | bool       | No           |                                                                                             | SSL certificate verification             |
-| catalyst_center_config_verify        | bool       | No           |                                                                                             |                                          |
-| catalyst_center_task_timeout         | int        | No           | Default: 1200                                                                               |                                          |
-| catalyst_center_debug                | bool       | No           | Default: False                                                                              |                                          |
-| catalyst_center_log                  | bool       | No           | Default: False                                                                              |                                          |
-| catalyst_center_log_append           | bool       | No           | Default: True                                                                               |                                          |
-| catalyst_center_log_file_path        | string     | No           | Default: dnac.log                                                                           |                                          |
-| catalyst_center_log_level            | enum       | No           | CRITICAL, ERROR, WARNING, INFO, DEBUG                                                       |                                          |
-| catalyst_center_task_poll_interval   | int        | No           |                                                                                             |                                          |
-| assurance_issues_settings            | list       | No           | List of `assurance_issues_settings_type`                                                    |                                          |
 
 **assurance_issues_settings_type**
 
@@ -305,3 +291,13 @@ After the playbook execution, you can verify the results in the Cisco Catalyst C
 
 ## Reference
 Refer to the workflow's schema file (workflows/assurance_issues_management/schema/assurance_issues_management_schema.yml) for the definitive list of input parameters and their descriptions.
+
+## Note: The environment used for the references in the above instructions is as follows:
+
+```bash
+python: 3.10.10
+dnac_version: 2.3.7.9
+ansible: 9.9.0
+cisco.dnac: 6.32.0
+dnacentersdk: 2.10.14
+```
