@@ -8,36 +8,21 @@ application_policy_details:
     - profile_name: "Enterprise-QoS-Profile"
       profile_description: "QoS profile optimized for business-critical applications"
       bandwidth_settings:
-        is_common_between_all_interface_speeds: false
-        interface_speed_settings:
-          - interface_speed: "ALL"
-            bandwidth_percentages:
-              transactional_data: "5"
-              best_effort: "10"
-              voip_telephony: "15"
-              multimedia_streaming: "10"
-              real_time_interactive: "20"
-              multimedia_conferencing: "10"
-              signaling: "10"
-              scavenger: "5"
-              ops_admin_mgmt: "5"
-              broadcast_video: "2"
-              network_control: "3"
-              bulk_data: "5"
-          - interface_speed: "TEN_GBPS"
-            bandwidth_percentages:
-              transactional_data: "5"
-              best_effort: "10"
-              voip_telephony: "15"
-              multimedia_streaming: "10"
-              real_time_interactive: "20"
-              multimedia_conferencing: "10"
-              signaling: "10"
-              scavenger: "5"
-              ops_admin_mgmt: "5"
-              broadcast_video: "2"
-              network_control: "3"
-              bulk_data: "5"
+        is_common_between_all_interface_speeds: true
+        interface_speed: "ALL"
+        bandwidth_percentages:
+          transactional_data: "5"
+          best_effort: "10"
+          voip_telephony: "15"
+          multimedia_streaming: "10"
+          real_time_interactive: "20"
+          multimedia_conferencing: "10"
+          signaling: "10"
+          scavenger: "5"
+          ops_admin_mgmt: "5"
+          broadcast_video: "2"
+          network_control: "3"
+          bulk_data: "5"
       dscp_settings:
         multimedia_conferencing: "20"
         ops_admin_mgmt: "23"
@@ -67,6 +52,7 @@ application_policy_details:
         bulk_data: "10"
         scavenger: "2"
         real_time_interactive: "34"
+        
   - application:
     - name: "Security_Gateway_App"
       help_string: "Application for network security and access control"
@@ -100,7 +86,7 @@ application_policy_details:
       policy_status: "NONE"
       site_names: ["Global/INDIA"]
       device_type: "wired"
-      application_queuing_profile_name: "WiredStreamingQueuingProfile"
+      application_queuing_profile_name: "Enterprise-QoS-Profile"
       clause:
         - clause_type: "BUSINESS_RELEVANCE"
           relevance_details:
@@ -110,20 +96,20 @@ application_policy_details:
               application_set_name: ["email","tunneling"]
             - relevance: "DEFAULT"
               application_set_name: ["backup-and-storage", "general-media", "file-sharing"]
-    - name: "wireless_traffic_optimization_policy"
-      policy_status: "NONE"
-      site_names: ["global/Chennai/FLOOR1"]
+
+    - name: "wireless_traffic_policy"
+      policy_status: "deployed"
+      site_names: ["Global/USA/RTP"]
       device_type: "wireless"
-      device:
-        device_ip: "204.1.2.3"
-        wlan_id: "17"
-      application_queuing_profile_name: "wireless_streaming_queuing_profile"
+      ssid_name: "Ans NP WL SSID Main"
+      application_queuing_profile_name: "Enterprise-QoS-Profile"
       clause:
         - clause_type: "BUSINESS_RELEVANCE"
           relevance_details:
             - relevance: "BUSINESS_RELEVANT"
               application_set_name: ["file-sharing"]
             - relevance: "BUSINESS_IRRELEVANT"
-              application_set_name: ["email","backup-and-storage"]
+              application_set_name: ["email", "backup-and-storage"]
             - relevance: "DEFAULT"
-              application_set_name: ["collaboration-apps","tunneling", "general-media"]
+              application_set_name: ["collaboration-apps", "tunneling", "general-media"]
+
