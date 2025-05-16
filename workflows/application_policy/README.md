@@ -1,16 +1,14 @@
 # Cisco Catalyst Center Application Policy Workflow Playbooks
 
-**short_description:** >
-  Resource module for managing queuing profiles, applications, application sets and application
-  policies for wired and wireless in Cisco Catalyst Center.
+Application Policy Workflow Playbooks designed to automate the management of applications,, application policies, and queuing profiles for both wired and wireless networks.
 
-**description:**
-  - Provides functionality to create, update, and delete applications in Cisco Catalyst Center.
-  - Provides functionality to create, update, and delete application policies in Cisco Catalyst Center.
-  - Provides functionality to create, update, and delete application queuing profiles in Cisco Catalyst Center.
+**Key Features:**
+  - Create, update, and delete applications.
+  - Create, update, and delete application policies .
+  - Create, update, and delete application queuing profiles in Cisco Catalyst Center.
   - Supports managing queuing profiles and application policies for traffic classification and prioritization.
 
-**version_added:** "6.31.0"
+**version_added:** "6.32.0"
 
 ---
 
@@ -52,7 +50,25 @@ catalyst_center_hosts:
 
 This step involves preparing the input data for creating or managing application policies and validating your setup.
 
-1.  **Define Input Variables:** Create variable files (e.g., `vars/application_policies.yml`) that define the desired state of your application policies, applications, queuing profiles, etc. Refer to the specific playbook documentation for the required variable structure.
+1. **Prerequisite:**
+  - Need Site Hierarchy created
+  - Need SSID connected to wireless Network Profiles
+
+2.  **Define Input Variables:** Create variable files (e.g., `vars/application_policies.yml`) that define the desired state of your application policies, applications, queuing profiles, etc. Refer to the specific playbook documentation for the required variable structure.
+
+#### Switch Network Profile Schema
+
+| **Parameter**          | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+|------------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `profile_name`         | String     | Yes          | N/A               | Name of the queuing profile.
+| `profile_description`      | String       | No           | N/A                | Description of the queuing profile.|
+| `bandwidth_settings` | Dictionary       | No           | {}                | Specifies bandwidth allocation details.|
+| `dscp_settings`           | Dictionary       | No           | {}                | Defines the DSCP (Differentiated Services Code Point) values assigned to different traffic categories. - Each DSCP value must be in the range of 0 to 63.|
+| `application` | List       | No           | []                | Defines individual applications within an application set that share a common purpose or function.|
+| `application_policy` | List       | No           | []                 | Defines how an application's traffic is managed and prioritized within a network.|
+
+#### Example Input File
+
 ```yaml
 ---
 #Select Catalyst Cennter version, this one overwrite the default version from host file
@@ -66,20 +82,6 @@ application_policy_details:
         is_common_between_all_interface_speeds: false
         interface_speed_settings:
           - interface_speed: "ALL"
-            bandwidth_percentages:
-              transactional_data: "5"
-              best_effort: "10"
-              voip_telephony: "15"
-              multimedia_streaming: "10"
-              real_time_interactive: "20"
-              multimedia_conferencing: "10"
-              signaling: "10"
-              scavenger: "5"
-              ops_admin_mgmt: "5"
-              broadcast_video: "2"
-              network_control: "3"
-              bulk_data: "5"
-          - interface_speed: "TEN_GBPS"
             bandwidth_percentages:
               transactional_data: "5"
               best_effort: "10"
@@ -155,7 +157,7 @@ application_policy_details:
       policy_status: "NONE"
       site_names: ["Global/INDIA"]
       device_type: "wired"
-      application_queuing_profile_name: "WiredStreamingQueuingProfile"
+      application_queuing_profile_name: "Enterprise_DSCP_Profile"
       clause:
         - clause_type: "BUSINESS_RELEVANCE"
           relevance_details:
@@ -165,27 +167,27 @@ application_policy_details:
               application_set_name: ["email","tunneling"]
             - relevance: "DEFAULT"
               application_set_name: ["backup-and-storage", "general-media", "file-sharing"]
-    - name: "wireless_traffic_optimization_policy"
-      policy_status: "NONE"
+
+    - name: "wireless_traffic_policy"
+      policy_status: "deployed"
       site_names: ["global/Chennai/FLOOR1"]
       device_type: "wireless"
-      device:
-        device_ip: "204.1.2.3"
-        wlan_id: "17"
-      application_queuing_profile_name: "wireless_streaming_queuing_profile"
+      ssid_name: "ent-ssid-2-wpa2"
+      application_queuing_profile_name: "wireless_streaming_profile"
       clause:
         - clause_type: "BUSINESS_RELEVANCE"
           relevance_details:
             - relevance: "BUSINESS_RELEVANT"
               application_set_name: ["file-sharing"]
             - relevance: "BUSINESS_IRRELEVANT"
-              application_set_name: ["email","backup-and-storage"]
+              application_set_name: ["email", "backup-and-storage"]
             - relevance: "DEFAULT"
-              application_set_name: ["collaboration-apps","tunneling", "general-media"]
+              application_set_name: ["collaboration-apps", "tunneling", "general-media"]
+
 
 ```
 
-2.  **Validate Configuration:** You can use yamale to validate the input against the schema
+3.  **Validate Configuration:** You can use yamale to validate the input against the schema
 
     ```bash
 yamale -s workflows/application_policy/schema/application_policy_schema.yml workflows/application_policy/vars/application_policy_inputs.yml
@@ -201,5 +203,16 @@ This is the final step where you deploy the configuration to Cisco Catalyst Cent
 1.  **Deploy Configuration:** Run the playbooks to apply the configuration defined in your input variables to Cisco Catalyst Center.
 
     ```bash
-    ansible-playbook create_application_policy.yml -i inventory.yml -e VARS_FILE_PATH=<Path to your variables file>
+      ansible-playbook -i inventory/iac/host.yml workflows/application_policy/playbook/application_policy_playbook.yml --e VARS_FILE_PATH=../vars/application_policy_inputs.yml -vvvv
     ```
+
+2. **Verify Deployment:**
+After executing the playbook, check the Catalyst Center UI to verify switch profile has been created. If debug_log is enabled, you can also review the logs for detailed information on operations performed and any updates made.
+
+ - Verify Queuing Profiles:
+
+ ![alt text](images/queuing_profiles.png)
+
+ - Verify Application Policy:
+
+![alt text](images/application_policy1.png)
