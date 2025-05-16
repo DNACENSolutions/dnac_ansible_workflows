@@ -6,7 +6,7 @@ This module manages switch network profiles in Cisco Catalyst Center (DNAC), a p
 - Create and delete switch network profiles.
 - Assign profiles to sites, onboarding templates, and Day-N templates.
 
-**Version Added:**   `6.31.0`
+**Version Added:**   `6.32.0`
 
 ---
 
@@ -46,7 +46,7 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
 
 This step involves preparing the input data for creating or managing network profiles and validating your setup.
 
-1. **Generate Inventory:**
+1. **Prerequisite:**
     - Need Site Hierarchy created
     - Need CLI template created
 
@@ -63,7 +63,7 @@ This step involves preparing the input data for creating or managing network pro
 
 #### Example Input File
 
-1. Create Switch Network Profile in DNAC
+1. Create Switch Network Profile in Catalyst Center
 
     ```yaml
     ---
@@ -74,14 +74,15 @@ This step involves preparing the input data for creating or managing network pro
           - Global/USA/SAN JOSE/SJ_BLD23
           - Global/USA/SAN JOSE/SJ_BLD22
         onboarding_templates:
-          - Ansible SW Net-Prof 1
+          - Ansible SW Net-Prof onboarding
         day_n_templates:
-          - Ansible SW Net-Prof 2
+          - Ansible SW Net-Prof dayN
     ```
+    ![alt text](images/Switch_Network_Profile.png)
 
-2. Update Switch Network Profile in DNAC
+2. Update Switch Network Profile in Catalyst Center
 
-    User can update the profile by change the configuration and assignment of input. Below input is user can change the site assignment
+    Users can update their profiles by modifying the configuration and input assignments. The site assignment can be changed using the following inputs:
     ```yaml
     ---
     catalyst_center_version: 2.3.7.9
@@ -91,9 +92,9 @@ This step involves preparing the input data for creating or managing network pro
           - Global/USA/SAN JOSE/SJ_BLD20
           - Global/USA/SAN JOSE/SJ_BLD21
         onboarding_templates:
-          - Ansible SW Net-Prof 1
+          - Ansible SW Net-Prof onboarding
         day_n_templates:
-          - Ansible SW Net-Prof 2
+          - Ansible SW Net-Prof dayN
     ```
 
 3. Delete Switch Network Profile
@@ -105,6 +106,7 @@ This step involves preparing the input data for creating or managing network pro
     network_profiles:
       - profile_name: "Switch Profile"
     ```
+    ![alt text](images/delete_switch_profile.png)
 ---
 ### Step 3: Deploy and Verify
 
@@ -127,7 +129,7 @@ This is the final step where you deploy the configuration to Cisco Catalyst Cent
     This ensures that the configuration is accurately deployed to Cisco Catalyst Center, automating the setup process and reducing the risk of manual errors.
 
     ```bash
-    ansible-playbook -i ./inventory/iac2/host.yml workflows/network_profile_switching/playbook/network_profile_switching_playbook.yml --e VARS_FILE_PATH=../vars/network_profile_switching_inputs.yml > logs/switch_profile.log -vvvvvv    
+    ansible-playbook -i ./inventory/iac2/host.yml workflows/network_profile_switching/playbook/network_profile_switching_playbook.yml --e VARS_FILE_PATH=/<full path>/dnac_ansible_workflows/workflows/network_profile_switching/vars/network_profile_switching_inputs.yml > logs/switch_profile.log -vvvvvv    
     ```
 
     If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
@@ -135,7 +137,7 @@ This is the final step where you deploy the configuration to Cisco Catalyst Cent
 2.  **Verify Deployment:** 
 After executing the playbook, check the Catalyst Center UI to verify switch profile has been created. If *debug_log* is enabled, you can also review the logs for detailed information on operations performed and any updates made.
 
-    ![alt text](images/switch_profile.png)
+    ![alt text](images/creation_assignment.png)
 
 ---
 
