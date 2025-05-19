@@ -84,7 +84,20 @@ This step involves preparing the input data for configuring Assurance Health Sco
 - **schema/**: Schema definitions
 - **vars/**: Variable files
 
-## Usage
+#### Schema for Assurence Health Score Settings
+This schema defines the structure of the input file for configuring Assurence Health Score Settings in Cisco Catalyst Center. Below is a breakdown of the parameters, including their requirements and descriptions.
+
+| **Parameter**                    | **Type** | **Required** | **Default Value** | **Description** |
+|----------------------------------|----------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `catalyst_center_version`        | String   | Yes          | 2.3.7.9           | The version of Cisco Catalyst Center.|
+| `catalyst_center_verify`         | Boolean  | No           | false             | Whether to verify the Catalyst Center version.|
+| `assurance_health_score_settings`| List     | No           | N/A               | List of device health score settings.| 
+| `device_health_score`            | List     | No           | N/A               | List of device health score.|
+| `device_family`                  | String   | Yes          | --                | Specifies the device family to which the health score applies. required: true choices: - ROUTER - SWITCH_AND_HUB - WIRELESS_CONTROLLER - UNIFIED_AP - WIRELESS_CLIENT - WIRED_CLIENT |
+| `kpi_name`                       | String   | Yes          | --                | The name of the Key Performance Indicator (KPI) to be monitored (e.g., LINK ERROR).|
+| `include_for_overall_health`     | Boolean  | No           | --                | Whether to include KPI in overall health calculation.|
+| `threshold_value`                | Integer  | No           | --                | Threshold value for the KPI.The threshold value that, when exceeded, will affect the health score.|
+| `synchronize_to_issue_threshold` | Boolean  | No           | --                | Boolean value indicating whether the threshold should synchronize with issue resolution thresholds. |
 
 ### run Schema validation
 catc_ansible_workflows %  yamale -s workflows/assurance_health_score_settings/schema/assurance_health_score_settings_schema.yml workflows/assurance_health_score_settings/vars/assurance_health_score_settings_inputs.yml
@@ -817,7 +830,7 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/assurance_health
 
 If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
 
-### Executing playbooks with inputs
+<!-- ### Executing playbooks with inputs
 ```bash
 (ansible-venv) pawansi@PAWANSI-M-7J1W CatC_SD_Access_campus % ansible-playbook -i /Users/pawansi/workspace/CatC_Configs/CatC_SD_Access_campus/ansible_inventory/catalystcenter_inventory/hosts.yml /Users/pawansi/workspace/CatC_Configs/catc_ansible_workflows/workflows/assurance_health_score_settings/playbook/assurance_health_score_settings_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/workspace/CatC_Configs/CatC_SD_Access_campus/catc_configs/global/assurance_healthscore_settings.yml -vvv
 
@@ -843,5 +856,5 @@ Loading collection ansible.builtin from
 up=False, tasks child state? (None), rescue child state? (None), always child state? (None), did rescue? False, did start at task? False
 
 PLAY RECAP *********************************************************************************************************************************************************************************
-catalyst_center53          : ok=7    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+catalyst_center53          : ok=7    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0    -->
 ```
