@@ -112,17 +112,13 @@ This schema defines the structure of the input file for configuring wireless net
 | `vlan_id`             | Integer    | Yes          | N/A               | The VLAN ID to be assigned to the interface (range: 1–4094).                   |
 
 
-### Step 2: Define Inputs and Validate
-
-**Define Input Variables:** Create variable files (e.g., `vars/network_profile_wireless_inputs.yml`) that define the desired state of your wireless network profiles, including details for creation, update, and deletion. 
-
 ### Full Workflow Specification: 
 Refer to the official documentation for detailed information on defining workflows: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network_profile_wireless_workflow_manager/
 
 
 ## Example Input File
 
-1. Create Wireless Network Profile
+a) Create Wireless Network Profile
 ![Alt text](./images/wireless_profile_1.png)
 
 ```yaml
@@ -151,9 +147,9 @@ wireless_nw_profiles_details:
       - Ans NP WL CLI Temp DayN 1
 ```
 
-2. Update Wireless Network Profile
+b) Update Wireless Network Profile
 
-To update a Wireless Network Profile, first user need to create a network profile, and provide input with difference configuration to update profile
+To update a Wireless Network Profile, the profile must already exist in Catalyst Center (CatC). The user should first ensure the network profile is created, then provide an input containing the updated configuration to apply the necessary changes.
 
 ```yaml
 catalyst_center_version: 2.3.7.9
@@ -180,13 +176,14 @@ wireless_nw_profiles_details:
     day_n_templates:
       - Ans NP WL CLI Temp DayN 1
 ```
-3. Delete Wireless Network Profile
+c) Delete Wireless Network Profile
+To delete a Wireless Network Profile, specify the profile name and execute the playbook in the *deleted* state. This ensures the profile is properly removed from the wireless network configuration in Catalyst Center.
 
 ```yaml
 catalyst_center_version: 2.3.7.9
 wireless_nw_profiles_details:
-  - profile_name: "Ansible Wireless Profile create"
-  - profile_name: "Ansible Wireless Profile update"
+  - profile_name: "Ansible Wireless Profile San Jose"
+  - profile_name: "Ansible Wireless Profile New York"
 ```
 
 2.  **Validate Configuration:** 
