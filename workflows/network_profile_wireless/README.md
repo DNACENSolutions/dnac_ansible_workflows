@@ -112,10 +112,6 @@ This schema defines the structure of the input file for configuring wireless net
 | `vlan_id`             | Integer    | Yes          | N/A               | The VLAN ID to be assigned to the interface (range: 1–4094).                   |
 
 
-### Step 2: Define Inputs and Validate
-
-**Define Input Variables:** Create variable files (e.g., `vars/network_profile_wireless_inputs.yml`) that define the desired state of your wireless network profiles, including details for creation, update, and deletion. 
-
 ### Full Workflow Specification: 
 Refer to the official documentation for detailed information on defining workflows: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network_profile_wireless_workflow_manager/
 
