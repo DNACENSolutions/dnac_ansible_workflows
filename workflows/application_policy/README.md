@@ -56,18 +56,128 @@ This step involves preparing the input data for creating or managing application
 
 2.  **Define Input Variables:** Create variable files (e.g., `vars/application_policies.yml`) that define the desired state of your application policies, applications, queuing profiles, etc. Refer to the specific playbook documentation for the required variable structure.
 
-#### Switch Network Profile Schema
+#### Application Policy Schema
 
-| **Parameter**          | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+This schema defines the structure of the input file for configuring Application Policy in Cisco Catalyst Center. Below is a breakdown of the parameters, including their requirements and descriptions.
+
+#### Queuing Profile (queuing_profile):
+
+| **Parameter**            | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+|--------------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `profile_name`           | String     | Yes          | N/A               | Name of the queuing profile.                                                   |
+| `new_profile_name`       | String     | No           | N/A               | New name for the queuing profile (used for updates).                           |
+| `profile_description`    | String     | No           | N/A               | Description of the queuing profile.                                            |
+| `new_profile_description`| String     | No           | N/A               | New description of the queuing profile.                                        |
+| `bandwidth_settings`     | Dictionary | No           | {}                | Specifies bandwidth allocation details.                                        |
+| `dscp_settings`          | Dictionary | No           | {}                | DSCP values for traffic types (range: 0–63).                                   |
+
+#### Bandwidth Settings (bandwidth_settings):
+
+| **Parameter**                                 | **Type**     | **Required** | **Default Value** | **Description**                                                                 |
+|-----------------------------------------------|--------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `is_common_between_all_interface_speeds`      | Boolean      | No           | False             | Apply bandwidth settings uniformly across all interface speeds.                |
+| `interface_speed_settings`                    | List of Dict | No           | []                | Bandwidth per traffic category and interface speed.                            |
+
+#### -> interface_speed_settings:
+
+| **Parameter**           | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
 |------------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
-| `profile_name`         | String     | Yes          | N/A               | Name of the queuing profile.
-| `profile_description`      | String       | No           | N/A                | Description of the queuing profile.|
-| `bandwidth_settings` | Dictionary       | No           | {}                | Specifies bandwidth allocation details.|
-| `dscp_settings`           | Dictionary       | No           | {}                | Defines the DSCP (Differentiated Services Code Point) values assigned to different traffic categories. - Each DSCP value must be in the range of 0 to 63.|
-| `application` | List       | No           | []                | Defines individual applications within an application set that share a common purpose or function.|
-| `application_policy` | List       | No           | []                 | Defines how an application's traffic is managed and prioritized within a network.|
+| `interface_speed`       | String     | Yes          | N/A               | Interface speed: `ALL`, `HUNDRED_GBPS`, etc.                                   |
+| `bandwidth_percentages` | Dictionary | Yes          | {}                | Percentages assigned per traffic category (total ≤ 100%).                      |
+
+#### -> bandwidth_percentages:
+
+| **Traffic Category**         | **Type** | **Required** | **Default Value** | **Description**                                   |
+|-----------------------------|----------|--------------|-------------------|---------------------------------------------------|
+| `transactional_data`        | String   | No           | N/A               | Bandwidth for transactional traffic.              |
+| `best_effort`               | String   | No           | N/A               | General-purpose traffic.                          |
+| `voip_telephony`            | String   | No           | N/A               | Voice over IP traffic.                            |
+| `multimedia_streaming`      | String   | No           | N/A               | Real-time audio/video streaming.                  |
+| `real_time_interactive`     | String   | No           | N/A               | Low-latency applications.                         |
+| `multimedia_conferencing`   | String   | No           | N/A               | Audio-video conferencing.                         |
+| `signaling`                 | String   | No           | N/A               | Network signaling messages.                       |
+| `scavenger`                 | String   | No           | N/A               | Low-priority traffic.                             |
+| `ops_admin_mgmt`            | String   | No           | N/A               | Operations/administration traffic.                |
+| `broadcast_video`           | String   | No           | N/A               | One-to-many video distribution.                   |
+| `network_control`           | String   | No           | N/A               | Network operation/control traffic.                |
+| `bulk_data`                 | String   | No           | N/A               | Non-time-sensitive, large-volume transfers.       |
+
+#### DSCP Settings (dscp_settings):
+
+| **Traffic Category**         | **Type** | **Required** | **Default Value** | **Description**                                               |
+|-----------------------------|----------|--------------|-------------------|---------------------------------------------------------------|
+| `transactional_data`        | String   | No           | N/A               | DSCP for transactional data (0-63).                           |
+| `best_effort`               | String   | No           | N/A               | DSCP for best-effort traffic.                                 |
+| `voip_telephony`            | String   | No           | N/A               | DSCP for VoIP traffic.                                        |
+| `multimedia_streaming`      | String   | No           | N/A               | DSCP for streaming traffic.                                   |
+| `real_time_interactive`     | String   | No           | N/A               | DSCP for real-time interactive apps.                          |
+| `multimedia_conferencing`   | String   | No           | N/A               | DSCP for conferencing traffic.                                |
+| `signaling`                 | String   | No           | N/A               | DSCP for signaling/control.                                   |
+| `scavenger`                 | String   | No           | N/A               | DSCP for low-priority tasks.                                  |
+| `ops_admin_mgmt`            | String   | No           | N/A               | DSCP for operations/admin traffic.                            |
+| `broadcast_video`           | String   | No           | N/A               | DSCP for broadcast video.                                     |
+| `network_control`           | String   | No           | N/A               | DSCP for network control traffic.                             |
+| `bulk_data`                 | String   | No           | N/A               | DSCP for bulk data traffic.                                   |
+
+#### Application (application):
+
+| **Parameter**                | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+|-----------------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `name`                      | String     | Yes          | N/A               | Name of the application.                                                       |
+| `description`               | String     | No           | N/A               | Description of the application.                                                |
+| `help_string`               | String     | No           | N/A               | Purpose or intended use of the application.                                    |
+| `type`                      | String     | Yes          | N/A               | Identifier type: `server_name`, `url`, or `server_ip`.                         |
+| `server_name`               | String     | Conditionally | N/A              | Required if `type = server_name`.                                              |
+| `dscp`                      | Integer    | Conditionally | N/A              | Required if `type = server_ip`. Value must be 0–63.                            |
+| `network_identity`          | Dictionary | Conditionally | {}               | Required if `type = server_ip`.                                                |
+| `app_protocol`              | String     | Conditionally | N/A              | Required for `url` or `server_ip`. Must be TCP if `url`.                       |
+| `url`                       | String     | Conditionally | N/A              | Required if `type = url`.                                                      |
+| `traffic_class`             | String     | No           | N/A               | Defines prioritization (e.g. `REAL_TIME_INTERACTIVE`).                         |
+| `ignore_conflict`           | Boolean    | No           | False             | Whether to ignore conflicts.                                                   |
+| `rank`                      | Integer    | No           | N/A               | Priority ranking.                                                              |
+| `engine_id`                 | Integer    | No           | N/A               | Engine managing the application.                                               |
+| `application_set_name`      | String     | No           | N/A               | Associated application set.                                                    |
+
+#### -> network_identity:
+
+| **Parameter**   | **Type** | **Required** | **Description**                                        |
+|----------------|----------|--------------|--------------------------------------------------------|
+| `protocol`      | String   | No           | Protocol used by the application.                     |
+| `port`          | String   | No           | Communication port.                                   |
+| `ip_subnet`     | List     | No           | List of IPs/subnets.                                  |
+| `lower_port`    | String   | No           | Lower port range.                                     |
+| `upper_port`    | String   | No           | Upper port range.                                     |
+
+#### Application Policy (application_policy):
+
+| **Parameter**                              | **Type**     | **Required** | **Default Value** | **Description**                                                                 |
+|-------------------------------------------|--------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `name`                                     | String       | Yes          | N/A               | Name of the application policy.                                                |
+| `policy_status`                            | String       | No           | `NONE`            | Status: `NONE`, `DELETED`, or `RESTORED`.                                      |
+| `site_names`                               | List         | No           | []                | Sites where policy is enforced.                                                |
+| `device_type`                              | String       | No           | N/A               | Device type: `wired` or `wireless`.                                            |
+| `ssid_name`                                | String       | Conditionally | N/A              | Required if `device_type = wireless`.                                          |
+| `application_queuing_profile_name`         | String       | No           | N/A               | Queuing profile name applied to the policy.                                    |
+| `clause`                                   | List of Dict | No           | []                | Policy clauses based on relevance or knobs.                                    |
+
+#### -> clause:
+
+| **Parameter**     | **Type** | **Required** | **Description**                                                                            |
+|------------------|----------|--------------|--------------------------------------------------------------------------------------------|
+| `clause_type`     | String   | Yes          | Clause type: `BUSINESS_RELEVANCE` or `APPLICATION_POLICY_KNOBS`.                          |
+| `relevance_details` | List  | No           | List of relevance items tied to application sets.                                          |
+
+#### -> relevance_details:
+
+| **Parameter**            | **Type** | **Required** | **Description**                                                                 |
+|--------------------------|----------|--------------|---------------------------------------------------------------------------------|
+| `relevance`              | String   | Yes          | Relevance: `BUSINESS_RELEVANT`, `BUSINESS_IRRELEVANT`, `DEFAULT`.              |
+| `application_set_name`   | List     | Yes          | Application sets related to this clause.                                       |
+
 
 #### Example Input File
+
+A. Create/Update Queuing Profil (state: merged)
 
 ```yaml
 ---
@@ -124,6 +234,15 @@ application_policy_details:
         bulk_data: "10"
         scavenger: "2"
         real_time_interactive: "34"
+```
+B. Create/Update Application (state: merged):
+
+```yaml
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the inventory workflow
+application_policy_details:
   - application:
     - name: "Security_Gateway_App"
       help_string: "Application for network security and access control"
@@ -152,12 +271,22 @@ application_policy_details:
       engine_id: "4"
       application_set_name: "local-services"
 
+```
+
+C. Create/Update Application Policy (state: merged):
+
+```yaml
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the inventory workflow
+application_policy_details:
   - application_policy:
     - name: "WiredTrafficOptimizationPolicy"
       policy_status: "NONE"
       site_names: ["Global/INDIA"]
       device_type: "wired"
-      application_queuing_profile_name: "Enterprise_DSCP_Profile"
+      application_queuing_profile_name: "Enterprise-QoS-Profile"
       clause:
         - clause_type: "BUSINESS_RELEVANCE"
           relevance_details:
@@ -170,10 +299,10 @@ application_policy_details:
 
     - name: "wireless_traffic_policy"
       policy_status: "deployed"
-      site_names: ["global/Chennai/FLOOR1"]
+      site_names: ["Global/USA/RTP"]
       device_type: "wireless"
-      ssid_name: "ent-ssid-2-wpa2"
-      application_queuing_profile_name: "wireless_streaming_profile"
+      ssid_name: "Ans NP WL SSID Main"
+      application_queuing_profile_name: "Enterprise-QoS-Profile"
       clause:
         - clause_type: "BUSINESS_RELEVANCE"
           relevance_details:
@@ -184,27 +313,73 @@ application_policy_details:
             - relevance: "DEFAULT"
               application_set_name: ["collaboration-apps", "tunneling", "general-media"]
 
+```
+
+D. Delete Queuing Profil (state: deleted):
+
+```yaml
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the inventory workflow
+application_policy_details:
+  - queuing_profile:
+    - profile_name: "Enterprise-QoS-Profile"
+    - profile_name: "Enterprise_DSCP_Profile"
 
 ```
 
+E. Delete Application (state: deleted):
+
+```yaml
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the inventory workflow
+application_policy_details:
+  - application:
+    - name: "Security_Gateway_App"
+    - name: "Security_Gateway_IP_App"
+    
+```
+
+F. Delete Application Policy (state: deleted):
+
+```yaml
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the inventory workflow
+application_policy_details:
+  - application_policy:
+    - name: "WiredTrafficOptimizationPolicy"
+    - name: "wireless_traffic_policy"
+    
+```
+
+
 3.  **Validate Configuration:** You can use yamale to validate the input against the schema
 
-    ```bash
-yamale -s workflows/application_policy/schema/application_policy_schema.yml workflows/application_policy/vars/application_policy_inputs.yml
-Validating workflows/application_policy/vars/application_policy_inputs.yml...
-Validation success! 👍
+```bash
+  yamale -s workflows/application_policy/schema/application_policy_schema.yml workflows/application_policy/vars/application_policy_inputs.yml
+```
 
-    ```
+result:
 
-### Step 3: Deploy and Verify
+```
+  Validating workflows/application_policy/vars/application_policy_inputs.yml...
+  Validation success! 👍
+```
+
+### Step 3: Execute the Playbook and Verify
 
 This is the final step where you deploy the configuration to Cisco Catalyst Center and verify the changes.
 
 1.  **Deploy Configuration:** Run the playbooks to apply the configuration defined in your input variables to Cisco Catalyst Center.
 
-    ```bash
-      ansible-playbook -i inventory/iac/host.yml workflows/application_policy/playbook/application_policy_playbook.yml --e VARS_FILE_PATH=../vars/application_policy_inputs.yml -vvvv
-    ```
+```bash
+  ansible-playbook -i inventory/iac/host.yml workflows/application_policy/playbook/application_policy_playbook.yml --e VARS_FILE_PATH=../vars/application_policy_inputs.yml -vvvv
+```
 
 2. **Verify Deployment:**
 After executing the playbook, check the Catalyst Center UI to verify switch profile has been created. If debug_log is enabled, you can also review the logs for detailed information on operations performed and any updates made.
