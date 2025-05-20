@@ -76,21 +76,11 @@ This step involves preparing the input data for configuring Assurance Health Sco
 2.  **Review Structure and Options:** Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/assurance_device_health_score_settings_workflow_manager/
 
 
-## Structure
-
-- **images/**: Image assets
-- **jinja_template/**: Jinja templates
-- **playbook/**: Ansible playbooks
-- **schema/**: Schema definitions
-- **vars/**: Variable files
-
-#### Schema for Assurence Health Score Settings
-This schema defines the structure of the input file for configuring Assurence Health Score Settings in Cisco Catalyst Center. Below is a breakdown of the parameters, including their requirements and descriptions.
+#### Schema for Assurance Health Score Settings
+This schema defines the structure of the input file for configuring Assurance Health Score Settings in Cisco Catalyst Center. Below is a breakdown of the parameters, including their requirements and descriptions.
 
 | **Parameter**                    | **Type** | **Required** | **Default Value** | **Description** |
 |----------------------------------|----------|--------------|-------------------|---------------------------------------------------------------------------------|
-| `catalyst_center_version`        | String   | Yes          | 2.3.7.9           | The version of Cisco Catalyst Center.|
-| `catalyst_center_verify`         | Boolean  | No           | false             | Whether to verify the Catalyst Center version.|
 | `assurance_health_score_settings`| List     | No           | N/A               | List of device health score settings.| 
 | `device_health_score`            | List     | No           | N/A               | List of device health score.|
 | `device_family`                  | String   | Yes          | --                | Specifies the device family to which the health score applies. required: true choices: - ROUTER - SWITCH_AND_HUB - WIRELESS_CONTROLLER - UNIFIED_AP - WIRELESS_CLIENT - WIRED_CLIENT |
@@ -99,37 +89,27 @@ This schema defines the structure of the input file for configuring Assurence He
 | `threshold_value`                | Integer  | No           | --                | Threshold value for the KPI.The threshold value that, when exceeded, will affect the health score.|
 | `synchronize_to_issue_threshold` | Boolean  | No           | --                | Boolean value indicating whether the threshold should synchronize with issue resolution thresholds. |
 
-### run Schema validation
-catc_ansible_workflows %  yamale -s workflows/assurance_health_score_settings/schema/assurance_health_score_settings_schema.yml workflows/assurance_health_score_settings/vars/assurance_health_score_settings_inputs.yml
-Validating workflows/assurance_health_score_settings/vars/assurance_health_score_settings_inputs.yml...
-Validation success! 👍
+
+### Step 2: Define Inputs and Validate
+
+**Define Input Variables:**  Create the variable file at (e.g., `workflows/assurance_health_score_settings/vars/assurance_health_score_settings_inputs.yml`). This file should contain the list of KPI names and threshold values for various device types that you want to configure.
+
+### Full Workflow Specification: 
+Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/assurance_device_health_score_settings_workflow_manager/
 
 ## Example Input File
-file: assurance_healthscore_settings.yml
 
-1. Health Score Custom Settings for device family Unified Access Point
+1. **Health Score Custom Settings for device family Unified Access Point**
+  configures custom Assurance Health Score thresholds for Unified Access Points in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
 assurance_health_score_settings:
   - device_health_score:
     - device_family: UNIFIED_AP
-      kpi_name: Air Quality 2.4 GHz
-      include_for_overall_health: true
-      threshold_value: 70
-    - device_family: UNIFIED_AP
-      kpi_name: Air Quality 5 GHz
-      include_for_overall_health: true
-      threshold_value: 74
-    - device_family: UNIFIED_AP
       kpi_name: Air Quality 6 GHz
       include_for_overall_health: true
       threshold_value: 73
-    - device_family: UNIFIED_AP
-      kpi_name: Link Error
-      include_for_overall_health: true
-      threshold_value: 45
-      synchronize_to_issue_threshold: false
     - device_family: UNIFIED_AP
       kpi_name: CPU Utilization
       include_for_overall_health: true
@@ -140,57 +120,12 @@ assurance_health_score_settings:
       include_for_overall_health: true
       threshold_value: 35
       synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Interference 5 GHz
-      include_for_overall_health: true
-      threshold_value: 57
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Interference 6 GHz
-      include_for_overall_health: true
-      threshold_value: 65
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Memory Utilization
-      include_for_overall_health: true
-      threshold_value: 85
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Noise 2.4 GHz
-      include_for_overall_health: true
-      threshold_value: -95
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Noise 5 GHz
-      include_for_overall_health: true
-      threshold_value: -38
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Noise 6 GHz
-      include_for_overall_health: true
-      threshold_value: -37
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: RF Utilization 2.4 GHz
-      include_for_overall_health: true
-      threshold_value: 91
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: RF Utilization 5 GHz
-      include_for_overall_health: true
-      threshold_value: 81
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: RF Utilization 6 GHz
-      include_for_overall_health: true
-      threshold_value: 72
-      synchronize_to_issue_threshold: false
 ```
 mapping config to UI Actions:
-!(./images/unified_AP_custom1.png)
-!(./images/unified_AP_custom2.png)
+!(./images/Unified_AP_Custom1.png)
 
-2. Health Score Custom Settings for device family wired client
+2. **Health Score Custom Settings for device family wired client**
+  configures custom Assurance Health Score thresholds for wired client in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
@@ -205,7 +140,8 @@ assurance_health_score_settings:
 mapping config to UI Actions:
 !(./images/wired_client_custom.png)
 
-3. Health Score Custom Settings for device family wireless client
+3. **Health Score Custom Settings for device family wireless client**
+  configures custom Assurance Health Score thresholds for wireless client in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
@@ -224,7 +160,8 @@ assurance_health_score_settings:
 mapping config to UI Actions:
 !(./images/wireless_client_custom.png)
 
-4. Health Score Custom Settings for device family wireless controler
+4. **Health Score Custom Settings for device family wireless controler**
+  configures assurance health score settings for WIRELESS_CONTROLLER device family in Cisco Catalyst Center. It defines KPIs with specific thresholds and whether they contribute to the overall health score.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
@@ -263,221 +200,72 @@ assurance_health_score_settings:
 mapping config to UI Actions:
 !(./images/wireless_controller_custom.png)
 
-5. Health Score Custom Setting for device family switches and hub
+5. **Health Score Custom Setting for device family switches and hub**
+  configures assurance health score settings for SWITCH_AND_HUB device family in Cisco Catalyst Center. It defines KPIs with specific thresholds and whether they contribute to the overall health score.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
 assurance_health_score_settings:
   - device_health_score:
     - device_family: SWITCH_AND_HUB
-      kpi_name: AAA server reachability
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: BGP Session from Border to Control Plane (BGP)
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: BGP Session from Border to Control Plane (PubSub)
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: BGP Session from Border to Peer Node for INFRA VN
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: BGP Session from Border to Peer Node
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: BGP Session from Border to Transit Control Plane
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: BGP Session to Spine
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Cisco TrustSec environment data download status
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: CPU Utilization
-      include_for_overall_health: true
-      threshold_value: 90
-      synchronize_to_issue_threshold: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Extended Node Connectivity
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Fabric Control Plane Reachability
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Fabric Multicast RP Reachability
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Inter-device Link Availability
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Internet Availability
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
       kpi_name: Link Discard
-      include_for_overall_health: true
-      threshold_value: 30
-      synchronize_to_issue_threshold: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Link Error
       include_for_overall_health: true
       threshold_value: 20
       synchronize_to_issue_threshold: false
     - device_family: SWITCH_AND_HUB
-      kpi_name: LISP Session from Border to Transit Site Control Plane
-      include_for_overall_health: false
+      kpi_name: Link Error
+      include_for_overall_health: true
+      threshold_value: 30
+      synchronize_to_issue_threshold: false
     - device_family: SWITCH_AND_HUB
       kpi_name: LISP Session Status
       include_for_overall_health: false
     - device_family: SWITCH_AND_HUB
       kpi_name: Memory Utilization
       include_for_overall_health: true
-      threshold_value: 90
+      threshold_value: 40
       synchronize_to_issue_threshold: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Peer Status
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Pub-Sub Session from Border to Transit Site Control Plane
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Pub-Sub Session Status for INFRA VN
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Pub-Sub Session Status
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Remote Internet Availability
-      include_for_overall_health: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: VNI Status
-      include_for_overall_health: false
 ```
 mapping config to UI Actions:
-!(./images/switches_and_hub_custom1.png)
-!(./images/switches_and_hub_custom2.png)
-!(./images/switches_and_hub_custom3.png)
+!(./images/switches_and_hub_custom.png)
 
-6. Health Score Custom Setting for device family Router
+6. **Health Score Custom Setting for device family Router**
+  configures assurance health score settings for ROUTER device family in Cisco Catalyst Center. It defines KPIs with specific thresholds and whether they contribute to the overall health score.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
 assurance_health_score_settings:
   - device_health_score:
     - device_family: ROUTER
-      kpi_name: Link Utilization
-      include_for_overall_health: false
-      threshold_value: 60
-      synchronize_to_issue_threshold: false
-    - device_family: ROUTER
-      kpi_name: BGP Session from Border to Control Plane (BGP)
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: BGP Session from Border to Control Plane (PubSub)
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: BGP Session from Border to Peer Node for INFRA VN
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: BGP Session from Border to Peer Node
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: BGP Session from Border to Transit Control Plane
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: BGP Session to Spine
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: Cisco TrustSec environment data download status
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: CPU Utilization
-      include_for_overall_health: false
-      threshold_value: 60
-      synchronize_to_issue_threshold: false
-    - device_family: ROUTER
-      kpi_name: Extended Node Connectivity
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: Fabric Control Plane Reachability
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: Fabric Multicast RP Reachability
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: Inter-device Link Availability
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: Internet Availability
-      include_for_overall_health: false
-    - device_family: ROUTER
       kpi_name: Link Discard
       include_for_overall_health: false
-      threshold_value: 60
+      threshold_value: 30
       synchronize_to_issue_threshold: false
     - device_family: ROUTER
       kpi_name: Link Error
       include_for_overall_health: false
-      threshold_value: 60
+      threshold_value: 30
       synchronize_to_issue_threshold: false
-    - device_family: ROUTER
-      kpi_name: LISP Session from Border to Transit Site Control Plane
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: LISP Session Status
-      include_for_overall_health: false
     - device_family: ROUTER
       kpi_name: Memory Utilization
       include_for_overall_health: false
-      threshold_value: 60
+      threshold_value: 30
       synchronize_to_issue_threshold: false
-    - device_family: ROUTER
-      kpi_name: Peer Status
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: Pub-Sub Session from Border to Transit Site Control Plane
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: Pub-Sub Session Status for INFRA VN
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: Pub-Sub Session Status
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: Remote Internet Availability
-      include_for_overall_health: false
-    - device_family: ROUTER
-      kpi_name: VNI Status
-      include_for_overall_health: false
 ```
 mapping config to UI Actions:
-!(./images/router_custom1.png)
-!(./images/router_custom2.png)
-!(./images/router_custom3.png)
+!(./images/router_custom.png)
 
-7. Health Score Default Settings for device family Unified Access Point
+7. **Health Score Default Settings for device family Unified Access Point**
+  configures Default Assurance Health Score thresholds for Unified Access Points in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
 assurance_health_score_settings:
   - device_health_score:
-    - device_family: UNIFIED_AP
-      kpi_name: Air Quality 2.4 GHz
-      include_for_overall_health: true
-      threshold_value: 60
-    - device_family: UNIFIED_AP
-      kpi_name: Air Quality 5 GHz
-      include_for_overall_health: true
-      threshold_value: 75
     - device_family: UNIFIED_AP
       kpi_name: Air Quality 6 GHz
       include_for_overall_health: true
       threshold_value: 75
-    - device_family: UNIFIED_AP
-      kpi_name: Link Error
-      include_for_overall_health: true
-      threshold_value: 1
-      synchronize_to_issue_threshold: false
     - device_family: UNIFIED_AP
       kpi_name: CPU Utilization
       include_for_overall_health: true
@@ -488,57 +276,12 @@ assurance_health_score_settings:
       include_for_overall_health: true
       threshold_value: 50
       synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Interference 5 GHz
-      include_for_overall_health: true
-      threshold_value: 20
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Interference 6 GHz
-      include_for_overall_health: true
-      threshold_value: 20
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Memory Utilization
-      include_for_overall_health: true
-      threshold_value: 90
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Noise 2.4 GHz
-      include_for_overall_health: true
-      threshold_value: -81
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Noise 5 GHz
-      include_for_overall_health: true
-      threshold_value: -83
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: Noise 6 GHz
-      include_for_overall_health: true
-      threshold_value: -83
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: RF Utilization 2.4 GHz
-      include_for_overall_health: true
-      threshold_value: 70
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: RF Utilization 5 GHz
-      include_for_overall_health: true
-      threshold_value: 70
-      synchronize_to_issue_threshold: false
-    - device_family: UNIFIED_AP
-      kpi_name: RF Utilization 6 GHz
-      include_for_overall_health: true
-      threshold_value: 70
-      synchronize_to_issue_threshold: false
 ```
 mapping config to UI Actions:
-!(./images/unified_AP_default1.png)
-!(./images/unified_AP_default2.png)
+!(./images/Unified_AP_Default.png)
 
-8. Health Score Default Settings for device family wired client
+8. **Health Score Default Settings for device family wired client**
+  configures Default Assurance Health Score thresholds for WIRED_CLIENT in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
@@ -553,7 +296,8 @@ assurance_health_score_settings:
 mapping config to UI Actions:
 !(./images/wired_client_default.png)
 
-9. Health Score Default Setting for device family wireless client
+9. **Health Score Default Setting for device family wireless client**
+  configures Default Assurance Health Score thresholds for WIRELESS_CLIENT in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
@@ -572,7 +316,8 @@ assurance_health_score_settings:
 mapping config to UI Actions:
 !(./images/wireless_client_default.png)
 
-10. Health Score Default Settings for device family wireless controler
+10. **Health Score Default Settings for device family wireless controler**
+    configures Default Assurance Health Score thresholds for WIRELESS_CONTROLLER in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
@@ -611,30 +356,13 @@ assurance_health_score_settings:
 mapping config to UI Actions:
 !(./images/wireless_controller_default.png)
 
-11. Health Score Default Setting for device family Switches and hub
+11. **Health Score Default Setting for device family Switches and hub**
+  configures Default Assurance Health Score thresholds for SWITCH_AND_HUB in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
 assurance_health_score_settings:
   - device_health_score:
-    - device_family: SWITCH_AND_HUB
-      kpi_name: AAA server reachability
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: BGP Session from Border to Control Plane (BGP)
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: BGP Session from Border to Control Plane (PubSub)
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: BGP Session from Border to Peer Node for INFRA VN
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: BGP Session from Border to Peer Node
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: BGP Session from Border to Transit Control Plane
-      include_for_overall_health: true
     - device_family: SWITCH_AND_HUB
       kpi_name: BGP Session to Spine
       include_for_overall_health: true
@@ -646,67 +374,12 @@ assurance_health_score_settings:
       include_for_overall_health: true
       threshold_value: 95
       synchronize_to_issue_threshold: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Extended Node Connectivity
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Fabric Control Plane Reachability
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Fabric Multicast RP Reachability
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Inter-device Link Availability
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Internet Availability
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Link Discard
-      include_for_overall_health: true
-      threshold_value: 10
-      synchronize_to_issue_threshold: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Link Error
-      include_for_overall_health: true
-      threshold_value: 1
-      synchronize_to_issue_threshold: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: LISP Session from Border to Transit Site Control Plane
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: LISP Session Status
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Memory Utilization
-      include_for_overall_health: true
-      threshold_value: 95
-      synchronize_to_issue_threshold: false
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Peer Status
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Pub-Sub Session from Border to Transit Site Control Plane
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Pub-Sub Session Status for INFRA VN
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Pub-Sub Session Status
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: Remote Internet Availability
-      include_for_overall_health: true
-    - device_family: SWITCH_AND_HUB
-      kpi_name: VNI Status
-      include_for_overall_health: true
 ```
 mapping config to UI Actions:
 !(./images/switches_and_hub_default.png)
-!(./images/switches_and_hub_default2.png)
-!(./images/switches_and_hub_default3.png)
 
-12. Health Score Default Setting for device family Router
+12. **Health Score Default Setting for device family Router**
+    configures Default Assurance Health Score thresholds for ROUTER in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
 ```yaml
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
@@ -722,80 +395,6 @@ assurance_health_score_settings:
       include_for_overall_health: true
     - device_family: ROUTER
       kpi_name: BGP Session from Border to Control Plane (PubSub)
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: BGP Session from Border to Peer Node for INFRA VN
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: BGP Session from Border to Peer Node
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: BGP Session from Border to Transit Control Plane
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: BGP Session to Spine
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: Cisco TrustSec environment data download status
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: CPU Utilization
-      include_for_overall_health: true
-      threshold_value: 95
-      synchronize_to_issue_threshold: false
-    - device_family: ROUTER
-      kpi_name: Extended Node Connectivity
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: Fabric Control Plane Reachability
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: Fabric Multicast RP Reachability
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: Inter-device Link Availability
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: Internet Availability
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: Link Discard
-      include_for_overall_health: true
-      threshold_value: 10
-      synchronize_to_issue_threshold: false
-    - device_family: ROUTER
-      kpi_name: Link Error
-      include_for_overall_health: true
-      threshold_value: 1
-      synchronize_to_issue_threshold: false
-    - device_family: ROUTER
-      kpi_name: LISP Session from Border to Transit Site Control Plane
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: LISP Session Status
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: Memory Utilization
-      include_for_overall_health: true
-      threshold_value: 95
-      synchronize_to_issue_threshold: false
-    - device_family: ROUTER
-      kpi_name: Peer Status
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: Pub-Sub Session from Border to Transit Site Control Plane
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: Pub-Sub Session Status for INFRA VN
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: Pub-Sub Session Status
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: Remote Internet Availability
-      include_for_overall_health: true
-    - device_family: ROUTER
-      kpi_name: VNI Status
       include_for_overall_health: true
 ```
 mapping config to UI Actions:
@@ -813,12 +412,16 @@ To ensure a successful execution of the playbooks with your specified inputs, fo
 ```bash
 ./tools/validate.sh -s ./workflows/assurance_health_score_settings/schema/assurance_health_score_settings_schema.yml -d ./workflows/assurance_health_score_settings/vars/assurance_health_score_settings_inputs.yml
 ```
+### run Schema validation
+catc_ansible_workflows %  yamale -s workflows/assurance_health_score_settings/schema/assurance_health_score_settings_schema.yml workflows/assurance_health_score_settings/vars/assurance_health_score_settings_inputs.yml
+Validating workflows/assurance_health_score_settings/vars/assurance_health_score_settings_inputs.yml...
+Validation success! 👍
 
-### Deploy and Verify
+### Step 3: Deploy and Verify
 
 This is the final step where you deploy the configuration to Cisco Catalyst Center and verify the changes.
 
-**Deploy Configuration:** 
+1.  **Deploy Configuration:** 
 
 Run the playbook to seamlessly apply the wireless network profile configuration defined in your input variables to Cisco Catalyst Center. 
 Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the --e variable as VARS_FILE_PATH. The VARS_FILE_PATH must be provided as a full path to the input file.
@@ -829,6 +432,24 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/assurance_health
 ```
 
 If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
+
+2.  **Verify Deployment:** 
+After executing the playbook, check the Catalyst Center UI to verify Assurance Health Score. If *debug_log* is enabled, you can also review the logs for detailed information on operations performed and any updates made.
+---
+
+### References
+
+*Note: The environment used for the references in the above instructions is as follows:*
+
+```yaml
+python: 3.12.0
+dnac_version: 2.3.7.9
+ansible: 9.9.0
+cisco.dnac: 6.32.0
+dnacentersdk: 2.8.8
+```
+
+For detailed information on Assurance Health Score Settings refer to the following documentation:https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/assurance_device_health_score_settings_workflow_manager/
 
 <!-- ### Executing playbooks with inputs
 ```bash
