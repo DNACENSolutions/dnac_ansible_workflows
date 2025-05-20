@@ -122,7 +122,7 @@ assurance_health_score_settings:
       synchronize_to_issue_threshold: false
 ```
 mapping config to UI Actions:
-![alt text](./images/Unified_AP_Custom1.png)
+![alt text](images/Unified_AP_Custom1.png)
 
 2. **Health Score Custom Settings for device family wired client**
   configures custom Assurance Health Score thresholds for wired client in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
@@ -138,7 +138,7 @@ assurance_health_score_settings:
       synchronize_to_issue_threshold: false
 ```
 mapping config to UI Actions:
-![alt text](./images/wired_client_custom.png)
+![alt text](images/wired_client_custom.png)
 
 3. **Health Score Custom Settings for device family wireless client**
   configures custom Assurance Health Score thresholds for wireless client in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
@@ -158,7 +158,7 @@ assurance_health_score_settings:
         synchronize_to_issue_threshold: true
 ```
 mapping config to UI Actions:
-![alt text](./images/wireless_client_custom.png)
+![alt text](images/wireless_client_custom.png)
 
 4. **Health Score Custom Settings for device family wireless controler**
   configures assurance health score settings for WIRELESS_CONTROLLER device family in Cisco Catalyst Center. It defines KPIs with specific thresholds and whether they contribute to the overall health score.
