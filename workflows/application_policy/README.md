@@ -1,10 +1,10 @@
 # Cisco Catalyst Center Application Policy Workflow Playbooks
 
-Application Policy Workflow Playbooks designed to automate the management of applications,, application policies, and queuing profiles for both wired and wireless networks.
+Application Policy Workflow Playbooks designed to automate the management of applications, application policies, and queuing profiles for both wired and wireless networks.
 
 **Key Features:**
   - Create, update, and delete applications.
-  - Create, update, and delete application policies .
+  - Create, update, and delete application policies.
   - Create, update, and delete application queuing profiles in Cisco Catalyst Center.
   - Supports managing queuing profiles and application policies for traffic classification and prioritization.
 
@@ -29,7 +29,9 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
     ```
 3.  **Generate Inventory:** Create an Ansible inventory file (e.g., `inventory.yml`) that includes your Cisco Catalyst Center appliance details. You will need to define variables such as the host, username, and password (or other authentication methods).
 ### Configure Host Inventory
+
 Update your Ansible hosts.yml inventory file with the connection details of your Cisco Catalyst Center instance. Replace the placeholder values with your actual Catalyst Center information.
+
 ```yaml
 catalyst_center_hosts:
     hosts:
@@ -46,7 +48,7 @@ catalyst_center_hosts:
             catalyst_center_log: true
 ```
 
-### Step 2: Define Create Inputs, and Validate
+### Step 2: Define Inputs and Validate
 
 This step involves preparing the input data for creating or managing application policies and validating your setup.
 
@@ -177,11 +179,31 @@ This schema defines the structure of the input file for configuring Application 
 
 #### Example Input File
 
-A. Create/Update Queuing Profil (state: merged)
+These examples show how to define input YAML files for creating, updating, or deleting queuing profiles, applications, and application policies in Cisco Catalyst Center.
+
+A. Create Queuing Profile (state: merged)
+
+Image with bandwidth_settings input on UI:
+
+![alt text](images/create_queuing_profiles.png)
+
+Image with dscp_settings input on UI:
+
+![alt text](images/create_queuing_profiles_dscp.png)
+
+This example defines two queuing profiles to classify and prioritize different types of network traffic:
+
+- **`Enterprise-QoS-Profile`**  
+  Includes bandwidth allocation and DSCP settings, allowing traffic shaping per interface speed and traffic category.
+
+- **`Enterprise_DSCP_Profile`**  
+  Focuses only on DSCP value assignment, prioritizing traffic types without bandwidth control.
+
+These profiles are later referenced in application policies to manage QoS for wired or wireless networks.
 
 ```yaml
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+#Select Catalyst Center version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 # This file contains the variables for the inventory workflow
 application_policy_details:
@@ -189,7 +211,7 @@ application_policy_details:
     - profile_name: "Enterprise-QoS-Profile"
       profile_description: "QoS profile optimized for business-critical applications"
       bandwidth_settings:
-        is_common_between_all_interface_speeds: false
+        is_common_between_all_interface_speeds: true
         interface_speed_settings:
           - interface_speed: "ALL"
             bandwidth_percentages:
@@ -235,11 +257,75 @@ application_policy_details:
         scavenger: "2"
         real_time_interactive: "34"
 ```
-B. Create/Update Application (state: merged):
+
+B. Update Queuing Profile (state: merged):
+
+Updates an existing queuing profile by renaming it, changing the description, and adjusting bandwidth allocation and DSCP values across all traffic categories. This allows for refined traffic prioritization aligned with updated QoS strategies.
 
 ```yaml
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+# Catalyst Center version override
+catalyst_center_version: 2.3.7.6
+
+application_policy_details:
+  - queuing_profile:
+    - profile_name: "Enterprise-QoS-Profile"                     # Required: Existing profile name
+      new_profile_name: "Enterprise-QoS-Profile-V2"              # Optional: Rename profile
+      profile_description: "Updated QoS profile for critical business applications"   # Optional
+      new_profile_description: "Version 2 with adjusted bandwidth allocations"        # Optional
+      bandwidth_settings:                                        # Optional
+        is_common_between_all_interface_speeds: true
+        interface_speed_settings:
+          - interface_speed: "ALL"
+            bandwidth_percentages:
+              transactional_data: "10"
+              best_effort: "5"
+              voip_telephony: "20"
+              multimedia_streaming: "10"
+              real_time_interactive: "20"
+              multimedia_conferencing: "10"
+              signaling: "5"
+              scavenger: "2"
+              ops_admin_mgmt: "5"
+              broadcast_video: "5"
+              network_control: "5"
+              bulk_data: "3"
+      dscp_settings:                
+        transactional_data: "28"
+        best_effort: "0"
+        voip_telephony: "46"
+        multimedia_streaming: "27"
+        real_time_interactive: "34"
+        multimedia_conferencing: "20"
+        signaling: "4"
+        scavenger: "2"
+        ops_admin_mgmt: "23"
+        broadcast_video: "46"
+        network_control: "48"
+        bulk_data: "10"
+
+```
+
+
+C. Create Application (state: merged):
+
+Image add Application on UI:
+
+![alt text](images/create_application.png)
+
+This example defines two applications for network traffic identification:
+
+- **`Security_Gateway_App`**  
+  Recognized by its server name (domain). It includes traffic class, priority (`rank`), and application set group.
+
+- **`Security_Gateway_IP_App`**  
+  Identified using server IPs, port ranges, and protocol. It defines a `network_identity` block and assigns DSCP for priority handling.
+
+These definitions allow Catalyst Center to classify traffic for policy enforcement based on app characteristics.
+
+```yaml
+---
+#Select Catalyst Center version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 # This file contains the variables for the inventory workflow
 application_policy_details:
@@ -273,11 +359,63 @@ application_policy_details:
 
 ```
 
-C. Create/Update Application Policy (state: merged):
+D. Update Application (state: merged):
+
+Modifies existing applications by updating their descriptions, traffic classes, DSCP values, and network identity. This enables refined application recognition and reclassification based on updated security and performance needs.
 
 ```yaml
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+# Catalyst Center version override
+catalyst_center_version: 2.3.7.6
+
+application_policy_details:
+  - application:
+      - name: "Security_Gateway_App"                         # Existing application to update
+        description: "Updated Security Gateway Application"   # New description
+        help_string: "Updated use case: controls remote access and security"  # New purpose/help
+        traffic_class: "REAL_TIME_INTERACTIVE"                # Updated traffic class
+        ignore_conflict: true                                 # Retain behavior for conflict resolution
+        rank: 10                                              # Updated priority ranking
+        engine_id: 2                                          # Updated engine responsible
+        application_set_name: "email"                         # Updated application group
+
+      - name: "Security_Gateway_IP_App"
+        description: "Updated IP-based security gateway application"
+        help_string: "Now includes wider port range and additional subnets"
+        network_identity:
+          protocol: "TCP"                                     # Changed from UDP
+          port: "3000"
+          ip_subnet: ["1.1.1.0", "2.2.2.0", "4.4.4.0"]  # Updated IP
+          lower_port: "20"
+          upper_port: "200"
+        dscp: 10                                              # New DSCP value
+        traffic_class: "REAL_TIME_INTERACTIVE"
+        ignore_conflict: true
+        rank: 12
+        engine_id: 2
+        application_set_name: "email"                         # Updated application group
+
+```
+
+E. Create Application Policy (state: merged):
+
+Image add Application Policy on UI:
+
+![alt text](images/create_application_policy.png)
+
+This example creates two application policies:
+
+- **`WiredTrafficOptimizationPolicy`**  
+  Applied to **wired** devices at the `Global/INDIA` site. It uses a queuing profile and classifies applications into business-relevance categories.
+
+- **`wireless_traffic_policy`**  
+  Applied to **wireless** devices connected to a specific SSID at the `Global/USA/RTP` site. Similar application relevance rules are applied.
+
+These policies define how traffic is prioritized based on business importance and access method (wired/wireless).
+
+```yaml
+---
+#Select Catalyst Center version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 # This file contains the variables for the inventory workflow
 application_policy_details:
@@ -315,11 +453,46 @@ application_policy_details:
 
 ```
 
-D. Delete Queuing Profil (state: deleted):
+F. Update Application Policy (state: merged):
+
+Updates a wired application policy by changing the site scope, associating a new queuing profile, and modifying business relevance mappings for application sets.
 
 ```yaml
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+# Catalyst Center version override
+catalyst_center_version: 2.3.7.6
+
+application_policy_details:
+  - application_policy:
+    - name: "WiredTrafficOptimizationPolicy"                 # Existing policy name
+      policy_status: "NONE"                                  # Ensure policy is active
+      site_names: ["Global/USA/SAN_JOSE"]                  # Updated site list
+      device_type: "wired"                                  
+      application_queuing_profile_name: "Enterprise-QoS-Profile-V2"  # Updated queuing profile
+      clause:
+        - clause_type: "BUSINESS_RELEVANCE"
+          relevance_details:
+            - relevance: "BUSINESS_RELEVANT"
+              application_set_name: ["file-sharing"]
+            - relevance: "BUSINESS_IRRELEVANT"
+              application_set_name: ["email", "backup-and-storage"]
+            - relevance: "DEFAULT"
+              application_set_name: ["collaboration-apps", "tunneling", "general-media"]
+
+```
+
+G. Delete Queuing Profile (state: deleted):
+
+This example removes unused queuing profiles:
+
+- `Enterprise-QoS-Profile`
+- `Enterprise_DSCP_Profile`
+
+Make sure to update or remove any application policies referencing these profiles to avoid configuration errors.
+
+```yaml
+---
+#Select Catalyst Center version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 # This file contains the variables for the inventory workflow
 application_policy_details:
@@ -329,11 +502,18 @@ application_policy_details:
 
 ```
 
-E. Delete Application (state: deleted):
+H. Delete Application (state: deleted):
+
+This example deletes previously defined applications:
+
+- `Security_Gateway_App`
+- `Security_Gateway_IP_App`
+
+Catalyst Center will stop recognizing and processing data from these apps. Ensure that any policies using these applications are updated or removed before deletion.
 
 ```yaml
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+#Select Catalyst Center version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 # This file contains the variables for the inventory workflow
 application_policy_details:
@@ -343,11 +523,18 @@ application_policy_details:
     
 ```
 
-F. Delete Application Policy (state: deleted):
+I. Delete Application Policy (state: deleted):
+
+This example deletes application policies that are no longer needed:
+
+- `WiredTrafficOptimizationPolicy`
+- `wireless_traffic_policy`
+
+Once deleted, these policies will no longer manage traffic classification and prioritization.
 
 ```yaml
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
+#Select Catalyst Center version, this one overwrite the default version from host file
 catalyst_center_version: 2.3.7.6
 # This file contains the variables for the inventory workflow
 application_policy_details:
@@ -375,11 +562,15 @@ result:
 
 This is the final step where you deploy the configuration to Cisco Catalyst Center and verify the changes.
 
-1.  **Deploy Configuration:** Run the playbooks to apply the configuration defined in your input variables to Cisco Catalyst Center.
+1.  **Deploy Configuration:** 
+
+Run the playbook to seamlessly apply the wireless network profile configuration defined in your input variables to Cisco Catalyst Center. Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the --e variable as VARS_FILE_PATH. The VARS_FILE_PATH must be provided as a full path to the input file. This ensures that the configuration is accurately deployed to Cisco Catalyst Center, automating the setup process and reducing the risk of manual errors.
 
 ```bash
   ansible-playbook -i inventory/iac/host.yml workflows/application_policy/playbook/application_policy_playbook.yml --e VARS_FILE_PATH=../vars/application_policy_inputs.yml -vvvv
 ```
+
+If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
 
 2. **Verify Deployment:**
 After executing the playbook, check the Catalyst Center UI to verify switch profile has been created. If debug_log is enabled, you can also review the logs for detailed information on operations performed and any updates made.
@@ -391,3 +582,17 @@ After executing the playbook, check the Catalyst Center UI to verify switch prof
  - Verify Application Policy:
 
 ![alt text](images/application_policy1.png)
+
+## References
+
+*Note: The environment used for the references in the above instructions is as follows:*
+
+```yaml
+python: 3.12.0
+dnac_version: 2.3.7.9
+ansible: 9.9.0
+cisco.dnac: 6.32.0
+dnacentersdk: 2.8.14
+```
+
+For detailed information on network wireless profile workflow refer to the following documentation: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/application_policy_workflow_manager/
