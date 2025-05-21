@@ -761,7 +761,7 @@ wireless_design_details:
     - anchor_group_name: "iac_anchor_manager_device"
 ```
 
-### 7. All in one (solution input)
+### 7. All in one
 The steps above are the small steps for each specified area. You can create all wireless designs including `SSID`, `wireless interface`, `RF profile`, `power profile`, `AP profile`, and `anchor group` in a single run.
 
 ```yaml
