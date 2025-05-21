@@ -112,7 +112,7 @@ The *SDA Fabric Multicast* feature relies on these components that must be prede
 - **Layer 3 Virtual Network**: Virtual network must be created within the fabric  
 - **IP Pool**: IP pool for multicast must be configured and available  
 
-##### 1. Create Multicast Configuration Example:
+##### 1. Create Multicast Configuration Example (state: merged):
 ```yaml
 
 config:
@@ -167,19 +167,8 @@ config:
             ipv6_asm_ranges: []
 ```
 
-##### 2. Delete Multicast Configuration Example:
+##### 2. Delete Multicast Configuration Example (state: deleted):
 ```yaml
-dnac_host: "10.10.20.90"
-dnac_username: "********"
-dnac_password: "********"
-dnac_verify: false
-dnac_port: "443"
-dnac_version: "2.3.7.9"
-dnac_debug: false
-dnac_log: true
-dnac_log_level: "INFO"
-config_verify: true
-state: deleted
     config:
       - fabric_multicast:
           - fabric_name: "Global/USA/SAN JOSE"
