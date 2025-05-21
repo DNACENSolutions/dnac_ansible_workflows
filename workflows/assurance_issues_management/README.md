@@ -302,7 +302,7 @@ assurance_issues_settings:
         issue_enabled: true
 ```
 
-### Upon successful completion, the issue will be updated in Cisco Catalyst Center and you will see an output similar to the following:
+#### Upon successful completion, the issue will be updated in Cisco Catalyst Center and you will see an output similar to the following:
 
 #### Before Updating
 ![alt text](./images/system_def_issu_before_update.png)
