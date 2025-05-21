@@ -1,12 +1,8 @@
 # Assurance Health Score Settings Playbook
-## Module Reference
-
-Playbook for workflow Module: `assurance_device_health_score_settings_workflow_manager`
 
 ## Overview
 
 This module provides resource management for assurance Health score settings in Cisco Catalyst Center.
-
 
 **Description:** 
 This module provides capabilities to configure and manage Assurance Health Score settings in Cisco Catalyst Center. It enables fine-tuned health monitoring by adjusting KPI thresholds and device-level scoring logic. Key features include:
@@ -88,14 +84,6 @@ This schema defines the structure of the input file for configuring Assurance He
 | `include_for_overall_health`     | Boolean  | No           | --                | Whether to include KPI in overall health calculation.|
 | `threshold_value`                | Integer  | No           | --                | Threshold value for the KPI.The threshold value that, when exceeded, will affect the health score.|
 | `synchronize_to_issue_threshold` | Boolean  | No           | --                | Boolean value indicating whether the threshold should synchronize with issue resolution thresholds. |
-
-
-### Step 2: Define Inputs and Validate
-
-**Define Input Variables:**  Create the variable file at (e.g., `workflows/assurance_health_score_settings/vars/assurance_health_score_settings_inputs.yml`). This file should contain the list of KPI names and threshold values for various device types that you want to configure.
-
-### Full Workflow Specification: 
-Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/assurance_device_health_score_settings_workflow_manager/
 
 ## Example Input File
 
@@ -316,7 +304,7 @@ assurance_health_score_settings:
 mapping config to UI Actions:
 ![alt text](./images/wireless_client_default.png)
 
-10. **Health Score Default Settings for device family wireless controler**
+10. **Health Score Default Settings for device family wireless controller**
     configures Default Assurance Health Score thresholds for WIRELESS_CONTROLLER in Cisco Catalyst Center. It allows tuning KPI thresholds and inclusion in overall health scoring.
 ```yaml
 catalyst_center_version: 2.3.7.9
@@ -403,11 +391,11 @@ mapping config to UI Actions:
 ![alt text](./images/router_default3.png)
 
 
-**Validate Configuration:** 
-To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
+2. **Validate Configuration:** 
+ To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
 
-    **Input Validation**:
-    Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
+  **Input Validation**:
+  Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
 
 ```bash
 ./tools/validate.sh -s ./workflows/assurance_health_score_settings/schema/assurance_health_score_settings_schema.yml -d ./workflows/assurance_health_score_settings/vars/assurance_health_score_settings_inputs.yml
@@ -448,34 +436,4 @@ ansible: 9.9.0
 cisco.dnac: 6.32.0
 dnacentersdk: 2.8.8
 ```
-
 For detailed information on Assurance Health Score Settings refer to the following documentation:https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/assurance_device_health_score_settings_workflow_manager/
-
-<!-- ### Executing playbooks with inputs
-```bash
-(ansible-venv) pawansi@PAWANSI-M-7J1W CatC_SD_Access_campus % ansible-playbook -i /Users/pawansi/workspace/CatC_Configs/CatC_SD_Access_campus/ansible_inventory/catalystcenter_inventory/hosts.yml /Users/pawansi/workspace/CatC_Configs/catc_ansible_workflows/workflows/assurance_health_score_settings/playbook/assurance_health_score_settings_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/workspace/CatC_Configs/CatC_SD_Access_campus/catc_configs/global/assurance_healthscore_settings.yml -vvv
-
- 72570 1746308688.45220: starting run
-ansible-playbook [core 2.18.3]
-  config file = /Users/pawansi/workspace/CatC_Configs/CatC_SD_Access_campus/ansible.cfg
-  configured module search path = ['/Users/pawansi/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
-  ansible python module location = /Users/pawansi/workspace/CatC_Configs/venv-anisible/lib/python3.11/site-packages/ansible
-  ansible collection location = /Users/pawansi/.ansible/collections:/usr/share/ansible/collections
-  executable location = /Users/pawansi/workspace/CatC_Configs/venv-anisible/bin/ansible-playbook
-  python version = 3.11.10 (main, Sep  7 2024, 01:03:31) [Clang 15.0.0 (clang-1500.3.9.4)] (/Users/pawansi/workspace/CatC_Configs/venv-anisible/bin/python)
-  jinja version = 3.1.5
-  libyaml = True
-Using /Users/pawansi/workspace/CatC_Configs/CatC_SD_Access_campus/ansible.cfg as config file
-Reading vault password file: /Users/pawansi/.vault_pass.txt
- 72570 1746308688.45498: Added group all to inventory
- 72570 1746308688.45501: Added group ungrouped to inventory
- 72570 1746308688.45503: Group all now contains ungrouped
- 72570 1746308688.45507: Examining possible inventory source: /Users/pawansi/workspace/CatC_Configs/CatC_SD_Access_campus/ansible_inventory/catalystcenter_inventory/hosts.yml
-setting up inventory plugins
-Loading collection ansible.builtin from 
-...
-up=False, tasks child state? (None), rescue child state? (None), always child state? (None), did rescue? False, did start at task? False
-
-PLAY RECAP *********************************************************************************************************************************************************************************
-catalyst_center53          : ok=7    changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0    -->
-```
