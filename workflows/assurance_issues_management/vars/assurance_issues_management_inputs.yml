@@ -3,40 +3,86 @@
 catalyst_center_version: 2.3.7.9
 catalyst_center_verify: false
 assurance_issues_settings:
+  # Create userdefined issue
   - assurance_user_defined_issue_settings:
-      - name: High CPU Usage Alert
+      - name: High CPU Usage Alert issue
         description: Triggers an alert when CPU usage exceeds threshold
         rules:
           - severity: Warning
-            facility: REDUNDANCY
-            mnemonic: PEER_MONITOR_EVENT
-            pattern: issue test
+            facility: LISP
+            mnemonic: MAP_CACHE_WARNING_THRESHOLD_REACHED
+            pattern: The LISP map-cache limit warning threshold * entries for instance-id * has been reached.
             occurrences: 1
             duration_in_minutes: 2
-        is_enabled: false
+        is_enabled: true
         priority: P1
         is_notification_enabled: false
+
+  # Update userdefined issue
   - assurance_user_defined_issue_settings:
-      - prev_name: High CPU Usage Alert
+      - prev_name: High CPU Usage Alert issue
         name: Excessive CPU Utilization Alert
-        description: testing
+        description: Triggers an alert when CPU usage exceeds threshold
         rules:
-          - severity: "2"
-            facility: REDUNDANCY
-            mnemonic: PEER_MONITOR_EVENT
-            pattern: issue test
+          - severity: Warning
+            facility: LISP
+            mnemonic: MAP_CACHE_WARNING_THRESHOLD_REACHED
+            pattern: The LISP map-cache limit warning threshold * entries for instance-id * has been reac.
             occurrences: 1
-            duration_in_minutes: 2
-        is_enabled: false
+            duration_in_minutes: 3
+        is_enabled: true
         priority: P1
         is_notification_enabled: false
+
+  # Delete userdefined issue
   - assurance_user_defined_issue_settings:
-      - name: High CPU Usage Alert
+      - name: Excessive CPU Utilization Alert
+
+  # Update System define issue
   - assurance_system_issue_settings:
-      - name: "Assurance telemetry status is poor"
-        description: RF Noise (5GHz)
-        device_type: WIRED_CLIENT
-        synchronize_to_health_threshold: true
-        priority: P1
-        issue_enabled: false
-        threshold_value: -10
+    - name: "Radio Down (2.4 GHz)"
+      description: 2.4 GHz Radio on the AP is down.
+      device_type: UNIFIED_AP
+      #synchronize_to_health_threshold: true
+      priority: P2
+      issue_enabled: true
+      #threshold_value: 10
+
+  # Resolve assurance issue
+  - assurance_issue:
+    - issue_name: Internet service on Fabric Border 'SJ-BN-9300.cisco.local' is unavailable on Transit Control Plane 'DC-T-9300.cisco.local'  # required field
+      issue_process_type: resolution  # required field
+      #start_datetime: "2024-04-23 11:30:00"  # optional field
+      #end_datetime: "2024-05-20 11:50:00"  # optional field
+      site_hierarchy: Global/USA/SAN JOSE/SJ_BLD23  # optional field
+      #device_name: NY-BN-9500.cisco.local  # optional field
+      priority: P1  # optional field
+      issue_status: ACTIVE  # optional field
+      #mac_address: e4:38:7e:42:bc:40  # optional field
+      #network_device_ip_address: 204.1.2.4  # optional field
+
+  # Ignore assurance issue
+  - assurance_issue:
+    - issue_name: PKI - Non authoritative clock  # required field
+      issue_process_type: ignore  # required field
+      #start_datetime: "2024-04-23 11:30:00"  # optional field
+      #end_datetime: "2024-05-20 11:50:00"  # optional field
+      site_hierarchy: Global/USA/SAN JOSE/SJ_BLD23  # optional field
+      #device_name: SJ-IM-1-9300.cisco.local  # optional field
+      priority: P1  # optional field
+      issue_status: ACTIVE  # optional field
+      #mac_address: 24:6c:84:d3:7f:80  # optional field
+      #network_device_ip_address: 204.1.2.1
+
+  # Execute suggested commands
+  - assurance_issue:
+    - issue_name: Excessive time lag between Cisco Catalyst Center and device "SF-BN-1-ISR.cisco.local"  # required field
+      issue_process_type: command_execution  # required field
+      #start_datetime: "2024-04-23 11:30:00"  # optional field
+      #end_datetime: "2024-05-20 11:50:00"  # optional field
+      site_hierarchy: Global/USA/SAN-FRANCISCO/SF_BLD1  # optional field
+      #device_name: NY-BN-9500.cisco.local  # optional field
+      priority: P3  # optional field
+      issue_status: ACTIVE  # optional field
+      #mac_address: e4:38:7e:42:bc:40  # optional field
+      #network_device_ip_address: 204.1.2.1  # optional field
