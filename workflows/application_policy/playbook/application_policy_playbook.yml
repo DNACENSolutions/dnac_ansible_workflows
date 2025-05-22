@@ -7,7 +7,7 @@
   vars_files:
     - "{{ VARS_FILE_PATH }}"
   vars:
-    state: deleted
+    state: merged
     catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
