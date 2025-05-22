@@ -297,8 +297,6 @@ If there is an error in the input or an issue with the API call during execution
 2.  **Verify Deployment:** 
 After executing the playbook, check the Catalyst Center UI to verify wireless design. If *debug_log* is enabled, you can also review the logs for detailed information on operations performed and any updates made.
 
-![Alt text](./images/assurance_pathtrace.png)
-
 ---
 
 ### References
