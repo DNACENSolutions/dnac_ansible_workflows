@@ -139,7 +139,7 @@ The *Network Profile Wireless* feature relies on optional components. If used, t
 - **Feature Template**: Additional feature settings.
 
 ##### 1. **Create Wireless Network Profile**  
-*Example*: Configure a new wireless profile with specific site assignments and SSID details.  
+a. *Example*: Configure a new wireless profile with specific site assignments and SSID details using interface name
 ```yaml
 catalyst_center_version: 2.3.7.9  # Cisco Catalyst Center version
 wireless_nw_profiles_details:
@@ -166,18 +166,46 @@ wireless_nw_profiles_details:
       - Ans NP WL CLI Temp DayN 1
 ```
 
+b. *Example*: Configure a new wireless profile with specific site assignments and SSID details using Vlan Group name
+```yaml
+catalyst_center_version: 2.3.7.9  # Cisco Catalyst Center version
+wireless_nw_profiles_details:
+  - profile_name: "Ansible Wireless Profile Creation"  # Name of the profile
+    site_names:  # Sites where the profile is applied
+      - Global/USA/SAN JOSE/SJ_BLD22
+      - Global/USA/SAN JOSE/SJ_BLD23
+    ssid_details:  # SSID configurations
+      - ssid_name: custom_rf_ssid
+        enable_fabric: false
+        dot11be_profile_name: Ans NP WL BE 1
+        vlan_group_name: Ans NP WL INT group 1
+        anchor_group_name: Ans_Anchor_1
+    ap_zones:  # AP zone configurations
+      - ap_zone_name: Ans_NP_WL_AP_zone
+        rf_profile_name: Ans_NP_RF_1
+        ssids: custom_rf_ssid
+    additional_interfaces:  # Additional interfaces
+      - interface_name: Ans NP WL INT element 1
+      - interface_name: Ans NP WL INT element 3
+    onboarding_templates:  # Onboarding templates
+      - Ans NP WL CLI Temp Onboarding 1
+    day_n_templates:  # Day-N templates
+      - Ans NP WL CLI Temp DayN 1
+```
+
 ##### 2. **Update Wireless Network Profile**  
 *Example*: Update an existing profile with new site assignments or configurations.  
 > **Note**: Ensure the profile exists before updating.  
+> **Note**: To update a wireless network profile, provide all configurations in the input file. Only modify the specific configurations you want to change. Any omitted configurations will be treated as a request to remove them. In the example below, only the ssid_details configuration is updated, while other settings remain unchanged. As a result, the network profile will reflect the updated SSID details
 ```yaml
 catalyst_center_version: 2.3.7.9
 wireless_nw_profiles_details:
   - profile_name: "Ansible Wireless Profile Update"
     site_names:
-      - Global/USA/SAN JOSE/SJ_BLD20 # update to new Site
+      - Global/USA/SAN JOSE/SJ_BLD20
       - Global/USA/SAN JOSE/SJ_BLD21
     ssid_details:
-      - ssid_name: custom_rf_ssid
+      - ssid_name: custom_rf_ssid_1 # update new SSID detail
         enable_fabric: false
         dot11be_profile_name: Ans NP WL BE 1
         interface_name: Ans NP WL INT element 1
