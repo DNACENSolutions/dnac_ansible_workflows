@@ -113,70 +113,160 @@ The *SDA Fabric Multicast* feature relies on these components that must be prede
 - **IP Pool**: IP pool for multicast must be configured and available  
 
 ##### 1. Create Multicast Configuration Example (state: merged):
+
+###### a. HEADEND_REPLICATION with both SSM and ASM (external)
 ```yaml
+- fabric_multicast:
+  - fabric_name: "Global/USA/SAN JOSE"
+    layer3_virtual_network: "VN1"
+    replication_mode: HEADEND_REPLICATION
+    ip_pool_name: "multicast2_sjc"
+    ssm:
+      ipv4_ssm_ranges:
+        - "229.0.0.0/8"
+        - "230.0.0.0/8"
+    asm:
+      # ASM with external RP
+      - rp_device_location: "EXTERNAL"
+        ex_rp_ipv4_address: "204.1.2.70"
+        ipv4_asm_ranges:
+          - "236.0.0.0/8"
+      # ASM with fabric RP
+      - rp_device_location: "FABRIC"
+        network_device_ips:
+          - "d41ebdcf-b054-424f-97d6-9ed2766c214b"
+        ipv4_asm_ranges:
+          - "233.0.0.0/8"
+```
+###### b. NATIVE_MULTICAST with both SSM and ASM (external & fabric)
+```yaml
+- fabric_multicast:
+  - fabric_name: "Global/USA/SAN JOSE"
+    replication_mode: NATIVE_MULTICAST
+    layer3_virtual_network: "VN1"
+    ip_pool_name: "multicast2_sjc"
+    ssm:
+      ipv4_ssm_ranges:
+        - "232.0.0.0/8"
+    asm:
+      # ASM with external RP
+      - rp_device_location: "EXTERNAL"
+        ex_rp_ipv4_address: "204.1.2.70"
+        ipv4_asm_ranges:
+          - "239.0.0.0/8"
+        is_default_v4_rp: false
+        is_default_v6_rp: false
+        ipv6_asm_ranges: []
+      # ASM with fabric RP
+      - rp_device_location: "FABRIC"
+        network_device_ips:
+          - "d41ebdcf-b054-424f-97d6-9ed2766c214b"
+        ipv4_asm_ranges:
+          - "238.0.0.0/8"
+        is_default_v4_rp: false
+        is_default_v6_rp: false
+        ipv6_asm_ranges: []
+```
+###### c. NATIVE_MULTICAST with ASM (fabric)
+```yaml
+- fabric_multicast:
+  - fabric_name: "Global/USA/SAN JOSE"
+    replication_mode: NATIVE_MULTICAST
+    layer3_virtual_network: "VN1"
+    ip_pool_name: "multicast2_sjc"
+      - rp_device_location: "FABRIC"
+        network_device_ips:
+          - "d41ebdcf-b054-424f-97d6-9ed2766c214b"
+        is_default_v4_rp: true    
+        is_default_v6_rp: true
+        ipv6_asm_ranges: []
+```
+###### d. HEADEND_MULTICAST with ASM (external) ipv6
 
-config:
-  - fabric_multicast:
-      # Example 1: HEADEND_REPLICATION with both SSM and ASM (external & fabric)
-      - fabric_name: "Global/USA/SAN JOSE"
-        layer3_virtual_network: "VN1"
-        replication_mode: HEADEND_REPLICATION
-        ip_pool_name: "multicast2_sjc"
-        ssm:
-          ipv4_ssm_ranges:
-            - "229.0.0.0/8"
-            - "230.0.0.0/8"
-        asm:
-          # ASM with external RP
-          - rp_device_location: "EXTERNAL"
-            ex_rp_ipv4_address: "204.1.2.70"
-            ipv4_asm_ranges:
-              - "236.0.0.0/8"
-          # ASM with fabric RP
-          - rp_device_location: "FABRIC"
-            network_device_ips:
-              - ""d41ebdcf-b054-424f-97d6-9ed2766c214b""
-            ipv4_asm_ranges:
-              - "233.0.0.0/8"
-
-      # Example 2: NATIVE_MULTICAST with both SSM and ASM (external & fabric)
-      - fabric_name: "Global/USA/SAN JOSE"
-        replication_mode: NATIVE_MULTICAST
-        layer3_virtual_network: "VN1"
-        ip_pool_name: "multicast2_sjc"
-        ssm:
-          ipv4_ssm_ranges:
-            - "232.0.0.0/8"
-        asm:
-          # ASM with external RP
-          - rp_device_location: "EXTERNAL"
-            ex_rp_ipv4_address: "204.1.2.70"
-            ipv4_asm_ranges:
-              - "239.0.0.0/8"
-            is_default_v4_rp: false
-            is_default_v6_rp: false
-            ipv6_asm_ranges: []
-          # ASM with fabric RP
-          - rp_device_location: "FABRIC"
-            network_device_ips:
-              - "d41ebdcf-b054-424f-97d6-9ed2766c214b"
-            ipv4_asm_ranges:
-              - "238.0.0.0/8"
-            is_default_v4_rp: false
-            is_default_v6_rp: false
-            ipv6_asm_ranges: []
+```yaml
+- fabric_multicast:
+  - fabric_name: "Global/USA/SAN JOSE"
+    replication_mode: NATIVE_MULTICAST
+    layer3_virtual_network: "VN1"
+    ip_pool_name: "multicast2_sjc"
+    asm:
+      # ASM with external RP
+      - rp_device_location: "EXTERNAL"
+        ex_rp_ipv4_address: "204.1.2.70"
+        ex_rp_ipv6_address: "2004:15:14::1:0:1"
+        ipv4_asm_ranges:
+          - "239.0.0.0/8"
+          - "235.0.0.0/8"
+        is_default_v4_rp: false
+        is_default_v6_rp: false
+        ipv6_asm_ranges: 
+          - "FF08::/16"
+```
+###### e. HEADEND_MULTICAST with ASM (external)
+```yaml
+- fabric_multicast:
+  - fabric_name: "Global/USA/SAN JOSE"
+    replication_mode: NATIVE_MULTICAST
+    layer3_virtual_network: "VN1"
+    ip_pool_name: "multicast2_sjc"
+    asm:
+      # ASM with external RP
+      - rp_device_location: "EXTERNAL"
+        ex_rp_ipv4_address: "204.1.2.70"
+        ipv4_asm_ranges:
+          - "239.0.0.0/8"
+        is_default_v4_rp: false
+        is_default_v6_rp: false
+        ipv6_asm_ranges: []
 ```
 
-##### 2. Delete Multicast Configuration Example (state: deleted):
+##### 2. Update Multicast Configuration Example (state: merged):
+
 ```yaml
-    config:
-      - fabric_multicast:
-          - fabric_name: "Global/USA/SAN JOSE"
-            layer3_virtual_network: "VN1"
+- fabric_multicast:
+  - fabric_name: "Global/USA/SAN JOSE"
+    layer3_virtual_network: "VN1"
+    replication_mode: HEADEND_REPLICATION
+    ip_pool_name: "multicast1_sjc"
+    ssm:
+      ipv4_ssm_ranges:
+        - "232.0.0.0/8"
 ```
-  ###### ![Delete SDA Multicasts Example](./images/delete_sda_multicast.png)  
-  ###### **Figure 1**: *Delete SDA Multicasts Example*
+  ###### ![Update SDA Multicasts Example](./images/update_sda_multicast.png)  
+  ###### **Figure 1**: *Update SDA Multicasts Example*
 ---
+
+##### 3. Delete Multicast Configuration Example (state: deleted):
+
+###### a. Delete SDA multicast with fabric_name and layer3_virtual_network
+```yaml
+  - fabric_multicast:
+      - fabric_name: "Global/USA/SAN JOSE"
+        layer3_virtual_network: "VN1"
+```
+###### b. Delete the source '226.0.0.0/8' from the ssm multicast configuration
+```yaml
+- fabric_multicast:
+  - fabric_name: "Global/USA/SAN JOSE"
+    layer3_virtual_network: "VN1"
+    ssm:
+      ipv4_ssm_ranges:
+        - "226.0.0.0/8"
+```
+###### c. Delete the RP '204.1.2.70' from the asm multicast configuration
+```yaml
+  - fabric_multicast:
+      - fabric_name: "Global/USA/SAN JOSE"
+        layer3_virtual_network: "VN1"
+        asm:
+          - rp_device_location: "EXTERNAL"
+            ex_rp_ipv4_address: "204.1.2.70"
+```
+
+  ###### ![Delete SDA Multicasts Example](./images/delete_sda_multicast.png)  
+  ###### **Figure 2**: *Delete SDA Multicasts Example*
+---
+
 
 #### Validate Configuration
 > **Important**: Validate your input schema before executing the playbook to ensure all parameters are correctly formatted.  
@@ -186,7 +276,7 @@ Run the following command to validate your input file against the schema:
 ```
 
 ##### ![Validate parameters Multicast Configuration Example](./images/validate_parameters_multicast.png)  
-##### **Figure 2**: *Validate parameters Multicast Configuration*
+##### **Figure 3**: *Validate parameters Multicast Configuration*
 ---
 
 ### Step 3: Deploy and Verify
@@ -204,7 +294,7 @@ Run the following command to validate your input file against the schema:
    After execution, verify the configuration in the Cisco Catalyst Center UI under the SDA fabric multicast section. If `catalyst_center_debug` is enabled, review the logs for detailed operation information.
 
    ![Multicast Configuration Example](./images/mapping_parameter_multicast.png)  
-   **Figure 3**: *SDA Fabric Multicast Configuration in Cisco Catalyst Center*
+   **Figure 4**: *SDA Fabric Multicast Configuration in Cisco Catalyst Center*
 
 ---
 
