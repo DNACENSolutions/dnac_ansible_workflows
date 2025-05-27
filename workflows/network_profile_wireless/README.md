@@ -156,7 +156,8 @@ wireless_nw_profiles_details:
     ap_zones:  # AP zone configurations
       - ap_zone_name: Ans_NP_WL_AP_zone
         rf_profile_name: Ans_NP_RF_1
-        ssids: custom_rf_ssid
+        ssids: 
+          - custom_rf_ssid
     additional_interfaces:  # Additional interfaces
       - interface_name: Ans NP WL INT element 1
       - interface_name: Ans NP WL INT element 3
@@ -183,7 +184,8 @@ wireless_nw_profiles_details:
     ap_zones:  # AP zone configurations
       - ap_zone_name: Ans_NP_WL_AP_zone
         rf_profile_name: Ans_NP_RF_1
-        ssids: custom_rf_ssid
+        ssids: 
+          - custom_rf_ssid
     additional_interfaces:  # Additional interfaces
       - interface_name: Ans NP WL INT element 1
       - interface_name: Ans NP WL INT element 3
@@ -213,7 +215,8 @@ wireless_nw_profiles_details:
     ap_zones:
       - ap_zone_name: Ans_NP_WL_AP_zone
         rf_profile_name: Ans_NP_RF_1
-        ssids: Ans NP WL SSID Ent
+        ssids: 
+          - Ans NP WL SSID Ent
     additional_interfaces:
       - interface_name: Ans NP WL INT element 1
       - interface_name: Ans NP WL INT element 3
