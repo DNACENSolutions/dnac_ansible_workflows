@@ -7,7 +7,6 @@ Key features include:
 - **ICAP Session Management:**  
   - Create and deploy ICAP (Intelligent Capture) sessions for onboarding, full, OTA, RF statistics, and anomaly captures.
   - Specify capture parameters such as client MAC, AP, WLC, slot, OTA band, channel, and duration.
-  - Download PCAP files for offline analysis.
 
 - **Automated Troubleshooting:**  
   - Automate the collection of packet captures for client onboarding and wireless troubleshooting.
@@ -96,108 +95,170 @@ Prepare the input data for creating or managing ICAP settings and downloads.
 
 ---
 
-#### Example Input File
+### Example Input File
 
 Below are example input files for each `capture_type` supported by the ICAP workflow. You can use these as templates for your own automation.
 
 ---
+##### 1. Create ICAP Settings:
 
-**1. ONBOARDING Capture**
 
+**a. ONBOARDING Capture**
 ```yaml
   - assurance_icap_settings:
       - capture_type: ONBOARDING
         preview_description: "Onboarding troubleshooting session"
-        duration_in_mins: 15
-        client_mac: 00:11:22:33:44:55
-        wlc_name: WLC-1.cisco.local
+        duration_in_mins: 30
+        client_mac: 68:3B:78:FA:2E:5C
+        wlc_name: assu-s10-spatha-10.wnburcdnst.com
 state: merged
 ```
+Figure 1 Go to page ICAP Settings in Catalyst Center to create ICAP settings.
+
+![Alt text](./images/icap_onboarding_capture_page1.png)
+
+Figure 2 Create Schedule Client Capture in Catalyst Center.
+
+![Alt text](./images/icap_onboarding_capture_page2.png)
+
+Figure 3 Choose WLC and Client MAC Address in Catalyst Center.
+![Alt text](./images/icap_onboarding_capture_page3.png)
+
+Figure 4 Cick "Next" and Deploy configure.
+![Alt text](./images/icap_onboarding_capture_page4.png)
+
+Figure 4 Check ICAP setting created.
+![Alt text](./images/icap_onboarding_capture_page.png)
 
 ---
 
-**2. FULL Capture**
+**b. FULL Capture**
 
 ```yaml
   - assurance_icap_settings:
       - capture_type: FULL
         preview_description: "Full traffic capture for deep analysis"
-        duration_in_mins: 20
-        client_mac: AA:BB:CC:DD:EE:FF
-        wlc_name: WLC-2.cisco.local
+        duration_in_mins: 30
+        client_mac: 68:3B:78:FA:2E:5C
+        wlc_name: assu-s10-spatha-10.wnburcdnst.com
 state: merged
 ```
+Figure 1 Go to page ICAP Settings in Catalyst Center to create ICAP settings.
+![Alt text](./images/icap_onboarding_capture_page1.png)
+
+Figure 2 Run Data Packet Capture in Catalyst Center.
+![Alt text](./images/icap_full_capture_page1.png)
+
+Figure 3 Choose WLC and Client MAC Address in Catalyst Center.
+![Alt text](./images/icap_full_capture_page2.png)
+
+Figure 4 Apply Setting and Deploy.
+![Alt text](./images/icap_full_capture_page3.png)
+
+Figure 5 Configuration has been created.
+![Alt text](./images/icap_full_capture_page4.png)
 
 ---
 
-**3. OTA (Over-the-Air) Capture**
+**c. OTA (Over-the-Air) Capture**
 
 ```yaml
   - assurance_icap_settings:
       - capture_type: OTA
         preview_description: "OTA capture for Wi-Fi troubleshooting"
         duration_in_mins: 10
-        client_mac: 12:34:56:78:9A:BC
-        ap_name: AP-1.cisco.local
-        slot: [1]
-        ota_band: 5GHz
-        ota_channel: 36
-        ota_channel_width: 40
+        client_mac: 20:CC:27:C2:D4:80
+        ap_name: s10-SB2-9172H-BF20
+        slot: [0]
+        ota_band: 2.4GHz
+        ota_channel: 11
+        ota_channel_width: 20
 state: merged
 ```
+Figure 1 Go to page Health in Catalyst Center to create ICAP settings.
+
+![Alt text](./images/icap_ota_capture_page1.png)
+
+Figure 2 Go to Client page and Choose Wireless Client in Catalyst Center.
+
+![Alt text](./images/icap_ota_capture_page2.png)
+
+Figure 3 Go to Intelligent Capture of Wireless Client in Catalyst Center.
+![Alt text](./images/icap_ota_capture_page3.png)
+
+Figure 4 Run Packet Capture ò Device in Catalyst Center.
+![Alt text](./images/icap_ota_capture_page4.png)
+
+Figure 5 Choose OTA Sniffer type and choose AP in Catalyst Center.
+
+![Alt text](./images/icap_ota_capture_page5.png)
+
+Figure 6 Enter parameters want configure and "Next" in Catalyst Center.
+
+![Alt text](./images/icap_ota_capture_page6.png)
+
+Figure 7 Enter parameters want configure and "Next" in Catalyst Center.
+
+![Alt text](./images/icap_ota_capture_page7.png)
+
+Figure 7 Apply and Deploy in Catalyst Center.
+
+![Alt text](./images/icap_ota_capture_page8.png)
 
 ---
 
-**4. RFSTATS Capture**
+**d. RFSTATS Capture**
 
 ```yaml
   - assurance_icap_settings:
       - capture_type: RFSTATS
         preview_description: "RF statistics capture"
-        duration_in_mins: 5
-        client_mac: 98:76:54:32:10:FE
+        wlc_name: 98:76:54:32:10:FE
         ap_name: AP-2.cisco.local
-        slot: [0]
-        ota_band: 2.4GHz
 state: merged
 ```
+Figure 1 Go to page Assurance ICAP Settings in Catalyst Center to create ICAP settings.
+![Alt text](./images/assurance_intelligent_rfs_capture1.png)
+
+Figure 2 Go to AP Stats Capture page and then choose AP device want to enable RFSTATS.
+![Alt text](./images/assurance_intelligent_rfs_capture2.png)
+
+Figure 3 Choose AP device want to enable RFSTATS and then click "Enable"
+![Alt text](./images/assurance_intelligent_rfs_capture3.png)
+
+Figure 4 Click "Next" and Deploy configure.
+![Alt text](./images/assurance_intelligent_rfs_capture4.png)
 
 ---
-
-**5. ANOMALY Capture**
+**e. ANOMALY Capture**
 
 ```yaml
   - assurance_icap_settings:
       - capture_type: ANOMALY
-        preview_description: "Anomaly detection capture"
-        duration_in_mins: 12
-        client_mac: 01:23:45:67:89:AB
-        ap_name: AP-3.cisco.local
-        slot: [1]
-        ota_band: 6GHz
-        ota_channel: 5
-        ota_channel_width: 20
+        preview_description: "RF statistics capture"
+        wlc_name: 98:76:54:32:10:FE
 state: merged
 ```
+
+Figure 1 Go to page ICAP Settings in Catalyst Center to create ICAP settings.
+![Alt text](./images/assurance_intelligent_capture1.png)
+
+Figure 2 Go to Anomaly Capture page and then Enable AP Anomaly Capture in Catalyst Center.
+![Alt text](./images/assurance_intelligent_capture2.png)
+
+Figure 3 Click "Next" and Deploy configure.
+![Alt text](./images/assurance_intelligent_capture3.png)
 
 ---
 
-**Download ICAP PCAP File Example**
-
-```yaml
-  - assurance_icap_download:
-      - capture_type: OTA
-        client_mac: 12:34:56:78:9A:BC
-        ap_mac: 00:AA:BB:CC:DD:EE
-        start_time: "2025-06-01 09:00:00"
-        end_time: "2025-06-01 09:10:00"
-        file_path: /Users/youruser/Downloads
-state: merged
-```
-
 > **Note:**  
-> - For `OTA` and `ANOMALY` capture types, `ap_name` (for creation) and `ap_mac` (for download) are required.
-> - Adjust `duration_in_mins`, MAC addresses, and device names as needed for your environment.
+- ANOMALY: captureType=ANOMALY, wcid, apId (AP), wcid (WLC)
+- FULL: captureType=FULL, wcid, clientMac, durationInMins (30-480)
+- ONBOARDING: captureType=ONBOARDING, wcid, clientMac, durationInMins (30-480)
+- OTA: captureType=OTA, wcid, apId, otaBand, otaChannel, otaChannelWidth, slots (1), otaMode (Optional: RADIO/AP, Default RADIO), durationInMins=15 (Optional)
+- RFSTATS: captureType=RFSTATS, wcid, apId (AP), wcid (WLC), durationInMins=10 (Optional)
+- SPECTRUM: captureType=SPECTRUM, wcid, apId, slots, durationInMins=10 (Optional)
+- Note: All POST body objects must share the same captureType, with required fields per type.
 
 #### Validate Configuration
 
@@ -207,7 +268,6 @@ Run the following command to validate your input file against the schema:
 ```bash
 ./tools/validate.sh -s ./workflows/assurance_intelligent_capture/schema/assurance_intelligent_capture_schema.yml -d ./workflows/assurance_intelligent_capture/vars/assurance_intelligent_capture_inputs.yml
 ```
-
 ---
 
 ### Step 3: Deploy and Verify
@@ -221,7 +281,6 @@ Run the following command to validate your input file against the schema:
 
 2. **Verify Deployment:**  
    After executing the playbook, check the Catalyst Center UI for ICAP session status. If `catalyst_center_log` is enabled, review the logs for detailed information. For downloads, verify the PCAP file exists in the specified directory.
-
 ---
 
 
