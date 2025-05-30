@@ -130,7 +130,6 @@ assurance_icap_download_type:
     start_time: str(required=False)
     end_time: str(required=False)
     file_path: str(required=False)
-    file_name: str(required=False)
 assurance_icap_settings_type:
   capture_type: enum("FULL", "ONBOARDING", "OTA", "RFSTATS", "ANOMALY", required=True)
   duration_in_mins: num(required=False)
