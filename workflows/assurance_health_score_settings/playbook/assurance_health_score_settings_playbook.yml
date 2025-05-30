@@ -32,16 +32,16 @@
         long_op_start: "{{ now() }}"
 
     # load ise_radius_integration_details template jinja file
-    # - name: Load template file to generate the assurance health score settings
-    #   template: 
-    #     src: "{{ jinjatemplate_file }}"
-    #     dest: ../tmp/template_generated_file.yaml
-    #   when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    - name: Load template file to generate the assurance health score settings
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     # Include the variables file ../tmp/template_generated_file.yaml for the playbook
-    # - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
-    #   include_vars:
-    #     file: ../tmp/template_generated_file.yaml
-    #   when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     - name: Configure assurance health score settings from file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       # Replace with the actual Cisco DNAC module for health score settings
       # Example placeholder module name: cisco.dnac.assurance_health_score_settings
@@ -57,9 +57,9 @@
         msg: "{{ health_score_output }}"
 
     # delete the template file
-    # - name: Delete the template file
-    #   ansible.builtin.command: rm ../tmp/template_generated_file.yaml
-    #   when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
     - name: Playbook end time for the assurance health score settings playbook
       set_fact:
         long_op_end: "{{ now() }}"

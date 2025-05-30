@@ -25,13 +25,13 @@ wireless_design_details_type:
 # SSID schema definitions
 ssids_type:
   ssid_name: str(required=True)
-  ssid_type: enum("Enterprise", "Guest", required=True)
+  ssid_type: enum("Enterprise", "Guest", required=False)
   wlan_profile_name: str(required=False)
   radio_policy: include('radio_policy_type', required=False)
   fast_lane: bool(required=False, default=False)
   quality_of_service: include('quality_of_service_type', required=False)
   ssid_state: include('ssid_state_type', required=False)
-  l2_security: include('l2_security_type', required=True)
+  l2_security: include('l2_security_type', required=False)
   fast_transition: enum("ADAPTIVE", "ENABLE", "DISABLE", required=False, default="DISABLE")
   fast_transition_over_the_ds: bool(required=False, default=False)
   wpa_encryption: list(enum("GCMP256", "CCMP256", "GCMP128", "CCMP128"), required=False)
