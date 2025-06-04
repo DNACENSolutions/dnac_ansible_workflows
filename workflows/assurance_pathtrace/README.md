@@ -91,72 +91,7 @@ This schema defines the structure of the input file for configuring a Path Trace
 | `flow_analysis_id`         | String   | No           | N/A               | The Flow Analysis ID returned when a path trace is created. Used to retrieve or delete the trace. |
 
 # Path Trace Limitations
-
-All the below listed Catalyst Center Path trace limitation apply to workflow/playbook also
-
-## Path trace has the following limitations and restrictions.
-
-1. Path trace from a third-party device in Catalyst Center is not supported.
-
-2. Path trace between a fabric client and a nonfabric client is not supported.
-
-3. Path trace between two fabric clients over multi virtual routing and forwarding (VRF) virtual networks (VNs) is not      supported.
-
-4. Path trace between two fabric clients over multi sites (domains) is not supported.
-
-5. Clients connected in the same fabric and same site where either edge switch is not part of the fabric is not supported.
-
-6. Path trace from a router's loopback interface is not supported.
-
-7. Overlapping IP addresses are not supported with or without fabric.
-
-8. For path trace to work on a Locator ID/Separation Protocol (LISP) fabric, make sure that the traffic is running and cache is available on the edge switches.
-
-9. Path trace in Cisco Adaptive Security Appliances (ASA) is not supported because Cisco ASA does not support CDP. It is not possible to identify the path through the Cisco ASA appliance.
-
-10. Path trace is not supported for the management interface in wireless controllers in untagged mode.
-
-11. Path trace for centralized Wireless Mobility Modes Asymmetric Mobility Tunneling is not supported.
-
-12. Path trace for Virtual Switching System (VSS), Multi-Link Aggregation Control Protocol (MLACP), or Virtual PortChannel (vPC) is not supported.
-
-13. Path trace for Equal-Cost Multi-Path Routing (ECMP) over Switched Virtual Interface (SVI) is not supported.
-
-14. Path trace is not supported on devices with NAT or firewall.
-
-15. Cisco Performance Routing (PfR) is not supported with DMVPN tunnels.
-
-16. Path trace that has VLAN ACLs (VACLs) enabled is not supported.
-
-17. For a Non Periodic Refresh (NPR) path scenario, after an upgrade, the controller does not refresh the path. Additionally, statistics collection stops. To continue statistics collection, you must initiate a new path request.
-
-18. Path trace from a host in a Hot Standby Router Protocol (HSRP) VLAN to a host in a non-HSRP VLAN that is connected to any of the HSRP routers is not supported.
-
-19. Object groups are not supported in an ACL trace.
-
-20. Port-channel Port Aggregation Protocol (PAgP) mode is not supported. Only LACP mode is supported.
-
-21. Applying a performance monitor configuration using Catalyst Center fails if there is a different performance monitor policy configuration on the interface. Remove the performance monitor configuration on the interface and resubmit the path trace request.
-
-22. Path trace for Performance Monitor statistics is not supported for Cisco ASR 1000 Series routers (Cisco IOS XE 16.3.1).
-
-23. Path trace for Performance Monitor statistics is not supported for the Cisco Catalyst 3850 Switch (Cisco IOS XE 16.2.x and 16.3.1).
-
-24. Path trace for Cisco Mobility Express (ME) wireless controllers is not supported.
-
-25. Path trace for wireless clients that use OTT in Cisco SD-Access fabric is not supported.
-
-26. Path trace from a Layer 2 switch is not supported.
-
-27. Cisco's Industrial Ethernet (IE) Switches are extended nodes as part of the SD-Access solution. Currently, path trace does not recognize extended nodes, so if a topology contains extended nodes, you will get an error message.
-
-28. Dual stack that has both IPv4 and IPv6 addresses for devices is not supported. If this occurs, an error message displays stating that the given address is unknown.
-
-Because Cisco wireless controllers do not send SNMP mobility traps, note the following:
-
-  - For a path trace request, Catalyst Center does not have the right egress virtual interface highlighted on any foreign wireless controller.
-
-  - The path trace request does not highlight any ACLs applied on the foreign wireless controller.
+ For a complete list of limitations and supported scenarios, please refer to the official documentation: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/path_trace
 
 ## Example Input File
 
@@ -183,7 +118,6 @@ pathtrace_details:
     dest_ip: "204.1.208.152" # required field
     get_last_pathtrace_result: true
   ```
-
 2. **Delete path trace based on source and destination IP**
 Removes an existing path trace session from Catalyst Center by specifying the source and destination IP addresses.
 ```yaml
@@ -192,7 +126,6 @@ pathtrace_details:
   - source_ip: "204.1.208.150"  # required field
     dest_ip: "204.1.208.152"  # required field
 ```
-
 3. **Retrieve last path trace**
 Fetches the most recent path trace result for a given source and destination IP pair, allowing you to review the latest analysis.
 ```yaml
@@ -202,7 +135,6 @@ pathtrace_details:
     dest_ip: "204.1.2.4"  # required field
     get_last_pathtrace_result: true
 ```
-
 4. **Retrieve path trace based on the flow analysis id**
 Obtains the details of a specific path trace using its unique flow analysis ID, which is returned when a path trace is created.
 ```yaml
@@ -278,7 +210,7 @@ This is the final step where you deploy the configuration to Cisco Catalyst Cent
 
 1.  **Deploy Configuration:** 
 
-Run the playbook to seamlessly apply the wireless network profile configuration defined in your input variables to Cisco Catalyst Center. 
+Run the playbook to seamlessly apply the assurance path trace configuration defined in your input variables to Cisco Catalyst Center. 
 Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the --e variable as VARS_FILE_PATH. The VARS_FILE_PATH must be provided as a full path to the input file.
 This ensures that the configuration is accurately deployed to Cisco Catalyst Center, automating the setup process and reducing the risk of manual errors.
 
@@ -291,7 +223,7 @@ If there is an error in the input or an issue with the API call during execution
 
 
 2.  **Verify Deployment:** 
-After executing the playbook, check the Catalyst Center UI to verify wireless design. If *debug_log* is enabled, you can also review the logs for detailed information on operations performed and any updates made.
+After executing the playbook, check the Catalyst Center UI to verify path trace. If *debug_log* is enabled, you can also review the logs for detailed information on operations performed and any updates made.
 
 ---
 
