@@ -19,8 +19,9 @@ A Software-Defined Access (SDA) fabric network may comprise multiple sites. Each
   - Supports managing queuing profiles and application policies for traffic classification and prioritization.
   - Apply Pending Events: Supports applying pending fabric updates caused by changes like IP address pool modifications, ensuring configurations are fully synchronized and devices are updated accordingly.
 
-**version_added:** "6.21.0"
-
+**Version Information:**
+- Fabric Site & Zone Management introduced in: **v6.21.0**
+- Pre-Authentication ACL and Apply Pending Events in: **v6.32.0**
 ---
 
 This README outlines the steps to use the Ansible playbooks for managing Application Policies in Cisco Catalyst Center.
@@ -61,10 +62,11 @@ catalyst_center_hosts:
 
 1. **Prerequisite:**
   - Need Site Hierarchy created
+  - ISE setup required
 
 2.  **Define Input Variables:** Create variable files (e.g., `vars/sda_fabric_sites_zones_inputs.yml`) that define the desired state of your fabric sites, including zones and authentication profile configurations. Refer to the schema below to structure the input variables correctly.
 
-#### Fabric Site And Fabric Zone Schem
+#### Fabric Site And Fabric Zone Schema
 
 This schema defines the structure of the input file for configuring Fabric Site and Fabric zone in Cisco Catalyst Center. Below is a breakdown of the parameters, including their requirements and descriptions.
 
@@ -139,25 +141,23 @@ If you select Closed Authentication, Open Authentication, or Low Impact, you can
 These examples show how to define input YAML files for Fabric Site & Zone Management, Authentication Control and Apply Pending Events in Cisco Catalyst Center.
 
 
-A. Create an Fabric sites and fabric zones (state: merged)
-Figure 1 Creating Fabric Sites and Fabric Zones
-
+A. Create Fabric Sites and Fabric Zones (state: merged)
+Figure 1: Creating Fabric Sites and Fabric Zones
 ![Alt text](./images/Fabric_sites.png)
 
 Figure 2 Select the Authentication profile for the fabric site
-
 ![Alt text](./images/Fabric_site_auth_profile.png)
 
 Figure 3 Select the fabric zones
-
 ![Alt text](./images/Fabric_zones.png)
 
 Figure 4 Configuratin Summary
-
 ![Alt text](./images/Fabric_site_zone_summary.png)
 
 This configuration sets up a fabric site (AREA1 BLD1) and two fabric zones (FLOOR1 and FLOOR2) under it.
 All areas use No Authentication, and pub/sub is enabled for the fabric site to support real-time event sync
+
+This can be achieved using the following input YAML configuration:
 
 ```yaml
     - fabric_sites:
@@ -402,6 +402,6 @@ Figure 1 Jinja created fabric sites
 For detailed information on network wireless profile workflow refer to the following documentation: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_fabric_sites_zones_workflow_manager
 
 ## Important Notes
-### Refer to the Catalyst Center documentation for detailed instructions on configuring fabric sites and fabric zones and using the Ansible playbooks.
-### Consider backing up your configuration before running the playbooks, especially the delete playbook.
-### If you encounter any issues, review the Ansible playbook output for error messages and consult the Catalyst Center documentation or support resources.
+- Refer to the Catalyst Center documentation for detailed instructions on configuring fabric sites and fabric zones and using the Ansible playbooks.
+- Consider backing up your configuration before running the playbooks, especially the delete playbook.
+- If you encounter any issues, review the Ansible playbook output for error messages and consult the Catalyst Center documentation or support resources.
