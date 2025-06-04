@@ -16,7 +16,7 @@ Key features include:
   - Validate configuration and deployment status.
   - Download and verify PCAP files to a specified directory.
 
-**Version Added:**  `6.31.0`
+**Version Added:**  `6.32.0`
 
 ---
 
@@ -58,7 +58,6 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
 Prepare the input data for creating or managing ICAP settings and downloads.
 
 1. **Define Input Variables:**  
-   Create variable files (e.g., `vars/assurance_icap_inputs.yml`) that define the desired state of your ICAP settings, including details for creation and download.
 
 #### Schema for Assurance ICAP Workflow
 
@@ -103,7 +102,7 @@ Below are example input files for each `capture_type` supported by the ICAP work
 ##### 1. Create ICAP Settings:
 
 
-**a. ONBOARDING Capture**
+**a. ONBOARDING Capture (state: merged)**
 ```yaml
   - assurance_icap_settings:
       - capture_type: ONBOARDING
@@ -111,28 +110,18 @@ Below are example input files for each `capture_type` supported by the ICAP work
         duration_in_mins: 30
         client_mac: 68:3B:78:FA:2E:5C
         wlc_name: assu-s10-spatha-10.wnburcdnst.com
-state: merged
 ```
-Figure 1 Go to page ICAP Settings in Catalyst Center to create ICAP settings.
 
-![Alt text](./images/icap_onboarding_capture_page1.png)
-
-Figure 2 Create Schedule Client Capture in Catalyst Center.
-
-![Alt text](./images/icap_onboarding_capture_page2.png)
-
-Figure 3 Choose WLC and Client MAC Address in Catalyst Center.
+Figure 1 Choose WLC and Client MAC Address in Catalyst Center.
 ![Alt text](./images/icap_onboarding_capture_page3.png)
 
-Figure 4 Cick "Next" and Deploy configure.
-![Alt text](./images/icap_onboarding_capture_page4.png)
 
-Figure 4 Check ICAP setting created.
-![Alt text](./images/icap_onboarding_capture_page.png)
+Figure 2 Check ICAP setting created.
+![Alt text](./images/icap_onboarding_capture_page5.png)
 
 ---
 
-**b. FULL Capture**
+**b. FULL Capture (state: merged)**
 
 ```yaml
   - assurance_icap_settings:
@@ -141,26 +130,18 @@ Figure 4 Check ICAP setting created.
         duration_in_mins: 30
         client_mac: 68:3B:78:FA:2E:5C
         wlc_name: assu-s10-spatha-10.wnburcdnst.com
-state: merged
+
 ```
-Figure 1 Go to page ICAP Settings in Catalyst Center to create ICAP settings.
-![Alt text](./images/icap_onboarding_capture_page1.png)
 
-Figure 2 Run Data Packet Capture in Catalyst Center.
-![Alt text](./images/icap_full_capture_page1.png)
-
-Figure 3 Choose WLC and Client MAC Address in Catalyst Center.
+Figure 1 Choose WLC and Client MAC Address in Catalyst Center.
 ![Alt text](./images/icap_full_capture_page2.png)
 
-Figure 4 Apply Setting and Deploy.
-![Alt text](./images/icap_full_capture_page3.png)
-
-Figure 5 Configuration has been created.
+Figure 2 Configuration has been created.
 ![Alt text](./images/icap_full_capture_page4.png)
 
 ---
 
-**c. OTA (Over-the-Air) Capture**
+**c. OTA (Over-the-Air) Capture (state: merged)**
 
 ```yaml
   - assurance_icap_settings:
@@ -173,7 +154,6 @@ Figure 5 Configuration has been created.
         ota_band: 2.4GHz
         ota_channel: 11
         ota_channel_width: 20
-state: merged
 ```
 Figure 1 Go to page Health in Catalyst Center to create ICAP settings.
 
@@ -201,13 +181,13 @@ Figure 7 Enter parameters want configure and "Next" in Catalyst Center.
 
 ![Alt text](./images/icap_ota_capture_page7.png)
 
-Figure 7 Apply and Deploy in Catalyst Center.
+Figure 8 Apply and Deploy in Catalyst Center.
 
 ![Alt text](./images/icap_ota_capture_page8.png)
 
 ---
 
-**d. RFSTATS Capture**
+**d. RFSTATS Capture (state: merged)**
 
 ```yaml
   - assurance_icap_settings:
@@ -215,43 +195,27 @@ Figure 7 Apply and Deploy in Catalyst Center.
         preview_description: "RF statistics capture"
         wlc_name: 98:76:54:32:10:FE
         ap_name: AP-2.cisco.local
-state: merged
 ```
-Figure 1 Go to page Assurance ICAP Settings in Catalyst Center to create ICAP settings.
-![Alt text](./images/assurance_intelligent_rfs_capture1.png)
 
-Figure 2 Go to AP Stats Capture page and then choose AP device want to enable RFSTATS.
-![Alt text](./images/assurance_intelligent_rfs_capture2.png)
-
-Figure 3 Choose AP device want to enable RFSTATS and then click "Enable"
+Figure 1 Choose AP device want to enable RFSTATS and then click "Enable"
 ![Alt text](./images/assurance_intelligent_rfs_capture3.png)
 
-Figure 4 Click "Next" and Deploy configure.
-![Alt text](./images/assurance_intelligent_rfs_capture4.png)
-
 ---
-**e. ANOMALY Capture**
+**e. ANOMALY Capture (state: merged)**
 
 ```yaml
   - assurance_icap_settings:
       - capture_type: ANOMALY
         preview_description: "RF statistics capture"
         wlc_name: 98:76:54:32:10:FE
-state: merged
 ```
-
-Figure 1 Go to page ICAP Settings in Catalyst Center to create ICAP settings.
-![Alt text](./images/assurance_intelligent_capture1.png)
-
-Figure 2 Go to Anomaly Capture page and then Enable AP Anomaly Capture in Catalyst Center.
+Figure 1 Go to Anomaly Capture page and then Enable AP Anomaly Capture in Catalyst Center.
 ![Alt text](./images/assurance_intelligent_capture2.png)
-
-Figure 3 Click "Next" and Deploy configure.
-![Alt text](./images/assurance_intelligent_capture3.png)
 
 ---
 
 > **Note:**  
+> Below is a summary of the required parameters for each capture type in the ICAP API:
 - ANOMALY: captureType=ANOMALY, wcid, apId (AP), wcid (WLC)
 - FULL: captureType=FULL, wcid, clientMac, durationInMins (30-480)
 - ONBOARDING: captureType=ONBOARDING, wcid, clientMac, durationInMins (30-480)
