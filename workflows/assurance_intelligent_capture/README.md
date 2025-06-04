@@ -61,11 +61,6 @@ Prepare the input data for creating or managing ICAP settings and downloads.
 
 #### Schema for Assurance ICAP Workflow
 
-| **Parameter** | **Type** | **Required** | **Description** |
-|---------------|----------|--------------|-----------------|
-| `config`      | List     | Yes          | List of assurance operations to perform. |
-| `state`       | Str      | Yes          | Desired state: `merged` (create/deploy/download). |
-
 ##### ICAP Settings (`assurance_icap_settings`)
 
 | **Parameter**         | **Type** | **Required** | **Description** |
