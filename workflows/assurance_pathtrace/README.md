@@ -1,12 +1,12 @@
-# Assurance Pathtrace run Playbooks
+# Catalyst Center Assurance Path Trace Playbook
 
 ## Overview
 
-This module provides functionality to perform path trace analysis between network nodes in Cisco Catalyst Center.
+This Playbook provides functionality to perform path trace analysis between network nodes in Cisco Catalyst Center.
 
 **Description**
 
-This module enables network administrators to trace the communication path between two endpoints in the network using Cisco Catalyst Center. The endpoints can be wired or wireless hosts or Layer 3 interfaces. The path trace uses protocol-specific analysis to evaluate the connectivity and intermediate devices. Key features include:
+This Playbook enables network administrators to trace the communication path between two endpoints in the network using Cisco Catalyst Center. The endpoints can be wired or wireless hosts or Layer 3 interfaces. The path trace uses protocol-specific analysis to evaluate the connectivity and intermediate devices. Key features include:
   - **Path Trace Configuration**
     - Initiate a path trace between a defined source and destination in the network.
     - Specify communication protocol (TCP or UDP) to establish the trace session.
@@ -32,7 +32,7 @@ This module enables network administrators to trace the communication path betwe
 
 ---
 
-This README outlines the steps to use the Ansible playbooks for managing assurance pathtrace in Cisco Catalyst Center.
+This README outlines the steps to use the Ansible playbooks for managing assurance path trace in Cisco Catalyst Center.
 
 ## Workflow Steps
 
@@ -70,7 +70,7 @@ This step involves preparing the input data for configuring path trace diagnosti
 
 1.  **Define Input Variables:** Create the variable file at (e.g., `workflows/assurance_pathtrace/vars/assurance_pathtrace_inputs.yml`).This file should contain the list of source/destination IP addresses and optional trace configuration settings.
 
-2.  **Review Structure and Options:** Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/path_trace
+2.  **Review Structure and Options:** Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/Playbook/path_trace
 
 
 #### Schema for Path Trace  
@@ -90,7 +90,7 @@ This schema defines the structure of the input file for configuring a Path Trace
 | `delete_on_completion`     | Boolean  | No           | true              | Boolean value indicating whether to delete the path trace after generation. Applies only when `periodic_refresh` is false. |
 | `flow_analysis_id`         | String   | No           | N/A               | The Flow Analysis ID returned when a path trace is created. Used to retrieve or delete the trace. |
 
-# Pathtrace Limitations
+# Path Trace Limitations
 
 All the below listed Catalyst Center Path trace limitation apply to workflow/playbook also
 
@@ -161,7 +161,7 @@ Because Cisco wireless controllers do not send SNMP mobility traps, note the fol
 ## Example Input File
 
 1. **Create and auto-delete path trace on Cisco Catalyst Center**
-Initiates a TCP path trace from source to destination IPs and auto-deletes it after creation
+Initiates a path trace between specified source and destination IPs using optional parameters (such as protocol and statistics), and automatically deletes the trace after completion for cleanup.
 ```yaml
 catalyst_center_version: 2.3.7.6
 pathtrace_details: 
@@ -185,7 +185,7 @@ pathtrace_details:
   ```
 
 2. **Delete path trace based on source and destination IP**
-This module will delete path trace based on source and destination IP
+Removes an existing path trace session from Catalyst Center by specifying the source and destination IP addresses.
 ```yaml
 catalyst_center_version: 2.3.7.6
 pathtrace_details: 
@@ -194,7 +194,7 @@ pathtrace_details:
 ```
 
 3. **Retrieve last path trace**
-This module will retrive the last path trace
+Fetches the most recent path trace result for a given source and destination IP pair, allowing you to review the latest analysis.
 ```yaml
 catalyst_center_version: 2.3.7.6
 pathtrace_details: 
@@ -204,7 +204,7 @@ pathtrace_details:
 ```
 
 4. **Retrieve path trace based on the flow analysis id**
-When create a path trace, it returns a flow_analysis_id.(the "id" from the "request" section), which should be shown in a register.
+Obtains the details of a specific path trace using its unique flow analysis ID, which is returned when a path trace is created.
 ```yaml
 catalyst_center_version: 2.3.7.6
 pathtrace_details: 
@@ -212,8 +212,8 @@ pathtrace_details:
     delete_on_completion: false  # optional field
 register: output_list
 ```
-5. **Retrieve and Delete path trace based on the required field**
-
+5. **Retrieve and Delete Path Trace Between Specific Source and Destination IPs**
+Performs both retrieval and deletion of a path trace session for a given source and destination IP
 ```yaml
 catalyst_center_version: 2.3.7.6
 pathtrace_details: 
@@ -221,19 +221,15 @@ pathtrace_details:
     dest_ip: "204.1.2.4"  # required field
 register: output_list
 ```
-6.  **Delete path trace based on registered flow analysis id**
-```yaml
-catalyst_center_version: 2.3.7.6
-pathtrace_details: 
-  - flow_analysis_id: 13403a30-e65b-4ffb-b7b4-c7f7cce482df
-```
-7. **Delete path trace based on the flow analysis id**
+6. **Delete path trace based on the flow analysis id**
+Removes a path trace session by directly specifying its flow analysis ID, useful for targeted cleanup.
 ```yaml
 catalyst_center_version: 2.3.7.6
 pathtrace_details: 
   - flow_analysis_id: db3b2ee6-7ec7-4ec8-b7d0-2286d726b568
 ```
-8. **Create/Retrieve Path trace for the config list.**
+7. **Create/Retrieve Path trace for the config list.**
+Allows batch creation or retrieval of multiple path traces as defined in a configuration list, supporting complex scenarios with various endpoints and options.
 ```yaml
 catalyst_center_version: 2.3.7.6
 pathtrace_details: 
@@ -271,8 +267,8 @@ To ensure a successful execution of the playbooks with your specified inputs, fo
 ./tools/validate.sh -s ./workflows/assurance_pathtrace/schema/assurance_pathtrace_schema.yml -d ./workflows/assurance_pathtrace/vars/assurance_pathtrace_inputs.yml
 ```
 
-# Schema Validation:
-(ansible-venv) pawansi@PAWANSI-M-7J1W catc_ansible_workflows % yamale -s workflows/assurance_pathtrace/schema/assurance_pathtrace_schema.yml  workflows/assurance_pathtrace/vars/assurance_pathtrace_inputs.yml 
+### run Schema Validation:
+catc_ansible_workflows % yamale -s workflows/assurance_pathtrace/schema/assurance_pathtrace_schema.yml  workflows/assurance_pathtrace/vars/assurance_pathtrace_inputs.yml 
 Validating workflows/assurance_pathtrace/vars/assurance_pathtrace_inputs.yml...
 Validation success! 👍
 
