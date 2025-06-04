@@ -166,7 +166,7 @@ Figure 2 Go to Client page and Choose Wireless Client in Catalyst Center.
 Figure 3 Go to Intelligent Capture of Wireless Client in Catalyst Center.
 ![Alt text](./images/icap_ota_capture_page3.png)
 
-Figure 4 Run Packet Capture ò Device in Catalyst Center.
+Figure 4 Run Packet Capture on Device in Catalyst Center.
 ![Alt text](./images/icap_ota_capture_page4.png)
 
 Figure 5 Choose OTA Sniffer type and choose AP in Catalyst Center.
