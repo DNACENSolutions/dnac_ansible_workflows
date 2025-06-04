@@ -259,7 +259,7 @@ The following input will update the fabric configuration after changes that have
 D. Remove Fabric Zone (state: deleted)
 
 Figure 1: Remove Fabric Zone By Unchecking Those Fabric Zones
-![Alt text](./images/delete_fb_site.png)
+![Alt text](./images/delete_fabric_zone.png)
 
 This action will delete 2 fabric zones of the RTP site, RTP_BLD10 and RTP_BLD11
 
@@ -276,7 +276,7 @@ E. Remove Fabric Site (state: deleted)
 This action will delete fabric site RTP
 
 Figure 1: Delete Fabric Site
-![Alt text](./images/delete_fabric_zone.png)
+![Alt text](./images/delete_fb_site.png)
 
 ```yaml
     - fabric_sites:
