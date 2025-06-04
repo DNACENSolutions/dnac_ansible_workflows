@@ -20,8 +20,8 @@ A Software-Defined Access (SDA) fabric network may comprise multiple sites. Each
   - Apply Pending Events: Supports applying pending fabric updates caused by changes like IP address pool modifications, ensuring configurations are fully synchronized and devices are updated accordingly.
 
 **Version Information:**
-- Fabric Site & Zone Management introduced in: **v6.21.0**
-- Pre-Authentication ACL and Apply Pending Events in: **v6.32.0**
+- Fabric Site & Zone Management introduced in Ansible Galaxy cisco.dnac: **v6.21.0**
+- Pre-Authentication ACL and Apply Pending Events in Ansible Galaxy cisco.dnac: **v6.32.0**
 ---
 
 This README outlines the steps to use the Ansible playbooks for managing Application Policies in Cisco Catalyst Center.
