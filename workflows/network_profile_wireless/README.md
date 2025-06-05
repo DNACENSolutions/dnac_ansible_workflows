@@ -61,7 +61,7 @@ Follow these steps to configure and deploy wireless network profiles in *Cisco C
                catalyst_center_timeout: 60
                catalyst_center_username: admin
                catalyst_center_verify: false  # Enable for production with valid certificates
-               catalyst_center_version: 2.3.7.9  # Specify your Cisco Catalyst Center version
+               catalyst_center_version: 2.3.7.9  # Specify the version, Refer the compliance Table for selecting correct version
                catalyst_center_debug: true
                catalyst_center_log_level: INFO
                catalyst_center_log: true
