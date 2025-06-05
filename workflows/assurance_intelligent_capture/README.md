@@ -36,20 +36,23 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
    ansible-galaxy collection install cisco.dnac
    ```
 
-3. **Generate Inventory:**  
-   Create an Ansible inventory file (e.g., `inventory.yml`) that includes your Cisco Catalyst Center appliance details.
-   ```yaml
-   catalyst_center_hosts:
-     hosts:
-       your_catalyst_center_instance_name:
-         catalyst_center_host: xx.xx.xx.xx
-         catalyst_center_username: admin
-         catalyst_center_password: XXXXXXXX
-         catalyst_center_port: 443
-         catalyst_center_verify: false # Set to true for production with valid certificates
-         catalyst_center_version: 2.3.7.9
-         catalyst_center_log: true
-   ```
+### Configure Host Inventory
+Update your Ansible hosts.yml inventory file with the connection details of your Cisco Catalyst Center instance. Replace the placeholder values with your actual Catalyst Center information.
+```yaml
+catalyst_center_hosts:
+    hosts:
+        your_catalyst_center_instance_name:
+            catalyst_center_host: xx.xx.xx.xx
+            catalyst_center_password: XXXXXXXX
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            catalyst_center_username: admin
+            catalyst_center_verify: false # Set to true for production with valid certificates
+            catalyst_center_version: 2.3.7.6 # Specify your DNA Center version
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
+```
 
 ---
 
