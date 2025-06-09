@@ -96,7 +96,7 @@ This schema defines the structure of the input file for configuring a Path Trace
 ## Example Input File
 
 1. **Create and auto-delete path trace on Cisco Catalyst Center**
-Initiates a path trace between specified source and destination IPs using optional parameters (such as protocol and statistics), and automatically deletes the trace after completion for cleanup.
+Initiates a path trace between specified source and destination IPs using optional parameters, and automatically deletes the trace after completion for cleanup.
 ```yaml
 catalyst_center_version: 2.3.7.6
 pathtrace_details: 
@@ -154,7 +154,7 @@ pathtrace_details:
 register: output_list
 ```
 6. **Delete path trace based on the flow analysis id**
-Removes a path trace session by directly specifying its flow analysis ID, useful for targeted cleanup.
+Removes a path trace session by directly specifying its flow analysis ID.
 ```yaml
 catalyst_center_version: 2.3.7.6
 pathtrace_details: 
@@ -188,6 +188,10 @@ pathtrace_details:
 
   - flow_analysis_id: db3b2ee6-7ec7-4ec8-b7d0-2286d726b568
 ```
+mapping config to UI Actions for Create path Trace:
+Note: There is no UI flow for retrieve and delete path trace.
+![alt text](./images/create_path_trace.png)
+
 
 2.  **Validate Configuration:** 
 To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
