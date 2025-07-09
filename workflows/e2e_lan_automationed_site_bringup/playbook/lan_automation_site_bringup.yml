@@ -19,6 +19,8 @@
       dnac_port: "{{ dnac_port }}"
       dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
       dnac_debug: "{{ dnac_debug }}"
+      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
+      
     # For using APIs directly in the playbook
     state: merged
     dnac_url: "https://{{ dnac_host }}:443"

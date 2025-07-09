@@ -20,6 +20,7 @@
       dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
       dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
       dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
+      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
       
   tasks:
     # Include the variables file {{ VARS_FILE_PATH }} for the playbook

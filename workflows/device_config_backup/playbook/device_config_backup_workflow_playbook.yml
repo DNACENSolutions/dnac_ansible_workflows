@@ -27,6 +27,8 @@
       dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
       dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
       dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
+      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
+
   tasks:
     - name: Playbook start time for Device configuration backup through Cisco Catalyst Center
       set_fact:
