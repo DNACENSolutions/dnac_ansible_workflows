@@ -14,7 +14,7 @@ Network Hierarchy table, displaying Global, Area, Site, Building, and Floor.
 ![Alt text](./images/site_image1.png)
 
 **Version Added:**  
-`6.32.0`
+`6.30.2`
 
 ---
 
@@ -46,7 +46,7 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
             catalyst_center_timeout: 60
             catalyst_center_username: admin
             catalyst_center_verify: false # Set to true for production with valid certificates
-            catalyst_center_version: 2.3.7.9 # Specify your DNA Center version
+            catalyst_center_version: 2.3.7.6 # Specify your DNA Center version
             catalyst_center_debug: true
             catalyst_center_log_level: INFO
             catalyst_center_log: true
@@ -63,29 +63,24 @@ Prepare the input data for configuring your site hierarchy.
    Refer to the full workflow specification for detailed instructions:  
    [Site Workflow Manager Module Documentation](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/site_workflow_manager/)
 
-#### Schema for Site Hierarchy
+#### Schema for Site Hierarchy (Flat Attribute Structure)
 
-| **Parameter**              | **Type** | **Required** | **Description**                                                                 |
-|---------------------------|----------|--------------|---------------------------------------------------------------------------------|
-| `catalyst_center_version`  | String   | Yes          | Catalyst Center version (overrides host inventory version).|
-| `design_sites`             | List     | Yes          | List of site definitions (areas, buildings, floors).|
-| `site.area.name`           | String   | Conditional  | Name of the area.|
-| `site.area.parent_name`    | String   | Conditional  | Parent hierarchy for the area (e.g., `Global`).|
-| `site.building.name`       | String   | Conditional  | Name of the building.|
-| `site.building.parent_name`| String   | Conditional  | Parent hierarchy for the building (e.g., `Global/USA`).|
-| `site.building.address`    | String   | Conditional  | Physical address of the building.|
-| `site.building.latitude`   | Float    | Conditional  | Latitude coordinate for the building.|
-| `site.building.longitude`  | Float    | Conditional  | Longitude coordinate for the building.|
-| `site.building.country`    | String   | Conditional  | Country of the building.|
-| `site.floor.name`          | String   | Conditional  | Name of the floor.|
-| `site.floor.parent_name`   | String   | Conditional  | Parent hierarchy for the floor (e.g., `Global/USA/BLD23`).|
-| `site.floor.rfModel`       | String   | Conditional  | RF model for the floor.|
-| `site.floor.width`         | Float    | Conditional  | Width of the floor.|
-| `site.floor.length`        | Float    | Conditional  | Length of the floor.|
-| `site.floor.height`        | Float    | Conditional  | Height of the floor.|
-| `site.floor.floor_number`  | Integer  | Conditional  | Floor number.|
-| `site.floor.units_of_measure`| String | Conditional  | Units for measurements (e.g., feet, meters).|
-| `site.floor.upload_floor_image_path` | String | Optional | Path to floor image file.|
+| **Attribute**              | **Type** | **Required** | **Description**                        |
+|---------------------------|----------|--------------|----------------------------------------|
+| `type`                    | String   | Yes          | Entity type: `area`, `building`, `floor` |
+| `name`                    | String   | Yes          | Name of the area/building/floor        |
+| `parent_name`             | String   | Conditional  | Parent hierarchy (e.g., `Global/USA`)  |
+| `address`                 | String   | Building only| Physical address of the building       |
+| `latitude`                | Float    | Building only| Latitude coordinate                    |
+| `longitude`               | Float    | Building only| Longitude coordinate                   |
+| `country`                 | String   | Building only| Country of the building                |
+| `rfModel`                 | String   | Floor only   | RF model for the floor                 |
+| `width`                   | Float    | Floor only   | Width of the floor                     |
+| `length`                  | Float    | Floor only   | Length of the floor                    |
+| `height`                  | Float    | Floor only   | Height of the floor                    |
+| `floor_number`            | Integer  | Floor only   | Floor number                           |
+| `units_of_measure`        | String   | Floor only   | Units for measurements                 |
+| `upload_floor_image_path` | String   | Optional     | Path to floor image file               |
 
 ---
 
@@ -98,7 +93,7 @@ To create an area named SAN JOSE under the existing area USA, and to define the 
 ---
 #Select Catalyst Center version, this will overwrite the default version from host file
 # Provide the Catalyst Center Version
-catalyst_center_version: 2.3.7.9
+catalyst_center_version: 2.3.7.6
 # Sites Input List 
 design_sites:
   - site:
@@ -288,10 +283,10 @@ After executing the playbook, check the Catalyst Center UI to verify the site hi
 
 ```yaml
 python: 3.12.0
-dnac_version: 2.3.7.9
+dnac_version: 2.3.7.6
 ansible: 9.9.0
-cisco.dnac: 6.32.0
-dnacentersdk: 2.8.8
+dnacentersdk: 2.8.6
+cisco.dnac: 6.30.2
 ```
 
 For more details, see the [Site Workflow Manager Module Documentation](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/site_workflow_manager/).
