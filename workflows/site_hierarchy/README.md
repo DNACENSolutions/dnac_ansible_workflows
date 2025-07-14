@@ -69,17 +69,17 @@ Prepare the input data for configuring your site hierarchy.
 |---------------------------|----------|--------------|----------------------------------------|
 | `type`                    | String   | Yes          | Entity type: `area`, `building`, `floor` |
 | `name`                    | String   | Yes          | Name of the area/building/floor        |
-| `parent_name`             | String   | Conditional  | Parent hierarchy (e.g., `Global/USA`)  |
-| `address`                 | String   | Building only| Physical address of the building       |
-| `latitude`                | Float    | Building only| Latitude coordinate                    |
-| `longitude`               | Float    | Building only| Longitude coordinate                   |
-| `country`                 | String   | Building only| Country of the building                |
-| `rfModel`                 | String   | Floor only   | RF model for the floor                 |
-| `width`                   | Float    | Floor only   | Width of the floor                     |
-| `length`                  | Float    | Floor only   | Length of the floor                    |
-| `height`                  | Float    | Floor only   | Height of the floor                    |
-| `floor_number`            | Integer  | Floor only   | Floor number                           |
-| `units_of_measure`        | String   | Floor only   | Units for measurements                 |
+| `parent_name`             | String   | Yes          | Parent hierarchy (e.g., `Global/USA`)  |
+| `address`                 | String   | Yes          | Physical address of the building       |
+| `latitude`                | Float    | Yes          | Latitude coordinate                    |
+| `longitude`               | Float    | Yes          | Longitude coordinate                   |
+| `country`                 | String   | Yes          | Country of the building                |
+| `rfModel`                 | String   | Yes          | RF model for the floor                 |
+| `width`                   | Float    | Yes          | Width of the floor                     |
+| `length`                  | Float    | Yes          | Length of the floor                    |
+| `height`                  | Float    | Yes          | Height of the floor                    |
+| `floor_number`            | Integer  | Yes          | Floor number                           |
+| `units_of_measure`        | String   | Yes          | Units for measurements                 |
 | `upload_floor_image_path` | String   | Optional     | Path to floor image file               |
 
 ---
@@ -231,6 +231,7 @@ design_sites:
 
 ## Site Deletion
 Playbook can be used to delete sites under a specified hierarchy.
+
 6. Run the delete Playbook:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/delete_site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/delete_site_hierarchy_design_vars.yml -vvv
