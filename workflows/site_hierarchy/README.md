@@ -13,8 +13,6 @@ This playbook enables you to automate the creation, modification, and deletion o
 Network Hierarchy table, displaying Global, Area, Site, Building, and Floor.
 ![Alt text](./images/site_image1.png)
 
-**Version Added:**  
-`6.30.2`
 
 ---
 
@@ -81,7 +79,7 @@ Prepare the input data for configuring your site hierarchy.
 | `floor_number`            | Integer  | Yes          | Floor number                           |
 | `units_of_measure`        | String   | Yes          | Units for measurements                 |
 | `upload_floor_image_path` | String   | Optional     | Path to floor image file               |
-
+| `force_upload_floor_image`| Boolean  | Optional     | If `true`, uploads the floor image; if `false`, skips upload.|
 ---
 
 ## Example Input File
@@ -235,6 +233,39 @@ Playbook can be used to delete sites under a specified hierarchy.
 6. Run the delete Playbook:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/delete_site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/delete_site_hierarchy_design_vars.yml -vvv
+```
+### Example of Site Deletion
+```bash
+---
+catalyst_center_version:2.3.7.6
+delete sites:
+  - site:
+      area:
+        name: Hyderabad
+        parentName: Global/India
+    type: area
+  - site:
+      building:
+        name: hyd_bld1
+        parentName: Global/India/Hyderabad
+        address: terralogic, hightech city, hyderabad 500089, India
+        latitude: 37.415947
+        longitude: -121.916327
+        country: India
+    type: building
+  - site:
+      floor:
+        name: Marketing
+        parentName: Global/India/Hyderabad/hyd_bld1
+        rfModel: Cubes And Walled Offices
+        width: 100.00
+        length: 100.00
+        height: 10.00
+        floor_number: 1
+        units_of_measure: feet
+        upload_floor_image_path: "dnac_ansible/playbooks/site_hierarchy/images/floor1.png"
+        force_upload_floor_image: True
+    type: floor
 ```
 Sites will be deleted from the Catalyst Center.
 
