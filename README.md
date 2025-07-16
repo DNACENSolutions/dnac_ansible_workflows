@@ -71,6 +71,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - [Catalyst Center SDA Fabric Device assignment to fabric sites and zones](./workflows/sda_fabric_device_roles/README.md)
 - [Catalyst Center SDA Fabric Devices and Host Onboarding](./workflows/sda_hostonboarding/README.md)
 - [Catalyst Center SDA Extranet Policies Management](./workflows/sda_fabric_extranet_policy/README.md)
+- [Catalyst Center SDA Fabric Multicast Management](./workflows/sda_fabric_multicast/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 - [Catalyst Center Application Policy Management](./workflows/application_policy/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.6**</span></mark>
 
 ## Day N Operation (Software Upgrade, Compliance, Events, Provisioning, backups and Assurance)
