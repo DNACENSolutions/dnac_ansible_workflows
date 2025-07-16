@@ -98,6 +98,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 | 2.3.7.6 | 2.3.7.6   | latest   | latest |
 | 2.3.7.7 | 2.3.7.6   | latest   | latest |
 | 2.3.7.9 | 2.3.7.9   | latest   | latest |
+| 2.3.7.10 | 2.3.7.9   | latest   | latest |
 
 # Released Versions
 v2.3.7.6.1
@@ -207,7 +208,7 @@ jinja2_extensions=jinja2.ext.loopcontrols,jinja2.ext.do
 duplicate_dict_key=error
 ```
 
-# Create your inventory
+# Create your Catalyst Center cluster inventory
 ## Inventory:
 This folder contains inventory files for your dev, lab, sandbox, or production environments which will be utilized by SWIM playbooks.
 
@@ -215,16 +216,16 @@ Create your inventory file in the template format below to utilize the SWIM play
 
 The template for the inventory file is:
 ```bash
-cat inventory/demo_lab/001-dnac_inventory_template.yml
+cat inventory/demo_lab/hosts.yml
 ```
 
 Follow the Ansible documentation to set up your Python interpreter:: https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html
 
 
     
-### Hierarchical variable files for inputs
+### Playbooks location and Vars  (variables) file
 
-The second folder of the workflows contains playbook and var files for workflows. Example:
+The playbooks are located in the playbooks folder of each workflowand the variables are located in the vars folder. 
 
 ```bash
 workflows/swim
@@ -238,6 +239,14 @@ vars/
 
 ### Playbook: 
     The playbooks can be directly used without any change when inventory and var files created in the above templates.
+
+### Reference Vars file:
+    The vars file contains the variables that are used in the playbook. The vars file can be modified to suit your environment.
+    Refer the example vars file in the vars folder. you can create your vars file in the same format.
+
+### Create a data older and organize your input var files:
+    Create a data folder in your project directory and organize your input var files in the data folder.
+    A sample Project is provided here: https://github.com/DNACENSolutions/Network-as-Code
 
 # Executing playbook (Sample):
 
