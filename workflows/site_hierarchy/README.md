@@ -79,7 +79,7 @@ Prepare the input data for configuring your site hierarchy.
 | `floor_number`            | Integer  | Yes          | Floor number                           |
 | `units_of_measure`        | String   | Yes          | Units for measurements                 |
 | `upload_floor_image_path` | String   | Optional     | Path to floor image file               |
-| `force_upload_floor_image`| Boolean  | Optional     | If `true`, uploads the floor image; if `false`, skips upload.|
+| `force_upload_floor_image`| Boolean  | Optional     | If set to `true`, the floor image will be uploaded during the process. If set to `false`, the floor image upload will be skipped. During floor creation, if `upload_floor_image_path` is not provided, the image will not be uploaded. During floor update, if `force_upload_floor_image` is set to `False`, the image will not be uploaded, even if the path is provided. If `force_upload_floor_image` is "True", the image will be uploaded regardless of the path provided. |
 ---
 
 ## Example Input File
@@ -248,23 +248,12 @@ delete sites:
       building:
         name: hyd_bld1
         parentName: Global/India/Hyderabad
-        address: terralogic, hightech city, hyderabad 500089, India
-        latitude: 37.415947
-        longitude: -121.916327
         country: India
     type: building
   - site:
       floor:
         name: Marketing
         parentName: Global/India/Hyderabad/hyd_bld1
-        rfModel: Cubes And Walled Offices
-        width: 100.00
-        length: 100.00
-        height: 10.00
-        floor_number: 1
-        units_of_measure: feet
-        upload_floor_image_path: "dnac_ansible/playbooks/site_hierarchy/images/floor1.png"
-        force_upload_floor_image: True
     type: floor
 ```
 Sites will be deleted from the Catalyst Center.
