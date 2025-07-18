@@ -310,10 +310,10 @@ tags_type:
     interface_tag_update_batch_size: int(required=False, default=500)
 device_rules_type:
   rule_descriptions: list(include('device_rule_descriptions_type'), required=True)
-  scope_description: include('scope_description_type', required=False)
 port_rules_type:
-  rule_descriptions: list(include('port_rule_descriptions_type'), required=True)
   scope_description: include('scope_description_type', required=False)
+  rule_descriptions: list(include('port_rule_descriptions_type'), required=True)
+  
 tag_membership_type:
     tags: list(str, required=True)
     device_details: list(include('device_details_type'), required=False)
