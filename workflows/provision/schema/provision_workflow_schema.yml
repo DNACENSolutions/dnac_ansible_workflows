@@ -359,7 +359,11 @@ dynamic_interfaces_type:
   lag_or_port_number: int(required=False)
   vlan_id: int(required=False)
   
-
+application_telemetry_type:
+  device_ips: list(str, required=True)
+  telemetry: str(required=True)
+  wlan_mode: str(required=False)
+  include_guest_ssid: bool(default=False, required=False)
   
 
 
