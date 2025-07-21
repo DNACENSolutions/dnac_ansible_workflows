@@ -1,61 +1,90 @@
-# Network Design Site Hierarchy Playbook
+# Catalyst Center Site Hierarchy Playbook
 
-You can create a network hierarchy that represents your network's geographical locations. The hierarchical organization enables you to easily apply design settings or configurations to a specific hierarchical element. For example, you can apply design settings to an entire area or to only a floor.
+## Overview
 
-You can name hierarchical elements to help you identify where to apply design settings later.
+This playbook enables you to automate the creation, modification, and deletion of network site hierarchies in Cisco Catalyst Center. The site hierarchy represents your network’s geographical and logical structure, allowing you to apply design settings at various levels (Global, Area, Building, Floor).
 
-The hierarchical elements that you can create have rules that dictate under which elements they can reside and which elements can reside under them. See the following figure and descriptions:
+**Key Features:**
+- Automate creation of Areas, Buildings, and Floors.
+- Support for bulk site creation using Jinja templates.
+- Hierarchical organization for easy management and configuration
+- Site deletion and cleanup workflows.
 
-Network Hierarchy
-Figure 1: Network Hierarchy table, displaying Global, Area, Site, Building, and Floor.
+Network Hierarchy table, displaying Global, Area, Site, Building, and Floor.
 ![Alt text](./images/site_image1.png)
 
-Global: Default element under which all other hierarchical elements reside. Areas or sites are the only elements that can reside directly under Global.
 
-Areas and Sites (Site and area icon in network hierarchy tree): Areas and sites reside under Global or under other areas or sites. They do not have a physical address. As the largest element, they identify a geographic region. They provide a way to group areas or sites.
+---
 
-Buildings (represented by the Buildings icon in the network hierarchy tree) reside under areas or sites. When creating a building, you must specify a physical address or latitude and longitude coordinates. Buildings cannot contain areas, but they can contain floors.
+## Workflow Steps
 
-Floors (Floor icon in network hierarchy tree): Floors reside under buildings. You can add floors to buildings with or without maps that contain various building components, like walls and windows. If you decide to use floor maps, you can manually create them or import them from files, such as DXF, DWG, JPG, GIF, PNG, or PDF file types. Then you can position your wireless devices on the floor maps to visualize your wireless network coverage.
+This workflow typically involves the following steps:
 
-You can change the site hierarchy for unprovisioned devices while preserving AP locations on floor maps. Note, however, that you can't move an existing floor to a different building.
+### Step 1: Install and Generate Inventory
 
-## RBAC access to create and modify sites
-Users with the SUPER-ADMIN-ROLE, NETWORK-ADMIN-ROLE can create,update, delete sites.
-Users with a custom role that includes network design access can create, update, and delete sites.
+Before running the playbooks, ensure you have Ansible installed and the necessary collections for Cisco Catalyst Center.
 
-# Procedure
-1. ## Prepare your Ansible environment:
+1. **Install Ansible:**  
+   Follow the official Ansible documentation for installation instructions.
 
-Install Ansible if you haven't already.
-Ensure you have network connectivity to your Catalyst Center instance.
-Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
+2. **Install Cisco Catalyst Center Collection:**  
+   ```bash
+   ansible-galaxy collection install cisco.dnac
+   ```
 
-2. ## Configure Host Inventory:
+3. **Generate Inventory:**  
+   Create an Ansible inventory file (e.g., `host_inventory_dnac1/hosts.yml`) with your Catalyst Center appliance details:
+   ```yaml
+   catalyst_center_hosts:
+      hosts:
+         your_catalyst_center_instance_name:
+            catalyst_center_host: xx.xx.xx.xx
+            catalyst_center_password: XXXXXXXX
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            catalyst_center_username: admin
+            catalyst_center_verify: false # Set to true for production with valid certificates
+            catalyst_center_version: 2.3.7.6 # Specify your DNA Center version
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
+   ```
 
-The host_inventory_dnac1/hosts.yml file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
-Make sure the dnac_version in this file matches your actual Catalyst Center version.
-##The Sample host_inventory_dnac1/hosts.yml
+### Step 2: Define Inputs and Validate
 
-```bash
-catalyst_center_hosts:
-    hosts:
-        catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
-            dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
-```
-3. ## Define Playbook Input:
-The workflow/sites/vars/site_hierarchy_design_vars.yaml file stores the sites details you want to configure.
-Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/site_workflow_manager/
+Prepare the input data for configuring your site hierarchy.
 
+1. **Define Input Variables:**  
+   Create the variable file (e.g., `workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml`). This file should contain the list of sites (areas, buildings, floors) you want to configure.
+
+2. **Review Structure and Options:**  
+   Refer to the full workflow specification for detailed instructions:  
+   [Site Workflow Manager Module Documentation](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/site_workflow_manager/)
+
+#### Schema for Site Hierarchy (Flat Attribute Structure)
+
+| **Attribute**              | **Type** | **Required** | **Description**                        |
+|---------------------------|----------|--------------|----------------------------------------|
+| `type`                    | String   | Yes          | Entity type: `area`, `building`, `floor` |
+| `name`                    | String   | Yes          | Name of the area/building/floor        |
+| `parent_name`             | String   | Yes          | Parent hierarchy (e.g., `Global/USA`)  |
+| `address`                 | String   | Yes          | Physical address of the building       |
+| `latitude`                | Float    | Yes          | Latitude coordinate                    |
+| `longitude`               | Float    | Yes          | Longitude coordinate                   |
+| `country`                 | String   | Yes          | Country of the building                |
+| `rfModel`                 | String   | Yes          | RF model for the floor                 |
+| `width`                   | Float    | Yes          | Width of the floor                     |
+| `length`                  | Float    | Yes          | Length of the floor                    |
+| `height`                  | Float    | Yes          | Height of the floor                    |
+| `floor_number`            | Integer  | Yes          | Floor number                           |
+| `units_of_measure`        | String   | Yes          | Unit of measurement for floor dimensions, such as 'feet' or 'meters'|
+| `upload_floor_image_path` | String   | Optional     | Path to floor image file.supported format such as JPG, PNG, or PDF|
+| `force_upload_floor_image`| Boolean  | Optional     | If set to `true`, the floor image will be uploaded during the process. If set to `false`, the floor image upload will be skipped. During floor creation, if `upload_floor_image_path` is not provided, the image will not be uploaded. During floor update, if `force_upload_floor_image` is set to `False`, the image will not be uploaded, even if the path is provided. If `force_upload_floor_image` is "True", the image will be uploaded regardless of the path provided. |
+---
+
+## Example Input File
+
+### 1. **Create Area, Building, and Floor**
 To create an area named SAN JOSE under the existing area USA, and to define the building BLD23 along with FLOOR1 under Building 23, you can structure the input as follows:
 
 ```bash
@@ -200,16 +229,78 @@ design_sites:
 
 ## Site Deletion
 Playbook can be used to delete sites under a specified hierarchy.
+
 6. Run the delete Playbook:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/delete_site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/delete_site_hierarchy_design_vars.yml -vvv
 ```
+### Example of Site Deletion
+```bash
+---
+catalyst_center_version:2.3.7.6
+delete sites:
+  - site:
+      area:
+        name: Hyderabad
+        parentName: Global/India
+    type: area
+  - site:
+      building:
+        name: hyd_bld1
+        parentName: Global/India/Hyderabad
+        country: India
+    type: building
+  - site:
+      floor:
+        name: Marketing
+        parentName: Global/India/Hyderabad/hyd_bld1
+    type: floor
+```
 Sites will be deleted from the Catalyst Center.
 
+2. **Validate Configuration:**  
+To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
 
-# Reference
+  **Input Validation:**  
+  Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command to perform the validation, providing the schema path with `-s` and the input path with `-d`.
 
-*Note: The environment used for the references in the above instructions is as follows:*
+```bash
+./tools/validate.sh -s ./workflows/site_hierarchy/schema/site_hierarchy_schema.yml -d ./workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml
+```
+
+### Run Schema Validation
+```bash
+yamale -s workflows/site_hierarchy/schema/site_hierarchy_schema.yml workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml
+```
+Validating workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml...  
+Validation success! 👍
+
+---
+
+### Step 3: Deploy and Verify
+
+This is the final step where you deploy the configuration to Cisco Catalyst Center and verify the changes.
+
+1. **Deploy Configuration:**  
+
+Run the playbook to seamlessly apply the site hierarchy configuration defined in your input variables to Cisco Catalyst Center.  
+Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the `--extra-vars` variable as `VARS_FILE_PATH`. The `VARS_FILE_PATH` must be provided as a full path to the input file.  
+This ensures that the configuration is accurately deployed to Cisco Catalyst Center, automating the setup process and reducing the risk of manual errors.
+
+```bash
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/site_hierarchy/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/site_hierarchy_design_vars.yml -vvvvvv
+```
+
+If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
+
+2. **Verify Deployment:**  
+After executing the playbook, check the Catalyst Center UI to verify the site hierarchy. If `debug_log` is enabled, you can also review the logs for detailed information on operations performed and any updates made.
+
+---
+
+## References
+
+*Environment used for the above instructions:*
 
 ```yaml
 python: 3.12.0
@@ -218,3 +309,5 @@ ansible: 9.9.0
 dnacentersdk: 2.8.6
 cisco.dnac: 6.30.2
 ```
+
+For more details, see the [Site Workflow Manager Module Documentation](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/site_workflow_manager/).
