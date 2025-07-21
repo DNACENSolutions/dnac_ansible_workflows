@@ -77,8 +77,8 @@ Prepare the input data for configuring your site hierarchy.
 | `length`                  | Float    | Yes          | Length of the floor                    |
 | `height`                  | Float    | Yes          | Height of the floor                    |
 | `floor_number`            | Integer  | Yes          | Floor number                           |
-| `units_of_measure`        | String   | Yes          | Units for measurements                 |
-| `upload_floor_image_path` | String   | Optional     | Path to floor image file               |
+| `units_of_measure`        | String   | Yes          | Unit of measurement for floor dimensions, such as 'feet' or 'meters'|
+| `upload_floor_image_path` | String   | Optional     | Path to floor image file.supported format such as JPG, PNG, or PDF|
 | `force_upload_floor_image`| Boolean  | Optional     | If set to `true`, the floor image will be uploaded during the process. If set to `false`, the floor image upload will be skipped. During floor creation, if `upload_floor_image_path` is not provided, the image will not be uploaded. During floor update, if `force_upload_floor_image` is set to `False`, the image will not be uploaded, even if the path is provided. If `force_upload_floor_image` is "True", the image will be uploaded regardless of the path provided. |
 ---
 
