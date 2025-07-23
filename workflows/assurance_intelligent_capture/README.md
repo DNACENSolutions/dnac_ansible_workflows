@@ -85,7 +85,7 @@ Prepare the input data for creating or managing ICAP settings and downloads.
 |-----------------------|----------|--------------|-----------------|
 | `capture_type`        | String   | Yes          | Type of capture to download. |
 | `client_mac`          | String   | Yes          | MAC address of the client device. |
-| `ap_mac`              | String   | No           | MAC address of the AP (required for OTA/ANOMALY). |
+| `ap_mac`              | String   | Yes          | MAC address of the AP (required for OTA/ANOMALY). |
 | `start_time`          | String   | No           | Start time (YYYY-MM-DD HH:MM:SS). |
 | `end_time`            | String   | No           | End time (YYYY-MM-DD HH:MM:SS). |
 | `file_path`           | String   | Yes          | Directory to save the downloaded PCAP file. |
@@ -128,7 +128,6 @@ Figure 2 Check ICAP setting created.
         duration_in_mins: 30
         client_mac: 68:3B:78:FA:2E:5C
         wlc_name: assu-s10-spatha-10.wnburcdnst.com
-
 ```
 
 Figure 1 Choose WLC and Client MAC Address in Catalyst Center.
