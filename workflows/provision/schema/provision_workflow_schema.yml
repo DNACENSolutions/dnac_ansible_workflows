@@ -322,7 +322,7 @@
 # false
 # true ← (default)
 # #=======================================================================================================================
-provision_details:  list(include('provision_details_type'), min=0, max=1000, required=False)
+provision_details: list(any(include('provision_details_type'), include('application_telemetry_wrapper_type')), min=0, max=1000, required=False)
 catalyst_center_version: str(required=False)
 catalyst_center_verify: bool(required=False)
 catalyst_center_api_task_timeout: int(required=False, default=1200)
@@ -358,9 +358,12 @@ dynamic_interfaces_type:
   interface_netmask_in_c_i_d_r: int(required=False)
   lag_or_port_number: int(required=False)
   vlan_id: int(required=False)
-  
 
+application_telemetry_wrapper_type:
+  application_telemetry: list(include('application_telemetry_type'), required=True)
   
-
-
-  
+application_telemetry_type:
+  device_ips: list(str, required=True)
+  telemetry: str(required=True)
+  wlan_mode: str(required=False)
+  include_guest_ssid: bool(default=False, required=False)
