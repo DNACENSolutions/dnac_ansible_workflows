@@ -89,7 +89,6 @@ This schema defines the structure of the input file for configuring SDA fabric m
 | **Parameter**      | **Type** | **Required** | **Default Value** | **Description**                                |
 |--------------------|----------|--------------|-------------------|------------------------------------------------|
 | `ipv4_ssm_ranges`  | List     | Yes          | N/A               | List of IPv4 SSM address ranges (e.g., "232.0.0.0/8"). |
-| `ipv6_ssm_ranges`  | List     | No           | N/A               | List of IPv6 SSM address ranges (e.g., "FF08::/16"). |
 
 #### ASM Configuration (`asm_type`)
 
@@ -308,7 +307,7 @@ The following environment was used for testing:
 | Python                | `3.12.0`    |
 | Cisco Catalyst Center | `2.3.7.9`   |
 | Ansible               | `9.9.0`     |
-| cisco.dnac Collection | `6.32.0`    |
+| cisco.dnac Collection | `6.36.0`    |
 | dnacentersdk          | `2.8.8`     |
 
-For detailed information on SDA fabric multicast workflow, refer to the official documentation:  N/A
+For detailed information on SDA fabric multicast workflow, refer to the official documentation:  Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_fabric_multicast_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_fabric_multicast_workflow_manager/)
