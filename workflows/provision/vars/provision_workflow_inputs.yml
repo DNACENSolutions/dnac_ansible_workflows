@@ -1,12 +1,12 @@
 ---
 #Select Catalyst Cennter version, this one overwrite the default version from host file
-catalyst_center_version: 2.3.7.6
+catalyst_center_version: 2.3.7.9
 provision_details:
 # Define the devices for assigning devices on sites and provisioning
 # Wired device controller provisioning
   #Switches and Hubs provisioning
-  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
-    management_ip_address: 137.1.4.102
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+    management_ip_address: 204.1.2.5
   # To provision multiple devices in bulk, add additional entries below
   # - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
   #   management_ip_address: 137.1.4.103
@@ -74,3 +74,17 @@ provision_details:
   #     - Global/USA/SAN JOSE/SJ_BLD23/FLOOR3
   #     - Global/USA/SAN JOSE/SJ_BLD23/FLOOR4
   #   force_provisioning: True
+
+  - application_telemetry:
+    # Define the devices for application telemetry
+    # Application telemetry for wired devices
+    - device_ips: 
+        - "204.1.2.1"
+        - "204.1.2.3"
+      telemetry: enable
+    # Application telemetry for wireless devices
+      # - device_ips: 
+      #     - "204.192.4.200"  
+      #   telemetry: enable
+      #   wlan_mode: "LOCAL"
+      #   include_guest_ssid: true
