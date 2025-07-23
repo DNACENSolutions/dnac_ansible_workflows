@@ -268,10 +268,13 @@ In this example, we are enabling application telemetry for a wired device. This 
 ```yml
 ---
 catalyst_center_version: 2.3.7.9
-application_telemetry:
-# Application telemetry for wired devices
-  - device_ips: ["XX.XX.XX.XX"]
-    telemetry: enable
+provision_details:
+  - application_telemetry:
+    # Define the devices for application telemetry
+    # Application telemetry for wired devices
+    - device_ips: 
+        - "XX.XX.XX.XX"
+      telemetry: enable
 ```
 
 #### Upon a successful completion, application telemetry will be enabled and you will see an output similar to the following:
@@ -305,12 +308,14 @@ In this example, we are enabling application telemetry for a wireless device inc
 ```yml
 ---
 catalyst_center_version: 2.3.7.9
+provision_details:
 # Application telemetry for wireless devices
-application_telemetry:
-  - device_ips: ["XX.XX.XX.XX"]  
-    telemetry: enable
-    wlan_mode: "LOCAL"
-    include_guest_ssid: true
+  - application_telemetry:
+      - device_ips: 
+          - "XX.XX.XX.XX"  
+        telemetry: enable
+        wlan_mode: "LOCAL"
+        include_guest_ssid: true
 ```
 
 #### Upon a successful completion, application telemetry will be enabled and you will see an output similar to the following:
@@ -346,10 +351,13 @@ In this example, we are disabling application telemetry for a wired device. This
 ```yml
 ---
 catalyst_center_version: 2.3.7.9
-application_telemetry:
-# Application telemetry for wired devices
-  - device_ips: ["XX.XX.XX.XX"]
-    telemetry: disable
+provision_details:
+  - application_telemetry:
+    # Define the devices for application telemetry
+    # Application telemetry for wired devices
+    - device_ips: 
+        - "XX.XX.XX.XX"
+      telemetry: disable
 ```
 
 #### Upon a successful completion, app telemetry will be disabled and you will see an output similar to the following:
@@ -372,12 +380,14 @@ In this example, we are disabling application telemetry for a wireless device. T
 ```yml
 ---
 catalyst_center_version: 2.3.7.9
+provision_details:
 # Application telemetry for wireless devices
-application_telemetry:
-  - device_ips: ["XX.XX.XX.XX"]  
-    telemetry: disable
-    wlan_mode: "LOCAL"
-    include_guest_ssid: true
+  - application_telemetry:
+      - device_ips: 
+          - "XX.XX.XX.XX"  
+        telemetry: disable
+        wlan_mode: "LOCAL"
+        include_guest_ssid: true
 ```
 
 #### Upon a successful completion, app telemetry will be disabled and you will see an output similar to the following:
