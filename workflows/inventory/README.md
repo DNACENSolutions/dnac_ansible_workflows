@@ -4,45 +4,109 @@ This Ansible workflow automates various inventory management tasks within your n
 
 inventory_details defines the list of devices and their details to be processed by the playbooks.
 
-This workflow playbook is used for adding devices, assigning devices to sites, provisioning, updating devices, resyncing and rebooting devices, changing device roles, and deleting devices from the inventory.
+**Key Features:**
+  - Device Onboarding: Add new devices into inventory with automated workflows.
+  - Site Assignment: Assign devices to specific sites or zones within the fabric.
+  - Provisioning: Apply configurations and provision devices based on site policies.
+  - Device Operations: Support update, resync, and reboot operations for managed devices.
+  - Role Management: Change or assign device roles such as border, access, ...
+  - Device Deletion: Remove devices cleanly from the fabric inventory
+  - Maintenance Scheduling: Schedule periodic or one-time maintenance or device restarts.
 
-## Detailed Input Spec
+**Version Information:**
+  - version_added: v6.8.0
+  - Maintenance Scheduling: v6.33.0
+---
 
-Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/inventory_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/inventory_workflow_manager/)
+This README outlines the steps to use the Ansible playbooks for managing Application Policies in Cisco Catalyst Center.
 
-## Inventory Description
+## Workflow Steps
 
-### Main Tasks
+Before running the playbooks, ensure you have Ansible installed and the necessary collections for Cisco Catalyst Center.
 
-* Add User-Defined Fields to a Device
-* Add Network Device
-* Change the Device Role in inventory
-* Update Computed Device Credentials
-* Update a Device's Management IP Address
-* Update the Device Polling Interval
-* Delete a Network Device
-* Manage Port Details
-* Provision Device (assign devices to sites and provision wired and wireless devices)
-* Resync and reboot the devices
-* Manage Port Details
-* **To manage the port's admin status:**
-    * **Port Shut:** To shut down the port and change its admin status to Down.
-    * **Port No Shut:** To enable the port.
-    * **Clear MAC Address:** To clear the port's MAC address.
-    * To activate an error-disabled port, clear the MAC address and shut down the port.
+1.  **Install Ansible:** Follow the official Ansible documentation for installation instructions.
+2.  **Install Cisco Catalyst Center Collection:**
+    ```bash
+    ansible-galaxy collection install cisco.dnac
+    ```
+3.  **Generate Inventory:** Create an Ansible inventory file (e.g., `inventory.yml`) that includes your Cisco Catalyst Center appliance details. You will need to define variables such as the host, username, and password (or other authentication methods).
 
-* **To edit certain port details (port description, Access VLAN, Voice VLAN), use the following:**
+### Configure Host Inventory
 
-| Name         | Description                                                                                                                                                              |
-|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Access VLAN  | Provide access VLAN to assign to the port. (Cannot update access VLAN for ports with two preconfigured access VLANs)                                                  |
-| Voice VLAN   | Provide a voice VLAN                                                                                                                               |
-| Port Description | Enter or modify the port description. Delete the description by providing an empty port description.                                                                      |
+Update your Ansible hosts.yml inventory file with the connection details of your Cisco Catalyst Center instance. Replace the placeholder values with your actual Catalyst Center information.
+
+```yaml
+catalyst_center_hosts:
+    hosts:
+        your_catalyst_center_instance_name:
+            catalyst_center_host: xx.xx.xx.xx
+            catalyst_center_password: XXXXXXXX
+            catalyst_center_port: 443
+            catalyst_center_timeout: 60
+            catalyst_center_username: admin
+            catalyst_center_verify: false # Set to true for production with valid certificates
+            catalyst_center_version: 2.3.7.6 # Specify your DNA Center version
+            catalyst_center_debug: true
+            catalyst_center_log_level: INFO
+            catalyst_center_log: true
+```
+
+### Step 2: Define Inputs and Validate
+
+1. **Prerequisite:**
+  - The device must be discovered successfully and appear in inventory.
+
+2. **Define Input Variables:** Create variable files (e.g., `vars/inventory_vars.yml`) to represent the intended state of your fabric inventory. This includes device details, site assignments, provisioning settings, device roles, tags, and maintenance schedules. Use the schema below to structure your variables accurately.
+
+#### Inventory Schema
+
+| Parameter                           | Type            | Required | Default     | Description                                                                 |
+|-------------------------------------|------------------|----------|-------------|-----------------------------------------------------------------------------|
+| type                                | String           | No       | "NETWORK_DEVICE" | Select device type (e.g., NETWORK_DEVICE, COMPUTE_DEVICE, etc.)             |
+| cli_transport                       | String           | No       | ssh         | Transport protocol for accessing device (ssh or telnet)                    |
+| compute_device                      | Boolean          | No       | false       | Whether device is a compute device                                          |
+| password                            | String           | Yes      | N/A         | Password for accessing the device and encryption                           |
+| enable_password                     | String           | No       | N/A         | Enable password for device                                                  |
+| extended_discovery_info             | String           | No       | N/A         | Additional discovery information                                            |
+| http_password                       | String           | No       | N/A         | HTTP password for compute/Meraki/Firepower                                 |
+| http_port                           | String           | No       | 443         | HTTP port for compute/Firepower                                             |
+| http_secure                         | Boolean          | No       | true        | Indicates if HTTP is secure                                                 |
+| http_username                       | String           | No       | N/A         | HTTP username for compute/Firepower                                         |
+| ip_address_list                     | List[String]     | No       | []          | List of device IP addresses                                                 |
+| hostname_list                       | List[String]     | No       | []          | List of device hostnames                                                    |
+| serial_number_list                  | List[String]     | No       | []          | List of device serial numbers                                               |
+| mac_address_list                    | List[String]     | No       | []          | List of device MAC addresses                                                |
+| netconf_port                        | String           | No       | 830         | Netconf access port                                                         |
+| username                            | String           | Yes      | N/A         | Username to access the device                                               |
+| snmp_auth_passphrase               | String           | No       | N/A         | SNMP authentication passphrase                                              |
+| snmp_auth_protocol                 | String           | No       | SHA         | SNMP authentication protocol                                                |
+| snmp_mode                           | String           | No       | AUTHPRIV    | SNMP mode: NOAUTHNOPRIV, AUTHNOPRIV, AUTHPRIV                               |
+| snmp_priv_passphrase              | String           | No       | N/A         | SNMP privacy passphrase                                                     |
+| snmp_priv_protocol                | String           | No       | AES         | SNMP privacy protocol                                                       |
+| snmp_ro_community                 | String           | No       | public      | SNMP read-only community (v2c)                                              |
+| snmp_rw_community                 | String           | No       | private     | SNMP read-write community (v2c)                                             |
+| snmp_retry                         | Integer          | No       | 3           | SNMP retry count                                                            |
+| snmp_timeout                       | Integer          | No       | 5           | SNMP timeout (seconds)                                                      |
+| snmp_username                      | String           | No       | N/A         | SNMP username                                                               |
+| snmp_version                       | String           | No       | v3          | SNMP version: v2 or v3                                                      |
+| update_mgmt_ipaddresslist          | List[Dict]       | No       | []          | List of IP updates with `exist_mgmt_ipaddress` and `new_mgmt_ipaddress`    |
+| force_sync                          | Boolean          | No       | false       | Force high-priority device sync                                             |
+| device_resync                       | Boolean          | No       | false       | Resync device                                                               |
+| resync_device_count                | Integer          | No       | 200         | Max number of devices to resync                                             |
+| resync_max_timeout                 | Integer          | No       | 600         | Max timeout for resync (seconds)                                            |
+| reboot_device                       | Boolean          | No       | false       | Reboot Access Points                                                        |
+| export_device_details_limit        | Integer          | No       | 500         | Max devices to export                                                       |
+| credential_update                   | Boolean          | No       | false       | Update credentials for devices                                              |
+| clean_config                        | Boolean          | No       | false       | Delete device config and remove provisioning                               |
+| role                                | String           | No       | ACCESS      | Device role (e.g., ACCESS, CORE, BORDER)                                    |
+| add_user_defined_field              | Dict             | No       | N/A         | Custom fields with `name`, `description`, `value`                          |
+| update_interface_details            | Dict             | No       | N/A         | Dict with `interface_name`, `description`, `vlan_id`, etc.                 |
+| export_device_list                  | Dict             | No       | N/A         | Dict with `password`, `site_name`, `operation_enum`, `parameters`          |
+| provision_wired_device              | List[Dict]       | No       | []          | List of devices to provision                                                |
+| devices_maintenance_schedule        | List[Dict]       | No       | []          | Maintenance schedule: `device_ips`, `start_
 
 
-## How to Validate Input
-
-* Use `yamale`:
+#### How to Validate Input
 
 ```bash
 yamale -s workflows/inventory/schema/inventory_schema.yml workflows/inventory/vars/inventory_vars.yml 
@@ -50,56 +114,9 @@ Validating /Users/pawansi/dnac_ansible_workflows/workflows/inventory/vars/invent
 Validation success! 👍
 ```
 
-# Procedure
-1. ## Prepare your Ansible environment:
+#### Example Input File
 
-Install Ansible if you haven't already
-Ensure you have network connectivity to your Catalyst Center instance.
-Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
-
-2. ## Configure Host Inventory:
-
-The host_inventory_dnac1/hosts.yml file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
-Make sure the dnac_version in this file matches your actual Catalyst Center version.
-##The Sample host_inventory_dnac1/hosts.yml
-
-```bash
-catalyst_center_hosts:
-    hosts:
-        catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
-            dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
-```
-## Description of Vars in `hosts.yml`
-
-    - **dnac_host**: IP address of the Catalyst Center.  
-    - **dnac_username**: Catalyst Center login username.  
-    - **dnac_password**: Catalyst Center login password.  
-    - **dnac_version**: Catalyst Center version.  
-    - **dnac_port**: Port number to which Catalyst Center listens.  
-    - **dnac_timeout**: Timeout for API requests made to Catalyst Center.  
-    - **dnac_verify**: Indicates whether to verify the SSL certificate of Catalyst Center.  
-    - **dnac_debug**: Enables or disables debug mode.  
-    - **dnac_log**: Enables or disables logging for Catalyst Center. 
-
-3. ## Define Playbook input:
-
-The workflow/inventory/vars/inventory_vars.yaml file stores the device details you want to add to catalyst center.
-Refer to the full workflow specification for detailed instructions on the available options and their structure: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/inventory_workflow_manager/
-
-4. ## How to Run the playbooks
-
-Execute: Execute the playbooks with your inputs and Inventory, specify your input file using the --e variable VARS_FILE_PATH
-
-## A. To execute the Ansible playbook for adding devices:
+A. To execute the Ansible playbook for adding devices:
 
 * This task adds new devices to Cisco Catalyst Center. It allows you to specify multiple devices using a list of IP addresses and configure parameters such as device type, connection method, credentials, and SNMP information.
 * The below sample playbook will be used for adding 3 devices to the inventory.
@@ -141,7 +158,7 @@ inventory_details:
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_vars.yml -vvvvv
 ```
 
-## B. To execute the Ansible playbook for provision devices:
+B. To execute the Ansible playbook for provision devices:
 
 * This task provisions wired devices in the Cisco DNA Center inventory. Provisioning involves assigning devices to a specific site and applying the necessary configurations for them to operate within that site's network environment.
 * The below sample playbook will provision the 2 devices to its respective sites.
@@ -171,7 +188,7 @@ inventory_details:
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_provision_devices.yml -vvvvv
 ```
 
-## C. To execute the Ansible playbook for resync and reboot devices:
+C. To execute the Ansible playbook for resync and reboot devices:
 * Resync - This task resynchronizes network devices with Cisco Catalyst to ensure their configuration and status in Catalyst match their actual state in the network. The resync process ensures that the device’s configuration and status in Catalyst are updated to reflect its actual state in the network. Resync is commonly used to address discrepancies between Catalyst and device configurations.
 * The below sample playbook will be used for resync.
 * If force_sync is true then device sync would run in high priority thread if available, else the sync will fail.
@@ -208,7 +225,7 @@ inventory_details:
 ```
 * **NOTE - reboot will work for only AP devices, where resync will work for all the devices.**
 
-## D. To execute the Ansible playbook for changing Device roles:
+D. To execute the Ansible playbook for changing Device roles:
 * This task updates the role of existing devices in the Cisco Catalyst Center inventory. The role of a device helps categorize its function within the network (e.g., as an access, distribution, or core).
 * The below playbook will be used for changing device roles. It will support multiple devices.
 ```bash
@@ -225,7 +242,7 @@ inventory_details:
 ![alt text](images/Device_role.png)
 
 
-## D. To execute the Ansible playbook for deleting devices:
+E. To execute the Ansible playbook for deleting devices:
 * This task deletes specific devices from the Cisco Catalyst inventory using their IP addresses. You can control whether the device's configuration is retained or removed upon deletion, depending on your network management needs.
 *  The below playbook will be used for deleting devices/provisioned devices from the inventory.
 * If clean_config set to true it will delete the Provisioned device by clearing current configuration.
@@ -244,6 +261,72 @@ inventory_details:
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/inventory/playbook/delete_inventory_playbook.yml --e VARS_FILE_PATH=../vars/inventory_delete_devices.yml -vvvvv
 ```
 
+F. To execute the Ansible playbook for schedule the maintenance:
+
+* scheduled maintenance for device xx.xx.xx.xx at 2025-04-05 10:30:00 and ended at 2025-04-05 11:30:00 in Asia/Kolkata time zone
+
+![alt text](images/schedule_maintenance.png)
+
+```bash
+catalyst_center_version: 2.3.7.6
+- devices_maintenance_schedule:
+  - device_ips:
+      - "xx.xx.xx.xx"
+    description: "Schedule maintenance
+      devices"
+    start_time: "2025-04-05 10:30:00"
+    end_time: "2025-04-05 11:30:00"
+    time_zone: "Asia/Kolkata"
+```
+
+* scheduled maintenance for device xx.xx.xx.xx at 2025-04-05 10:30:00, ending at 2025-04-05 11:30:00 Asia/Kolkata time zone and recurring time to re-execute is 2 days ending after scheduled maintenance at 2025-04-10 11:40:00
+
+![alt text](images/recurring.png)
+
+```bash
+catalyst_center_version: 2.3.7.6
+- devices_maintenance_schedule:
+  - device_ips:
+      - "xx.xx.xx.xx"
+    description: "Schedule maintenance
+      devices"
+    start_time: "2025-04-05 10:30:00"
+    end_time: "2025-04-05 11:30:00"
+    time_zone: "Asia/Kolkata"
+    recurrence_end_time: "2025-04-10 11:40:00"
+    recurrence_interval: 2
+```
+
+* scheduled maintenance for multiple devices at 10:30:00 on 04/05/2025 and ending at 11:30:00 on 04/05/2025 in Asia/Kolkata time zone
+
+![alt text](images/bulk_schedule.png)
+
+```bash
+catalyst_center_version: 2.3.7.6
+- devices_maintenance_schedule:
+  - device_ips:
+      - "xx.xx.xx.xx"
+      - "xx.xx.xx.xx"
+      - "xx.xx.xx.xx"
+    description: "scheduled maintenance for multiple devices"
+    start_time: "2025-04-05 10:30:00"
+    end_time: "2025-04-05 11:30:00"
+    time_zone: "Asia/Kolkata"
+```
+
+
+G. To execute the Ansible playbook for delete schedule the maintenance:
+
+* delete all maintenance schedules of device xx.xx.xx.xx
+
+```bash
+catalyst_center_version: 2.3.7.6
+- devices_maintenance_schedule:
+  - device_ips:
+      - "xx.xx.xx.xx"
+      - "xxx.xxx.xxx.xxx"
+```
+
 ## Run line command parameters:
 
 - `-i`: Specifies the inventory file containing host details.  
@@ -260,6 +343,6 @@ inventory_details:
   ansible-core: 2.16.10
   ansible-runner: 2.4.0
   dnacentersdk: 2.8.3
-  cisco.dnac: 6.29.0
+  cisco.dnac: 6.36.0
   ansible.utils: 5.1.2
 ```
