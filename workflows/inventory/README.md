@@ -265,6 +265,8 @@ F. To execute the Ansible playbook for schedule the maintenance:
 
 * scheduled maintenance for device xx.xx.xx.xx at 2025-04-05 10:30:00 and ended at 2025-04-05 11:30:00 in Asia/Kolkata time zone
 
+![alt text](images/schedule_maintenance.png)
+
 ```bash
 catalyst_center_version: 2.3.7.6
 - devices_maintenance_schedule:
@@ -278,6 +280,8 @@ catalyst_center_version: 2.3.7.6
 ```
 
 * scheduled maintenance for device xx.xx.xx.xx at 2025-04-05 10:30:00, ending at 2025-04-05 11:30:00 Asia/Kolkata time zone and recurring time to re-execute is 2 days ending after scheduled maintenance at 2025-04-10 11:40:00
+
+![alt text](images/recurring.png)
 
 ```bash
 catalyst_center_version: 2.3.7.6
@@ -293,7 +297,25 @@ catalyst_center_version: 2.3.7.6
     recurrence_interval: 2
 ```
 
-F. To execute the Ansible playbook for delete schedule the maintenance:
+* scheduled maintenance for multiple devices at 10:30:00 on 04/05/2025 and ending at 11:30:00 on 04/05/2025 in Asia/Kolkata time zone
+
+![alt text](images/bulk_schedule.png)
+
+```bash
+catalyst_center_version: 2.3.7.6
+- devices_maintenance_schedule:
+  - device_ips:
+      - "xx.xx.xx.xx"
+      - "xx.xx.xx.xx"
+      - "xx.xx.xx.xx"
+    description: "scheduled maintenance for multiple devices"
+    start_time: "2025-04-05 10:30:00"
+    end_time: "2025-04-05 11:30:00"
+    time_zone: "Asia/Kolkata"
+```
+
+
+G. To execute the Ansible playbook for delete schedule the maintenance:
 
 * delete all maintenance schedules of device xx.xx.xx.xx
 
@@ -301,8 +323,8 @@ F. To execute the Ansible playbook for delete schedule the maintenance:
 catalyst_center_version: 2.3.7.6
 - devices_maintenance_schedule:
   - device_ips:
-      - "204.1.2.2"
-      - "204.1.2.3"
+      - "xx.xx.xx.xx"
+      - "xxx.xxx.xxx.xxx"
 ```
 
 ## Run line command parameters:
