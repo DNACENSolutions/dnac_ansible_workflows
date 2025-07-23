@@ -43,7 +43,9 @@ Host Onboarding Figure:
 - Minimum Catalyst Centner Version Supported : 2.3.7.6
 - Checkout the project and playbooks: git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
 
-### 2. Configure Host Inventory
+### 2. Define Inputs and Validate
+
+#### 2.1. Configure Host Inventory
 
 - Update hosts.yml (or your preferred inventory file) with the connection details for your DNA Center instance.
 - The **host_inventory_dnac1/hosts.yml** file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
@@ -68,6 +70,70 @@ catalyst_center_hosts:
             catalyst_center_log_level: INFO
             catalyst_center_log: true
 ```
+
+#### 2.2. Prerequisite
+  - Devices with EN,WLC role are required.
+  - Devices must have full interfaces.
+  - SSIDs need to be added to the wireless profile and assigned to the correct fabric site.
+
+#### 2.3. Host Onboarding Schema
+This schema defines the structure of the input file for configuring host onboarding in Cisco Catalyst Center. Below is a breakdown of the parameters, including their requirements and descriptions.
+
+#### host onboarding
+
+| Parameter                      | Type            | Required | Default     | Description                                                                                           |
+|-------------------------------|------------------|----------|-------------|-------------------------------------------------------------------------------------------------------|
+| `ip_address`                  | String           | No       | N/A         | Management IP of the target device. Required (or `hostname`) for port/channel operations.             |
+| `hostname`                   | String           | No       | N/A         | Hostname of the target device. Required (or `ip_address`) for port/channel operations.                |
+| `fabric_site_name_hierarchy` | String           | Yes      | N/A         | Full hierarchical path of the fabric site (e.g., `Global/USA/San Jose/BLDG23`). Required for all ops. |
+| `port_assignments`           | List[Dict]       | No       | []          | List of port assignment entries.                                                                      |
+| `port_channels`              | List[Dict]       | No       | []          | List of port channel configurations.                                                                  |
+| `wireless_ssids`             | List[Dict]       | No       | []          | List of wireless SSID to VLAN/IP pool mappings.                                                       |
+| `device_collection_status_check` | Boolean      | No       | true        | Whether to check device collection status before configuration.                                       |
+
+---
+
+#### port_assignments
+
+| Parameter                    | Type    | Required   | Default             | Description                                                                                         |
+|------------------------------|---------|------------|----------------------|-----------------------------------------------------------------------------------------------------|
+| `interface_name`            | String  | Yes        | N/A                  | Interface name (e.g., `GigabitEthernet2/1/1`).                                                      |
+| `connected_device_type`     | String  | Yes        | N/A                  | Type: `USER_DEVICE`, `ACCESS_POINT`, or `TRUNKING_DEVICE`.                                          |
+| `data_vlan_name`            | String  | Conditional| N/A                  | Required for `ACCESS_POINT`. One of `data_vlan_name` or `voice_vlan_name` required for `USER_DEVICE`. |
+| `voice_vlan_name`           | String  | Conditional| N/A                  | Required for `USER_DEVICE` (if `data_vlan_name` not used).                                          |
+| `security_group_name`       | String  | No         | N/A                  | Scalable group name (used only with `No Authentication`).                                           |
+| `authentication_template_name` | String | Yes      | "No Authentication" | One of: `No Authentication`, `Open Authentication`, `Closed Authentication`, `Low Impact`.         |
+| `interface_description`     | String  | No         | N/A                  | Description for the interface.                                                                      |
+
+---
+
+#### port_channels
+
+| Parameter                    | Type          | Required                        | Default | Description                                                                                          |
+|------------------------------|---------------|----------------------------------|---------|------------------------------------------------------------------------------------------------------|
+| `interface_names`           | List[String]  | Yes (Add/Update), Yes (Delete)  | N/A     | List of physical interfaces. Max 8 (PAGP/ON), max 16 (LACP).                                        |
+| `connected_device_type`     | String        | Yes (Add/Update), Optional (Del)| N/A     | `TRUNK` or `EXTENDED_NODE`.                                                                         |
+| `protocol`                  | String        | No (Immutable after creation)   | Based on type | `ON`, `LACP`, or `PAGP`. Default: `ON` for EXTENDED_NODE, `LACP` for TRUNK. Cannot be updated later. |
+| `port_channel_description`  | String        | No                               | N/A     | Description of the port channel.                                                                     |
+
+---
+
+#### wireless_ssids
+
+| Parameter                    | Type        | Required | Default | Description                                                                                          |
+|------------------------------|-------------|----------|---------|------------------------------------------------------------------------------------------------------|
+| `vlan_name`                 | String      | Yes      | N/A     | VLAN or IP pool name used for wireless SSID mapping.                                                 |
+| `ssid_details`              | List[Dict]  | No       | []      | List of SSIDs to map or remove for the given VLAN.                                                   |
+
+---
+
+#### ssid_details (suboptions)
+
+| Parameter              | Type    | Required | Default | Description                                                                 |
+|------------------------|---------|----------|---------|-----------------------------------------------------------------------------|
+| `ssid_name`           | String  | Yes      | N/A     | Name of the SSID to be mapped. For delete, acts as identifier.             |
+| `security_group_name` | String  | No       | N/A     | Optional scalable group/tag name (e.g., `Guests`, `Developers`).           |
+
 
 ### 3. Generate your Input
 - Create a YAML file (e.g., vars.yml) to store the required variables for the workflow.
