@@ -85,7 +85,6 @@ This schema defines the structure of the input file for configuring a Path Trace
 | `protocol`                 | String   | No           | N/A               | The protocol to use for the path trace (optional). Choices: `TCP`, `UDP`. |
 | `include_stats`            | List     | No           | N/A               | A list of optional statistics to include in the path trace. E.g., `DEVICE_STATS`, `INTERFACE_STATS`, `QOS_STATS`, `PERFORMANCE_STATS`, `ACL_TRACE`. |
 | `periodic_refresh`         | Boolean  | No           | true              | Boolean value to enable periodic refresh for the path trace. |
-| `control_path`             | Boolean  | No           | false             | Boolean value to specify whether the path trace should include the control path. |
 | `get_last_pathtrace_result`| Boolean  | No           | true              | Boolean value to display the last result again for the path trace. |
 | `delete_on_completion`     | Boolean  | No           | true              | Boolean value indicating whether to delete the path trace after generation. Applies only when `periodic_refresh` is false. |
 | `flow_analysis_id`         | String   | No           | N/A               | The Flow Analysis ID returned when a path trace is created. Used to retrieve or delete the trace. |
@@ -112,7 +111,6 @@ pathtrace_details:
       - PERFORMANCE_STATS
       - ACL_TRACE
     periodic_refresh: false  # optional field
-    control_path: false  # optional field
     delete_on_completion: true  # optional field
   - source_ip: "204.1.208.150"  # required field
     dest_ip: "204.1.208.152" # required field
@@ -177,12 +175,10 @@ pathtrace_details:
       - PERFORMANCE_STATS
       - ACL_TRACE
     periodic_refresh: false  # optional field
-    control_path: false  # optional field
     delete_on_completion: true  # optional field
 
   - source_ip: "204.1.1.2"  # required field
     dest_ip: "204.1.2.4"  # required field
-    control_path: false  # optional field
     get_last_pathtrace_result: true  # optional field
     delete_on_completion: true  # optional field
 
