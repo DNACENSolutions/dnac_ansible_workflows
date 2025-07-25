@@ -34,10 +34,6 @@ assurance_issues_settings:
         priority: P1
         is_notification_enabled: false
 
-  # Delete userdefined issue
-  - assurance_user_defined_issue_settings:
-      - name: Excessive CPU Utilization Alert
-
   # Update System define issue
   - assurance_system_issue_settings:
     - name: "Radio Down (2.4 GHz)"

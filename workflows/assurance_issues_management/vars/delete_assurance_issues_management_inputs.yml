@@ -1,0 +1,9 @@
+# Description: This file contains the variables for the assurance issues management workflow.
+# It is used to configure the assurance issues management workflow in Catalyst Center.
+catalyst_center_version: 2.3.7.9
+catalyst_center_verify: false
+assurance_issues_settings:
+  # Delete userdefined issue
+  - assurance_user_defined_issue_settings:
+      - name: Excessive CPU Utilization Alert
+      - name: High CPU Usage Alert issue

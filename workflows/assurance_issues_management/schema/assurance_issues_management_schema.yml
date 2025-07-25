@@ -15,6 +15,7 @@ assurance_issues_settings: list(include('assurance_issues_settings_type'), min=0
 assurance_issues_settings_type:
   assurance_user_defined_issue_settings: list(include('assurance_user_defined_issue_settings_type'), min=0, max=1000, required=False)
   assurance_system_issue_settings: list(include('assurance_system_issue_settings_type'), min=0, max=1000, required=False)
+  assurance_issue: list(include('assurance_issue_type'), min=0, max=1000, required=False)
 
 assurance_user_defined_issue_settings_type:
   name: str(required=True)
@@ -113,10 +114,10 @@ assurance_system_issue_settings_type:
   name: str(required=True)
   description: str(required=True)
   device_type: enum("Router", "SWITCH_AND_HUB", "UNIFIED_AP", "FIREWALL", "CONTROLLER","WIRED_CLIENT", required=True)
-  synchronize_to_health_threshold: bool(required=True)
+  synchronize_to_health_threshold: bool(required=False)
   priority: enum("P1", "P2", "P3", "P4", required=True)
   issue_enabled: bool(required=True)
-  threshold_value: int(required=True)
+  threshold_value: int(required=False)
   prev_name: str(required=False)
   issue_name: str(required=False)
   issue_process_type: enum("resolution", "ignore", "command_execution", required=False)
@@ -129,3 +130,14 @@ assurance_system_issue_settings_type:
   mac_address: str(required=False)
   network_device_ip_address: str(required=False)
     
+assurance_issue_type:
+  issue_name: str(required=True)
+  issue_process_type: enum("resolution", "ignore", "command_execution", required=True)
+  start_datetime: str(required=False)
+  end_datetime: str(required=False)
+  site_hierarchy: str(required=False)
+  device_name: str(required=False)
+  priority: enum("P1", "P2", "P3", "P4", required=False)
+  issue_status: enum("ACTIVE", "RESOLVED", "IGNORED", required=False)
+  mac_address: str(required=False)
+  network_device_ip_address: str(required=False)
