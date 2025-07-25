@@ -24,7 +24,7 @@ The device configuration backup workflow in Cisco Catalyst Center focuses on cre
 ### 1. Supported Catalyst Center Version: 
 2.3.7.6 and above
 ### 2. Workflow Definition: 
-device_configs_backup_details specifies the devices and their details to include in the backup.
+config specifies the devices and their details to include in the backup.
 ### 3. Full Workflow Specification: 
 Refer to the official documentation for detailed information on defining workflows: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/device_configs_backup_workflow_manager
 
@@ -57,26 +57,31 @@ catalyst_center_hosts:
 ### 3. Define Schema:
 The workflows/device_config_backup/vars device_config_backup_workflow_input.yml file stores the sites details you want to configure
 
-```bash
-catalyst_center_version: 2.3.7.6
-catalyst_center_task_timeout: 1200
-catalyst_center_task_poll_interval: 60
 
-# Network Settings an IP Pools design.
-device_configs_backup_details_type:
-  collection_status: str(required=False)
-  family: str(required=False)
-  file_password: str(required=False)
-  file_path: str(required=False)
-  hostname_list: str(required=False)
-  ip_address_list: str(required=False)
-  mac_address_list: str(required=False)
-  serial_number_list: str(required=False)
-  series: str(required=False)
-  site_list: str(required=False)
-  type: str(required=False)
-  unzip_backup: bool(required=False)
-```
+
+This step involves preparing the input data for creating or managing device configuration backup and validating your setup.
+
+**Define Input Variables:** Create variable files (e.g., `vars/device_config_backup_workflow_input.yml`) that define the desired state of your device backup configurations.
+
+
+#### Device Config Backup Configuration
+
+| **Parameter**          | **Type** | **Required** | **Default Value** | **Description**                                                      |
+|------------------------|----------|--------------|-------------------|----------------------------------------------------------------------|
+| `collection_status`    | String   | No           | N/A               | Device collection status (e.g., Managed, Unmanaged).               |
+| `family`               | String   | No           | N/A               | Device family (e.g., Switches and Hubs, Routers).                  |
+| `file_password`        | String   | No           | N/A               | Password to encrypt the backup file.                                |
+| `file_path`            | String   | Yes          | N/A               | Directory path where backup files will be stored.                   |
+| `hostname_list`        | List     | No           | N/A               | List of device hostnames to backup.                                 |
+| `ip_address_list`      | List     | No           | N/A               | List of device IP addresses to backup.                              |
+| `mac_address_list`     | List     | No           | N/A               | List of device MAC addresses to backup.                             |
+| `serial_number_list`   | List     | No           | N/A               | List of device serial numbers to backup.                            |
+| `series`               | String   | No           | N/A               | Device series (e.g., Cisco Catalyst 9300 Series Switches).         |
+| `site_list`            | List     | No           | N/A               | List of site names to backup devices from.                          |
+| `type`                 | String   | No           | N/A               | Device type filter for backup.                                      |
+| `unzip_backup`         | Boolean  | No           | false             | Whether to unzip the backup file after download.                    |
+
+
 
 ### 4. Generate your Input:
 The workflows/device_config_backup/vars/device_config_backup_workflow_input.yml file should be configured with device details
