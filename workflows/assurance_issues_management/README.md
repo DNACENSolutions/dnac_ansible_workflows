@@ -56,6 +56,7 @@ The schema file (e.g., `schema/assurance_issues_management_schema.yml`) defines 
 |--------------------------------------|------------|--------------|--------------------------------------------------------|
 | assurance_user_defined_issue_settings| list       | No           | List of user-defined issue settings                    |
 | assurance_system_issue_settings      | list       | No           | List of system-defined issue settings                  |
+| assurance_issue                   | list       | No           | List of assurance issues to resolve, ignore, or execute commands |
 
 **assurance_user_defined_issue_settings_type**
 
@@ -102,6 +103,21 @@ The schema file (e.g., `schema/assurance_issues_management_schema.yml`) defines 
 | device_name                 | string     | No           |                                                      | A filter to select issues based on the device name that is associated with the issue                                 |
 | mac_address                 | string     | No           |                                                      | A filter to select issues based on the MAC address of the device associated with the issue                                 |
 | network_device_ip_address   | string     | No           |                                                      | A filter to select issues based on the network device's IP                                 |
+
+**assurance_issue_type**
+
+| **Parameter**                | **Type**   | **Required** | **Allowed Values**                          | **Description**                                      |
+|------------------------------|------------|--------------|---------------------------------------------|------------------------------------------------------|
+| issue_name                   | string     | Yes          |                                             | Name of the assurance issue                          |
+| issue_process_type           | enum       | Yes          | resolution, ignore, command_execution       | Action to perform on the issue                       |
+| start_datetime               | string     | No           |                                             | Filter: issues that started at or after this date     |
+| end_datetime                 | string     | No           |                                             | Filter: issues that ended at or before this date      |
+| site_hierarchy               | string     | No           |                                             | Filter: issues based on site location hierarchy       |
+| device_name                  | string     | No           |                                             | Filter: issues based on device name                  |
+| priority                     | enum       | No           | P1, P2, P3, P4                              | Filter: issues based on priority                     |
+| issue_status                 | enum       | No           | ACTIVE, RESOLVED, IGNORED                   | Filter: issues based on status                       |
+| mac_address                  | string     | No           |                                             | Filter: issues based on device MAC address           |
+| network_device_ip_address    | string     | No           |                                             | Filter: issues based on network device IP address |
 
 > **Note:** For full lists of allowed values for `facility` and `mnemonic`, refer to the schema file `schema/assurance_issues_management_schema.yml` or [ansible galaxy document](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/assurance_issue_workflow_manager/). All lists can have 0 to 1000 items unless otherwise specified.
 
@@ -252,7 +268,7 @@ assurance_issues_settings:
 
 In this example, we are deleting the previously updated assurance issue named **"Excessive CPU Utilization Alert"**. Deleting an assurance issue will remove its configuration from Cisco Catalyst Center, and the system will no longer monitor or alert based on the rules defined in that issue.  
 
-**Important Note**: To delete an assurance issue, you must run the playbook specifically designed for deletion (for example, `delete_assurance_issues_management_playbook.yml`). This playbook will process the input file in "deleted" state and remove the specified issue from the system.
+**Important Note**: To delete an assurance issue, you must run the playbook specifically designed for deletion (for example, `delete_assurance_issues_management_playbook.yml` and input file `delete_assurance_issues_management_inputs.yml`). This playbook will process the input file in "deleted" state and remove the specified issue from the system.
 
 ### Example: Input YAML
 ```yaml
