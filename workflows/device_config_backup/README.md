@@ -132,7 +132,7 @@ hostname:
 #### **Example Input **
 
 ```
-config:
+device_configs_backup_details:
   - hostname_list: ['DC-T-9300.cisco.local']
     file_path: "./"
 ```
@@ -152,7 +152,7 @@ config:
 #### **Example Input **
 
 ```
-config:
+device_configs_backup_details:
   - ip_address_list: [204.1.2.5]
     file_path: "./"
     unzip_backup: true
@@ -173,7 +173,7 @@ config:
 #### **Example Input **
 
 ```
-config:
+device_configs_backup_details:
   - collection_status_list: [Managed]
     file_path: "./"
 ```
@@ -194,7 +194,7 @@ config:
 #### **Example Input **
 
 ```
-config:
+device_configs_backup_details:
   - family_list: [Switches and Hubs]
     file_path: "./"
 ```
@@ -215,7 +215,7 @@ config:
 #### **Example Input **
 
 ```
-config:
+device_configs_backup_details:
   - mac_address_list: ['34:88:18:f0:a1:80']
     file_path: "./"
 ```
@@ -235,7 +235,7 @@ config:
 #### **Example Input **
 
 ```
-config:
+device_configs_backup_details:
   - serial_number_list: ['FJC272127LW]'
     file_path: "./"
 ```
@@ -255,7 +255,7 @@ config:
 #### **Example Input **
 
 ```
-config:
+device_configs_backup_details:
   - series_list: ['Cisco Catalyst 9300 Series Switches']
     file_path: "./"
 ```
@@ -275,7 +275,7 @@ config:
 #### **Example Input **
 
 ```
-config:
+device_configs_backup_details:
   - site_list: ['Global']
     file_path: "./"
 ```
@@ -295,7 +295,7 @@ config:
 
 ![alt text](./images/password.png)
 ```
-config:
+device_configs_backup_details:
   - ip_address_list: [204.1192.3.40]
     hostname_list:["DC-FR-9300.cisco.local"]
     collection_status: Managed
