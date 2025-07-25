@@ -68,13 +68,6 @@
 #         type: bool
 #         required: false
 #         default: true
-#       control_path:
-#         description: |
-#           Boolean value to specify whether the path trace should include
-#           the control path (optional).
-#         type: bool
-#         required: false
-#         default: false
 #       get_last_pathtrace_result:
 #         description: Boolean value to display the last result again for the path trace.
 #         type: bool
@@ -118,7 +111,6 @@ pathtrace_details_type:
   protocol: enum("TCP", "UDP", required=False)
   include_stats: list(enum("DEVICE_STATS", "INTERFACE_STATS", "QOS_STATS", "PERFORMANCE_STATS", "ACL_TRACE", required=False), min=0, max=100, required=False)
   periodic_refresh: bool(required=False)
-  control_path: bool(required=False)
   get_last_pathtrace_result: bool(required=False)
   delete_on_completion: bool(required=False)
   flow_analysis_id: str(required=False)
