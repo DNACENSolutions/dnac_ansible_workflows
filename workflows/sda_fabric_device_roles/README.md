@@ -152,6 +152,41 @@ fabric_devices_details:
                   tcp_mss_adjustment: 510
 ```
 
+##### Enable device roles with support ECA device:
+To enable the ECA device, it means we will add it as at least the device roles of Control Plane and Border Node (CP, BN) and also enable the role of Embedded Wireless LAN Controller (WC).
+
+*Note: Typically, the Wireless LAN Controller (WC) role is only available on the Wireless Controller. To enable the WC role on a switch, we need to update the device with an image that includes the accompanying sub-packet. For example base image 'cat9k_iosxe.17.12.01.SPA.bin', sub-packet image 'C9800-SW-iosxe-wlc.17.12.01.SPA.bin'*
+![ECA device image](./images/eca_device_image.png)
+
+**Catalyst Center UI and playbook:**
+![ECA device](./images/eca_device.png)
+
+```bash
+fabric_devices_details:
+  - fabric_devices:
+      fabric_name: Global/USA/New York
+      device_config:
+      - device_ip: 204.1.2.2
+        device_roles: [CONTROL_PLANE_NODE, EDGE_NODE, BORDER_NODE, WIRELESS_CONTROLLER_NODE]
+        borders_settings:
+          layer3_settings:
+            local_autonomous_system_number: 6100
+            is_default_exit: true
+            import_external_routes: true 
+            border_priority: 5
+            prepend_autonomous_system_count: 5
+        wireless_controller_settings:
+          enable: true
+          reload: true
+          primary_managed_ap_locations:
+            - Global/USA/New York/NY_BLD1
+          secondary_managed_ap_locations:
+            - Global/USA/New York/NY_BLD2
+          rolling_ap_upgrade:
+            enable: true
+            ap_reboot_percentage: 25
+```
+
 ### Execute the playbook
 
 To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
@@ -161,8 +196,9 @@ To ensure a successful execution of the playbooks with your specified inputs, fo
 Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
 
 ```bash
-
-./tools/validate.sh -s /Users/majlona/dnac_ansible_workflows/workflows/sda_fabric_device_roles/schema/sda_fabric_device_roles_schema.yml -d /Users/majlona/dnac_ansible_workflows/workflows/sda_fabric_device_roles/vars/sda_fabric_device_roles_input.yml
+  ./tools/validate.sh \
+  -s workflows/sda_fabric_device_roles/schema/sda_fabric_device_roles_schema.yml \
+  -d workflows/sda_fabric_device_roles/vars/sda_fabric_device_roles_input.yml
 ```
 
 ##### Running the Playbook:
