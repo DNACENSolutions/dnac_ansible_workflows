@@ -484,6 +484,7 @@ device_config_type:
          min=1, max=4, required=True)
   route_distribution_protocol: enum('LISP_BGP', 'LISP_PUB_SUB', required=False, default='LISP_BGP')
   borders_settings: include('borders_settings_type', required=False)
+  wireless_controller_settings: include('wireless_controller_settings_type', required=False)
 
 borders_settings_type:
   layer3_settings: 
@@ -528,3 +529,15 @@ layer3_handoff_sda_transit_type:
   affinity_id_decider: int(min=0, max=2147483647, required=False)
   connected_to_internet: bool(required=False, default=False)
   is_multicast_over_transit_enabled: bool(required=False, default=False)
+
+
+wireless_controller_settings_type:
+  enable: bool(required=False, default=False)
+  reload: bool(required=False, default=False)
+  primary_managed_ap_locations: list(str, required=False)
+  secondary_managed_ap_locations: list(str, required=False)
+  rolling_ap_upgrade: include('rolling_ap_upgrade_type', required=False)
+
+rolling_ap_upgrade_type:
+  enable: bool(required=False)
+  ap_reboot_percentage: int(required=False)
