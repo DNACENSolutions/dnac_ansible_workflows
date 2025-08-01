@@ -322,7 +322,7 @@
 # false
 # true ← (default)
 # #=======================================================================================================================
-provision_details: list(any(include('provision_details_type'), include('application_telemetry_wrapper_type')), min=0, max=1000, required=False)
+provision_details: list(include('provision_details_type'), min=0, max=1000, required=False)
 catalyst_center_version: str(required=False)
 catalyst_center_verify: bool(required=False)
 catalyst_center_api_task_timeout: int(required=False, default=1200)
@@ -336,34 +336,32 @@ catalyst_center_config_verify: bool(required=False)
 # =====================================================================================================================
 ---
 provision_details_type:
-  site_name_hierarchy: str(required=False)
+  site_name_hierarchy: str(required=True)
   management_ip_address: str(required=True)
   provisioning: bool(default=True, required=False)
-  managed_ap_locations: list(str, required=False)
-  dynamic_interfaces: list(include('dynamic_interfaces_type'), required=False)
   force_provisioning: bool(default=False, required=False)
+  managed_ap_locations: list(str, required=False)
   primary_managed_ap_locations: list(str, required=False)
-  rolling_ap_upgrade: include('rolling_ap_upgrade_type', required=False)
   secondary_managed_ap_locations: list(str, required=False)
+  dynamic_interfaces: list(include('dynamic_interfaces_type'), required=False)
   skip_ap_provision: bool(default=False, required=False)
-
-rolling_ap_upgrade_type:
-  ap_reboot_percentage: int(required=False)
-  enable_rolling_ap_upgrade: bool(default=False, required=False)
+  rolling_ap_upgrade: include('rolling_ap_upgrade_type', required=False)
+  application_telemetry: include('application_telemetry_type', required=False)
 
 dynamic_interfaces_type:
-  interface_gateway: str(required=False)
-  interface_ip_address: str(required=False)
   interface_name: str(required=False)
-  interface_netmask_in_c_i_d_r: int(required=False)
-  lag_or_port_number: int(required=False)
-  vlan_id: int(required=False)
-
-application_telemetry_wrapper_type:
-  application_telemetry: list(include('application_telemetry_type'), required=True)
+  vlan_id: str(required=False)
+  interface_ip_address: str(required=False)
+  interface_netmask_in_c_i_d_r: str(required=False)
+  interface_gateway: str(required=False)
+  lag_or_port_number: str(required=False)
+  
+rolling_ap_upgrade_type:
+  enable_rolling_ap_upgrade: bool(default=False, required=False)
+  ap_reboot_percentage: int(required=False)
   
 application_telemetry_type:
-  device_ips: list(str, required=True)
-  telemetry: str(required=True)
+  device_ips: list(str, required=False)
+  telemetry: str(required=False)
   wlan_mode: str(required=False)
   include_guest_ssid: bool(default=False, required=False)

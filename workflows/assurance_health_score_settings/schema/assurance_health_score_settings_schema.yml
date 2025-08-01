@@ -16,7 +16,8 @@ assurance_health_score_settings_type:
   
 device_health_score_type:
   device_family: enum("ROUTER", "SWITCH_AND_HUB", "WIRELESS_CONTROLLER", "UNIFIED_AP", "WIRELESS_CLIENT", "WIRED_CLIENT", required=True)
-  kpi_name: enum("BGP Session from Border to Control Plane (BGP)",
+  kpi_name: enum("AAA server reachability",
+                  "BGP Session from Border to Control Plane (BGP)",
                   "BGP Session from Border to Control Plane (PubSub)",
                   "BGP Session from Border to Peer Node for INFRA VN",
                   "BGP Session from Border to Peer Node",

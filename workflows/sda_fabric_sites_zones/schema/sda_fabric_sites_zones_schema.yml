@@ -170,7 +170,7 @@ fabric_sites_and_zones_type:
   fabric_sites: list( include('fabric_sites_type'), min=0, max=1000, required=False)
 fabric_sites_type:
     authentication_profile: enum('Closed Authentication', 'Low Impact', 'No Authentication', 'Open Authentication', required=True)
-    fabric_type: str(required=True)
+    fabric_type: str(required=False, default='fabric_site')
     is_pub_sub_enabled: bool(required=False)
     site_name_hierarchy: str(required=True)
     update_authentication_profile: include('update_authentication_profile_type', required=False)
