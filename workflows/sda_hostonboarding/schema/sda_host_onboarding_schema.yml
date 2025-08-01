@@ -301,13 +301,14 @@ sda_host_onboarding_details: list(include('sda_host_onboarding_details_type'), r
 sda_host_onboarding_details_type:
   hostname: str(required=False)
   ip_address: str(required=False)
-  fabric_site_name_hierarchy: str(required=False)
+  fabric_site_name_hierarchy: str(required=True)
   port_assignments: list(include('port_assignment_details_type'), required=False, min=0, max=100)
   port_channels: list(include('port_channel_details_type'), required=False, min=0, max=100)
   wireless_ssids: list(include('wireless_ssid_details_type'), required=False, min=0, max=100)
+  device_collection_status_check: bool(required=False, default=True)
 
 port_assignment_details_type:
-  authentication_template_name: enum('No Authentication', 'Open Authentication', 'Closed Authentication', 'Low Impact', required=False)
+  authentication_template_name: enum('No Authentication', 'Open Authentication', 'Closed Authentication', 'Low Impact', required=True)
   connected_device_type: enum('TRUNKING_DEVICE', 'ACCESS_POINT', 'USER_DEVICE', required=True)
   data_vlan_name: str(required=False)
   interface_description: str(required=False)
@@ -316,7 +317,7 @@ port_assignment_details_type:
   voice_vlan_name: str(required=False)
 
 port_channel_details_type:
-  connected_device_type: str(required=True)
+  connected_device_type: enum('TRUNK', 'EXTENDED_NODE', required=True)
   interface_names: list(str, required=True, min=0, max=100)
   port_channel_description: str(required=False)
   port_channel_name: str(required=False)
