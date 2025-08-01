@@ -298,53 +298,56 @@ tags_details: list(include('tag_detail_type'), required=False)
 tag_detail_type:
   tag: include('tags_type', required=False)
   tag_memberships: include('tag_membership_type', required=False)
+
 tags_type:
     name: str(required=True)
     description: str(required=False)
     force_delete: bool(required=False, default=False)
     device_rules: include('device_rules_type', required=False)
     port_rules: include('port_rules_type', required=False)
-    network_device_tag_retrieval_batch_size: int(required=False, default=500)
-    interface_tag_retrieval_batch_size: int(required=False, default=500)
-    network_device_tag_update_batch_size: int(required=False, default=500)
-    interface_tag_update_batch_size: int(required=False, default=500)
+    new_name: str(required=False)
+
 device_rules_type:
   rule_descriptions: list(include('device_rule_descriptions_type'), required=True)
+
 port_rules_type:
   scope_description: include('scope_description_type', required=False)
   rule_descriptions: list(include('port_rule_descriptions_type'), required=True)
   
+device_rule_descriptions_type:
+  rule_name: enum("device_name", "device_family", "device_series", "ip_address", "location", "version", required=True)
+  search_pattern: enum("contains", "equals", "starts_with", "ends_with", required=True)
+  value: str(required=True)
+  operation: enum("ILIKE", "LIKE", required=False, default="ILIKE")
+
+scope_description_type:
+  scope_category: enum("TAG", "SITE", required=True)
+  scope_members: list(str, required=True)
+  inherit: bool(required=False, default=False)
+
+port_rule_descriptions_type:
+  rule_name: enum("speed", "admin_status", "port_name", "operational_status", "description", required=True)
+  search_pattern: enum("contains", "equals", "starts_with", "ends_with", required=True)
+  value: str(required=True)
+  operation: enum("ILIKE", "LIKE", required=False, default="ILIKE")
+
+
 tag_membership_type:
     tags: list(str, required=True)
     device_details: list(include('device_details_type'), required=False)
     site_details: list(include('site_details_type'), required=False)
-    network_device_tag_retrieval_batch_size: int(required=False, default=500)
-    interface_tag_retrieval_batch_size: int(required=False, default=500)
-    network_device_tag_update_batch_size: int(required=False, default=500)
-    interface_tag_update_batch_size: int(required=False, default=500)
+
 device_details_type:
   ip_addresses: list(str, required=False)
   hostnames: list(str, required=False)
   mac_addresses: list(str, required=False)
   serial_numbers: list(str, required=False)
   port_names: list(str, required=False)
+
 site_details_type:
   site_names: list(str, required=True)
   port_names: list(str, required=False)
-device_rule_descriptions_type:
-  rule_name: enum("device_name", "device_family", "device_series", "ip_address", "location", "version", required=True)
-  search_pattern: enum("contains", "equals", "starts_with", "ends_with", required=True)
-  value: str(required=True)
-  operation: enum("ILIKE", "LIKE", required=False, default="ILIKE")
-port_rule_descriptions_type:
-  rule_name: enum("speed", "admin_status", "port_name", "operational_status", "description", required=True)
-  search_pattern: enum("contains", "equals", "starts_with", "ends_with", required=True)
-  value: str(required=True)
-  operation: enum("ILIKE", "LIKE", required=False, default="ILIKE")
-scope_description_type:
-  scope_category: enum("TAG", "SITE", required=True)
-  scope_members: list(str, required=True)
-  inherit: bool(required=False, default=False)
+
 #===================================================================
 # End of Schema
 #===================================================================

@@ -40,6 +40,7 @@ full_upload_type:
     #          'Network Management', 'Cisco Interfaces and Modules', 'Wireless Controller', 'Wireless Sensor')
     device_family_name: str(required=False)
     device_serial_number: str(required=False)
+    sub_package_images: list(str(), required=False)
 
   image_activation_details:
     activate_lower_image_version: bool(required=False)
@@ -57,6 +58,7 @@ full_upload_type:
     image_name: str(required=False)
     schedule_validate: bool(required=False)
     site_name: str(required=False)
+    sub_package_images: list(str(), required=False)
 
 import_images_type:
   import_images: list(include('import_image_details_type'))
@@ -115,6 +117,7 @@ distribute_images_type:
     device_family_name: str(required=False)
     device_serial_number: str(required=False)
     device_series_name: str(required=False)
+    sub_package_images: list(str(), required=False)
 
 activate_images_type:
   image_activation_details:
@@ -133,3 +136,4 @@ activate_images_type:
     image_name: str(required=False)
     schedule_validate: bool(required=False)
     site_name: str(required=False)
+    sub_package_images: list(str(), required=False)
