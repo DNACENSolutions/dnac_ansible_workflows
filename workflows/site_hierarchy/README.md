@@ -264,13 +264,10 @@ To ensure a successful execution of the playbooks with your specified inputs, fo
   **Input Validation:**  
   Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command to perform the validation, providing the schema path with `-s` and the input path with `-d`.
 
-```bash
-./tools/validate.sh -s ./workflows/site_hierarchy/schema/site_hierarchy_schema.yml -d ./workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml
-```
 
 ### Run Schema Validation
 ```bash
-yamale -s workflows/site_hierarchy/schema/site_hierarchy_schema.yml workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml
+yamale -s workflows/site_hierarchy/schema/sites_schema.yml workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml
 ```
 Validating workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml...  
 Validation success! 👍
