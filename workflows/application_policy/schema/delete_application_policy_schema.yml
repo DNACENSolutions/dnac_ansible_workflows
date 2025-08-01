@@ -1,0 +1,28 @@
+#====================================================================
+# Yamale validation schema for application_policy
+# This schema is used to validate the input data for deleting the application policy workflow
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+application_policy_details: list(include('application_policy_details_type'), required=True, min=0, max=500)
+
+---
+application_policy_details_type:
+  queuing_profile: list(include('queuing_profile_type'), required=False)
+  application_policy: list(include('application_policy_type'), required=False)
+
+queuing_profile_type:
+  profile_name: str(required=True)
+  
+application_policy_type:
+  name: str(required=True)
+  
+#====================================================================
+#   End of schema
+#====================================================================

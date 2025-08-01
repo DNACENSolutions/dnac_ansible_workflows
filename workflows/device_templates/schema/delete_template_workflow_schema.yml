@@ -1,0 +1,23 @@
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+template_details: list(include('template_details_type'), required=False)
+---
+template_details_type:
+  configuration_templates: include('configuration_templates_type', required=False)
+
+configuration_templates_type:
+  device_types: list(include('device_types_type'), min=0, max=100, required=False)
+  language: enum('VELOCITY', 'JINJA', required=False)
+  template_name: str(required=False)
+  project_name: str(required=True)
+  software_type: enum('IOS', 'IOS-XE', 'IOS-XR', 'NX-OS', 'Cisco Controller', 'Wide Area Application Services', 'Adaptive Security Appliance', 'NFV-OS', 'Others', required=False)
+  
+device_types_type:
+  product_family: enum('Cisco Cloud Services Platform', 'Cisco Interfaces and Modules', 'Content Networking', 'Network Management', 'NFV-ThirdParty Devices', 'NFVIS', 'Routers', 'Security and VPN', 'Storage Networking', 'Switches and Hubs', 'Voice and Telephony', 'Wireless Controller', required=False)

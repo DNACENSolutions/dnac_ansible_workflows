@@ -1,0 +1,25 @@
+#https://github.com/23andMe/Yamale
+design_sites: list( include('site_type'), min=0, max=6000)
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+jinjatemplate: bool(required=False)
+jinjatemplate_file: str(required=False)
+---
+site_type: 
+  site: any(include('area_type'), include('building_type'), include('floor_type'))
+  type: str()
+
+area_type:
+  area:
+    name: str()
+    parent_name: str()
+
+building_type:
+  building:
+    name: str()
+    parent_name: str()
+
+floor_type:
+  floor:
+    name: str()
+    parent_name: str()
