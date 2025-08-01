@@ -6,7 +6,6 @@ fabric_devices_details:
       device_config:
         - device_ip: 204.1.2.6
           device_roles: [CONTROL_PLANE_NODE, BORDER_NODE]
-          route_distribution_protocol: LISP_PUB_SUB 
           borders_settings:
             layer3_settings:
               local_autonomous_system_number: 1234
@@ -33,5 +32,4 @@ fabric_devices_details:
               is_multicast_over_transit_enabled: false
         - device_ip: 204.1.2.3
           device_roles: [CONTROL_PLANE_NODE]
-          route_distribution_protocol: LISP_PUB_SUB 
 

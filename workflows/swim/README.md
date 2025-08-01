@@ -245,7 +245,7 @@ The software image (SWIM) can be updated on the device in a single run by combin
 ```
 
 # How to run
-  1. ## Command to run:
+  1. ## Command to run
   Example command to run the swim playbook:
   ```bash
   ansible-playbook 
@@ -255,6 +255,13 @@ The software image (SWIM) can be updated on the device in a single run by combin
     -vvv # return detailed information about the message; the more 'v', more detailed
   ```
   
+  2. ## Validate the schema input
+  ```bash
+    ./tools/validate.sh \
+    -s workflows/swim/schema/swim_schema.yml \
+    -d workflows/swim/vars/swim_import_tag_distribute_activate_image_vars.yml
+  ```
+
 # Reference
 
 *Note: The environment used for the references in the above instructions is as follows:*

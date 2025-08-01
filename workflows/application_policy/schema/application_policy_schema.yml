@@ -15,8 +15,6 @@ application_policy_details: list(include('application_policy_details_type'), req
 ---
 application_policy_details_type:
   queuing_profile: list(include('queuing_profile_type'), required=False)
-  application_sets: list(include('application_sets_type'), required=False)
-  application: list(include('application_type'), required=False)
   application_policy: list(include('application_policy_type'), required=False)
 
 queuing_profile_type:
@@ -61,35 +59,8 @@ bandwidth_percentages_type:
   network_control: str(required=False)
   bulk_data: str(required=False)
 
-application_sets_type:
-  name: str(required=True)
-
-application_type:
-  name: str(required=True)
-  description: str(required=False)
-  help_string: str(required=False)
-  type: enum("server_name", "url", "server_ip", required=False)
-  server_name: str(required=False)
-  dscp: int(required=False, min=0, max=63)
-  network_identity: include('network_identity_type', required=False)
-  app_protocol: enum("TCP", "UDP", "TCP_UDP", "IP", required=False)
-  url: str(required=False)
-  traffic_class: enum("BROADCAST_VIDEO", "BULK_DATA", "MULTIMEDIA_CONFERENCING", "MULTIMEDIA_STREAMING", "NETWORK_CONTROL", "OPS_ADMIN_MGMT", "REAL_TIME_INTERACTIVE", "SIGNALING", "TRANSACTIONAL_DATA", "VOIP_TELEPHONY", "BEST_EFFORT", "SCAVENGER", required=False)
-  ignore_conflict: bool(required=False)
-  rank: int(required=False)
-  engine_id: int(required=False)
-  application_set_name: str(required=False)
-
-network_identity_type:
-  protocol: str(required=False)
-  port: str(required=False)
-  ip_subnet: list(str(), required=False)
-  lower_port: str(required=False)
-  upper_port: str(required=False)
-
 application_policy_type:
   name: str(required=True)
-  application_set_name: str(required=False)
   policy_status: enum("NONE", "DELETED", "RESTORED", required=False)
   site_names: list(str(), required=False)
   device_type: str(required=True)
