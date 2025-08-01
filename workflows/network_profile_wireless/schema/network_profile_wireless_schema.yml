@@ -173,8 +173,8 @@ ssid_details_type:
 
 ap_zones_type:
   ap_zone_name: str(required=True)
-  ssids: list(str(), required=False)
-  rf_profile_name: str(required=False)
+  ssids: list(str(), required=True)
+  rf_profile_name: str(required=True)
 
 additional_interfaces_type:
   interface_name: str(required=True)

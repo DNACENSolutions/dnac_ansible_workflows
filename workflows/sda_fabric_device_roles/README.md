@@ -62,7 +62,6 @@ fabric_devices_details:
       device_config:
         - device_ip: 204.1.2.6
           device_roles: [CONTROL_PLANE_NODE]
-          route_distribution_protocol: LISP_PUB_SUB 
 ```
 
 ##### Enable Control Plane - Border Node - Edge Node on Catalyst Center using UI and playbook:
@@ -76,7 +75,6 @@ fabric_devices_details:
       device_config:
         - device_ip: 204.1.2.6
           device_roles: [CONTROL_PLANE_NODE, BORDER_NODE, EDGE_NODE]
-          route_distribution_protocol: LISP_PUB_SUB 
           borders_settings:
             layer3_settings:
               local_autonomous_system_number: 1234
@@ -97,7 +95,6 @@ fabric_devices_details:
       device_config:
         - device_ip: 204.1.2.6
           device_roles: [CONTROL_PLANE_NODE, BORDER_NODE]
-          route_distribution_protocol: LISP_PUB_SUB 
           borders_settings:
             layer3_settings:
               local_autonomous_system_number: 1234
@@ -122,7 +119,6 @@ fabric_devices_details:
       device_config:
         - device_ip: 204.1.2.6
           device_roles: [CONTROL_PLANE_NODE, BORDER_NODE, EDGE_NODE]
-          route_distribution_protocol: LISP_PUB_SUB 
           borders_settings:
             layer3_handoff_sda_transit:
               transit_network_name: TRANSITSDA
@@ -141,7 +137,6 @@ fabric_devices_details:
       device_config:
         - device_ip: 204.1.2.6
           device_roles: [CONTROL_PLANE_NODE, BORDER_NODE, EDGE_NODE]
-          route_distribution_protocol: LISP_PUB_SUB 
           borders_settings:
             layer3_handoff_ip_transit:
                 - transit_network_name: iptransit
@@ -233,19 +228,16 @@ fabric_devices_details:
 {% for ip in range(3, 9) %}
         - device_ip: "204.1.2.{{ ip }}"
           device_roles: [CONTROL_PLANE_NODE]
-          route_distribution_protocol: LISP_PUB_SUB
 {% endfor %}
 
 {% for ip in range(20, 61) %}
         - device_ip: "204.1.2.{{ ip }}"
           device_roles: [EDGE_NODE]
-          route_distribution_protocol: LISP_PUB_SUB
 {% endfor %}
 
 {% for ip in [6, 7, 8] %}
         - device_ip: "204.1.2.{{ ip }}"
           device_roles: [BORDER_NODE]
-          route_distribution_protocol: LISP_PUB_SUB
           borders_settings:
             layer3_settings:
               local_autonomous_system_number: 65001
