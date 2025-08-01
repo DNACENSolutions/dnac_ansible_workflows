@@ -517,7 +517,7 @@ Catalyst Center will stop recognizing and processing data from these apps. Ensur
 catalyst_center_version: 2.3.7.6
 # This file contains the variables for the inventory workflow
 application_policy_details:
-  - application:
+  - application_policy:
     - name: "Security_Gateway_App"
     - name: "Security_Gateway_IP_App"
     

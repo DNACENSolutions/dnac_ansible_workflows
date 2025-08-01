@@ -1,0 +1,345 @@
+# Parameters
+# Parameter	Choices/Defaults	Comments
+# config
+# list / elements =dictionary / required
+# List containing the subscription configuration for events, notification on site through one or more channels.
+# 	email_destination
+# dictionary
+# Configure settings to send out emails from Cisco Catalyst Center. Also we can create or configure email destination in Cisco Catalyst Center only once then later we can just modify it. This one is just used to configure the Primary and Secondary SMTP server while configuring the email destination. It's not related to email event subscription notification.
+# 		primary_smtp_config
+# dictionary
+# Add the primary configuration for smtp while creating/updating email destination.
+# 			password
+# string
+# Password for Authenticating Primary SMTP Server.
+# 			port
+# string
+# Port number used for configuring Primary SMTP Server. Also there is a mapping of smtype and port if snmp_type is DEFAULT then port is 25 and for smtp_type TLS or SSL we can choose either 465 or 587 as port number.
+# 			server_address
+# string / required
+# Hostname or IP address of the primary SMTP server. Supports both IPv4 and IPv6.
+# 			smtp_type
+# string / required
+# The type of connection used for the SMTP server, with options being DEFAULT, TLS, or SSL. By default, it is set to DEFAULT. DEFAULT - Chooses a standard SMTP connection without encryption. If it's selected then port will be 25 only. TLS - Initiates an unencrypted SMTP connection and upgrades to TLS encryption when available. If it's selected then port will be either 465 or 587. SSL - Begins with an encrypted SMTP connection using SSL from the start. If it's selected then port will be either 465 or 587.
+# 			username
+# string
+# Username for Authenticating Primary SMTP Server.
+# 		recipient_email
+# string / required
+# Recipient's email address that will receive emails when an email destination is created or updated.
+# 		secondary_smtp_config
+# dictionary
+# Include an optional secondary SMTP configuration when creating or updating an email destination.
+# 			password
+# string
+# Password for Authenticating Secondary SMTP Server.
+# 			port
+# string
+# Port number used for configuring Secondary SMTP Server. Also there is a mapping of smtype and port if snmp_type is DEFAULT then port is 25 and for smtp_type TLS or SSL we can choose either 465 or 587 as port number.
+# 			server_address
+# string
+# Hostname or IP address of the secondary SMTP server. Supports both IPv4 and IPv6.
+# 			smtp_type
+# string
+# The type of connection used for the SMTP server, with options being DEFAULT, TLS, or SSL. By default, it is set to DEFAULT. DEFAULT - Chooses a standard SMTP connection without encryption. If it's selected then port will be 25 only. TLS - Initiates an unencrypted SMTP connection and upgrades to TLS encryption when available. If it's selected then port will be either 465 or 587. SSL - Begins with an encrypted SMTP connection using SSL from the start. If it's selected then port will be either 465 or 587.
+# 			username
+# string
+# Username for Authenticating Secondary SMTP Server.
+# 		sender_email
+# string / required
+# Sender's email address used when setting up or modifying an email destination.
+# 		subject
+# string / required
+# Subject line of the email to be used when sending emails from the specified email destination.
+# 	email_event_notification
+# dictionary
+# Configuration for setting up or modifying an Email Event Subscription in Cisco Catalyst Center. This includes parameters for the email notification itself as well as details for the associated email instance.
+# 		description
+# string / required
+# A brief explanation detailing the purpose of the Email events subscription notification.
+# 		domain
+# string
+# The main category or domain under which events fall (e.g., Know Your Network, Connectivity, etc.).
+# 		event_categories
+# list / elements =string
+# List of event categories to be included in the subscription for notifications (e.g., WARN, INFO, ERROR, ALERT, TASK_COMPLETE, TASK_FAILURE).
+# 		event_severities
+# list / elements =string
+# List of event severities to be included in the subscription for notifications (e.g., ["1", "2", "3"]).
+# 		event_sources
+# list / elements =string
+# List of event sources to be included in the subscription for notifications.
+# 		event_types
+# list / elements =string
+# Types of events that trigger the notifications, defining the nature of the event (e.g., ["APP", "NETWORK"]).
+# 		events
+# list / elements =string / required
+# List of event names to be subscribed to for notification configurations (e.g., ["AP Flap", "AP Reboot Crash"]).
+# 		instance
+# string / required
+# Name assigned to the specific email instance used for sending the notification.
+# 		instance_description
+# string / required
+# Detailed explanation of the email instance's purpose and how it relates to the notifications.
+# 		name
+# string / required
+# Name of the Email event subscription notification.
+# 		recipient_emails
+# list / elements =string / required
+# Recipient email addresses that will receive the notifications.
+# 		sender_email
+# string / required
+# Originating email address for sending out the notifications.
+# 		sites
+# list / elements =string
+# List of site names where events are included in the notification subscription(e.g., ["Global/India", "Global/USA"]).
+# 		subdomains
+# list / elements =string
+# More specific categories within the main domain to further classify events (e.g., ["Wireless", "Applications"]).
+# 		subject
+# string / required
+# The Subject line for the email notification, briefly indicating the notification content.
+# 		version
+# string
+# Version label for the event subscription, helping track updates or changes.
+# 	itsm_setting
+# dictionary
+# Dictionary containing the configuration details to configure the ServiceNow/BMCRemedy settings to automatically create incidents/problems/RFC's from Cisco Catalyst Center.
+# 		connection_settings
+# dictionary
+# A dictionary of settings required to establish a connection with the ITSM system.
+# 			password
+# string / required
+# The password associated with the username for API authentication. It is recommended to handle this data securely.
+# 			url
+# string / required
+# The URL of the ITSM system API endpoint. This is the base URL used for ITSM service requests.
+# 			username
+# string / required
+# The username used for authentication with the ITSM system. This is required for accessing the API.
+# 		description
+# string
+# A brief description of the ITSM settings, outlining its purpose or usage within the organization.
+# 		instance_name
+# string / required
+# The name of the ITSM configuration. This helps in identifying the integration within the system. Also while deleting the ITSM Intergration setting from Cisco Catalyst Center.
+# 	snmp_destination
+# dictionary
+# Dictionary containing the details for configuring/updating the SNMP Trap Server to receive Audit logs and Events from Cisco Catalyst Center.
+# 		auth_password
+# string
+# Password used for SNMP authentication.
+# 		auth_type
+# string
+# Type of SNMP authentication protocol to use, such as MD5 or SHA. SHA - Stands for Secure Hash Algorithm, a suite of cryptographic hash functions developed by the National Security Agency (NSA) offering enhanced security. MD5 - Refers to Message Digest Algorithm 5, a well-established cryptographic hash function generating a 128-bit hash value, employed in SNMPv3 for message authenticity and integrity verification.
+# 		community
+# string
+# SNMP community string used for authentication, necessary only when the snmp_version is set to V2C.
+# 		description
+# string / required
+# Description of the SNMP destination.
+# 		mode
+# string
+# The security mode for SNMP communication (options - AUTH_PRIVACY, AUTH_NO_PRIVACY, NO_AUTH_NO_PRIVACY). Mandatory for snmp_version V3 and must not be set to NONE. AUTH_PRIVACY - The most secure mode, providing both verification of the message source through authentication and protection of message contents with encryption. If this option is selected, must need to provide auth_type, auth_password, privacy_type, privacy_password parameter in the playbook. AUTH_NO_PRIVACY - This mode ensures the authenticity of SNMP messages via a community string for validation but does not encrypt the data, leaving it vulnerable to interception. If this option is selected, must need to provide auth_type, auth_password parameter in the playbook. NO_AUTH_NO_PRIVACY - In this mode, SNMP messages are neither authenticated nor encrypted, making it the least secure as it requires no credentials or data protection. If this option is selected, not need to provide auth_type, auth_password, privacy_type, privacy_password parameter in the playbook.
+# 		name
+# string / required
+# Name of the SNMP destination.
+# 		port
+# string / required
+# Port number on which the SNMP server is listening.
+# 		privacy_password
+# string
+# Password used for encryption in SNMP privacy.
+# 		privacy_type
+# string
+# Encryption algorithm used for SNMP privacy, such as AES128.
+# 		server_address
+# string / required
+# IP address of the SNMP server.
+# 		snmp_version
+# string
+# The SNMP protocol version used for network management and monitoring, selectable between SNMPv2c and SNMPv3. V2C - Utilizes community strings for the authentication between the SNMP manager (like Cisco Catalyst) and managed network devices (routers, switches, access points), without encryption, as strings are sent in plain text. V3 - Offers enhanced security features over V2C, including authentication, integrity, and encryption, using usernames, passwords, and encryption keys for secure communications.
+# 		username
+# string
+# Username required for SNMP authentication, applicable exclusively when the snmp_version is configured to V3.
+# 	syslog_destination
+# dictionary
+# Dictionary containing the details for configuring/updating the Syslog Server to collect Audit logs and Events from the Cisco Catalyst Center.
+# 		description
+# string / required
+# A brief explanation detailing the purpose of the syslog destination.
+# 		name
+# string / required
+# Name of the syslog destination.
+# 		port
+# integer / required
+# Port number on which the syslog server is listening. It must be in the range of 1-65535. If not given any port then we will use 514 as default port.
+# 		protocol
+# string / required
+# Protocol used for sending syslog messages (e.g., UDP, TCP). Transmission Control Protocol (TCP) - It is a connection-oriented protocol used for reliable and ordered communication between devices on a network. It provides error-checking, retransmission of lost packets, and ensures that data is delivered in the correct order. User Datagram Protocol (UDP) - It is a connectionless protocol used for sending datagrams between devices on a network. It provides a lightweight, best-effort delivery mechanism without guaranteeing delivery or ordering of packets. UDP is commonly used for real-time applications such as streaming media, online gaming, and VoIP.
+# 		server_address
+# string / required
+# Hostname or IP address of the Syslog server.
+# 	syslog_event_notification
+# dictionary
+# Configuration for establishing or revising a Syslog Event Subscription in the Cisco Catalyst Center. This allows for the specification of Syslog event notification parameters and destination settings.
+# 		description
+# string / required
+# A brief explanation detailing the purpose of the syslog events subscription notification.
+# 		destination
+# string / required
+# The name of the destination for sending event notifications via syslog.
+# 		domain
+# string
+# The main category or domain under which events fall (e.g., Know Your Network, Connectivity, etc.).
+# 		event_categories
+# list / elements =string
+# List of event categories to be included in the subscription for notifications (e.g., WARN, INFO, ERROR, ALERT, TASK_COMPLETE, TASK_FAILURE).
+# 		event_severities
+# list / elements =string
+# List of event severities to be included in the subscription for notifications (e.g., ["1", "2", "3"]).
+# 		event_sources
+# list / elements =string
+# List of event sources to be included in the subscription for notifications.
+# 		event_types
+# list / elements =string
+# Types of events that trigger the notifications, defining the nature of the event (e.g., ["APP", "NETWORK"]).
+# 		events
+# list / elements =string / required
+# List of event names to be subscribed to for notification configurations (e.g., ["AP Flap", "AP Reboot Crash"]).
+# 		name
+# string / required
+# Name of the Syslog event subscription notification.
+# 		sites
+# list / elements =string
+# List of site names where events are included in the notification subscription(e.g., ["Global/India", "Global/USA"]).
+# 		subdomains
+# list / elements =string
+# More specific categories within the main domain to further classify events (e.g., ["Wireless", "Applications"]).
+# 		version
+# string
+# Version label for the event subscription, helping track updates or changes.
+# 	webhook_destination
+# dictionary
+# Dictionary containing the details for configuring/updating the REST Endpoint to receive Audit logs and Events from Cisco Catalyst Center Platform.
+# 		description
+# string
+# A brief explanation of what the webhook destination is used for.
+# 		headers
+# list / elements =dictionary
+# A list of HTTP headers to be included in the webhook request. Each header is represented as a dictionary. While giving the headers details we can categorize them into - "Basic, Token and No Auth". Basic Authentication - It is used to ensure that the receiving server can validate the identity of the requesting server by checking the credentials against its store. This method is straightforward but less secure compared to others since credentials are sent encoded but not encrypted. Token Authentication - It involves security tokens which are typically generated by the server. A client must send this token in the HTTP header to access resources. It is more secure than Basic Authentication as it allows the server to issue tokens that can have a limited lifetime, be revoked, and carry specific permissions without exposing user credentials. No Auth - It implies that no authentication method is required to access the webhook destination. This setting can be used in environments where security is either handled by other means (such as network isolation) or where the data being transmitted is not sensitive.
+# 			default_value
+# string
+# Default value for the HTTP header that can be used if no specific value is provided.
+# 			encrypt
+# boolean
+# Choices:
+#     true
+#     false
+# Indicates whether the value of the header should be encrypted. Useful for sensitive data.
+# 			name
+# string
+# Name of the HTTP header.
+# 			value
+# string
+# Value assigned to the HTTP header.
+# 		is_proxy_route
+# boolean
+# Choices:
+#     true
+#     false
+# A boolean value indicating if the request should use a proxy server. It will set to true for proxy routing, and false for direct connection. By default, it is set to True.
+# 		method
+# string
+# The HTTP method used by the webhook when sending requests (e.g., POST, PUT). POST - It is typically used to create a new webhook destination. When you set up a new webhook in Cisco Catalyst Center, you would use the POST method to send the necessary configuration details (like URL, headers, payload format, etc.) to the server. PUT - It is used to update an existing webhook destination. If a webhook destination is already configured and you need to change any of its settings—such as modifying the URL, adjusting headers, or changing the payload format.
+# 		name
+# string / required
+# Name of the webhook destination. A unique identifier for the webhook destination within the system.
+# 		trust_cert
+# boolean
+# Choices:
+#     true
+#     false
+# A boolean that indicates whether to verify the SSL/TLS certificate of the URL, setting this to true will bypass certificate verification. By default, it is set to false.
+# 		url
+# string / required
+# Fully qualified URL to which the webhook will send requests (e.g., "https://ciscocatalyst.com").
+# 	webhook_event_notification
+# dictionary
+# Dictionary containing the details for creating/updating the Webhook Event subscription notification in Cisco Catalyst Center.
+# 		description
+# string / required
+# A brief explanation detailing the purpose of the email events subscription notification.
+# 		destination
+# string / required
+# The name of the destination for sending event notifications via webhook.
+# 		domain
+# string
+# The main category or domain under which events fall (e.g., Know Your Network, Connectivity, etc.).
+# 		event_categories
+# list / elements =string
+# List of event categories to be included in the subscription for notifications (e.g., WARN, INFO, ERROR, ALERT, TASK_COMPLETE, TASK_FAILURE).
+# 		event_severities
+# list / elements =string
+# List of event severities to be included in the subscription for notifications (e.g., ["1", "2", "3"]).
+# 		event_sources
+# list / elements =string
+# List of event sources to be included in the subscription for notifications.
+# 		event_types
+# list / elements =string
+# Types of events that trigger the notifications, defining the nature of the event (e.g., ["APP", "NETWORK"]).
+# 		events
+# list / elements =string / required
+# List of event names to be subscribed to for notification configurations (e.g., ["AP Flap", "AP Reboot Crash"]).
+# 		name
+# string / required
+# Name of the Webhook event subscription notification.
+# 		sites
+# list / elements =string
+# List of site names where events are included in the notification subscription(e.g., ["Global/India", "Global/USA"]).
+# 		subdomains
+# list / elements =string
+# More specific categories within the main domain to further classify events (e.g., ["Wireless", "Applications"]).
+# 		version
+# string
+# Version label for the event subscription, helping track updates or changes.
+# config_verify
+# boolean
+# Choices:
+#     true
+#     false
+#      ←
+# Set to True to verify the Cisco Catalyst Center config after applying the playbook config.
+#=======================
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_task_poll_interval: int(required=False)
+catalyst_center_config_verify: bool(required=False)
+events_notifications_destination_and_subscription_details: list(include('events_notifications_destination_and_subscription_details_type'), required=False)
+#====================
+---
+events_notifications_destination_and_subscription_details_type:
+  email_event_notification: include('email_event_notification_type', required=False)
+  itsm_setting: include('itsm_setting_type', required=False)
+  webhook_event_notification: include('webhook_event_notification_type', required=False)
+  syslog_event_notification: include('syslog_event_notification_type', required=False)
+ 
+email_event_notification_type:
+  name: str(required=True)
+
+itsm_setting_type:
+  instance_name: str(required=True)
+ 
+syslog_event_notification_type:
+  name: str(required=True)
+
+webhook_event_notification_type:
+  name: str(required=True)
+
+  #=======================
