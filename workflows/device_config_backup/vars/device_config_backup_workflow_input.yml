@@ -7,7 +7,7 @@ catalyst_center_task_poll_interval: 60
 # Network Settings an IP Pools design.
 device_configs_backup_details:
   - ip_address_list: [204.1.2.1]
-    collection_status_list: [Managed]
+    collection_status: [Managed]
     #family_list: ["Switches and Hubs"]
     #file_password: XXXXXXX
     file_path: "./"

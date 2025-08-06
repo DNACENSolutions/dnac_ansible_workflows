@@ -456,11 +456,7 @@
 # false
 # Flag for Cisco Catalyst Center SDK to enable the validation of request bodies against a JSON schema.
 
-discovery_details:
-  cdp: include('cdp_discovery_type', required=False)
-  single: include('single_discovery_type', required=False)
-  range: include('range_discovery_type', required=False)
-  multi_range: include('multi_range_discovery_type', required=False)
+
 catalyst_center_version: str(required=False)
 catalyst_center_verify: bool(required=False)
 catalyst_center_api_task_timeout: int(required=False, default=1200)
@@ -470,20 +466,9 @@ catalyst_center_log_append: bool(required=False, default=True)
 catalyst_center_log_file_path: str(required=False, default='dnac.log')
 catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
 catalyst_center_config_verify: bool(required=False)
+discovery_details: list(include('discovery_details_type', min=1, max=100), required=False)
 ---
-cdp_discovery_type: list(include('cdp_discovery_type_type', min=1, max=100), required=False)
-cdp_discovery_type_type:
-    discovery_name: str(min=1, max=255)
-
-single_discovery_type: list(include('single_discovery_type_type', min=1, max=100), required=False)
-single_discovery_type_type:
-    discovery_name: str(min=1, max=255)
-
-range_discovery_type: list(include('range_discovery_type_type', min=1, max=100), required=False)
-range_discovery_type_type:
-    discovery_name: str(min=1, max=255)
-
-multi_range_discovery_type: list(include('multi_range_discovery_type_type', min=1, max=100), required=False)
-multi_range_discovery_type_type:
-    discovery_name: str(min=1, max=255)
+discovery_details_type:
+    discovery_name: str(required=True)
+    delete_all: bool(required=False, default=False)
 

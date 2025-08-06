@@ -1,0 +1,340 @@
+# Parameter
+
+# Comments
+
+# config 
+# list / elements=dictionary / required
+
+# List of details of device being managed.
+
+# dynamic_interfaces 
+# list / elements=dictionary
+
+# A list of dynamic interfaces on the wireless controller.
+
+# Each entry represents an interface with associated configuration details.
+
+# interface_gateway 
+# string
+
+# The gateway IP address for the interface.
+
+# interface_ip_address 
+# string
+
+# The IP address assigned to the interface.
+
+# interface_name 
+# string
+
+# The name of the interface.
+
+# interface_netmask_in_c_i_d_r 
+# string
+
+# The netmask of the interface in CIDR format (e.g., 24 for 255.255.255.0).
+
+# lag_or_port_number 
+# string
+
+# The port number or LAG (Link Aggregation Group) identifier.
+
+# vlan_id 
+# string
+
+# The VLAN ID associated with the interface.
+
+# force_provisioning 
+# boolean
+
+# Determines whether to force reprovisioning of a device.
+
+# A device cannot be re-provisioned to a different site.
+
+# The ‘provisioning’ option should not be set to ‘false’ for ‘force_provisioning’ to take effect.
+
+# Applicable only for wired devices.
+
+# Set to ‘true’ to enforce reprovisioning, even if the device is already provisioned.
+
+# Set to ‘false’ to skip provisioning for devices that are already provisioned.
+
+# Choices:
+
+# false ← (default)
+
+# true
+
+# managed_ap_locations 
+# list / elements=string
+
+# Location of the sites allocated for the APs.
+
+# This is mandatory for provisioning of wireless devices.
+
+# management_ip_address 
+# string / required
+
+# Management Ip Address of the device.
+
+# primary_managed_ap_locations 
+# list / elements=string
+
+# List of site locations assigned to primary managed Access Points (APs).
+
+# Required for provisioning wireless devices if the managed AP location is not set.
+
+# Supported in Cisco Catalyst version 2.3.7.6 and later.
+
+# provisioning 
+# boolean
+
+# Specifies whether the user intends to perform site assignment only or full provisioning for a wired device.
+
+# Set to ‘false’ to carry out site assignment only.
+
+# Set to ‘true’ to proceed with provisioning to a site.
+
+# Choices:
+
+# false
+
+# true ← (default)
+
+# rolling_ap_upgrade 
+# dictionary
+
+# Configuration options for performing a rolling upgrade of Access Points (APs) in phases.
+
+# Allows control over the gradual rebooting of APs during the upgrade process.
+
+# Supported in Cisco Catalyst version 2.3.7.6 and later.
+
+# ap_reboot_percentage 
+# integer
+
+# The percentage of APs to reboot simultaneously during an upgrade.
+
+# Supported in Cisco Catalyst version 2.3.7.6 and later.
+
+# Must be either 5, 15 or 25 representing the proportion of APs to reboot at once.
+
+# enable_rolling_ap_upgrade 
+# boolean
+
+# Enable or disable the rolling AP upgrade feature.
+
+# If set to ‘true’, APs will be upgraded in batches based on the specified reboot percentage.
+
+# Supported in Cisco Catalyst version 2.3.7.6 and later.
+
+# Choices:
+
+# false ← (default)
+
+# true
+
+# secondary_managed_ap_locations 
+# list / elements=string
+
+# List of site locations assigned to secondary managed Access Points (APs).
+
+# Required for provisioning wireless devices if the managed AP location is not set.
+
+# Supported in Cisco Catalyst version 2.3.7.6 and later.
+
+# site_name_hierarchy 
+# string / required
+
+# Name of the site where the device will be added. This parameter is required for provisioning the device and assigning it to a site.
+
+# skip_ap_provision 
+# boolean
+
+# If set to ‘true’, Access Point (AP) provisioning will be skipped during the workflow.
+
+# Use this option when AP provisioning is not required as part of the current operation.
+
+# Supported in Cisco Catalyst version 2.3.7.6 and later.
+
+# Choices:
+
+# false ← (default)
+
+# true
+
+# config_verify 
+# boolean
+
+# Set to true to verify the Cisco Catalyst Center config after applying the playbook config.
+
+# Choices:
+
+# false ← (default)
+
+# true
+
+# dnac_api_task_timeout 
+# integer
+
+# Defines the timeout in seconds for API calls to retrieve task details. If the task details are not received within this period, the process will end, and a timeout notification will be logged.
+
+# Default: 1200
+
+# dnac_debug 
+# boolean
+
+# Indicates whether debugging is enabled in the Cisco Catalyst Center SDK.
+
+# Choices:
+
+# false ← (default)
+
+# true
+
+# dnac_host 
+# string / required
+
+# The hostname of the Cisco Catalyst Center.
+
+# dnac_log 
+# boolean
+
+# Flag to enable/disable playbook execution logging.
+
+# When true and dnac_log_file_path is provided, - Create the log file at the execution location with the specified name.
+
+# When true and dnac_log_file_path is not provided, - Create the log file at the execution location with the name ‘dnac.log’.
+
+# When false, - Logging is disabled.
+
+# If the log file doesn’t exist, - It is created in append or write mode based on the “dnac_log_append” flag.
+
+# If the log file exists, - It is overwritten or appended based on the “dnac_log_append” flag.
+
+# Choices:
+
+# false ← (default)
+
+# true
+
+# dnac_log_append 
+# boolean
+
+# Determines the mode of the file. Set to True for ‘append’ mode. Set to False for ‘write’ mode.
+
+# Choices:
+
+# false
+
+# true ← (default)
+
+# dnac_log_file_path 
+# string
+
+# Governs logging. Logs are recorded if dnac_log is True.
+
+# If path is not specified, - When ‘dnac_log_append’ is True, ‘dnac.log’ is generated in the current Ansible directory; logs are appended. - When ‘dnac_log_append’ is False, ‘dnac.log’ is generated; logs are overwritten.
+
+# If path is specified, - When ‘dnac_log_append’ is True, the file opens in append mode. - When ‘dnac_log_append’ is False, the file opens in write (w) mode. - In shared file scenarios, without append mode, content is overwritten after each module execution. - For a shared log file, set append to False for the 1st module (to overwrite); for subsequent modules, set append to True.
+
+# Default: "dnac.log"
+
+# dnac_log_level 
+# string
+
+# Sets the threshold for log level. Messages with a level equal to or higher than this will be logged. Levels are listed in order of severity [CRITICAL, ERROR, WARNING, INFO, DEBUG].
+
+# CRITICAL indicates serious errors halting the program. Displays only CRITICAL messages.
+
+# ERROR indicates problems preventing a function. Displays ERROR and CRITICAL messages.
+
+# WARNING indicates potential future issues. Displays WARNING, ERROR, CRITICAL messages.
+
+# INFO tracks normal operation. Displays INFO, WARNING, ERROR, CRITICAL messages.
+
+# DEBUG provides detailed diagnostic info. Displays all log messages.
+
+# Default: "WARNING"
+
+# dnac_password 
+# string
+
+# The password for authentication at the Cisco Catalyst Center.
+
+# dnac_port 
+# string
+
+# Specifies the port number associated with the Cisco Catalyst Center.
+
+# Default: "443"
+
+# dnac_task_poll_interval 
+# integer
+
+# Specifies the interval in seconds between successive calls to the API to retrieve task details.
+
+# Default: 2
+
+# dnac_username 
+# aliases: user
+
+# string
+
+# The username for authentication at the Cisco Catalyst Center.
+
+# Default: "admin"
+
+# dnac_verify 
+# boolean
+
+# Flag to enable or disable SSL certificate verification.
+
+# Choices:
+
+# false
+
+# true ← (default)
+
+# dnac_version 
+# string
+
+# Specifies the version of the Cisco Catalyst Center that the SDK should use.
+
+# Default: "2.2.3.3"
+
+# state 
+# string
+
+# The state of Cisco Catalyst Center after module completion.
+
+# Choices:
+
+# "merged" ← (default)
+
+# "deleted"
+
+# validate_response_schema 
+# boolean
+
+# Flag for Cisco Catalyst Center SDK to enable the validation of request bodies against a JSON schema.
+# Choices:
+# false
+# true ← (default)
+# #=======================================================================================================================
+provision_details: list(include('provision_details_type'), min=0, max=1000, required=False)
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+
+# =====================================================================================================================
+---
+provision_details_type:
+  management_ip_address: str(required=True)
+  clean_config: bool(required=False, default=False)

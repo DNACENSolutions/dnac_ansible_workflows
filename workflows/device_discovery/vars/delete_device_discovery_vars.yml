@@ -1,0 +1,9 @@
+catalyst_center_version: 2.3.7.6
+discovery_details:
+  - discovery_name: CDP Based Discovery1
+  - discovery_name: Single IP Discovery11
+  - discovery_name: Single IP Discovery11
+  - discovery_name: Range IP Discovery11
+  - discovery_name: Multi Range Discovery 11
+      
+
