@@ -1,0 +1,617 @@
+# create schema for the following spec
+# Parameter	Choices/Defaults	Comments
+# config
+# dictionary / required
+# A dictionary containing the configuration details for users or roles.
+
+# role_details
+# list / elements =dictionary
+# Manages the configuration details for roles.
+
+# assurance
+# -
+# Choices:
+# deny
+# read  ←
+# write
+# Ensure consistent service levels with complete visibility across all aspects of the network.
+
+# monitoring_and_troubleshooting
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Monitor and manage network health, troubleshoot issues, and perform remediation.
+
+# Includes proactive network monitoring and AI-driven insights.
+
+# monitoring_settings
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Configure and manage health thresholds for the network, clients, and applications.
+
+# Requires at least 'read' permission for Monitoring and Troubleshooting.
+
+# overall
+# -
+# Choices:
+# deny
+# read  ←
+# write
+# Set the same access level for all sub-parameters.
+
+# troubleshooting_tools
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Create and manage sensor tests.
+
+# Schedule on-demand forensic packet captures (Intelligent Capture) for troubleshooting clients.
+
+# Requires at least 'read' permission for Monitoring and Troubleshooting.
+
+# description
+# string
+# A brief description of the role's purpose and scope.
+
+# network_analytics
+# -
+# Manage components related to network analytics.
+
+# data_access
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Enable access to query engine APIs.
+
+# Manage functions such as global search, rogue management, and aWIPS.
+
+# Setting this to 'deny' affects Search and Assurance functionality.
+
+# overall
+# -
+# Choices:
+# deny
+# read  ←
+# write
+# Set the same access level for all sub-parameters.
+
+# network_design
+# -
+# Set up the network hierarchy, update the software image repository, and configure network profiles and settings for managing sites and network devices.
+
+# advanced_network_settings
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Update network settings, including global device credentials, authentication and policy servers, certificates, trustpool, cloud access keys, stealthwatch, umbrella, and data anonymization.
+
+# Export the device inventory and its credentials.
+
+# Requires at least 'read' permission on Network Settings.
+
+# image_repository
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Manage software images and facilitate upgrades and updates on physical and virtual network entities
+
+# network_hierarchy
+# -
+# Define and create a network hierarchy of sites, buildings, floors, and areas based on geographic location.
+
+# network_profiles
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Create network profiles for routing, switching, and wireless. Assign profiles to sites.
+
+# Includes roles such as template editor, tagging, model config editor, and authentication template.
+
+# To create SSIDs, 'write' permission on network settings is required.
+
+# network_settings
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Manage common site-wide network settings such as AAA, NTP, DHCP, DNS, Syslog, SNMP, and Telemetry.
+
+# Users in this role can add an SFTP server and adjust the Network Resync Interval found under Systems > Settings.
+
+# To create wireless profiles, 'write' permission on Network Profiles is required.
+
+# overall
+# -
+# Choices:
+# deny
+# read  ←
+# write
+# Set the same access level for all sub-parameters.
+
+# virtual_network
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Manage virtual networks (VNs). Segment physical networks into multiple logical networks for traffic isolation and controlled inter-VN communication.
+
+# network_provision
+# -
+# Configure, upgrade, provision, and manage network devices.
+
+# compliance
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Manage compliance provisioning.
+
+# exo
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Scan the network for End of Life, End of Sales, or End of Support information for hardware and software.
+
+# image_update
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Upgrade software images on devices that do not match the Golden Image settings after a complete upgrade lifecycle.
+
+# inventory_management
+# list / elements =dictionary
+# Discover, add, replace, or delete devices while managing device attributes and configuration properties.
+
+# To replace a device, 'write' permission is required for pnp under network provision.
+
+# device_configuration
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Display the running configuration of a device.
+
+# discovery
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Discover new devices on the network.
+
+# network_device
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Add devices from inventory, view device details, and perform device-level actions.
+
+# overall
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Provides the same choice for all sub-parameters.
+
+# port_management
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Allow port actions on a device.
+
+# topology
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Display the network device and link connectivity.
+
+# Manage device roles, tag devices, customize the display, and save custom topology layouts.
+
+# To view the SD-Access Fabric window, at least 'read' permission on "Network Provision > Inventory Management > Topology" is required.
+
+# license
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Unified view of software and network assets related to license usage and compliance.
+
+# Also controls permissions for cisco.com and Smart accounts.
+
+# network_telemetry
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Enable or disable the collection of application telemetry from devices.
+
+# Configure telemetry settings for the assigned site.
+
+# Configure additional settings such as wireless service assurance and controller certificates.
+
+# To enable or disable network telemetry, 'write' permission on Provision is required.
+
+# overall
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Provides the same choice for all sub-parameters.
+
+# pnp
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Automatically onboard new devices, assign them to sites, and configure them with site-specific settings.
+
+# provision
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Provision devices with site-specific settings and network policies.
+
+# Includes roles such as Fabric, Application Policy, Application Visibility, Cloud, Site-to-Site VPN, Network/Application Telemetry, Stealthwatch, Sync Start vs Run Configuration, and Umbrella provisioning.
+
+# On the main dashboards for rogue and aWIPS, certain actions, including rogue containment, can be enabled or disabled.
+
+# To provision devices, 'write' permission on Network Design and Network Provision is required.
+
+# network_services
+# -
+# Default:read	
+# Configure additional capabilities on the network beyond basic network connectivity and access.
+
+# app_hosting
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Deploy, manage, and monitor virtualized and container-based applications running on network devices.
+
+# bonjour
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Enable the Wide Area Bonjour service to facilitate policy-based service discovery across the network.
+
+# overall
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Provides the same choice for all sub-parameters.
+
+# stealthwatch
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Configure network elements to send data to Cisco Stealthwatch for threat detection and mitigation, including encrypted traffic.
+
+# To provision Stealthwatch, 'write' permission is required for the following components.
+
+# Network Design > Network Settings.
+
+# Network Provision > Provision.
+
+# Network Services > Stealthwatch.
+
+# Network Design > Advanced Settings.
+
+# umbrella
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Configure network elements to use Cisco Umbrella as a first line of defense against cybersecurity threats.
+
+# To provision Umbrella, 'write' permission is required for the following components.
+
+# Network Design > Network Settings.
+
+# Network Provision > Provision.
+
+# Network Provision > Scheduler.
+
+# Network Services > Umbrella.
+
+# platform
+# -
+# Default:deny	
+# Open platform for accessible, intent-based workflows, data exchange, notifications, and third-party app integrations.
+
+# apis
+# string
+# Choices:
+# deny  ←
+# read
+# write
+# Access Cisco Catalyst Center through REST APIs to drive value.
+
+# bundles
+# string
+# Choices:
+# deny  ←
+# read
+# write
+# Enhance productivity by configuring and activating preconfigured bundles for ITSM integration.
+
+# events
+# string
+# Choices:
+# deny  ←
+# read
+# write
+# Subscribe to near real-time notifications for network and system events of interest.
+
+# Configure email and syslog logs in System > Settings > Destinations.
+
+# overall
+# string
+# Choices:
+# deny  ←
+# read
+# write
+# Provides the same choice for all sub-parameters.
+
+# reports
+# string
+# Choices:
+# deny  ←
+# read
+# write
+# Generate reports using predefined templates for all aspects of the network.
+
+# Generate reports for rogue devices and aWIPS.
+
+# Configure webhooks in System > Settings > Destinations.
+
+# role_name
+# string
+# The name of the role to be managed.
+
+# security
+# -
+# Default:read	
+# Manage and control secure access to the network.
+
+# group_based_policy
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Manage group-based policies for networks that enforce segmentation and access control based on Cisco security group tags.
+
+# This role includes Endpoint Analytics.
+
+# ip_based_access_control
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Manage IP-based access control lists that enforce network segmentation based on IP addresses.
+
+# overall
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Provides the same choice for all sub-parameters.
+
+# security_advisories
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Scan the network for security advisories. Review and understand the impact of published Cisco security advisories.
+
+# system
+# -
+# Default:read	
+# Centralized administration of Cisco Catalyst Center, including configuration management, network connectivity, software upgrades, and more.
+
+# machine_reasoning
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Configure automatic updates to the machine reasoning knowledge base to rapidly identify security vulnerabilities and improve automated issue analysis.
+
+# overall
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Provides the same choice for all sub-parameters.
+
+# system_management
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Manage core system functionality and connectivity settings, user roles, and external authentication.
+
+# This role includes Cisco Credentials, Integrity Verification, Device EULA, HA, Integration Settings, Disaster Recovery, Debugging Logs, Telemetry Collection, System EULA, IPAM, vManage Servers, Cisco AI Analytics, Backup & Restore, and Data Platform.
+
+# utilities
+# -
+# One-stop-shop productivity resource for the most commonly used troubleshooting tools and services.
+
+# audit_log
+# string
+# Choices:
+# deny  ←
+# read
+# write
+# Detailed log of changes made via UI or API interface to network devices or Cisco Catalyst Center.
+
+# event_viewer
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# View network device and client events for troubleshooting.
+
+# network_reasoner
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Allow the Cisco support team to remotely troubleshoot the network devices managed by Cisco Catalyst Center.
+
+# Enables an engineer from the Cisco Technical Assistance Center (TAC) to connect remotely to a customer's Cisco Catalyst Center setup for troubleshooting.
+
+# overall
+# string
+# Choices:
+# deny
+# read
+# write
+# Provides the same choice for all sub-parameters.
+
+# remote_device_support
+# string
+# Choices:
+# deny  ←
+# read
+# write
+# Allow Cisco support team to remotely troubleshoot any network devices managed by Cisco DNA Center.
+
+# scheduler
+# string
+# Choices:
+# deny
+# read
+# write  ←
+# Run, schedule, and monitor network tasks and activities such as deploying policies, provisioning, or upgrading the network, integrated with other back-end services.
+
+# search
+# string
+# Choices:
+# deny
+# read  ←
+# write
+# Search for various objects in Cisco Catalyst Center, including sites, network devices, clients, applications, policies, settings, tags, menu items, and more.
+
+# user_details
+# list / elements =dictionary
+# Manages the configuration details for user accounts.
+
+# email
+# string
+# The email address of the user (e.g., syedkhadeerahmed@example.com).
+
+# Used to retrieve user data if the 'username' is forgotten.
+
+# Required for user deletion if the 'username' is forgotten.
+
+# first_name
+# string
+# The first name of the user.
+
+# last_name
+# string
+# The last name of the user.
+
+# password
+# string
+# The password for the user account, which must adhere to specified complexity requirements.
+
+# Must contain at least one special character, one capital letter, one lowercase letter, and a minimum length of 8 characters.
+
+# Required for creating a new user account.
+
+# role_list
+# list / elements =string
+# A list of role names to be assigned to the user. If no role is specified, the default role will be "OBSERVER-ROLE".
+
+# The role names must match with those defined in the Cisco Catalyst Center.
+
+# The default roles present in the Cisco Catalyst Center are "SUPER-ADMIN-ROLE", "NETWORK-ADMIN-ROLE", "OBSERVER-ROLE".
+
+# SUPER-ADMIN-ROLE grants Full access, including user management.
+
+# NETWORK-ADMIN-ROLE grants Full network access, no system functions.
+
+# OBSERVER-ROLE grants view-only access, no configuration or control functions.
+
+# username
+# string
+# The 'username' associated with the user account.
+
+# Required for user create, update and delete operations.
+
+# #=======================================================================================================================
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+jinjatemplate_file: str(required=False)
+jinjatemplate: bool(required=False)
+passwords_file: str(required=False)
+roles_users_details: 
+    role_details: list(include('roles_details_type'), min=0, max=500, required=False)
+    user_details: list(include('users_details_type'), min=0, max=500, required=False)
+---
+users_details_type:
+  email: str(required=False)
+  username: str(required=False)
+
+roles_details_type:
+  role_name: str(required=False)

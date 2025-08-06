@@ -1,0 +1,39 @@
+inventory_details: 
+  network_devices: list(include('network_devices_type', min=1, max=10000))
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+jinjatemplate: bool(required=False)
+passwords_file: str(required=False)
+jinjatemplate_file: str(required=False)
+catalyst_center_task_poll_interval: int(required=False)
+# ==================================================================================================================
+---
+#Schema definition for network devices
+network_devices_type: include('network_devices_type_type', required=False)
+
+network_devices_type_type:
+  ip_address_list: list(str(), required=True)
+  hostname_list: list(str(), required=False)
+  serial_number_list: list(str(), required=False)
+  mac_address_list: list(str(), required=False)
+  clean_config: bool(required=False, default=False)
+  devices_maintenance_schedule: list(include('devices_maintenance_schedule_type'), required=False)
+  add_user_defined_field: include('add_user_defined_field_type', required=False)
+
+add_user_defined_field_type:
+  description: str(required=False)
+  name: str(required=False)
+  value: str(required=False)
+
+
+devices_maintenance_schedule_type:
+  device_ips: str(required=True)
+
+# end
