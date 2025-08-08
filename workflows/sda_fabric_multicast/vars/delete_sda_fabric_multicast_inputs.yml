@@ -2,29 +2,21 @@
 ---
 catalyst_center_version: 2.3.7.6
 fabric_multicast_details:
+  # Delete the source '226.0.0.0/8' from the ssm multicast configuration
   - fabric_multicast:
-    - fabric_name: Global/USA/SAN JOSE
-      layer3_virtual_network: Employee_VN
-      replication_mode: HEADEND_REPLICATION
-      ip_pool_name: MULTICASTPOOL_sjc
-    - fabric_name: "Global/USA/SAN JOSE"
-      layer3_virtual_network: "Mgmt_VN"
-      replication_mode: HEADEND_REPLICATION
-      ip_pool_name: MULTICASTPOOL_sjc
-    - fabric_name: "Global/USA/SAN JOSE"
-      layer3_virtual_network: "Guest_VN"
-      replication_mode: HEADEND_REPLICATION
-      ip_pool_name: MULTICASTPOOL_sjc
+      - fabric_name: "Global/USA/SAN JOSE"
+        layer3_virtual_network: "L3_VN_MUL_1"
+        ssm:
+          ipv4_ssm_ranges:
+            - "226.0.0.0/8"
+  # Delete the RP '10.0.0.1' from the asm multicast configuration
   - fabric_multicast:
-    - fabric_name: "Global/USA/SAN-FRANCISCO"
-      layer3_virtual_network: "Employee_VN"
-      replication_mode: HEADEND_REPLICATION
-      ip_pool_name: MULTICASTPOOL_sf
-    - fabric_name: "Global/USA/SAN-FRANCISCO"
-      layer3_virtual_network: "Mgmt_VN"
-      replication_mode: HEADEND_REPLICATION
-      ip_pool_name: MULTICASTPOOL_sf
-    - fabric_name: "Global/USA/SAN-FRANCISCO"
-      layer3_virtual_network: "Guest_VN"
-      replication_mode: HEADEND_REPLICATION
-      ip_pool_name: MULTICASTPOOL_sf
+      - fabric_name: "Global/USA/SAN JOSE"
+        layer3_virtual_network: "L3_VN_MUL_1"
+        asm:
+          - rp_device_location: "EXTERNAL"
+            ex_rp_ipv4_address: "10.0.0.1"
+  # Delete the SDA multicast configurations of the L3 virtual network from the fabric site.
+  - fabric_multicast:
+      - fabric_name: "Global/USA/SAN JOSE"
+        layer3_virtual_network: "L3_VN_MUL_1"

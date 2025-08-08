@@ -1,0 +1,83 @@
+# Parameters
+# Parameter	Choices/Defaults	Comments
+# config
+# list / elements =dictionary / required
+# A list of SDA fabric transit configurations.
+# Each entry in the list represents a transit network configuration.
+# 	sda_fabric_transits
+# list / elements =dictionary
+# SDA fabric transit configurations.
+# 		ip_transit_settings
+# dictionary
+# The configuration settings for IP based transit.
+# Required when the type is set to IP_BASED_TRANSIT.
+# IP_BASED_TRANSIT cannot be updated.
+# 			autonomous_system_number
+# string
+# Used by routing protocols like BGP to manage routing between different autonomous systems.
+# Autonomous System Number (ANS) should be from 1 to 4294967295.
+# The ASN should be unique for every IP-based transits.
+# Required when the transit_type is set to IP_BASED_TRANSIT.
+# 			routing_protocol_name
+# string
+# Choices:
+#     BGP
+#      ←
+# Defines the protocol for determining the best paths for data transmission between networks.
+# 		name
+# string
+# The name of the SDA fabric transit.
+# It facilitates seamless communication between different network segments.
+# Required for the operations in the SDA fabric transits.
+# 		sda_transit_settings
+# dictionary
+# The configuration settings for SDA-based transit.
+# Required when the transit_type is set to SDA_LISP_PUB_SUB_TRANSIT or SDA_LISP_BGP_TRANSIT.
+# 			control_plane_network_device_ips
+# list / elements =string
+# Specifies the IP addresses of the network devices that form the control plane.
+# Required when the transit_type is set to either SDA_LISP_BGP_TRANSIT or SDA_LISP_PUB_SUB_TRANSIT.
+# Atleast one control plane network device is required.
+# A maximum of 2 control plane network devices are allowed when the transit_type is SDA_LISP_BGP_TRANSIT.
+# A maximum of 4 control plane network devices are allowed when the transit_type is SDA_LISP_PUB_SUB_TRANSIT.
+# SDA_LISP_PUB_SUB_TRANSIT supports only devices with IOS XE 17.6 or later.
+# The devices must be present in the Fabric site or zone.
+# 			is_multicast_over_transit_enabled
+# boolean
+# Choices:
+#     true
+#     false
+# Determines whether multicast traffic is permitted to traverse the transit network.
+# Enabling this option allows the distribution of data to multiple recipients across different network segments.
+# Available only when the transit type is set to SDA_LISP_PUB_SUB_TRANSIT.
+# 		transit_type
+# string
+# Choices:
+#     IP_BASED_TRANSIT
+#      ←
+#     SDA_LISP_PUB_SUB_TRANSIT
+#     SDA_LISP_BGP_TRANSIT
+# Type of the fabric tranist. IP_BASED_TRANSIT - Responsible for managing IP routing and ensures data flow between various segments of the network. SDA_LISP_PUB_SUB_TRANSIT - Facilitates the decoupling of location and identity information for devices, enabling dynamic routing. SDA_LISP_BGP_TRANSIT - Integrates LISP with BGP to manage and optimize routing decisions between different network segments.
+# config_verify
+# boolean
+# Choices:
+#     true
+#     false
+#      ←
+# Set to True to verify the Cisco Catalyst Center after applying the playbook config.
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+fabric_transits: list(include('fabric_transits_type'), min=1, max=1000)
+---
+fabric_transits_type:
+  sda_fabric_transits: list(include('sda_fabric_transits_type'), min=1, max=1000)
+
+sda_fabric_transits_type:
+  name: str(required=True)
