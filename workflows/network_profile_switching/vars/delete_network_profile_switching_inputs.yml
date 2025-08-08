@@ -1,0 +1,13 @@
+---
+catalyst_center_version: 2.3.7.9
+switching_network_profile_details:
+  # Delete a switching profile by providing its profile name
+  - profile_name: Enterprise_Switching_Profile
+  # Unassign sites from a switching profile but do not delete the profile
+  - profile_name: Enterprise_Switching_Profile
+    site_names:
+      - Global/India/Chennai/Main_Office
+  # Unassign a template from a switching profile but do not delete the profile
+  - profile_name: Enterprise_Switching_Profile
+    day_n_templates:
+      - Periodic_Config_Audit

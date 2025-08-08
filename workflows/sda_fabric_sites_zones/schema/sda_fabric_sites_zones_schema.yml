@@ -169,7 +169,7 @@ fabric_sites_and_zones: list(include('fabric_sites_and_zones_type'), min=0, max=
 fabric_sites_and_zones_type: 
   fabric_sites: list( include('fabric_sites_type'), min=0, max=1000, required=False)
 fabric_sites_type:
-    authentication_profile: enum('Closed Authentication', 'Low Impact', 'No Authentication', 'Open Authentication', required=True)
+    authentication_profile: enum('Closed Authentication', 'Low Impact', 'No Authentication', 'Open Authentication', required=False)
     fabric_type: str(required=False, default='fabric_site')
     is_pub_sub_enabled: bool(required=False)
     site_name_hierarchy: str(required=True)
@@ -187,7 +187,7 @@ pre_auth_acl_type:
         access_contracts: list(include('access_contracts_type'), required=False)
         description: str(required=False)
         enabled: bool(required=False)
-        implicit_action: str(required=False)
+        implicit_action: str(required=False, default='DENY')
 access_contracts_type:
           action: enum('PERMIT', 'DENY', required=False)
           port: enum('domain', 'bootpc', 'bootps', required=False)

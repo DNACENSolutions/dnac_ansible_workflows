@@ -1,0 +1,9 @@
+---
+catalyst_center_version: 2.3.7.6
+catalyst_center_verify: true
+
+fabric_transits:
+  - sda_fabric_transits:
+      - name: sample_transit1
+      - name: sample_transit2
+
