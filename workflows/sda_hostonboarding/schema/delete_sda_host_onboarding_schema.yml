@@ -309,18 +309,15 @@ sda_host_onboarding_details_type:
 
 port_assignment_details_type:
   authentication_template_name: enum('No Authentication', 'Open Authentication', 'Closed Authentication', 'Low Impact', required=False)
-  connected_device_type: enum('TRUNKING_DEVICE', 'ACCESS_POINT', 'USER_DEVICE', required=false)
+  connected_device_type: enum('TRUNKING_DEVICE', 'ACCESS_POINT', 'USER_DEVICE', required=False)
   data_vlan_name: str(required=False)
   interface_description: str(required=False)
   interface_name: str(required=True)
   security_group_name: str(required=False)
-  voice_vlan_name: str(required=False)
 
 port_channel_details_type:
   connected_device_type: enum('TRUNK', 'EXTENDED_NODE', required=False)
   interface_names: list(str, required=True, min=0, max=100)
-  port_channel_description: str(required=False)
-  port_channel_name: str(required=False)
   protocol: enum('ON', 'LACP', 'PAGP', required=False)
 
 wireless_ssid_details_type:

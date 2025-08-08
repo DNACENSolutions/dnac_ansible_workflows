@@ -1,0 +1,11 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the LAN Automated device update
+
+lan_automation_details:  
+  lan_automation_session:
+    # Stop a LAN Automation session
+    - lan_automation:
+        discovered_device_site_name_hierarchy: "Global/USA/SAN JOSE"
+        primary_device_management_ip_address: "204.1.1.1"

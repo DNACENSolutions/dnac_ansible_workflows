@@ -169,29 +169,11 @@ fabric_sites_and_zones: list(include('fabric_sites_and_zones_type'), min=0, max=
 fabric_sites_and_zones_type: 
   fabric_sites: list( include('fabric_sites_type'), min=0, max=1000, required=False)
 fabric_sites_type:
-    authentication_profile: enum('Closed Authentication', 'Low Impact', 'No Authentication', 'Open Authentication', required=False)
     fabric_type: str(required=False, default='fabric_site')
-    is_pub_sub_enabled: bool(required=False)
     site_name_hierarchy: str(required=True)
-    update_authentication_profile: include('update_authentication_profile_type', required=False)
-    apply_pending_events: bool(required=False)
 
-update_authentication_profile_type:
-      authentication_order: str(required=False)
-      dot1x_fallback_timeout: int(required=False)
-      enable_bpu_guard: bool(required=False)
-      number_of_hosts: enum('Single', 'Unlimited', required=False)
-      wake_on_lan: bool(required=False)
-      pre_auth_acl: include('pre_auth_acl_type', required=False)
-pre_auth_acl_type:
-        access_contracts: list(include('access_contracts_type'), required=False)
-        description: str(required=False)
-        enabled: bool(required=False)
-        implicit_action: str(required=False, default='DENY')
-access_contracts_type:
-          action: enum('PERMIT', 'DENY', required=False)
-          port: enum('domain', 'bootpc', 'bootps', required=False)
-          protocol: enum('UDP', 'TCP', 'TCP_UDP', required=False)
+
+
 #===========================
 # End of Schema
 #===========================

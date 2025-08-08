@@ -321,10 +321,7 @@ sda_virtual_networks_l2_l3_gateways_type:
   anycast_gateways: list(include('anycast_gateways_type'),min=1,max=100,required=False)
 
 fabric_vlan_type:
-  associated_layer3_virtual_network: str(required=False)
-  fabric_enabled_wireless: bool(required=False)
   fabric_site_locations: list(include('fabric_site_locations_type_vlan_or_gw'),min=1,max=100,required=True) # same as fabric_site_locations_type_vlan_or_gw
-  traffic_type: str(required=False, default="DATA")
   vlan_id: int(required=True)
   vlan_name: str(required=True)
 
@@ -333,26 +330,10 @@ virtual_networks_type:
   fabric_site_locations: list(include('fabric_site_locations_type_vn'),min=1,max=100,required=False)
   vn_name: str(required=True)
 
-
 anycast_gateways_type:
-  auto_generate_vlan_name: bool(required=False)
   fabric_site_location: include('fabric_site_locations_type_vlan_or_gw', required=True) # same as fabric_site_locations_type_vlan_or_gw
-  group_policy_enforcement_enabled: bool(required=False, default=False)
-  intra_subnet_routing_enabled: bool(required=False, default=False)
-  ip_directed_broadcast: bool(required=False, default=False)
   ip_pool_name: str(required=True)
-  is_critical_pool: bool(required=False, default=False)
-  layer2_flooding_enabled: bool(required=False, default=False)
-  multiple_ip_to_mac_addresses: bool(required=False, default=False)
-  pool_type: enum("EXTENDED_NODE", "FABRIC_AP", required=False)
-  security_group_name: str(required=False)
-  supplicant_based_extended_node_onboarding: bool(required=False ,default=False)
-  tcp_mss_adjustment: int(required=False)
-  traffic_type: str(required=False)
-  vlan_id: int(required=False)
-  vlan_name: str(required=False)
   vn_name: str(required=True)
-  fabric_enabled_wireless: bool(required=False)
 
 fabric_site_locations_type_vlan_or_gw:
   site_name_hierarchy: str(required=True)

@@ -15,33 +15,100 @@ jinjatemplate_file: str(required=False)
 accesspoints_details: list(include('accesspoints_details_type'), min=0, max=1000, required=False)
 ---
 accesspoints_details_type:
-  mac_address: str(required=False)
-  hostname: str(required=False)
-  management_ip_address: str(required=False)
   # Note: At least one of mac_address, hostname, or management_ip_address must be provided to identify the access point.
-  rf_profile: str(required=False)
-  site: include('site_type', required=False)
-  ap_name: str(required=False)
+  2.4ghz_radio: include('radio_type_ghz', required=False)
+  5ghz_radio:  include('radio_type_ghz', required=False)
+  6ghz_radio:  include('radio_type_ghz', required=False)
   admin_status: enum("Enabled", "Disabled", required=False)
-  led_status: enum("Enabled", "Disabled", required=False)
-  led_brightness_level: int(min=1, max=8, required=False)
+  ap_config_selected_fields: str(required=False)
   ap_mode: enum("Local", "Monitor", "Sniffer", "Bridge", required=False)
-  location: str(required=False)
-  is_assigned_site_as_location: enum("Enabled", "Disabled", required=False)
-  failover_priority: enum("Low", "Medium", "High", "Critical", required=False)
+  ap_name: str(required=False)
+  ap_selected_fields: str(required=False)
+  bulk_update_aps: include('bulk_update_aps_type', required=False)
   clean_air_si_2.4ghz: enum("Enabled", "Disabled", required=False)
   clean_air_si_5ghz: enum("Enabled", "Disabled", required=False)
   clean_air_si_6ghz: enum("Enabled", "Disabled", required=False)
+  factory_reset_aps: include('factory_reset_aps_type', required=False) # same as reboot_aps_type and factory_reset_aps_type
+  failover_priority: enum("Low", "Medium", "High", "Critical", required=False)
+  hostname: str(required=False)
+  is_assigned_site_as_location: enum("Enabled", "Disabled", required=False)
+  led_brightness_level: int(min=1, max=8, required=False)
+  led_status: enum("Enabled", "Disabled", required=False)
+  location: str(required=False)
+  mac_address: str(required=False)
+  management_ip_address: str(required=False)
   primary_controller_name: str(required=False)
-  primary_ip_address: include('ip_address_type', required=False)
+  primary_ip_address: include('ip_address_type', required=False) # same as ip_address_type
+  reboot_aps: include('reboot_aps_type', required=False) # same as reboot_aps_type and factory_reset_aps_type
+  rf_profile: str(required=False)
   secondary_controller_name: str(required=False)
-  secondary_ip_address: include('ip_address_type', required=False)
+  secondary_ip_address: include('ip_address_type', required=False) # same as ip_address_type
+  site: include('site_type', required=False)
   tertiary_controller_name: str(required=False)
-  tertiary_ip_address: include('ip_address_type', required=False)
-  2.4ghz_radio: include('radio_type', required=False)
-  5ghz_radio:  include('radio_type', required=False)
-  6ghz_radio:  include('radio_type', required=False)
-  xor_radio:  include('radio_type', required=False)
+  tertiary_ip_address: include('ip_address_type', required=False) # same as ip_address_type
+  tri_radio: include('tri_radio_type', required=False)
+  xor_radio:  include('radio_type_xor', required=False)
+
+radio_type_ghz:
+  admin_status: enum("Enabled", "Disabled", required=False)
+  antenna_name: str(required=False)
+  antenna_gain: int(min=0, max=40, required=False)
+  cable_loss: int(min=0, max=40, required=False)
+  antenna_cable_name: str(required=False)
+  radio_role_assignment: enum("Auto", "Client-Serving", "Monitor", required=False)
+  channel_assignment_mode: enum("Global", "Custom", required=False)
+  channel_number: int(required=False)
+  power_assignment_mode: enum("Global", "Custom", required=False)
+  power_level: int(required=False)
+  channel_width: enum("20 MHz", "40 MHz", "80 MHz", "160 MHz", "320 MHz", required=False)
+
+bulk_update_aps_type:
+  ap_identifier: list(include('ap_identifier_type'), required=True)
+  common_fields_to_change: include('accesspoints_details_type_for_update', required=True)
+
+ap_identifier_type:
+  ap_name: str(required=False)
+  host_name: str(required=False)
+  mac_address: str(required=False)
+  management_ip_address: str(required=False)
+
+accesspoints_details_type_for_update:
+  # Note: At least one of mac_address, hostname, or management_ip_address must be provided to identify the access point.
+  2.4ghz_radio: include('radio_type_ghz', required=False)
+  5ghz_radio:  include('radio_type_ghz', required=False)
+  6ghz_radio:  include('radio_type_ghz', required=False)
+  admin_status: enum("Enabled", "Disabled", required=False)
+  ap_mode: enum("Local", "Monitor", "Sniffer", "Bridge", required=False)
+  clean_air_si_2.4ghz: enum("Enabled", "Disabled", required=False)
+  clean_air_si_5ghz: enum("Enabled", "Disabled", required=False)
+  clean_air_si_6ghz: enum("Enabled", "Disabled", required=False)
+  failover_priority: enum("Low", "Medium", "High", "Critical", required=False)
+  is_assigned_site_as_location: enum("Enabled", "Disabled", required=False)
+  led_brightness_level: int(min=1, max=8, required=False)
+  led_status: enum("Enabled", "Disabled", required=False)
+  location: str(required=False)
+  primary_controller_name: str(required=False)
+  primary_ip_address: include('ip_address_type', required=False) # same as ip_address_type
+  secondary_controller_name: str(required=False)
+  secondary_ip_address: include('ip_address_type', required=False) # same as ip_address_type
+  tertiary_controller_name: str(required=False)
+  tertiary_ip_address: include('ip_address_type', required=False) # same as ip_address_type
+  tri_radio: include('tri_radio_type', required=False)
+  xor_radio:  include('radio_type_xor', required=False)
+
+
+factory_reset_aps_type: # same as reboot_aps_type
+  hostnames: list(str(), required=False)
+  mac_addresses: list(str(), required=False)
+  management_ip_addresses: list(str(), required=False)
+
+ip_address_type:
+  address: str(required=True)
+
+reboot_aps_type: # same as factory_reset_aps_type
+  hostnames: list(str(), required=False)
+  mac_addresses: list(str(), required=False)
+  management_ip_addresses: list(str(), required=False)
 
 site_type:
   floor: include('floor_type', required=False)
@@ -50,10 +117,22 @@ floor_type:
   name: str(required=False)
   parent_name: str(required=False)
 
-ip_address_type:
-  address: str(required=True)
 
-radio_type:
+tri_radio_type:
+  admin_status: enum("Enabled", "Disabled", required=False)
+  antenna_name: str(required=False)
+  antenna_gain: int(min=0, max=40, required=False)
+  cable_loss: int(min=0, max=40, required=False)
+  antenna_cable_name: str(required=False)
+  radio_role_assignment: enum("Auto", "Client-Serving", "Monitor", required=False)
+  channel_assignment_mode: enum("Global", "Custom", required=False)
+  channel_number: int(required=False)
+  dual_radio_mode: str(required=False)
+  power_assignment_mode: enum("Global", "Custom", required=False)
+  channel_width: enum("20 MHz", "40 MHz", "80 MHz", "160 MHz", "320 MHz", required=False)
+  power_level: int(required=False)
+
+radio_type_xor:
   admin_status: enum("Enabled", "Disabled", required=False)
   antenna_name: str(required=False)
   antenna_gain: int(min=0, max=40, required=False)
@@ -66,3 +145,4 @@ radio_type:
   power_assignment_mode: enum("Global", "Custom", required=False)
   channel_width: enum("20 MHz", "40 MHz", "80 MHz", "160 MHz", "320 MHz", required=False)
   power_level: int(required=False)
+
