@@ -126,6 +126,8 @@ template_details:
       device_details:
         device_ips: 
           - 204.101.16.2
+```
+
 ### 4. How to Validate Input.
 
 * Use `yaml`:
