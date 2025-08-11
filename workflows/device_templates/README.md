@@ -143,13 +143,13 @@ Validation success! 👍
 ### 5. How to Run.
 * Execute the Ansible Playbook to add, update, provision devices.
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_templates/playbook/template_workflow_playbook.yml --e VARS_FILE_PATH=../vars/template_workflow_inputs.yml
+    ansible-playbook -i inventory/demo_lab/hosts.yaml workflows/device_templates/playbook/template_workflow_playbook.yml --e VARS_FILE_PATH=../vars/template_workflow_inputs.yml
 ```
 
 *  How to Delete Existing Devices from inventory.
 *  Run the Delete Playbook:
 ```bash
-    ansible-playbook -i inventory/demo_lab/hosts.yaml workflows/device_templates/playbook/template_workflow_playbook.yml --e VARS_FILE_PATH=../vars/template_workflow_inputs.yml
+    ansible-playbook -i inventory/demo_lab/hosts.yaml workflows/device_templates/playbook/delete_template_workflow_playbook.yml --e VARS_FILE_PATH=../vars/delete_template_workflow_inputs.yml
 ```
 
 ## III. Detailed steps to perform.
