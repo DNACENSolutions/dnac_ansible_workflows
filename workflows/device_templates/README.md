@@ -71,21 +71,17 @@ template_details:
       author: Pawan Singh
       composite: false
       custom_params_order: true
-      description: Template to configure Access Vlan n Access Interfaces
+      template_description: Template to configure Access Vlan n Access Interfaces
       device_types:
-      - product_family: Switches and Hubs
-        product_series: Cisco Catalyst 9300 Series Switches
-        #product_type: Cisco Catalyst 9300 Switch
+        - product_family: Switches and Hubs
+          product_series: Cisco Catalyst 9300 Series Switches
       failure_policy: ABORT_TARGET_ON_ERROR
       language: VELOCITY
-      name: access_van_template_9300_switches
+      template_name: PnP-Upstream-SW
       project_name: access_van_template_9300_switches
       project_description: This project contains all the templates for Access Switches
       software_type: IOS-XE
       software_version: null
-      template_name: PnP-Upstream-SW
-      #tags:
-      #  name: string
       template_content: |
         vlan $vlan
         interface $interface
@@ -93,11 +89,11 @@ template_details:
         switchport mode access
         description $interface_description
       version: "1.0"
+
   - configuration_templates:
-      name: PnP-Upstream-SW
-      template_name: PnP-Upstream-SW
+      template_name: PnP-Upstream-SW1
       project_name: Onboarding Configuration
-      tags: []
+      template_tag: []
       author: admin
       device_types:
         - product_family: Switches and Hubs
@@ -106,7 +102,7 @@ template_details:
           product_series: Cisco Catalyst 9300 Series Switches
       software_type: IOS-XE
       language: VELOCITY
-      template_content: 
+      template_content: |
         vlan $vlan
         interface $interface
         switchport access vlan $vlan
@@ -117,25 +113,21 @@ template_details:
 ```bash
 template_details:
   - deploy_template:
-      project_name: Onboarding Configuration
+      project_name: access_van_template_9300_switches
       template_name: PnP-Upstream-SW
-      force_push: true
+      force_push: false
       template_parameters:
-        - param_name: "vlan_id"
-          param_value: "1431"
-      site_provisioning_details:
-        - site_name: "Global/Bangalore/Building14/Floor1"
-          device_family: "Switches and Hubs"
-  - deploy_template:
-      project_name: Onboarding Configuration
-      template_name: PnP-Upstream-SW
-      force_push: true
-      template_parameters:
-        - param_name: "vlan_id"
-          param_value: "1431"
+        - param_name: "vlan"
+          param_value: "60"
+        - param_name: "interface"
+          param_value: "GigabitEthernet1/0/2"
+        - param_name: "interface_description"
+          param_value: "Upstream Interface Dummy"
       device_details:
-        device_ips: ["10.1.2.1", "10.2.3.4"]
+        device_ips: 
+          - 204.101.16.2
 ```
+
 ### 4. How to Validate Input.
 
 * Use `yaml`:
@@ -151,13 +143,13 @@ Validation success! 👍
 ### 5. How to Run.
 * Execute the Ansible Playbook to add, update, provision devices.
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_templates/playbook/template_workflow_playbook.yml --e VARS_FILE_PATH=../vars/template_workflow_inputs.yml
+    ansible-playbook -i inventory/demo_lab/hosts.yaml workflows/device_templates/playbook/template_workflow_playbook.yml --e VARS_FILE_PATH=../vars/template_workflow_inputs.yml
 ```
 
 *  How to Delete Existing Devices from inventory.
 *  Run the Delete Playbook:
 ```bash
-    ansible-playbook -i host_inventory_dnac/hosts.yml workflows/device_templates/playbook/delete_template_workflow_playbook.yml --e VARS_FILE_PATH=../vars/template_workflow_inputs.yml
+    ansible-playbook -i inventory/demo_lab/hosts.yaml workflows/device_templates/playbook/delete_template_workflow_playbook.yml --e VARS_FILE_PATH=../vars/delete_template_workflow_inputs.yml
 ```
 
 ## III. Detailed steps to perform.
@@ -188,14 +180,13 @@ template_details:
       author: Pawan Singh
       composite: false
       custom_params_order: true
-      description: Template to configure Access Vlan n Access Interfaces
+      template_description: Template to configure Access Vlan n Access Interfaces
       device_types:
       - product_family: Switches and Hubs
         product_series: Cisco Catalyst 9300 Series Switches
         #product_type: Cisco Catalyst 9300 Switch
       failure_policy: ABORT_TARGET_ON_ERROR
       language: VELOCITY
-      name: access_van_template_9300_switches
       project_name: access_van_template_9300_switches
       project_description: This project contains all the templates for Access Switches
       software_type: IOS-XE
@@ -229,14 +220,13 @@ template_details:
       author: Pawan Singh
       composite: false
       custom_params_order: true
-      description: Template to configure Access Vlan n Access Interfaces
+      template_description: Template to configure Access Vlan n Access Interfaces
       device_types:
       - product_family: Switches and Hubs
         product_series: Cisco Catalyst 9300 Series Switches
         #product_type: Cisco Catalyst 9300 Switch
       failure_policy: ABORT_TARGET_ON_ERROR
       language: VELOCITY
-      name: access_van_template_9300_switches
       project_name: access_van_template_9300_switches
       project_description: This project contains all the templates for Access Switches
       software_type: IOS-XE

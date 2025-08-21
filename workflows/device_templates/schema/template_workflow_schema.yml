@@ -12,50 +12,169 @@ template_details: list(include('template_details_type'), required=False)
 template_details_type:
   configuration_templates: include('configuration_templates_type', required=False)
   deploy_template: include('deploy_template_type', required=False)
+  export: include('export_type', required=False)
+  import: include('import_type', required=False)
+
+
 configuration_templates_type:
   author: str(required=False)
+  commit: bool(required=False, default=True)
   composite: bool(required=False)
+  containing_templates: list(include('containing_template_type'), required=False)
   custom_params_order: bool(required=False)
-  description: str(required=False)
-  device_types: list(include('device_types_type'), min=0, max=100, required=False)
-  failure_policy: enum('ABORT_TARGET_ON_ERROR',required=False)
-  # id: str(required=False)
-  language: enum('VELOCITY', 'JINJA', required=False)
-  name: str(required=True)
-  template_name: str(required=False)
-  project_name: str(required=True)
+  device_types: list(include('device_type_type'), required=False) # same as device_type_type
+  failure_policy: enum('ABORT_TARGET_ON_ERROR', required=False)
+  id: str(required=False)
+  language: enum('JINJA', 'VELOCITY', required=False)
+  new_template_name: str(required=False)
   project_description: str(required=False)
+  project_name: str(required=False)
   software_type: enum('IOS', 'IOS-XE', 'IOS-XR', 'NX-OS', 'Cisco Controller', 'Wide Area Application Services', 'Adaptive Security Appliance', 'NFV-OS', 'Others', required=False)
   software_version: str(required=False)
-  tags: list(include('tags_type'), min=0, max=100, required=False)
   template_content: str(required=False)
+  template_description: str(required=False)
+  template_name: str(required=False)
+  template_params: list(include('template_param_type'), required=False) # same as template_param_type
+  template_tag: list(include('template_tag_type'), required=False) # same as template_tag_type
   version: str(required=False)
   version_description: str(required=False)
-tags_type:
-  #id: str(required=False)
-  name: str(required=True)
-device_types_type:
+
+containing_template_type:
+  composite: bool(required=False)
+  description: str(required=False)
+  device_types: list(include('device_type_type'), required=False) # same as device_type_type
+  id: str(required=False)
+  language: enum('JINJA', 'VELOCITY', required=False)
+  name: str(required=False)
+  project_description: str(required=False)
+  project_name: str(required=False)
+  tags: list(include('tag_type'), required=False)
+  template_content: str(required=False)
+  template_params: list(include('template_param_type'), required=False) # same as template_param_type
+  version: str(required=False)
+
+device_type_type:
   product_family: enum('Cisco Cloud Services Platform', 'Cisco Interfaces and Modules', 'Content Networking', 'Network Management', 'NFV-ThirdParty Devices', 'NFVIS', 'Routers', 'Security and VPN', 'Storage Networking', 'Switches and Hubs', 'Voice and Telephony', 'Wireless Controller', required=False)
   product_series: str(required=False)
   product_type: str(required=False)
 
+tag_type:
+  id: str(required=False)
+  name: str(required=False)
+
+template_param_type:
+  binding: str(required=False)
+  custom_order: int(required=False)
+  data_type: str(required=False)
+  default_value: str(required=False)
+  description: str(required=False)
+  display_name: str(required=False)
+  group: str(required=False)
+  id: str(required=False)
+  instruction_text: str(required=False)
+  key: str(required=False)
+  not_param: bool(required=False)
+  order: int(required=False)
+  param_array: bool(required=False)
+  parameter_name: str(required=False)
+  provider: str(required=False)
+  range: list(include('range_type'), required=False)
+  required: bool(required=False)
+  selection: include('selection_type', required=False)
+
+range_type:
+  id: str(required=False)
+  max_value: int(required=False)
+  min_value: int(required=False)
+
+selection_type:
+  default_selected_values: list(str, required=False)
+  id: str(required=False)
+  selection_type: enum('SINGLE_SELECT', 'MULTI_SELECT', required=False)
+  selection_values: map(Any(), required=False)
+
+template_tag_type:
+  id: str(required=False)
+  name: str(required=False)
+
+---
 deploy_template_type:
+  copy_config: bool(required=False, default=True)
+  device_details: include('device_details_type', required=False)
+  force_push: bool(required=False)
+  is_composite: bool(required=False)
+  project_name: str(required=False)
+  resource_parameters: list(include('resource_parameter_type'), required=False)
+  site_provisioning_details: list(include('site_provisioning_details_type'), required=False)
+  template_name: str(required=False)
+  template_parameters: list(include('template_parameter_type'), required=False)
+  version: int(required=False)
+
+device_details_type:
+  device_hostnames: list(str, required=False)
+  device_ips: list(str, required=False)
+  mac_addresses: list(str, required=False)
+  serial_numbers: list(str, required=False)
+
+resource_parameter_type:
+  resource_scope: enum('RUNTIME', 'DESIGN', required=False)
+  resource_type: enum('MANAGED_DEVICE_UUID', 'MANAGED_DEVICE_IP', 'MANAGED_DEVICE_HOSTNAME', 'SITE_UUID', 'MANAGED_AP_LOCATIONS', 'SECONDARY_MANAGED_AP_LOCATIONS', 'SSID_NAME', 'POLICY_PROFILE', required=False)
+  resource_value: str(required=False)
+
+site_provisioning_details_type:
+  device_family: str(required=False)
+  device_role: str(required=False)
+  device_tag: str(required=False)
+  site_name: list(str, required=False)
+
+template_parameter_type:
+  param_name: str(required=False)
+  param_value: str(required=False)
+
+---
+export_type:
+  project: list(str, required=False)
+  template: list(include('template_export_type'), required=False)
+template_export_type:
   project_name: str(required=False)
   template_name: str(required=False)
-  force_push: bool(required=False)
-  copy_config: bool(required=False)
-  template_parameters: list(include('device_template_params_type'), min=0, max=100, required=False)
-  resource_parameters: list(include('resource_parameters_type'), min=0, max=100, required=False)
-  site_provisioning_details: list(include('site_provisioning_type'), min=0, max=100, required=False)
-  device_details: 
-    device_ips: list(str(required=True), min=0, max=100, required=False)
-device_template_params_type:
-  param_name: str(required=True)
-  param_value: str(required=True)
-site_provisioning_type:
-  site_name: str(required=True)
-  device_family: str(required=True)
-resource_parameters_type:
-  resource_type: enum('MANAGED_DEVICE_UUID', 'MANAGED_DEVICE_HOSTNAME', 'MANAGED_DEVICE_IP', 'SITE_UUID', 'MANAGED_AP_LOCATIONS', 'SECONDARY_MANAGED_AP_LOCATIONS', 'SSID_NAME', 'POLICY_PROFILES', required=True)
-  resource_scope: enum('RUNTIME', 'DESIGN', required=True, default='RUNTIME')
-  resource_value: str(required=False)
+
+---
+import_type:
+  project: include('project_import_type', required=False)
+  template: include('template_import_type', required=False)
+
+project_import_type:
+  do_version: bool(required=False)
+  payload: list(include('project_payload_type'), required=False)
+  project_file: str(required=False)
+
+project_payload_type:
+  name: str(required=False)
+
+template_import_type:
+  do_version: bool(required=False)
+  payload: list(include('template_payload_type'), required=False)
+  project_name: str(required=False)
+  template_file: str(required=False)
+
+template_payload_type:
+  author: str(required=False)
+  composite: bool(required=False)
+  containing_templates: list(include('containing_template_type'), required=False) # same as containing_template_type
+  custom_params_order: bool(required=False)
+  device_types: list(include('device_type_type'), required=False) # same as device_type_type
+  failure_policy: enum('ABORT_TARGET_ON_ERROR', required=False)
+  id: str(required=False)
+  language: enum('JINJA', 'VELOCITY', required=False)
+  project_description: str(required=False)
+  project_name: str(required=False)
+  software_type: enum('IOS', 'IOS-XE', 'IOS-XR', 'NX-OS', 'Cisco Controller', 'Wide Area Application Services', 'Adaptive Security Appliance', 'NFV-OS', 'Others', required=False)
+  software_version: str(required=False)
+  template_content: str(required=False)
+  template_description: str(required=False)
+  template_name: str(required=False)
+  template_params: list(include('template_param_type'), required=False) # same as template_param_type
+  template_tag: list(include('template_tag_type'), required=False) # same as template_tag_type
+  version: str(required=False)
+
