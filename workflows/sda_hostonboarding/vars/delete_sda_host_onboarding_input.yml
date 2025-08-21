@@ -1,0 +1,90 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+sda_host_onboarding_details:
+  # Delete ALL port assignments, port channels and wireless SSID mappings from a fabric site
+  - hostname: "DC-T-9300.cisco.local"
+    fabric_site_name_hierarchy: "Global/USA/San Jose/BLDG23"
+  # Delete ALL port assignments, port channels and wireless SSID mappings from a fabric site
+  - ip_address: "204.1.2.2"
+    fabric_site_name_hierarchy: "Global/USA/San
+      Jose/BLDG23"
+  # Delete just ALL wireless SSIDs mappings from a fabric site
+  - fabric_site_name_hierarchy: "Global/USA/San
+      Jose/BLDG23"
+  # Delete specific port assignments, port channels and wireless SSID mappings
+  - ip_address: "204.1.2.2"
+    fabric_site_name_hierarchy: "Global/USA/San
+      Jose/BLDG23"
+    port_assignments:
+      - interface_name: "FortyGigabitEthernet2/1/2"
+        connected_device_type: "ACCESS_POINT"
+        data_vlan_name: "AG_VLAN_23"
+        authentication_template_name: "No Authentication"
+        interface_description: "Access Point Port
+          at 212"
+    port_channels:
+      - interface_names: ["TenGigabitEthernet1/0/37", "TenGigabitEthernet1/0/38", "TenGigabitEthernet1/0/39"]
+        connected_device_type: "TRUNK"
+      - interface_names: ["TenGigabitEthernet1/0/43", "TenGigabitEthernet1/0/44"]
+        connected_device_type: "TRUNK"
+        protocol: "ON"
+    wireless_ssids:
+      - vlan_name: "IAC-VLAN-1"
+        ssid_details:
+          - ssid_name: "open1-iac"
+            security_group_name: "Guests"
+  # Delete specific port assignments, port channels and wireless SSID mappings
+  - ip_address: "204.1.2.2"
+    fabric_site_name_hierarchy: "Global/USA/San
+      Jose/BLDG23"
+    port_assignments:
+      - interface_name: "FortyGigabitEthernet1/1/1"
+      - interface_name: "FortyGigabitEthernet1/1/2"
+      - interface_name: "GigabitEthernet2/1/1"
+      - interface_name: "TenGigabitEthernet1/0/37"
+      - interface_name: "TenGigabitEthernet1/0/38"
+      - interface_name: "TenGigabitEthernet1/0/39"
+    port_channels:
+      - interface_names: ["TenGigabitEthernet1/0/45",
+                          "TenGigabitEthernet1/0/46", "TenGigabitEthernet1/0/47",
+                          "TenGigabitEthernet1/0/48"]
+      - interface_names: ["TenGigabitEthernet1/1/2", "TenGigabitEthernet1/1/3", "TenGigabitEthernet1/1/4"]
+    wireless_ssids:
+      - vlan_name: "IAC-VLAN-1"
+      - vlan_name: "IAC-VLAN-3"
+        ssid_details:
+          - ssid_name: "ent_ssid_1_wpa3"
+  # Delete all wireless SSIDs mapped to specific VLANs
+  - ip_address: "204.1.2.2"
+    fabric_site_name_hierarchy: "Global/USA/San
+      Jose/BLDG23"
+    wireless_ssids:
+      - vlan_name: "IAC-VLAN-1"
+      - vlan_name: "IAC-VLAN-3"
+  # Delete specific wireless SSIDs mapped to a VLAN
+  - ip_address: "204.1.2.2"
+    fabric_site_name_hierarchy: "Global/USA/San
+      Jose/BLDG23"
+    wireless_ssids:
+      - vlan_name: "IAC-VLAN-1"
+        ssid_details:
+          - ssid_name: "ent-ssid-2-wpa2"
+      - vlan_name: "IAC-VLAN-3"
+        ssid_details:
+          - ssid_name: "guest_ssid_1"
+          - ssid_name: "ent-ssid-2-wpa2"
+  # Skip device collection stat when Deleting specific port assignments, port channels and wireless SSID mappings
+  - ip_address: "204.1.2.2"
+    # Set device_collection_status_check to false to skip the check
+    device_collection_status_check: false
+    fabric_site_name_hierarchy: "Global/USA/San Jose/BLDG23"
+    port_assignments:
+      - interface_name: "FortyGigabitEthernet1/1/1"
+      - interface_name: "FortyGigabitEthernet1/1/2"
+    port_channels:
+      - interface_names: ["TenGigabitEthernet1/1/2", "TenGigabitEthernet1/1/3", "TenGigabitEthernet1/1/4"]
+    wireless_ssids:
+      - vlan_name: "IAC-VLAN-3"
+        ssid_details:
+          - ssid_name: "ent_ssid_1_wpa3"

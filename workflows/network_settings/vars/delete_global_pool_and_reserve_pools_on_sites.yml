@@ -1,0 +1,19 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# Network Settings an IP Pools design.
+network_settings_details: 
+  - global_pool_details:
+      settings:
+        ip_pool:
+        - name: underlay
+        - name: underlay1
+        - name: SENSORPool
+        - name: SENSORPool_V6
+  - reserve_pool_details:
+    - name: underlay_sub
+      site_name: Global/USA/SAN JOSE
+    - name: underlay_sub_small
+      site_name: Global/USA/SAN JOSE
+    - name: SENSORPool_sub
+      site_name: Global/USA/SAN JOSE

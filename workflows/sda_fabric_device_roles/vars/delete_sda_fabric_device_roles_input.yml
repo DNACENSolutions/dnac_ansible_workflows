@@ -18,3 +18,37 @@ fabric_devices_details:
           layer2_handoff:
           - interface_name: FortyGigabitEthernet1/1/1
             internal_vlan_id: 550
+
+  # Delete the L2 Handoff
+  - fabric_devices:
+      fabric_name: Global/USA/SAN-JOSE
+      device_config:
+        - device_ip: 10.0.0.1
+          borders_settings:
+            layer2_handoff:
+              - interface_name: FortyGigabitEthernet1/1/1
+                internal_vlan_id: 550
+  # Delete the L3 Handoff with SDA Transit
+  - fabric_devices:
+      fabric_name: Global/USA/SAN-JOSE
+      device_config:
+        - device_ip: 10.0.0.1
+          borders_settings:
+            layer3_handoff_sda_transit:
+              transit_network_name: SDA_PUB_SUB_TRANSIT
+  # Delete the L3 Handoff with IP Transit
+  - fabric_devices:
+      fabric_name: Global/USA/SAN-JOSE
+      device_config:
+        - device_ip: 10.0.0.1
+          borders_settings:
+            layer3_handoff_ip_transit:
+              - transit_network_name: IP_TRANSIT_1
+                interface_name: FortyGigabitEthernet1/1/1
+                virtual_network_name: L3VN1
+  # Delete device role (delete all role)
+  - fabric_devices:
+      fabric_name: Global/USA/SAN-JOSE
+      device_config:
+        - device_ip: 10.0.0.1                 
+                  

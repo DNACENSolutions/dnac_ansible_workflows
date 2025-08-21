@@ -524,11 +524,11 @@ layer3_handoff_sda_transit_type:
 
 
 layer2_handoff_type:
-  interface_name: str(required=True)
+  interface_name: str(required=False)
   internal_vlan_id:
-    int(min=2, max=4093, required=True)
+    int(min=2, max=4093, required=False)
   external_vlan_id:
-    int(min=2, max=4093, required=True)
+    int(min=2, max=4093, required=False)
 
 
 wireless_controller_settings_type:

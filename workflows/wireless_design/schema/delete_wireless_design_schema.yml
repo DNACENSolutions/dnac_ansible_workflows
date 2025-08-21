@@ -1,0 +1,53 @@
+# Wireless Design Schema
+# Reference: 
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+jinjatemplate: bool(required=False)
+jinjatemplate_file: str(required=False)
+passwords_file: str(required=False)
+wireless_design_details: list(include('wireless_design_details_type'), min=0, max=1000, required=False)
+---
+wireless_design_details_type:
+  ssids: list(include('ssids_type'), min=0, max=1000, required=False)
+  interfaces: list(include('interfaces_type'), min=0, max=1000, required=False)
+  power_profiles: list(include('power_profiles_type'), min=0, max=1000, required=False)
+  access_point_profiles: list(include('ap_profiles_type'), min=0, max=1000, required=False)
+  radio_frequency_profiles: list(include('rf_profiles_type'), min=0, max=1000, required=False)
+  anchor_groups: list(include('anchor_groups_type'), min=0, max=1000, required=False)
+
+# SSID schema definitions
+ssids_type:
+  ssid_name: str(required=True)
+  sites_specific_override_settings: list(include('sites_specific_override_settings_type'), required=False)
+
+sites_specific_override_settings_type:
+  site_name_hierarchy: str(required=True)
+  remove_override_in_hierarchy: bool(required=False)
+
+# Interface schema definitions
+interfaces_type:
+  interface_name: str(required=True)
+
+# Power profiles schema definitions
+power_profiles_type:
+  power_profile_name: str(required=True)
+  
+# AP profiles schema definitions
+ap_profiles_type:
+  access_point_profile_name: str(required=True)
+
+# RF profiles schema definitions
+rf_profiles_type:
+  radio_frequency_profile_name: str(required=True)
+  
+# Anchor groups schema definitions
+anchor_groups_type:
+  anchor_group_name: str(required=True)
+
