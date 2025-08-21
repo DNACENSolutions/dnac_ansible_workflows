@@ -1,0 +1,69 @@
+catalyst_center_version: 2.3.7.9
+# Fabric Sites and Zones design.
+wireless_design_details:
+  # Wireless SSID design inputs
+  - ssids:
+      - ssid_name: "corp_wifi"
+      - ssid_name: "guest_wifi"
+      - ssid_name: "staff_wifi"
+      - ssid_name: "iot_network"
+      - ssid_name: "secure_psk"
+      - ssid_name: "lab_wifi"
+      - ssid_name: "vip_wifi"
+      - ssid_name: "enterprise_secure"
+      - ssid_name: "branch_office_wifi"
+      - ssid_name: "conference_wifi"
+      - ssid_name: "floor1_wifi"
+        sites_specific_override_settings:
+          - site_name_hierarchy: "Global/USA/San
+              Jose"
+            remove_override_in_hierarchy: true
+  # Wireless VLAN design inputs
+  - interfaces:
+      - interface_name: "data"
+      - interface_name: "voice"
+      - interface_name: "guest_access"
+      - interface_name: "iot_network"
+      - interface_name: "secure_vlan"
+      - interface_name: "corporate"
+  # Wireless Power Profiles design inputs
+  - power_profiles:
+      - power_profile_name: "default"
+      - power_profile_name: "EthernetSpeeds"
+      - power_profile_name: "EthernetState"
+      - power_profile_name: "RadioState"
+      - power_profile_name: "RadioSpatialStream"
+      - power_profile_name: "UsbState"
+  # Wireless Access Point Profile design inputs
+  - access_point_profiles:
+      - access_point_profile_name: "Corporate-Office-AP"
+      - access_point_profile_name: "Guest-WiFi-AP"
+      - access_point_profile_name: "Remote-Worker-AP"
+      - access_point_profile_name: "Branch-Office-AP"
+      - access_point_profile_name: "Warehouse-AP"
+      - access_point_profile_name: "Manufacturing-Plant-AP"
+      - access_point_profile_name: "Conference-Room-AP"
+  #Define the RF profiles for the wireless network
+  - radio_frequency_profiles:
+      - radio_frequency_profile_name: "rf_profile_2_4ghz_basic"
+      - radio_frequency_profile_name: "rf_profile_5ghz_basic"
+      - radio_frequency_profile_name: "rf_profile_6ghz_basic"
+      - radio_frequency_profile_name: "rf_profile_2_4ghz_high_parent"
+      - radio_frequency_profile_name: "rf_profile_5ghz_160mhz_typical"
+      - radio_frequency_profile_name: "rf_profile_6ghz_custom"
+      - radio_frequency_profile_name: "rf_profile_2_4ghz_custom_power"
+      - radio_frequency_profile_name: "rf_profile_5ghz_high_limit"
+      - radio_frequency_profile_name: "rf_profile_6ghz_psc_enforced"
+      - radio_frequency_profile_name: "rf_profile_2_4_5ghz_typical"
+      - radio_frequency_profile_name: "rf_profile_5_6ghz_mixed"
+      - radio_frequency_profile_name: "rf_profile_2_4_6ghz_high"
+      - radio_frequency_profile_name: "rf_profile_2_4_5_6ghz_high_low"
+      - radio_frequency_profile_name: "rf_profile_2_4_5_6ghz_spatial"
+      - radio_frequency_profile_name: "rf_profile_5_6ghz_high_limit"
+      - radio_frequency_profile_name: "rf_profile_6ghz_twt_broadcast"
+      - radio_frequency_profile_name: "rf_profile_2_4_5_6ghz_advanced"
+  # Define the mobility groups for the wireless network
+  - anchor_groups:
+      - anchor_group_name: "Enterprise_Anchor_Group"
+      - anchor_group_name: "Branch_Anchor_Group"
+      - anchor_group_name: "DataCenter_Anchor_Group"

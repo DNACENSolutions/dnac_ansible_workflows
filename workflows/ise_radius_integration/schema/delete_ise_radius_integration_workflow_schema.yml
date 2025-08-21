@@ -225,28 +225,7 @@ catalyst_center_config_verify: bool(required=False)
 ise_radius_integration_details_type:
   authentication_policy_server: list(include('authentication_policy_server_type'), required=False)
 authentication_policy_server_type:
-  server_type: enum('AAA', 'ISE')
   server_ip_address: str(required=True)
-  shared_secret: str(required=False)
-  protocol: enum('RADIUS', 'TACACS', 'RADIUS_TACACS')
-  encryption_scheme: enum('KEYWRAP', 'RADSEC',required=False)
-  encryption_key: str(required=False)
-  message_authenticator_code_key: str(  required=False)
-  authentication_port: int(default=1812)
-  accounting_port: int(default=1813)
-  retries: int(required=False)
-  timeout: int(required=False)
-  role: enum('primary', 'secondary', default='primary', required=False)
-  use_dnac_cert_for_pxgrid: bool(required=False)
-  pxgrid_enabled: bool(required=False)
-  cisco_ise_dtos: list(include('cisco_ise_dtos_type'), required=False)
-  trusted_server: bool(required=False)
-  ise_integration_wait_time: int(default=60, required=False)
-cisco_ise_dtos_type:
-  user_name: str()
-  password: str()
-  fqdn: str()
-  ip_address: str()
-  description: str()
+
 # End of the schema definition
 # #=======================================================================================================================

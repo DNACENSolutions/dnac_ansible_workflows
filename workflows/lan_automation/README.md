@@ -136,7 +136,7 @@ To ensure a successful execution of the playbooks with your specified inputs and
 Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
 
 ```bash
-./tools/validate.sh -s /Users/majlona/dnac_ansible_workflows/workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d /Users/majlona/dnac_ansible_workflows/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml
+./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automation_workflow_inputs.yml
 ```
 
 ##### Running the Playbook:
