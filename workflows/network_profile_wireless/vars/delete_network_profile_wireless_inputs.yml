@@ -1,0 +1,6 @@
+---
+catalyst_center_version: 2.3.7.9
+# network_profile_wireless/vars/merged.yml
+wireless_nw_profiles_details:
+  - profile_name: "Corporate_Wireless_Profile"
+

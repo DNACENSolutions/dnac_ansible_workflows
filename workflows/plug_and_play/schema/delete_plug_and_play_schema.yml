@@ -1,0 +1,72 @@
+
+
+# Catalyst Center PNP Device Management Schema
+# =======================================
+#
+# This schema defines the configuration structure for managing pnp devices in Cisco Catalyst Center.
+# It supports claiming and managing various network devices including wireless controllers,
+# switches, routers, and access points.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema consists of two main sections:
+# 1. Top-level parameters for Catalyst Center configuration
+# 2. PnP (Plug and Play) details for device onboarding and management
+#
+# USAGE:
+# ------
+# This schema is used to define the structure of YAML/JSON configuration files for
+# automating device management tasks in Catalyst Center environments.
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional)
+# catalyst_center_verify:            SSL certificate verification flag (optional)
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (optional, values: CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification flag (optional, default: false)
+# jinjatemplate:                     Enable Jinja templating (optional, default: false)
+# passwords_file:                    Path to passwords file (optional)
+# jinjatemplate_file:                Path to Jinja template file (optional)
+#
+# PNP_DETAILS SECTION:
+# ------------------
+# Contains lists of devices to be claimed or managed, organized by device type:
+# - claim_wireless_controllers: List of wireless controllers to claim (max 10000)
+# - claim_switching_devices:    List of switches to claim (max 10000)
+# - claim_router_devices:       List of routers to claim (max 10000)
+# - network_devices:            List of network devices to manage (max 10000)
+# - claim_access_points:        List of access points to claim (max 10000)
+#
+# DEVICE TYPE DEFINITIONS:
+# ----------------------
+# Each device type has specific parameters for claiming and provisioning.
+# Common parameters include site_name, project_name, template_name, and device_info.
+# Device-specific parameters are included in their respective type definitions.
+# For detailed information on each parameter, refer to the schema definition below.
+
+pnp_details:
+  network_devices: list(include('network_devices_type'), min=0, max=10000, required=False)
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False, default=False)
+jinjatemplate: bool(required=False, default=False)
+passwords_file: str(required=False)
+jinjatemplate_file: str(required=False)
+---
+network_devices_type:
+  device_info: list(include('device_info_type'), required=True)
+
+device_info_type:
+  serial_number: str(required=True)
+

@@ -41,7 +41,6 @@ discovery_details:
         snmp_v2_write_credential:
             description: snmpV2 Sample 1
             community: public
-      discovery_specific_credentials:
         net_conf_port: "830"
       retry: 2
     - ip_address_list:
@@ -76,7 +75,6 @@ discovery_details:
             auth_type: SHA
             privacy_type: AES128
             privacy_password: Lablab#123
-      discovery_specific_credentials:
         net_conf_port: "830"
       retry: 2
   range:
@@ -111,7 +109,6 @@ discovery_details:
             auth_type: SHA
             privacy_type: AES128
             privacy_password: Lablab#123
-      discovery_specific_credentials:
         net_conf_port: "830"
       retry: 2
   multi_range:
@@ -147,8 +144,7 @@ discovery_details:
             auth_type: SHA
             privacy_type: AES128
             privacy_password: Lablab#123
-      timeout: 30
-      discovery_specific_credentials:
         net_conf_port: "830"
+      timeout: 30
       retry: 2
 

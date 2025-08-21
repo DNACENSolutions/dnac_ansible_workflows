@@ -226,7 +226,7 @@ ise_radius_integration_details_type:
   authentication_policy_server: list(include('authentication_policy_server_type'), required=False)
 authentication_policy_server_type:
   server_type: enum('AAA', 'ISE')
-  server_ip_address: str()
+  server_ip_address: str(required=True)
   shared_secret: str(required=False)
   protocol: enum('RADIUS', 'TACACS', 'RADIUS_TACACS')
   encryption_scheme: enum('KEYWRAP', 'RADSEC',required=False)
