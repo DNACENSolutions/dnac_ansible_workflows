@@ -4,40 +4,7 @@ catalyst_center_verify: false
 events_notifications_destination_and_subscription_details:
   - email_event_notification:
       name: EMAIL Notification Testing
-      description: Notification description for email subscription creation 01 Please ignore test
-      sites:
-        - Global/India/Bangalore/BLD_1
-      events:
-        - AP Flap
-        - AP disconnected from WLC
-      sender_email: catalyst@cisco.com
-      recipient_emails:
-        - noc@cisco.com
-        - soc@cisco.com
-        - mohmshai@cisco.com
-      subject: Mail test
-      instance: Email Instance test
-      instance_description: Email Instance description 1
-
   - syslog_event_notification:
       name: Syslog Notification 001
-      description: Subscription for syslog events notification Test 001
-      sites:
-        - Global/India/Bangalore/BLD_1
-        - Global/Bangladesh/Dhaka/Dhaka_Building/Administration20
-      events:
-        - AP Flap
-        - AP Reboot Crash
-        - AP disconnected from WLC
-        - Switch Power Failure
-      destination: Test_Syslog 101
-
   - webhook_event_notification:
       name: Webhook Notification SEEN-4890-02
-      description: Notification for webhook events subscription 002
-      sites:
-        - Global/India/Bangalore/BLD_1
-      events:
-        - Add device failed
-        - AP Coverage Hole
-      destination: webhook demo 103
