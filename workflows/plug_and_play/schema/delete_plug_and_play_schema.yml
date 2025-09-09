@@ -68,5 +68,9 @@ network_devices_type:
   device_info: list(include('device_info_type'), required=True)
 
 device_info_type:
-  serial_number: str(required=True)
+  serial_number: str(required=False)
+  hostname: str(required=False)
+  state: enum('Unclaimed', 'Claimed', 'Provisioned',  'Error', required=False)
+  pid: str(required=False)
+  add_device_method: str(required=False)
 

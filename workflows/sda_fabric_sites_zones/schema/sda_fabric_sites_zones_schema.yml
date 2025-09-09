@@ -187,7 +187,7 @@ pre_auth_acl_type:
         access_contracts: list(include('access_contracts_type'), required=False)
         description: str(required=False)
         enabled: bool(required=False)
-        implicit_action: str(required=False, default='DENY')
+        implicit_action: str(required=False)
 access_contracts_type:
           action: enum('PERMIT', 'DENY', required=False)
           port: enum('domain', 'bootpc', 'bootps', required=False)
