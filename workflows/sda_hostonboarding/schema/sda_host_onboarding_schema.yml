@@ -309,7 +309,7 @@ sda_host_onboarding_details_type:
 
 port_assignment_details_type:
   authentication_template_name: enum('No Authentication', 'Open Authentication', 'Closed Authentication', 'Low Impact', required=False)
-  connected_device_type: enum('TRUNKING_DEVICE', 'ACCESS_POINT', 'USER_DEVICE', required=false)
+  connected_device_type: enum('TRUNKING_DEVICE', 'ACCESS_POINT', 'USER_DEVICE', required=False)
   data_vlan_name: str(required=False)
   interface_description: str(required=False)
   interface_name: str(required=True)
@@ -317,7 +317,7 @@ port_assignment_details_type:
   voice_vlan_name: str(required=False)
 
 port_channel_details_type:
-  connected_device_type: enum('TRUNK', 'EXTENDED_NODE', required=False)
+  connected_device_type: enum('TRUNK', 'EXTENDED_NODE', required=True)
   interface_names: list(str, required=True, min=0, max=100)
   port_channel_description: str(required=False)
   port_channel_name: str(required=False)
@@ -325,7 +325,7 @@ port_channel_details_type:
 
 wireless_ssid_details_type:
   vlan_name: str(required=True)
-  ssid_details: list(include('ssid_details_type'), required=False, min=0, max=100)
+  ssid_details: list(include('ssid_details_type'), required=True, min=0, max=100)
 
 ssid_details_type:
   ssid_name: str(required=True)
