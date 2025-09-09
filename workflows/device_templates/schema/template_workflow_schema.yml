@@ -31,9 +31,12 @@ configuration_templates_type:
   project_name: str(required=False)
   software_type: enum('IOS', 'IOS-XE', 'IOS-XR', 'NX-OS', 'Cisco Controller', 'Wide Area Application Services', 'Adaptive Security Appliance', 'NFV-OS', 'Others', required=False)
   software_version: str(required=False)
+  tags: list(include('tags_type'), min=0, max=100, required=False)
   template_content: str(required=False)
   template_description: str(required=False)
+  description: str(required=False)
   template_name: str(required=False)
+  name: str(required=False)
   template_params: list(include('template_param_type'), required=False) # same as template_param_type
   template_tag: list(include('template_tag_type'), required=False) # same as template_tag_type
   version: str(required=False)

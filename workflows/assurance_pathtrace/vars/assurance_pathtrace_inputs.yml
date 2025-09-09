@@ -13,7 +13,6 @@ pathtrace_details:
       - PERFORMANCE_STATS
       - ACL_TRACE
     periodic_refresh: false  # optional field
-    control_path: false  # optional field
     delete_on_completion: true  # optional field
   - source_ip: "204.101.16.2"  # required field
     dest_ip: "204.192.3.40"  # required field
