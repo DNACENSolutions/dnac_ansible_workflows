@@ -469,6 +469,8 @@ catalyst_center_log: bool(required=False, default=False)
 catalyst_center_log_append: bool(required=False, default=True)
 catalyst_center_log_file_path: str(required=False, default='dnac.log')
 catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+jinjatemplate: bool(required=False)
+jinjatemplate_file: str(required=False)
 fabric_devices_details: list(include('fabric_devices_type'), min=1, max=100, required=True)
 config_verify: bool(required=False, default=False)
 ---

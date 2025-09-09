@@ -8,83 +8,69 @@ provision_details:
   - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
     management_ip_address: 204.1.2.5
   # To provision multiple devices in bulk, add additional entries below
-  # - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
-  #   management_ip_address: 137.1.4.103
-  # - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
-  #   management_ip_address: 137.1.4.104
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+    management_ip_address: 137.1.4.103
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+    management_ip_address: 137.1.4.104
 
   # Assigned the device to the site without provisioning
   # Uncomment below lines if want to assign devices to sites without provisioning
-  # - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
-  #   management_ip_address: 137.1.1.10
-  #   provisioning: False
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+    management_ip_address: 137.1.1.10
+    provisioning: False
   # To assign multiple devices in bulk, add additional entries below
-  # - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
-  #   management_ip_address: 137.1.1.94
-  #   provisioning: False
-  # - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
-  #   management_ip_address: 137.1.1.95
-  #   provisioning: False
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+    management_ip_address: 137.1.1.94
+    provisioning: False
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+    management_ip_address: 137.1.1.95
+    provisioning: False
 
   #Switches and Hubs provisioning wireless device
-  # - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
-  #   management_ip_address: 204.192.4.200
-  #   managed_ap_locations:
-  #     - Global/USA/SAN JOSE/SJ_BLD21/FLOOR1
-  #     - Global/USA/SAN JOSE/SJ_BLD21/FLOOR2
-  #     - Global/USA/SAN JOSE/SJ_BLD21/FLOOR3
-  #     - Global/USA/SAN JOSE/SJ_BLD21/FLOOR4
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+    management_ip_address: 204.192.4.200
+    managed_ap_locations:
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR1
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR2
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR3
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR4
   #To provision multiple devices in bulk, add additional entries below
-  # - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
-  #   management_ip_address: 204.192.6.202
-  #   managed_ap_locations:
-  #     - Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
-  #     - Global/USA/SAN JOSE/SJ_BLD23/FLOOR2
-  #     - Global/USA/SAN JOSE/SJ_BLD23/FLOOR3
-  #     - Global/USA/SAN JOSE/SJ_BLD23/FLOOR4
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+    management_ip_address: 204.192.6.202
+    managed_ap_locations:
+      - Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
+      - Global/USA/SAN JOSE/SJ_BLD23/FLOOR2
+      - Global/USA/SAN JOSE/SJ_BLD23/FLOOR3
+      - Global/USA/SAN JOSE/SJ_BLD23/FLOOR4
 
   #Wired device Reprovisioning 
   #Reprovision wired device Hubs and Switches
-  # - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
-  #   management_ip_address: 137.1.1.72
-  #   force_provisioning: True
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+    management_ip_address: 137.1.1.72
+    force_provisioning: True
   #To reprovision multiple devices in bulk, add additional entries below
-  # - site_name_hierarchy: Global/USA/New York/NY_BLD1
-  #   management_ip_address: 137.1.1.8
-  #   force_provisioning: True
-  # - site_name_hierarchy: Global/USA/New York/NY_BLD1
-  #   management_ip_address: 137.1.1.9
-  #   force_provisioning: True
+  - site_name_hierarchy: Global/USA/New York/NY_BLD1
+    management_ip_address: 137.1.1.8
+    force_provisioning: True
+  - site_name_hierarchy: Global/USA/New York/NY_BLD1
+    management_ip_address: 137.1.1.9
+    force_provisioning: True
 
   #Wireless device Reprovisioning
-  # - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
-  #   management_ip_address: 204.192.4.200
-  #   managed_ap_locations:
-  #     - Global/USA/SAN JOSE/SJ_BLD21/FLOOR1
-  #     - Global/USA/SAN JOSE/SJ_BLD21/FLOOR2
-  #     - Global/USA/SAN JOSE/SJ_BLD21/FLOOR3
-  #     - Global/USA/SAN JOSE/SJ_BLD21/FLOOR4
-  #   force_provisioning: True
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+    management_ip_address: 204.192.4.200
+    managed_ap_locations:
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR1
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR2
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR3
+      - Global/USA/SAN JOSE/SJ_BLD21/FLOOR4
+    force_provisioning: True
   #To reprovision multiple devices in bulk, add additional entries below
-  # - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
-  #   management_ip_address: 204.192.6.202
-  #   managed_ap_locations:
-  #     - Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
-  #     - Global/USA/SAN JOSE/SJ_BLD23/FLOOR2
-  #     - Global/USA/SAN JOSE/SJ_BLD23/FLOOR3
-  #     - Global/USA/SAN JOSE/SJ_BLD23/FLOOR4
-  #   force_provisioning: True
-
-  - application_telemetry:
-    # Define the devices for application telemetry
-    # Application telemetry for wired devices
-    - device_ips: 
-        - "204.1.2.1"
-        - "204.1.2.3"
-      telemetry: enable
-    # Application telemetry for wireless devices
-      # - device_ips: 
-      #     - "204.192.4.200"  
-      #   telemetry: enable
-      #   wlan_mode: "LOCAL"
-      #   include_guest_ssid: true
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+    management_ip_address: 204.192.6.202
+    managed_ap_locations:
+      - Global/USA/SAN JOSE/SJ_BLD23/FLOOR1
+      - Global/USA/SAN JOSE/SJ_BLD23/FLOOR2
+      - Global/USA/SAN JOSE/SJ_BLD23/FLOOR3
+      - Global/USA/SAN JOSE/SJ_BLD23/FLOOR4
+    force_provisioning: True

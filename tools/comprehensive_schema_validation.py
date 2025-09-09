@@ -81,6 +81,10 @@ class WorkflowValidator:
             for vars_file in vars_files:
                 vars_name = vars_file.stem.lower()
                 
+                # Skip jinja template files for schema validation
+                if vars_name.startswith('jinja_') or '_jinja_' in vars_name:
+                    continue
+                
                 # Remove common vars suffixes
                 vars_base = vars_name
                 for suffix in ['_vars', '_inputs', '_input', 'vars']:
@@ -95,16 +99,22 @@ class WorkflowValidator:
                     vars_clean = vars_base[7:]      # Remove 'delete_' prefix
                     if (vars_clean in schema_clean or schema_clean in vars_clean or
                         schema_clean.replace('_', '') in vars_clean.replace('_', '') or
-                        vars_clean.replace('_', '') in schema_clean.replace('_', '')):
+                        vars_clean.replace('_', '') in schema_clean.replace('_', '') or
+                        (schema_clean == 'plug_and_play' and vars_clean == 'catalyst_center_pnp') or
+                        (schema_clean == 'catalyst_center_pnp' and vars_clean == 'plug_and_play')):
                         matches.append((schema_file, vars_file))
                         matched = True
                         break
                 elif not schema_base.startswith('delete_') and not vars_base.startswith('delete_'):
                     # Both are non-delete operations - match them
-                    if (vars_base in schema_base or schema_base in vars_base or
-                        schema_base.replace('_', '') in vars_base.replace('_', '') or
-                        vars_base.replace('_', '') in schema_base.replace('_', '') or
-                        any(part in vars_base for part in schema_base.split('_') if len(part) > 3)):
+                    # Prioritize exact matches and avoid delete files
+                    if (not vars_name.startswith('delete_') and 
+                        (vars_base in schema_base or schema_base in vars_base or
+                         schema_base.replace('_', '') in vars_base.replace('_', '') or
+                         vars_base.replace('_', '') in schema_base.replace('_', '') or
+                         (schema_base == 'plug_and_play' and vars_base == 'catalyst_center_pnp') or
+                         (schema_base == 'catalyst_center_pnp' and vars_base == 'plug_and_play') or
+                         any(part in vars_base for part in schema_base.split('_') if len(part) > 3))):
                         matches.append((schema_file, vars_file))
                         matched = True
                         break
