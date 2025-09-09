@@ -1,0 +1,4 @@
+---
+catalyst_center_version: 2.3.7.6
+rma_devices: 
+  - faulty_device_serial_number: "KWC224709LV"

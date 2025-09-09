@@ -1,0 +1,12 @@
+          
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+# This file contains the variables for the inventory workflow
+application_policy_details:
+  - queuing_profile:
+    - profile_name: "Enterprise-QoS-Profile"
+    - profile_name: "Enterprise_DSCP_Profile"
+  - application_policy:
+    - name: "WiredTrafficOptimizationPolicy"
+    - name: "wireless_traffic_policy"
