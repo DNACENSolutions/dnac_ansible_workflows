@@ -207,17 +207,28 @@ validate_all_workflows() {
                 schema_base=$(echo "$schema_basename" | sed 's/_schema$//')
                 vars_base=$(echo "$vars_basename" | sed 's/_vars$//' | sed 's/_inputs$//' | sed 's/_input$//')
                 
+                # Skip jinja template files for schema validation
+                if [[ "$vars_basename" == jinja_* ]] || [[ "$vars_basename" == *_jinja_* ]]; then
+                    continue
+                fi
+                
                 # Check if both are delete operations or both are non-delete operations
                 if [[ "$schema_base" == delete_* && "$vars_base" == delete_* ]]; then
                     # Both are delete operations - match them
                     schema_clean=$(echo "$schema_base" | sed 's/^delete_//')
                     vars_clean=$(echo "$vars_base" | sed 's/^delete_//')
-                    if [[ "$vars_clean" == *"$schema_clean"* ]] || [[ "$schema_clean" == *"$vars_clean"* ]]; then
+                    # Check for common workflow patterns
+                    if [[ "$vars_clean" == *"$schema_clean"* ]] || [[ "$schema_clean" == *"$vars_clean"* ]] || 
+                       [[ "$schema_clean" == "plug_and_play" && "$vars_clean" == "catalyst_center_pnp" ]] ||
+                       [[ "$schema_clean" == "catalyst_center_pnp" && "$vars_clean" == "plug_and_play" ]]; then
                         match_found=true
                     fi
                 elif [[ "$schema_base" != delete_* && "$vars_base" != delete_* ]]; then
                     # Both are non-delete operations - match them
-                    if [[ "$vars_base" == *"$schema_base"* ]] || [[ "$schema_base" == *"$vars_base"* ]]; then
+                    # Prioritize exact matches and avoid delete files
+                    if [[ "$vars_basename" != delete_* ]] && ([[ "$vars_base" == *"$schema_base"* ]] || [[ "$schema_base" == *"$vars_base"* ]] ||
+                       [[ "$schema_base" == "plug_and_play" && "$vars_base" == "catalyst_center_pnp" ]] ||
+                       [[ "$schema_base" == "catalyst_center_pnp" && "$vars_base" == "plug_and_play" ]]); then
                         match_found=true
                     fi
                 else
