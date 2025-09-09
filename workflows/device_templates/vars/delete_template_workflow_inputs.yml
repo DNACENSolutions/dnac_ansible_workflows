@@ -1,0 +1,18 @@
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.6
+template_details:
+  # List of templates to be uploaded to the Cisco Catalyst Center
+  - configuration_templates:
+      device_types:
+        - product_family: Switches and Hubs
+      language: VELOCITY
+      template_name: access_van_template_9300_switches
+      project_name: access_van_template_9300_switches
+
+  - configuration_templates:
+      template_name: PnP-Upstream-SW1
+      project_name: Onboarding Configuration
+      device_types:
+        - product_family: Switches and Hubs
+        - product_family: Switches and Hubs
+      language: VELOCITY

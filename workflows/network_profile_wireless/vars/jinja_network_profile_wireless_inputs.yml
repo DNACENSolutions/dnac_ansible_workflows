@@ -2,5 +2,5 @@ catalyst_center_version: 2.3.7.9
 jinjatemplate: true
 jinjatemplate_file: ../jinja_template/jinja_wireless_design_inputs.yml
 # Fabric Sites and Zones design.
-wireless_nw_profiles_details: null
+wireless_nw_profiles_details: []
 # Fabric Sites and Zones design
