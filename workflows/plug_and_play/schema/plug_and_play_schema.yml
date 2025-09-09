@@ -1,59 +1,123 @@
+
+
+# Catalyst Center PNP Device Management Schema
+# =======================================
+#
+# This schema defines the configuration structure for managing pnp devices in Cisco Catalyst Center.
+# It supports claiming and managing various network devices including wireless controllers,
+# switches, routers, and access points.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema consists of two main sections:
+# 1. Top-level parameters for Catalyst Center configuration
+# 2. PnP (Plug and Play) details for device onboarding and management
+#
+# USAGE:
+# ------
+# This schema is used to define the structure of YAML/JSON configuration files for
+# automating device management tasks in Catalyst Center environments.
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional)
+# catalyst_center_verify:            SSL certificate verification flag (optional)
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (optional, values: CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification flag (optional, default: false)
+# jinjatemplate:                     Enable Jinja templating (optional, default: false)
+# passwords_file:                    Path to passwords file (optional)
+# jinjatemplate_file:                Path to Jinja template file (optional)
+#
+# PNP_DETAILS SECTION:
+# ------------------
+# Contains lists of devices to be claimed or managed, organized by device type:
+# - claim_wireless_controllers: List of wireless controllers to claim (max 10000)
+# - claim_switching_devices:    List of switches to claim (max 10000)
+# - claim_router_devices:       List of routers to claim (max 10000)
+# - network_devices:            List of network devices to manage (max 10000)
+# - claim_access_points:        List of access points to claim (max 10000)
+#
+# DEVICE TYPE DEFINITIONS:
+# ----------------------
+# Each device type has specific parameters for claiming and provisioning.
+# Common parameters include site_name, project_name, template_name, and device_info.
+# Device-specific parameters are included in their respective type definitions.
+# For detailed information on each parameter, refer to the schema definition below.
+
+pnp_details:
+  claim_wireless_controllers: list(include('claim_wireless_controllers_type'), min=0, max=10000, required=False)
+  claim_switching_devices: list(include('claim_switching_device_type'), min=0, max=10000, required=False)
+  claim_router_devices: list(include('claim_router_device_type'), min=0, max=10000, required=False)
+  network_devices: list(include('network_devices_type'), min=0, max=10000, required=False)
+  claim_access_points: list(include('claim_access_points_type'), min=0, max=10000, required=False)
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False, default=False)
+jinjatemplate: bool(required=False, default=False)
+passwords_file: str(required=False)
+jinjatemplate_file: str(required=False)
 ---
-catalyst_center_version: 2.3.7.6
-device_credentials:
-  credentials_details: #Create multiple credentials for the same protocol
-  - global_credential_details: #Create global credentials for the device list
-      cli_credential:
-      - description: Device Administrator
-        username: netadmin1
-        password: Lablab#123
-        enable_password: Cisco#123  
-      - description: CLI Sample 1
-        username: cli-1
-        password: "5!meh"
-        enable_password: "q4^t^"
-      - description: CLI2
-        username: cli-2
-        password: "sbs2@"
-        enable_password: "8b!rn"
-      snmp_v2c_read:
-      - description: snmpRead-1
-        read_community: "@123"
-      snmp_v2c_write:
-      - description: snmpWrite-1
-        write_community: "#mea@"
-      snmp_v3: #Create SNMPv3 credentials list
-      - description: snmpV3 Sample 1 
-        auth_password: "hp!x6px&#@2xi5"
-        auth_type: SHA
-        snmp_mode: AUTHPRIV
-        privacy_password: "ai7tpci3j@*j5g"
-        privacy_type: AES128
-        username: admin
-      https_read: #Create HTTPS Read credentials list
-      - description: httpsRead Sample 1
-        username: admin
-        password: "2!x88yvqz*7"
-        port: 443
-      https_write: #Create HTTPS Write credentials list
-      - description: httpsWrite Sample 1
-        username: admin
-        password: "j@5wgm%s2g%"
-        port: 443
-  credentials_site_assignment: #Assign credentials to sites list of all sites mappings
-  - assign_credentials_to_site: # Assign device credentials to sites
-      cli_credential: #Assign CLI credentials to sites
-        description: CLI Sample 1
-        username:  cli-1
-      snmp_v3: #Assign SNMPv3 credentials to sites
-        description: snmpV3 Sample 1 
-        username: admin
-      https_read: #Assign HTTPS Read credentials to sites
-        username: admin
-        description: httpsRead Sample 1
-      https_write: #Assign HTTPS Write credentials to sites
-        username: admin
-        description: httpsWrite Sample 1
-      site_name: #Sites  to which the credentials are assigned
-      - Global/India #Full Site Heirarchy Path from Global to Site
-      - Global/India/Bangalore
+claim_wireless_controllers_type:
+  site_name: str(required=False)
+  project_name: str(required=False)
+  image_name: str(required=False)
+  template_name: str(required=False)
+  template_params: any(any, required=False)
+  state: enum('merged', 'deleted', required=False)
+  device_info: list(include('device_info_type'), required=True)
+  pnp_type: enum('CatalystWLC', required=False)
+  rf_profile: enum('HIGH', 'LOW', 'TYPICAL', required=False)
+  static_ip: str(required=False)
+  subnet_mask: str(required=False)
+  gateway: str(required=False)
+  ip_interface_name: str(required=False)
+  vlan_id: any(str, int, required=False)
+
+claim_switching_device_type:
+  site_name: str(required=False)
+  project_name: str(required=False)
+  template_name: str(required=False)
+  template_params: any(any, required=False)
+  image_name: str(required=False)
+  state: enum('merged', 'deleted', required=False)
+  device_info: list(include('device_info_type'), required=True)
+  pnp_type: enum('Default', 'StackSwitch', required=False)
+
+claim_router_device_type:
+  site_name: str(required=False)
+  project_name: str(required=False)
+  template_name: str(required=False)
+  template_params: any(any, required=False)
+  image_name: str(required=False)
+  state: enum('merged', 'deleted', required=False)
+  device_info: list(include('device_info_type'), required=True)
+  pnp_type: enum('Default', required=False)
+
+device_info_type:
+  serial_number: str(required=True)
+  hostname: str(required=False)
+  state: enum('Unclaimed', 'Claimed', 'Provisioned',  'Error', required=False)
+  pid: str(required=False)
+  add_device_method: str(required=False)
+
+network_devices_type:
+  device_info: list(include('device_info_type'), required=True)
+
+claim_access_points_type:
+  site_name: str(required=True)
+  project_name: str(required=False)
+  template_name: str(required=False)
+  rf_profile: enum('HIGH', 'LOW', 'TYPICAL', required=False)
+  device_info: list(include('device_info_type'), required=True)
+  pnp_type: enum( 'AccessPoint', required=False)
