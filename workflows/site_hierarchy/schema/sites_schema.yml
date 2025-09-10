@@ -35,7 +35,7 @@ floor_type:
     name: str()
     floor_number: num(required=True)
     parent_name: str()
-    rfModel: str(include('Cubes And Walled Offices', 'Drywall Office Only', 'Indoor High Ceiling', 'Outdoor Open Space'))
+    rf_model: str(include('Cubes And Walled Offices', 'Drywall Office Only', 'Indoor High Ceiling', 'Outdoor Open Space'))
     width: num()
     length: num()
     height: num()
