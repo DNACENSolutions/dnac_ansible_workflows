@@ -72,14 +72,14 @@ Prepare the input data for configuring your site hierarchy.
 | `latitude`                | Float    | Yes          | Latitude coordinate                    |
 | `longitude`               | Float    | Yes          | Longitude coordinate                   |
 | `country`                 | String   | Yes          | Country of the building                |
-| `rfModel`                 | String   | Yes          | RF model for the floor                 |
+| `rf_model`                | String   | Yes          | RF model for the floor                 |
 | `width`                   | Float    | Yes          | Width of the floor                     |
 | `length`                  | Float    | Yes          | Length of the floor                    |
 | `height`                  | Float    | Yes          | Height of the floor                    |
 | `floor_number`            | Integer  | Yes          | Floor number                           |
 | `units_of_measure`        | String   | Yes          | Unit of measurement for floor dimensions, such as 'feet' or 'meters'|
-| `upload_floor_image_path` | String   | Optional     | Path to floor image file.supported format such as JPG, PNG, or PDF|
-| `force_upload_floor_image`| Boolean  | Optional     | If set to `true`, the floor image will be uploaded during the process. If set to `false`, the floor image upload will be skipped. During floor creation, if `upload_floor_image_path` is not provided, the image will not be uploaded. During floor update, if `force_upload_floor_image` is set to `False`, the image will not be uploaded, even if the path is provided. If `force_upload_floor_image` is "True", the image will be uploaded regardless of the path provided. |
+| `upload_floor_image_path` | String   | Optional     | Full path to floor image file. Supported format such as JPG, PNG, or PDF|
+| `force_upload_floor_image`| Boolean  | Optional     | If set to `true`, the floor image will be uploaded during the process. If set to `false`, the floor image upload will be skipped. During floor creation, if `upload_floor_image_path` is not provided, the image will not be uploaded. During floor update, if `force_upload_floor_image` is set to `false`, the image will not be uploaded, even if the path is provided. If `force_upload_floor_image` is `true`, the image will be uploaded regardless of the path provided. |
 ---
 
 ## Example Input File
@@ -117,20 +117,20 @@ design_sites:
       floor:
         name: FLOOR1
         parent_name: Global/USA/SAN JOSE/BLD23
-        rfModel: Cubes And Walled Offices
+        rf_model: Cubes And Walled Offices
         width: 100.00
         length: 100.00
         height: 10.00
         floor_number: 1
         units_of_measure: feet
-        upload_floor_image_path: /workflows/sites/images/floor_image1.png
+        upload_floor_image_path: {{ playbook_dir }}/../images/floor_image1.png
     type: floor
 ```
 You can organize all the sites together, for example, grouping all floors under a single building and placing the building within the appropriate hierarchy.
 
 4. Execute: Execute the playbook with your inputs and inventory. Specify your input file using the --e variable VARS_FILE_PATH.
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/site_hierarchy_design_vars.yml -vvv
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/site_hierarchy/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml -vvv
 ```
 ## Creating Bulk Site configurations using JINJA template and using the playbook
 
@@ -139,7 +139,7 @@ This Example creates 3 Areas and in each area it creates 3 buildings and in each
 This example can be reused and customized to your requirement and increase the requirement scale.
 
 ### Creating bulk sites with JINJA template
-workflow/sites/jinja_template/site_generation_template.j2 template can be used to customize the template and generate bulk sites.
+workflow/site_hierarchy/jinja_template/site_generation_template.j2 template can be used to customize the template and generate bulk sites.
 
 ```bash
 ---
@@ -183,14 +183,14 @@ design_sites:
           floor:
             name: AREA{{i}} BLD{{j}} FLOOR{{l}}
             parent_name: Global/USA/AREA{{i}}/AREA{{i}} BLD{{j}}
-            rfModel: Cubes And Walled Offices
+            rf_model: Cubes And Walled Offices
             width: 100.00
             length: 100.00
             height: 10.00
             floor_number: {{ l }}
             units_of_measure: feet
-            upload_floor_image_path: workflows/sites/images/{{ floor_images[(l - 1) % floor_images|length] }}
-            force_upload_floor_image: True
+            upload_floor_image_path: {{ playbook_dir }}/../images/{{ floor_images[(l - 1) % floor_images|length] }}
+            force_upload_floor_image: true
         type: floor
       {% endfor %}
     {% endfor %}
@@ -201,7 +201,7 @@ Use the input var file: jinja_template_site_hierarchy_design_vars.yml and specif
 
 5. Execute with Jinja template:
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/jinja_template_site_hierarchy_design_vars.yml -vvv
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/site_hierarchy/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/site_hierarchy/vars/jinja_template_site_hierarchy_design_vars.yml -vvv
 ```
 
 ### Example of Sites Created Using a Jinja Template
@@ -232,7 +232,7 @@ Playbook can be used to delete sites under a specified hierarchy.
 
 6. Run the delete Playbook:
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sites/playbook/delete_site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sites/vars/delete_site_hierarchy_design_vars.yml -vvv
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/site_hierarachy/playbook/delete_site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/site_hierarchy/vars/delete_site_hierarchy_design_vars.yml -vvv
 ```
 ### Example of Site Deletion
 ```bash
@@ -242,18 +242,18 @@ delete sites:
   - site:
       area:
         name: Hyderabad
-        parentName: Global/India
+        parent_name: Global/India
     type: area
   - site:
       building:
         name: hyd_bld1
-        parentName: Global/India/Hyderabad
+        parent_name: Global/India/Hyderabad
         country: India
     type: building
   - site:
       floor:
         name: Marketing
-        parentName: Global/India/Hyderabad/hyd_bld1
+        parent_name: Global/India/Hyderabad/hyd_bld1
     type: floor
 ```
 Sites will be deleted from the Catalyst Center.
