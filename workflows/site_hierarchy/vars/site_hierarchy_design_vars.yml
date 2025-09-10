@@ -29,7 +29,7 @@ design_sites:
       floor:
         name: Floor 1
         parent_name: Global/USA/SAN JOSE
-        rfModel: Cubes And Walled Offices
+        rf_model: Cubes And Walled Offices
         width: 100.00
         length: 100.00
         height: 10.00
