@@ -313,6 +313,10 @@ device_credentials:
           cli_credential: #Assign CLI credentials to sites
             description: CLI Sample 1
             username:  cli-1
+          snmp_v2c_read:
+            description: SNMPv2c Read1
+          snmp_v2c_write:
+            description: SNMPv2c Write1
           site_name: #Sites  to which the credentials are assigned
           - Global/India #Full Site Hierarchy Path from Global to Site
           - Global/India/Bangalore
