@@ -1,0 +1,141 @@
+# Catalyst Center Backup and Restore Schema
+# =========================================
+#
+# This schema defines the configuration structure for managing backup and restore operations
+# in Cisco Catalyst Center using the backup_and_restore_workflow_manager module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports four main operation types:
+# 1. NFS Configuration - Setup NFS server for backup storage
+# 2. Backup Storage Configuration - Configure backup storage infrastructure
+# 3. Backup Creation/Deletion - Create or delete backups
+# 4. Restore Operations - Restore from existing backups
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating backup and restore
+# tasks in Catalyst Center environments.
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# BACKUP_RESTORE_DETAILS SECTION:
+# ------------------------------
+# Contains configuration for backup and restore operations:
+#
+# 1. NFS_CONFIGURATION:
+#    - server_ip: IP address of NFS server (required)
+#    - source_path: Directory path on NFS server (required)
+#    - nfs_port: NFS service port (optional, default: 2049)
+#    - nfs_version: NFS protocol version (optional, default: nfs4, choices: nfs3, nfs4)
+#    - nfs_portmapper_port: Portmapper service port (optional, default: 111)
+#
+# 2. BACKUP_STORAGE_CONFIGURATION:
+#    - server_type: Storage server type (required, choices: NFS, PHYSICAL_DISK)
+#                   Note: PHYSICAL_DISK not supported in Catalyst Center 3.1.3.0
+#    - nfs_details: NFS connection details (required if server_type=NFS)
+#      - server_ip: IP address of NFS server (required)
+#      - source_path: Directory path on NFS server (required)
+#      - nfs_port: NFS service port (optional)
+#      - nfs_version: NFS protocol version (optional, default: nfs4)
+#      - nfs_portmapper_port: Portmapper service port (optional, default: 111)
+#    - data_retention_period: Days to retain backup (required, range: 3-60)
+#    - encryption_passphrase: Passphrase for encrypting backup (optional, recommended)
+#
+# 3. BACKUP:
+#    - name: Backup name or prefix (required)
+#            For creation: exact name or prefix if generate_new_backup=true
+#            For deletion: exact name or prefix if backup_retention_days specified
+#    - generate_new_backup: Append timestamp to name (optional, default: false)
+#                           Format: YYYYMMDD_HHMMSS (IST timezone)
+#    - scope: Backup data scope (optional)
+#            Choices: CISCO_DNA_DATA_WITH_ASSURANCE, CISCO_DNA_DATA_WITHOUT_ASSURANCE
+#    - delete_all_backup: Delete all backups (optional, default: false, state=deleted only)
+#    - backup_retention_days: Retention policy in days (optional, state=deleted only)
+#                             Deletes backups older than specified days
+#
+# 4. RESTORE_OPERATIONS:
+#    - name: Name of backup to restore (required)
+#    - encryption_passphrase: Passphrase for decryption (optional, must match backup)
+#
+# OPERATION WORKFLOWS:
+# -------------------
+# 1. Initial Setup:
+#    a. Configure NFS server (nfs_configuration)
+#    b. Setup backup storage (backup_storage_configuration)
+#
+# 2. Create Backup:
+#    - Use backup section with state=merged
+#    - Set generate_new_backup=true for timestamped names
+#
+# 3. Delete Backup:
+#    - Use backup section with state=deleted
+#    - Specify name for single backup deletion
+#    - Use backup_retention_days for retention policy
+#    - Set delete_all_backup=true to remove all backups
+#
+# 4. Restore Backup:
+#    - Use restore_operations section
+#    - Provide backup name and encryption passphrase
+#
+# EXAMPLES:
+# --------
+# See the vars/ directory for example configuration files for each operation type.
+
+backup_restore_details: list(include('backup_restore_config'), min=0, max=100, required=False)
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+---
+backup_restore_config:
+  nfs_configuration: list(include('nfs_config_type'), required=False)
+  backup_storage_configuration: list(include('backup_storage_type'), required=False)
+  backup: list(include('backup_type'), required=False)
+  restore_operations: list(include('restore_type'), required=False)
+
+nfs_config_type:
+  server_ip: ip(required=True)
+  source_path: str(required=True)
+  nfs_port: int(required=False, min=1, max=65535)
+  nfs_version: enum("nfs3", "nfs4", required=False)
+  nfs_portmapper_port: int(required=False, min=1, max=65535)
+
+backup_storage_type:
+  server_type: enum("NFS", "PHYSICAL_DISK", required=True)
+  nfs_details: include('nfs_details_type', required=False)
+  data_retention_period: int(required=True, min=3, max=60)
+  encryption_passphrase: str(required=False)
+
+nfs_details_type:
+  server_ip: ip(required=True)
+  source_path: str(required=True)
+  nfs_port: int(required=False, min=1, max=65535)
+  nfs_version: enum("nfs3", "nfs4", required=False)
+  nfs_portmapper_port: int(required=False, min=1, max=65535)
+
+backup_type:
+  name: str(required=True)
+  generate_new_backup: bool(required=False)
+  scope: enum("CISCO_DNA_DATA_WITH_ASSURANCE", "CISCO_DNA_DATA_WITHOUT_ASSURANCE", required=False)
+  delete_all_backup: bool(required=False)
+  backup_retention_days: int(required=False, min=1)
+
+restore_type:
+  name: str(required=True)
+  encryption_passphrase: str(required=False)
