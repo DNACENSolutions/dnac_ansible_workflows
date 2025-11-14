@@ -1,0 +1,132 @@
+---
+- name: Playbook to create, restore, and manage backups on Cisco Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+  
+  vars:
+    state: merged
+    catalyst_center_login: &catalyst_center_login
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
+      dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(config_verify) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(dnac_debug) }}"
+      dnac_log: "{{ catalyst_center_log | default(dnac_log) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default(dnac_log_level) }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append | default(True) }}"
+      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
+
+  tasks:
+    - name: Print VARS_FILE_PATH
+      debug:
+        msg: "Input file selected {{ VARS_FILE_PATH }}"
+    
+    - name: Playbook start time for backup and restore operations
+      set_fact:
+        long_op_start: "{{ now() }}"
+    
+    # =========================================================================
+    # Configure NFS Server for Backup Storage
+    # =========================================================================
+    - name: Configure NFS server settings for backup storage
+      cisco.dnac.backup_and_restore_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config:
+          - nfs_configuration: "{{ item.nfs_configuration }}"
+      loop: "{{ backup_restore_details }}"
+      when:
+        - backup_restore_details is defined
+        - item.nfs_configuration is defined
+      register: nfs_configuration_result
+
+    - name: Display NFS configuration results
+      ansible.builtin.debug:
+        var: nfs_configuration_result
+      when: nfs_configuration_result is defined
+
+    # =========================================================================
+    # Configure Backup Storage Settings
+    # =========================================================================
+    - name: Configure backup storage settings with encryption and retention
+      cisco.dnac.backup_and_restore_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config:
+          - backup_storage_configuration: "{{ item.backup_storage_configuration }}"
+      loop: "{{ backup_restore_details }}"
+      when:
+        - backup_restore_details is defined
+        - item.backup_storage_configuration is defined
+      register: backup_storage_configuration_result
+
+    - name: Display backup storage configuration results
+      ansible.builtin.debug:
+        var: backup_storage_configuration_result
+      when: backup_storage_configuration_result is defined
+
+    # =========================================================================
+    # Create Backup
+    # =========================================================================
+    - name: Create backup on Cisco Catalyst Center
+      cisco.dnac.backup_and_restore_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config:
+          - backup: "{{ item.backup }}"
+      loop: "{{ backup_restore_details }}"
+      when:
+        - backup_restore_details is defined
+        - item.backup is defined
+      register: backup_creation_result
+
+    - name: Display backup creation results
+      ansible.builtin.debug:
+        var: backup_creation_result
+      when: backup_creation_result is defined
+
+    # =========================================================================
+    # Restore from Backup
+    # =========================================================================
+    - name: Restore Cisco Catalyst Center from backup
+      cisco.dnac.backup_and_restore_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config:
+          - restore_operations: "{{ item.restore_operations }}"
+      loop: "{{ backup_restore_details }}"
+      when:
+        - backup_restore_details is defined
+        - item.restore_operations is defined
+      register: backup_restore_result
+
+    - name: Display backup restore results
+      ansible.builtin.debug:
+        var: backup_restore_result
+      when: backup_restore_result is defined
+
+    # =========================================================================
+    # Playbook Execution Summary
+    # =========================================================================
+    - name: Playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    
+    - name: Print playbook execution time
+      debug:
+        msg: "Backup and restore playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+  
+  post_tasks:
+    - name: Run command module to find python version
+      command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local

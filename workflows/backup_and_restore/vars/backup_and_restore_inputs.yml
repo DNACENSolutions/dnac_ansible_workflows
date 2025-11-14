@@ -1,0 +1,104 @@
+---
+# ============================================================================
+# Cisco Catalyst Center Backup and Restore Configuration
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yml \
+#     workflows/backup_and_restore/playbook/backup_and_restore_playbook.yml \
+#     --extra-vars VARS_FILE_PATH=../vars/backup_and_restore_inputs.yml
+#
+# ============================================================================
+
+backup_restore_details:
+  # Configure NFS server for backup storage
+  - nfs_configuration:
+      - server_ip: 192.168.1.100
+        source_path: /backup/catalyst_center
+        nfs_port: 2049
+        nfs_version: nfs4
+        nfs_portmapper_port: 111
+
+    # Configure backup storage with encryption and retention
+    backup_storage_configuration:
+      - server_type: NFS
+        nfs_details:
+          server_ip: 192.168.1.100
+          source_path: /backup/catalyst_center
+          nfs_port: 2049
+          nfs_version: nfs4
+          nfs_portmapper_port: 111
+        data_retention_period: 30
+        encryption_passphrase: "YourSecurePassphrase123!"
+
+    # Create backup with exact name (idempotent)
+    backup:
+      - name: WEEKLY_BACKUP
+        scope: CISCO_DNA_DATA_WITH_ASSURANCE
+        generate_new_backup: false
+
+    # Restore from backup (uncomment when needed)
+    # restore_operations:
+    #   - name: WEEKLY_BACKUP
+    #     encryption_passphrase: "YourSecurePassphrase123!"
+
+# ============================================================================
+# Additional Examples
+# ============================================================================
+
+# Create backup with timestamp (always creates new)
+# backup_restore_details:
+#   - backup:
+#       - name: DAILY_BACKUP
+#         scope: CISCO_DNA_DATA_WITH_ASSURANCE
+#         generate_new_backup: true
+
+# NFS configuration only
+# backup_restore_details:
+#   - nfs_configuration:
+#       - server_ip: 172.27.17.90
+#         source_path: /home/nfsshare/backups
+
+# Backup storage configuration only
+# backup_restore_details:
+#   - backup_storage_configuration:
+#       - server_type: NFS
+#         nfs_details:
+#           server_ip: 192.168.1.100
+#           source_path: /backup/catalyst_center
+#         data_retention_period: 51
+#         encryption_passphrase: "Enterprise@Backup2024"
+
+# Multiple NFS servers for redundancy
+# backup_restore_details:
+#   - nfs_configuration:
+#       - server_ip: 192.168.1.100
+#         source_path: /backup/primary
+#       - server_ip: 192.168.1.101
+#         source_path: /backup/secondary
+
+# Complete workflow (NFS + Storage + Backup)
+# backup_restore_details:
+#   - nfs_configuration:
+#       - server_ip: 192.168.1.100
+#         source_path: /backup/enterprise
+#     backup_storage_configuration:
+#       - server_type: NFS
+#         nfs_details:
+#           server_ip: 192.168.1.100
+#           source_path: /backup/enterprise
+#         data_retention_period: 60
+#         encryption_passphrase: "Enterprise@Backup2024"
+#     backup:
+#       - name: ENTERPRISE_BACKUP
+#         scope: CISCO_DNA_DATA_WITH_ASSURANCE
+#         generate_new_backup: true
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - Backup names must start with a letter (A-Z, a-z)
+# - Data retention period: 3-60 days
+# - Backup scope WITH_ASSURANCE: ~10-15 GB, WITHOUT_ASSURANCE: ~5-8 GB
+# - generate_new_backup=true appends timestamp (YYYYMMDD_HHMMSS IST)
+# - Restore requires same encryption passphrase used during backup
