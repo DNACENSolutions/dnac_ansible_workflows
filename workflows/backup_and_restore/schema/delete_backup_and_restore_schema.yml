@@ -1,0 +1,100 @@
+# Catalyst Center Backup Deletion Schema
+# ======================================
+#
+# This schema defines the configuration structure for deleting backups
+# from Cisco Catalyst Center using the backup_and_restore_workflow_manager module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# This schema is used with state=deleted in the playbook to remove backups.
+# It supports three deletion strategies:
+# 1. Delete specific backup by exact name
+# 2. Delete backups based on retention policy (name prefix + days)
+# 3. Delete all backups (use with extreme caution)
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for backup deletion operations.
+# Must be used with delete_backup_playbook.yml (state=deleted).
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# BACKUP DELETION SECTION:
+# -----------------------
+# backup_restore_details:
+#   - backup:
+#       - name: Backup name or prefix for deletion (required)
+#       - delete_all_backup: Delete all backups (optional, default: false)
+#       - backup_retention_days: Delete backups older than N days (optional)
+#
+# DELETION STRATEGIES:
+# -------------------
+# 1. DELETE SPECIFIC BACKUP BY NAME:
+#    - Provide exact backup name
+#    - Only that specific backup will be deleted
+#    Example:
+#      backup:
+#        - name: DAILY_BACKUP_20241230_143052
+#
+# 2. DELETE BY RETENTION POLICY:
+#    - Provide name prefix and backup_retention_days
+#    - Deletes all backups matching prefix older than specified days
+#    Example:
+#      backup:
+#        - name: DAILY_BACKUP
+#          backup_retention_days: 7
+#    This deletes all backups with "DAILY_BACKUP" prefix created more than 7 days ago
+#
+# 3. DELETE ALL BACKUPS:
+#    - Set delete_all_backup to true
+#    - Removes ALL backups from Catalyst Center
+#    - Use with extreme caution - irreversible operation
+#    Example:
+#      backup:
+#        - name: ANY_NAME
+#          delete_all_backup: true
+#
+# IMPORTANT NOTES:
+# ---------------
+# - delete_all_backup takes precedence over other deletion methods
+# - When using backup_retention_days, name is used as a prefix filter
+# - Without backup_retention_days, name must be exact match
+# - All deletion operations are IRREVERSIBLE
+# - Backup name must begin with an alphabet and can contain letters, digits,
+#   and special characters: @, _, -, space, and #
+#
+# EXAMPLES:
+# --------
+# See the vars/ directory for example configuration files:
+# - delete_backup_by_name_inputs.yml
+# - delete_backup_retention_inputs.yml
+# - delete_all_backups_inputs.yml
+
+backup_restore_details: list(include('backup_delete_config'), min=1, max=100, required=True)
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False)
+---
+backup_delete_config:
+  backup: list(include('backup_delete_type'), min=1, required=True)
+
+backup_delete_type:
+  name: str(required=True)
+  delete_all_backup: bool(required=False)
+  backup_retention_days: int(required=False, min=1)
