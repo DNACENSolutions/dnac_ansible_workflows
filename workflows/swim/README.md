@@ -166,6 +166,46 @@ Distribute the image to the device. In the playbook, we can have two types for d
   UI action (includes distribute and activate):
 ![alt text](./images/distribute-activate_filter.png)
 
+  ### c. Distribute & Activate without specifying image name (new enhancement)
+  Automatically uses Golden Image tagged in Catalyst Center. It will satisfy the intersection of the specifications from `image_distribution_details` and `tagging_details`.
+  ```yaml
+  swim_details:
+    ...
+    distribute_images:
+      - image_distribution_details:
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+  ```
+
+  ### d. Support sub-package upgrades (new enhancement)
+  Allows for a modular upgrade with the main image and additional packages.
+  This will facilitate the conversion of the Switch to a Wireless Switch (Fiab device) by enabling the WLC option in the fabric (Embedded Wireless LAN Controller - WC role).
+
+  *Note: Before we can enable the WLC option in the fabric, we need to distribute and activate the 9800 software images to these devices.
+  The sub-package must correspond to the base image in terms of version to enable the upgrade.
+  Also need to tag the corresponding golden image. Here, only need to tag the golden base image, and the accompanying sub-package will also be considered to be included in the golden tag.*
+
+  ```yaml
+  swim_details:
+    ...
+    distribute_images:
+      - image_distribution_details:
+          image_name: cat9k_iosxe.17.12.01.SPA.bin
+          sub_package_images:
+            - C9800-SW-iosxe-wlc.17.12.01.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+  ```
+  ![alt text](./images/base_and_sub_image.png)
+
+  **Note:**
+  - We also can only need to provide the base image, or can choose not to provide both the base image and sub-package, and it can still upgrade the image using the image from the golden tag, include base and sub-package image (specifically for the case where `the device to be upgraded is currently running both the base and sub-package images`.)
+  - In the case where `the device to be upgraded is currently running only the base image`, we need provide both the base image and the corresponding sub-package so that the API can perform the upgrade accurately.
+
 4. ## Activate
 Activate the image to the device after successful distribution. In the playbook, we can have two types for activation: activate to a specific device (device_e2e) and activate to multiple devices in parallel using device role and site filters (filter_e2e).
 
@@ -207,6 +247,54 @@ Activate the image to the device after successful distribution. In the playbook,
   ```
   UI action (includes distribute and activate):
   ![alt text](./images/distribute-activate_filter.png)
+
+  ### c. Distribute & Activate without specifying image name (new enhancement)
+  Automatically uses Golden Image tagged in Catalyst Center. It will satisfy the intersection of the specifications from `image_activation_details` and `tagging_details`.
+  ```yaml
+  swim_details:
+    ...
+    activate_images:
+      - image_activation_details:
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+          activate_lower_image_version: true
+          distribute_if_needed: true
+          schedule_validate: false
+          device_upgrade_mode: currentlyExists
+  ```
+
+  ### d. Support sub-package upgrades (new enhancement)
+  Allows for a modular upgrade with the main image and additional packages.
+  This will facilitate the conversion of the Switch to a Wireless Switch (Fiab device) by enabling the WLC option in the fabric (Embedded Wireless LAN Controller - WC role).
+
+  *Note: Before we can enable the WLC option in the fabric, we need to distribute and activate the 9800 software images to these devices.
+  The sub-package must correspond to the base image in terms of version to enable the upgrade.
+  Also need to tag the corresponding golden image. Here, only need to tag the golden base image, and the accompanying sub-package will also be considered to be included in the golden tag.*
+
+  ```yaml
+  swim_details:
+    ...
+    activate_images:
+      - image_activation_details:
+          image_name: cat9k_iosxe.17.12.01.SPA.bin
+          sub_package_images:
+            - C9800-SW-iosxe-wlc.17.12.01.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+          activate_lower_image_version: true
+          distribute_if_needed: true
+          schedule_validate: false
+          device_upgrade_mode: currentlyExists
+  ```
+  ![alt text](./images/base_and_sub_image.png)
+
+  **Note:**
+  - We also can only need to provide the base image, or can choose not to provide both the base image and sub-package, and it can still upgrade the image using the image from the golden tag, include base and sub-package image (specifically for the case where `the device to be upgraded is currently running both the base and sub-package images`.)
+  - In the case where `the device to be upgraded is currently running only the base image`, we need provide both the base image and the corresponding sub-package so that the API can perform the upgrade accurately.
 
 5. ## All steps are specified in one step
 The software image (SWIM) can be updated on the device in a single run by combining all the steps (import, tag, distribute, activate) into one input.
@@ -268,8 +356,8 @@ The software image (SWIM) can be updated on the device in a single run by combin
 
 ```yaml
 python: 3.12.0
-dnac_version: 2.3.7.6
+dnac_version: 3.1.5
 ansible: 9.9.0
-dnacentersdk: 2.8.6
-cisco.dnac: 6.30.2
+dnacentersdk: 2.10.4
+cisco.dnac: 6.42.0
 ```
