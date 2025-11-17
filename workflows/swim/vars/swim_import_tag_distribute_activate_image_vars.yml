@@ -48,7 +48,7 @@ swim_details:
   # List of images to be distributed to the devices
   distribute_images:
     - image_distribution_details:
-        image_name: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
+        # image_name: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
         device_hostname: null
         device_mac_address: null
         device_ip_address: null
@@ -78,7 +78,7 @@ swim_details:
         device_serial_number: null
         device_upgrade_mode: currentlyExists
         distribute_if_needed: true
-        image_name: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
+        # image_name: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
         schedule_validate: false
         site_name: Global/USA/SAN JOSE/BLD23
     - image_activation_details:
