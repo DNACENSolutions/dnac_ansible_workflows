@@ -1,0 +1,160 @@
+---
+# Fabric Devices Info Input Configuration
+# This file contains the input parameters for retrieving fabric device information from Cisco Catalyst Center
+# The workflow retrieves comprehensive information about fabric devices based on filtering criteria
+
+# Fabric Device Info Details
+# This section defines the fabric device query parameters for information retrieval
+fabric_device_info_details:
+  # Example 1: Retrieve all information for specific fabric devices using multiple identifiers
+  - fabric_devices:
+      - fabric_site_hierarchy: "Global/USA/San Jose/Building23/Floor1"
+        fabric_device_role: "CONTROL_PLANE_NODE"
+        device_identifier:
+          - ip_address:
+              - "204.1.2.2"
+              - "204.1.2.3"
+          - serial_number:
+              - "FJC272121AG"
+              - "FJC272121AH"
+          - hostname:
+              - "SJ-CP-9300.cisco.local"
+              - "SJ-CP-9300-2.cisco.local"
+        timeout: 120
+        retries: 3
+        interval: 10
+        requested_info:
+          - fabric_info
+          - handoff_info
+          - onboarding_info
+          - connected_devices_info
+          - device_health_info
+          - device_issues_info
+        output_file_info:
+          file_path: "/tmp/fabric_devices/control_plane_info"
+          file_format: "yaml"
+          file_mode: "w"
+          timestamp: true
+
+  # Example 2: Retrieve specific information for border nodes using IP range
+  - fabric_devices:
+      - fabric_site_hierarchy: "Global/USA/San Jose/Building23"
+        fabric_device_role: "BORDER_NODE"
+        device_identifier:
+          - ip_address_range: "192.168.1.1-192.168.1.50"
+        timeout: 180
+        retries: 5
+        interval: 15
+        requested_info:
+          - fabric_info
+          - handoff_info
+        output_file_info:
+          file_path: "/tmp/fabric_devices/border_node_handoffs"
+          file_format: "json"
+          file_mode: "a"
+          timestamp: true
+
+  # Example 3: Retrieve all information for all fabric devices in a site (no device_identifier filter)
+  - fabric_devices:
+      - fabric_site_hierarchy: "Global/USA/New York/NY_BLD1"
+        timeout: 150
+        retries: 3
+        interval: 10
+        # No requested_info specified - retrieves all available information
+        output_file_info:
+          file_path: "/tmp/fabric_devices/ny_all_devices"
+          file_format: "yaml"
+          file_mode: "w"
+          timestamp: false
+
+  # Example 4: Retrieve edge node health and issues only
+  - fabric_devices:
+      - fabric_site_hierarchy: "Global/USA/Austin/Building5"
+        fabric_device_role: "EDGE_NODE"
+        device_identifier:
+          - ip_address:
+              - "10.10.20.5"
+              - "10.10.20.6"
+        timeout: 90
+        retries: 2
+        interval: 5
+        requested_info:
+          - device_health_info
+          - device_issues_info
+
+  # Example 5: Retrieve wireless controller onboarding and connected device information
+  - fabric_devices:
+      - fabric_site_hierarchy: "Global/USA/San Francisco/SF_Campus"
+        fabric_device_role: "WIRELESS_CONTROLLER_NODE"
+        device_identifier:
+          - hostname:
+              - "WLC-9800-1.cisco.local"
+              - "WLC-9800-2.cisco.local"
+        timeout: 200
+        retries: 4
+        interval: 20
+        requested_info:
+          - onboarding_info
+          - connected_devices_info
+        output_file_info:
+          file_path: "/tmp/fabric_devices/wireless_controllers"
+          file_format: "json"
+          file_mode: "w"
+          timestamp: true
+
+  # Example 6: Retrieve extended node information using serial numbers
+  - fabric_devices:
+      - fabric_site_hierarchy: "Global/Europe/London/LDN_Office"
+        fabric_device_role: "EXTENDED_NODE"
+        device_identifier:
+          - serial_number:
+              - "FCW2345A0B1"
+              - "FCW2345A0B2"
+        timeout: 120
+        retries: 3
+        interval: 10
+        requested_info:
+          - fabric_info
+          - device_health_info
+
+  # Example 7: Retrieve multiple fabric device roles in the same site
+  - fabric_devices:
+      - fabric_site_hierarchy: "Global/APAC/Singapore/SG_DC"
+        fabric_device_role: "BORDER_NODE"
+        timeout: 150
+        retries: 3
+        interval: 10
+        requested_info:
+          - fabric_info
+          - handoff_info
+        output_file_info:
+          file_path: "/tmp/fabric_devices/singapore_borders"
+          file_format: "yaml"
+          file_mode: "w"
+          timestamp: true
+
+      - fabric_site_hierarchy: "Global/APAC/Singapore/SG_DC"
+        fabric_device_role: "CONTROL_PLANE_NODE"
+        timeout: 150
+        retries: 3
+        interval: 10
+        requested_info:
+          - fabric_info
+          - connected_devices_info
+        output_file_info:
+          file_path: "/tmp/fabric_devices/singapore_control_plane"
+          file_format: "yaml"
+          file_mode: "a"
+          timestamp: true
+
+# Notes:
+# 1. fabric_site_hierarchy is mandatory and must be an existing SDA fabric site
+# 2. fabric_device_role is optional - if omitted, all fabric devices in the site are included
+# 3. device_identifier is optional - if omitted, all fabric devices matching the role filter are processed
+# 4. ip_address and ip_address_range are mutually exclusive - use only one per device_identifier entry
+# 5. timeout default is 120 seconds, retries default is 3, interval default is 10 seconds
+# 6. requested_info can include any combination of the 6 information types, or be omitted to retrieve all
+# 7. output_file_info is optional - if omitted, results are only returned in Ansible module output
+# 8. File extension (.json or .yaml) is automatically appended based on file_format setting
+# 9. Multiple device_identifier entries can target different devices with different identification methods
+# 10. When multiple parameters (ip_address, hostname, serial_number) are in the same entry, they must refer to the same device
