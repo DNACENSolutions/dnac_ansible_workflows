@@ -1,0 +1,81 @@
+# Fabric Device Info Schema
+# This schema validates the input parameters for fabric device information retrieval workflow
+#
+# Main Parameters:
+#   fabric_device_info_details: Top-level list containing fabric device query configurations
+#
+# Fabric Device Query Parameters:
+#   fabric_devices: List of fabric device filtering criteria and information retrieval settings
+#
+# Fabric Device Parameters:
+#   fabric_site_hierarchy: (Required) Hierarchical path of the fabric site (e.g., "Global/Region/Building/Floor")
+#   fabric_device_role: (Optional) Filter by fabric device role
+#     - CONTROL_PLANE_NODE: SDA control plane devices managing fabric overlay
+#     - BORDER_NODE: Fabric border devices connecting to external networks
+#     - EDGE_NODE: Fabric edge devices connecting endpoints
+#     - EXTENDED_NODE: Fabric extended nodes for specific deployment scenarios
+#     - WIRELESS_CONTROLLER_NODE: Wireless controllers in fabric deployments
+#
+# Device Identifier Parameters (Optional):
+#   device_identifier: List of device identification criteria for granular filtering
+#     - ip_address: List of management IP addresses (mutually exclusive with ip_address_range)
+#     - ip_address_range: IP address range in format "start_ip-end_ip" (mutually exclusive with ip_address)
+#     - serial_number: List of device serial numbers
+#     - hostname: List of device hostnames
+#
+# Retry and Timeout Parameters (Optional):
+#   timeout: Maximum time in seconds to wait for operations (1-3600, default: 120)
+#   retries: Number of retry attempts for failed operations (0-10, default: 3)
+#   interval: Time in seconds between retry attempts (1-300, default: 10)
+#
+# Information Retrieval Parameters (Optional):
+#   requested_info: List of fabric device information types to retrieve (if omitted, retrieves all)
+#     - fabric_info: Fabric configuration details, device roles, and fabric site associations
+#     - handoff_info: Layer 2/3 handoff configurations for border and control plane nodes
+#     - onboarding_info: Device provisioning status, port assignments, and SSID details
+#     - connected_devices_info: Neighbor device information via CDP/LLDP discovery protocols
+#     - device_health_info: Health metrics including CPU, memory, temperature, and performance
+#     - device_issues_info: Active alerts, issues, and problems detected on fabric devices
+#
+# Output File Parameters (Optional):
+#   output_file_info: Controls file output generation for retrieval results
+#     - file_path: (Required if output_file_info specified) Absolute path without file extension
+#     - file_format: Output format - 'json' or 'yaml' (default: yaml)
+#     - file_mode: File writing mode - 'w' (overwrite) or 'a' (append) (default: w)
+#     - timestamp: Include timestamp in output file (default: false)
+#
+# Notes:
+#   - fabric_site_hierarchy is mandatory and must reference an existing SDA fabric site
+#   - device_identifier parameters are optional - if omitted, all fabric devices in the site are processed
+#   - ip_address and ip_address_range are mutually exclusive within the same device_identifier entry
+#   - Multiple device_identifier entries can be used to target different devices with different methods
+#   - File extension (.json or .yaml) is automatically appended based on file_format
+#   - Directory structure for file_path will be created automatically if it does not exist
+
+fabric_device_info_details: list(include('fabric_device_query'), required=True)
+
+---
+fabric_device_query:
+  fabric_devices: list(include('fabric_device_type'), required=True)
+
+fabric_device_type:
+  fabric_site_hierarchy: str(required=True)
+  fabric_device_role: enum('CONTROL_PLANE_NODE', 'BORDER_NODE', 'EDGE_NODE', 'EXTENDED_NODE', 'WIRELESS_CONTROLLER_NODE', required=False)
+  device_identifier: list(include('device_id_type'), required=False)
+  timeout: int(min=1, max=3600, required=False)
+  retries: int(min=0, max=10, required=False)
+  interval: int(min=1, max=300, required=False)
+  requested_info: list(enum('fabric_info', 'handoff_info', 'onboarding_info', 'connected_devices_info', 'device_health_info', 'device_issues_info'), required=False)
+  output_file_info: include('output_file_type', required=False)
+
+device_id_type:
+  ip_address: list(str(), required=False)
+  ip_address_range: str(required=False)
+  serial_number: list(str(), required=False)
+  hostname: list(str(), required=False)
+
+output_file_type:
+  file_path: str(required=True)
+  file_format: enum('json', 'yaml', required=False)
+  file_mode: enum('w', 'a', required=False)
+  timestamp: bool(required=False)
