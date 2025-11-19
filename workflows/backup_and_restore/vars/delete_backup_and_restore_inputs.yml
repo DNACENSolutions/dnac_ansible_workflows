@@ -11,53 +11,6 @@
 # WARNING: All deletion operations are IRREVERSIBLE
 # ============================================================================
 
-backup_restore_details:
-  # Delete specific backup by exact name
-  - backup:
-      - name: BACKUP24_07
-
-# ============================================================================
-# Deletion Examples
-# ============================================================================
-
-# Delete backups by retention policy with name prefix
-# Deletes all backups starting with "DAILY_BACKUP" older than 7 days
-# backup_restore_details:
-#   - backup:
-#       - name: DAILY_BACKUP
-#         backup_retention_days: 7
-
-# Delete all backups by retention policy (no name filter)
-# Deletes ALL backups older than 30 days
-# backup_restore_details:
-#   - backup:
-#       - backup_retention_days: 30
-
-# Delete all backups (EXTREME CAUTION)
-# Deletes ALL backups from Catalyst Center
-# backup_restore_details:
-#   - backup:
-#       - delete_all_backup: true
-
-# Delete multiple specific backups
-# backup_restore_details:
-#   - backup:
-#       - name: LEGACY_BACKUP_2023
-#       - name: OLD_BACKUP_20231215
-#       - name: TEMP_BACKUP_TEST
-
-# Delete weekly backups older than 14 days
-# backup_restore_details:
-#   - backup:
-#       - name: WEEKLY_BACKUP
-#         backup_retention_days: 14
-
-# Delete NFS configuration
-# backup_restore_details:
-#   - nfs_configuration:
-#       - server_ip: 192.168.1.100
-#         source_path: /backup/catalyst_center
-
 # ============================================================================
 # Deletion Behavior
 # ============================================================================
@@ -74,7 +27,48 @@ backup_restore_details:
 #
 # delete_all_backup: true
 #   - Deletes ALL backups immediately (most destructive)
-#
+
+
+# ============================================================================
+# Deletion Examples
+# ============================================================================
+
+# Delete specific backup by exact name
+backup_restore_details:  
+  - backup:
+      - name: BACKUP24_07
+
+# Delete backups by retention policy with name prefix
+# Deletes all backups starting with "DAILY_BACKUP" older than 7 days
+# backup_restore_details:
+#   - backup:
+#       - name: DAILY_BACKUP
+#         backup_retention_days: 7
+
+# # Delete all backups by retention policy (no name filter)
+# # Deletes ALL backups older than 30 days
+# backup_restore_details:
+#   - backup:
+#       - backup_retention_days: 30
+
+# # Delete all backups (EXTREME CAUTION)
+# # Deletes ALL backups from Catalyst Center
+# backup_restore_details:
+#   - backup:
+#       - delete_all_backup: true
+
+# # Delete weekly backups older than 14 days
+# backup_restore_details:
+#   - backup:
+#       - name: WEEKLY_BACKUP
+#         backup_retention_days: 14
+
+# # Delete NFS configuration
+# backup_restore_details:
+#   - nfs_configuration:
+#       - server_ip: 192.168.1.100
+#         source_path: /backup/catalyst_center
+
 # ============================================================================
 # Notes
 # ============================================================================

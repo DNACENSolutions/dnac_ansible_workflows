@@ -98,7 +98,7 @@ backup_restore_details:
 # Notes
 # ============================================================================
 # - Backup names must start with a letter (A-Z, a-z)
-# - Data retention period: 3-60 days
+# - Backup retention period: Number of backups to retain (3-60)
 # - Backup scope WITH_ASSURANCE: ~10-15 GB, WITHOUT_ASSURANCE: ~5-8 GB
 # - generate_new_backup=true appends timestamp (YYYYMMDD_HHMMSS IST)
 # - Restore requires same encryption passphrase used during backup
