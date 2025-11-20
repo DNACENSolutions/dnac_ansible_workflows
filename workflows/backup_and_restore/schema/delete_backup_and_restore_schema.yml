@@ -90,8 +90,13 @@ catalyst_center_config_verify: bool(required=False)
 ---
 backup_delete_config:
   backup: list(include('backup_delete_type'), min=1, required=True)
+  nfs_configuration: list(include('nfs_delete_type'), required=True)
 
 backup_delete_type:
   name: str(required=True)
   delete_all_backup: bool(required=False)
   backup_retention_days: int(required=False, min=1)
+
+nfs_delete_type:
+  server_ip: str(required=True)
+  source_path: str(required=True)

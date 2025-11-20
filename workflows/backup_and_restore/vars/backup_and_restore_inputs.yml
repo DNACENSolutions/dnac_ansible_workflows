@@ -13,8 +13,8 @@
 backup_restore_details:
   # Configure NFS server for backup storage
   - nfs_configuration:
-      - server_ip: 192.168.1.100
-        source_path: /backup/catalyst_center
+      - server_ip: 172.27.17.90
+        source_path:  /home/nfsshare/backups/TB23
         nfs_port: 2049
         nfs_version: nfs4
         nfs_portmapper_port: 111
@@ -23,8 +23,8 @@ backup_restore_details:
     backup_storage_configuration:
       - server_type: NFS
         nfs_details:
-          server_ip: 192.168.1.100
-          source_path: /backup/catalyst_center
+          server_ip: 172.27.17.90
+          source_path:  /home/nfsshare/backups/TB23
           nfs_port: 2049
           nfs_version: nfs4
           nfs_portmapper_port: 111
@@ -33,14 +33,14 @@ backup_restore_details:
 
     # Create backup with exact name (idempotent)
     backup:
-      - name: WEEKLY_BACKUP
+      - name: BACKUP1
         scope: CISCO_DNA_DATA_WITH_ASSURANCE
         generate_new_backup: false
 
     # Restore from backup (uncomment when needed)
-    # restore_operations:
-    #   - name: WEEKLY_BACKUP
-    #     encryption_passphrase: "YourSecurePassphrase123!"
+    restore_operations:
+      - name: BACKUP1
+        encryption_passphrase: "YourSecurePassphrase123!"
 
 # ============================================================================
 # Additional Examples
