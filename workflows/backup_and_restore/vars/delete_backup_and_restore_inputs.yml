@@ -36,7 +36,7 @@
 # Delete specific backup by exact name
 backup_restore_details:  
   - backup:
-      - name: BACKUP24_07
+      - name: BACKUP1
 
 # Delete backups by retention policy with name prefix
 # Deletes all backups starting with "DAILY_BACKUP" older than 7 days
@@ -63,11 +63,11 @@ backup_restore_details:
 #       - name: WEEKLY_BACKUP
 #         backup_retention_days: 14
 
-# # Delete NFS configuration
-# backup_restore_details:
-#   - nfs_configuration:
-#       - server_ip: 192.168.1.100
-#         source_path: /backup/catalyst_center
+# Delete NFS configuration
+#backup_restore_details:
+    nfs_configuration:
+      - server_ip: 172.27.17.90
+        source_path: /home/nfsshare/backups/TB23
 
 # ============================================================================
 # Notes

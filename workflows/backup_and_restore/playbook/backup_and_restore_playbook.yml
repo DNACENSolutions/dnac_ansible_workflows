@@ -93,9 +93,13 @@
         var: backup_creation_result
       when: backup_creation_result is defined
 
-    # =========================================================================
-    # Restore from Backup
-    # =========================================================================
+    - name: Wait for sometime after backup creation
+      ansible.builtin.pause:
+        seconds: 120
+
+    #=========================================================================
+    #Restore from Backup
+    #=========================================================================
     - name: Restore Cisco Catalyst Center from backup
       cisco.dnac.backup_and_restore_workflow_manager:
         <<: *catalyst_center_login
