@@ -41,6 +41,8 @@ full_upload_type:
     device_family_name: str(required=False)
     device_serial_number: str(required=False)
     sub_package_images: list(str(), required=False)
+    image_distribution_timeout: int(required=False, default=1800)
+    convert_to_wlc: bool(required=False, default=False)
 
   image_activation_details:
     activate_lower_image_version: bool(required=False)
@@ -59,6 +61,8 @@ full_upload_type:
     schedule_validate: bool(required=False)
     site_name: str(required=False)
     sub_package_images: list(str(), required=False)
+    image_activation_timeout: int(required=False, default=1800)
+    convert_to_wlc: bool(required=False, default=False)
 
 import_images_type:
   import_images: list(include('import_image_details_type'))
@@ -118,6 +122,8 @@ distribute_images_type:
     device_serial_number: str(required=False)
     device_series_name: str(required=False)
     sub_package_images: list(str(), required=False)
+    image_distribution_timeout: int(required=False, default=1800)
+    convert_to_wlc: bool(required=False, default=False)
 
 activate_images_type:
   image_activation_details:
@@ -137,3 +143,5 @@ activate_images_type:
     schedule_validate: bool(required=False)
     site_name: str(required=False)
     sub_package_images: list(str(), required=False)
+    image_activation_timeout: int(required=False, default=1800)
+    convert_to_wlc: bool(required=False, default=False)
