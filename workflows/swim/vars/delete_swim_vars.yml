@@ -1,0 +1,8 @@
+---
+#Select Catalyst Cennter version, this one overwrite the default version from host file
+catalyst_center_version: 2.3.7.9
+swim_details:
+  delete_images:
+    - image_name:
+        - cat9k_iosxe.17.15.03.SPA.bin
+        - C9800-L-universalk9_wlc.17.17.01.SPA.bin
