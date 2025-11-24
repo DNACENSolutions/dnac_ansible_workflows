@@ -19,7 +19,7 @@ The SWIM protocol provides a standardized way to manage and upgrade software ima
 * **Software Image:** The desired Cisco IOS XE software image file (.bin).
 
 ## Demo Video
-[![Device Software Upgrade Demo](./swimdemo.png)](http://3.136.0.140/iac_demos/swim/SWIMDEMO.mp4)
+[![Device Software Upgrade Demo](./images/swimdemo.png)](http://3.136.0.140/iac_demos/swim/SWIMDEMO.mp4)
 
 
 # Detailed steps to perform
@@ -110,6 +110,28 @@ We have three ways to import images into Catalyst Center:
   ![alt text](./images/cco_image_suggest.png)
   For example, with the above images, we can see some CCO images that are proposed on Catalyst Center (cat9k_iosxe.17.06.08.SPA.bin, cat9k_iosxe.17.09.05.SPA.bin, cat9k_iosxe.17.09.06a.SPA.bin, ...). We can only install CCO type with those proposed images.
 
+  ### d. Delete image in Cisco Catalyst Center
+  After the image is imported to DNAC using the above methods (local, URL, CCO), it will exist on the Cisco Catalyst Center. We can delete it through the following playbook.
+  ![alt text](./images/imported_image.png)
+  + Example input config (state: "deleted"):
+  ```yaml
+  swim_details:
+    delete_images:
+      - image_name:
+          - cat9k_iosxe.17.15.03.SPA.bin
+          - C9800-L-universalk9_wlc.17.17.01.SPA.bin
+  ```
+  + Playbook return:
+  ```yaml
+  msg: 'Successfully deleted image(s): ''cat9k_iosxe.17.15.03.SPA.bin'', ''C9800-L-universalk9_wlc.17.17.01.SPA.bin''.'
+  response: 'Successfully deleted image(s): ''cat9k_iosxe.17.15.03.SPA.bin'', ''C9800-L-universalk9_wlc.17.17.01.SPA.bin''.'
+  status: success
+  ```
+  + The UI display:
+
+  ![alt text](./images/deleted_image.png)
+
+  **NOTE:The API for deleting images is only supported from DNAC version 2.3.7.9 and above.**
 
 2. ## Tag/untag golden image:
 Define and manage golden images that represent standard or preferred versions for your network devices.
@@ -166,6 +188,73 @@ Distribute the image to the device. In the playbook, we can have two types for d
   UI action (includes distribute and activate):
 ![alt text](./images/distribute-activate_filter.png)
 
+  ### c. Distribute & Activate without specifying image name (new enhancement)
+  Automatically uses Golden Image tagged in Catalyst Center. It will satisfy the intersection of the specifications from `image_distribution_details` and `tagging_details`.
+  ```yaml
+  swim_details:
+    ...
+    distribute_images:
+      - image_distribution_details:
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+  ```
+
+  ### d. Support sub-package upgrades (new enhancement)
+  Allows for a modular upgrade with the main image and additional packages.
+  This will facilitate the conversion of the Switch to a Wireless Switch (Fiab device) by enabling the WLC option in the fabric (Embedded Wireless LAN Controller - WC role).
+
+  *Note: Before we can enable the WLC option in the fabric, we need to distribute and activate the 9800 software images to these devices.
+  The sub-package must correspond to the base image in terms of version to enable the upgrade.
+  Also need to tag the corresponding golden image. Here, only need to tag the golden base image, and the accompanying sub-package will also be considered to be included in the golden tag.*
+
+  + Example input config:
+  ```yaml
+  swim_details:
+    ...
+    distribute_images:
+      - image_distribution_details:
+          image_name: cat9k_iosxe.17.12.01.SPA.bin
+          sub_package_images:
+            - C9800-SW-iosxe-wlc.17.12.01.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+  ```
+  + Playbook return:
+  ```yaml
+  msg: "Bulk image distribution completed successfully - 204.1.2.1."
+  response: "Bulk image distribution completed successfully - 204.1.2.1."
+  status: success
+  ```
+  + The UI display (include activation):
+  ![alt text](./images/base_and_sub_image.png)
+  ![alt text](./images/base_and_sub_image_1.png)
+
+  **Note:**
+  - We also can only need to provide the base image, or can choose not to provide both the base image and sub-package, and it can still upgrade the image using the image from the golden tag, include base and sub-package image (specifically for the case where `the device to be upgraded is currently running both the base and sub-package images`.)
+  - In the case where `the device to be upgraded is currently running only the base image`, if we want to `upgrade to both the new base and sub-package images` completely, we need provide both the base image and the corresponding sub-package so that the API can perform the upgrade accurately. For example:
+    + Current running: base image: cat9k_iosxe.17.12.01.SPA.bin
+    + Want to update: base image: cat9k_iosxe.17.15.01.SPA.bin and sub-package: C9800-SW-iosxe-wlc.17.15.01.SPA.bin
+  - In the case where `the device to be upgraded is currently running only the base image`, if we want to `upgrade only corresponding sub-package image for the base image`, we can providing only the sub-package for the update, but need to add the 'convert_to_wlc' parameter as True to ignore device compliance checks when activating the image, allowing the switch to WLC mode even if the device does not meet the requirements.
+    + Current running: base image: cat9k_iosxe.17.12.01.SPA.bin
+    + Want to update: sub-package: C9800-SW-iosxe-wlc.17.12.01.SPA.bin
+  ```yaml
+  swim_details:
+    ...
+    distribute_images:
+      - image_distribution_details:
+          sub_package_images:
+            - C9800-SW-iosxe-wlc.17.12.01.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+          convert_to_wlc: true
+  ```
+
 4. ## Activate
 Activate the image to the device after successful distribution. In the playbook, we can have two types for activation: activate to a specific device (device_e2e) and activate to multiple devices in parallel using device role and site filters (filter_e2e).
 
@@ -208,6 +297,85 @@ Activate the image to the device after successful distribution. In the playbook,
   UI action (includes distribute and activate):
   ![alt text](./images/distribute-activate_filter.png)
 
+  ### c. Distribute & Activate without specifying image name (new enhancement)
+  Automatically uses Golden Image tagged in Catalyst Center. It will satisfy the intersection of the specifications from `image_activation_details` and `tagging_details`.
+  ```yaml
+  swim_details:
+    ...
+    activate_images:
+      - image_activation_details:
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+          activate_lower_image_version: true
+          distribute_if_needed: true
+          schedule_validate: false
+          device_upgrade_mode: currentlyExists
+  ```
+
+  ### d. Support sub-package upgrades (new enhancement)
+  Allows for a modular upgrade with the main image and additional packages.
+  This will facilitate the conversion of the Switch to a Wireless Switch (Fiab device) by enabling the WLC option in the fabric (Embedded Wireless LAN Controller - WC role).
+
+  *Note: Before we can enable the WLC option in the fabric, we need to distribute and activate the 9800 software images to these devices.
+  The sub-package must correspond to the base image in terms of version to enable the upgrade.
+  Also need to tag the corresponding golden image. Here, only need to tag the golden base image, and the accompanying sub-package will also be considered to be included in the golden tag.*
+
+  + Example input config:
+  ```yaml
+  swim_details:
+    ...
+    activate_images:
+      - image_activation_details:
+          image_name: cat9k_iosxe.17.12.01.SPA.bin
+          sub_package_images:
+            - C9800-SW-iosxe-wlc.17.12.01.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+          activate_lower_image_version: true
+          distribute_if_needed: true
+          schedule_validate: false
+          device_upgrade_mode: currentlyExists
+  ```
+  + Playbook return:
+  ```yaml
+  msg: "All eligible images activated successfully on the devices [204.1.2.1]."
+  response: "All eligible images activated successfully on the devices [204.1.2.1]."
+  status: success
+  ```
+  + The UI display:
+  ![alt text](./images/base_and_sub_image.png)
+  ![alt text](./images/base_and_sub_image_1.png)
+
+  **Note:**
+  - We also can only need to provide the base image, or can choose not to provide both the base image and sub-package, and it can still upgrade the image using the image from the golden tag, include base and sub-package image (specifically for the case where `the device to be upgraded is currently running both the base and sub-package images`.)
+  - In the case where `the device to be upgraded is currently running only the base image`, if we want to `upgrade to both the new base and sub-package images` completely, we need provide both the base image and the corresponding sub-package so that the API can perform the upgrade accurately. For example:
+    + Current running: base image: cat9k_iosxe.17.12.01.SPA.bin
+    + Want to update: base image: cat9k_iosxe.17.15.01.SPA.bin and sub-package: C9800-SW-iosxe-wlc.17.15.01.SPA.bin
+  - In the case where `the device to be upgraded is currently running only the base image`, if we want to `upgrade only corresponding sub-package image for the base image`, we can providing only the sub-package for the update, but need to add the 'convert_to_wlc' parameter as True to ignore device compliance checks when activating the image, allowing the switch to WLC mode even if the device does not meet the requirements.
+    + Current running: base image: cat9k_iosxe.17.12.01.SPA.bin
+    + Want to update: sub-package: C9800-SW-iosxe-wlc.17.12.01.SPA.bin
+  ```yaml
+  swim_details:
+    ...
+    activate_images:
+      - image_activation_details:
+          sub_package_images:
+            - C9800-SW-iosxe-wlc.17.12.01.SPA.bin
+          device_role: ACCESS
+          site_name: Global/USA/SAN JOSE
+          device_family_name: Switches and Hubs
+          device_series_name: Cisco Catalyst 9300 Series Switches
+          activate_lower_image_version: true
+          distribute_if_needed: true
+          schedule_validate: false
+          device_upgrade_mode: currentlyExists
+          convert_to_wlc: true
+  ```
+
 5. ## All steps are specified in one step
 The software image (SWIM) can be updated on the device in a single run by combining all the steps (import, tag, distribute, activate) into one input.
 ```yaml
@@ -246,21 +414,41 @@ The software image (SWIM) can be updated on the device in a single run by combin
 
 # How to run
   1. ## Command to run
+  ### a. Include import/tag_untag/distribute/activate images (state = 'merged')
   Example command to run the swim playbook:
   ```bash
   ansible-playbook 
-    -i ./inventory/demo_lab/inventory_demo_lab.yml # refer to Catalyst Center to run
+    -i ./inventory/demo_lab/hosts.yml # refer to Catalyst Center to run
     ./workflows/swim/playbook/swim_workflow_playbook.yml # playbook will run this
     --extra-vars VARS_FILE_PATH=./../vars/swim_vars.yml # location of the input file for the playbook to execute
     -vvv # return detailed information about the message; the more 'v', more detailed
   ```
   
+  ### b. Include delete images (state = 'deleted')
+  Example command to run the swim playbook:
+  ```bash
+  ansible-playbook 
+    -i ./inventory/demo_lab/hosts.yml # refer to Catalyst Center to run
+    ./workflows/swim/playbook/delete_swim_workflow_playbook.yml # playbook will run this
+    --extra-vars VARS_FILE_PATH=./../vars/delete_swim_vars.yml # location of the input file for the playbook to execute
+    -vvv # return detailed information about the message; the more 'v', more detailed
+  ```
+
   2. ## Validate the schema input
+  ### a. Include import/tag_untag/distribute/activate images (state = 'merged')
   ```bash
     ./tools/validate.sh \
     -s workflows/swim/schema/swim_schema.yml \
     -d workflows/swim/vars/swim_import_tag_distribute_activate_image_vars.yml
   ```
+
+  ### b. Include delete images (state = 'deleted')
+  ```bash
+    ./tools/validate.sh \
+    -s workflows/swim/schema/delete_swim_schema.yml \
+    -d workflows/swim/vars/delete_swim_vars.yml
+  ```
+
 
 # Reference
 
@@ -268,8 +456,8 @@ The software image (SWIM) can be updated on the device in a single run by combin
 
 ```yaml
 python: 3.12.0
-dnac_version: 2.3.7.6
+dnac_version: 3.1.5
 ansible: 9.9.0
-dnacentersdk: 2.8.6
-cisco.dnac: 6.30.2
+dnacentersdk: 2.10.4
+cisco.dnac: 6.42.0
 ```
