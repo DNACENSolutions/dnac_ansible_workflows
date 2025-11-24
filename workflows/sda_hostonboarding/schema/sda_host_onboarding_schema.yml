@@ -296,7 +296,6 @@ catalyst_center_task_poll_interval: int(required=False, default=2)
 jinjatemplate: bool(required=False)
 jinjatemplate_file: str(required=False)
 sda_host_onboarding_details: list(include('sda_host_onboarding_details_type'), required=True, min=0, max=100)
----
 
 sda_host_onboarding_details_type:
   hostname: str(required=False)
@@ -308,29 +307,31 @@ sda_host_onboarding_details_type:
   device_collection_status_check: bool(required=False, default=True)
 
 port_assignment_details_type:
-  authentication_template_name: enum('No Authentication', 'Open Authentication', 'Closed Authentication', 'Low Impact', required=False)
-  connected_device_type: enum('TRUNKING_DEVICE', 'ACCESS_POINT', 'USER_DEVICE', required=False)
-  data_vlan_name: str(required=False)
-  interface_description: str(required=False)
   interface_name: str(required=True)
-  security_group_name: str(required=False)
+  connected_device_type: enum('TRUNKING_DEVICE', 'ACCESS_POINT', 'USER_DEVICE', required=True)
+  authentication_template_name: enum('No Authentication', 'Open Authentication', 'Closed Authentication', 'Low Impact', required=True)
+  data_vlan_name: str(required=False)
   voice_vlan_name: str(required=False)
+  security_group_name: str(required=False)
+  interface_description: str(required=False)
+  native_vlan_id: int(required=False, min=1, max=4094, default=1)
+  allowed_vlan_ranges: str(required=False, default='all')
 
 port_channel_details_type:
+  interface_names: list(str, required=True, min=1, max=100)
   connected_device_type: enum('TRUNK', 'EXTENDED_NODE', required=True)
-  interface_names: list(str, required=True, min=0, max=100)
+  protocol: enum('ON', 'LACP', 'PAGP', required=False)
   port_channel_description: str(required=False)
   port_channel_name: str(required=False)
-  protocol: enum('ON', 'LACP', 'PAGP', required=False)
+  native_vlan_id: int(required=False, min=1, max=4094, default=1)
+  allowed_vlan_ranges: str(required=False, default='all')
 
 wireless_ssid_details_type:
   vlan_name: str(required=True)
-  ssid_details: list(include('ssid_details_type'), required=True, min=0, max=100)
+  ssid_details: list(include('ssid_details_type'), required=False, min=0, max=100)
 
 ssid_details_type:
   ssid_name: str(required=True)
   security_group_name: str(required=False)
 
 # The Cisco Catalyst Center schema for the SD-Access Host Onboarding playbook.
-
-
