@@ -69,8 +69,10 @@ fabric_device_type:
   output_file_info: include('output_file_type', required=False)
 
 device_id_type:
+  # WARNING: ip_address and ip_address_range are mutually exclusive
+  # Specify EITHER ip_address OR ip_address_range, not both
   ip_address: list(str(), required=False)
-  ip_address_range: str(required=False)
+  ip_address_range: str(required=False)    # Format: "start_ip-end_ip"
   serial_number: list(str(), required=False)
   hostname: list(str(), required=False)
 
