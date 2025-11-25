@@ -1,6 +1,7 @@
 ---
 - name: Gather Fabric Device Information from Cisco Catalyst Center
   hosts: catalyst_center_hosts
+  connection: local
   gather_facts: false
   vars_files:
     - "{{ VARS_FILE_PATH }}"
@@ -38,6 +39,7 @@
       debug:
         msg:
           - "Fabric Device Info workflow completed"
-          - "Total devices queried: {{ result_fabric_device_info.response | length }}"
+          - "Total devices queried: {{ result_fabric_device_info.response[0]| regex_findall(\"'([^']+)'\") | length }}"
+          - "Total devices found: {{ result_fabric_device_info.response[0] }}"
           - "Status: {{ result_fabric_device_info.status }}"
       when: result_fabric_device_info.status == "success"
