@@ -159,6 +159,7 @@ wireless_nw_profiles_type:
   ap_zones: list(include('ap_zones_type'), required=False)
   onboarding_templates: list(str(), required=False)
   day_n_templates: list(str(), required=False)
+  feature_template_designs: list(include('feature_template_designs_type'), required=False)
   additional_interfaces: list(include('additional_interfaces_type'), required=False)
   
 
@@ -175,6 +176,11 @@ ap_zones_type:
   ap_zone_name: str(required=True)
   ssids: list(str(), required=True)
   rf_profile_name: str(required=True)
+
+feature_template_designs_type:
+  design_type: enum("AAA_RADIUS_ATTRIBUTES_CONFIGURATION", "ADVANCED_SSID_CONFIGURATION", "CLEANAIR_CONFIGURATION", "DOT11AX_CONFIGURATION", "DOT11BE_STATUS_CONFIGURATION", "EVENT_DRIVEN_RRM_CONFIGURATION", "FLEX_CONFIGURATION", "MULTICAST_CONFIGURATION", "RRM_FRA_CONFIGURATION", "RRM_GENERAL_CONFIGURATION", required=False)
+  feature_templates: list(str(), required=True)
+  applicability_ssids: list(str(), required=False, default=["All"])
 
 additional_interfaces_type:
   interface_name: str(required=True)
