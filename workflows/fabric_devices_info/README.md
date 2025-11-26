@@ -155,8 +155,8 @@ fabric_device_info_details:
 Validate your input file against the schema before running the playbook:
 
 ```bash
-cd dnac_ansible_workflows/workflows/fabric_devices_info/
-yamale -s schema/fabric_devices_info_schema.yml vars/fabric_devices_info_input.yml
+cd dnac_ansible_workflows/workflows/network_devices_info/
+yamale -s schema/network_devices_info_schema.yml vars/network_devices_info_input.yml
 ```
 
 If validation passes, you'll see:
