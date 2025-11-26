@@ -411,6 +411,279 @@ sda_host_onboarding_details:
 
 ---
 
+### 8. Bulk Port Assignment Operations (Trunk, User Device, and Access Point) - Large Scale Example
+
+This section demonstrates how to create, update, and delete large numbers of port assignments—including trunk ports, user device ports, and access point ports—on a single device using bulk operations.  
+Only trunking device ports support the `native_vlan_id` and VLAN range fields. User device and access point ports are shown with their respective parameters. These bulk patterns are designed for enterprise scale or mass changes.
+
+#### 8.1. Bulk Create Multiple Port Assignments (Mixed Types, Large Scale)
+
+```yaml
+---
+catalyst_center_version: 3.1.3.0
+sda_host_onboarding_details:
+  - ip_address: "204.1.2.70"
+    fabric_site_name_hierarchy: "Global/USA/San Jose"
+    port_assignments:
+      # Trunk ports
+      - interface_name: "TenGigabitEthernet1/0/2"
+        connected_device_type: "TRUNKING_DEVICE"
+        native_vlan_id: 100
+        authentication_template_name: "No Authentication"
+        interface_description: "Trunk port with VLAN restriction"
+      - interface_name: "TenGigabitEthernet1/0/3"
+        connected_device_type: "TRUNKING_DEVICE"
+        native_vlan_id: 101
+        allowed_vlan_ranges: "120-130,150"
+        authentication_template_name: "No Authentication"
+        interface_description: "Trunk port with VLAN restriction"
+      - interface_name: "TenGigabitEthernet1/0/4"
+        connected_device_type: "TRUNKING_DEVICE"
+        native_vlan_id: 102
+        allowed_vlan_ranges: "200-220,300-310"
+        authentication_template_name: "No Authentication"
+        interface_description: "Trunk port with VLAN restriction"
+      - interface_name: "TenGigabitEthernet1/0/5"
+        connected_device_type: "TRUNKING_DEVICE"
+        native_vlan_id: 103
+        allowed_vlan_ranges: "400-410"
+        authentication_template_name: "No Authentication"
+        interface_description: "Trunk port with isolated VLANs"
+      - interface_name: "TenGigabitEthernet1/0/6"
+        connected_device_type: "TRUNKING_DEVICE"
+        native_vlan_id: 104
+        allowed_vlan_ranges: "500"
+        authentication_template_name: "No Authentication"
+        interface_description: "Trunk port single VLAN"
+      - interface_name: "TenGigabitEthernet1/0/7"
+        connected_device_type: "TRUNKING_DEVICE"
+        native_vlan_id: 105
+        allowed_vlan_ranges: "600,700-702"
+        authentication_template_name: "No Authentication"
+        interface_description: "Trunk port for special apps"
+      # User device ports
+      - interface_name: "TenGigabitEthernet1/0/10"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "EMPLOYEEPOOL_SJ_VN"
+        authentication_template_name: "Closed Authentication"
+        interface_description: "User endpoint port 1"
+      - interface_name: "TenGigabitEthernet1/0/11"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "EMPLOYEEPOOL_SJ_VN"
+        voice_vlan_name: "VOICEPOOL_SJ_VN"
+        security_group_name: "Employees"
+        authentication_template_name: "Low Impact"
+        interface_description: "User endpoint port 2"
+      - interface_name: "TenGigabitEthernet1/0/12"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "GUESTPOOL_SJ_VN"
+        authentication_template_name: "Open Authentication"
+        interface_description: "Guest user port"
+      - interface_name: "TenGigabitEthernet1/0/13"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "CONTRACTORPOOL_SJ_VN"
+        interface_description: "Contractor port"
+      - interface_name: "TenGigabitEthernet1/0/14"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "IOTPOOL_SJ_VN"
+        interface_description: "IoT port"
+      # Access point ports
+      - interface_name: "TenGigabitEthernet1/0/20"
+        connected_device_type: "ACCESS_POINT"
+        data_vlan_name: "APPOOL_SJ_INFRA_VN"
+        authentication_template_name: "Low Impact"
+        interface_description: "AP port 1"
+      - interface_name: "TenGigabitEthernet1/0/21"
+        connected_device_type: "ACCESS_POINT"
+        data_vlan_name: "APPOOL_SJ_GUEST_VN"
+        authentication_template_name: "No Authentication"
+        interface_description: "AP port 2"
+      - interface_name: "TenGigabitEthernet1/0/22"
+        connected_device_type: "ACCESS_POINT"
+        data_vlan_name: "APPOOL_SJ_PUBLIC_VN"
+        authentication_template_name: "Closed Authentication"
+        interface_description: "AP port 3"
+```
+
+#### 8.2. Bulk Update Multiple Port Assignments (Mixed Types, Large Scale)
+
+```yaml
+---
+catalyst_center_version: 3.1.3.0
+sda_host_onboarding_details:
+  - ip_address: "204.1.2.70"
+    fabric_site_name_hierarchy: "Global/USA/San Jose"
+    port_assignments:
+      # Update trunk ports
+      - interface_name: "TenGigabitEthernet1/0/2"
+        connected_device_type: "TRUNKING_DEVICE"
+        native_vlan_id: 110
+        allowed_vlan_ranges: "150-160,170"
+        interface_description: "Updated trunk restriction"
+        authentication_template_name: "No Authentication"
+      - interface_name: "TenGigabitEthernet1/0/3"
+        connected_device_type: "TRUNKING_DEVICE"
+        native_vlan_id: 111
+        allowed_vlan_ranges: "180-190"
+        interface_description: "Updated trunk restriction"
+        authentication_template_name: "No Authentication"
+      - interface_name: "TenGigabitEthernet1/0/4"
+        connected_device_type: "TRUNKING_DEVICE"
+        native_vlan_id: 112
+        allowed_vlan_ranges: "300-320"
+        interface_description: "Updated trunk config"
+        authentication_template_name: "No Authentication"
+      # Update user device ports
+      - interface_name: "TenGigabitEthernet1/0/10"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "NEW_EMPLOYEEPOOL_SJ_VN"
+        interface_description: "Updated employee endpoint"
+        authentication_template_name: "Closed Authentication"
+      - interface_name: "TenGigabitEthernet1/0/11"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "NEW_EMPLOYEEPOOL_SJ_VN"
+        voice_vlan_name: "NEW_VOICEPOOL_SJ_VN"
+        authentication_template_name: "Low Impact"
+        interface_description: "Updated employee endpoint"
+      - interface_name: "TenGigabitEthernet1/0/12"
+        connected_device_type: "USER_DEVICE"
+        data_vlan_name: "NEW_GUESTPOOL_SJ_VN"
+        interface_description: "Updated guest port"
+        authentication_template_name: "Open Authentication"
+      # Update access point ports
+      - interface_name: "TenGigabitEthernet1/0/20"
+        connected_device_type: "ACCESS_POINT"
+        data_vlan_name: "NEW_APPOOL_SJ_INFRA_VN"
+        authentication_template_name: "Low Impact"
+        interface_description: "Updated AP port 1"
+      - interface_name: "TenGigabitEthernet1/0/21"
+        connected_device_type: "ACCESS_POINT"
+        data_vlan_name: "NEW_APPOOL_SJ_GUEST_VN"
+        authentication_template_name: "No Authentication"
+        interface_description: "Updated AP port 2"
+```
+
+#### 8.3. Bulk Delete Example for Multiple Port Assignments (Mixed Types, Large Scale)
+
+```yaml
+---
+catalyst_center_version: 3.1.3.0
+sda_host_onboarding_details:
+  - ip_address: "204.1.2.70"
+    fabric_site_name_hierarchy: "Global/USA/San Jose"
+    port_assignments:
+      # Delete all the trunk/user/AP ports above
+      - interface_name: "TenGigabitEthernet1/0/2"
+      - interface_name: "TenGigabitEthernet1/0/3"
+      - interface_name: "TenGigabitEthernet1/0/4"
+      - interface_name: "TenGigabitEthernet1/0/5"
+      - interface_name: "TenGigabitEthernet1/0/6"
+      - interface_name: "TenGigabitEthernet1/0/7"
+      - interface_name: "TenGigabitEthernet1/0/10"
+      - interface_name: "TenGigabitEthernet1/0/11"
+      - interface_name: "TenGigabitEthernet1/0/12"
+      - interface_name: "TenGigabitEthernet1/0/13"
+      - interface_name: "TenGigabitEthernet1/0/14"
+      - interface_name: "TenGigabitEthernet1/0/20"
+      - interface_name: "TenGigabitEthernet1/0/21"
+      - interface_name: "TenGigabitEthernet1/0/22"
+```
+
+### 9. Bulk Port Channel Operations (Trunk and Extended Node) – Large Scale Example
+
+This section demonstrates how to create, update, and delete large numbers of port channels—including trunk port channels and extended node port channels—on a single device using bulk operations.  
+Trunk port channels support both `native_vlan_id` and `allowed_vlan_ranges` fields. Extended node channels use the appropriate protocol and description. These bulk examples reflect enterprise-scale use cases and mass changes.
+
+#### 9.1. Bulk Create Multiple Port Channels (Mixed Types, Large Scale)
+
+```yaml
+---
+catalyst_center_version: 3.1.3.0
+sda_host_onboarding_details:
+  - ip_address: "204.1.2.70"
+    fabric_site_name_hierarchy: "Global/USA/San Jose"
+    port_channels:
+      # Trunk port channel with protocol LACP, native VLAN, allowed VLANs
+      - interface_names: ["TenGigabitEthernet1/1/1", "TenGigabitEthernet1/1/2", "TenGigabitEthernet1/1/3"]
+        connected_device_type: "TRUNK"
+        protocol: "LACP"
+        native_vlan_id: 100
+        allowed_vlan_ranges: "200-220,300"
+        port_channel_description: "Aggregate link for servers"
+
+      # Trunk port channel with protocol ON (default), limited VLANs
+      - interface_names: ["TenGigabitEthernet1/2/1", "TenGigabitEthernet1/2/2"]
+        connected_device_type: "TRUNK"
+        protocol: "ON"
+        native_vlan_id: 101
+        allowed_vlan_ranges: "110-115"
+        port_channel_description: "Trunk uplink to core"
+
+      # Trunk port channel with protocol PAGP, all VLANs allowed
+      - interface_names: ["TenGigabitEthernet1/3/1", "TenGigabitEthernet1/3/2", "TenGigabitEthernet1/3/3"]
+        connected_device_type: "TRUNK"
+        protocol: "PAGP"
+        allowed_vlan_ranges: "all"
+        port_channel_description: "Legacy aggregation"
+
+      # Extended node port channel with protocol ON
+      - interface_names: ["GigabitEthernet1/0/10", "GigabitEthernet1/0/11"]
+        connected_device_type: "EXTENDED_NODE"
+        protocol: "ON"
+        port_channel_description: "Edge extension"
+
+      # Extended node port channel with protocol PAGP
+      - interface_names: ["GigabitEthernet1/0/12", "GigabitEthernet1/0/13"]
+        connected_device_type: "EXTENDED_NODE"
+        protocol: "PAGP"
+        port_channel_description: "IoT extension"
+```
+
+#### 9.2. Bulk Update Multiple Port Channels (Mixed Types, Large Scale)
+
+```yaml
+---
+catalyst_center_version: 3.1.3.0
+sda_host_onboarding_details:
+  - ip_address: "204.1.2.70"
+    fabric_site_name_hierarchy: "Global/USA/San Jose"
+    port_channels:
+      # Update trunk port channel: modify allowed VLANs, description
+      - interface_names: ["TenGigabitEthernet1/1/1", "TenGigabitEthernet1/1/2", "TenGigabitEthernet1/1/3"]
+        connected_device_type: "TRUNK"
+        allowed_vlan_ranges: "210-215,300"
+        port_channel_description: "Updated aggregate link for servers"
+
+      # Update trunk port channel: change description and VLAN scope
+      - interface_names: ["TenGigabitEthernet1/2/1", "TenGigabitEthernet1/2/2"]
+        connected_device_type: "TRUNK"
+        allowed_vlan_ranges: "111-113"
+        port_channel_description: "Narrowed trunk uplink"
+
+      # Update extended node: new description, re-select ports
+      - interface_names: ["GigabitEthernet1/0/10", "GigabitEthernet1/0/14"]
+        connected_device_type: "EXTENDED_NODE"
+        port_channel_description: "Changed Edge extension ports"
+```
+
+#### 9.3. Bulk Delete Example for Multiple Port Channels (Large Scale)
+
+```yaml
+---
+catalyst_center_version: 3.1.3.0
+sda_host_onboarding_details:
+  - ip_address: "204.1.2.70"
+    fabric_site_name_hierarchy: "Global/USA/San Jose"
+    port_channels:
+      # Specify only interface_names for deletion
+      - interface_names: ["TenGigabitEthernet1/1/1", "TenGigabitEthernet1/1/2", "TenGigabitEthernet1/1/3"]
+      - interface_names: ["TenGigabitEthernet1/2/1", "TenGigabitEthernet1/2/2"]
+      - interface_names: ["TenGigabitEthernet1/3/1", "TenGigabitEthernet1/3/2", "TenGigabitEthernet1/3/3"]
+      - interface_names: ["GigabitEthernet1/0/10", "GigabitEthernet1/0/11"]
+      - interface_names: ["GigabitEthernet1/0/12", "GigabitEthernet1/0/13"]
+      - interface_names: ["GigabitEthernet1/0/14", "GigabitEthernet1/0/15"]
+```
+
 ## III. How to execute playbook
 
 ### 1. Validate the playbooks with schema
@@ -476,4 +749,3 @@ cisco.dnac collection: 6.42.0
 - Use `device_collection_status_check: false` only in lab or where acceleration outweighs safety checks.
 
 ---
-
