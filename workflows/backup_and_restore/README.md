@@ -25,7 +25,7 @@ The Backup and Restore workflow automates data protection and disaster recovery 
 ## Features
 
 - **Backup Creation**: Timestamped or fixed-name backups with configurable scope
-- **Storage Management**: NFS configuration with encryption and retention (3-60 days)
+- **Storage Management**: NFS configuration with encryption and retention (3-60 number of backups to retain)
 - **Deletion Strategies**: Remove backups by name, retention policy, or all at once
 - **Disaster Recovery**: Restore from encrypted backups
 - **Idempotent Operations**: Prevent duplicate backups with fixed naming
@@ -71,7 +71,8 @@ backup_and_restore/
 │   ├── backup_and_restore_inputs.yml            # Complete workflow
 │   └── delete_backup_and_restore_inputs.yml     # Deletion examples
 ├── schema/
-│   └── backup_and_restore_schema.yml            # Configuration validation
+│   ├── backup_and_restore_schema.yml               #configuration validation
+|   └── delete_backup_and_restore_schema.yml        # Configuration validation
 └── ReadMe.md
 ```
 
@@ -86,17 +87,17 @@ backup_and_restore/
 | server_ip | string | Yes | - | NFS server IP address |
 | source_path | string | Yes | - | Directory path on NFS server |
 | nfs_port | integer | No | 2049 | NFS service port (1-65535) |
-| nfs_version | enum | No | nfs4 | Protocol version (nfs3/nfs4) |
+| nfs_version | string | No | nfs4 | Protocol version (nfs3/nfs4) |
 | nfs_portmapper_port | integer | No | 111 | Portmapper port (1-65535) |
 
 ### Backup Storage Configuration
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| server_type | enum | Yes | - | Storage type (NFS/PHYSICAL_DISK*) |
+| server_type | string | Yes | - | Storage type (NFS/PHYSICAL_DISK*) |
 | nfs_details | dict | Yes** | - | NFS connection details |
-| data_retention_period | integer | Yes | - | Retention days (3-60) |
-| encryption_passphrase | string | Recommended | - | Backup encryption passphrase |
+| data_retention_period | integer | Yes | - | Retention (3-60 number of backups to retain) |
+| encryption_passphrase | string | Yes | - | Backup encryption passphrase |
 
 \*\* *Required when server_type is NFS*
 
@@ -106,9 +107,10 @@ backup_and_restore/
 |-----------|------|----------|---------|-------------|
 | name | string | Yes | - | Backup name or prefix |
 | generate_new_backup | boolean | No | false | Append timestamp to name |
-| scope | enum | No | - | WITH_ASSURANCE/WITHOUT_ASSURANCE |
+| scope | string | Yes | - | Defines Backup Scope |
 | delete_all_backup | boolean | No | false | Delete all backups (state=deleted) |
 | backup_retention_days | integer | No | - | Delete older than N days (state=deleted) |
+| backup_task_timeout | integer | N0 | false | Maximum time in seconds to wait for backup creation |
 
 **Naming Rules:**
 - Must begin with alphabet (A-Z, a-z)
@@ -124,7 +126,8 @@ backup_and_restore/
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | name | string | Yes | Exact backup name to restore |
-| encryption_passphrase | string | Conditional* | Decryption passphrase |
+| encryption_passphrase | string | Yes | Decryption passphrase |
+| restore_task_timeout | integer | No | Maximum time in sec to wait for restore |
 
 \* *Required if backup was encrypted*
 
@@ -164,15 +167,15 @@ Edit `workflows/backup_and_restore/vars/backup_and_restore_inputs.yml`:
 ```yaml
 backup_restore_details:
   - nfs_configuration:
-      - server_ip: 192.168.1.100
-        source_path: /backup/catalyst_center
+      - server_ip: 172.27.17.90
+        source_path: /home/nfsshare/backups/TB23
         nfs_version: nfs4
     
     backup_storage_configuration:
       - server_type: NFS
         nfs_details:
-          server_ip: 192.168.1.100
-          source_path: /backup/catalyst_center
+          server_ip: 172.27.17.90
+          source_path: /home/nfsshare/backups/TB23
         data_retention_period: 30
         encryption_passphrase: "YourSecurePassphrase123!"
     
@@ -214,30 +217,44 @@ Use `backup_and_restore_playbook.yml` for all creation and restore operations.
 
 #### NFS Configuration
 
+1.Create NFS Configuration
+
+Network File System (NFS) server, which will serve as the designated storage for Cisco Catalyst Center's system backups and facilitates restore operations.
+
 ```yaml
 backup_restore_details:
   - nfs_configuration:
-      - server_ip: 192.168.1.100
-        source_path: /backup/catalyst_center
+      - server_ip: 172.27.17.90
+        source_path: /home/nfsshare/backups/TB23
         nfs_port: 2049
         nfs_version: nfs4
         nfs_portmapper_port: 111
 ```
+![alt text](./images/image.png)
+![alt text](./images/image-1.png)
 
 #### Backup Storage Configuration
+
+2.Create Backup Storage Configuration 
+
+The backup storage configuration defines where and how backup data will be stored, serving solely to prepare the storage infrastructure rather than creating or executing the backups themselves.
 
 ```yaml
 backup_restore_details:
   - backup_storage_configuration:
       - server_type: NFS
         nfs_details:
-          server_ip: 192.168.1.100
-          source_path: /backup/catalyst_center
-        data_retention_period: 30
+          server_ip: 172.27.17.90
+          source_path: /home/nfsshare/backups/TB23
+        data_retention_period: 3
         encryption_passphrase: "SecurePass123!"
 ```
 
+![alt text](./images/image-2.png)
+
 #### Create Backup
+
+3.Create Backup 
 
 **Timestamped Backup** (always creates new):
 
@@ -248,6 +265,8 @@ backup_restore_details:
         scope: CISCO_DNA_DATA_WITH_ASSURANCE
         generate_new_backup: true
 ```
+
+![alt text](./images/image-3.png)
 
 Result: `DAILY_BACKUP_20241230_143052`
 
@@ -265,6 +284,10 @@ Result: `WEEKLY_BACKUP` (no duplicate if exists)
 
 #### Restore Backup
 
+4.Restore Backup
+
+Restoring data from previously created backups
+
 ⚠️ **System will reboot during restoration**
 
 ```yaml
@@ -274,17 +297,85 @@ backup_restore_details:
         encryption_passphrase: "SecurePass123!"
 ```
 
-**Validate and Execute:**
+
+**Validate**
+Validate Configuration: To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
+Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/validate.sh -s to perform the validation providing the schema path -d and the input path.
+
 
 ```bash
 # Validate
-yamale -s workflows/backup_and_restore/schema/backup_and_restore_schema.yml \
-       workflows/backup_and_restore/vars/backup_and_restore_inputs.yml
 
+./tools/validate.sh   -s workflows/backup_and_restore/schema/backup_and_restore_schema.yml   -d workflows/backup_and_restore/vars/backup_and_restore_inputs.yml
+```
+
+Return result validate:
+
+```bash
+(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh   -s workflows/backup_and_restore/schema/backup_and_restore_schema.yml   -d workflows/backup_and_restore/vars/backup_and_restore_inputs.yml
+workflows/backup_and_restore/schema/backup_and_restore_schema.yml
+workflows/backup_and_restore/vars/backup_and_restore_inputs.yml
+yamale   -s workflows/backup_and_restore/schema/backup_and_restore_schema.yml  workflows/backup_and_restore/vars/backup_and_restore_inputs.yml
+Validating workflows/backup_and_restore/vars/backup_and_restore_inputs.yml...
+Validation success! 👍
+```
+
+```bash
 # Execute
-ansible-playbook -i inventory/demo_lab/hosts.yml \
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/backup_and_restore/playbook/backup_and_restore_playbook.yml \
   --extra-vars VARS_FILE_PATH=../vars/backup_and_restore_inputs.yml
+```
+
+1.Configure NFS Server
+
+Terminal Return 
+
+```code
+ nfs_configuration:
+        - nfs_port: 2049
+          nfs_portmapper_port: 111
+          nfs_version: nfs4
+          server_ip: 172.27.17.90
+          source_path: /home/nfsshare/backups/TB23
+      msg: NFS Configuration(s) '/home/nfsshare/backups/TB23' created successfully in Cisco Catalyst Center.
+      response: NFS Configuration(s) '/home/nfsshare/backups/TB23' created successfully in Cisco Catalyst Center.
+```
+
+
+![alt text](./images/image-4.png)
+
+2.Configure Backup Storage Settings
+
+Terminal Return
+
+```code
+      msg: Backup Configuration(s) '/home/nfsshare/backups/TB23' updated successfully in Cisco Catalyst Center.
+      response: Backup Configuration(s) '/home/nfsshare/backups/TB23' updated successfully in Cisco Catalyst Center.
+```
+
+![alt text](./images/image-5.png)
+
+3.Create Backup
+
+Terminal Return 
+
+```code
+  msg: Backup(s) 'BACKUP1' created successfully in Cisco Catalyst Center.
+      response: Backup(s) 'BACKUP1' created successfully in Cisco Catalyst Center.
+      status: success
+```
+
+![alt text](./images/image-7.png)
+
+4.Restore Operation:
+
+Terminal Return
+
+```code
+ msg: Backup(s) 'BACKUP1' restored successfully in Cisco Catalyst Center.
+      response: Backup(s) 'BACKUP1' restored successfully in Cisco Catalyst Center.
+      status: success
 ```
 
 ---
@@ -305,6 +396,8 @@ backup_restore_details:
 
 #### Delete by Retention Policy with Name Filter
 
+Deletes all backups starting with "DAILY_BACKUP" older than 7 days.
+
 ```yaml
 backup_restore_details:
   - backup:
@@ -312,9 +405,9 @@ backup_restore_details:
         backup_retention_days: 7
 ```
 
-Deletes all backups starting with "DAILY_BACKUP" older than 7 days.
-
 #### Delete by Retention Policy (All Backups)
+
+Deletes ALL backups older than 30 days.
 
 ```yaml
 backup_restore_details:
@@ -322,11 +415,10 @@ backup_restore_details:
       - backup_retention_days: 30
 ```
 
-Deletes ALL backups older than 30 days.
-
 #### Delete All Backups
 
 ⚠️ **WARNING: Irreversible operation!**
+Deletes All Backups
 
 ```yaml
 backup_restore_details:
@@ -339,22 +431,58 @@ backup_restore_details:
 ```yaml
 backup_restore_details:
   - nfs_configuration:
-      - server_ip: 192.168.1.100
-        source_path: /backup/catalyst_center
+      - server_ip: 172.27.17.90
+        source_path: /home/nfsshare/backups/TB23
 ```
 
 **Validate and Execute:**
 
 ```bash
 # Validate
-yamale -s workflows/backup_and_restore/schema/backup_and_restore_schema.yml \
-       workflows/backup_and_restore/vars/delete_backup_and_restore_inputs.yml
 
+./tools/validate.sh   -s workflows/backup_and_restore/schema/delete_backup_and_restore_schema.yml   -d workflows/backup_and_restore/vars/delete_backup_and_restore_inputs.yml
+```
+
+Return result validate:
+
+```bash
+(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh   -s workflows/backup_and_restore/schema/delete_backup_and_restore_schema.yml   -d workflows/backup_and_restore/vars/delete_backup_and_restore_inputs.yml
+workflows/backup_and_restore/schema/delete_backup_and_restore_schema.yml
+workflows/backup_and_restore/vars/delete_backup_and_restore_inputs.yml
+yamale   -s workflows/backup_and_restore/schema/delete_backup_and_restore_schema.yml  workflows/backup_and_restore/vars/delete_backup_and_restore_inputs.yml
+Validating workflows/backup_and_restore/vars/delete_backup_and_restore_inputs.yml...
+Validation success! 👍
+```
+
+```bash
 # Execute
-ansible-playbook -i inventory/demo_lab/hosts.yml \
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/backup_and_restore/playbook/delete_backup_and_restore_playbook.yml \
   --extra-vars VARS_FILE_PATH=../vars/delete_backup_and_restore_inputs.yml
 ```
+
+1.Delete Backup 
+
+Terminal Return
+
+```code
+      msg: Backup(s) 'BACKUP1' deleted successfully from Cisco Catalyst Center.
+      response: Backup(s) 'BACKUP1' deleted successfully from Cisco Catalyst Center.
+      status: success
+```
+
+
+2. Delete NFS Server
+
+Terminal Return 
+
+```code
+      msg: NFS Configuration(s) '/home/nfsshare/backups/TB23' deleted successfully from Cisco Catalyst Center.
+      response: NFS Configuration(s) '/home/nfsshare/backups/TB23' deleted successfully from Cisco Catalyst Center.
+      status: success
+```
+
+![alt text](./images/image-6.png)
 
 ---
 
@@ -362,20 +490,20 @@ ansible-playbook -i inventory/demo_lab/hosts.yml \
 
 ### Example 1: Complete Daily Backup Workflow
 
-**Description:** Set up NFS, configure storage with encryption, and create daily timestamped backups with 30-day retention.
+**Description:** Set up NFS, configure storage with encryption, and create daily timestamped backups with a retention policy of 30 copies.
 
 **Use Case:** Automated daily backups for production environment with disaster recovery capability.
 
 ```yaml
 backup_restore_details:
   - nfs_configuration:
-      - server_ip: 192.168.1.100
-        source_path: /backup/enterprise
+      - server_ip: 172.27.17.90
+        source_path: /home/nfsshare/backups/TB23
     backup_storage_configuration:
       - server_type: NFS
         nfs_details:
-          server_ip: 192.168.1.100
-          source_path: /backup/enterprise
+          server_ip: 172.27.17.90
+          source_path: /home/nfsshare/backups/TB23
         data_retention_period: 30
         encryption_passphrase: "Enterprise2024!"
     backup:
@@ -407,10 +535,10 @@ backup_restore_details:
 ```yaml
 backup_restore_details:
   - nfs_configuration:
-      - server_ip: 192.168.1.100
-        source_path: /backup/primary
-      - server_ip: 192.168.1.101
-        source_path: /backup/secondary
+      - server_ip: 172.27.17.90
+        source_path: /home/nfsshare/backups/TB23
+      - server_ip: 172.27.17.90
+        source_path: /home/nfsshare/backups/TB24
 ```
 
 ### Example 4: Delete Specific Backup
@@ -427,17 +555,15 @@ backup_restore_details:
 
 ### Example 5: Retention-Based Cleanup
 
-**Description:** Keep 7 days of daily backups and 60 days of monthly backups using automated cleanup.
+**Description:** Keep 7 days of daily backups using automated cleanup.
 
-**Use Case:** Automated backup lifecycle management with tiered retention policy.
+**Use Case:** Automated backup lifecycle management with retention policy.
 
 ```yaml
 backup_restore_details:
   - backup:
       - name: DAILY_BACKUP
         backup_retention_days: 7
-      - name: MONTHLY_BACKUP
-        backup_retention_days: 60
 ```
 
 ### Example 6: Delete All Backups Older Than 30 Days
@@ -475,8 +601,8 @@ backup_restore_details:
 ```yaml
 backup_restore_details:
   - nfs_configuration:
-      - server_ip: 192.168.1.100
-        source_path: /backup/catalyst_center
+      - server_ip: 172.27.17.90
+        source_path: /home/nfsshare/backups/TB23
 ```
 
 ### Example 9: Disaster Recovery Restore
@@ -503,8 +629,8 @@ backup_restore_details:
   - backup_storage_configuration:
       - server_type: NFS
         nfs_details:
-          server_ip: 192.168.1.100
-          source_path: /backup/compliance
+          server_ip: 172.27.17.90
+          source_path: /home/nfsshare/backups/TB23
         data_retention_period: 60
         encryption_passphrase: "Compliance2024!"
   - backup:

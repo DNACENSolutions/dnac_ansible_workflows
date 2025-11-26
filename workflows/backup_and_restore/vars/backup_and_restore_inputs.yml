@@ -13,8 +13,8 @@
 backup_restore_details:
   # Configure NFS server for backup storage
   - nfs_configuration:
-      - server_ip: 192.168.1.100
-        source_path: /backup/catalyst_center
+      - server_ip: 172.27.17.90
+        source_path:  /home/nfsshare/backups/TB23
         nfs_port: 2049
         nfs_version: nfs4
         nfs_portmapper_port: 111
@@ -23,8 +23,8 @@ backup_restore_details:
     backup_storage_configuration:
       - server_type: NFS
         nfs_details:
-          server_ip: 192.168.1.100
-          source_path: /backup/catalyst_center
+          server_ip: 172.27.17.90
+          source_path:  /home/nfsshare/backups/TB23
           nfs_port: 2049
           nfs_version: nfs4
           nfs_portmapper_port: 111
@@ -33,14 +33,14 @@ backup_restore_details:
 
     # Create backup with exact name (idempotent)
     backup:
-      - name: WEEKLY_BACKUP
+      - name: BACKUP1
         scope: CISCO_DNA_DATA_WITH_ASSURANCE
         generate_new_backup: false
 
     # Restore from backup (uncomment when needed)
-    # restore_operations:
-    #   - name: WEEKLY_BACKUP
-    #     encryption_passphrase: "YourSecurePassphrase123!"
+    restore_operations:
+      - name: BACKUP1
+        encryption_passphrase: "YourSecurePassphrase123!"
 
 # ============================================================================
 # Additional Examples
@@ -57,7 +57,7 @@ backup_restore_details:
 # backup_restore_details:
 #   - nfs_configuration:
 #       - server_ip: 172.27.17.90
-#         source_path: /home/nfsshare/backups
+#         source_path: /home/nfsshare/backups/TB23
 
 # Backup storage configuration only
 # backup_restore_details:
@@ -98,7 +98,9 @@ backup_restore_details:
 # Notes
 # ============================================================================
 # - Backup names must start with a letter (A-Z, a-z)
-# - Data retention period: 3-60 days
+# - Backup retention period: Number of backups to retain (3-60)
 # - Backup scope WITH_ASSURANCE: ~10-15 GB, WITHOUT_ASSURANCE: ~5-8 GB
 # - generate_new_backup=true appends timestamp (YYYYMMDD_HHMMSS IST)
+# - backup_task_timeout: Max time (sec) to wait for backup creation (default=1200)
+# - restore_task_timeout: Max time (sec) to wait for restore operation (default=3600)
 # - Restore requires same encryption passphrase used during backup
