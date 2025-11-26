@@ -24,6 +24,10 @@ This module provides a comprehensive toolkit for managing wireless network profi
 - **Onboarding and Day-N Templates**:  
   - **Associate** onboarding and *Day-N* templates with profiles.   
 
+- **Feature Template** (available from version 3.1.3.0 onwards):
+  - **Create** and **Update** multiple feature templates for wireless profiles.
+  - **Delete** multiple feature templates for wireless profiles.
+
 - **Bulk Operations**:  
   - **Create** and **delete** profiles in bulk for scalable deployments.  
 
@@ -93,13 +97,14 @@ The following schema outlines the structure for configuring wireless network pro
 | `ap_zones`            | List       | *No*         | `N/A`             | List of AP zones associated with the profile. See *AP Zones*.                   |
 | `onboarding_templates`| List       | *No*         | `N/A`             | List of onboarding templates associated with the profile.                       |
 | `day_n_templates`     | List       | *No*         | `N/A`             | List of *Day-N* templates associated with the profile.                          |
+| `feature_template_designs`| List      | *No*         | `N/A`          | List of feature template designs to be assigned or removed. See *Feature Template Designs*. |
 | `additional_interfaces`| List      | *No*         | `N/A`             | List of additional interfaces to configure. See *Additional Interfaces*.        |
 
 ##### SSID Details (`ssid_details_type`)
 
 | **Parameter**         | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
 |-----------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
-| `ssid`               | String     | Yes          | `N/A`             | Name of the SSID.                                                              |
+| `ssid_name`           | String     | Yes          | `N/A`             | Name of the SSID.                                                              |
 | `dot11be_profile_name`| String     | *No*         | `N/A`             | Name of the *802.11be* profile associated with the SSID.                        |
 | `enable_fabric`       | Boolean    | *No*         | `false`           | Enables fabric for the SSID.                                                   |
 | `vlan_group_name`     | String     | *No*         | `N/A`             | VLAN group name associated with the SSID.                                      |
@@ -112,8 +117,16 @@ The following schema outlines the structure for configuring wireless network pro
 | **Parameter**         | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
 |-----------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
 | `ap_zone_name`        | String     | Yes          | `N/A`             | Name of the AP zone.                                                           |
-| `ssids`               | List       | *No*         | `N/A`             | List of SSIDs associated with the AP zone.                                     |
-| `rf_profile_name`     | String     | *No*         | `N/A`             | Name of the RF profile associated with the AP zone.                            |
+| `ssids`               | List       | Yes          | `N/A`             | List of SSIDs associated with the AP zone.                                     |
+| `rf_profile_name`     | String     | Yes          | `N/A`             | Name of the RF profile associated with the AP zone.                            |
+
+##### Feature Template Designs (`feature_template_designs_type`)
+
+| **Parameter**         | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+|-----------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `design_type`         | String     | No           | `N/A`             | Category or name of the feature template to be applied.                         |
+| `feature_templates`   | List       | Yes          | `N/A`             | A list of specific design names to apply within the chosen feature template category.                         |
+| `applicability_ssids` | List       | No           | ["All"]           | List of SSIDs to which this feature template applies                            |
 
 ##### Additional Interfaces (`additional_interfaces_type`)
 
@@ -236,6 +249,92 @@ wireless_nw_profiles_details:
   - profile_name: "Ansible Wireless Profile Update"
 ```
 
+##### 4. **Create Wireless Network Profile with Feature Template Designs**
+*Only supports the API for DNAC version 3.1.3 and above*
+
+a. *Example*: Configure wireless profile with AAA RADIUS Attributes Configuration
+
+```yaml
+catalyst_center_version: 3.1.3.0
+wireless_nw_profiles_details:
+  - profile_name: "Ansible Wireless Profile with Feature Templates"
+    site_names:
+      - Global/USA/SAN JOSE/SJ_BLD22
+    feature_template_designs:
+      - design_type: AAA_RADIUS_ATTRIBUTES_CONFIGURATION
+        feature_templates:
+          - Default AAA_Radius_Attributes_Configuration
+```
++ Playbook return:
+```yaml
+  response:
+  - profile_name: Ansible Wireless Profile with Feature Templates
+    profile_status: Network Profile [6a85f77d-add6-4280-b422-c78690fb58e5] Successfully Created
+    site_status: 'Sites ''[''Global/USA/SAN JOSE/SJ_BLD22/FLOOR2'', ''Global/USA/SAN JOSE/SJ_BLD22/FLOOR1'', ''Global/USA/SAN JOSE/SJ_BLD22'', ''Global/USA/SAN JOSE/SJ_BLD22/FLOOR4'', ''Global/USA/SAN JOSE/SJ_BLD22/FLOOR3'']'' successfully associated to network profile: Ansible Wireless Profile with Feature Templates.'
+  status: success
+```
++ The UI display:
+![alt text](./images/feature_template_with_AAA_configuration.png)
+![alt text](./images/feature_template_with_AAA_configuration_2.png)
+
+b. *Example*: Configure wireless profile with multiple feature template designs (update)
+
+  Update the feature templates into the network profile that has been previously created with the feature templates. The module will retain the existing feature templates and only add new ones based on the new input.
+
+  *Note: If a feature template of type 'ADVANCED_SSID_CONFIGURATION' is added, it need associate an SSID to enable the addition of the feature template.*
+
+```yaml
+catalyst_center_version: 3.1.3.0
+wireless_nw_profiles_details:
+  - profile_name: "Ansible Wireless Profile with Feature Templates"
+    ssid_details:
+      - ssid_name: custom_rf_ssid
+        enable_fabric: true
+    feature_template_designs:
+      - design_type: CLEANAIR_CONFIGURATION
+        feature_templates:
+          - Default CleanAir 6GHz Design
+          - Default CleanAir 802.11a Design
+      - design_type: ADVANCED_SSID_CONFIGURATION
+        feature_templates:
+          - Default Advanced SSID Design
+```
++ Playbook return:
+```yaml
+  msg: 'Wireless profile(s) created/updated and verified successfully: [{''profile_name'': ''Ansible Wireless Profile with Feature Templates'', ''profile_status'': ''Network Profile [6a85f77d-add6-4280-b422-c78690fb58e5] Successfully Updated''}]'
+  response:
+  - profile_name: Ansible Wireless Profile with Feature Templates
+    profile_status: Network Profile [6a85f77d-add6-4280-b422-c78690fb58e5] Successfully Updated
+  status: success
+```
++ The UI display:
+![alt text](./images/update_multiple_feature_template.png)
+
+c. *Example*: Update wireless profile to remove feature template designs (delete)
+
+  To delete the existing feature template on the network profile, we can provide the feature template to be deleted and use the **state 'deleted'**.
+```yaml
+catalyst_center_version: 3.1.3.0
+wireless_nw_profiles_details:
+  - profile_name: "Ansible Wireless Profile with Feature Templates"
+    feature_template_designs:
+      - design_type: CLEANAIR_CONFIGURATION
+        feature_templates:
+          - Default CleanAir 6GHz Design
+          - Default CleanAir 802.11a Design
+```
++ Playbook return:
+```yaml
+  msg: 'Wireless profile data removed successfully for: [{''Ansible Wireless Profile with Feature Templates'': {''feature_template_designs_status'': "Feature Template Designs ''Default CleanAir 6GHz Design'', ''Default CleanAir 802.11a Design'' removed successfully."}}]'
+  response:
+  - Ansible Wireless Profile with Feature Templates:
+      feature_template_designs_status: Feature Template Designs 'Default CleanAir 6GHz Design', 'Default CleanAir 802.11a Design' removed successfully.
+  status: success
+```
++ The UI display:
+![alt text](./images/delete_feature_template.png)
+
+
 ---
 
 #### Validate Configuration
@@ -251,10 +350,24 @@ Run the following command to validate your input file against the schema:
 **Deploy** your configuration to *Cisco Catalyst Center* and **verify** the changes.
 
 1. **Deploy Configuration**:  
-   Run the playbook to apply the wireless network profile configuration. Ensure the input file is validated before execution. Specify the input file path using the `--e` variable (`VARS_FILE_PATH`).  
+   Run the playbook to apply the wireless network profile configuration. Ensure the input file is validated before execution. Specify the input file path using the `--e` variable (`VARS_FILE_PATH`).
+
+  ### a. Include create/update network profile (state = 'merged')
    ```bash
-   ansible-playbook -i ./inventory/iac2/host.yml workflows/network_profile_wireless/playbook/network_profile_wireless_playbook.yml --e VARS_FILE_PATH=../vars/network_profile_wireless_inputs.yml > logs/wireless_profile.log -vvvvvv
+  ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/network_profile_wireless/playbook/network_profile_wireless_playbook.yml \
+  --e VARS_FILE_PATH=./../vars/network_profile_wireless_inputs.yml \
+  -vvv
    ```
+
+  ### b. Include delete network profile (state = 'deleted')
+   ```bash
+  ansible-playbook 
+    -i inventory/demo_lab/hosts.yml # refer to Catalyst Center to run
+    workflows/network_profile_wireless/playbook/delete_network_profile_wireless_playbook.yml # playbook will run this
+    --extra-vars VARS_FILE_PATH=./../vars/delete_network_profile_wireless_inputs.yml # location of the input file for the playbook to execute
+    -vvv # return detailed information about the message; the more 'v', more detailed
+   ```  
    > **Note**: If an error occurs (e.g., invalid input or API failure), the playbook will halt and display details. Check the `logs/wireless_profile.log` for troubleshooting.
 
 2. **Verify Deployment**:  
