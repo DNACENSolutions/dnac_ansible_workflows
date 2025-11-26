@@ -57,7 +57,7 @@
     - name: Start time for the playbook
       set_fact:
         long_op_start: "{{ now() }}"
-    - name: Create the Wireless SSID, Interfaces, Custom RF Profiles, etc.
+    - name: Delete the Wireless SSID, Interfaces, Custom RF Profiles, etc.
       cisco.dnac.network_profile_wireless_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
