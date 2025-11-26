@@ -1,0 +1,75 @@
+---
+- name: Gather Network Devices Information from Cisco Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: merged
+    catalyst_center_login: &catalyst_center_login
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
+      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(False) }}"
+      dnac_log: "{{ catalyst_center_log | default(False) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
+      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
+
+  tasks:
+    - name: Include network devices info variables from file
+      include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when: VARS_FILE_PATH is defined
+
+    - name: Network devices info workflow start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+
+    - name: Gather network devices information from Cisco Catalyst Center
+      cisco.dnac.network_devices_info_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config: "{{ network_devices_info_details }}"
+      register: result_network_devices_info
+
+    - name: Display network devices information gathering status
+      debug:
+        msg:
+          - "Network devices information gathering status: {{ result_network_devices_info.status }}"
+          - "Number of query sets processed: {{ result_network_devices_info.response | length }}"
+
+    - name: Display network devices information results
+      debug:
+        var: result_network_devices_info
+
+    - name: Display network devices information summary
+      debug:
+        msg:
+          - "Network Devices Info workflow completed"
+          - "Total device queries processed: {{ result_network_devices_info.response | length }}"
+          - "Status: {{ result_network_devices_info.status }}"
+      when: result_network_devices_info.status == "success"
+
+    - name: Network devices info workflow end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+
+    - name: Print network devices info workflow execution time
+      debug:
+        msg: "Network devices info workflow run time: {{ long_op_start }}, end: {{ long_op_end }}"
+
+  post_tasks:
+    - name: Check Python version on Catalyst Center host
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
