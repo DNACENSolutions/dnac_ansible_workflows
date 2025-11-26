@@ -1,0 +1,119 @@
+# Network Devices Info Schema
+# This schema validates the input parameters for network device information retrieval workflow
+#
+# Main Parameters:
+#   network_devices_info_details: Top-level list containing network device query configurations
+#
+# Network Device Query Parameters:
+#   network_devices: List of network device filtering criteria and information retrieval settings
+#
+# Network Device Filtering Parameters:
+#   site_hierarchy: (Optional) Hierarchical path of the site (e.g., "Global/USA/San Jose")
+#   device_type: (Optional) Filter by specific device model
+#   device_role: (Optional) Filter by network function (ACCESS, DISTRIBUTION, CORE, etc.)
+#   device_family: (Optional) Filter by device category (Switches and Hubs, Routers, etc.)
+#   software_version: (Optional) Filter by software release version
+#   os_type: (Optional) Filter by operating system type (IOS-XE, IOS, NX-OS, etc.)
+#
+# Device Identifier Parameters (Optional):
+#   device_identifier: List of device identification criteria for granular filtering
+#     - ip_address: List of management IP addresses
+#     - mac_address: List of device MAC addresses
+#     - serial_number: List of device serial numbers
+#     - hostname: List of device hostnames
+#   Note: When multiple identification parameters are specified in the same entry,
+#         they must all refer to the same physical device
+#
+# Retry and Timeout Parameters (Optional):
+#   timeout: Maximum time in seconds to wait for operations (default: 120)
+#   retries: Number of retry attempts for failed operations (default: 3)
+#   interval: Time in seconds between retry attempts (default: 10)
+#
+# Information Retrieval Parameters (Optional):
+#   requested_info: List of device information types to retrieve
+#     - all: Retrieves all available information categories
+#     - device_info: Basic device details (hostname, model, serial number, OS version)
+#     - interface_info: Interface details (status, speed, duplex, MAC address)
+#     - interface_vlan_info: VLAN information for each interface
+#     - line_card_info: Line card details for modular devices
+#     - supervisor_card_info: Supervisor card details for modular devices
+#     - poe_info: Power over Ethernet (PoE) information for interfaces
+#     - module_count_info: Count of installed modules
+#     - connected_device_info: Information about connected neighbor devices
+#     - device_interfaces_by_range_info: Interface details by specified range
+#     - device_config_info: Running configuration of the device
+#     - device_summary_info: Summary of device information
+#     - device_polling_interval_info: Polling interval configuration
+#     - device_stack_info: Stack information for stackable devices
+#     - device_link_mismatch_info: Link mismatch details (speed/duplex/VLAN issues)
+#
+# Output File Parameters (Optional):
+#   output_file_info: Controls file output generation for retrieval results
+#     - file_path: (Required if output_file_info specified) Absolute path without file extension
+#     - file_format: Output format - 'json' or 'yaml' (default: yaml)
+#     - file_mode: File writing mode - 'w' (overwrite) or 'a' (append) (default: w)
+#     - timestamp: Include timestamp in output file (default: false)
+#
+# Notes:
+#   - At least one filtering criterion must be provided (site_hierarchy, device_type, device_role, 
+#     device_family, software_version, os_type, or device_identifier)
+#   - If requested_info is omitted, all available information types are retrieved
+#   - File extension (.json or .yaml) is automatically appended based on file_format
+#   - Directory structure for file_path will be created automatically if it does not exist
+#   - Multiple device_identifier entries can target different devices with different identification methods
+
+network_devices_info_details: list(include('network_device_query'), required=True)
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+catalyst_center_config_verify: bool(required=False, default=False)
+catalyst_center_task_poll_interval: int(required=False)
+
+---
+network_device_query:
+  network_devices: list(include('network_device_type'), required=True)
+
+network_device_type:
+  site_hierarchy: str(required=False)
+  # Examples: 'Cisco Catalyst 9300 Switch', 'Cisco Catalyst 9400 Switch', 'Cisco Catalyst 9500 Switch',
+  # 'Cisco Catalyst C9500-48Y4C Switch', 'Cisco 3800E Unified Access Point', 'Cisco Catalyst 9130AXI Unified Access Point',
+  # 'Cisco Catalyst 9800-L-C Wireless Controller', 'Cisco Catalyst 9115AXI Unified Access Point',
+  # 'Cisco Catalyst Wireless 9164I Unified Access Point', 'Cisco Wireless 9176D1 Access Point'
+  # See Catalyst Center API documentation for complete list of supported device types
+  device_type: str(required=False)
+  # Examples: 'ACCESS', 'DISTRIBUTION', 'CORE', 'WAN', 'WLC', 'DATA_CENTER'
+  # See Catalyst Center API documentation for complete list of supported device roles
+  device_role: str(required=False)
+  # Examples: 'Switches and Hubs', 'Routers', 'Wireless Controller', 'Unified AP', 'Sensors'
+  # See Catalyst Center API documentation for complete list of supported device families
+  device_family: str(required=False)
+  software_version: str(required=False)
+  # Examples: 'IOS-XE', 'IOS', 'IOS-XR', 'NX-OS', 'ASA', 'FTD', 'IOS-XE SD-WAN'
+  # See Catalyst Center API documentation for complete list of supported OS types
+  os_type: str(required=False)
+  device_identifier: list(include('device_id_type'), required=False)
+  timeout: int(min=1, max=3600, required=False, default=120)
+  retries: int(min=0, max=10, required=False, default=3)
+  interval: int(min=1, max=300, required=False, default=10)
+  requested_info: list(enum('all', 'device_interfaces_by_range_info', 'device_info', 'interface_info', 
+    'interface_vlan_info', 'line_card_info', 'supervisor_card_info', 'poe_info', 'module_count_info', 
+    'connected_device_info', 'device_config_info', 'device_summary_info', 'device_polling_interval_info', 
+    'device_stack_info', 'device_link_mismatch_info'), required=False)
+  output_file_info: include('output_file_type', required=False)
+
+device_id_type:
+  ip_address: list(str(), required=False)
+  mac_address: list(str(), required=False)
+  serial_number: list(str(), required=False)
+  hostname: list(str(), required=False)
+
+output_file_type:
+  file_path: str(required=True)
+  file_format: enum('json', 'yaml', required=False, default='yaml')
+  file_mode: enum('w', 'a', required=False, default='w')
+  timestamp: bool(required=False, default=False)
