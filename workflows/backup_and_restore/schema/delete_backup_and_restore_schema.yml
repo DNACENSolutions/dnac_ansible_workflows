@@ -75,10 +75,7 @@
 #
 # EXAMPLES:
 # --------
-# See the vars/ directory for example configuration files:
-# - delete_backup_by_name_inputs.yml
-# - delete_backup_retention_inputs.yml
-# - delete_all_backups_inputs.yml
+# See the vars/ directory for example configuration files for each operation type.
 
 backup_restore_details: list(include('backup_delete_config'), min=1, max=100, required=True)
 catalyst_center_version: str(required=False)
@@ -93,8 +90,13 @@ catalyst_center_config_verify: bool(required=False)
 ---
 backup_delete_config:
   backup: list(include('backup_delete_type'), min=1, required=True)
+  nfs_configuration: list(include('nfs_delete_type'), required=True)
 
 backup_delete_type:
   name: str(required=True)
   delete_all_backup: bool(required=False)
   backup_retention_days: int(required=False, min=1)
+
+nfs_delete_type:
+  server_ip: str(required=True)
+  source_path: str(required=True)
