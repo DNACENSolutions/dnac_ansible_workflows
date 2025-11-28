@@ -402,6 +402,84 @@ provision_details:
 }
 ```
 
+## f. **Provisioning with Feature Template**:
+*Supported from Cisco Catalyst Center release version 3.1.3.0 onwards for wireless controller provisioning*
+
+### Example: Provision with Feature Template (only Wireless)
+
+To provision a device (Wireless Controller) with a feature template, we first need to create Network Profiles with the Wireless type, assign the corresponding site to the site where we will provision the wireless device, and then attach the desired Feature Templates to apply to that network profile.
+
+For example, we will have a network profile attached with the feature template 'CleanAir Configuration'.
+![alt text](./images/nw_profile.png)
+![alt text](./images/nw_profile_feature_template.png)
+
+
+#### Input (YAML)
+```yml
+---
+catalyst_center_version: 3.1.3.0
+provision_details:
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+    management_ip_address: 204.192.4.200
+    primary_managed_ap_locations:
+      - Global/USA/SAN JOSE/SJ_BLD23
+    feature_template:
+      - design_name: Default CleanAir 802.11b Design
+    force_provisioning: True
+```
++ The UI workflow:
+![alt text](images/provision_feature_template.png)
+
+#### Upon a successful completion, the configuration from the feature template is automatically pushed down to the device
+![alt text](images/verify_provision_feature_template.png)
+
++ The playbook return:
+```yml
+msg:
+  changed: true
+  diff: []
+  failed: false
+  msg: Wireless device(s) '204.192.4.200' provisioned successfully.
+  response: Wireless device(s) '204.192.4.200' provisioned successfully.
+```
+
+### **Notes**:
+When calling with the above input, not only is `App Name: Model Config Provisioning` provisioned successfully, but other provisioning configurations such as `App Name: Fabric Provisioning, Device Provisioning, AP Provisioning` are also successful.
+
+![alt text](images/history_provision_feature_template.png)
+
+#### If we want to skip AP provisioning during WLC provisioning, we need to provide the `skip_ap_provision` parameter with the value `True`.
+
+#### Input (YAML)
+```yml
+---
+catalyst_center_version: 3.1.3.0
+provision_details:
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+    management_ip_address: 204.192.4.200
+    primary_managed_ap_locations:
+      - Global/USA/SAN JOSE/SJ_BLD23
+    feature_template:
+      - design_name: Default CleanAir 802.11b Design
+    force_provisioning: True
+    skip_ap_provision: True
+```
+*Supported in Cisco Catalyst version 2.3.7.6 onwards*
+
++ The UI workflow:
+
+![alt text](images/skip_ap_provision.png)
+
+#### Upon successful completion, the configuration will be pushed to the device similar to the provisioning with the previous feature template; however, there will be no provisioning action for the AP (check `Last Provisioned`).
+![alt text](images/verify_skip_ap_provision.png)
+
++ The playbook return:
+```yml
+msg:
+  msg: Wireless device(s) '204.192.4.200' provisioned successfully.
+  response: Wireless device(s) '204.192.4.200' provisioned successfully.
+```
+
 ### Step 3: Deploy and Verify
 
 a.  **Validate Configuration:** 
