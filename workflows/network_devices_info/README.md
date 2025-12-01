@@ -102,8 +102,8 @@ When using `output_file_info`, the following parameters are available:
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `file_path` | string | **Yes** | - | Absolute path without file extension (extension added automatically) |
-| `file_format` | enum | No | yaml | Output format: 'json' or 'yaml' |
-| `file_mode` | enum | No | w | File writing mode: 'w' (overwrite) or 'a' (append) |
+| `file_format` | string | No | yaml | Output format: 'json' or 'yaml' |
+| `file_mode` | string | No | w | File writing mode: 'w' (overwrite) or 'a' (append) |
 | `timestamp` | boolean | No | false | Include timestamp in output file |
 
 ## Available Information Types
@@ -177,9 +177,9 @@ network_devices_info_details:
         software_version: "17.12.1"
         os_type: "IOS-XE"
         device_identifier:
-          - ip_address:
-              - "204.1.2.2"
-              - "204.1.2.3"
+          - ip_address: 
+              - "204.1.2.69"
+              - "204.1.2.1"             
         timeout: 120
         retries: 3
         interval: 10
@@ -256,7 +256,6 @@ Target specific devices using one or more identifiers:
 device_identifier:
   - ip_address:
       - "204.1.2.2"
-      - "204.1.2.3"
   - serial_number:
       - "FCW2137L0SB"
   - hostname:
@@ -297,6 +296,9 @@ output_file_info:
 
 ## Usage Examples
 
+The UI display (example):
+![alt text](./imagesimage.png)
+
 ### Example 1: Query All Information for Specific Devices
 
 **Use Case**: Perform a comprehensive audit of specific network devices by retrieving all available information types. This is useful for detailed device documentation, troubleshooting, or preparing for maintenance activities.
@@ -312,8 +314,7 @@ network_devices_info_details:
   - network_devices:
       - site_hierarchy: "Global/USA/San Jose"
         device_identifier:
-          - ip_address:
-              - "204.1.2.2"
+          - ip_address: ["204.1.2.3"]
         requested_info:
           - all
         output_file_info:
@@ -322,8 +323,8 @@ network_devices_info_details:
           file_mode: "w"
           timestamp: true
 ```
-
 **Expected Output**: A comprehensive JSON file containing device details, all interfaces, VLANs, line cards, supervisor cards, PoE status, module count, connected devices, configuration, stack info, and link mismatches.
+
 
 ---
 
@@ -343,8 +344,8 @@ network_devices_info_details:
   - network_devices:
       - device_identifier:
           - serial_number:
-              - "FCW2137L0SB"
-              - "FJC2335S09F"
+              - "FJC2402A0TX"
+              - "FXS2502Q2HC"
         timeout: 60
         retries: 2
         interval: 5
@@ -355,6 +356,24 @@ network_devices_info_details:
           file_path: "/tmp/device_basic_info"
           file_format: "yaml"
 ```
+
+Playbook Return:
+
+```code
+- 'The network devices filtered from the provided filters are: [''204.1.2.6'', ''204.1.2.7'']'
+- - device_info:
+    - device_details:
+      ...
+- - interface_info:
+    - device_ip: 204.1.2.6
+      interface_details:
+      ...
+    - device_ip: 204.1.2.7
+      interface_details:
+      - !!python/object/new:dnacentersdk.models.mydict.MyDict
+        dictitems:
+```
+
 
 **Expected Output**: A YAML file with hostname, model, serial number, software version, and interface summary for the two specified devices.
 
@@ -385,17 +404,35 @@ network_devices_info_details:
           - line_card_info
           - supervisor_card_info
 ```
-
 **Expected Output**: Stack member details (switch numbers, roles, MAC addresses, priority), line card information (slot numbers, part numbers), and supervisor card details for all distribution switches in the New York site.
+
+```code
+
+ - 'The network devices filtered from the provided filters are: [''204.192.3.40'']'
+    - - device_info:
+        - device_details:
+        ...
+    - - line_card_info:
+        - device_ip: 204.192.3.40
+          linecard_details: []
+    - - supervisor_card_info:
+        - device_ip: 204.192.3.40
+          supervisor_card_details: []
+    - - device_stack_info:
+        - device_ip: 204.192.3.40
+          stack_details:
+            deviceId: 2d940748-45a9-465a-bd2e-578bbb98089c
+ 
+```
 
 ---
 
-### Example 4: Check Link Mismatches on Core Switches
+### Example 4: Check Link Mismatches on DISTRIBUTION Switches
 
-**Use Case**: Proactively identify duplex mismatches, speed mismatches, or VLAN inconsistencies on core switches that could impact network performance. Critical for maintaining optimal core layer performance.
+**Use Case**: Proactively identify duplex mismatches, speed mismatches, or VLAN inconsistencies on distribution switches that could impact network performance. Critical for maintaining optimal distribution layer performance.
 
 **Key Features**:
-- Targets core switches using multiple filters (site, role, device type)
+- Targets distribution switches using multiple filters (site, role, device type)
 - Focuses on connectivity and potential issues (interfaces and link mismatches)
 - Saves results to JSON for programmatic analysis or alerting
 - Standard retry configuration for reliable data collection
@@ -403,9 +440,9 @@ network_devices_info_details:
 ```yaml
 network_devices_info_details:
   - network_devices:
-      - site_hierarchy: "Global/USA/Dallas"
-        device_role: "CORE"
-        device_type: "Cisco Catalyst 9500 Switch"
+      - site_hierarchy: "Global/USA/New York"
+        device_role: "DISTRIBUTION"
+        device_type: "Cisco Catalyst 9300 Switch"
         requested_info:
           - device_info
           - interface_info
@@ -416,6 +453,41 @@ network_devices_info_details:
 ```
 
 **Expected Output**: JSON file showing interface details and any detected link mismatches including duplex mismatches, speed inconsistencies, or VLAN configuration issues between connected devices.
+
+```code
+[
+  "The network devices filtered from the provided filters are: ['204.192.3.40']",
+  [
+    {
+      "device_info": [
+        {
+          "device_ip": "204.192.3.40",
+          "device_details": [
+            ...
+          ] } ]}       
+    {
+      "interface_info": [
+        {
+          "device_ip": "204.192.3.40",
+          "interface_details": [
+            ...
+          ]}]
+    }
+    {
+      "device_link_mismatch_info": [
+        {
+          "device_ip": "204.192.3.40",
+          "vlan": [
+            {
+              "device_ip": "204.192.3.40",
+              "link_mismatch_details": [
+                ...
+              ]
+        } ]  }
+      ] } ] ]          
+```
+
+
 
 ---
 
@@ -432,10 +504,10 @@ network_devices_info_details:
 ```yaml
 network_devices_info_details:
   - network_devices:
-      - site_hierarchy: "Global/USA/Austin"
+      - site_hierarchy: "Global/USA/SAN JOSE"
         device_role: "ACCESS"
         device_family: "Switches and Hubs"
-        software_version: "17.6.1"
+        software_version: "17.12.5"
         timeout: 180
         retries: 5
         interval: 15
@@ -446,6 +518,30 @@ network_devices_info_details:
 ```
 
 **Expected Output**: JSON file containing device details, PoE power allocation and consumption statistics, and module counts for all access switches running IOS-XE 17.6.1 in the Austin site.
+
+```code
+
+- 'The network devices filtered from the provided filters are: [''204.1.2.69'', ''204.1.2.5'']'
+    - - device_info:
+        - device_details:
+        ..
+    - - poe_info:
+        - device_ip: 204.1.2.69
+          poe_details:
+            powerAllocated: '865'
+            powerConsumed: '0'
+            powerRemaining: '865'
+        - device_ip: 204.1.2.5
+          poe_details:
+            powerAllocated: null
+            powerConsumed: null
+            powerRemaining: null
+    - - module_count_info:
+        - device_ip: 204.1.2.69
+          module_count_details: 2
+        - device_ip: 204.1.2.5
+          module_count_details: 2
+```
 
 ---
 
@@ -462,7 +558,7 @@ network_devices_info_details:
 ```yaml
 network_devices_info_details:
   - network_devices:
-      - site_hierarchy: "Global/USA/Chicago"
+      - site_hierarchy: "Global/USA/NEW York"
         device_family: "Wireless Controller"
         requested_info:
           - device_info
@@ -472,6 +568,28 @@ network_devices_info_details:
 ```
 
 **Expected Output**: Wireless controller details including management IP, software version, interface configurations, list of connected access points with their status, and the complete running configuration.
+
+```code 
+- 'The network devices filtered from the provided filters are: [''204.192.6.200'', ''204.192.6.202'']'
+    - - device_info:
+        - device_details:
+        ...
+    - - interface_info:
+        - device_ip: 204.192.6.200
+          interface_details:
+          - addresses:
+            ...
+    - - connected_device_info:
+        - connected_device_details: []
+          device_ip: 204.192.6.200
+          ...
+    - - device_config_info:
+        - device_config_details: |2-
+
+            Building configuration...
+
+            Current configuration : 102807 bytes
+```
 
 ---
 
@@ -506,7 +624,7 @@ network_devices_info_details:
   
   # Query 2: Core switches in Dallas
   - network_devices:
-      - site_hierarchy: "Global/USA/Dallas"
+      - site_hierarchy: "Global/USA/NEW YORK"
         device_role: "CORE"
         requested_info:
           - device_info
@@ -518,7 +636,7 @@ network_devices_info_details:
 
 **Expected Output**: 
 - `/tmp/sj_access_switches.json`: Device and interface details for all San Jose access switches
-- `/tmp/dallas_core_switches.yaml`: Device details and link mismatch information for all Dallas core switches
+- `/tmp/dallas_core_switches.yaml`: Device details and link mismatch information for all NEW YORK core switches
 
 **Benefits of Multiple Queries**:
 - Single workflow execution reduces overhead
@@ -532,10 +650,27 @@ network_devices_info_details:
 
 ### Step 1: Validate Configuration
 
+The workflow includes schema validation to ensure input correctness. The schema file (`schema/network_devices_info_schema.yml`) defines:
+
+- Required and optional parameters
+- Data types and formats
+- Valid value ranges
+- Default values
+- Parameter dependencies
+
+To validate your configuration:
+
 Validate your input configuration against the schema:
 
 ```bash
-yamale -s schema/network_devices_info_schema.yml vars/network_devices_info_input.yml
+yamale -s workflows/network_devices_info/schema/network_devices_info_schema.yml        workflows/network_devices_info/vars/network_devices_info_input.yml
+```
+Return result validate:
+
+```bash
+(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ yamale -s workflows/network_devices_info/schema/network_devices_info_schema.yml        workflows/network_devices_info/vars/network_devices_info_input.yml
+Validating workflows/network_devices_info/vars/network_devices_info_input.yml...
+Validation success! 👍
 ```
 
 ### Step 2: Run the Playbook
@@ -543,7 +678,9 @@ yamale -s schema/network_devices_info_schema.yml vars/network_devices_info_input
 Execute the playbook:
 
 ```bash
-ansible-playbook playbook/network_devices_info_playbook.yml -e @dnac_ansible_workflows/workflows/network_devices_info/vars/network_devices_info_input.yml -vvvv
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/network_devices_info/playbook/network_devices_info_playbook.yml \
+  --extra-vars VARS_FILE_PATH=../vars/network_devices_info_input.yml
 ```
 
 ## Output Examples
@@ -611,22 +748,6 @@ interface_info:
   - portName: GigabitEthernet1/0/1
     status: up
     speed: '1000000'
-```
-
-## Schema Validation
-
-The workflow includes schema validation to ensure input correctness. The schema file (`schema/network_devices_info_schema.yml`) defines:
-
-- Required and optional parameters
-- Data types and formats
-- Valid value ranges
-- Default values
-- Parameter dependencies
-
-To validate your configuration:
-
-```bash
-yamale -s schema/network_devices_info_schema.yml vars/network_devices_info_input.yml
 ```
 
 ## References
