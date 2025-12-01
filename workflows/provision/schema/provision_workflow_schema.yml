@@ -346,7 +346,11 @@ provision_details_type:
   dynamic_interfaces: list(include('dynamic_interfaces_type'), required=False)
   skip_ap_provision: bool(default=False, required=False)
   rolling_ap_upgrade: include('rolling_ap_upgrade_type', required=False)
-  application_telemetry: include('application_telemetry_type', required=False)
+  ap_authorization_list_name: str(required=False)
+  authorize_mesh_and_non_mesh_aps: bool(required=False)
+  feature_template: include('feature_template_type', required=False)
+  application_telemetry: list(include('application_telemetry_type'), required=False)
+
 
 dynamic_interfaces_type:
   interface_name: str(required=False)
@@ -359,7 +363,16 @@ dynamic_interfaces_type:
 rolling_ap_upgrade_type:
   enable_rolling_ap_upgrade: bool(default=False, required=False)
   ap_reboot_percentage: int(required=False)
-  
+
+feature_template_type:
+  design_name: str(required=True)
+  additional_identifiers: list(include('additional_identifiers_type'), required=False)
+  excluded_attributes: list(str(), required=False)
+
+additional_identifiers_type:
+  wlan_profile_name: str(required=False)
+  site_name_hierarchy: str(required=False)
+
 application_telemetry_type:
   device_ips: list(str, required=False)
   telemetry: str(required=False)
