@@ -1,5 +1,3 @@
-
-
 # Catalyst Center PNP Device Management Schema
 # =======================================
 #
@@ -110,6 +108,7 @@ device_info_type:
   state: enum('Unclaimed', 'Claimed', 'Provisioned',  'Error', required=False)
   pid: str(required=False)
   add_device_method: str(required=False)
+  authorize: bool(required=False)
 
 network_devices_type:
   device_info: list(include('device_info_type'), required=True)
