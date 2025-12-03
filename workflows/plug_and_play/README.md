@@ -26,6 +26,7 @@ Before starting, ensure the following requirements are met:
 * **Zero-Touch Provisioning:** Remotely configure devices onboarded through PnP
 * **Planned Provisioning:** Pre-configure settings and apply them when the device comes online.
 * **Unclaimed Provisioning:** Discover and configure new devices that join the network unexpectedly.
+* **Automatic PnP Device Authorization (2.3.7.9+):** Use `authorize: true` in `device_info` to auto-authorize devices in *Pending Authorization* state.
 
 ## Configure Environment
 - Update hosts.yml with the connection details of your DNA Center instance. 
@@ -138,6 +139,43 @@ Upon successful completion, you should see a message similar to:
 "failed": false,
 "msg": "3 device(s) imported successfully",
 ```
+
+### Device Authorization for Bulk Onboarding (Optional)
+
+From Cisco Catalyst Center release **2.3.7.9** onwards, you can automatically authorize PnP devices that are in **"Pending Authorization"** state by using the `authorize` flag inside `device_info`.
+
+- When `authorize: true` is set for a device, the workflow:
+  - Imports the device into PnP
+  - Looks up the device in Catalyst Center
+  - If its state is **Pending Authorization**, automatically calls the PnP `authorize_device` API
+- If `authorize` is not set or is `false`, the device remains in its current authorization state.
+
+#### Example: Bulk Onboarding with Authorization
+
+```yaml
+---
+catalyst_center_version: 2.3.7.9
+pnp_details:
+  add_bulk_network_devices:
+    - device_info:
+        - serial_number: FXS2502Q2HC
+          hostname: SF-BN-2-ASR.cisco.local
+          state: Unclaimed
+          pid: ASR1001-X
+          authorize: true
+        - serial_number: FJC271923AK
+          hostname: NY-EN-9300
+          state: Unclaimed
+          pid: C9300-48UXM
+          authorize: true
+        - serial_number: FOX2639PAYD
+          hostname: SJ-EWLC-1.cisco.local
+          state: Unclaimed
+          pid: C9800-40-K9
+          authorize: false
+```
+
+---
 
 ## Task: Delete a Device from PnP
 
@@ -558,6 +596,35 @@ pnp_details:
 ```bash
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
 ```
+## Task: Add and Claim a Device with Authorization
+
+This example demonstrates how to add a single device, automatically authorize it (if required), and then claim it to a site.
+
+```yaml
+---
+catalyst_center_version: 2.3.7.9
+pnp_details:
+  claim_switching_devices:
+    - site_name: Global/USA/SAN JOSE/SJ_BLD21
+      project_name: Onboarding Configuration
+      template_name: PnP-Devices-SW
+      image_name: cat9k_iosxe.17.12.04.SPA.bin
+      template_params:
+        PNP_VLAN_ID: 2000
+        LOOPBACK_IP: 204.1.2.100
+      device_info:
+        - serial_number: FJC272127LW
+          hostname: DC-FR-9300.cisco.local
+          state: Unclaimed
+          pid: C9300-48T
+          authorize: true        # <--- NEW: auto authorize trước khi claim
+```
+
+**Behavior:**
+
+- If the device is added and enters **Pending Authorization**, the workflow will:
+  - Call `authorize_device` (supported from **2.3.7.9+**)  
+  - Then proceed with the claim to the specified `site_name` using the given `template_name` and `image_name`.
 
 ### Important Notes
 
@@ -572,12 +639,8 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug
 ## References
 
 ```yaml
-  ansible: 9.9.0
-  ansible-core: 2.16.10
-  ansible-runner: 2.4.0
-
   dnacentersdk: 2.8.3
-  cisco.dnac: 6.29.0
+  cisco.dnac: 6.41.0
   ansible.utils: 5.1.2
 ```
 
