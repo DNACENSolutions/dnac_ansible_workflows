@@ -26,6 +26,23 @@
       dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
       
   tasks:
+    # Include the variables file {{ VARS_FILE_PATH }} for the playbook
+    - name: Swim Playbook start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+        
+    # load swim template jinja file
+    - name: Create Template
+      template: 
+        src: "{{ jinjatemplate_file }}"
+        dest: ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+    # Include the variables file ../tmp/template_generated_file.yaml for the playbook
+    - name: Include the variables file ../tmp/template_generated_file.yaml for the playbook
+      include_vars:
+        file: ../tmp/template_generated_file.yaml
+      when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+
     #Delete image in Catalyst Center
     - name: Delete image from Cisco Catalyst Center in file {{ VARS_FILE_PATH }}
       cisco.dnac.swim_workflow_manager:
@@ -33,6 +50,26 @@
         state: "{{ state }}"
         config:
         - "{{ item }}"
-      loop: "{{ swim_details.delete_images }}"
-      when: swim_details.delete_images is defined
+      loop: "{{ swim_details }}"
+      when: swim_details is defined
 
+    # delete the template file
+    - name: Delete the template file
+      ansible.builtin.command: rm ../tmp/template_generated_file.yaml
+      when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
+
+    # Swim playbook end time
+    - name: Swim playbook end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+    # Print swim execution time
+    - name: Print swim execution time
+      debug:
+        msg: "Swim playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
+
+  post_tasks:
+    - name: run command module to find python version
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
