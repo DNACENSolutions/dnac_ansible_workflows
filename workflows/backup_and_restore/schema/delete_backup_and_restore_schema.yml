@@ -93,7 +93,7 @@ backup_delete_config:
   nfs_configuration: list(include('nfs_delete_type'), required=True)
 
 backup_delete_type:
-  name: str(required=True)
+  name: str(required=False)
   delete_all_backup: bool(required=False)
   backup_retention_days: int(required=False, min=1)
 
