@@ -3,16 +3,15 @@
 network_devices_info_details:
   # Example 1: Query specific devices by IP address and retrieve all information
   - network_devices:
-      - site_hierarchy: "Global/USA/San Jose"
+      - site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23"  # Required when using 'all' or 'device_link_mismatch_info'
         device_type: "Cisco Catalyst 9300 Switch"
         device_role: "ACCESS"
         device_family: "Switches and Hubs"
-        software_version: "17.12.1"
         os_type: "IOS-XE"
         device_identifier:
-          - ip_address:
-              - "204.1.2.2"
-              - "204.1.2.3"
+          - ip_address: 
+              - "204.1.2.69"
+              - "204.1.2.1"
         timeout: 120
         retries: 3
         interval: 10
@@ -26,11 +25,9 @@ network_devices_info_details:
 
   # Example 2: Query devices by serial number and retrieve specific information
   - network_devices:
-      - site_hierarchy: "Global/USA/San Jose"
+      - device_family: "Routers"
         device_identifier:
-          - serial_number:
-              - "FCW2137L0SB"
-              - "FJC2335S09F"
+          - serial_number: ["FJC2402A0TX"]
         timeout: 60
         retries: 2
         interval: 5
@@ -46,13 +43,10 @@ network_devices_info_details:
 
   # Example 3: Query devices by hostname and retrieve specific information
   - network_devices:
-      - site_hierarchy: "Global/USA/New York"
-        device_type: "Cisco Catalyst 9400 Switch"
-        device_role: "DISTRIBUTION"
+      - device_role: "BORDER ROUTER"
+        os_type: "IOS-XE"
         device_identifier:
-          - hostname:
-              - "NYC-DIST-9400-01.cisco.local"
-              - "NYC-DIST-9400-02.cisco.local"
+          - hostname: ["SF-BN-2-ASR.cisco.local"]              
         timeout: 90
         retries: 3
         interval: 10
@@ -69,12 +63,10 @@ network_devices_info_details:
 
   # Example 4: Query wireless devices and retrieve connectivity information
   - network_devices:
-      - site_hierarchy: "Global/USA/Chicago"
-        device_family: "Wireless Controller"
-        os_type: "IOS-XE"
+      - device_family: "Routers"
+        device_role: "BORDER ROUTER"
         device_identifier:
-          - mac_address:
-              - "90:88:55:90:26:00"
+          - mac_address: ["7c:31:0e:80:40:20"]            
         timeout: 120
         retries: 3
         interval: 10
@@ -91,10 +83,8 @@ network_devices_info_details:
 
   # Example 5: Query all devices in a site without device identifiers
   - network_devices:
-      - site_hierarchy: "Global/USA/Austin"
+      - site_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
         device_role: "ACCESS"
-        device_family: "Switches and Hubs"
-        software_version: "17.6.1"
         timeout: 180
         retries: 5
         interval: 15
@@ -112,14 +102,11 @@ network_devices_info_details:
 
   # Example 6: Query devices and check for link mismatches
   - network_devices:
-      - site_hierarchy: "Global/USA/Dallas"
-        device_type: "Cisco Catalyst 9500 Switch"
-        device_role: "CORE"
+      - site_hierarchy: Global/USA/SAN JOSE/SJ_BLD23
+        device_role: "ACCESS"
         device_identifier:
-          - ip_address:
-              - "10.10.10.1"
-          - hostname:
-              - "DALLAS-CORE-9500.cisco.local"
+          - ip_address: ["204.192.4.200"]             
+          - hostname: ["SF-BN-2-ASR.cisco.local"]            
         timeout: 120
         retries: 3
         interval: 10
@@ -136,9 +123,11 @@ network_devices_info_details:
 
   # Example 7: Query multiple device types in a site
   - network_devices:
-      - site_hierarchy: "Global/EMEA/London"
+      - site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23"
         device_family: "Routers"
         os_type: "IOS-XE"
+        device_identifier:
+          - ip_address: ["204.192.4.200"]     
         timeout: 150
         retries: 4
         interval: 12
@@ -150,13 +139,10 @@ network_devices_info_details:
 
   # Example 8: Query devices without output file (results in Ansible output only)
   - network_devices:
-      - site_hierarchy: "Global/APAC/Singapore"
-        device_type: "Cisco Catalyst 9130AXI Unified Access Point"
-        device_family: "Unified AP"
+      - site_hierarchy: "Global/USA/New York/NY_BLD1"
+        device_family: "Wireless Controller"
         device_identifier:
-          - ip_address:
-              - "192.168.100.10"
-              - "192.168.100.11"
+          - ip_address: ["204.192.6.200"]
         timeout: 60
         retries: 2
         interval: 5
