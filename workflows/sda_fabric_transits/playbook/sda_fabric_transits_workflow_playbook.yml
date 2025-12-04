@@ -39,9 +39,57 @@
       cisco.dnac.sda_fabric_transits_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ fabric_transits }}" 
+        config: "{{ example0_fabric_transits }}" 
       register: fabric_transits_output
       when: fabric_transits is defined
+    - name: Update IP transit with site hierarchy "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.sda_fabric_transits_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config: "{{ example1_fabric_transits }}"
+      register: fabric_transits_output
+      when: fabric_transits is defined
+    
+    - name: Create SDA transit with site hierarchy "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.sda_fabric_transits_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config: "{{ example2_fabric_transits }}"
+      register: fabric_transits_output
+      when: fabric_transits is defined
+    
+    - name: Deploy multiple transits across sites "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.sda_fabric_transits_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config: "{{ example3_fabric_transits }}"
+      register: fabric_transits_output
+      when: fabric_transits is defined
+    
+    - name: Update transit site association "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.sda_fabric_transits_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config: "{{ example4_fabric_transits }}"
+      register: fabric_transits_output
+      when: fabric_transits is defined
+    
+    - name: Deploy campus transits "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.sda_fabric_transits_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config: "{{ example5_fabric_transits }}"
+      register: fabric_transits_output
+      when: fabric_transits is defined
+    
+    - name: Create legacy transit "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+      cisco.dnac.sda_fabric_transits_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config: "{{ example6_fabric_transits }}"
+      register: fabric_transits_output
+      when: fabric_transits is defined
+
     - name: Print the fabric transits output
       debug:
         msg: "{{fabric_transits_output}}"
@@ -57,3 +105,4 @@
       register: ansible_play_path
       delegate_to: catalyst_center_hosts
       connection: local
+
