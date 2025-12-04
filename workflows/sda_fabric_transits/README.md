@@ -57,8 +57,8 @@ Follow these steps to configure and deploy SDA fabric transits in *Cisco Catalys
    catalyst_center_hosts:
        hosts:
            catalyst_center220:
-               catalyst_center_host: 10.22.40.214
-               catalyst_center_password: M@glev123
+               catalyst_center_host: xx.xx.xx.xx
+               catalyst_center_password: XXXXXXXX
                catalyst_center_port: 443
                catalyst_center_timeout: 60
                catalyst_center_username: admin
@@ -125,6 +125,7 @@ Before creating fabric transits, ensure the following are configured in *Cisco C
 
 ##### 1. **Create IP-Based Transit**  
 *Example*: Configure a new IP-based transit with BGP routing.
+![Alt text](images/image.png)
 ```yaml
 catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
@@ -160,6 +161,7 @@ fabric_transits:
 
 ##### 3. **Create SDA LISP BGP Transit**  
 *Example*: Configure an SDA BGP transit with control plane devices.
+![Alt text](images/image-1.png)
 ```yaml
 catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
@@ -204,6 +206,7 @@ fabric_transits:
 
 ##### 5. **Update Transit Configuration**  
 *Example*: Update control plane devices for an existing transit.
+![Alt text](./images/image-3.png)
 > **Note**: IP-based transits cannot change ASN after creation. Only control plane devices and multicast settings can be updated for SDA transits.
 ```yaml
 catalyst_center_version: 3.1.3.0
@@ -238,6 +241,7 @@ fabric_transits:
 
 ##### 7. **Delete Fabric Transits**  
 *Example*: Delete one or more fabric transits by name.
+![Alt text](images/image-2.png)
 > **Warning**: Deleting transits may impact network connectivity. Verify dependencies before proceeding.
 ```yaml
 catalyst_center_version: 3.1.3.0
