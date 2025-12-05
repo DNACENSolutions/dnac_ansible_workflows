@@ -9,7 +9,7 @@
 - **Wireless LAN Controllers (WLCs)**
 - **Access Points (APs)**
 
-## Prerequisites
+## **Prerequisites**
 
 Before starting, ensure the following requirements are met:
 - **Access to Cisco Catalyst Center (DNAC)**: Ensure that PnP (Plug-and-Play) is enabled. 
@@ -46,6 +46,63 @@ catalyst_center_hosts:
             catalyst_center_log_level: INFO
             catalyst_center_log: true
 ```
+## Define Inputs and Validate
+
+This step involves preparing the input data for onboarding or managing devices via PnP and validating your setup.
+
+1.  **Define Input Variables:** Create variable files (e.g., `vars/catalyst_center_pnp_vars.yml`) that define the list of devices to claim, add, or delete.
+2.  **Validate Inputs:** Ensure your variable file adheres to the schema defined in `schema/plug_and_play_schema.yml`.
+
+### Schema for Plug and Play
+
+This schema defines the structure of the input file for configuring PnP in Cisco Catalyst Center. Below is a breakdown of the parameters.
+
+| **Parameter** | **Type** | **Required** | **Default Value** | **Description** |
+| :--- | :--- | :--- | :--- | :--- |
+| `pnp_details` | Dictionary | Yes | N/A | Container for all PnP device lists and configurations. |
+| `catalyst_center_version` | String | No | N/A | The version of the Catalyst Center instance. |
+| `catalyst_center_verify` | Boolean | No | `False` | Enable SSL certificate verification. |
+| `catalyst_center_debug` | Boolean | No | `False` | Enable debug mode for detailed logging. |
+| `catalyst_center_log` | Boolean | No | `False` | Enable logging to a file. |
+
+### PnP Details Configuration
+
+The `pnp_details` section organizes devices by their type or action.
+
+| **Parameter** | **Type** | **Description** |
+| :--- | :--- | :--- |
+| `claim_wireless_controllers` | List | List of Wireless LAN Controllers (WLC) to claim. |
+| `claim_switching_devices` | List | List of switches to claim. |
+| `claim_router_devices` | List | List of routers to claim. |
+| `claim_access_points` | List | List of Access Points (AP) to claim. |
+| `add_network_device` | List | List of devices to add to PnP database (without claiming). |
+| `add_bulk_network_devices` | List | List of devices to add in bulk. |
+| `network_devices` | List | General list of devices (often used for deletion tasks). |
+
+### Device Configuration Parameters
+
+Each item in the lists above (e.g., inside `claim_switching_devices`) typically requires the following parameters:
+
+| **Parameter** | **Type** | **Required** | **Description** |
+| :--- | :--- | :--- | :--- |
+| `site_name` | String | Yes (for Claim) | The full hierarchy path of the site (e.g., `Global/USA/San Jose`). |
+| `project_name` | String | No | The project name for configuration templates. |
+| `template_name` | String | No | The name of the template to apply. |
+| `image_name` | String | No | The name of the software image to provision. |
+| `template_params` | Dictionary | No | Variables required by the Jinja2 template (e.g., VLAN ID, IP). |
+| `device_info` | List | Yes | A list of specific devices to apply this configuration to. |
+
+### Device Info Object
+
+The `device_info` list contains the specific identity of the physical devices.
+
+| **Parameter** | **Type** | **Required** | **Description** |
+| :--- | :--- | :--- | :--- |
+| `serial_number` | String | Yes | The serial number of the device. |
+| `pid` | String | No | The Product ID of the device. |
+| `hostname` | String | No | The hostname to assign or identify the device. |
+| `state` | Enum | No | Expected state (e.g., `Unclaimed`, `Claimed`, `Provisioned`). |
+| `authorize` | Boolean | No | **(v2.3.7.9+)** Auto-authorize device if in `Pending Authorization` state. |
 
 ## Overview of PnP Onboarding Process with Example
 The following diagram illustrates the **PnP onboarding process**, initiated through an Ansible playbook utilizing the **cisco.dnac.pnp_workflow_manager** module. This module communicates with **Cisco Catalyst Center** via its API, enabling seamless device onboarding into the network.
@@ -596,7 +653,7 @@ pnp_details:
 ```bash
 ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
 ```
-## Task: Add and Claim a Device with Authorization
+## Task: Add and Claim and Authorize a Device
 
 This example demonstrates how to add a single device, automatically authorize it (if required), and then claim it to a site.
 
@@ -617,7 +674,7 @@ pnp_details:
           hostname: DC-FR-9300.cisco.local
           state: Unclaimed
           pid: C9300-48T
-          authorize: true        # <--- NEW: auto authorize trước khi claim
+          authorize: true
 ```
 
 **Behavior:**
@@ -636,12 +693,19 @@ pnp_details:
 * This playbook is provided as-is. Use at your own risk.
 * Ensure you have proper backups and understand the potential impact before running in a production environment.
 
+
 ## References
 
-```yaml
-  dnacentersdk: 2.8.3
-  cisco.dnac: 6.41.0
-  ansible.utils: 5.1.2
-```
+**Environment Details**  
+The following environment was used for testing:  
+
+| **Component**         | **Version** |
+|-----------------------|-------------|
+| Python                | `3.12.0`    |
+| Ansible               | `9.9.0`     |
+| cisco.dnac Collection | `6.42.0`    |
+| dnacentersdk          | `2.10.4`     |
+
+For detailed information on Plug and Play workflow, refer to the official documentation:  Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/pnp_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/pnp_workflow_manager/)
 
 ---
