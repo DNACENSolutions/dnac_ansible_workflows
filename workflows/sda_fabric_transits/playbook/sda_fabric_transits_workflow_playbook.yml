@@ -1,9 +1,9 @@
 # Manage operations on SDA fabric transits.
 # API to create transit networks.
 # API to update transit networks.
-# module: fabric_transits_workflow_manager
+# module: sda_fabric_transits_workflow_manager
 # requirements:
-#   - cisco.dnac >= 6.19.0
+#   - cisco.dnac >= 6.29.0
 ---
 - name: Playbook to manage fabric site(s)/zone(s) and update the authentication profile template in Cisco Catalyst Center
   hosts: catalyst_center_hosts
