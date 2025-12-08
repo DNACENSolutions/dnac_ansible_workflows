@@ -50,6 +50,21 @@
 # Determines whether multicast traffic is permitted to traverse the transit network.
 # Enabling this option allows the distribution of data to multiple recipients across different network segments.
 # Available only when the transit type is set to SDA_LISP_PUB_SUB_TRANSIT.
+# 		transit_site_hierarchy
+# string
+# The site name hierarchy for the SDA fabric transit configuration.
+# Specifies the hierarchical location of the fabric transit within the organizational network topology.
+# The transit transit_site_hierarchy would be higher than fabric site hierarchy to have multiple fabric sites part of same transit.
+# Used to identify and associate the fabric transit with a specific site context in Cisco Catalyst Center.
+# Must follow the format 'Global/Area/Building/Floor' as configured in the site hierarchy within Cisco Catalyst Center.
+# The specified site hierarchy must exist in Cisco Catalyst Center before fabric transit creation or update.
+# This parameter enables site-aware fabric transit management and location-based network segmentation.
+# When provided during fabric transit creation, the transit will be associated with the specified site.
+# For existing fabric transits, changing the site hierarchy will update the site association if different from current assignment.
+# If not specified for existing transits, the current site association will be maintained.
+# Supported from Cisco Catalyst Center release version 3.1.3.0 onwards.
+# For versions prior to 3.1.3.0, this parameter will be ignored with a warning message.
+# If not assigned, the default value is 'Global' in Catalyst Center which allows this transit to be used across any site.
 # 		transit_type
 # string
 # Choices:
@@ -82,6 +97,7 @@ fabric_transits_type:
 sda_fabric_transits_type:
   name: str(required=True)
   transit_type: enum('IP_BASED_TRANSIT', 'SDA_LISP_PUB_SUB_TRANSIT', 'SDA_LISP_BGP_TRANSIT')
+  transit_site_hierarchy: str(required=False)
   ip_transit_settings: include('ip_transit_settings_type', required=False)
   sda_transit_settings: include('sda_transit_settings_type', required=False)
 
@@ -92,3 +108,4 @@ ip_transit_settings_type:
 sda_transit_settings_type:
     control_plane_network_device_ips: list(str(), min=1, max=4, required=False)
     is_multicast_over_transit_enabled: bool(required=False)
+

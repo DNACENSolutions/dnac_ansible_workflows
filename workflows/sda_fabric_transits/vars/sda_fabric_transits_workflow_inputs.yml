@@ -1,19 +1,78 @@
 ---
-catalyst_center_version: 2.3.7.6
-catalyst_center_verify: true
+catalyst_center_version: 3.1.3.0
+catalyst_center_verify: false
 
 fabric_transits:
   - sda_fabric_transits:
+  # Example 1: Update IP-based transit without site hierarchy
       - ip_transit_settings:
           autonomous_system_number: "100"
           routing_protocol_name: BGP
         name: IP Transit_AS200
         transit_type: IP_BASED_TRANSIT
-      - sda_transit_settings:
+  # Example 2: Update IP-based transit with site hierarchy
+      - name: sample_transit
+        transit_site_hierarchy: Global/India
+        transit_type: IP_BASED_TRANSIT
+        ip_transit_settings:
+          routing_protocol_name: BGP
+          autonomous_system_number: "134"
+  # Example 3: Create SDA fabric transit with site hierarchy
+      - name: enterprise_transit_ny
+        transit_type: SDA_LISP_BGP_TRANSIT
+        transit_site_hierarchy: "Global/USA/NewYork/Building_A/Floor_1"
+        sda_transit_settings:
           control_plane_network_device_ips:
-            - "10.1.1.1"
-            - "10.1.1.2"
-          is_multicast_over_transit_enabled: true
-        name: SDA Transit_1
+            - "10.1.1.10"
+            - "10.1.1.11"
+  # Example 4: Multi-site fabric transit deployment
+      - name: corporate_hq_transit
         transit_type: SDA_LISP_PUB_SUB_TRANSIT
+        transit_site_hierarchy: "Global/Corporate/Headquarters/Building_Main"
+        sda_transit_settings:
+          is_multicast_over_transit_enabled: true
+          control_plane_network_device_ips:
+            - "192.168.10.1"
+            - "192.168.10.2"
+            - "192.168.10.3"
+      - name: branch_office_transit
+        transit_type: SDA_LISP_BGP_TRANSIT
+        transit_site_hierarchy: "Global/Branch_Offices/West_Coast/San_Francisco"
+        sda_transit_settings:
+          control_plane_network_device_ips:
+            - "172.16.20.1"
+            - "172.16.20.2"
+  # Example 5: Update fabric transit site association
+      - name: enterprise_transit_ny_updated
+        transit_type: SDA_LISP_BGP_TRANSIT
+        transit_site_hierarchy: "Global/USA/NewYork/Building_A/Floor_2"
+        sda_transit_settings:
+          control_plane_network_device_ips:
+            - "10.1.1.10"
+            - "10.1.1.11"
+  # Example 6: Campus deployment with multiple buildings
+      - name: engineering_building_transit
+        transit_type: SDA_LISP_PUB_SUB_TRANSIT
+        transit_site_hierarchy: "Global/University/Campus/Engineering_Building"
+        sda_transit_settings:
+          is_multicast_over_transit_enabled: false
+          control_plane_network_device_ips:
+            - "10.100.1.1"
+            - "10.100.1.2"
+      - name: admin_building_transit
+        transit_type: SDA_LISP_BGP_TRANSIT
+        transit_site_hierarchy: "Global/University/Campus/Administration_Building"
+        sda_transit_settings:
+          control_plane_network_device_ips:
+            - "10.200.1.1"
+            - "10.200.1.2"
+  # Example 7: Legacy transit without site hierarchy (backward compatibility)
+      - name: legacy_transit
+        transit_type: SDA_LISP_BGP_TRANSIT
+        # No transit_site_hierarchy specified - will default to Global and work with all versions
+        sda_transit_settings:
+          control_plane_network_device_ips:
+            - "10.50.1.1"
+            - "10.50.1.2"
+
 
