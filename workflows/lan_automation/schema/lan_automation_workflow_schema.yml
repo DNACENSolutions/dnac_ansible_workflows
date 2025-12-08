@@ -3,11 +3,6 @@
 lan_automation_details:
   lan_automation_session: list(include('lan_automation_type'), min=0, max=100, required=False)
   device_update: list(include('device_update_type'), min=0, max=100, required=False)
-port_channel_create_details:
-  port_channel: list(include('port_channel_type'), min=0, max=100, required=False)
-port_channel_update_details:
-  port_channel: list(include('port_channel_type'), min=0, max=100, required=False)
-port_channel_delete_details:
   port_channel: list(include('port_channel_type'), min=0, max=100, required=False)
 catalyst_center_version: str(required=False)
 catalyst_center_verify: bool(required=False)
