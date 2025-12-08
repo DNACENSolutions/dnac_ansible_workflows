@@ -26,108 +26,65 @@
       dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
       
   tasks:
-    # - name: Include LAN Automation Variables
-    #   include_vars:
-    #     file: "{{ VARS_FILE_PATH }}"
-    #   when: VARS_FILE_PATH is defined
+    - name: Include LAN Automation Variables
+      include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when: VARS_FILE_PATH is defined
 
-    # - name: Set LAN Automation Start Time
-    #   set_fact:
-    #     long_op_start: "{{ now() }}"
+    - name: Set LAN Automation Start Time
+      set_fact:
+        long_op_start: "{{ now() }}"
 
-    # - name: Run LAN Automation Workflows
-    #   cisco.dnac.lan_automation_workflow_manager:
-    #     <<: *catalyst_center_login
-    #     config: 
-    #       - "{{ item }}"
-    #   loop: "{{ lan_automation_details.lan_automation_session }}"
-    #   when: lan_automation_details.lan_automation_session is defined
-    #   register: lan_automation_output
+    - name: Run LAN Automation Workflows
+      cisco.dnac.lan_automation_workflow_manager:
+        <<: *catalyst_center_login
+        config: 
+          - "{{ item }}"
+      loop: "{{ lan_automation_details.lan_automation_session }}"
+      when: lan_automation_details.lan_automation_session is defined
+      register: lan_automation_output
 
-    # - name: Print LAN Automation Output
-    #   debug:
-    #     msg: "{{ lan_automation_output }}"
-    #   when: lan_automation_output is defined
+    - name: Print LAN Automation Output
+      debug:
+        msg: "{{ lan_automation_output }}"
+      when: lan_automation_output is defined
 
-    # - name: Update LAN Automated devices
-    #   cisco.dnac.lan_automation_workflow_manager:
-    #     <<: *catalyst_center_login
-    #     config: 
-    #       - "{{ item }}"
-    #   register: loopback_update_output
-    #   loop: "{{ lan_automation_details.device_update }}"
-    #   when: lan_automation_details.device_update is defined
+    - name: Update LAN Automated devices
+      cisco.dnac.lan_automation_workflow_manager:
+        <<: *catalyst_center_login
+        config: 
+          - "{{ item }}"
+      register: loopback_update_output
+      loop: "{{ lan_automation_details.device_update }}"
+      when: lan_automation_details.device_update is defined
 
     # Port Channel Create
-    - name: Create/Update Port Channel Configuration
+    - name: Create/Update/Delete Port Channel Configuration
       cisco.dnac.lan_automation_workflow_manager:
         <<: *catalyst_center_login
-        state: "{{ state }}"
         config:
-          - port_channel: "{{ port_channel_create_details.port_channel }}"
-      register: port_channel_create_output
+          - port_channel: "{{ lan_automation_details.port_channel }}"
+      register: port_channel_output
       when: 
-        - port_channel_create_details is defined
-        - port_channel_create_details.port_channel is defined
-        - state == "merged"
+        - lan_automation_details is defined
+        - lan_automation_details.port_channel is defined
 
-    - name: Print Port Channel Create/Update Output
+    - name: Print Loopback Update Output
       debug:
-        msg: "{{ port_channel_create_output }}"
-      when: port_channel_create_output is defined
+        msg: "{{ loopback_update_output }}"
+      when: loopback_update_output is defined
 
-    # Port Channel Update
-    - name: Update Port Channel Configuration
-      cisco.dnac.lan_automation_workflow_manager:
-        <<: *catalyst_center_login
-        state: "{{ state }}"
-        config:
-          - port_channel: "{{ port_channel_update_details.port_channel }}"
-      register: port_channel_update_output
-      when: 
-        - port_channel_update_details is defined
-        - port_channel_update_details.port_channel is defined
-        - state == "merged"
+    - name: Set LAN Automation End Time
+      set_fact:
+        long_op_end: "{{ now() }}"
 
-    - name: Print Port Channel Update Output
+    - name: Print LAN Automation Execution Time
       debug:
-        msg: "{{ port_channel_update_output }}"
-      when: port_channel_update_output is defined
-    
-    # Port Channel Delete
-    - name: Delete Port Channel Configuration
-      cisco.dnac.lan_automation_workflow_manager:
-        <<: *catalyst_center_login
-        state: "{{ state }}"
-        config:
-          - port_channel: "{{ port_channel_delete_details.port_channel }}"
-      register: port_channel_delete_output
-      when: 
-        - port_channel_delete_details is defined
-        - port_channel_delete_details.port_channel is defined
-        - state == "deleted"
+        msg: "LAN Automation runtime: Start {{ long_op_start }}, End {{ long_op_end }}"
 
-    # - name: Print Port Channel Delete Output
-    #   debug:
-    #     msg: "{{ port_channel_delete_output }}"
-    #   when: port_channel_delete_output is defined
-
-    # - name: Print Loopback Update Output
-    #   debug:
-    #     msg: "{{ loopback_update_output }}"
-    #   when: loopback_update_output is defined
-
-    # - name: Set LAN Automation End Time
-    #   set_fact:
-    #     long_op_end: "{{ now() }}"
-
-    # - name: Print LAN Automation Execution Time
-    #   debug:
-    #     msg: "LAN Automation runtime: Start {{ long_op_start }}, End {{ long_op_end }}"
-
-    # - name: Check Python Version on Catalyst Center Host
-    #   ansible.builtin.command: which python
-    #   register: ansible_play_path
-    #   delegate_to: catalyst_center_hosts
-    #   connection: local
+    - name: Check Python Version on Catalyst Center Host
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
 
