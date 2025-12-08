@@ -88,18 +88,127 @@ catalyst_center_hosts:
       catalyst_center_log: true
 ```
 
-**Key Parameters:**
+---
 
-| **Parameter**                   | **Description**                                                           | **Required** |
-|---------------------------------|---------------------------------------------------------------------------|--------------|
-| `catalyst_center_host`          | IP address or hostname of Catalyst Center                                 | Yes          |
-| `catalyst_center_username`      | Username for authentication                                               | Yes          |
-| `catalyst_center_password`      | Password for authentication                                               | Yes          |
-| `catalyst_center_version`       | Catalyst Center software version (must match actual version)              | Yes          |
-| `catalyst_center_port`          | HTTPS port for API communication (default: 443)                           | No           |
-| `catalyst_center_verify`        | SSL certificate verification (true/false)                                 | No           |
-| `catalyst_center_debug`         | Enable debug logging (true/false)                                         | No           |
-| `catalyst_center_log_level`     | Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)                     | No           |
+## Configuration Parameters
+
+This section provides detailed information about all configuration parameters available for LAN Automation workflows.
+
+### Global Parameters
+
+| **Parameter**                   | **Type**   | **Required** | **Default Value** | **Description**                                                           |
+|---------------------------------|------------|--------------|-------------------|---------------------------------------------------------------------------|
+| `catalyst_center_version`       | String     | No           | From hosts.yml    | Catalyst Center software version. Overrides host file version.            |
+| `catalyst_center_verify`        | Boolean    | No           | `false`           | SSL certificate verification (true/false).                                |
+| `dnac_api_task_timeout`         | Integer    | No           | `604800`          | Maximum time (seconds) to wait for LAN Automation task completion.        |
+| `dnac_task_poll_interval`       | Integer    | No           | `30`              | Interval (seconds) to poll for task completion status.                    |
+| `config_verify`                 | Boolean    | No           | `false`           | Verify LAN Automation config after applying playbook configuration.       |
+| `state`                         | String     | No           | `merged`          | Desired state after module completion. Choices: `merged`, `deleted`.      |
+
+---
+
+### LAN Automation Session Parameters
+
+Configuration parameters for starting or stopping LAN Automation sessions.
+
+| **Parameter**                              | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+|--------------------------------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `discovered_device_site_name_hierarchy`    | String     | Yes          | `N/A`             | Site hierarchy where discovered devices will be placed (e.g., "Global/USA/SAN JOSE"). |
+| `primary_device_management_ip_address`     | String     | Yes          | `N/A`             | Management IP address of the primary/seed device for the LAN Automation session. |
+| `peer_device_management_ip_address`        | String     | No           | `null`            | Management IP address of the peer device for redundancy.                         |
+| `primary_device_interface_names`           | List       | Yes          | `N/A`             | List of interface names on primary device used for LAN automation.               |
+| `ip_pools`                                 | List       | Yes          | `N/A`             | List of IP pools used during the session. See IP Pool Parameters below.          |
+| `multicast_enabled`                        | Boolean    | No           | `false`           | Enable multicast routing in the LAN Automation session.                          |
+| `host_name_prefix`                         | String     | No           | `null`            | Prefix for auto-generating hostnames during the session.                         |
+| `redistribute_isis_to_bgp`                 | Boolean    | No           | `false`           | Enable redistribution of IS-IS routes to BGP.                                    |
+| `isis_domain_pwd`                          | String     | No           | `null`            | Password for IS-IS domain configuration.                                         |
+| `discovery_level`                          | Integer    | No           | `2`               | Depth of discovery during automation (1-5 levels below primary seed device). Range: 1-5. |
+| `discovery_timeout`                        | Integer    | No           | `null`            | Timeout for device discovery in minutes. Range: 20-10080 minutes.                |
+| `discovery_devices`                        | List       | No           | `null`            | List of specific devices to discover. Maximum 50 devices per session.            |
+| `launch_and_wait`                          | Boolean    | No           | `false`           | Pause task execution until LAN Automation session completes.                     |
+| `pnp_authorization`                        | Boolean    | No           | `false`           | Enable Plug and Play (PnP) authorization for discovered devices.                 |
+| `device_serial_number_authorization`       | List       | No           | `null`            | List of device serial numbers to authorize during the session.                   |
+
+#### IP Pool Parameters (`ip_pools`)
+
+| **Parameter**         | **Type**   | **Required** | **Description**                                                                 |
+|-----------------------|------------|--------------|---------------------------------------------------------------------------------|
+| `ip_pool_name`        | String     | Yes          | Name of the IP pool configured in Catalyst Center.                              |
+| `ip_pool_role`        | String     | Yes          | Role of the IP pool. Choices: `MAIN_POOL`, `PHYSICAL_LINK_POOL`.               |
+
+#### Discovery Device Parameters (`discovery_devices`)
+
+| **Parameter**                      | **Type**   | **Required** | **Description**                                                                 |
+|------------------------------------|------------|--------------|---------------------------------------------------------------------------------|
+| `device_serial_number`             | String     | Yes          | Serial number of the device to be discovered.                                   |
+| `device_host_name`                 | String     | No           | Hostname to assign to the device after discovery.                               |
+| `device_site_name_hierarchy`       | String     | No           | Site hierarchy where device will be placed after discovery.                     |
+| `device_management_ip_address`     | String     | No           | Management IP address to assign to the device.                                  |
+
+---
+
+### Device Update Parameters
+
+Configuration parameters for updating LAN Automated devices (loopback, hostname, links).
+
+#### Loopback IP Update Parameters (`loopback_update_device_list`)
+
+| **Parameter**                      | **Type**   | **Required** | **Description**                                                                 |
+|------------------------------------|------------|--------------|---------------------------------------------------------------------------------|
+| `device_management_ip_address`     | String     | Yes          | Current management IP address of the device to update.                          |
+| `new_loopback0_ip_address`         | String     | Yes          | New Loopback0 IP address from LAN pool associated with device discovery site.   |
+
+#### Hostname Update Parameters (`hostname_update_devices`)
+
+| **Parameter**                      | **Type**   | **Required** | **Description**                                                                 |
+|------------------------------------|------------|--------------|---------------------------------------------------------------------------------|
+| `device_management_ip_address`     | String     | Yes          | Current management IP address of the device to update.                          |
+| `new_host_name`                    | String     | Yes          | New hostname for the device. Must follow valid hostname conventions.            |
+
+#### Link Add Parameters (`link_add`)
+
+| **Parameter**                              | **Type**   | **Required** | **Description**                                                                 |
+|--------------------------------------------|------------|--------------|---------------------------------------------------------------------------------|
+| `source_device_management_ip_address`      | String     | Yes          | Management IP address of the source device.                                     |
+| `source_device_interface_name`             | String     | Yes          | Interface name on source device (e.g., "GigabitEthernet1/0/1").                 |
+| `destination_device_management_ip_address` | String     | Yes          | Management IP address of the destination device.                                |
+| `destination_device_interface_name`        | String     | Yes          | Interface name on destination device (e.g., "GigabitEthernet2/0/1").            |
+| `ip_pool_name`                             | String     | Yes          | Name of LAN IP pool from which link IP addresses will be allocated.             |
+
+#### Link Delete Parameters (`link_delete`)
+
+| **Parameter**                              | **Type**   | **Required** | **Description**                                                                 |
+|--------------------------------------------|------------|--------------|---------------------------------------------------------------------------------|
+| `source_device_management_ip_address`      | String     | Yes          | Management IP address of the source device.                                     |
+| `source_device_interface_name`             | String     | Yes          | Interface name on source device to delete.                                      |
+| `destination_device_management_ip_address` | String     | Yes          | Management IP address of the destination device.                                |
+| `destination_device_interface_name`        | String     | Yes          | Interface name on destination device to delete.                                 |
+
+---
+
+### Port Channel Parameters
+
+Configuration parameters for creating, updating, and deleting Port Channels between LAN Automated devices.
+
+#### Port Channel Configuration (`port_channel`)
+
+| **Parameter**                               | **Type**   | **Required** | **Description**                                                                 |
+|---------------------------------------------|------------|--------------|---------------------------------------------------------------------------------|
+| `source_device_management_ip_address`       | String     | No*          | Management IP address of the source device. *At least one source device identifier required. |
+| `source_device_mac_address`                 | String     | No*          | MAC address of the source device. *At least one source device identifier required. |
+| `source_device_serial_number`               | String     | No*          | Serial number of the source device. *At least one source device identifier required. |
+| `destination_device_management_ip_address`  | String     | No*          | Management IP address of the destination device. *At least one destination device identifier required for create/update. |
+| `destination_device_mac_address`            | String     | No*          | MAC address of the destination device. *At least one destination device identifier required for create/update. |
+| `destination_device_serial_number`          | String     | No*          | Serial number of the destination device. *At least one destination device identifier required for create/update. |
+| `port_channel_number`                       | Integer    | No           | System-assigned Port Channel number. Used for update/delete operations to identify specific Port Channel. |
+| `links`                                     | List       | Yes**        | List of physical interface links to include in the Port Channel. **Required for create operations. |
+
+#### Link Configuration Parameters (`links`)
+
+| **Parameter**         | **Type**   | **Required** | **Description**                                                                 |
+|-----------------------|------------|--------------|---------------------------------------------------------------------------------|
+| `source_port`         | String     | Yes          | Interface name on source device (e.g., 'GigabitEthernet1/0/1', 'TenGigabitEthernet1/0/1'). |
+| `destination_port`    | String     | Yes          | Interface name on destination device (e.g., 'GigabitEthernet2/0/1', 'TenGigabitEthernet1/0/1'). |
 
 ---
 
@@ -214,19 +323,6 @@ Once the input validation is complete and no errors are found, you can run the p
 ```bash
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml -vvv
 ```
-
-> **Note**: If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
-
-#### Post-Execution Monitoring
-
-After executing the playbook, check the Catalyst Center UI to monitor the progress of the LAN Automation session. Navigate to **Provision > LAN Automation** to view session status and discovered devices.
-
-**Monitoring Tips:**
-- Enable `catalyst_center_debug: true` for detailed logs
-- Review log files for troubleshooting information
-- Monitor device discovery progress in real-time
-- Verify device placement in correct site hierarchy
-
 ---
 
 ### Step 4: Verify LAN Automation Session
@@ -278,19 +374,6 @@ To stop the LAN Automation session, run the stop playbook with your specified in
 ```bash
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/stop_lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml -vvv
 ```
-
-> **Note**: If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
-
-#### Post-Execution Monitoring
-
-After executing the playbook, check the Catalyst Center UI under **Provision > LAN Automation** tab to monitor the stopping of LAN Automation session. The session status should change to "Stopped" or "Completed".
-
-**Stop Operation Verification:**
-- Session status updates to "Stopped"
-- No new devices are being discovered
-- Ongoing device configurations are completed
-- Session can be restarted if needed
-
 ---
 
 ## Configuration Steps to Update LAN Automated Devices
@@ -348,14 +431,6 @@ Once validation is complete, run the playbook:
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
-##### Post-Execution Monitoring
-
-After executing the playbook, verify the loopback IP updates:
-- Check device configurations in Catalyst Center UI
-- Verify new loopback IP addresses are applied
-- Ensure devices remain in Managed state
-- Review logs if `catalyst_center_debug` is enabled
-
 ---
 
 ### 2. Edit Hostname of LAN Automated Devices
@@ -401,14 +476,6 @@ lan_automation_details:
 ```bash
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
-
-##### Post-Execution Monitoring
-
-After executing the playbook, verify the hostname updates:
-- Check device hostnames in Catalyst Center inventory
-- Verify new hostnames are reflected in device configurations
-- Ensure devices remain accessible with new hostnames
-- Review logs for any update errors
 
 ---
 
@@ -479,14 +546,6 @@ lan_automation_details:
 ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
-##### Post-Execution Monitoring
-
-After executing the playbook, verify the link operations:
-- Check topology view in Catalyst Center UI
-- Verify links are created/deleted as expected
-- Ensure interface configurations are correct
-- Review logs for operation details
-
 ---
 
 ## Configuration Steps to Manage Port Channels for LAN Automated Devices
@@ -508,35 +567,6 @@ Before managing Port Channels, ensure the following requirements are met:
 - Physical links cannot be shared between multiple Port Channels
 - Source and destination terminology is used for configuration consistency only; both devices function as equal peers
 - Port Channel numbers are system-assigned during creation; user-provided values will be ignored
-
----
-## Port Channel Configuration Schema
-
-The following table outlines the parameters for Port Channel operations:
-
-| **Parameter**                             | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
-|-------------------------------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
-| `port_channel`                            | List       | Yes          | `N/A`             | List of Port Channel configurations to create, update, or delete.              |
-
-### Port Channel Configuration Parameters
-
-| **Parameter**                               | **Type**   | **Required** | **Description**                                                                 |
-|---------------------------------------------|------------|--------------|---------------------------------------------------------------------------------|
-| `source_device_management_ip_address`       | String     | No*          | Management IP address of the source device. *At least one source device identifier required. |
-| `source_device_mac_address`                 | String     | No*          | MAC address of the source device. *At least one source device identifier required. |
-| `source_device_serial_number`               | String     | No*          | Serial number of the source device. *At least one source device identifier required. |
-| `destination_device_management_ip_address`  | String     | No*          | Management IP address of the destination device. *At least one destination device identifier required for create/update. |
-| `destination_device_mac_address`            | String     | No*          | MAC address of the destination device. *At least one destination device identifier required for create/update. |
-| `destination_device_serial_number`          | String     | No*          | Serial number of the destination device. *At least one destination device identifier required for create/update. |
-| `port_channel_number`                       | Integer    | No           | System-assigned Port Channel number. Used for update/delete operations to identify specific Port Channel. |
-| `links`                                     | List       | Yes**        | List of physical interface links to include in the Port Channel. **Required for create operations. |
-
-### Link Configuration Parameters (`links`)
-
-| **Parameter**         | **Type**   | **Required** | **Description**                                                                 |
-|-----------------------|------------|--------------|---------------------------------------------------------------------------------|
-| `source_port`         | String     | Yes          | Interface name on the source device (e.g., 'GigabitEthernet1/0/1').            |
-| `destination_port`    | String     | Yes          | Interface name on the destination device (e.g., 'GigabitEthernet2/0/1').       |
 
 ---
 
@@ -660,7 +690,7 @@ To create Port Channels, follow these steps:
 Before executing the playbook, validate the input schema to ensure all required parameters are included and correctly formatted:
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/port_channel_create_inputs.yml
+./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automation_workflow_inputs.yml
 ```
 
 ##### Running the Playbook
@@ -668,14 +698,10 @@ Before executing the playbook, validate the input schema to ensure all required 
 Once validation is complete, run the playbook with your input file:
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/port_channel_create_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml -vvv
 ```
 
 > **Note**: If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
-
-##### Post-Execution Monitoring
-
-After executing the playbook, check the Catalyst Center UI to monitor the Port Channel creation. Navigate to **Provision > Inventory > Topology** to view the newly created Port Channel links. If `catalyst_center_debug` is enabled, you can also review the logs for detailed information on operations performed.
 
 ---
 
@@ -740,18 +766,14 @@ lan_automation_details:
 ##### Input Validation
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/port_channel_update_inputs.yml
+./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automation_workflow_inputs.yml
 ```
 
 ##### Running the Playbook
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/port_channel_update_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml -vvv
 ```
-
-##### Post-Execution Monitoring
-
-After executing the playbook, verify the Port Channel updates in the Catalyst Center UI under **Provision > Inventory > Topology**. If `catalyst_center_debug` is enabled, review the logs for detailed information on the update operations.
 
 ---
 
@@ -862,7 +884,7 @@ lan_automation_details:
 ##### Input Validation
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/port_channel_delete_inputs.yml
+./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automation_workflow_inputs.yml
 ```
 
 ##### Running the Playbook with Delete State
@@ -870,27 +892,8 @@ lan_automation_details:
 **Important**: Port Channel deletion requires using the `deleted` state in the playbook execution.
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/port_channel_delete_inputs.yml --e state=deleted -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml --e state=deleted -vvv
 ```
-
-##### Post-Execution Monitoring
-
-After executing the playbook, verify the Port Channel deletion in the Catalyst Center UI under **Provision > Inventory > Topology**. The deleted Port Channels and associated links should no longer appear in the topology view. If `catalyst_center_debug` is enabled, review the logs for detailed information on the deletion operations.
-
----
-
-### Best Practices
-- Validate input files using the schema validator before deployment
-- Test Port Channel configurations in non-production environment first
-- Use `catalyst_center_debug: true` for detailed troubleshooting
-- Monitor Port Channel status in Catalyst Center UI after operations
-- Back up configurations before performing delete operations
-
-### Troubleshooting
-- **Device Not Found**: Verify device identifiers are correct and devices are in Managed state
-- **Interface Not Available**: Ensure interfaces exist and are not already part of another Port Channel
-- **Link Count Violation**: Verify Port Channel has between 2-8 links
-- **Permission Denied**: Ensure user has appropriate permissions for Port Channel operations
 
 ---
 
@@ -898,16 +901,16 @@ After executing the playbook, verify the Port Channel deletion in the Catalyst C
 
 For comprehensive instructions on LAN Automation configuration and the complete parameter specification, refer to:
 - [Cisco Catalyst Center LAN Automation Documentation](https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/series.html)
-- [Ansible Galaxy: LAN Automation Workflow Manager](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/lan_automation_workflow_manager/)
+- [Ansible Galaxy: LAN Automation Workflow Manager](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/lan_automation_workflow_manager)
 
 **Environment Details** used for testing:
 
 | **Component**         | **Version** |
 |-----------------------|-------------|
-| Python                | `3.9+`      |
-| Cisco Catalyst Center | `2.3.7.6`   |
+| Python                | `3.10.0`    |
+| Cisco Catalyst Center | `3.1.3`   |
 | Ansible               | `9.9.0`     |
-| cisco.dnac Collection | `6.20.0+`   |
-| dnacentersdk          | `2.9.2+`    |
+| cisco.dnac Collection | `6.32.0`    |
+| dnacentersdk          | `2.8.8`     |
 
 ---
