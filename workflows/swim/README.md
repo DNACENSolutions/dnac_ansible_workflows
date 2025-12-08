@@ -390,18 +390,18 @@ The software image (SWIM) can be updated on the device in a single run by combin
                   - http://xx.xx.xx.xx/swim/V1715_1PRD18_FC1/cat9k_iosxe.17.15.01prd18.SPA.bin
                   - http://xx.xx.xx.xx/swim/V1715_1PRD18_FC1/C9800-SW-iosxe-wlc.17.15.01prd18.SPA.bin
                 is_third_party: False
-        tagging_details:
+      - tagging_details:
             image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
             device_role: ALL
             device_image_family_name: Cisco Catalyst 9300 Switch
             site_name: Global/USA/SAN JOSE/BLD23
             tagging: true
-        image_distribution_details:
+      - image_distribution_details:
           image_name: cat9k_iosxe.17.15.01prd18.SPA.bin
           device_role: ACCESS
           site_name: Global/USA/SAN JOSE/BLD23
           device_family_name: Switches and Hubs
-        image_activation_details:
+      - image_activation_details:
           activate_lower_image_version: false
           device_family_name: Switches and Hubs
           device_role: ACCESS
