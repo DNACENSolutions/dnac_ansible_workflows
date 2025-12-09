@@ -58,8 +58,8 @@
       loop: "{{ lan_automation_details.device_update }}"
       when: lan_automation_details.device_update is defined
 
-    # Port Channel Create
-    - name: Create/Update/Delete Port Channel Configuration
+    # Port Channel Create/Update
+    - name: Create/Update Port Channel Configuration
       cisco.dnac.lan_automation_workflow_manager:
         <<: *catalyst_center_login
         config:
