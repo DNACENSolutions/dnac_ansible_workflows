@@ -347,6 +347,7 @@ provision_details_type:
   skip_ap_provision: bool(default=False, required=False)
   rolling_ap_upgrade: include('rolling_ap_upgrade_type', required=False)
   application_telemetry: include('application_telemetry_type', required=False)
+  ap_authorization_list_name: str(required=False)
 
 dynamic_interfaces_type:
   interface_name: str(required=False)
