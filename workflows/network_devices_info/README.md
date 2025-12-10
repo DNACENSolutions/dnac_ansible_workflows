@@ -297,7 +297,7 @@ output_file_info:
 ## Usage Examples
 
 The UI display (example):
-![alt text](./imagesimage.png)
+![alt text](./images/image.png)
 
 ### Example 1: Query All Information for Specific Devices
 
