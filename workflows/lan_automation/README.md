@@ -600,13 +600,13 @@ You can create Port Channels between two LAN Automated devices using different d
 To create a Port Channel, provide device identifiers for both source and destination devices along with the list of physical interface links to aggregate.
 
 ##### Example 1: Create Port Channel using Management IP Addresses
-
-```yaml
 ![Alt text](./images/Create_port_channel01.png)
 ![Alt text](./images/Create_port_channel02.png)
 ![Alt text](./images/Create_port_channel03.png)
+
+```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -624,7 +624,7 @@ lan_automation_details:
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -642,7 +642,7 @@ lan_automation_details:
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -658,7 +658,7 @@ lan_automation_details:
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -717,13 +717,13 @@ You can add new links to or remove links from existing Port Channels. There are 
 ##### Example 1: Update Port Channel by Providing Existing Link
 
 To add new links to an existing Port Channel, provide at least one existing link to identify the Port Channel, then specify the new links to add.
-
-```yaml
 ![Alt text](./images/Update_port_channel01.png)
 ![Alt text](./images/Update_port_channel02.png)
 ![Alt text](./images/Update_port_channel03.png)
+
+```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -745,7 +745,7 @@ When the Port Channel number is known, you can directly target the Port Channel 
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -794,7 +794,7 @@ Remove all Port Channel configurations between two specific devices.
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -806,11 +806,11 @@ lan_automation_details:
 ##### Example 2: Delete Specific Port Channel by Number
 
 Target a specific Port Channel for deletion using its Port Channel number.
+![Alt text](./images/Delete_link02.png)
 
 ```yaml
-![Alt text](./images/Delete_link02.png)
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -823,11 +823,11 @@ lan_automation_details:
 ##### Example 3: Delete Specific Link from Port Channel
 
 Remove a single link from a Port Channel. If this operation would result in fewer than 2 links remaining, the entire Port Channel will be automatically deleted.
+![Alt text](./images/Delete_link01.png)
 
 ```yaml
-![Alt text](./images/Delete_link01.png)
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -847,7 +847,7 @@ Remove a Port Channel by explicitly listing all its member links.
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -869,7 +869,7 @@ Remove all Port Channels originating from a specific source device, regardless o
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -908,7 +908,7 @@ For comprehensive instructions on LAN Automation configuration and the complete 
 | **Component**         | **Version** |
 |-----------------------|-------------|
 | Python                | `3.10.0`    |
-| Cisco Catalyst Center | `3.1.3`   |
+| Cisco Catalyst Center | `3.1.3.0`   |
 | Ansible               | `9.9.0`     |
 | cisco.dnac Collection | `6.32.0`    |
 | dnacentersdk          | `2.8.8`     |
