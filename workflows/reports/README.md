@@ -30,7 +30,7 @@ This module provides a comprehensive toolkit for managing reports in *Cisco Cata
   - **Create** and **schedule** multiple reports in a single operation.
   - **Delete** multiple reports with a single playbook execution.
 
-**Version Added**: `6.33.0`  
+**Version Added**: `6.43.0`  
 *Note*: This version refers to the Cisco Catalyst Center Ansible collection.
 
 ---
@@ -187,7 +187,7 @@ Before creating reports, ensure the following components exist in *Cisco Catalys
 *Example*: Create a compliance report that executes immediately.
 
 ```yaml
-catalyst_center_version: 2.3.7.9
+catalyst_center_version: 3.1.3
 reports_details:
   - generate_report:
       name: "Network Compliance Report - Immediate"
@@ -236,7 +236,7 @@ reports_details:
 *Example*: Schedule an executive summary report for a specific date and time with email notification.
 
 ```yaml
-catalyst_center_version: 2.3.7.9
+catalyst_center_version: 3.1.3
 reports_details:
   - generate_report:
       name: "Executive Summary - Scheduled"
@@ -283,7 +283,7 @@ reports_details:
 *Example*: Create a weekly AP performance report with webhook delivery.
 
 ```yaml
-catalyst_center_version: 2.3.7.9
+catalyst_center_version: 3.1.3
 reports_details:
   - generate_report:
       name: "Weekly AP Performance Report"
@@ -402,7 +402,7 @@ reports_details:
 > **Warning**: Deleting reports will remove all scheduled executions. Verify before proceeding.
 
 ```yaml
-catalyst_center_version: 2.3.7.9
+catalyst_center_version: 3.1.3
 reports_details:
   - generate_report:
       name: "Network Compliance Report - Immediate"
