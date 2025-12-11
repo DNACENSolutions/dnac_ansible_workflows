@@ -1,0 +1,395 @@
+---
+# Reports Workflow Configuration
+# This file contains report configurations for Cisco Catalyst Center
+
+reports_details:
+  # Example 1: Compliance Report with Immediate Execution
+  - generate_report:
+      name: "Network Compliance Report"
+      new_report: true
+      view_group_name: "Compliance"
+      view_group_version: "2.0.0"
+      tags:
+        - compliance
+        - network
+        - automated
+      
+      schedule:
+        schedule_type: "SCHEDULE_NOW"
+        time_zone: "America/New_York"
+      
+      deliveries:
+        - delivery_type: "DOWNLOAD"
+          file_path: "/tmp/reports"
+      
+      view:
+        view_name: "Network Device Compliance"
+        
+        field_groups:
+          - field_group_name: "Compliance"
+            field_group_display_name: "Compliance Details"
+            fields:
+              - name: "deviceName"
+                display_name: "Device Name"
+              - name: "ipAddress"
+                display_name: "IP Address"
+              - name: "complianceStatus"
+                display_name: "Compliance Status"
+              - name: "lastSyncTime"
+                display_name: "Last Sync Time"
+        
+        format:
+          format_type: "CSV"
+        
+        filters:
+          - name: "Location"
+            display_name: "Network Location"
+            filter_type: "MULTI_SELECT_TREE"
+            value:
+              - value: "Global"
+                display_value: "Global"
+          
+          - name: "Device Type"
+            display_name: "Device Type"
+            filter_type: "MULTI_SELECT"
+            value:
+              - value: "SWITCHES"
+                display_value: "Switches"
+              - value: "ROUTERS"
+                display_value: "Routers"
+
+  # Example 2: Inventory Report with Email Notification
+  - generate_report:
+      name: "Monthly Inventory Report"
+      new_report: false
+      view_group_name: "Inventory"
+      view_group_version: "2.0.0"
+      tags:
+        - inventory
+        - monthly
+      
+      schedule:
+        schedule_type: "SCHEDULE_RECURRENCE"
+        date_time: "2025-12-15 09:00 AM"
+        time_zone: "Asia/Calcutta"
+        recurrence:
+          recurrence_type: "MONTHLY"
+          last_day_of_month: true
+      
+      deliveries:
+        - delivery_type: "NOTIFICATION"
+          notification_endpoints:
+            - email_addresses:
+                - "network-admin@example.com"
+                - "reports@example.com"
+          email_attach: true
+          notify:
+            - "COMPLETED"
+      
+      view:
+        view_name: "All Data Version 2.0"
+        
+        field_groups:
+          - field_group_name: "inventory"
+            field_group_display_name: "Inventory Information"
+            fields:
+              - name: "hostName"
+                display_name: "Host Name"
+              - name: "ipAddress"
+                display_name: "IP Address"
+              - name: "deviceType"
+                display_name: "Device Type"
+              - name: "softwareVersion"
+                display_name: "Software Version"
+              - name: "location"
+                display_name: "Location"
+              - name: "connectivityStatus"
+                display_name: "Connectivity Status"
+        
+        format:
+          format_type: "PDF"
+        
+        filters:
+          - name: "Location"
+            display_name: "Site Location"
+            filter_type: "MULTI_SELECT_TREE"
+            value: []
+          
+          - name: "Device Type"
+            display_name: "Device Category"
+            filter_type: "MULTI_SELECT"
+            value: []
+
+  # Example 3: Access Point Report with Time Range
+  - generate_report:
+      name: "Weekly AP Performance Report"
+      new_report: true
+      view_group_name: "Access Point"
+      view_group_version: "2.0.0"
+      tags:
+        - wireless
+        - access-point
+        - weekly
+      
+      schedule:
+        schedule_type: "SCHEDULE_RECURRENCE"
+        date_time: "2025-12-10 06:00 AM"
+        time_zone: "UTC"
+        recurrence:
+          recurrence_type: "WEEKLY"
+          days:
+            - "MONDAY"
+            - "TUESDAY"
+            - "WEDNESDAY"
+            - "THURSDAY"
+            - "FRIDAY"
+            - "SATURDAY"
+            - "SUNDAY"
+      
+      deliveries:
+        - delivery_type: "WEBHOOK"
+          webhook_name: "report_webhook_endpoint"
+      
+      view:
+        view_name: "AP"
+        
+        field_groups:
+          - field_group_name: "apDetailByAP"
+            field_group_display_name: "AP Details"
+            fields:
+              - name: "nwDeviceName"
+                display_name: "AP Name"
+              - name: "managementIpAddress"
+                display_name: "Management IP"
+              - name: "siteHierarchy"
+                display_name: "Site"
+              - name: "overallScore"
+                display_name: "Health Score"
+              - name: "clCount_avg"
+                display_name: "Average Client Count"
+        
+        format:
+          format_type: "JSON"
+        
+        filters:
+          - name: "Location"
+            display_name: "AP Location"
+            filter_type: "MULTI_SELECT_TREE"
+            value:
+              - value: "Global/US"
+                display_value: "United States"
+          
+          - name: "TimeRange"
+            display_name: "Time Period"
+            filter_type: "TIME_RANGE"
+            value:
+              time_range_option: "LAST_7_DAYS"
+
+  # Example 4: Client Report with Custom Time Range
+  - generate_report:
+      name: "Client Detail Analysis"
+      new_report: true
+      view_group_name: "Client"
+      view_group_version: "2.0.0"
+      tags:
+        - client
+        - analysis
+      
+      schedule:
+        schedule_type: "SCHEDULE_LATER"
+        date_time: "2025-12-20 02:00 PM"
+        time_zone: "Europe/London"
+      
+      deliveries:
+        - delivery_type: "DOWNLOAD"
+          file_path: "/var/reports/client"
+      
+      view:
+        view_name: "Client Detail"
+        
+        field_groups: []
+        
+        format:
+          format_type: "CSV"
+        
+        filters:
+          - name: "Location"
+            display_name: "Client Location"
+            filter_type: "MULTI_SELECT_TREE"
+            value:
+              - value: "Global/Europe"
+                display_value: "Europe"
+          
+          - name: "Time Range"
+            display_name: "Analysis Period"
+            filter_type: "TIME_RANGE"
+            value:
+              time_range_option: "CUSTOM"
+              start_date_time: "2025-12-01 12:00 AM"
+              end_date_time: "2025-12-31 11:59 PM"
+              time_zone: "Europe/London"
+
+  # Example 5: Security Advisories Report
+  - generate_report:
+      name: "Security Advisories Report"
+      new_report: true
+      view_group_name: "Security Advisories"
+      view_group_version: "2.0.0"
+      tags:
+        - security
+        - advisories
+        - critical
+      
+      schedule:
+        schedule_type: "SCHEDULE_NOW"
+        time_zone: "America/Los_Angeles"
+      
+      deliveries:
+        - delivery_type: "NOTIFICATION"
+          notification_endpoints:
+            - email_addresses:
+                - "security-team@example.com"
+          email_attach: true
+          notify:
+            - "IN_PROGRESS"
+            - "COMPLETED"
+      
+      view:
+        view_name: "Security Advisories Data"
+        
+        field_groups:
+          - field_group_name: "psirtAllData"
+            field_group_display_name: "Security Advisory Details"
+            fields:
+              - name: "deviceName"
+                display_name: "Device Name"
+              - name: "advisoryId"
+                display_name: "Advisory ID"
+              - name: "advisoryCvssScore"
+                display_name: "CVSS Score"
+              - name: "advisoryImpact"
+                display_name: "Impact Level"
+        
+        format:
+          format_type: "PDF"
+        
+        filters:
+          - name: "Impact"
+            display_name: "Advisory Impact"
+            filter_type: "MULTI_SELECT"
+            value:
+              - value: "Critical"
+                display_value: "Critical"
+              - value: "High"
+                display_value: "High"
+
+  # Example 6: Network Device Availability Report
+  - generate_report:
+      name: "Device Availability Daily Report"
+      new_report: true
+      view_group_name: "Network Devices"
+      view_group_version: "2.0.0"
+      tags:
+        - network-devices
+        - availability
+        - daily
+      
+      schedule:
+        schedule_type: "SCHEDULE_RECURRENCE"
+        date_time: "2025-12-05 07:00 AM"
+        time_zone: "America/New_York"
+        recurrence:
+          recurrence_type: "WEEKLY"
+          days:
+            - "DAILY"
+      
+      deliveries:
+        - delivery_type: "NOTIFICATION"
+          notification_endpoints:
+            - email_addresses:
+                - "network-ops@example.com"
+          email_attach: false
+          notify:
+            - "COMPLETED"
+      
+      view:
+        view_name: "Network Device Availability"
+        
+        field_groups:
+          - field_group_name: "response"
+            field_group_display_name: "Device Availability"
+            fields:
+              - name: "nwDeviceName"
+                display_name: "Device Name"
+              - name: "managementIpAddr"
+                display_name: "Management IP"
+              - name: "availability"
+                display_name: "Availability %"
+        
+        format:
+          format_type: "CSV"
+        
+        filters:
+          - name: "Location"
+            display_name: "Site Location"
+            filter_type: "MULTI_SELECT_TREE"
+            value:
+              - value: "Global"
+                display_value: "Global"
+          
+          - name: "TimeRange"
+            display_name: "Time Period"
+            filter_type: "TIME_RANGE"
+            value:
+              time_range_option: "LAST_24_HOURS"
+
+  # Example 7: Executive Summary Report
+  - generate_report:
+      name: "Weekly Executive Summary"
+      new_report: true
+      view_group_name: "Executive Summary"
+      view_group_version: "2.0.0"
+      tags:
+        - executive
+        - summary
+        - weekly
+      
+      schedule:
+        schedule_type: "SCHEDULE_RECURRENCE"
+        date_time: "2025-12-09 08:00 AM"
+        time_zone: "America/New_York"
+        recurrence:
+          recurrence_type: "WEEKLY"
+          days:
+            - "MONDAY"
+      
+      deliveries:
+        - delivery_type: "NOTIFICATION"
+          notification_endpoints:
+            - email_addresses:
+                - "executives@example.com"
+          email_attach: true
+          notify:
+            - "COMPLETED"
+      
+      view:
+        view_name: "Executive Summary"
+        
+        field_groups: []
+        
+        format:
+          format_type: "PDF"
+        
+        filters:
+          - name: "Location"
+            display_name: "Network Location"
+            filter_type: "MULTI_SELECT_TREE"
+            value:
+              - value: "Global"
+                display_value: "Global"
+          
+          - name: "TimeRange"
+            display_name: "Report Period"
+            filter_type: "TIME_RANGE"
+            value:
+              time_range_option: "LAST_7_DAYS"
