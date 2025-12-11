@@ -33,7 +33,7 @@
 # -----------------------
 # backup_restore_details:
 #   - backup:
-#       - name: Backup name or prefix for deletion (required)
+#       - name: Backup name or prefix is required for specific backup deletion
 #       - delete_all_backup: Delete all backups (optional, default: false)
 #       - backup_retention_days: Delete backups older than N days (optional)
 #
@@ -61,8 +61,7 @@
 #    - Use with extreme caution - irreversible operation
 #    Example:
 #      backup:
-#        - name: ANY_NAME
-#          delete_all_backup: true
+#        - delete_all_backup: true
 #
 # IMPORTANT NOTES:
 # ---------------
