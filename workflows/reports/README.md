@@ -498,7 +498,7 @@ The following environment was used for testing:
 | Python                | `3.12.0`    |
 | Cisco Catalyst Center | `3.1.3`     |
 | Ansible               | `9.9.0`     |
-| cisco.dnac Collection | `6.33.0`    |
+| cisco.dnac Collection | `6.43.0`    |
 | dnacentersdk          | `2.8.8`     |
 
 For detailed documentation, refer to:  
