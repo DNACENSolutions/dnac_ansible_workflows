@@ -3,6 +3,7 @@
 lan_automation_details:
   lan_automation_session: list(include('lan_automation_type'), min=0, max=100, required=False)
   device_update: list(include('device_update_type'), min=0, max=100, required=False)
+  port_channel: list(include('port_channel_type'), min=0, max=100, required=False)
 catalyst_center_version: str(required=False)
 catalyst_center_verify: bool(required=False)
 catalyst_center_api_task_timeout: int(required=False, default=1200)
@@ -76,3 +77,16 @@ link_delete_type:
   destination_device_management_ip_address: str(required=True)
   destination_device_interface_name: str(required=True)
 
+port_channel_type:
+  source_device_management_ip_address: str(required=False)
+  source_device_mac_address: str(required=False)
+  source_device_serial_number: str(required=False)
+  destination_device_management_ip_address: str(required=False)
+  destination_device_mac_address: str(required=False)
+  destination_device_serial_number: str(required=False)
+  port_channel_number: int(required=False)
+  links: list(include('port_channel_link_type'), min=0, max=8, required=False)
+
+port_channel_link_type:
+  source_port: str(required=True)
+  destination_port: str(required=True)

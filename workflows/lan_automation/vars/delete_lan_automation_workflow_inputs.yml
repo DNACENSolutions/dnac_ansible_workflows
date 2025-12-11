@@ -9,3 +9,21 @@ lan_automation_details:
     - lan_automation:
         discovered_device_site_name_hierarchy: "Global/USA/SAN JOSE"
         primary_device_management_ip_address: "204.1.1.1"
+  
+  port_channel:
+    # Example 1: Delete all Port Channels between two devices (state=deleted)
+    - source_device_management_ip_address: "10.1.1.1"
+      destination_device_management_ip_address: "20.1.1.1"
+    
+    # Example 2: Delete specific Port Channel by number (state=deleted)
+    - source_device_management_ip_address: "10.1.1.1"
+      destination_device_management_ip_address: "20.1.1.1"
+      port_channel_number: 1
+    
+    # Example 3: Delete specific link from Port Channel (state=deleted)
+    - source_device_management_ip_address: "10.1.1.1"
+      destination_device_management_ip_address: "20.1.1.1"
+      links:
+        - source_port: "GigabitEthernet1/0/1"
+          destination_port: "GigabitEthernet2/0/1"
+

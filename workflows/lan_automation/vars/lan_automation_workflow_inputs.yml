@@ -1,9 +1,12 @@
 ---
-#Select Catalyst Cennter version, this one overwrite the default version from host file
-catalyst_center_version: 2.3.7.6
+# Select Catalyst Center version, this one overwrites the default version from host file
+catalyst_center_version: 3.1.3
 # This file contains the variables for the LAN Automation workflow
 
 lan_automation_details:
+  # ========================================
+  # LAN AUTOMATION SESSION CONFIGURATION
+  # ========================================
   lan_automation_session:
     - lan_automation:
         discovered_device_site_name_hierarchy: "Global/USA/SAN-FRANCISCO/BLD_SF"
@@ -27,34 +30,35 @@ lan_automation_details:
         discovery_level: 5
         discovery_timeout: 40
         discovery_devices:
-        - device_serial_number: "FJC27172JDX"
-          device_host_name: "SR-LAN-9300-IM1"
-          device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
-          device_management_ip_address: "204.1.1.1"
-        - device_serial_number: "FJC2721261G"
-          device_host_name: "SR-LAN-9300-IM2"
-          device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD20"
-          device_management_ip_address: "204.1.1.3"
-        - device_serial_number: "FCW2152L02V"
-          device_host_name: "SR-LAN-9300-TRANSIT"
-          device_management_ip_address: "204.1.1.4"
-          device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
-        - device_serial_number: "FXS2429Q0WE"
-          device_host_name: "SR-LAN-9400X-EDGE1"
-          device_management_ip_address: "204.1.1.7"
-          device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD20/BLD20_FLOOR1"
-        - device_serial_number: "FOC2722YGWW"
-          device_host_name: "SR-LAN-9300X-EDGE2"
-          device_management_ip_address: "204.1.1.6"
-          device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD20/BLD20_FLOOR1"
-        - device_serial_number: "FCW2213G01S"
-          device_host_name: "SR-LAN-9300-EDGE3"
-          device_management_ip_address: "204.1.1.8"
-          device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1"
-        - device_serial_number: "FJC271915XB"
-          device_host_name: "SR-LAN-9200CX-AEN1"
-          device_management_ip_address: "204.1.1.9"
-          device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1"
+          - device_serial_number: "FJC27172JDX"
+            device_host_name: "SR-LAN-9300-IM1"
+            device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+            device_management_ip_address: "204.1.1.1"
+          - device_serial_number: "FJC2721261G"
+            device_host_name: "SR-LAN-9300-IM2"
+            device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD20"
+            device_management_ip_address: "204.1.1.3"
+          - device_serial_number: "FCW2152L02V"
+            device_host_name: "SR-LAN-9300-TRANSIT"
+            device_management_ip_address: "204.1.1.4"
+            device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+          - device_serial_number: "FXS2429Q0WE"
+            device_host_name: "SR-LAN-9400X-EDGE1"
+            device_management_ip_address: "204.1.1.7"
+            device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD20/BLD20_FLOOR1"
+          - device_serial_number: "FOC2722YGWW"
+            device_host_name: "SR-LAN-9300X-EDGE2"
+            device_management_ip_address: "204.1.1.6"
+            device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD20/BLD20_FLOOR1"
+          - device_serial_number: "FCW2213G01S"
+            device_host_name: "SR-LAN-9300-EDGE3"
+            device_management_ip_address: "204.1.1.8"
+            device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1"
+          - device_serial_number: "FJC271915XB"
+            device_host_name: "SR-LAN-9200CX-AEN1"
+            device_management_ip_address: "204.1.1.9"
+            device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1"
         launch_and_wait: false
         pnp_authorization: false
-
+      
+    
