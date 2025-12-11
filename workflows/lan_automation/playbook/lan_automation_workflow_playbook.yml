@@ -58,6 +58,17 @@
       loop: "{{ lan_automation_details.device_update }}"
       when: lan_automation_details.device_update is defined
 
+    # Port Channel Create/Update
+    - name: Create/Update Port Channel Configuration
+      cisco.dnac.lan_automation_workflow_manager:
+        <<: *catalyst_center_login
+        config:
+          - port_channel: "{{ lan_automation_details.port_channel }}"
+      register: port_channel_output
+      when: 
+        - lan_automation_details is defined
+        - lan_automation_details.port_channel is defined
+
     - name: Print Loopback Update Output
       debug:
         msg: "{{ loopback_update_output }}"
@@ -76,3 +87,4 @@
       register: ansible_play_path
       delegate_to: catalyst_center_hosts
       connection: local
+
