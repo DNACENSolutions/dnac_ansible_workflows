@@ -88,7 +88,7 @@ provision_details:
         interface_ip_address: "204.192.6.200"
         interface_gateway: "204.192.6.1"
         interface_netmask_in_c_i_d_r: "24"
-    skip_ap_provision: true
+    skip_ap_provision: True
     force_provisioning: True
 
   #Wireless device Provisioning without skip AP provisioning and AP authorization
@@ -105,7 +105,7 @@ provision_details:
         interface_ip_address: "204.192.6.200"
         interface_gateway: "204.192.6.1"
         interface_netmask_in_c_i_d_r: "24"
-    skip_ap_provision: false
+    skip_ap_provision: False
     ap_authorization_list_name: "Corporate-AP-Auth-List"
 
   #Wireless device Provisioning with rolling AP upgrade
@@ -128,9 +128,9 @@ provision_details:
         interface_ip_address: "204.192.7.200"
         interface_gateway: "204.192.7.1"
         interface_netmask_in_c_i_d_r: "24"
-    skip_ap_provision: false
+    skip_ap_provision: False
     rolling_ap_upgrade:
-      enable_rolling_ap_upgrade: true
+      enable_rolling_ap_upgrade: True
       ap_reboot_percentage: 15
   
 

@@ -527,7 +527,7 @@ msg:
 
 To provision both the wireless controller and all associated APs with authorization policies applied in one operation.
 
-**prerequisite**: AP authorization list must exist in Catalyst Center before provisioning.
+**prerequisite**: AP authorization list must exist in Catalyst Center before provisioning.This list can be created under **Design > Network Settings > Wireless > Security Settings > AP Authorization List**.
 
 ![alt text](./images/Ap_authorization_list.png)
 ![alt text](./images/no_skip_provision.png)
