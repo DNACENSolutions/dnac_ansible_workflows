@@ -313,15 +313,15 @@ Before executing the playbook, it is essential to validate the input schema. Thi
 ```
 
 **Validation Output:**
-- ✅ **Success**: "Validation passed" - proceed to playbook execution
-- ❌ **Failure**: Review error messages and correct input file
+- ✅ **Success**: Validation success! 👍
+- ❌ **Failure**: Validation failed!
 
 #### Running the Playbook
 
 Once the input validation is complete and no errors are found, you can run the playbook. Provide your input file path using the `--e` variable as `VARS_FILE_PATH`:
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automation_workflow_inputs.yml -vvv
 ```
 ---
 
@@ -344,7 +344,7 @@ To verify the LAN Automation session was executed successfully, check Catalyst C
 
 ### Step 1: Define Stop LAN Automation Playbook Input
 
-To stop an ongoing LAN Automation session, you'll need to specify the IP address of the primary seed device. Use the input file located at `workflows/lan_automation/vars/lan_automation_workflow_inputs.yml`, and provide the following sample input with the corresponding primary device IP address to initiate the stop command for the LAN Automation session.
+To stop an ongoing LAN Automation session, you'll need to specify the IP address of the primary seed device. Use the input file located at `workflows/lan_automation/vars/delete_lan_automation_workflow_inputs.yml`, and provide the following sample input with the corresponding primary device IP address to initiate the stop command for the LAN Automation session.
 
 **Sample Input for Stopping LAN Automation:**
 
@@ -372,7 +372,7 @@ To stop the LAN Automation session, run the stop playbook with your specified in
 #### Running the Stop Playbook
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/stop_lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/stop_lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/delete_lan_automation_workflow_inputs.yml -vvv
 ```
 ---
 
@@ -428,7 +428,7 @@ Before executing the playbook, validate the input schema:
 Once validation is complete, run the playbook:
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
 ---
@@ -474,7 +474,7 @@ lan_automation_details:
 ##### Running the Playbook
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
 ---
@@ -543,7 +543,7 @@ lan_automation_details:
 ##### Running the Playbook
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
 ---
@@ -600,13 +600,13 @@ You can create Port Channels between two LAN Automated devices using different d
 To create a Port Channel, provide device identifiers for both source and destination devices along with the list of physical interface links to aggregate.
 
 ##### Example 1: Create Port Channel using Management IP Addresses
-
-```yaml
 ![Alt text](./images/Create_port_channel01.png)
 ![Alt text](./images/Create_port_channel02.png)
 ![Alt text](./images/Create_port_channel03.png)
+
+```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -624,7 +624,7 @@ lan_automation_details:
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -642,7 +642,7 @@ lan_automation_details:
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -658,7 +658,7 @@ lan_automation_details:
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -690,7 +690,7 @@ To create Port Channels, follow these steps:
 Before executing the playbook, validate the input schema to ensure all required parameters are included and correctly formatted:
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automation_workflow_inputs.yml
+./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
 ```
 
 ##### Running the Playbook
@@ -698,7 +698,7 @@ Before executing the playbook, validate the input schema to ensure all required 
 Once validation is complete, run the playbook with your input file:
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
 > **Note**: If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
@@ -717,13 +717,13 @@ You can add new links to or remove links from existing Port Channels. There are 
 ##### Example 1: Update Port Channel by Providing Existing Link
 
 To add new links to an existing Port Channel, provide at least one existing link to identify the Port Channel, then specify the new links to add.
-
-```yaml
 ![Alt text](./images/Update_port_channel01.png)
 ![Alt text](./images/Update_port_channel02.png)
 ![Alt text](./images/Update_port_channel03.png)
+
+```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -745,7 +745,7 @@ When the Port Channel number is known, you can directly target the Port Channel 
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -766,13 +766,13 @@ lan_automation_details:
 ##### Input Validation
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automation_workflow_inputs.yml
+./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
 ```
 
 ##### Running the Playbook
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
 ---
@@ -794,7 +794,7 @@ Remove all Port Channel configurations between two specific devices.
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -806,11 +806,11 @@ lan_automation_details:
 ##### Example 2: Delete Specific Port Channel by Number
 
 Target a specific Port Channel for deletion using its Port Channel number.
+![Alt text](./images/Delete_link02.png)
 
 ```yaml
-![Alt text](./images/Delete_link02.png)
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -823,11 +823,11 @@ lan_automation_details:
 ##### Example 3: Delete Specific Link from Port Channel
 
 Remove a single link from a Port Channel. If this operation would result in fewer than 2 links remaining, the entire Port Channel will be automatically deleted.
+![Alt text](./images/Delete_link01.png)
 
 ```yaml
-![Alt text](./images/Delete_link01.png)
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -847,7 +847,7 @@ Remove a Port Channel by explicitly listing all its member links.
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -869,7 +869,7 @@ Remove all Port Channels originating from a specific source device, regardless o
 
 ```yaml
 ---
-catalyst_center_version: 3.1.3
+catalyst_center_version: 3.1.3.0
 catalyst_center_verify: false
 
 lan_automation_details:
@@ -884,7 +884,7 @@ lan_automation_details:
 ##### Input Validation
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automation_workflow_inputs.yml
+./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/delete_lan_automation_workflow_inputs.yml
 ```
 
 ##### Running the Playbook with Delete State
@@ -892,7 +892,7 @@ lan_automation_details:
 **Important**: Port Channel deletion requires using the `deleted` state in the playbook execution.
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=/path/to/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml --e state=deleted -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=workflows/lan_automation/vars/delete_lan_automation_workflow_inputs.yml --e state=deleted -vvv
 ```
 
 ---
@@ -908,7 +908,7 @@ For comprehensive instructions on LAN Automation configuration and the complete 
 | **Component**         | **Version** |
 |-----------------------|-------------|
 | Python                | `3.10.0`    |
-| Cisco Catalyst Center | `3.1.3`   |
+| Cisco Catalyst Center | `3.1.3.0`   |
 | Ansible               | `9.9.0`     |
 | cisco.dnac Collection | `6.32.0`    |
 | dnacentersdk          | `2.8.8`     |

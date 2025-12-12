@@ -1,0 +1,188 @@
+---
+# Reports Workflow Manager Schema
+# This schema defines the structure and validation rules for report configurations
+
+# Catalyst Center Connection Parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
+
+# Main Configuration
+reports_details: list(include('report_config_type'), min=1, max=100, required=True)
+
+---
+# Report Configuration Type
+report_config_type:
+  generate_report:
+    name: str(required=False)
+    new_report: bool(required=False, default=True)
+    view_group_name: enum(
+      'Compliance',
+      'Executive Summary',
+      'Inventory',
+      'SWIM',
+      'Access Point',
+      'Long Term',
+      'Network Devices',
+      'Group Pair Communication Analytics',
+      'Telemetry',
+      'Group Communication Summary',
+      'EoX',
+      'Rogue and aWIPS',
+      'Licensing',
+      'AI Endpoint Analytics',
+      'Audit Log',
+      'Configuration Archive',
+      'Client',
+      'Security Advisories',
+      required=True)
+    view_group_version: str(required=False, default='2.0.0')
+    tags: list(str, required=False)
+    schedule: include('schedule_type', required=True)
+    deliveries: list(include('delivery_type'), min=1, max=1, required=True)
+    view: include('view_type', required=True)
+
+# Schedule Configuration Type
+schedule_type:
+  schedule_type: enum('SCHEDULE_NOW', 'SCHEDULE_LATER', 'SCHEDULE_RECURRENCE', required=True)
+  date_time: str(required=False)
+  time_zone: str(required=True)
+  recurrence: include('recurrence_type', required=False)
+  time: int(required=False)
+  start_date: int(required=False)
+
+# Recurrence Configuration Type
+recurrence_type:
+  recurrence_type: enum('WEEKLY', 'MONTHLY', required=True)
+  days: list(enum('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY', 'DAILY'), required=False)
+  last_day_of_month: bool(required=False)
+  day_of_month: int(min=1, max=31, required=False)
+
+# Delivery Configuration Type
+delivery_type:
+  delivery_type: enum('DOWNLOAD', 'NOTIFICATION', 'WEBHOOK', required=True)
+  file_path: str(required=False)
+  notification_endpoints: list(include('notification_endpoint_type'), min=0, max=1, required=False)
+  email_attach: bool(required=False, default=False)
+  notify: list(enum('IN_QUEUE', 'IN_PROGRESS', 'COMPLETED'), required=False)
+  webhook_name: str(required=False)
+
+# Notification Endpoint Type
+notification_endpoint_type:
+  email_addresses: list(str, min=1, required=False)
+
+# View Configuration Type
+view_type:
+  view_name: enum(
+    'Network Device Compliance',
+    'Network Device Availability',
+    'Channel Change Count',
+    'Transmit Power Change Count',
+    'VLAN',
+    'Port Capacity',
+    'Energy Management',
+    'PoE',
+    'Device CPU and Memory Utilization',
+    'Network Interface Utilization',
+    'Executive Summary',
+    'All Data',
+    'Port Reclaim View',
+    'All Data Version 2.0',
+    'AP',
+    'AP Radio',
+    'AP - Usage and Client Breakdown',
+    'Worst Interferers',
+    'AP RRM Events',
+    'AP Performance Report',
+    'Long Term AP Detail',
+    'Long Term AP Radio',
+    'Long Term AP Usage and Client Breakdown',
+    'Long Term Client Detail',
+    'Long Term Client Session',
+    'Long Term Network Device Availability',
+    'Security Group to Security Group',
+    'Security Group to ISE Endpoint Profile Group',
+    'Security Group to Host Group',
+    'ISE Endpoint Profile Group to Security Group',
+    'ISE Endpoint Profile Group to ISE Endpoint Profile Group',
+    'ISE Endpoint Profile Group to Host Group',
+    'Host Group to Security Group',
+    'Host Group to ISE Endpoint Profile Group',
+    'Host Group to Host Group',
+    'Device Lifecycle Information',
+    'Security Group to Security Groups',
+    'Security Group to ISE Endpoint Profile Groups',
+    'Security Group to Host Groups',
+    'ISE Endpoint Profile Group to Security Groups',
+    'ISE Endpoint Profile Group to ISE Endpoint Profile Groups',
+    'ISE Endpoint Profile Group to Host Groups',
+    'Host Group to Security Groups',
+    'Host Group to ISE Endpoint Profile Group',
+    'EoX Data',
+    'Threat Detail',
+    'New Threat',
+    'Rogue Additional Detail',
+    'Non Compliant Devices',
+    'Non Compliance Summary',
+    'AireOS Controllers Licenses',
+    'License Usage Upload Details',
+    'License Historical Usage',
+    'Endpoint Profiling',
+    'Audit Log',
+    'Configuration Archive',
+    'Client',
+    'Client Summary',
+    'Top N Summary',
+    'Client Detail',
+    'Client Trend',
+    'Client Session',
+    'Busiest Client',
+    'Unique Clients and Users Summary',
+    'Security Advisories Data',
+    required=True)
+  field_groups: list(include('field_group_type'), required=True)
+  format: include('format_type', required=True)
+  filters: list(include('filter_type'), required=False)
+
+# Field Group Configuration Type
+field_group_type:
+  field_group_name: str(required=True)
+  field_group_display_name: str(required=False)
+  fields: list(include('field_type'), required=True)
+
+# Field Configuration Type
+field_type:
+  name: str(required=True)
+  display_name: str(required=False)
+
+# Format Configuration Type
+format_type:
+  format_type: enum('CSV', 'PDF', 'JSON', 'TDE', required=True)
+
+# Filter Configuration Type
+filter_type:
+  name: str(required=True)
+  display_name: str(required=False)
+  filter_type: enum('MULTI_SELECT', 'MULTI_SELECT_TREE', 'SINGLE_SELECT_ARRAY', 'TIME_RANGE', required=True)
+  value: any(include('filter_value_multi_select'), include('filter_value_time_range'), required=True)
+
+# Filter Value for Multi-Select Types
+filter_value_multi_select:
+  list(include('filter_value_item'), required=False)
+
+# Filter Value Item
+filter_value_item:
+  value: str(required=True)
+  display_value: str(required=True)
+
+# Filter Value for Time Range Type
+filter_value_time_range:
+  time_range_option: str(required=False)
+  start_date_time: str(required=False)
+  end_date_time: str(required=False)
+  time_zone: str(required=False)

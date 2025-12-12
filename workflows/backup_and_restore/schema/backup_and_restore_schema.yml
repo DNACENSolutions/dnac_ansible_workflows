@@ -49,8 +49,8 @@
 #      - nfs_port: NFS service port (optional)
 #      - nfs_version: NFS protocol version (optional, default: nfs4)
 #      - nfs_portmapper_port: Portmapper service port (optional, default: 111)
-#    - data_retention_period: Days to retain backup (required, range: 3-60)
-#    - encryption_passphrase: Passphrase for encrypting backup (optional, recommended)
+#    - data_retention_period: Number of backups to retain (required, range: 3-60)
+#    - encryption_passphrase: Passphrase for encrypting backup (required)
 #
 # 3. BACKUP:
 #    - name: Backup name or prefix (required)
@@ -58,7 +58,7 @@
 #            For deletion: exact name or prefix if backup_retention_days specified
 #    - generate_new_backup: Append timestamp to name (optional, default: false)
 #                           Format: YYYYMMDD_HHMMSS (IST timezone)
-#    - scope: Backup data scope (optional)
+#    - scope: Backup data scope (required)
 #            Choices: CISCO_DNA_DATA_WITH_ASSURANCE, CISCO_DNA_DATA_WITHOUT_ASSURANCE
 #    - delete_all_backup: Delete all backups (optional, default: false, state=deleted only)
 #    - backup_retention_days: Retention policy in days (optional, state=deleted only)
@@ -66,7 +66,7 @@
 #
 # 4. RESTORE_OPERATIONS:
 #    - name: Name of backup to restore (required)
-#    - encryption_passphrase: Passphrase for decryption (optional, must match backup)
+#    - encryption_passphrase: Passphrase for decryption (required)
 #
 # OPERATION WORKFLOWS:
 # -------------------
@@ -110,32 +110,35 @@ backup_restore_config:
   restore_operations: list(include('restore_type'), required=False)
 
 nfs_config_type:
-  server_ip: ip(required=True)
+  server_ip: str(required=True)
   source_path: str(required=True)
   nfs_port: int(required=False, min=1, max=65535)
-  nfs_version: enum("nfs3", "nfs4", required=False)
+  nfs_version: str("nfs3", "nfs4", required=False)
   nfs_portmapper_port: int(required=False, min=1, max=65535)
 
 backup_storage_type:
-  server_type: enum("NFS", "PHYSICAL_DISK", required=True)
-  nfs_details: include('nfs_details_type', required=False)
+  server_type: str("NFS", "PHYSICAL_DISK", required=True)
+  nfs_details: include('nfs_details_type', required=True)
   data_retention_period: int(required=True, min=3, max=60)
-  encryption_passphrase: str(required=False)
+  encryption_passphrase: str(required=True)
+
 
 nfs_details_type:
-  server_ip: ip(required=True)
+  server_ip: str(required=True)
   source_path: str(required=True)
   nfs_port: int(required=False, min=1, max=65535)
-  nfs_version: enum("nfs3", "nfs4", required=False)
+  nfs_version: str("nfs3", "nfs4", required=False)
   nfs_portmapper_port: int(required=False, min=1, max=65535)
 
 backup_type:
   name: str(required=True)
   generate_new_backup: bool(required=False)
-  scope: enum("CISCO_DNA_DATA_WITH_ASSURANCE", "CISCO_DNA_DATA_WITHOUT_ASSURANCE", required=False)
+  scope: str("CISCO_DNA_DATA_WITH_ASSURANCE", "CISCO_DNA_DATA_WITHOUT_ASSURANCE", required=True)
   delete_all_backup: bool(required=False)
   backup_retention_days: int(required=False, min=1)
+  backup_task_timeout: int(required=False)
 
 restore_type:
   name: str(required=True)
-  encryption_passphrase: str(required=False)
+  encryption_passphrase: str(required=True)
+  restore_task_timeout: int(required=False)
