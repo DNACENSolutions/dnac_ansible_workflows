@@ -41,6 +41,17 @@
           - "{{ item }}"
       loop: "{{ lan_automation_details.lan_automation_session }}"
       when: lan_automation_details.lan_automation_session is defined
+    
+    # Port Channel Delete
+    - name: Delete Port Channel Configuration
+      cisco.dnac.lan_automation_workflow_manager:
+        <<: *catalyst_center_login
+        config:
+          - port_channel: "{{ lan_automation_details.port_channel }}"
+      register: port_channel_output
+      when: 
+        - lan_automation_details is defined
+        - lan_automation_details.port_channel is defined
 
     - name: Set End Time for Stopping LAN Automation
       set_fact:
@@ -56,4 +67,5 @@
       register: ansible_play_path
       delegate_to: catalyst_center_hosts
       connection: local
+
 

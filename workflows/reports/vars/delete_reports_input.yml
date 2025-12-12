@@ -1,0 +1,53 @@
+---
+# Delete Reports Configuration
+# This file contains report configurations for deletion from Cisco Catalyst Center
+
+reports_details:
+  # Example 1: Delete a Compliance Report
+  - generate_report:
+      name: "Network Compliance Report"
+      view_group_name: "Compliance"
+      view:
+        view_name: "Network Device Compliance"
+
+  # Example 2: Delete an Inventory Report
+  - generate_report:
+      name: "Monthly Inventory Report"
+      view_group_name: "Inventory"
+      view:
+        view_name: "All Data Version 2.0"
+
+  # Example 3: Delete an Access Point Report
+  - generate_report:
+      name: "Weekly AP Performance Report"
+      view_group_name: "Access Point"
+      view:
+        view_name: "AP"
+
+  # Example 4: Delete a Client Report
+  - generate_report:
+      name: "Client Detail Analysis"
+      view_group_name: "Client"
+      view:
+        view_name: "Client Detail"
+
+  # Example 5: Delete a Security Advisories Report
+  - generate_report:
+      name: "Security Advisories Report"
+      view_group_name: "Security Advisories"
+      view:
+        view_name: "Security Advisories Data"
+
+  # Example 6: Delete a Network Device Report
+  - generate_report:
+      name: "Device Availability Daily Report"
+      view_group_name: "Network Devices"
+      view:
+        view_name: "Network Device Availability"
+
+  # Example 7: Delete an Executive Summary Report
+  - generate_report:
+      name: "Weekly Executive Summary"
+      view_group_name: "Executive Summary"
+      view:
+        view_name: "Executive Summary"
