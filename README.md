@@ -88,7 +88,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - [Catalyst Center Assurance ICAP Management](./workflows/assurance_intelligent_capture/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 - [Catalyst Center SDA Fabric Devices Information and Inventory Management](./workflows/sda_fabric_devices_info/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 - [Catalyst Center Network Devices Information and Inventory Management](./workflows/network_devices_info/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Configuration Backup and Restore Management](./workflows/backup_restore/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Configuration Backup and Restore Management](./workflows/backup_restore/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=3.1.6**</span></mark>
 - [Catalyst Center Reports Management and Scheduling](./workflows/reports/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 
 ## Demo Videos
