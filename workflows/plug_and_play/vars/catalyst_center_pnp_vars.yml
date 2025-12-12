@@ -5,14 +5,17 @@ pnp_details:
         hostname: SJ-EWLC-1
         state: Unclaimed
         pid: C9800-40-K9
+        authorize: true
       - serial_number: FXS2502Q2HC
         hostname: SF-BN-2-ASR.cisco.local
         state: Unclaimed
         pid: ASR1001-X
+        authorize: true
       - serial_number: FJC271923AK
         hostname: NY-EN-9300
         state: Unclaimed
         pid: C9300-48UXM
+        authorize: false
   
   claim_access_points:
     - site_name: Global/USA/New York/NY_BLD2/FLOOR1
