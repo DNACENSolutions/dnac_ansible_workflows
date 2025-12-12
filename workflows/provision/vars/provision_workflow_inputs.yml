@@ -74,3 +74,65 @@ provision_details:
       - Global/USA/SAN JOSE/SJ_BLD23/FLOOR3
       - Global/USA/SAN JOSE/SJ_BLD23/FLOOR4
     force_provisioning: True
+
+  #Wireless device Provisioning with skip AP provisioning
+  - site_name_hierarchy: Global/USA/San Francisco/BGL_18
+    management_ip_address: 204.192.3.40
+    primary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor2
+    secondary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor1
+    dynamic_interfaces:
+      - interface_name: "Vlan1866"
+        vlan_id: "1866"
+        interface_ip_address: "204.192.6.200"
+        interface_gateway: "204.192.6.1"
+        interface_netmask_in_c_i_d_r: "24"
+    skip_ap_provision: True
+    force_provisioning: True
+
+  #Wireless device Provisioning without skip AP provisioning and AP authorization
+  - site_name_hierarchy: Global/USA/San Francisco/BGL_18
+    management_ip_address: 204.192.3.40
+    primary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor2
+      - Global/USA/San Francisco/BGL_18/Test_Floor3
+    secondary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor1
+    dynamic_interfaces:
+      - interface_name: "Vlan1866"
+        vlan_id: "1866"
+        interface_ip_address: "204.192.6.200"
+        interface_gateway: "204.192.6.1"
+        interface_netmask_in_c_i_d_r: "24"
+    skip_ap_provision: False
+    ap_authorization_list_name: "Corporate-AP-Auth-List"
+
+  #Wireless device Provisioning with rolling AP upgrade
+  - site_name_hierarchy: Global/USA/San Francisco/BGL_18
+    management_ip_address: 204.192.3.40
+    primary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor2
+      - Global/USA/San Francisco/BGL_18/Test_Floor3
+      - Global/USA/San Francisco/BGL_18/Test_Floor4
+    secondary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor1
+    dynamic_interfaces:
+      - interface_name: "Vlan1866"
+        vlan_id: "1866"
+        interface_ip_address: "204.192.6.200"
+        interface_gateway: "204.192.6.1"
+        interface_netmask_in_c_i_d_r: "24"
+      - interface_name: "Vlan1867"
+        vlan_id: "1867"
+        interface_ip_address: "204.192.7.200"
+        interface_gateway: "204.192.7.1"
+        interface_netmask_in_c_i_d_r: "24"
+    skip_ap_provision: False
+    rolling_ap_upgrade:
+      enable_rolling_ap_upgrade: True
+      ap_reboot_percentage: 15
+  
+
+
+
