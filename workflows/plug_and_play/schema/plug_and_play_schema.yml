@@ -1,5 +1,3 @@
-
-
 # Catalyst Center PNP Device Management Schema
 # =======================================
 #
@@ -72,6 +70,7 @@ claim_wireless_controllers_type:
   site_name: str(required=False)
   project_name: str(required=False)
   image_name: str(required=False)
+  golden_image : bool(required=False)
   template_name: str(required=False)
   template_params: any(any, required=False)
   state: enum('merged', 'deleted', required=False)
@@ -90,6 +89,7 @@ claim_switching_device_type:
   template_name: str(required=False)
   template_params: any(any, required=False)
   image_name: str(required=False)
+  golden_image : bool(required=False)
   state: enum('merged', 'deleted', required=False)
   device_info: list(include('device_info_type'), required=True)
   pnp_type: enum('Default', 'StackSwitch', required=False)
@@ -100,6 +100,7 @@ claim_router_device_type:
   template_name: str(required=False)
   template_params: any(any, required=False)
   image_name: str(required=False)
+  golden_image : bool(required=False)
   state: enum('merged', 'deleted', required=False)
   device_info: list(include('device_info_type'), required=True)
   pnp_type: enum('Default', required=False)
@@ -110,6 +111,8 @@ device_info_type:
   state: enum('Unclaimed', 'Claimed', 'Provisioned',  'Error', required=False)
   pid: str(required=False)
   add_device_method: str(required=False)
+  authorize: bool(required=False)
+  is_sudi_required: bool(required=False)
 
 network_devices_type:
   device_info: list(include('device_info_type'), required=True)
