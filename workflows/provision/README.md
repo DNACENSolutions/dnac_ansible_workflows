@@ -643,15 +643,20 @@ After the playbook execution, you can verify the results in the Cisco Catalyst C
 - `--e VARS_FILE_PATH`: Path to the variable file containing workflow inputs.  
 - `-vvvv`: Enables verbose mode for detailed output.  
 
-## Reference
-Refer to the workflow's schema file (workflows/provision/schema/provision_workflow_schema.yml) for the definitive list of input parameters and their descriptions.
+## References
 
-## Note: The environment used for the references in the above instructions is as follows:
+**Environment Details**  
+The following environment was used for testing:  
 
-```bash
-- python: 3.10.10
-- dnac_version: 2.3.7.9
-- ansible: 9.9.0
-- cisco.dnac: 6.35.0
-- dnacentersdk: 2.10.14
-```
+| **Component**         | **Version** |
+|-----------------------|-------------|
+| Python                | `3.10.10`   |
+| Cisco Catalyst Center | `2.3.7.9`   |
+| Ansible               | `9.9.0`     |
+| cisco.dnac Collection | `6.35.0`    |
+| dnacentersdk          | `2.10.14`   |
+
+For detailed documentation, refer to:  
+- [Ansible Galaxy: Cisco Catalyst Center Collection](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/provision_workflow_manager/)  
+- [Cisco Catalyst Center Documentation](https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/series.html)
+- [Provision Workflow Manager Module Documentation](https://github.com/cisco-en-programmability/catalyst-center-ansible-dev/blob/main/plugins/modules/provision_workflow_manager.py)
