@@ -45,7 +45,7 @@
         config: "{{accesspoints_details}}"
       register: accesspoints_output
       when: accesspoints_details is defined and accesspoints_details | length > 0
-    # Print the sites creation output
+    # Print the Accesspoints creation output
     - name: Print the Accesspoints creation output
       debug:
         msg: "{{accesspoints_output}}"
@@ -53,12 +53,15 @@
     - name: Delete the template file
       ansible.builtin.command: rm ../tmp/template_generated_file.yaml
       when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
-    # Sites playbook end time
+    # Accesspoints playbook end time
+    - name: Show debug output
+      debug:
+        var: result
     - name: Accesspoints playbook end time
       set_fact:
         long_op_end: "{{ now() }}"
-    # Print sites execution time
-    - name: Print sites execution time
+    # Print Accesspoints execution time
+    - name: Print Accesspoints execution time
       debug:
         msg: "Accesspoints playbook run time: {{ long_op_start }}, end: {{ long_op_end }}"
   # run command module to find python version

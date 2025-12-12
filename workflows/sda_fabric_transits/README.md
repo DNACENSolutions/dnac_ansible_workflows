@@ -344,47 +344,6 @@ The following environment was used for testing:
 | dnacentersdk          | `2.9.2`     |
 
 For detailed documentation, refer to:  
-- [Ansible Galaxy: Cisco Catalyst Center Collection](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/)  
+- [Ansible Galaxy: Cisco Catalyst Center Collection](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_fabric_transits_workflow_manager)  
 - [Cisco Catalyst Center Documentation](https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/series.html)
-- [SDA Fabric Transits Module Documentation](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_fabric_transits_workflow_manager/)
 
----
-
-## Troubleshooting
-
-### Common Issues
-
-1. **SSL Certificate Verification Error**:
-   - **Solution**: Set `catalyst_center_verify: false` in your inventory or vars file
-   - **Note**: Only for lab environments with self-signed certificates
-
-2. **Control Plane Device Not Found**:
-   - **Solution**: Verify device IP addresses are correct and devices are provisioned
-   - **Check**: Device must exist in a fabric site or zone
-
-3. **ASN Already in Use**:
-   - **Solution**: Use a unique ASN for each IP-based transit
-   - **Check**: Review existing transits in Catalyst Center UI
-
-4. **Site Hierarchy Not Found**:
-   - **Solution**: Create the site hierarchy in Catalyst Center first
-   - **Check**: Navigate to Design > Network Hierarchy
-
-5. **Maximum Control Plane Devices Exceeded**:
-   - **Solution**: Limit to 2 devices for BGP transit, 4 for Pub/Sub transit
-   - **Check**: Remove excess IPs from configuration
-
-### Debug Mode
-Enable debug logging for detailed troubleshooting:
-```yaml
-catalyst_center_debug: true
-catalyst_center_log: true
-catalyst_center_log_level: DEBUG
-```
-
-### Log Analysis
-Check the log files for detailed error messages:
-```bash
-cat logs/transits.log | grep -i error
-cat logs/transits.log | grep -i failed
-```

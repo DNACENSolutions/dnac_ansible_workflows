@@ -31,3 +31,42 @@ lan_automation_details:
           source_device_interface_name: "TwoGigabitEthernet1/0/2"
           destination_device_management_ip_address: "91.1.1.6"
           destination_device_interface_name: "GigabitEthernet1/0/5"
+  
+  port_channel:
+    # Example 1: Create Port Channel using Management IP addresses
+    - source_device_management_ip_address: "10.1.1.1"
+      destination_device_management_ip_address: "20.1.1.1"
+      links:
+        - source_port: "GigabitEthernet1/0/1"
+          destination_port: "GigabitEthernet2/0/1"
+        - source_port: "GigabitEthernet1/0/2"
+          destination_port: "GigabitEthernet2/0/2"
+    
+    # Example 2: Create Port Channel using MAC addresses
+    - source_device_mac_address: "aa:bb:cc:dd:ee:01"
+      destination_device_mac_address: "aa:bb:cc:dd:ee:02"
+      links:
+        - source_port: "TenGigabitEthernet1/0/1"
+          destination_port: "TenGigabitEthernet1/0/1"
+        - source_port: "TenGigabitEthernet1/0/2"
+          destination_port: "TenGigabitEthernet1/0/2"
+    
+    # Example 3: Update Port Channel by adding new links (state=merged)
+    - source_device_management_ip_address: "10.1.1.1"
+      destination_device_management_ip_address: "20.1.1.1"
+      links:
+        # Existing link (for identification)
+        - source_port: "GigabitEthernet1/0/1"
+          destination_port: "GigabitEthernet2/0/1"
+        # New link to add
+        - source_port: "GigabitEthernet1/0/10"
+          destination_port: "GigabitEthernet2/0/10"
+    
+    # Example 4: Update Port Channel using port_channel_number (state=merged)
+    - source_device_management_ip_address: "10.1.1.1"
+      destination_device_management_ip_address: "20.1.1.1"
+      port_channel_number: 1
+      links:
+        - source_port: "GigabitEthernet1/0/15"
+          destination_port: "GigabitEthernet2/0/15"
+
