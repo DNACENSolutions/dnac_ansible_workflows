@@ -59,7 +59,9 @@ The schema file (e.g., `schema/provision_workflow_schema.yml`) defines the struc
 | primary_managed_ap_locations  | list       | No           | Primary AP site locations (wireless devices)            |
 | rolling_ap_upgrade            | dict       | No           | Rolling AP upgrade configuration                        |
 | secondary_managed_ap_locations| list       | No           | Secondary AP site locations (wireless devices)          |
-| skip_ap_provision             | bool       | No           | Skip AP provisioning                                   |
+| skip_ap_provision             | bool       | No           | Skip AP provisioning                                    |
+| ap_authorization_list_name    | bool       | No           | AP authorization list name for WLC provisioning.        |
+| authorize_mesh_and_non_mesh_aps | bool     | No           | Authorize both mesh and non-mesh APs during WLC provisioning.|
 
 **rolling_ap_upgrade_type**
 
@@ -478,6 +480,128 @@ provision_details:
 msg:
   msg: Wireless device(s) '204.192.4.200' provisioned successfully.
   response: Wireless device(s) '204.192.4.200' provisioned successfully.
+```
+
+## g. **AP Provisioning with Authorization**:
+*Supported from Cisco Catalyst Center release version 3.1.3.0 onwards*
+
+### Example 1: Skip AP Provision with Authorization List (Wireless)
+
+To configure a wireless controller with AP authorization policies while skipping immediate AP provisioning.
+
+![alt text](./images/skip_ap_provision.png)
+
+#### Input (YAML)
+```yml
+---
+catalyst_center_version: 3.1.3.0
+provision_details:
+  - site_name_hierarchy: Global/USA/San Francisco/BGL_18
+    management_ip_address: 204.192.3.40
+    primary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor2
+    secondary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor1
+    dynamic_interfaces:
+      - interface_name: "Vlan1866"
+        vlan_id: "1866"
+        interface_ip_address: "204.192.6.200"
+        interface_gateway: "204.192.6.1"
+        interface_netmask_in_c_i_d_r: "24"
+    skip_ap_provision: true
+```
+
+#### Upon a successful completion, the configuration from the catc is automatically pushed down to the device
+
++ The playbook return:
+```yml
+msg:
+  changed: true
+  diff: []
+  failed: false
+  msg: Wireless device(s) '204.192.4.200' provisioned successfully.
+  response: Wireless device(s) '204.192.4.200' provisioned successfully.
+```
+
+### Example 2: AP Provision with Authorization List
+
+To provision both the wireless controller and all associated APs with authorization policies applied in one operation.
+
+**prerequisite**: AP authorization list must exist in Catalyst Center before provisioning.This list can be created under **Design > Network Settings > Wireless > Security Settings > AP Authorization List**.
+
+![alt text](./images/Ap_authorization_list.png)
+![alt text](./images/no_skip_provision.png)
+
+#### Input (YAML)
+```yml
+---
+catalyst_center_version: 3.1.3.0
+provision_details:
+  - site_name_hierarchy: Global/USA/San Francisco/BGL_18
+    management_ip_address: 204.192.3.40
+    primary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor2
+      - Global/USA/San Francisco/BGL_18/Test_Floor3
+    secondary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor1
+    dynamic_interfaces:
+      - interface_name: "Vlan1866"
+        vlan_id: "1866"
+        interface_ip_address: "204.192.6.200"
+        interface_gateway: "204.192.6.1"
+        interface_netmask_in_c_i_d_r: "24"
+    skip_ap_provision: false
+    ap_authorization_list_name: "Corporate-AP-Auth-List"
+```
+
+#### Upon a successful completion, the configuration from the catc is automatically pushed down to the device
+
++ The playbook return:
+```yml
+msg:
+  msg: Wireless device(s) '204.192.4.200' provisioned successfully.
+  response: Wireless device(s) '204.192.4.200' provisioned successfully.
+```
+
+## h. **Provisioning with Rolling AP Upgrade**:
+*Supported from Cisco Catalyst Center release version 3.1.3.0 onwards*
+
+### Example 1: Provision WLC with Rolling AP Upgrade Enabled
+
+Rolling AP upgrade allows you to upgrade Access Points in phases, minimizing network disruption by rebooting only a percentage of APs at a time. This is particularly useful for large deployments with many APs.
+
+**prerequisite**: Wireless controller must be added to inventory and AP locations must be configured.
+
+![alt text](./images/rolling_ap_upgrade.png)
+
+#### Input (YAML)
+```yml
+---
+catalyst_center_version: 3.1.3.0
+provision_details:
+  - site_name_hierarchy: Global/USA/San Francisco/BGL_18
+    management_ip_address: 204.192.3.40
+    primary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor2
+      - Global/USA/San Francisco/BGL_18/Test_Floor3
+      - Global/USA/San Francisco/BGL_18/Test_Floor4
+    secondary_managed_ap_locations:
+      - Global/USA/San Francisco/BGL_18/Test_Floor1
+    dynamic_interfaces:
+      - interface_name: "Vlan1866"
+        vlan_id: "1866"
+        interface_ip_address: "204.192.6.200"
+        interface_gateway: "204.192.6.1"
+        interface_netmask_in_c_i_d_r: "24"
+      - interface_name: "Vlan1867"
+        vlan_id: "1867"
+        interface_ip_address: "204.192.7.200"
+        interface_gateway: "204.192.7.1"
+        interface_netmask_in_c_i_d_r: "24"
+    skip_ap_provision: false
+    rolling_ap_upgrade:
+      enable_rolling_ap_upgrade: true
+      ap_reboot_percentage: 15
 ```
 
 ### Step 3: Deploy and Verify
