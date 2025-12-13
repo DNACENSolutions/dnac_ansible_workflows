@@ -100,13 +100,13 @@ swim_details:
           payload:
           - source_url: http://<server IP>/swim/V1712_1_FC5/cat9k_lite_iosxe.17.12.01.SPA.bin
             third_party: false
-    - tagging_details:
+      tagging_details:
           image_name: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
           device_role: ALL
           device_image_family_name: Cisco Catalyst 9300 Switch
           site_name: Global/USA/SAN JOSE/BLD23
           tagging: true
-    - image_distribution_details:
+      image_distribution_details:
         image_name: cat9k_iosxe.BLD_V1712_THROTTLE_LATEST_20230427_143746.SSA.bin
         device_hostname: null
         device_mac_address: null
@@ -115,7 +115,7 @@ swim_details:
         site_name: Global/USA/SAN JOSE/BLD23
         device_family_name: Switches and Hubs
         device_serial_number: null
-    - image_activation_details:
+      image_activation_details:
         activate_lower_image_version: false
         device_family_name: Switches and Hubs
         device_hostname: null
