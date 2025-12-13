@@ -1,5 +1,5 @@
 ---
-#catalyst_center_version: 2.3.7.6
+catalyst_center_version: 2.3.7.6
 accesspoints_details:
   - mac_address: a4:88:73:d0:53:60
     ap_mode: Local
