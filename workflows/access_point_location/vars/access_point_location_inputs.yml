@@ -1,0 +1,145 @@
+---
+# Access Point Location Configuration
+# This file contains Access Point location configurations for Cisco Catalyst Center
+
+# Example 1: Create planned access point positions
+accesspoint_location_details:
+  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23/FLOOR1"
+    access_points:
+      - accesspoint_name: "AP687D.B402.1614-AP-location_Test1"
+        accesspoint_model: "AP9120E"
+        position:
+          x_position: 30
+          y_position: 30
+          z_position: 8.0
+        radios:
+          - bands: ["2.4"]
+            channel: 11
+            tx_power: 5
+            antenna:
+              antenna_name: "AIR-ANT2524DB-R-2.4GHz"
+              azimuth: 30
+              elevation: 30
+          - bands: ["5"]
+            channel: 44
+            tx_power: 6
+            antenna:
+              antenna_name: "AIR-ANT2524DB-R-5GHz"
+              azimuth: 30
+              elevation: 30
+
+# Example 2: Create planned position with dual-band radio
+  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23/FLOOR2"
+    access_points:
+      - accesspoint_name: "AP687D.B402.1614-AP-location_Test2"
+        accesspoint_model: "AP9120E"
+        position:
+          x_position: 50
+          y_position: 40
+          z_position: 9.0
+        radios:
+          - bands: ["2.4", "5"]
+            channel: 48
+            tx_power: 6
+            antenna:
+              antenna_name: "AIR-ANT2524DB-R"
+              azimuth: 45
+              elevation: 20
+
+# Example 3: Assign real access point to planned access point
+  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23/FLOOR1"
+    access_points:
+      - accesspoint_name: "AP687D.B402.1614-AP-location_Test3"
+        action: "assign_planned_ap"
+        mac_address: "a4:88:73:d4:dd:80"
+
+# Example 4: Create real AP position with real access point
+  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23/FLOOR3"
+    access_points:
+      - accesspoint_name: "AP687D.B402.1614-AP-location_Test4"
+        mac_address: "a4:88:73:d4:dd:81"
+        accesspoint_model: "AP9120E"
+        position:
+          x_position: 20
+          y_position: 30
+          z_position: 8.0
+        radios:
+          - bands: ["2.4"]
+            channel: 11
+            tx_power: 5
+            antenna:
+              antenna_name: "AIR-ANT2524DB-R-2.4GHz"
+              azimuth: 20
+              elevation: 30
+          - bands: ["5"]
+            channel: 44
+            tx_power: 6
+            antenna:
+              antenna_name: "AIR-ANT2524DB-R-5GHz"
+              azimuth: 20
+              elevation: 30
+
+# Example 5: Update planned access point position
+  - floor_site_hierarchy: "Global/USA/California/SAN JOSE/BLD24/Floor3"
+    access_points:
+      - accesspoint_name: "IAC-TB4-SJ-AP1"
+        accesspoint_model: "AP9120E"
+        position:
+          x_position: 35
+          y_position: 35
+          z_position: 8.5
+        radios:
+          - bands: ["2.4"]
+            channel: 6
+            tx_power: 4
+            antenna:
+              antenna_name: "AIR-ANT2524DB-R-2.4GHz"
+              azimuth: 25
+              elevation: 25
+          - bands: ["5"]
+            channel: 40
+            tx_power: 5
+            antenna:
+              antenna_name: "AIR-ANT2524DB-R-5GHz"
+              azimuth: 25
+              elevation: 25
+
+# Example 6: Update real AP position (partial update - position and antenna only)
+  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23/FLOOR1"
+    access_points:
+      - accesspoint_name: "AP687D.B402.1614-AP-location_Test5"
+        mac_address: "a4:88:73:d4:dd:82"
+        accesspoint_model: "AP9120E"
+        position:
+          x_position: 25
+          y_position: 35
+          z_position: 8.5
+        radios:
+          - bands: ["2.4"]
+            antenna:
+              antenna_name: "AIR-ANT2524DB-R-2.4GHz"
+              azimuth: 15
+              elevation: 25
+          - bands: ["5"]
+            antenna:
+              antenna_name: "AIR-ANT2524DB-R-5GHz"
+              azimuth: 15
+              elevation: 25
+
+# Example 7: Create access point with 6GHz radio
+  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD24/FLOOR1"
+    access_points:
+      - accesspoint_name: "AP687D.B402.1614-AP-6GHz-Test"
+        accesspoint_model: "AP9136I"
+        position:
+          x_position: 60
+          y_position: 50
+          z_position: 9.5
+        radios:
+          - bands: ["6"]
+            channel: 37
+            tx_power: 7
+            antenna:
+              antenna_name: "AIR-ANT2566P4W-R"
+              azimuth: 90
+              elevation: 0
