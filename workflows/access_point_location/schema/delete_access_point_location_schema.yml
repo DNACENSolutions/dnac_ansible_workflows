@@ -1,0 +1,16 @@
+---
+# Delete Access Point Location Schema
+
+# Main Configuration for Deletion
+accesspoint_location_details: list(include('delete_location'), min=1, max=100, required=True)
+
+---
+# Delete Location Type - Simplified for deletion operations
+delete_location:
+  floor_site_hierarchy: str(required=True)
+  access_points: list(include('delete_ap'), min=1, max=100, required=True)
+
+# Delete Access Point Type - Only essential fields
+delete_ap:
+  accesspoint_name: str(required=True)
+  action: enum('manage_real_ap', required=False)  # Only needed when deleting real AP positions
