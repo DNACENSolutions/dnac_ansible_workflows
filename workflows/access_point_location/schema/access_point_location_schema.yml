@@ -1,0 +1,40 @@
+---
+# Access Point Location Workflow Schema
+
+# Main Configuration
+accesspoint_location_details: list(include('accesspoint_location_type'), min=1, max=100, required=True)
+config_verify: bool(required=False, default=False)
+
+---
+# Access Point Location Type
+accesspoint_location_type:
+  floor_site_hierarchy: str(required=True)
+  access_points: list(include('access_point_type'), min=1, max=100, required=True)
+
+# Access Point Configuration Type
+access_point_type:
+  accesspoint_name: str(required=True)
+  action: enum('assign_planned_ap', 'manage_real_ap', required=False)
+  mac_address: str(required=False)
+  accesspoint_model: str(required=False)
+  position: include('position_type', required=False)
+  radios: list(include('radio_type'), min=1, max=4, required=False)
+
+# Position Configuration Type
+position_type:
+  x_position: int(min=0, max=100, required=True)
+  y_position: int(min=0, max=88, required=True)
+  z_position: num(min=3.0, max=10.0, required=True)
+
+# Radio Configuration Type
+radio_type:
+  bands: list(enum('2.4', '5', '6'), min=1, max=3, required=True)
+  channel: int(required=True)
+  tx_power: int(required=True)
+  antenna: include('antenna_type', required=True)
+
+# Antenna Configuration Type
+antenna_type:
+  antenna_name: str(required=True)
+  azimuth: int(min=1, max=360, required=True)
+  elevation: int(min=-90, max=90, required=True)

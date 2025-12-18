@@ -1,0 +1,27 @@
+---
+# Delete Access Point Location Configuration
+# This file contains Access Point location deletion configurations for Cisco Catalyst Center
+
+# Example 1: Delete planned access point positions
+accesspoint_location_details:
+  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23/FLOOR1"
+    access_points:
+      - accesspoint_name: "AP687D.B402.1614-AP-location_Test1"
+
+# Example 2: Delete multiple planned access points from same floor
+  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23/FLOOR2"
+    access_points:
+      - accesspoint_name: "AP687D.B402.1614-AP-location_Test2"
+      - accesspoint_name: "AP687D.B402.1614-AP-location_Test3"
+
+# Example 3: Unassign real access point from planned position
+  - floor_site_hierarchy: "Global/USA/California/SAN JOSE/BLD24/Floor3"
+    access_points:
+      - accesspoint_name: "IAC-TB4-SJ-AP1"
+        action: "manage_real_ap"
+
+# Example 4: Delete real AP positions
+  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23/FLOOR3"
+    access_points:
+      - accesspoint_name: "AP687D.B402.1614-AP-location_Test4"
+        action: "manage_real_ap"
