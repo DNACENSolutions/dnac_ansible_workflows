@@ -22,8 +22,8 @@ access_point_type:
 
 # Position Configuration Type
 position_type:
-  x_position: int(min=0, max=100, required=True)
-  y_position: int(min=0, max=88, required=True)
+  x_position: num(min=0.0, max=100.0, required=True)
+  y_position: num(min=0.0, max=100.0, required=True)
   z_position: num(min=3.0, max=10.0, required=True)
 
 # Radio Configuration Type
