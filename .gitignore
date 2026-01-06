@@ -25,3 +25,5 @@ docs/plugins/
 docs/_build/
 changelogs/.plugin-cache.yaml
 .DS_Store
+
+/net-commander
