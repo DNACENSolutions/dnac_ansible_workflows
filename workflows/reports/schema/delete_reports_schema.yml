@@ -12,13 +12,17 @@ catalyst_center_log_append: bool(required=False, default=True)
 catalyst_center_log_file_path: str(required=False, default='dnac.log')
 catalyst_center_log_level: enum("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", required=False)
 
-# Main Configuration for Deletion
-reports_details: list(include('delete_report_type'), min=1, max=100, required=True)
+# Main Configuration
+reports_details: list(include('report_config_type'), min=1, max=100, required=True)
+
+---
+# Report Configuration Type
+report_config_type:
+  generate_report: list(include('delete_report_type'), required=True)
 
 ---
 # Delete Report Type - Minimal required fields for deletion
 delete_report_type:
-  generate_report:
     name: str(required=True)
     view_group_name: str(required=True)
     view: include('delete_view_type', required=True)
