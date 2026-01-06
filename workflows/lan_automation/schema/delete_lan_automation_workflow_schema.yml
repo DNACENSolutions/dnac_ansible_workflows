@@ -2,6 +2,7 @@
 
 lan_automation_details:
   lan_automation_session: list(include('lan_automation_type'), min=0, max=100, required=False)
+  port_channel: list(include('port_channel_type'), min=0, max=100, required=False)
 catalyst_center_version: str(required=False)
 catalyst_center_verify: bool(required=False)
 catalyst_center_api_task_timeout: int(required=False, default=1200)
@@ -20,4 +21,41 @@ ccc_poll_interval: int(required=False)
 lan_automation_type:
   lan_automation:
     discovered_device_site_name_hierarchy: str(required=True)
+    peer_device_management_ip_address: str(required=False)
     primary_device_management_ip_address: str(required=True)
+    primary_device_interface_names: list(str(), min=1, max=100, required=False)
+    ip_pools: list(include('ip_pools_type'), min=1, max=100, required=False)
+    multicast_enabled: bool(required=False)
+    redistribute_isis_to_bgp: bool(required=False)
+    host_name_prefix: str(required=False)
+    isis_domain_pwd: str(required=False)
+    discovery_level: int(min=1, max=5, required=False)
+    discovery_timeout: int(required=False)
+    discovery_devices: list(include('discovery_device_type'), min=0, max=100, required=False)
+    launch_and_wait: bool(required=False)
+    pnp_authorization: bool(required=False)
+    device_serial_number_authorization: list(str(), min=0, max=100, required=False)
+
+ip_pools_type:
+  ip_pool_name: str(required=False)
+  ip_pool_role: enum('MAIN_POOL', 'PHYSICAL_LINK_POOL', required=False)
+
+discovery_device_type:
+  device_serial_number: str(required=False)
+  device_host_name: str(required=False)
+  device_site_name_hierarchy: str(required=False)
+  device_management_ip_address: str(required=False)
+
+port_channel_type:
+  source_device_management_ip_address: str(required=True)
+  source_device_mac_address: str(required=False)
+  source_device_serial_number: str(required=False)
+  destination_device_management_ip_address: str(required=True)
+  destination_device_mac_address: str(required=False)
+  destination_device_serial_number: str(required=False)
+  port_channel_number: int(required=False)
+  links: list(include('port_channel_link_type'), min=0, max=8, required=False)
+
+port_channel_link_type:
+  source_port: str(required=True)
+  destination_port: str(required=True)
