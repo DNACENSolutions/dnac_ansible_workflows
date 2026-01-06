@@ -310,7 +310,7 @@ sda_host_onboarding_details_type:
 port_assignment_details_type:
   interface_name: str(required=True)
   connected_device_type: enum('TRUNKING_DEVICE', 'ACCESS_POINT', 'USER_DEVICE', required=True)
-  authentication_template_name: enum('No Authentication', 'Open Authentication', 'Closed Authentication', 'Low Impact', required=True)
+  authentication_template_name: enum('No Authentication', 'Open Authentication', 'Closed Authentication', 'Low Impact', required=False)
   data_vlan_name: str(required=False)
   voice_vlan_name: str(required=False)
   security_group_name: str(required=False)

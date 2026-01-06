@@ -129,41 +129,49 @@ accesspoint_location_details:
               azimuth: 20
               elevation: 30
 
-# Example 6: Create planned access point with 6GHz radio
-  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23/FLOOR2"
+# Example 6: Update real AP position (partial update - position and antenna only)
+  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23/FLOOR1"
     access_points:
-      - accesspoint_name: "AP687D.B402.1614-AP-location_Test2"
-        accesspoint_model: "CW9172I"
+      - accesspoint_name: "AP687D.B402.1614-AP-location_Test5"
+        mac_address: "a4:88:73:d4:dd:82"
+        accesspoint_model: "AP9120E"
+        position:
+          x_position: 25
+          y_position: 35
+          z_position: 8.5
+        radios:
+          - bands: ["2.4"]
+            channel: 6
+            tx_power: 4
+            antenna:
+              antenna_name: "AIR-ANT2524DB-R-2.4GHz"
+              azimuth: 15
+              elevation: 25
+          - bands: ["5"]
+            channel: 40
+            tx_power: 5
+            antenna:
+              antenna_name: "AIR-ANT2524DB-R-5GHz"
+              azimuth: 15
+              elevation: 25
+
+# Example 7: Create access point with 6GHz radio
+  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD24/FLOOR1"
+    access_points:
+      - accesspoint_name: "AP687D.B402.1614-AP-6GHz-Test"
+        accesspoint_model: "AP9136I"
         position:
           x_position: 60
           y_position: 50
-          z_position: 3.5
+          z_position: 9.5
         radios:
           - bands: ["6"]
             channel: 37
             tx_power: 7
             antenna:
-              antenna_name: "Internal-CW9172I-x-Single-6GHz"
+              antenna_name: "AIR-ANT2566P4W-R"
               azimuth: 90
               elevation: 0
-
-# Example 7: Create planned position with dual-band radio
-  - floor_site_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23/FLOOR2"
-    access_points:
-      - accesspoint_name: "AP687D.B402.1614-AP-location_Test3"
-        accesspoint_model: "AP9120E"
-        position:
-          x_position: 50
-          y_position: 40
-          z_position: 9.0
-        radios:
-          - bands: ["2.4", "5"]
-            channel: 48
-            tx_power: 6
-            antenna:
-              antenna_name: "AIR-ANT2524DB-R"
-              azimuth: 45
-              elevation: 20
 
 # Example 8 : Create multiple planned access points on different floors
   - floor_site_hierarchy: "Global/USA/New York/NY_BLD1/FLOOR1"
@@ -270,4 +278,3 @@ accesspoint_location_details:
               antenna_name: Internal-9130-2.4GHz
               azimuth: 198
               elevation: 30
-

@@ -112,7 +112,7 @@ Additional fields include `native_vlan_id`, `allowed_vlan_ranges` (for port assi
 | `data_vlan_name` | String | Conditional | N/A | Required for ACCESS_POINT; one of data/voice for USER_DEVICE. |
 | `voice_vlan_name` | String | Conditional | N/A | Use if USER_DEVICE without data VLAN. |
 | `security_group_name` | String | No | N/A | Only with `No Authentication`. |
-| `authentication_template_name` | String | Yes | "No Authentication" | One of: No/Open/Closed/Low Impact; TRUNKING_DEVICE must be No Authentication. |
+| `authentication_template_name` | String | No | "No Authentication" | One of: No/Open/Closed/Low Impact; TRUNKING_DEVICE must be No Authentication. |
 | `interface_description` | String | No | N/A | Description label. |
 | `native_vlan_id` | Integer | No (TRUNKING_DEVICE, version ≥3.1.3.0) | 1 | Native VLAN ID. |
 | `allowed_vlan_ranges` | String | No (TRUNKING_DEVICE, version ≥3.1.3.0) | all | Comma separated VLANs and ranges or `all`; exclude native VLAN. |

@@ -180,7 +180,7 @@ ap_zones_type:
 feature_template_designs_type:
   design_type: enum("AAA_RADIUS_ATTRIBUTES_CONFIGURATION", "ADVANCED_SSID_CONFIGURATION", "CLEANAIR_CONFIGURATION", "DOT11AX_CONFIGURATION", "DOT11BE_STATUS_CONFIGURATION", "EVENT_DRIVEN_RRM_CONFIGURATION", "FLEX_CONFIGURATION", "MULTICAST_CONFIGURATION", "RRM_FRA_CONFIGURATION", "RRM_GENERAL_CONFIGURATION", required=False)
   feature_templates: list(str(), required=True)
-  applicability_ssids: list(str(), required=False, default=["All"])
+  applicability_ssids: list(str(), required=False)
 
 additional_interfaces_type:
   interface_name: str(required=True)
