@@ -14,7 +14,7 @@ This module provides a comprehensive toolkit for managing reports in *Cisco Cata
 - **Flexible Delivery Options**:  
   - **Download** reports to a specified file path.
   - **Email notifications** with report attachments.
-  - **Webhook integration** for automated report distribution.
+  - **Webhook Endpoints** for automated report distribution.
 
 - **Report Types and Views**:  
   - Support for multiple view groups including Compliance, Inventory, Network Devices, Access Point, Client, Security Advisories, and more.
@@ -92,7 +92,7 @@ The following schema outlines the structure for configuring reports in *Cisco Ca
 | **Parameter**         | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
 |-----------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
 | `name`                | String     | Yes (for delete) | `N/A`        | Name of the report. Required for deletion, optional for creation.               |
-| `new_report`          | Boolean    | No           | `true`            | Indicates if this is a new report creation.                                     |
+| `new_report`          | Boolean    | No           | `true`            | Specifies whether to create a new report when a report with the same name already exists.                                     |
 | `view_group_name`     | String     | Yes          | `N/A`             | View group name (e.g., "Compliance", "Inventory", "Access Point").              |
 | `view_group_version`  | String     | No           | `"2.0.0"`         | Version of the view group.                                                      |
 | `tags`                | List       | No           | `N/A`             | List of tags for report categorization.                                         |
@@ -140,8 +140,8 @@ The following schema outlines the structure for configuring reports in *Cisco Ca
 | **Parameter**         | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
 |-----------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
 | `view_name`           | String     | Yes          | `N/A`             | Name of the view to use for the report data.                                    |
-| `field_groups`        | List       | Yes          | `N/A`             | List of field groups to include. See *Field Group Configuration*.              |
-| `format`              | Dict       | Yes          | `N/A`             | Report format configuration. See *Format Configuration*.                        |
+| `field_groups`        | List       | No          | `N/A`             | List of field groups to include. See *Field Group Configuration*.              |
+| `format`              | Dict       | Yes          | `N/A`             | Specifies the output format of the report. See *Format Configuration*.                        |
 | `filters`             | List       | No           | `N/A`             | List of filters to apply to report data. See *Filter Configuration*.           |
 
 ##### Field Group Configuration
@@ -171,8 +171,552 @@ The following schema outlines the structure for configuring reports in *Cisco Ca
 |-----------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
 | `name`                | String     | Yes          | `N/A`             | Name of the filter.                                                             |
 | `display_name`        | String     | No           | `N/A`             | Display name for the filter.                                                    |
-| `filter_type`         | String     | Yes          | `N/A`             | Type: "MULTI_SELECT", "MULTI_SELECT_TREE", "SINGLE_SELECT_ARRAY", "TIME_RANGE". |
-| `value`               | Dict/List  | Yes          | `N/A`             | Filter value configuration. Structure varies by filter type.                    |
+| `filter_type`         | String     | Yes          | `N/A`             | Type: "MULTI_SELECT", "MULTI_SELECT_TREE", "SINGLE_SELECT_ARRAY", "TIME_RANGE", "REGULAR". |
+| `value`               | Dict/List  | Yes          | `N/A`             | Structure varies by filter type. See value configuration.|
+
+##### Value configuration
+
+| **Parameter**         | **Type**   | **Required** | **Default Value** | **Description**                                                                 |
+|-----------------------|------------|--------------|-------------------|---------------------------------------------------------------------------------|
+| `value`                | String     | No          | `N/A`             | Value for the filter selected.                                                              |
+| `display_value`        | String     | No           | `N/A`             | Human-readable value displayed in the UI.|
+
+### Supported Report Templates
+
+The following section details the available report templates in *Cisco Catalyst Center*, including their supported filters, scheduling options, delivery methods, and file formats. Each template corresponds to a specific `view_group_name` and `view_name` combination.
+
+#### **1. Executive Summary Reports**
+
+**Template Configuration:**
+- **View Group Name:** `Executive Summary`
+- **View Name:** `Executive Summary`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`)
+  - **SSID** (`MULTI_SELECT`)
+  - **Band** (`MULTI_SELECT`)
+  - **GroupBy** (`SINGLE_SELECT_ARRAY`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** PDF
+
+---
+
+#### **2. Security Advisories Reports**
+
+**Template Configuration:**
+- **View Group Name:** `Security Advisories`
+- **View Name:** `Security Advisories Data`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`)
+  - **DeviceType** (`MULTI_SELECT`)
+  - **Impact** (`MULTI_SELECT`)
+  > **Note:** Impact filter values must be in uppercase (case-sensitive)
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** PDF, CSV, Tableau Data Extract (TDE)
+- **Supported fields:** deviceName, deviceIpAddress, deviceType, deviceSerialNumber, deviceImageVersion, deviceSite, advisoryId, advisoryCvssScore, advisoryImpact, advisoryMatchType, advisoryLastScanTime, firstFixedVersion, scanCriteria, scanStatus
+- **Field Group Name:** psirtAllData
+
+---
+
+#### **3. Inventory Reports - All Data**
+
+**Template Configuration:**
+- **View Group Name:** `Inventory`
+- **View Name:** `All Data`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`)
+  - **DeviceType** (`MULTI_SELECT`)
+  - **DeviceFamily** (`MULTI_SELECT`)
+  - **SoftwareVersion** (`MULTI_SELECT`)
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+
+- **File Formats:** PDF, CSV, Tableau Data Extract (TDE)
+- **Supported fields:** family, type, hostname, serialNumber, ipAddress, status, softwareVersion, upTime, partNumber, site, numberofUsers, numberofethernetports, timeSinceCodeUpgrade, licenseDnaLevel, networkLicense, fabricRole
+- **Field Group Name:** inventoryAllData
+
+---
+
+#### **4. Inventory Reports - All Data Version 2.0**
+
+**Template Configuration:**
+- **View Group Name:** `Inventory`
+- **View Name:** `All Data Version 2.0`
+
+**Supported Features:**
+- **Filters:** 
+  - **siteId** (`MULTI_SELECT_TREE`)
+  - **deviceFamily** (`MULTI_SELECT`)
+  - **deviceType** (`MULTI_SELECT`)
+  - **softwareVersion** (`MULTI_SELECT`)
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** PDF, CSV, Tableau Data Extract (TDE)
+- **Supported fields:** rownum, deviceFamily, deviceType, name, serialNumber, managementIpAddress, communicationState, softwareVersion, upTime, platformId, siteHierarchy, clientCount, portCount, completionTime, dnaLevel, networkLicense, uxLevel, fabricRole
+- **Field Group Name:** inventory_fields
+
+---
+
+#### **5. Inventory Reports - Port Reclaim View**
+
+**Template Configuration:**
+- **View Group Name:** `Inventory`
+- **View Name:** `Port Reclaim View`
+
+**Supported Features:**
+- **Filters:** 
+  - **family** (`REGULAR`)
+  - **hostname** (`REGULAR`)
+  > **Note:** These filters support single selection only
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** rownum, hostname, family, type, managementIpAddress, portname, description, macAddress, adminStatus, status, lastInput, lastOutput
+- **Field Group Name:** PortReclaimFieldGroup
+
+
+---
+
+#### **6. Rogue and aWIPS Reports - New Threat**
+
+**Template Configuration:**
+- **View Group Name:** `Rogue and aWIPS`
+- **View Name:** `New Threat`
+
+> **⚠️ Important Disclaimer:** Site configuration must include floor plans. Sites without associated floor plans will cause report generation failures. Ensure all sites have proper floor associations before running this report.
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`)
+  - **ThreatType** (`MULTI_SELECT`)
+  - **ThreatLevel** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** threatLevel, macAddress, threatType, apName, siteHierarchyName, rssi, ssid, vendor, lastUpdated
+- **Field Group Name:** rogue_details
+
+
+---
+
+#### **7. Rogue and aWIPS Reports - Rogue Additional Detail**
+
+**Template Configuration:**
+- **View Group Name:** `Rogue and aWIPS`
+- **View Name:** `Rogue Additional Detail`
+
+> **⚠️ Important Disclaimer:** Site configuration must include floor plans. Sites without associated floor plans will cause report generation failures. Ensure all sites have proper floor associations before running this report.
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`)
+  - **ThreatType** (`MULTI_SELECT`)
+  - **ThreatLevel** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** threatLevel, macAddress, threatType, apName, siteHierarchyName, rssi, ssid, vendor, lastUpdated
+- **Field Group Name:** rogue_ap_bssid_details
+
+---
+
+#### **8. Rogue and aWIPS Reports - Threat Detail**
+
+**Template Configuration:**
+- **View Group Name:** `Rogue and aWIPS`
+- **View Name:** `Threat Detail`
+
+> **⚠️ Important Disclaimer:** Site configuration must include floor plans. Sites without associated floor plans will cause report generation failures. Ensure all sites have proper floor associations before running this report.
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`)
+  - **ThreatType** (`MULTI_SELECT`)
+  - **ThreatLevel** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** macAddress, lastUpdated, firstSeen, mldMacAddress, apName, radioType, controllerIp, siteNameHierarchy, ssid, channelNumber, channelWidth, threatLevel, containment, threatType, encryption, switchIp, switchName, portDescription
+- **Field Group Name:** rogue_details
+
+#### **9. Access Point Reports - AP**
+
+**Template Configuration:**
+- **View Group Name:** `Access Point`
+- **View Name:** `AP`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **Wlc** (`MULTI_SELECT`)
+  - **AP** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** macAddress, ethernetMac, nwDeviceName, managementIpAddress, osVersion, nwDeviceType, platformId, serialNumber, deviceFamily, siteHierarchy, upTime, mode, adminState, opState, overallScore, clCount_avg, cpu, memory, clCount_max, wlcName, powerStatus, regulatoryDomain, cdp, location, flexGroup, apGroup, siteTagName, policyTagName, rfTagName, rxBytes, rxBytes, rxRate, txRate
+- **Field Group Name:** apDetailByAP
+
+---
+
+#### **10. Access Point Reports - AP Usage and Client Breakdown**
+
+**Template Configuration:**
+- **View Group Name:** `Access Point`
+- **View Name:** `AP - Usage and Client Breakdown`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **Wlc** (`MULTI_SELECT`)
+  - **AP** (`MULTI_SELECT`) *(Mandatory)*
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON, PDF
+- **Supported fields:** apName, kpiType, kpiName, clientCount, clientPercentage, traffic, trafficPercentage, ethernetMac, location
+- **Field Group Name:** apBreakdown
+
+---
+
+#### **11. Access Point Reports - AP Radio**
+
+**Template Configuration:**
+- **View Group Name:** `Access Point`
+- **View Name:** `AP Radio`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **Wlc** (`MULTI_SELECT`)
+  - **AP** (`MULTI_SELECT`)
+  - **Band** (`MULTI_SELECT`)
+  - **SortBy** (`SINGLE_SELECT_ARRAY`) *(Mandatory)*
+  - **Limit** (`SINGLE_SELECT_ARRAY`) *(Mandatory)*
+  - **TimeRange** (`TIME_RANGE`)
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** ethernetMac, apMac, slot, name, radioMode, adminState, operState, frequency, siteHierarchy, channels, txPower, memory, osVersion, cpu, managementIpAddress, deviceModel, deviceFamily, platformId, nwDeviceType, upTime, wlcName, wlcIpAddr, radioNoiseMax_max, radioUtil_max, txUtilPct_max, rxUtilPct_max, radioIntf_max, radioClientCount_max, radioClientCount_avg, txBytes_sum, rxBytes_sum, radioAirQualMax_max, txUtil_avg, rxUtil_avg
+- **Field Group Name:** apDetailByRadio
+
+---
+
+#### **12. Access Point Reports - AP RRM Events**
+
+**Template Configuration:**
+- **View Group Name:** `Access Point`
+- **View Name:** `AP RRM Events`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **Wlc** (`MULTI_SELECT`)
+  - **AP** (`MULTI_SELECT`)
+  - **Band** (`MULTI_SELECT`)
+  - **eventType** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** time, eventTime, apName, ethernetMac, apMac, managementIpAddr, slotId, wlcName, frequency, eventType, prevChannels, currChannels, prevPower, currPower, oldWidthValue, newWidthValue, reasonType, lastFailureReason, dcaReasonCode, location
+- **Field Group Name:** apRRMEventsByAPMac
+
+---
+
+#### **13. Access Point Reports - Worst Interfaces**
+
+**Template Configuration:**
+- **View Group Name:** `Access Point`
+- **View Name:** `Worst Interfaces`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **Wlc** (`MULTI_SELECT`)
+  - **AP** (`MULTI_SELECT`)
+  - **Band** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** deviceType, severity, worstSevTime, deviceMac, rssi, dutyCycle, affectedChannels, apName, slot, band, siteHierarchy, discoveredTime
+- **Field Group Name:** worstInterferers
+
+---
+
+#### **14. Network Devices Reports - Channel Change Count**
+
+**Template Configuration:**
+- **View Group Name:** `Network Devices`
+- **View Name:** `Channel Change Count`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **Band** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** apName, apMac, slotId, frequency, DCA, DFS, ED-RRM, totalChangeCount, channelsCount, location
+- **Field Group Name:** response
+
+---
+
+#### **15. Network Devices Reports - Device CPU and Memory Utilization**
+
+**Template Configuration:**
+- **View Group Name:** `Network Devices`
+- **View Name:** `Device CPU and Memory Utilization`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **DeviceFamily** (`MULTI_SELECT`)
+  - **DeviceRole** (`MULTI_SELECT`)
+  - **SortBy** (`SINGLE_SELECT_ARRAY`) *(Mandatory)*
+  - **Limit** (`SINGLE_SELECT_ARRAY`) *(Mandatory)*
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** deviceName, ipAddr, deviceFamily, deviceRole, deviceModel, minCPU, maxCPU, avgCPU, minMemory, maxMemory, avgMemory
+- **Field Group Name:** Device_Health_Details
+
+---
+
+#### **16. Network Devices Reports - Energy Management**
+
+**Template Configuration:**
+- **View Group Name:** `Network Devices`
+- **View Name:** `Energy Management`
+
+**Supported Features:**
+- **Filters:** 
+  - **Locations** (`MULTI_SELECT_TREE`)
+  - **DeviceCategory** (`SINGLE_SELECT_ARRAY`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** timeVal, energyConsumed, carbonIntensity, estimatedEmission, estimatedCost, measured
+- **Field Group Name:** response
+
+---
+
+#### **17. Network Devices Reports - Network Device Availability**
+
+**Template Configuration:**
+- **View Group Name:** `Network Devices`
+- **View Name:** `Network Device Availability`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **NwDeviceType** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** nwDeviceFamily, nwDeviceRole, nwDeviceName, managementIpAddr, siteHierarchy, softwareVersion, availability
+- **Field Group Name:** response
+
+---
+
+#### **18. Network Devices Reports - Network Interface Utilization**
+
+**Template Configuration:**
+- **View Group Name:** `Network Devices`
+- **View Name:** `Network Interface Utilization`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **SortBy** (`SINGLE_SELECT_ARRAY`) *(Mandatory)*
+  - **SortOrder** (`SINGLE_SELECT_ARRAY`) *(Mandatory)*
+  - **Limit** (`REGULAR`) *(Mandatory)*
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** deviceName, managementIpAddress, location, interfaceName, minTx, maxTx, avgTx, txErrors, txPacketDrops, minRx, maxRx, avgRx, rxErrors, rxPacketDrops
+- **Field Group Name:** Interface_Utilization_Details
+
+---
+
+#### **19. Network Devices Reports - PoE**
+
+**Template Configuration:**
+- **View Group Name:** `Network Devices`
+- **View Name:** `PoE`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** managementIpAddr, nwDeviceName, date, site, powerBudget, powerConsumed, powerConsumedPercentage, poeUsedPortCount, fastPoeEnabledCount, perpetualPoeEnabledCount, PolicePoeEnabledCount, poeOperPriorityHighCount
+- **Field Group Name:** response
+
+---
+
+#### **20. Network Devices Reports - Port Capacity**
+
+**Template Configuration:**
+- **View Group Name:** `Network Devices`
+- **View Name:** `Port Capacity`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`)
+  - **DeviceFamily** (`MULTI_SELECT`)
+  - **Devicerole** (`MULTI_SELECT`)
+  - **utilizationLevel** (`MULTI_SELECT`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE)
+- **Supported fields:** deviceIp, deviceName, location, deviceFamily, deviceRole, connectedPorts, freePorts, downPorts, totalPorts, usagePercentage
+- **Field Group Name:** Port Capacity
+
+---
+
+#### **21. Network Devices Reports - VLAN**
+
+**Template Configuration:**
+- **View Group Name:** `Network Devices`
+- **View Name:** `VLAN`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`)
+  - **DeviceFamily** (`MULTI_SELECT`)
+  - **DeviceType** (`MULTI_SELECT`)
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE)
+- **Supported fields:** ipAddress, deviceName, location, deviceFamily, deviceType, vlanId, vlanName, interfacename, adminStatus, operStatus
+- **Field Group Name:** VLAN Details
+
+---
+
+#### **22. Network Devices Reports - Transmit Power Change Count**
+
+**Template Configuration:**
+- **View Group Name:** `Network Devices`
+- **View Name:** `Transmit Power Change Count`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **Band** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`)
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, Tableau Data Extract (TDE), JSON
+- **Supported fields:** apName, apMac, slotId, frequency, upCount, downCount, totalChangeCount, powerRange, location
+- **Field Group Name:** response
+
+---
 
 #### Example Input Files
 
@@ -183,221 +727,338 @@ Before creating reports, ensure the following components exist in *Cisco Catalys
 - **Network Interfaces and VLANs**: Required if reporting on interface or VLAN configurations.
 - **Webhook Endpoints**: Must be configured if using webhook delivery type.
 
+
+
 ##### 1. **Create Report with Immediate Execution**  
-*Example*: Create a compliance report that executes immediately.
+*Example*: Create a executive summary that executes immediately with email notification.
 
 ```yaml
 catalyst_center_version: 3.1.3
 reports_details:
   - generate_report:
-      name: "Network Compliance Report - Immediate"
-      new_report: true
-      view_group_name: "Compliance"
-      view_group_version: "2.0.0"
-      tags:
-        - compliance
-        - immediate
-      
-      schedule:
-        schedule_type: "SCHEDULE_NOW"
-        time_zone: "America/New_York"
-      
-      deliveries:
-        - delivery_type: "DOWNLOAD"
-          file_path: "/tmp/reports"
-      
-      view:
-        view_name: "Network Device Compliance"
-        
-        field_groups:
-          - field_group_name: "Compliance"
-            field_group_display_name: "Compliance Details"
-            fields:
-              - name: "deviceName"
-                display_name: "Device Name"
-              - name: "ipAddress"
-                display_name: "IP Address"
-              - name: "complianceStatus"
-                display_name: "Compliance Status"
-        
-        format:
-          format_type: "CSV"
-        
-        filters:
-          - name: "Location"
-            display_name: "Network Location"
-            filter_type: "MULTI_SELECT_TREE"
-            value:
-              - value: "Global"
-                display_value: "Global"
+      - name: "ExecutiveSummary_Report_PDF"
+        new_report: true
+        view_group_name: "Executive Summary"
+
+        deliveries:
+          - delivery_type: "NOTIFICATION"
+            notification_endpoints:
+              - email_addresses:
+                  - "mekandar@cisco.com"
+                  - "pbalaku2@cisco.com"
+            email_attach: true
+            notify: ["COMPLETED"]
+
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+
+        view:
+          view_name: "Executive Summary"
+
+          field_groups: []
+
+          format:
+            format_type: "PDF"
+
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global/India"
+                - value: "Global/USA"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_24_HOURS"
+                time_zone: "Asia/Calcutta"
+            - name: "SSID"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "SSIDDUAL BAND"
+                - value: "Random_mac"
+                - value: "SSIDScheduler"
+                - value: "Single5KBand"
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "2.4"
+                - value: "5"
+                - value: "6"
+            - name: "GroupBy"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "AREA"
 ```
+![alt text](./images/image1.png)
+![alt text](./images/image.png)
+![alt text](./images/image2.png)
 
 ##### 2. **Schedule Report for Later Execution**  
-*Example*: Schedule an executive summary report for a specific date and time with email notification.
+*Example*: Schedule an Rogue aWIPs report for a specific date and time.
 
 ```yaml
 catalyst_center_version: 3.1.3
 reports_details:
   - generate_report:
-      name: "Executive Summary - Scheduled"
-      new_report: true
-      view_group_name: "Executive Summary"
-      view_group_version: "2.0.0"
-      tags:
-        - executive
-        - scheduled
-      
-      schedule:
-        schedule_type: "SCHEDULE_LATER"
-        date_time: "2025-12-25 09:00 AM"
-        time_zone: "America/New_York"
-      
-      deliveries:
-        - delivery_type: "NOTIFICATION"
-          notification_endpoints:
-            - email_addresses:
-                - "admin@company.com"
-                - "reports@company.com"
-          email_attach: true
-          notify:
-            - "COMPLETED"
-      
-      view:
-        view_name: "Executive Summary"
-        
-        field_groups: []
-        
-        format:
-          format_type: "PDF"
-        
-        filters:
-          - name: "Location"
-            display_name: "Site Location"
-            filter_type: "MULTI_SELECT_TREE"
-            value:
-              - value: "Global"
-                display_value: "Global"
+      - name: "NewThreat_Rogue_aWIPS_Report"
+        new_report: true
+        view_group_name: "Rogue and aWIPS"
+        tags:
+          - rogue
+          - awips
+          - threat
+
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+
+        schedule:
+          schedule_type: "SCHEDULE_LATER"
+          date_time: "2026-01-25 02:00 PM"
+          time_zone: "Europe/London"
+
+        view:
+          view_name: "New Threat"
+          field_groups:
+            - field_group_name: "rogue_details"
+              field_group_display_name: "Threat Details"
+              fields:
+                - name: "threatLevel"
+                - name: "macAddress"
+                - name: "threatType"
+                - name: "apName"
+                - name: "siteHierarchyName"
+
+          format:
+            format_type: "CSV"
+
+          filters:
+            - name: "ThreatType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "AirDrop Session"
+                - value: "Association Flood"
+            - name: "ThreatLevel"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Informational"
+                - value: "High"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "CUSTOM"
+                start_date_time: "2026-01-15 02:00 PM"
+                end_date_time: "2026-01-20 02:00 PM"
+                time_zone: "Asia/Calcutta"
 ```
+![alt text](./images/image3.png)
+![alt text](./images/image4.png)
+![alt text](./images/image5.png)
+![alt text](./images/image9.png)
 
 ##### 3. **Create Recurring Weekly Report**  
-*Example*: Create a weekly AP performance report with webhook delivery.
+*Example*: Create a weekly security advisory report.
 
 ```yaml
 catalyst_center_version: 3.1.3
 reports_details:
   - generate_report:
-      name: "Weekly AP Performance Report"
-      new_report: true
-      view_group_name: "Access Point"
-      view_group_version: "2.0.0"
-      tags:
-        - wireless
-        - weekly
-        - performance
-      
-      schedule:
-        schedule_type: "SCHEDULE_RECURRENCE"
-        date_time: "2025-12-15 06:00 AM"
-        time_zone: "UTC"
-        recurrence:
-          recurrence_type: "WEEKLY"
-          days:
-            - "MONDAY"
-            - "WEDNESDAY"
-            - "FRIDAY"
-      
-      deliveries:
-        - delivery_type: "WEBHOOK"
-          webhook_name: "report_webhook_endpoint"
-      
-      view:
-        view_name: "AP"
-        
-        field_groups:
-          - field_group_name: "apDetailByAP"
-            field_group_display_name: "AP Details"
-            fields:
-              - name: "nwDeviceName"
-                display_name: "AP Name"
-              - name: "managementIpAddress"
-                display_name: "Management IP"
-              - name: "siteHierarchy"
-                display_name: "Site"
-        
-        format:
-          format_type: "JSON"
-        
-        filters:
-          - name: "Location"
-            display_name: "AP Location"
-            filter_type: "MULTI_SELECT_TREE"
-            value:
-              - value: "Global/US"
-                display_value: "United States"
-          
-          - name: "TimeRange"
-            display_name: "Time Period"
-            filter_type: "TIME_RANGE"
-            value:
-              time_range_option: "LAST_7_DAYS"
+      - name: "SecurityAdvisories_module"
+        view_group_name: "Security Advisories"
+
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+
+        schedule:
+          schedule_type: "SCHEDULE_RECURRENCE"
+          date_time: "2026-01-25 03:00 PM"
+          time_zone: "Asia/Calcutta"
+          recurrence:
+            recurrence_type: WEEKLY
+            days: ["TUESDAY", "WEDNESDAY"]
+
+        view:
+          view_name: "Security Advisories Data"
+          field_groups:
+            - field_group_name: "psirtAllData"
+              field_group_display_name: "All Security Advisory Data"
+              fields:
+                - name: "deviceName"
+                - name: "deviceType"
+                - name: "deviceSite"
+                - name: "deviceIpAddress"
+
+          format:
+            format_type: "CSV"
+
+          filters:
+            - name: "DeviceType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Routers"
+                - value: "Switches and Hubs"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "Impact"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "HIGH"
+                - value: "CRITICAL"
 ```
+![alt text](./images/image6.png)
+![alt text](./images/image7.png)
+![alt text](./images/image8.png)
+![alt text](./images/image9.png)
 
 ##### 4. **Create Monthly Recurring Report**  
-*Example*: Create a monthly client detail report that runs on the last day of each month.
+*Example*: Create a Inventory (All Data) Report with monthly recursive Execution and webhook notification.
 
 ```yaml
-catalyst_center_version: 2.3.7.9
+catalyst_center_version: 3.1.3
 reports_details:
   - generate_report:
-      name: "Monthly Client Detail Report"
-      new_report: true
-      view_group_name: "Client"
-      view_group_version: "2.0.0"
-      tags:
-        - client
-        - monthly
-      
-      schedule:
-        schedule_type: "SCHEDULE_RECURRENCE"
-        date_time: "2025-12-01 08:00 AM"
-        time_zone: "Asia/Calcutta"
-        recurrence:
-          recurrence_type: "MONTHLY"
-          last_day_of_month: true
-      
-      deliveries:
-        - delivery_type: "NOTIFICATION"
-          notification_endpoints:
-            - email_addresses:
-                - "network-admin@example.com"
-          email_attach: true
-          notify:
-            - "COMPLETED"
-      
-      view:
-        view_name: "Client Detail"
-        
-        field_groups: []
-        
-        format:
-          format_type: "CSV"
-        
-        filters:
-          - name: "Location"
-            display_name: "Client Location"
-            filter_type: "MULTI_SELECT_TREE"
-            value:
-              - value: "Global"
-                display_value: "Global"
-          
-          - name: "Time Range"
-            display_name: "Analysis Period"
-            filter_type: "TIME_RANGE"
-            value:
-              time_range_option: "LAST_30_DAYS"
-```
+      - name: "Inventory_all_data_report"
+        view_group_name: "Inventory"
 
-##### 5. **Delete Reports**  
+        deliveries:
+          - delivery_type: "WEBHOOK"
+            webhook_name: "webhook demo 102"
+
+        schedule:
+          schedule_type: "SCHEDULE_RECURRENCE"
+          date_time: "2026-01-25 10:00 PM"
+          time_zone: "America/New_York"
+          recurrence:
+            recurrence_type: MONTHLY
+            day_of_month: 20
+
+        view:
+          view_name: "All Data"
+
+          field_groups:
+            - field_group_name: "inventoryAllData"
+              field_group_display_name: "All Data"
+              fields:
+                - name: "family"
+                - name: "type"
+                - name: "hostname"
+                - name: "serialNumber"
+
+          format:
+            format_type: "CSV"
+
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "DeviceType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Cisco Catalyst 9300 Switch"
+                - value: "Cisco Catalyst 9500 Switch"
+            - name: "DeviceFamily"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Routers"
+                - value: "Switches and Hubs"
+            - name: "SoftwareVersion"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "17.12.4"
+                - value: "17.12.5"
+```
+![alt text](./images/image10.png)
+![alt text](./images/image11.png)
+![alt text](./images/image12.png)
+![alt text](./images/image13.png)
+
+##### 5. **Create Monthly Recurring Report**  
+*Example*: Create a Inventory (All data version 2.0) Report with Email Notification and generating report recursively on last day of month.
+
+```yaml
+catalyst_center_version: 3.1.3
+reports_details:
+  - generate_report:
+      - name: "Monthly Inventory Report"
+        new_report: false
+        view_group_name: "Inventory"
+        view_group_version: "2.0.0"
+        tags:
+          - inventory
+          - monthly
+        
+        schedule:
+          schedule_type: "SCHEDULE_RECURRENCE"
+          date_time: "2026-12-25 09:00 AM"
+          time_zone: "Asia/Calcutta"
+          recurrence:
+            recurrence_type: "MONTHLY"
+            last_day_of_month: true
+        
+        deliveries:
+          - delivery_type: "NOTIFICATION"
+            notification_endpoints:
+              - email_addresses:
+                  - "pbalaku2@cisco.com"
+            email_attach: true
+            notify:
+              - "COMPLETED"
+        
+        view:
+          view_name: "All Data Version 2.0"
+          
+          field_groups:
+            - field_group_name: "inventory_fields"
+              field_group_display_name: "Inventory Information"
+              fields:
+                - name: "name"
+                  display_name: "Device Name"
+                - name: "managementIpAddress"
+                  display_name: "IP Address"
+                - name: "deviceType"
+                  display_name: "Device Type"
+                - name: "softwareVersion"
+                  display_name: "Software Version"
+                - name: "siteHierarchy"
+                  display_name: "Location"
+                - name: "communicationState"
+                  display_name: "Status"
+
+          format:
+            format_type: "CSV"
+          
+          filters:
+            - name: "siteId"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global/USA"
+            - name: "deviceType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Cisco Catalyst 9300 Switch"
+            - name: "deviceFamily"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Routers"
+                - value: "Switches and Hubs"
+            - name: "softwareVersion"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "17.12.4"
+                - value: "17.12.5"
+```
+![alt text](./images/image14.png)
+![alt text](./images/image15.png)
+![alt text](./images/image9.png)
+
+##### 6. **Delete Reports**  
 *Example*: Delete one or more reports by specifying their names and view information.  
 > **Warning**: Deleting reports will remove all scheduled executions. Verify before proceeding.
 
@@ -405,17 +1066,19 @@ reports_details:
 catalyst_center_version: 3.1.3
 reports_details:
   - generate_report:
-      name: "Network Compliance Report - Immediate"
-      view_group_name: "Compliance"
-      view:
-        view_name: "Network Device Compliance"
+      - name: "Network_Devices_report_transmit_power_change_count_20260105T212018"
+        view_group_name: "Network Devices"
+        view:
+          view_name: "Transmit Power Change Count"
   
   - generate_report:
-      name: "Weekly AP Performance Report"
-      view_group_name: "Access Point"
-      view:
-        view_name: "AP"
+      - name: "Monthly Inventory Report"
+        view_group_name: "Inventory"
+        view:
+          view_name: "All Data Version 2.0"
 ```
+![alt text](./images/image16.png)
+![alt text](./images/image17.png)
 
 ---
 
@@ -423,7 +1086,7 @@ reports_details:
 > **Important**: Validate your input schema before executing the playbook to ensure all parameters are correctly formatted.  
 Run the following command to validate your input file against the schema:  
 ```bash
-./tools/validate.sh -s ./workflows/reports/schema/reports_schema.yml -d ./workflows/reports/vars/reports_inputs.yml
+./tools/validate.sh -s ./workflows/reports/schema/reports_schema.yml -d ./workflows/reports/vars/reports_input.yml
 ```
 
 ---
@@ -438,8 +1101,8 @@ Run the following command to validate your input file against the schema:
    ### a. Create or Update Reports (state = 'merged')
    ```bash
    ansible-playbook -i inventory/demo_lab/hosts.yaml \
-   workflows/reports/playbook/reports_workflow_playbook.yml \
-   --e VARS_FILE_PATH=./../vars/reports_inputs.yml \
+   workflows/reports/playbook/reports_playbook.yml \
+   --e VARS_FILE_PATH=./../vars/reports_input.yml \
    -vvv
    ```
 
@@ -447,7 +1110,7 @@ Run the following command to validate your input file against the schema:
    ```bash
    ansible-playbook -i inventory/demo_lab/hosts.yaml \
    workflows/reports/playbook/delete_reports_playbook.yml \
-   --e VARS_FILE_PATH=./../vars/delete_reports_inputs.yml \
+   --e VARS_FILE_PATH=./../vars/delete_reports_input.yml \
    -vvv
    ```
 
@@ -479,10 +1142,9 @@ status: success
 
 **Successful Report Deletion:**
 ```yaml
-msg: 'Reports deleted successfully'
+msg: 'Report 'Network_Devices_report_transmit_power_change_count_20260105T212018' has been successfully deleted.'
 response:
-  - Network Compliance Report - Immediate: Report successfully deleted
-  - Weekly AP Performance Report: Report successfully deleted
+  - "report_id": "b66ceac2-7f59-41b4-882a-860537462c7e"
 status: success
 ```
 

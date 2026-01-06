@@ -18,34 +18,37 @@ reports_details: list(include('report_config_type'), min=1, max=100, required=Tr
 ---
 # Report Configuration Type
 report_config_type:
-  generate_report:
-    name: str(required=False)
-    new_report: bool(required=False, default=True)
-    view_group_name: enum(
-      'Compliance',
-      'Executive Summary',
-      'Inventory',
-      'SWIM',
-      'Access Point',
-      'Long Term',
-      'Network Devices',
-      'Group Pair Communication Analytics',
-      'Telemetry',
-      'Group Communication Summary',
-      'EoX',
-      'Rogue and aWIPS',
-      'Licensing',
-      'AI Endpoint Analytics',
-      'Audit Log',
-      'Configuration Archive',
-      'Client',
-      'Security Advisories',
-      required=True)
-    view_group_version: str(required=False, default='2.0.0')
-    tags: list(str, required=False)
-    schedule: include('schedule_type', required=True)
-    deliveries: list(include('delivery_type'), min=1, max=1, required=True)
-    view: include('view_type', required=True)
+  generate_report: list(include('generate_report_type'), required=True)
+
+# Generate Report Type
+generate_report_type:
+  name: str(required=False)
+  new_report: bool(required=False, default=True)
+  view_group_name: enum(
+    'Compliance',
+    'Executive Summary',
+    'Inventory',
+    'SWIM',
+    'Access Point',
+    'Long Term',
+    'Network Devices',
+    'Group Pair Communication Analytics',
+    'Telemetry',
+    'Group Communication Summary',
+    'EoX',
+    'Rogue and aWIPS',
+    'Licensing',
+    'AI Endpoint Analytics',
+    'Audit Log',
+    'Configuration Archive',
+    'Client',
+    'Security Advisories',
+    required=True)
+  view_group_version: str(required=False, default='2.0.0')
+  tags: list(str, required=False)
+  schedule: include('schedule_type', required=True)
+  deliveries: list(include('delivery_type'), min=1, max=1, required=True)
+  view: include('view_type', required=True)
 
 # Schedule Configuration Type
 schedule_type:
@@ -58,7 +61,7 @@ schedule_type:
 
 # Recurrence Configuration Type
 recurrence_type:
-  recurrence_type: enum('WEEKLY', 'MONTHLY', required=True)
+  recurrence_type: enum('WEEKLY', 'MONTHLY', required=False)
   days: list(enum('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY', 'DAILY'), required=False)
   last_day_of_month: bool(required=False)
   day_of_month: int(min=1, max=31, required=False)
@@ -93,6 +96,8 @@ view_type:
     'All Data',
     'Port Reclaim View',
     'All Data Version 2.0',
+    'All Data',
+    'All Data Version 2.0',
     'AP',
     'AP Radio',
     'AP - Usage and Client Breakdown',
@@ -123,6 +128,7 @@ view_type:
     'ISE Endpoint Profile Group to Host Groups',
     'Host Group to Security Groups',
     'Host Group to ISE Endpoint Profile Group',
+    'Host Group to Host Group',
     'EoX Data',
     'Threat Detail',
     'New Threat',
@@ -135,7 +141,6 @@ view_type:
     'Endpoint Profiling',
     'Audit Log',
     'Configuration Archive',
-    'Client',
     'Client Summary',
     'Top N Summary',
     'Client Detail',
@@ -145,19 +150,19 @@ view_type:
     'Unique Clients and Users Summary',
     'Security Advisories Data',
     required=True)
-  field_groups: list(include('field_group_type'), required=True)
+  field_groups: list(include('field_group_type'), required=False)
   format: include('format_type', required=True)
   filters: list(include('filter_type'), required=False)
 
 # Field Group Configuration Type
 field_group_type:
-  field_group_name: str(required=True)
+  field_group_name: str(required=False)
   field_group_display_name: str(required=False)
-  fields: list(include('field_type'), required=True)
+  fields: list(include('field_type'), required=False)
 
 # Field Configuration Type
 field_type:
-  name: str(required=True)
+  name: str(required=False)
   display_name: str(required=False)
 
 # Format Configuration Type
@@ -166,10 +171,10 @@ format_type:
 
 # Filter Configuration Type
 filter_type:
-  name: str(required=True)
+  name: str(required=False)
   display_name: str(required=False)
-  filter_type: enum('MULTI_SELECT', 'MULTI_SELECT_TREE', 'SINGLE_SELECT_ARRAY', 'TIME_RANGE', required=True)
-  value: any(include('filter_value_multi_select'), include('filter_value_time_range'), required=True)
+  filter_type: enum('MULTI_SELECT', 'MULTI_SELECT_TREE', 'SINGLE_SELECT_ARRAY', 'TIME_RANGE', 'REGULAR', required=False)
+  value: any(include('filter_value_multi_select'), include('filter_value_time_range'), required=False)
 
 # Filter Value for Multi-Select Types
 filter_value_multi_select:
@@ -177,8 +182,8 @@ filter_value_multi_select:
 
 # Filter Value Item
 filter_value_item:
-  value: str(required=True)
-  display_value: str(required=True)
+  value: str(required=False)
+  display_value: str(required=False)
 
 # Filter Value for Time Range Type
 filter_value_time_range:
