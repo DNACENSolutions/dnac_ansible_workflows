@@ -185,6 +185,8 @@ The following schema outlines the structure for configuring reports in *Cisco Ca
 
 The following section details the available report templates in *Cisco Catalyst Center*, including their supported filters, scheduling options, delivery methods, and file formats. Each template corresponds to a specific `view_group_name` and `view_name` combination.
 
+**📝 Disclaimer**: The following report templates have been tested and verified from our side.
+
 #### **1. Executive Summary Reports**
 
 **Template Configuration:**
@@ -301,7 +303,6 @@ The following section details the available report templates in *Cisco Catalyst 
 - **Supported fields:** rownum, hostname, family, type, managementIpAddress, portname, description, macAddress, adminStatus, status, lastInput, lastOutput
 - **Field Group Name:** PortReclaimFieldGroup
 
-
 ---
 
 #### **6. Rogue and aWIPS Reports - New Threat**
@@ -327,7 +328,6 @@ The following section details the available report templates in *Cisco Catalyst 
 - **File Formats:** CSV, Tableau Data Extract (TDE), JSON
 - **Supported fields:** threatLevel, macAddress, threatType, apName, siteHierarchyName, rssi, ssid, vendor, lastUpdated
 - **Field Group Name:** rogue_details
-
 
 ---
 
@@ -1088,7 +1088,6 @@ Run the following command to validate your input file against the schema:
 ```bash
 ./tools/validate.sh -s ./workflows/reports/schema/reports_schema.yml -d ./workflows/reports/vars/reports_input.yml
 ```
-
 ---
 
 ### Step 3: Deploy and Verify
@@ -1131,12 +1130,11 @@ Run the following command to validate your input file against the schema:
 
 **Successful Report Creation:**
 ```yaml
-msg: 'Reports created/scheduled successfully'
+msg: 'Successfully created or scheduled report 'Report - Security Advisories Data - Jan 06 2026 08:22 PM'.'
 response:
-  - profile_name: Network Compliance Report - Immediate
-    profile_status: Report successfully created and scheduled for immediate execution
-  - profile_name: Weekly AP Performance Report
-    profile_status: Recurring report successfully created with weekly schedule
+  - "reportId": "d2e2107b-5b55-4e34-9905-87ea3e63aef5"
+    "viewGroupId": "b3760891-1e1f-465a-a018-bbd428c17018"
+    "viewsId": "995220e3-3801-44cd-82a7-05d33e6b6676"
 status: success
 ```
 
@@ -1147,7 +1145,6 @@ response:
   - "report_id": "b66ceac2-7f59-41b4-882a-860537462c7e"
 status: success
 ```
-
 ---
 
 ## References
