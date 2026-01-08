@@ -5,6 +5,193 @@ import os
 import sys
 import argparse
 
+
+def normalize_spec_string(spec_str):
+    """
+    Normalize a spec string to make it parseable by ast.literal_eval.
+    Handles common patterns like:
+    - dict(key=value) syntax -> {"key": value}
+    - Unquoted Python types (int, str, list, dict, bool) -> quoted strings
+    - Comments
+    
+    Args:
+        spec_str (str): The spec string to normalize.
+    
+    Returns:
+        str: The normalized spec string.
+    """
+    # Remove inline comments (but preserve strings with # in them)
+    # Note: spec_str might already be one long line without \n separators
+    # so we process character by character
+    result_chars = []
+    in_string = False
+    quote_char = None
+    i = 0
+    
+    while i < len(spec_str):
+        char = spec_str[i]
+        
+        # Track string boundaries
+        if char in ('"', "'") and (i == 0 or spec_str[i-1] != '\\'):
+            if not in_string:
+                in_string = True
+                quote_char = char
+            elif char == quote_char:
+                in_string = False
+                quote_char = None
+        
+        # If we encounter # outside of a string, skip everything until newline or end
+        if char == '#' and not in_string:
+            # Skip to end of line or end of string
+            while i < len(spec_str) and spec_str[i] != '\n':
+                i += 1
+            if i < len(spec_str):
+                # Include the newline
+                result_chars.append('\n')
+                i += 1
+            continue
+        
+        result_chars.append(char)
+        i += 1
+    
+    spec_str = ''.join(result_chars)
+    
+    # Replace dict(key=value, ...) with {"key": value, ...}
+    # Use a more robust approach with manual parsing
+    def replace_dict_syntax(match):
+        content = match.group(1)
+        # Convert key=value pairs to "key": value
+        # Handle nested dict() recursively by processing innermost first
+        parts = []
+        current = []
+        depth = 0
+        in_string = False
+        quote_char = None
+        
+        for i, char in enumerate(content):
+            if char in ('"', "'") and (i == 0 or content[i-1] != '\\'):
+                if not in_string:
+                    in_string = True
+                    quote_char = char
+                elif char == quote_char:
+                    in_string = False
+                    quote_char = None
+            
+            if not in_string:
+                if char in '({[':
+                    depth += 1
+                elif char in ')}]':
+                    depth -= 1
+                elif char == ',' and depth == 0:
+                    parts.append(''.join(current).strip())
+                    current = []
+                    continue
+            current.append(char)
+        
+        if current:
+            parts.append(''.join(current).strip())
+        
+        converted = []
+        for part in parts:
+            part = part.strip()
+            if not part:
+                continue
+            # Check if it's a key=value pair
+            if '=' in part and not part.startswith('"') and not part.startswith("'"):
+                # Find the = that's not inside parentheses or quotes
+                depth = 0
+                in_string = False
+                quote_char = None
+                eq_pos = -1
+                
+                for i, char in enumerate(part):
+                    if char in ('"', "'") and (i == 0 or part[i-1] != '\\'):
+                        if not in_string:
+                            in_string = True
+                            quote_char = char
+                        elif char == quote_char:
+                            in_string = False
+                            quote_char = None
+                    if not in_string:
+                        if char in '({[':
+                            depth += 1
+                        elif char in ')}]':
+                            depth -= 1
+                        elif char == '=' and depth == 0:
+                            eq_pos = i
+                            break
+                
+                if eq_pos > 0:
+                    key = part[:eq_pos].strip()
+                    value = part[eq_pos+1:].strip()
+                    converted.append(f'"{key}": {value}')
+                else:
+                    converted.append(part)
+            else:
+                converted.append(part)
+        
+        return '{' + ', '.join(converted) + '}'
+    
+    # Replace dict() syntax iteratively, starting with innermost
+    max_iterations = 10
+    iteration = 0
+    while 'dict(' in spec_str and iteration < max_iterations:
+        # Match dict(...) - simpler pattern for innermost matches
+        # This matches dict with content that doesn't contain dict(
+        pattern = r'\bdict\s*\(([^()]+)\)'
+        new_spec_str = re.sub(pattern, replace_dict_syntax, spec_str)
+        if new_spec_str == spec_str:
+            # No more simple replacements, try nested pattern
+            pattern = r'\bdict\s*\(([^)]+)\)'
+            new_spec_str = re.sub(pattern, replace_dict_syntax, spec_str)
+        if new_spec_str == spec_str:
+            break  # No changes made, stop iterating
+        spec_str = new_spec_str
+        iteration += 1
+    
+    # Replace unquoted Python type references with quoted strings
+    # Match patterns like: "type": int, "type": str, "type": list, "type": dict, "type": bool
+    # But NOT when they're already in quotes
+    type_patterns = [
+        (r'(\s*"type"\s*:\s*)int\b(?!["\'])', r'\1"int"'),
+        (r'(\s*"type"\s*:\s*)str\b(?!["\'])', r'\1"str"'),
+        (r'(\s*"type"\s*:\s*)list\b(?!["\'])', r'\1"list"'),
+        (r'(\s*"type"\s*:\s*)dict\b(?!["\'])', r'\1"dict"'),
+        (r'(\s*"type"\s*:\s*)bool\b(?!["\'])', r'\1"bool"'),
+        (r'(\s*"type"\s*:\s*)float\b(?!["\'])', r'\1"float"'),
+        # Also handle when 'type' key itself might not be quoted in some edge cases
+        (r"(\s*'type'\s*:\s*)int\b(?!['\"])", r'\1"int"'),
+        (r"(\s*'type'\s*:\s*)str\b(?!['\"])", r'\1"str"'),
+        (r"(\s*'type'\s*:\s*)list\b(?!['\"])", r'\1"list"'),
+        (r"(\s*'type'\s*:\s*)dict\b(?!['\"])", r'\1"dict"'),
+        (r"(\s*'type'\s*:\s*)bool\b(?!['\"])", r'\1"bool"'),
+        (r"(\s*'type'\s*:\s*)float\b(?!['\"])", r'\1"float"'),
+    ]
+    
+    for pattern, replacement in type_patterns:
+        spec_str = re.sub(pattern, replacement, spec_str)
+    
+    # Handle standalone type references in values (less common but possible)
+    # Be careful not to replace True/False/None
+    standalone_patterns = [
+        (r':\s*int\s*([,}])', r': "int"\1'),
+        (r':\s*str\s*([,}])', r': "str"\1'),
+        (r':\s*list\s*([,}])', r': "list"\1'),
+        (r':\s*dict\s*([,}])', r': "dict"\1'),
+        (r':\s*bool\s*([,}])', r': "bool"\1'),
+        (r':\s*float\s*([,}])', r': "float"\1'),
+    ]
+    
+    for pattern, replacement in standalone_patterns:
+        spec_str = re.sub(pattern, replacement, spec_str)
+    
+    # Remove trailing commas before closing braces/brackets
+    # This handles cases like: }, } or ,} or ,] 
+    spec_str = re.sub(r',\s*([}\]])', r'\1', spec_str)
+    
+    return spec_str
+
+
 def compare_module_spec(module_file_path, verbose=True):
     """
     Compares the documentation spec and temp_spec within an Ansible module file.
@@ -21,37 +208,58 @@ def compare_module_spec(module_file_path, verbose=True):
     temp_spec_lines = []
     temp_spec_found = False
     brace_count = 0
+    paren_count = 0
+    uses_dict_syntax = False  # Track if using dict() or {} syntax
     try:
         with open(module_file_path, 'r', encoding='utf-8') as f:
             for line in f:
                 if not temp_spec_found:
-                    if re.match(r"\s*temp_spec\s*=", line) or re.match(r"\s*temp_spec\s*=\s*{", line) or \
+                    if re.match(r"\s*temp_spec\s*=", line) or re.match(r"\s*temp_spec\s*=\s*{", line) or re.match(r"\s*config_spec\s*=\s*{", line) or\
                         re.match(r"\s*validation_schema\s*=", line) or re.match(r"\s*validation_schema\s*=\s*{", line) or \
                         re.match(r"\s*lan_automation_spec\s*=", line) or re.match(r"\s*lan_automation_spec\s*=\s*{", line) or \
-                        re.match(r"\s*pnp_spec\s*=\s*{", line) or re.match(r"\s*pnp_spec\s*=", line) or \
-                        re.match(r"\s*rma_spec\s*=", line) or re.match(r"\s*rma_spec\s*=\s*\{", line) or \
-                        re.match(r"\s*accesspoint_spec\s*=\s*\{", line) or re.match(r"\s*accesspoint_spec\s*=", line):
+                        re.match(r"\s*pnp_spec\s*=\s*{", line) or re.match(r"\s*pnp_spec\s*=", line) or re.match(r"\s*self.temp_spec\s*=\s*{", line) or\
+                        re.match(r"\s*rma_spec\s*=", line) or re.match(r"\s*rma_spec\s*=\s*\{", line) or re.match(r"\s*discovery_spec\s*=\s*{", line) or \
+                        re.match(r"\s*device_configs_backup_spec\s*=\s*{", line) or re.match(r"\s*provision_spec\s*=\s*{", line) or \
+                        re.match(r"\s*accesspoint_spec\s*=\s*{", line) or re.match(r"\s*accesspoint_spec\s*=", line):
                         temp_spec_found = True
-                        temp_spec_lines.append(line.split('=', 1)[1].strip())
-                        brace_count += temp_spec_lines[0].count('{')
-                        brace_count -= temp_spec_lines[0].count('}')
+                        first_line = line.split('=', 1)[1].strip()
+                        temp_spec_lines.append(first_line)
+                        
+                        # Determine syntax type
+                        if first_line.startswith('dict('):
+                            uses_dict_syntax = True
+                            paren_count += first_line.count('(') - first_line.count(')')
+                        else:
+                            uses_dict_syntax = False
+                            brace_count += first_line.count('{') - first_line.count('}')
                 elif temp_spec_found:
                     cleaned_line = line.strip()
                     if cleaned_line:
                         temp_spec_lines.append(cleaned_line)
                         brace_count += cleaned_line.count('{')
                         brace_count -= cleaned_line.count('}')
-                        if brace_count == 0:
-                            break  # Found the end of temp_spec
+                        paren_count += cleaned_line.count('(')
+                        paren_count -= cleaned_line.count(')')
+                        
+                        # Check if we've reached the end based on syntax type
+                        if uses_dict_syntax and paren_count == 0:
+                            break
+                        elif not uses_dict_syntax and brace_count == 0:
+                            break
 
             if not temp_spec_found:
                 return (filename, ["Error: Could not find temp_spec definition."])
 
-            temp_spec_str = "".join(temp_spec_lines)
+            # Join with newlines to preserve line structure for comment removal
+            temp_spec_str = "\n".join(temp_spec_lines)
+            
+            # Normalize the spec string before parsing
+            normalized_spec_str = normalize_spec_string(temp_spec_str)
+            
             try:
-                temp_spec = ast.literal_eval(temp_spec_str)
+                temp_spec = ast.literal_eval(normalized_spec_str)
             except (SyntaxError, ValueError) as e:
-                return (filename, [f"Error parsing temp_spec: {e} - Extracted string: '{temp_spec_str[:100]}...'"])
+                return (filename, [f"Error parsing temp_spec: {e} - Extracted string: '{temp_spec_str[:100]}...'\nNormalized: '{normalized_spec_str[:100]}...'"])
             if verbose:
                 print(f"temp_spec: {temp_spec}\n")
         with open(module_file_path, 'r', encoding='utf-8') as f:
@@ -271,11 +479,12 @@ def generate_html_report(results):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Compare Ansible module specs.")
     parser.add_argument("module_directory", help="Directory with module files")
-    parser.add_argument("keyword", help="Keyword to filter module files")
+    parser.add_argument("keyword", nargs='?', default="workflow_manager", help="Keyword to filter module files")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
 
     module_directory = args.module_directory
+    #default keyword = "workflow_manager"
     keyword = args.keyword
     verbose = args.verbose
     if not module_directory or not keyword:
