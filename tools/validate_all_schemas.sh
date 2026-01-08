@@ -159,15 +159,16 @@ find_module_file() {
     # Create variations of the workflow name
     # e.g., access_point_location -> accesspoint_location, accesspointlocation
     local name_no_underscores=$(echo "$workflow_name" | tr -d '_')
-    local name_single_underscore=$(echo "$workflow_name" | sed 's/_point_/_/')
+    # Handle access_point -> accesspoint (remove underscore between access and point)
+    local name_accesspoint=$(echo "$workflow_name" | sed 's/access_point/accesspoint/')
     
     # Common module naming patterns (in order of preference)
     local patterns=(
         "${workflow_name}_workflow_manager.py"
-        "${name_single_underscore}_workflow_manager.py"
+        "${name_accesspoint}_workflow_manager.py"
         "${name_no_underscores}_workflow_manager.py"
         "${workflow_name}_manager.py"
-        "${name_single_underscore}_manager.py"
+        "${name_accesspoint}_manager.py"
         "${name_no_underscores}_manager.py"
         "${workflow_name}_workflow.py"
         "${workflow_name}.py"

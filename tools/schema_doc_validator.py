@@ -27,8 +27,18 @@ def parse_yamale_schema(schema_file_path):
         # Split by --- to handle multiple schema sections
         sections = content.split('---')
         
-        # First pass: Find the main detail field (e.g., pathtrace_details, inventory_details)
-        first_section_lines = sections[0].strip().split('\n')
+        # Find the section with the main detail field
+        # Some schemas start with ---, so the first section might be empty
+        first_section_lines = []
+        for section in sections:
+            section_lines = section.strip().split('\n')
+            # Skip empty sections or sections with only comments
+            has_content = any(line.strip() and not line.strip().startswith('#') for line in section_lines)
+            if has_content:
+                first_section_lines = section_lines
+                break
+        
+        # First pass: Find the main detail field (e.g., pathtrace_details, inventory_details, accesspoint_location_details)
         i = 0
         while i < len(first_section_lines):
             line = first_section_lines[i]
@@ -38,17 +48,18 @@ def parse_yamale_schema(schema_file_path):
                 i += 1
                 continue
             
-            # Look for fields ending with _details or containing 'details'
+            # Look for fields containing 'details' (but not catalyst_center or other config fields)
             if ':' in stripped:
                 parts = stripped.split(':', 1)
                 field_name = parts[0].strip()
                 field_def = parts[1].strip() if len(parts) > 1 else ''
                 
-                # Identify detail fields (ignore catalyst_center_*, jinjatemplate*, passwords_file)
-                if ('_details' in field_name or 'details' in field_name) and \
+                # Identify detail fields (ignore catalyst_center_*, jinjatemplate*, passwords_file, config_verify)
+                if ('details' in field_name) and \
                    not field_name.startswith('catalyst_center') and \
                    not field_name.startswith('jinjatemplate') and \
-                   not field_name.startswith('passwords_file'):
+                   not field_name.startswith('passwords_file') and \
+                   field_name != 'config_verify':
                     detail_field_name = field_name
                     
                     # Check if this is a direct list definition or nested structure
@@ -77,7 +88,7 @@ def parse_yamale_schema(schema_file_path):
             i += 1
         
         if not detail_field_name or not detail_type_name:
-            return {"error": "Could not find main detail field in schema (e.g., *_details)"}
+            return {"error": f"Could not find main detail field in schema. Searched in {len(first_section_lines)} lines."}
         
         # Second pass: Extract the type definition for the detail field
         # Handle chained includes (e.g., network_devices_type -> network_devices_type_type)
