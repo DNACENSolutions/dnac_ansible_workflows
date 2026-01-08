@@ -147,6 +147,7 @@ not_found_count=0
 # Iterate through workflows
 for workflow_dir in "$WORKFLOWS_DIR"/*; do
     if [ ! -d "$workflow_dir" ]; then
+        echo -e "${YELLOW}Skipping non-directory: $workflow_dir${NC}"
         continue
     fi
     
@@ -155,6 +156,7 @@ for workflow_dir in "$WORKFLOWS_DIR"/*; do
     
     # Skip if no schema directory
     if [ ! -d "$schema_dir" ]; then
+        echo -e "${YELLOW}Skipping directory with no schema: $workflow_dir${NC}"
         continue
     fi
     
@@ -176,6 +178,7 @@ for workflow_dir in "$WORKFLOWS_DIR"/*; do
         echo -e "${YELLOW}⚠ $workflow_name -> NOT FOUND${NC}"
         not_found_count=$((not_found_count + 1))
     fi
+    echo " Completed $workflow_name"
 done
 
 echo ""

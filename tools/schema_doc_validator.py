@@ -243,15 +243,68 @@ def extract_documentation_spec(module_file_path):
         return {"error": f"Error reading module file: {e}"}
 
 
+def parse_suboptions_recursive(suboptions, parent_path=''):
+    """
+    Recursively parse suboptions and flatten them into a single dict.
+    
+    Args:
+        suboptions (dict): Dictionary of suboptions to parse.
+        parent_path (str): Parent field path (used for nested fields).
+    
+    Returns:
+        dict: Flattened field definitions with nested fields included.
+    """
+    fields = {}
+    
+    for field_name, field_spec in suboptions.items():
+        # Create full field path
+        full_path = f"{parent_path}.{field_name}" if parent_path else field_name
+        
+        # Store field info
+        fields[field_name] = {
+            'type': field_spec.get('type'),
+            'required': field_spec.get('required', False),
+            'default': field_spec.get('default'),
+            'choices': field_spec.get('choices', []),
+            'elements': field_spec.get('elements'),
+            'description': field_spec.get('description', ''),
+            'suboptions': {}
+        }
+        
+        # Recursively process nested suboptions
+        nested_suboptions = field_spec.get('suboptions', {})
+        if nested_suboptions:
+            # Parse nested fields recursively
+            nested_fields = parse_suboptions_recursive(nested_suboptions, full_path)
+            fields[field_name]['suboptions'] = nested_fields
+            
+            # Also add nested fields to the root level with full path
+            # This helps with flat comparison against schema
+            for nested_name, nested_spec in nested_fields.items():
+                fields[nested_name] = nested_spec
+        
+        # Handle list elements with suboptions
+        if field_spec.get('type') == 'list' and 'suboptions' in field_spec:
+            elements_suboptions = field_spec.get('suboptions', {})
+            if elements_suboptions:
+                nested_fields = parse_suboptions_recursive(elements_suboptions, full_path)
+                fields[field_name]['suboptions'] = nested_fields
+                # Add nested fields to root level
+                for nested_name, nested_spec in nested_fields.items():
+                    fields[nested_name] = nested_spec
+    
+    return fields
+
+
 def get_doc_config_fields(documentation):
     """
-    Extract field definitions from DOCUMENTATION config suboptions.
+    Extract field definitions from DOCUMENTATION config suboptions recursively.
     
     Args:
         documentation (dict): Parsed DOCUMENTATION dictionary.
     
     Returns:
-        dict: Field definitions from documentation.
+        dict: Field definitions from documentation, including all nested fields.
     """
     doc_fields = {}
     
@@ -262,16 +315,8 @@ def get_doc_config_fields(documentation):
     config = documentation.get('options', {}).get('config', {})
     suboptions = config.get('suboptions', {})
     
-    for field_name, field_spec in suboptions.items():
-        doc_fields[field_name] = {
-            'type': field_spec.get('type'),
-            'required': field_spec.get('required', False),
-            'default': field_spec.get('default'),
-            'choices': field_spec.get('choices', []),
-            'elements': field_spec.get('elements'),
-            'description': field_spec.get('description', ''),
-            'suboptions': field_spec.get('suboptions', {})
-        }
+    # Recursively parse all suboptions
+    doc_fields = parse_suboptions_recursive(suboptions)
     
     return doc_fields
 
