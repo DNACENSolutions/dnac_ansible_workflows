@@ -198,6 +198,18 @@ total_schemas=0
 successful_validations=0
 failed_validations=0
 skipped_validations=0
+current_workflow=0
+
+# Count total workflows with schemas for progress tracking
+total_workflows=0
+for workflow_dir in "$WORKFLOWS_DIR"/*; do
+    if [ -d "$workflow_dir" ] && [ -d "$workflow_dir/schema" ]; then
+        schema_count=$(find "$workflow_dir/schema" -type f -name "*_schema.yml" ! -name "delete_*" 2>/dev/null | wc -l)
+        if [ "$schema_count" -gt 0 ]; then
+            total_workflows=$((total_workflows + 1))
+        fi
+    fi
+done
 
 # Create summary file
 SUMMARY_FILE="$OUTPUT_DIR/validation_summary_$TIMESTAMP.txt"
@@ -212,6 +224,7 @@ echo -e "${BLUE}Starting schema validation for all workflows...${NC}"
 echo -e "${BLUE}Module Directory: $MODULE_DIR${NC}"
 echo -e "${BLUE}Workflows Directory: $WORKFLOWS_DIR${NC}"
 echo -e "${BLUE}Output Directory: $OUTPUT_DIR${NC}"
+echo -e "${BLUE}Total workflows to process: $total_workflows${NC}"
 echo ""
 
 # Function to find module file for a workflow
@@ -256,39 +269,53 @@ find_module_file() {
     return 1
 }
 
-# Iterate through all workflow directories
-for workflow_dir in "$WORKFLOWS_DIR"/*; do
+# Determine which workflows to process
+if [ -n "$MAPPING_FILE" ]; then
+    # If mapping file is provided, only process workflows listed in it
+    workflows_to_process=$(grep -v "^#" "$MAPPING_FILE" | grep -v "^[[:space:]]*$" | cut -d: -f1 | xargs)
+else
+    # Otherwise, process all workflows in the directory
+    workflows_to_process=$(find "$WORKFLOWS_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+fi
+
+# Iterate through workflows to process
+for workflow_name in $workflows_to_process; do
+    workflow_dir="$WORKFLOWS_DIR/$workflow_name"
+    
     if [ ! -d "$workflow_dir" ]; then
+        echo -e "${YELLOW}  ⚠ Workflow directory not found: $workflow_dir${NC}"
         continue
     fi
     
-    workflow_name=$(basename "$workflow_dir")
     schema_dir="$workflow_dir/schema"
     
     # Skip if no schema directory
     if [ ! -d "$schema_dir" ]; then
         if [ "$VERBOSE" = true ]; then
-            echo -e "${YELLOW}Skipping $workflow_name: No schema directory${NC}"
+            echo -e "${YELLOW}  ⚠ No schema directory for: $workflow_name${NC}"
         fi
         continue
     fi
     
-    # Find schema files (excluding delete schemas for now)
+    # Find schema files (excluding delete schemas)
     schema_files=$(find "$schema_dir" -type f -name "*_schema.yml" ! -name "delete_*" 2>/dev/null)
     
     if [ -z "$schema_files" ]; then
         if [ "$VERBOSE" = true ]; then
-            echo -e "${YELLOW}Skipping $workflow_name: No schema files found${NC}"
+            echo -e "${YELLOW}  ⚠ No schema files found for: $workflow_name${NC}"
         fi
         continue
     fi
+    
+    # Increment workflow counter
+    current_workflow=$((current_workflow + 1))
     
     # Process each schema file
     for schema_file in $schema_files; do
         total_schemas=$((total_schemas + 1))
         schema_basename=$(basename "$schema_file")
         
-        echo -e "${BLUE}Processing: $workflow_name / $schema_basename${NC}"
+        echo -e "${BLUE}[Workflow $current_workflow/$total_workflows] Processing: $workflow_name / $schema_basename${NC}"
         
         # Find corresponding module file
         # First check if there's a mapping in the mapping file
