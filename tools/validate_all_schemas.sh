@@ -17,6 +17,7 @@ NC='\033[0m' # No Color
 WORKFLOWS_DIR="workflows"
 MODULE_DIR=""
 OUTPUT_DIR="schema_validation_reports"
+MAPPING_FILE=""
 VERBOSE=false
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
@@ -37,12 +38,25 @@ Required Arguments:
 Optional Arguments:
     -w, --workflows-dir DIR Directory containing workflow schemas (default: workflows)
     -o, --output-dir DIR    Directory for output reports (default: schema_validation_reports)
+    -f, --mapping-file FILE Path to workflow-module mapping file (optional)
     -v, --verbose           Enable verbose output
     -h, --help              Show this help message
+
+Mapping File Format:
+    The mapping file should contain one mapping per line in the format:
+    workflow_name:module_filename
+    
+    Example:
+    access_point_location:accesspoint_location_workflow_manager.py
+    inventory:inventory_workflow_manager.py
+    assurance_pathtrace:assurance_pathtrace_workflow_manager.py
 
 Examples:
     # Basic usage
     ./validate_all_schemas.sh -m /path/to/modules
+
+    # With mapping file
+    ./validate_all_schemas.sh -m /path/to/modules -f workflow_mapping.txt
 
     # With custom workflows directory
     ./validate_all_schemas.sh -m /path/to/modules -w /path/to/workflows
@@ -69,6 +83,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -o|--output-dir)
             OUTPUT_DIR="$2"
+            shift 2
+            ;;
+        -f|--mapping-file)
+            MAPPING_FILE="$2"
             shift 2
             ;;
         -v|--verbose)
@@ -104,6 +122,51 @@ if [ ! -d "$WORKFLOWS_DIR" ]; then
     echo -e "${RED}Error: Workflows directory not found: $WORKFLOWS_DIR${NC}"
     exit 1
 fi
+
+# Validate mapping file if provided
+if [ -n "$MAPPING_FILE" ] && [ ! -f "$MAPPING_FILE" ]; then
+    echo -e "${RED}Error: Mapping file not found: $MAPPING_FILE${NC}"
+    exit 1
+fi
+
+# Load workflow-module mappings from file if provided
+if [ -n "$MAPPING_FILE" ]; then
+    echo -e "${BLUE}Loading workflow-module mappings from: $MAPPING_FILE${NC}"
+    mapping_count=0
+    while IFS=: read -r workflow module || [ -n "$workflow" ]; do
+        # Skip empty lines and comments
+        [[ -z "$workflow" || "$workflow" =~ ^[[:space:]]*# ]] && continue
+        # Trim whitespace
+        workflow=$(echo "$workflow" | xargs)
+        module=$(echo "$module" | xargs)
+        if [ "$VERBOSE" = true ]; then
+            echo "  Mapped: $workflow -> $module"
+        fi
+        mapping_count=$((mapping_count + 1))
+    done < "$MAPPING_FILE"
+    echo -e "${GREEN}Loaded $mapping_count mapping(s)${NC}"
+    echo ""
+fi
+
+# Function to get module from mapping file
+get_mapped_module() {
+    local workflow_name=$1
+    local mapping_file=$2
+    
+    if [ -z "$mapping_file" ] || [ ! -f "$mapping_file" ]; then
+        return 1
+    fi
+    
+    # Search for the workflow in the mapping file
+    local result=$(grep "^[[:space:]]*${workflow_name}:" "$mapping_file" | grep -v "^#" | head -n 1 | cut -d: -f2- | xargs)
+    
+    if [ -n "$result" ]; then
+        echo "$result"
+        return 0
+    fi
+    
+    return 1
+}
 
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
@@ -228,7 +291,32 @@ for workflow_dir in "$WORKFLOWS_DIR"/*; do
         echo -e "${BLUE}Processing: $workflow_name / $schema_basename${NC}"
         
         # Find corresponding module file
-        module_file=$(find_module_file "$workflow_name" "$MODULE_DIR")
+        # First check if there's a mapping in the mapping file
+        mapped_module=$(get_mapped_module "$workflow_name" "$MAPPING_FILE")
+        
+        if [ -n "$mapped_module" ]; then
+            # Check if it's an absolute path or just a filename
+            if [[ "$mapped_module" = /* ]]; then
+                module_file="$mapped_module"
+            else
+                module_file="$MODULE_DIR/$mapped_module"
+            fi
+            
+            # Verify the mapped file exists
+            if [ ! -f "$module_file" ]; then
+                echo -e "${YELLOW}  ⚠ Mapped module file not found: $module_file${NC}"
+                echo "SKIPPED: $workflow_name / $schema_basename - Mapped module not found" >> "$SUMMARY_FILE"
+                skipped_validations=$((skipped_validations + 1))
+                continue
+            fi
+            
+            if [ "$VERBOSE" = true ]; then
+                echo "  Using mapped module: $(basename "$module_file")"
+            fi
+        else
+            # Use automatic pattern matching
+            module_file=$(find_module_file "$workflow_name" "$MODULE_DIR")
+        fi
         
         if [ -z "$module_file" ]; then
             echo -e "${YELLOW}  ⚠ Module file not found for $workflow_name${NC}"

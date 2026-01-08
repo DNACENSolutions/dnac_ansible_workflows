@@ -1,0 +1,4 @@
+# Test mapping file
+access_point_location:accesspoint_location_workflow_manager.py
+inventory:inventory_workflow_manager.py
+assurance_pathtrace:assurance_pathtrace_workflow_manager.py
