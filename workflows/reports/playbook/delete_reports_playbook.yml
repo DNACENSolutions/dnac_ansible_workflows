@@ -35,12 +35,12 @@
       set_fact:
         long_op_start: "{{ now() }}"
 
-    - name: Create or schedule reports provided in reports_config in file {{ VARS_FILE_PATH }}
+    - name: Create or schedule reports provided in reports_details in file {{ VARS_FILE_PATH }}
       cisco.dnac.reports_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ reports_config }}"
-      when: reports_config is defined
+        config: "{{ reports_details }}"
+      when: reports_details is defined
       register: reports_output
 
     - name: Print reports workflow output
