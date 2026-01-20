@@ -25,9 +25,9 @@ full_upload_type:
     image_name: str(required=True)
     device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN')
     #Sample('Cisco Catalyst 9300 Switch', 'Cisco Catalyst 9407R Switch', Cisco Catalyst 9400X Supervisor Engine-2XL')
-    device_image_family_name: str()
-    site_name: str()
-    tagging: bool()
+    device_image_family_name: str(required=False)
+    site_name: str(required=False)
+    tagging: bool(required=False)
 
   image_distribution_details:
     image_name: str(required=False)
@@ -40,6 +40,8 @@ full_upload_type:
     #          'Network Management', 'Cisco Interfaces and Modules', 'Wireless Controller', 'Wireless Sensor')
     device_family_name: str(required=False)
     device_serial_number: str(required=False)
+    device_series_name: str(required=False)
+    device_tag: str(required=False)  
     sub_package_images: list(str(), required=False)
     image_distribution_timeout: int(required=False, default=1800)
     convert_to_wlc: bool(required=False, default=False)
@@ -55,6 +57,7 @@ full_upload_type:
     device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN', required=False)
     device_serial_number: str(required=False)
     device_series_name: str(required=False)
+    device_tag: str(required=False)
     device_upgrade_mode: enum('install', 'bundle', 'currentlyExists', required=False)
     distribute_if_needed: bool(required=False)
     image_name: str(required=False)
@@ -63,27 +66,26 @@ full_upload_type:
     sub_package_images: list(str(), required=False)
     image_activation_timeout: int(required=False, default=1800)
     convert_to_wlc: bool(required=False, default=False)
+    compatible_features: list(include('compatible_features_type'), required=False)
 
-import_images_type:
-  import_images: list(include('import_image_details_type'))
 
 import_image_details_type:
   import_image_details:
-    type: enum('remote', 'local','CCO')
+    type: enum('remote', 'local', 'CCO')
     url_details: any(include('url_details_type', required=False), required=False)
     local_image_details: any(include('local_image_details_type', required=False), required=False)
     cco_image_details: any(include('cco_image_details_type', required=False), required=False)
-
+  sync_cco: bool(required=False, default=False)
+  
 cco_image_details_type:
   image_name: any(str(), list(str()), required=True)
 
 local_image_details_type:
-  local_image_details:
-    file_path: str()
-    is_third_party: bool(required=False)
-    third_party_application_type: enum('WLC', 'LINUX', 'FIREWALL', 'WINDOWS', 'LOADBALANCER', 'THIRDPARTY', 'NAM', 'WAN Optimization', 'Unknown', 'Router', required=False)
-    third_party_image_family: enum('PALOALTO', 'RIVERBED', 'FORTINET', 'CHECKPOINT', 'SILVERPEAK', required=False)
-    third_party_vendor: str(required=False)
+  file_path: str(required=True)
+  is_third_party: bool(required=False)
+  third_party_application_type: enum('WLC', 'LINUX', 'FIREWALL', 'WINDOWS', 'LOADBALANCER', 'THIRDPARTY', 'NAM', 'WAN Optimization', 'Unknown', 'Router', required=False)
+  third_party_image_family: enum('PALOALTO', 'RIVERBED', 'FORTINET', 'CHECKPOINT', 'SILVERPEAK', required=False)
+  third_party_vendor: str(required=False)
 
 url_details_type:
   payload: list(include('payload_type'), min=1, max=100)
@@ -93,11 +95,10 @@ url_details_type:
 
 payload_type:
   source_url: any(str(), list(str()), required=True)
-  third_party: bool(required=False)
-  file_path: str(required=False)
-  third_party_application_type: enum('WLC', 'LINUX', 'FIREWALL', 'WINDOWS', 'LOADBALANCER', 'THIRDPARTY', 'NAM', 'WAN Optimization', 'Unknown', 'Router', required=False)
-  third_party_image_family: enum('PALOALTO', 'RIVERBED', 'FORTINET', 'CHECKPOINT', 'SILVERPEAK', required=False)
-  third_party_vendor: str(required=False)
+  is_third_party: bool(required=False)
+  application_type: enum('WLC', 'LINUX', 'FIREWALL', 'WINDOWS', 'LOADBALANCER', 'THIRDPARTY', 'NAM', 'WAN Optimization', 'Unknown', 'Router', required=False)
+  image_family: str(required=False)
+  vendor: str(required=False)
 
 tagging_details_type:
   tagging_details:
@@ -121,6 +122,7 @@ distribute_images_type:
     device_family_name: str(required=False)
     device_serial_number: str(required=False)
     device_series_name: str(required=False)
+    device_tag: str(required=False)
     sub_package_images: list(str(), required=False)
     image_distribution_timeout: int(required=False, default=1800)
     convert_to_wlc: bool(required=False, default=False)
@@ -137,6 +139,7 @@ activate_images_type:
     device_mac_address: str(required=False)
     device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN', required=False)
     device_serial_number: str(required=False)
+    device_tag: str(required=False)
     device_upgrade_mode: enum('install', 'bundle', 'currentlyExists', required=False)
     distribute_if_needed: bool(required=False)
     image_name: str(required=False)
@@ -145,3 +148,8 @@ activate_images_type:
     sub_package_images: list(str(), required=False)
     image_activation_timeout: int(required=False, default=1800)
     convert_to_wlc: bool(required=False, default=False)
+    compatible_features: list(include('compatible_features_type'), required=False)
+
+compatible_features_type:
+  key: str(required=False)
+  value: str(required=False)
