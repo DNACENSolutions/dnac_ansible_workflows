@@ -576,6 +576,7 @@ network_settings_details_type:
   global_pool_details: include('global_pool_details_type', required=False)
   reserve_pool_details: list(include('reserve_pool_details_type'), min=1, max=1000, required=False)
   network_management_details: list(include('network_management_details_type'), min=1, max=500, required=False)
+  device_controllability_details: include('device_controllability_details_type', required=False)
 
 global_pool_details_type:
     settings:
@@ -606,6 +607,12 @@ reserve_pool_details_type:
     ipv6_dns_servers: list(str(), required=False)
     ipv6_total_host: int(required=False)
     prev_name: str(required=False)
+    ipv4_unassignable_addresses: int(required=False)
+    ipv4_assigned_addresses: int(required=False)
+    ipv4_default_assigned_addresses: int(required=False)
+    ipv6_unassignable_addresses: int(required=False)
+    ipv6_assigned_addresses: int(required=False)
+    ipv6_default_assigned_addresses: int(required=False)
     force_delete: bool(required=False)
 
 ip_pool_details_type:
@@ -684,3 +691,6 @@ wired_data_collection_type:
 wireless_telemetry_type:
   enable_wireless_telemetry: bool(required=False)
 
+device_controllability_details_type:
+  device_controllability: bool(required=True)
+  autocorrect_telemetry_config: bool(required=False, default=False)
