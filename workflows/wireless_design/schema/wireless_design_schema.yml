@@ -130,7 +130,7 @@ site_l2_security_type:
   mpsk_settings: list(include('site_mpsk_settings_type'), required=False)
 
 site_mpsk_settings_type:
-  mpsk_priority: int(enum(0, 1, 2, 3, 4), required=False))
+  mpsk_priority: int(enum(0, 1, 2, 3, 4), required=False)
   mpsk_passphrase_type: enum("HEX", "ASCII", required=False)
   mpsk_passphrase: str(required=False)
 
