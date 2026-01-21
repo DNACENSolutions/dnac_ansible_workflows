@@ -72,7 +72,7 @@ catalyst_center_task_poll_interval: int(required=False)
 ---
 device_configs_backup_details_type:
   collection_status: list(str(), required=False)
-  family_list: list(str(), required=False)
+  family_list: list(str(), required=False) 
   file_password: str(required=False)
   file_path: str(required=False, default="tmp")
   hostname_list: list(str(), required=False)
@@ -83,4 +83,5 @@ device_configs_backup_details_type:
   site_list: list(str(), required=False)
   type_list: list(str(), required=False)
   unzip_backup: bool(required=False, default=True)
+  config_file_types: list(enum("ALL", "VLAN","STARTUPCONFIG","RUNNINGCONFIG"), required=False)
 # #=======================================================================================================================
