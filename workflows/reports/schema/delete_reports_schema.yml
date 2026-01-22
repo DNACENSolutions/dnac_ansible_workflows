@@ -23,9 +23,9 @@ report_config_type:
 ---
 # Delete Report Type - Minimal required fields for deletion
 delete_report_type:
-    name: str(required=True)
-    view_group_name: str(required=True)
-    view: include('delete_view_type', required=True)
+  name: str(required=True)
+  view_group_name: str(required=True)
+  view: include('delete_view_type', required=True)
 
 # Delete View Type - Only view_name is required for deletion
 delete_view_type:
