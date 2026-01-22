@@ -716,6 +716,92 @@ The following section details the available report templates in *Cisco Catalyst 
 - **Supported fields:** apName, apMac, slotId, frequency, upCount, downCount, totalChangeCount, powerRange, location
 - **Field Group Name:** response
 
+#### **23. Audit Log Reports**
+
+**Template Configuration:**
+- **View Group Name:** `Audit Log`
+- **View Name:** `Audit Log`
+- **View Group Version:** `1.0.0`
+
+**Supported Features:**
+- **Filters:** 
+  - **domain** (`MULTI_SELECT`)
+  - **category** (`MULTI_SELECT`) *(Values must be in CAPS)*
+  - **sortBy** (`REGULAR`)
+  - **order** (`REGULAR`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, JSON
+- **Supported fields:** eventId, namespace, name, description, type, category, domain, subDomain, severity, timestamp, details, ciscoDnaEventLink, note, userId, i18n, eventHierarchy, message, messageParams, parentInstanceId, network, startTime, childCount
+- **Field Group Name:** audit_log
+
+#### **24. Compliance Reports - Network Device Compliance**
+
+**Template Configuration:**
+- **View Group Name:** `Compliance`
+- **View Name:** `Network Device Compliance`
+
+**Supported Features:**
+- **Filters:** 
+  - **complianceStatus** (`REGULAR`) *(Values must be in CAPS)*
+  - **complianceType** (`REGULAR`) *(Values must be in CAPS)*
+  - **family** (`REGULAR`)
+  - **DeviceType** (`REGULAR`)
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, JSON, PDF
+- **Supported fields:** rownum, hostname, family, type, managementIpAddress, complianceStatus, IMAGE, RUNNING_CONFIG, PSIRT, NETWORK_PROFILE, NETWORK_SETTINGS, EOX, FABRIC, APPLICATION_VISIBILITY, CUSTOMIZATION_PROFILE
+- **Field Group Name:** Compliance
+
+#### **25. Configuration Archive Reports - Configuration Archive**
+
+**Template Configuration:**
+- **View Group Name:** `Configuration Archive`
+- **View Name:** `Configuration Archive`
+
+**Supported Features:**
+- **Filters:** 
+  - **configChangeType** (`REGULAR`) *(Values must be in CAPS)*
+  - **family** (`REGULAR`)
+  - **DeviceType** (`REGULAR`)
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, JSON, PDF
+- **Supported fields:** rownum, deviceName, family, type, managementIpAddress, createdTime, createdBy, configChangeType, userName, configMethod, loginIpAddress
+- **Field Group Name:** ConfigArchive
+
+#### **26. EoX Reports - EoX Data**
+
+**Template Configuration:**
+- **View Group Name:** `EoX`
+- **View Name:** `EoX Data`
+
+**Supported Features:**
+- **Filters:** 
+  - **DeviceType** (`MULTI_SELECT`)
+  - **Location** (`MULTI_SELECT_TREE`)
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, TDE, PDF
+- **Supported fields:** deviceName, deviceIpAddress, deviceType, deviceSerialNumber, deviceImageVersion, deviceSite, deviceModelName, deviceImageType, eoxScanStatus, eoxType, endOfLifeExternalAnnouncementDate, endOfSaleDate, endOfLastHardwareShipDate, endOfSoftwareMaintenanceReleasesDate, endOfHardwareNewServiceAttachmentDate, endOfSoftwareVulnerabilityOrSecuritySupportDate, endOfHardwareServiceContractRenewalDate, lastDateOfSupport, eoxLastScanTime
+- **Field Group Name:** eoxAllData
 ---
 
 #### Example Input Files
