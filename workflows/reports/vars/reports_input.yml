@@ -4,1108 +4,1108 @@
 
 reports_details:
 
-# # Example 1: Executive Summary Report with Immediate Execution and email notification - PDF format
+# Example 1: Executive Summary Report with Immediate Execution and email notification - PDF format
 
-#   - generate_report:
-#       - name: "ExecutiveSummary_Report_PDF"
-#         new_report: true
-#         view_group_name: "Executive Summary"
+  - generate_report:
+      - name: "ExecutiveSummary_Report_PDF"
+        new_report: true
+        view_group_name: "Executive Summary"
 
-#         deliveries:
-#           - delivery_type: "NOTIFICATION"
-#             notification_endpoints:
-#               - email_addresses:
-#                   - "mekandar@cisco.com"
-#                   - "pbalaku2@cisco.com"
-#             email_attach: true
-#             notify: ["COMPLETED"]
+        deliveries:
+          - delivery_type: "NOTIFICATION"
+            notification_endpoints:
+              - email_addresses:
+                  - "mekandar@cisco.com"
+                  - "pbalaku2@cisco.com"
+            email_attach: true
+            notify: ["COMPLETED"]
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "Executive Summary"
+        view:
+          view_name: "Executive Summary"
 
-#           field_groups: []
+          field_groups: []
 
-#           format:
-#             format_type: "PDF"
+          format:
+            format_type: "PDF"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global/India"
-#                 - value: "Global/USA"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_24_HOURS"
-#                 time_zone: "Asia/Calcutta"
-#             - name: "SSID"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "SSIDDUAL BAND"
-#                 - value: "Random_mac"
-#                 - value: "SSIDScheduler"
-#                 - value: "Single5KBand"
-#             - name: "Band"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "2.4"
-#                 - value: "5"
-#                 - value: "6"
-#             - name: "GroupBy"
-#               filter_type: "SINGLE_SELECT_ARRAY"
-#               value:
-#                 - value: "AREA"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global/India"
+                - value: "Global/USA"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_24_HOURS"
+                time_zone: "Asia/Calcutta"
+            - name: "SSID"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "SSIDDUAL BAND"
+                - value: "Random_mac"
+                - value: "SSIDScheduler"
+                - value: "Single5KBand"
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "2.4"
+                - value: "5"
+                - value: "6"
+            - name: "GroupBy"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "AREA"
 
-# # Example 2: Security Advisories Report with weekly recursive Execution - CSV format
-#   - generate_report:
-#       - name: "SecurityAdvisories_module"
-#         view_group_name: "Security Advisories"
+# Example 2: Security Advisories Report with weekly recursive Execution - CSV format
+  - generate_report:
+      - name: "SecurityAdvisories_module"
+        view_group_name: "Security Advisories"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_RECURRENCE"
-#           date_time: "2026-12-25 03:00 PM"
-#           time_zone: "Asia/Calcutta"
-#           recurrence:
-#             recurrence_type: WEEKLY
-#             days: ["TUESDAY", "WEDNESDAY"]
+        schedule:
+          schedule_type: "SCHEDULE_RECURRENCE"
+          date_time: "2026-12-25 03:00 PM"
+          time_zone: "Asia/Calcutta"
+          recurrence:
+            recurrence_type: WEEKLY
+            days: ["TUESDAY", "WEDNESDAY"]
 
-#         view:
-#           view_name: "Security Advisories Data"
-#           field_groups:
-#             - field_group_name: "psirtAllData"
-#               field_group_display_name: "All Security Advisory Data"
-#               fields:
-#                 - name: "deviceName"
-#                 - name: "deviceType"
-#                 - name: "deviceSite"
-#                 - name: "deviceIpAddress"
+        view:
+          view_name: "Security Advisories Data"
+          field_groups:
+            - field_group_name: "psirtAllData"
+              field_group_display_name: "All Security Advisory Data"
+              fields:
+                - name: "deviceName"
+                - name: "deviceType"
+                - name: "deviceSite"
+                - name: "deviceIpAddress"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "DeviceType"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Routers"
-#                 - value: "Switches and Hubs"
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "Impact"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "HIGH"
-#                 - value: "CRITICAL"
+          filters:
+            - name: "DeviceType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Routers"
+                - value: "Switches and Hubs"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "Impact"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "HIGH"
+                - value: "CRITICAL"
   
-# # Example 3: Inventory (All Data) Report with monthly recursive Execution - CSV format and webhook notification
+# Example 3: Inventory (All Data) Report with monthly recursive Execution - CSV format and webhook notification
 
-#   - generate_report:
-#       - name: "Inventory_all_data_report"
-#         view_group_name: "Inventory"
+  - generate_report:
+      - name: "Inventory_all_data_report"
+        view_group_name: "Inventory"
 
-#         deliveries:
-#           - delivery_type: "WEBHOOK"
-#             webhook_name: "webhook demo 102"
+        deliveries:
+          - delivery_type: "WEBHOOK"
+            webhook_name: "webhook demo 102"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_RECURRENCE"
-#           date_time: "2026-12-25 10:00 PM"
-#           time_zone: "America/New_York"
-#           recurrence:
-#             recurrence_type: MONTHLY
-#             day_of_month: 20
+        schedule:
+          schedule_type: "SCHEDULE_RECURRENCE"
+          date_time: "2026-12-25 10:00 PM"
+          time_zone: "America/New_York"
+          recurrence:
+            recurrence_type: MONTHLY
+            day_of_month: 20
 
-#         view:
-#           view_name: "All Data"
+        view:
+          view_name: "All Data"
 
-#           field_groups:
-#             - field_group_name: "inventoryAllData"
-#               field_group_display_name: "All Data"
-#               fields:
-#                 - name: "family"
-#                 - name: "type"
-#                 - name: "hostname"
-#                 - name: "serialNumber"
+          field_groups:
+            - field_group_name: "inventoryAllData"
+              field_group_display_name: "All Data"
+              fields:
+                - name: "family"
+                - name: "type"
+                - name: "hostname"
+                - name: "serialNumber"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "DeviceType"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Cisco Catalyst 9300 Switch"
-#                 - value: "Cisco Catalyst 9500 Switch"
-#             - name: "DeviceFamily"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Routers"
-#                 - value: "Switches and Hubs"
-#             - name: "SoftwareVersion"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "17.12.4"
-#                 - value: "17.12.5"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "DeviceType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Cisco Catalyst 9300 Switch"
+                - value: "Cisco Catalyst 9500 Switch"
+            - name: "DeviceFamily"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Routers"
+                - value: "Switches and Hubs"
+            - name: "SoftwareVersion"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "17.12.4"
+                - value: "17.12.5"
 
-# # Example 4: Inventory (All data version 2.0) Report with Email Notification and last day of month recursion 
+# Example 4: Inventory (All data version 2.0) Report with Email Notification and last day of month recursion 
 
-#   - generate_report:
-#       - name: "Monthly Inventory Report"
-#         new_report: false
-#         view_group_name: "Inventory"
-#         view_group_version: "2.0.0"
-#         tags:
-#           - inventory
-#           - monthly
+  - generate_report:
+      - name: "Monthly Inventory Report"
+        new_report: false
+        view_group_name: "Inventory"
+        view_group_version: "2.0.0"
+        tags:
+          - inventory
+          - monthly
         
-#         schedule:
-#           schedule_type: "SCHEDULE_RECURRENCE"
-#           date_time: "2026-12-25 09:00 AM"
-#           time_zone: "Asia/Calcutta"
-#           recurrence:
-#             recurrence_type: "MONTHLY"
-#             last_day_of_month: true
+        schedule:
+          schedule_type: "SCHEDULE_RECURRENCE"
+          date_time: "2026-12-25 09:00 AM"
+          time_zone: "Asia/Calcutta"
+          recurrence:
+            recurrence_type: "MONTHLY"
+            last_day_of_month: true
         
-#         deliveries:
-#           - delivery_type: "NOTIFICATION"
-#             notification_endpoints:
-#               - email_addresses:
-#                   - "pbalaku2@cisco.com"
-#             email_attach: true
-#             notify:
-#               - "COMPLETED"
+        deliveries:
+          - delivery_type: "NOTIFICATION"
+            notification_endpoints:
+              - email_addresses:
+                  - "pbalaku2@cisco.com"
+            email_attach: true
+            notify:
+              - "COMPLETED"
         
-#         view:
-#           view_name: "All Data Version 2.0"
+        view:
+          view_name: "All Data Version 2.0"
           
-#           field_groups:
-#             - field_group_name: "inventory_fields"
-#               field_group_display_name: "Inventory Information"
-#               fields:
-#                 - name: "name"
-#                   display_name: "Device Name"
-#                 - name: "managementIpAddress"
-#                   display_name: "IP Address"
-#                 - name: "deviceType"
-#                   display_name: "Device Type"
-#                 - name: "softwareVersion"
-#                   display_name: "Software Version"
-#                 - name: "siteHierarchy"
-#                   display_name: "Location"
-#                 - name: "communicationState"
-#                   display_name: "Communication Status"
+          field_groups:
+            - field_group_name: "inventory_fields"
+              field_group_display_name: "Inventory Information"
+              fields:
+                - name: "name"
+                  display_name: "Device Name"
+                - name: "managementIpAddress"
+                  display_name: "IP Address"
+                - name: "deviceType"
+                  display_name: "Device Type"
+                - name: "softwareVersion"
+                  display_name: "Software Version"
+                - name: "siteHierarchy"
+                  display_name: "Location"
+                - name: "communicationState"
+                  display_name: "Communication Status"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
           
-#           filters:
-#             - name: "siteId"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global/USA"
-#             - name: "deviceType"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Cisco Catalyst 9300 Switch"
-#             - name: "deviceFamily"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Routers"
-#                 - value: "Switches and Hubs"
-#             - name: "softwareVersion"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "17.12.4"
-#                 - value: "17.12.5"
+          filters:
+            - name: "siteId"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global/USA"
+            - name: "deviceType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Cisco Catalyst 9300 Switch"
+            - name: "deviceFamily"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Routers"
+                - value: "Switches and Hubs"
+            - name: "softwareVersion"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "17.12.4"
+                - value: "17.12.5"
 
-# # Example 5: Inventory (Port Reclaim view) Report
+# Example 5: Inventory (Port Reclaim view) Report
     
-#   - generate_report:
-#       - name: "Port_Reclaim_report"
-#         view_group_name: "Inventory"
+  - generate_report:
+      - name: "Port_Reclaim_report"
+        view_group_name: "Inventory"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "Port Reclaim View"
-#           field_groups: []
+        view:
+          view_name: "Port Reclaim View"
+          field_groups: []
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "family"
-#               filter_type: "REGULAR"
-#               value:
-#                 - value: "Switches and Hubs"
-#             - name: "hostname"
-#               filter_type: "REGULAR"
-#               value:
-#                 - value: "SJ-BN-9300.cisco.local"
+          filters:
+            - name: "family"
+              filter_type: "REGULAR"
+              value:
+                - value: "Switches and Hubs"
+            - name: "hostname"
+              filter_type: "REGULAR"
+              value:
+                - value: "SJ-BN-9300.cisco.local"
 
-# # Example 6: Rogue and awips (New Threat) with immediate execution
+# Example 6: Rogue and awips (New Threat) with immediate execution
 
-#   - generate_report:
-#       - name: "NewThreat_Rogue_aWIPS_Report"
-#         new_report: true
-#         view_group_name: "Rogue and aWIPS"
-#         tags:
-#           - rogue
-#           - awips
-#           - threat
+  - generate_report:
+      - name: "NewThreat_Rogue_aWIPS_Report"
+        new_report: true
+        view_group_name: "Rogue and aWIPS"
+        tags:
+          - rogue
+          - awips
+          - threat
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_LATER"
-#           date_time: "2026-12-25 02:00 PM"
-#           time_zone: "Europe/London"
+        schedule:
+          schedule_type: "SCHEDULE_LATER"
+          date_time: "2026-12-25 02:00 PM"
+          time_zone: "Europe/London"
 
-#         view:
-#           view_name: "New Threat"
-#           field_groups:
-#             - field_group_name: "rogue_details"
-#               field_group_display_name: "Threat Details"
-#               fields:
-#                 - name: "threatLevel"
-#                 - name: "macAddress"
-#                 - name: "threatType"
-#                 - name: "apName"
-#                 - name: "siteHierarchyName"
+        view:
+          view_name: "New Threat"
+          field_groups:
+            - field_group_name: "rogue_details"
+              field_group_display_name: "Threat Details"
+              fields:
+                - name: "threatLevel"
+                - name: "macAddress"
+                - name: "threatType"
+                - name: "apName"
+                - name: "siteHierarchyName"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "ThreatType"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "AirDrop Session"
-#                 - value: "Association Flood"
-#             - name: "ThreatLevel"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Informational"
-#                 - value: "High"
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_7_DAYS"
-#                 time_zone: "Asia/Calcutta"
+          filters:
+            - name: "ThreatType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "AirDrop Session"
+                - value: "Association Flood"
+            - name: "ThreatLevel"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Informational"
+                - value: "High"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_7_DAYS"
+                time_zone: "Asia/Calcutta"
 
-# # Example 7: Rogue and awips (Rogue Additional Detail) with immediate execution and custom Time Range
+# Example 7: Rogue and awips (Rogue Additional Detail) with immediate execution and custom Time Range
 
-#   - generate_report:
-#       - name: "RogueAdditionalDetail_Report"
-#         view_group_name: "Rogue and aWIPS"
+  - generate_report:
+      - name: "RogueAdditionalDetail_Report"
+        view_group_name: "Rogue and aWIPS"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "Rogue Additional Detail"
-#           field_groups:
-#             - field_group_name: "rogue_ap_bssid_details"
-#               field_group_display_name: "Rogue Additional Detail"
-#               fields:
-#                 - name: "macAddress"
-#                 - name: "lastUpdated"
-#                 - name: "firstSeen"
-#                 - name: "apName"
-#                 - name: "mldMacAddress"
-#                 - name: "radioType"
+        view:
+          view_name: "Rogue Additional Detail"
+          field_groups:
+            - field_group_name: "rogue_ap_bssid_details"
+              field_group_display_name: "Rogue Additional Detail"
+              fields:
+                - name: "macAddress"
+                - name: "lastUpdated"
+                - name: "firstSeen"
+                - name: "apName"
+                - name: "mldMacAddress"
+                - name: "radioType"
 
-#           format:
-#             format_type: "CSV"
-#           filters:
-#             - name: "ThreatType"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "AirDrop Session"
-#                 - value: "Association Flood"
-#             - name: "ThreatLevel"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Informational"
-#                 - value: "High"
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "CUSTOM"
-#                 start_date_time: "2026-12-15 02:00 PM"
-#                 end_date_time: "2026-12-20 02:00 PM"
-#                 time_zone: "Asia/Calcutta"
+          format:
+            format_type: "CSV"
+          filters:
+            - name: "ThreatType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "AirDrop Session"
+                - value: "Association Flood"
+            - name: "ThreatLevel"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Informational"
+                - value: "High"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "CUSTOM"
+                start_date_time: "2026-12-15 02:00 PM"
+                end_date_time: "2026-12-20 02:00 PM"
+                time_zone: "Asia/Calcutta"
 
-# # Example 8 - Rogue and awips (Threat Detail) with immediate execution
+# Example 8 - Rogue and awips (Threat Detail) with immediate execution
 
-#   - generate_report:
-#       - name: "ThreatDetail_rogue_aWIPS_Report"
-#         view_group_name: "Rogue and aWIPS"
+  - generate_report:
+      - name: "ThreatDetail_rogue_aWIPS_Report"
+        view_group_name: "Rogue and aWIPS"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "Threat Detail"
-#           field_groups:
-#             - field_group_name: "rogue_details"
-#               field_group_display_name: "Threat Details"
-#               fields:
-#                 - name: "macAddress"
-#                 - name: "threatLevel"
-#                 - name: "threatType"
-#                 - name: "apName"
-#                 - name: "siteHierarchyName"
-#                 - name: "rssi"
+        view:
+          view_name: "Threat Detail"
+          field_groups:
+            - field_group_name: "rogue_details"
+              field_group_display_name: "Threat Details"
+              fields:
+                - name: "macAddress"
+                - name: "threatLevel"
+                - name: "threatType"
+                - name: "apName"
+                - name: "siteHierarchyName"
+                - name: "rssi"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "ThreatType"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "AirDrop Session"
-#                 - value: "Association Flood"
-#             - name: "ThreatLevel"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Informational"
-#                 - value: "High"
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global/USA"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_7_DAYS"
-#                 time_zone: "Asia/Calcutta"
+          filters:
+            - name: "ThreatType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "AirDrop Session"
+                - value: "Association Flood"
+            - name: "ThreatLevel"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Informational"
+                - value: "High"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global/USA"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_7_DAYS"
+                time_zone: "Asia/Calcutta"
 
-# # Example 9 - Access Point (AP) with JSON format and default filters
+# Example 9 - Access Point (AP) with JSON format and default filters
 
-#   - generate_report:
-#       - name: "Access_point__ap_report"
-#         view_group_name: "Access Point"
+  - generate_report:
+      - name: "Access_point__ap_report"
+        view_group_name: "Access Point"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "AP"
-#           field_groups:
-#             - field_group_name: "apDetailByAP"
-#               field_group_display_name: "AP Detail By AP"
-#               fields:
-#                 - name: "macAddress"
-#                 - name: "ethernetMac"
-#                 - name: "nwDeviceName"
-#                 - name: "managementIpAddress"
-#                 - name: "osVersion"
-#                 - name: "nwDeviceType"
+        view:
+          view_name: "AP"
+          field_groups:
+            - field_group_name: "apDetailByAP"
+              field_group_display_name: "AP Detail By AP"
+              fields:
+                - name: "macAddress"
+                - name: "ethernetMac"
+                - name: "nwDeviceName"
+                - name: "managementIpAddress"
+                - name: "osVersion"
+                - name: "nwDeviceType"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "Wlc"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "NY-EWLC-1.cisco.local"
-#                 - value: "NY-EWLC-2.cisco.local"
-#                 - value: "SJ-EWLC-1.cisco.local"
-#             - name: "AP"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Test_AP"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_7_DAYS"
-#                 time_zone: "Asia/Calcutta"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "Wlc"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "NY-EWLC-1.cisco.local"
+                - value: "NY-EWLC-2.cisco.local"
+                - value: "SJ-EWLC-1.cisco.local"
+            - name: "AP"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Test_AP"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_7_DAYS"
+                time_zone: "Asia/Calcutta"
 
-# # Example 10 - Access Point (Usage and Client Breakdown) with immediate execution
+# Example 10 - Access Point (Usage and Client Breakdown) with immediate execution
 
-#   - generate_report:
-#       - name: "Access_point_report_usage_client_breakdown_2611"
-#         view_group_name: "Access Point"
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
-#         view:
-#           view_name: "AP - Usage and Client Breakdown"
-#           field_groups:
-#             - field_group_name: "apBreakdown"
-#               field_group_display_name: "AP - Usage and Client Breakdown"
-#               fields:
-#                 - name: "apName"
-#                 - name: "kpiType"
-#                 - name: "kpiName"
-#                 - name: "clientCount"
-#           format:
-#             format_type: "CSV"
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "Wlc"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "NY-EWLC-1.cisco.local"
-#                 - value: "NY-EWLC-2.cisco.local"
-#                 - value: "SJ-EWLC-1.cisco.local"
-#             - name: "AP"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Test_AP"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_30_DAYS"
-#                 time_zone: "Asia/Calcutta"
+  - generate_report:
+      - name: "Access_point_report_usage_client_breakdown_2611"
+        view_group_name: "Access Point"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "AP - Usage and Client Breakdown"
+          field_groups:
+            - field_group_name: "apBreakdown"
+              field_group_display_name: "AP - Usage and Client Breakdown"
+              fields:
+                - name: "apName"
+                - name: "kpiType"
+                - name: "kpiName"
+                - name: "clientCount"
+          format:
+            format_type: "CSV"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "Wlc"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "NY-EWLC-1.cisco.local"
+                - value: "NY-EWLC-2.cisco.local"
+                - value: "SJ-EWLC-1.cisco.local"
+            - name: "AP"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Test_AP"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_30_DAYS"
+                time_zone: "Asia/Calcutta"
   
-# # Example 11 - Access Point (AP Radio) with immediate execution
+# Example 11 - Access Point (AP Radio) with immediate execution
 
-#   - generate_report:
-#       - name: "APDetailByRadio_RunNow_CSV_2611"
-#         view_group_name: "Access Point"
+  - generate_report:
+      - name: "APDetailByRadio_RunNow_CSV_2611"
+        view_group_name: "Access Point"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "AP Radio"
+        view:
+          view_name: "AP Radio"
 
-#           field_groups:
-#             - field_group_name: "apDetailByRadio"
-#               field_group_display_name: "AP Detail by AP Radio"
-#               fields:
-#                 - name: "ethernetMac"
-#                 - name: "apMac"
-#                 - name: "slot"
-#                 - name: "name"
+          field_groups:
+            - field_group_name: "apDetailByRadio"
+              field_group_display_name: "AP Detail by AP Radio"
+              fields:
+                - name: "ethernetMac"
+                - name: "apMac"
+                - name: "slot"
+                - name: "name"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "SortBy"
-#               filter_type: "SINGLE_SELECT_ARRAY"
-#               value:
-#                 - value: "txUtilPct_max"
-#             - name: "Limit"
-#               filter_type: "SINGLE_SELECT_ARRAY"
-#               value:
-#                 - value: "50"
-#             - name: "AP"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Test_AP"
-#             - name: "Wlc"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "NY-EWLC-1.cisco.local"
-#                 - value: "NY-EWLC-2.cisco.local"
-#                 - value: "SJ-EWLC-1.cisco.local"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_7_DAYS"
-#                 time_zone: "Asia/Calcutta"
-#             - name: "Band"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "5"
-#                 - value: "2.4"
-#                 - value: "6"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "SortBy"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "txUtilPct_max"
+            - name: "Limit"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "50"
+            - name: "AP"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Test_AP"
+            - name: "Wlc"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "NY-EWLC-1.cisco.local"
+                - value: "NY-EWLC-2.cisco.local"
+                - value: "SJ-EWLC-1.cisco.local"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_7_DAYS"
+                time_zone: "Asia/Calcutta"
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "5"
+                - value: "2.4"
+                - value: "6"
 
-# # Example 12 - Access Point (Worst Interferers) with immediate execution
+# Example 12 - Access Point (Worst Interferers) with immediate execution
 
-#   - generate_report:
-#       - name: "Access_point_report4_worstinterfaces_2611"
-#         view_group_name: "Access Point"
+  - generate_report:
+      - name: "Access_point_report4_worstinterfaces_2611"
+        view_group_name: "Access Point"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "Worst Interferers"
+        view:
+          view_name: "Worst Interferers"
 
-#           field_groups:
-#             - field_group_name: "worstInterferers"
-#               field_group_display_name: "Worst Interferers"
-#               fields:
-#                 - name: "deviceType"
-#                 - name: "severity"
-#                 - name: "worstSevTime"
-#                 - name: "deviceMac"
+          field_groups:
+            - field_group_name: "worstInterferers"
+              field_group_display_name: "Worst Interferers"
+              fields:
+                - name: "deviceType"
+                - name: "severity"
+                - name: "worstSevTime"
+                - name: "deviceMac"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "AP"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Test_AP"
-#                 - value: "AP3C41.0EFE.21D8"
-#             - name: "Wlc"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "NY-EWLC-1.cisco.local"
-#                 - value: "NY-EWLC-2.cisco.local"
-#                 - value: "SJ-EWLC-1.cisco.local"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_30_DAYS"
-#                 time_zone: "Asia/Calcutta"
-#             - name: "Band"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "5"
-#                 - value: "2.4"
-#                 - value: "6"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "AP"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Test_AP"
+                - value: "AP3C41.0EFE.21D8"
+            - name: "Wlc"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "NY-EWLC-1.cisco.local"
+                - value: "NY-EWLC-2.cisco.local"
+                - value: "SJ-EWLC-1.cisco.local"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_30_DAYS"
+                time_zone: "Asia/Calcutta"
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "5"
+                - value: "2.4"
+                - value: "6"
   
-# # Example 13 - Access Point (AP RRM Events) with immediate execution
+# Example 13 - Access Point (AP RRM Events) with immediate execution
 
-#   - generate_report:
-#       - name: "Access_point_report_rrm"
-#         view_group_name: "Access Point"
+  - generate_report:
+      - name: "Access_point_report_rrm"
+        view_group_name: "Access Point"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
-#         view:
-#           view_name: "AP RRM Events"
-#           field_groups:
-#             - field_group_name: "apRRMEventsByAPMac"
-#               field_group_display_name: "AP RRM Events overtime by AP"
-#               fields:
-#                 - name: "time"
-#                 - name: "eventTime"
-#                 - name: "apName"
-#                 - name: "ethernetMac"
-#                 - name: "apMac"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "AP RRM Events"
+          field_groups:
+            - field_group_name: "apRRMEventsByAPMac"
+              field_group_display_name: "AP RRM Events overtime by AP"
+              fields:
+                - name: "time"
+                - name: "eventTime"
+                - name: "apName"
+                - name: "ethernetMac"
+                - name: "apMac"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "AP"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Test_AP"
-#             - name: "Wlc"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "NY-EWLC-1.cisco.local"
-#                 - value: "NY-EWLC-2.cisco.local"
-#                 - value: "SJ-EWLC-1.cisco.local"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_30_DAYS"
-#                 time_zone: "Asia/Calcutta"
-#             - name: "Band"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "5"
-#             - name: "eventType"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "AP Down"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "AP"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Test_AP"
+            - name: "Wlc"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "NY-EWLC-1.cisco.local"
+                - value: "NY-EWLC-2.cisco.local"
+                - value: "SJ-EWLC-1.cisco.local"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_30_DAYS"
+                time_zone: "Asia/Calcutta"
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "5"
+            - name: "eventType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "AP Down"
 
-# # Example 14 - Network device ( Channel Change Count) with immediate execution
+# Example 14 - Network device ( Channel Change Count) with immediate execution
 
-#   - generate_report:
-#       - name: "ChannelChangeCount_RunNow_CSV"
-#         view_group_name: "Network Devices"
+  - generate_report:
+      - name: "ChannelChangeCount_RunNow_CSV"
+        view_group_name: "Network Devices"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "Channel Change Count"
-#           field_groups:
-#             - field_group_name: "response"
-#               field_group_display_name: "Channel Change"
-#               fields:
-#                 - name: "slotId"
-#                 - name: "frequency"
-#                 - name: "apName"
-#                 - name: "apMac"
-#                 - name: "DCA"
+        view:
+          view_name: "Channel Change Count"
+          field_groups:
+            - field_group_name: "response"
+              field_group_display_name: "Channel Change"
+              fields:
+                - name: "slotId"
+                - name: "frequency"
+                - name: "apName"
+                - name: "apMac"
+                - name: "DCA"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "Band"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "2.4"
-#                 - value: "5"
-#                 - value: "6"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_30_DAYS"
-#                 time_zone: "Asia/Calcutta"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "2.4"
+                - value: "5"
+                - value: "6"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_30_DAYS"
+                time_zone: "Asia/Calcutta"
 
-# # Example 15 - Network device (Device CPU and Memory Utilization) with immediate execution
+# Example 15 - Network device (Device CPU and Memory Utilization) with immediate execution
 
-#   - generate_report:
-#       - name: "Network_Devices_report_device_cpu_memory_utilization"
-#         view_group_name: "Network Devices"
+  - generate_report:
+      - name: "Network_Devices_report_device_cpu_memory_utilization"
+        view_group_name: "Network Devices"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "Device CPU and Memory Utilization"
-#           field_groups:
-#             - field_group_name: "Device_Health_Details"
-#               field_group_display_name: "Device Health Details"
-#               fields:
-#                 - name: "deviceName"
-#                 - name: "ipAddr"
-#                 - name: "deviceFamily"
-#                 - name: "deviceRole"
-#                 - name: "avgCPU"
+        view:
+          view_name: "Device CPU and Memory Utilization"
+          field_groups:
+            - field_group_name: "Device_Health_Details"
+              field_group_display_name: "Device Health Details"
+              fields:
+                - name: "deviceName"
+                - name: "ipAddr"
+                - name: "deviceFamily"
+                - name: "deviceRole"
+                - name: "avgCPU"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "DeviceFamily"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Routers"
-#                 - value: "Switches and Hubs"
-#             - name: "DeviceRole"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "ACCESS"
-#                 - value: "DISTRIBUTION"
-#                 - value: "BORDER ROUTER"
-#             - name: "SortBy"
-#               filter_type: "SINGLE_SELECT_ARRAY"
-#               value:
-#                 - value: "avgCPU"
-#             - name: "Limit"
-#               filter_type: "SINGLE_SELECT_ARRAY"
-#               value:
-#                 - value: "50"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_90_DAYS"
-#                 time_zone: "Asia/Calcutta"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "DeviceFamily"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Routers"
+                - value: "Switches and Hubs"
+            - name: "DeviceRole"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "ACCESS"
+                - value: "DISTRIBUTION"
+                - value: "BORDER ROUTER"
+            - name: "SortBy"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "avgCPU"
+            - name: "Limit"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "50"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_90_DAYS"
+                time_zone: "Asia/Calcutta"
   
-# # Example 16 - Network device (Energy Management) with immediate execution
+# Example 16 - Network device (Energy Management) with immediate execution
 
-#   - generate_report:
-#       - name: "Network_Devices_report_energy_management"
-#         view_group_name: "Network Devices"
+  - generate_report:
+      - name: "Network_Devices_report_energy_management"
+        view_group_name: "Network Devices"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "Energy Management"
-#           field_groups:
-#             - field_group_name: "response"
-#               field_group_display_name: "Sustainability"
-#               fields:
-#                 - name: "timeVal"
-#                 - name: "energyConsumed"
-#                 - name: "carbonIntensity"
-#                 - name: "estimatedEmission"
-#                 - name: "estimatedCost"
+        view:
+          view_name: "Energy Management"
+          field_groups:
+            - field_group_name: "response"
+              field_group_display_name: "Sustainability"
+              fields:
+                - name: "timeVal"
+                - name: "energyConsumed"
+                - name: "carbonIntensity"
+                - name: "estimatedEmission"
+                - name: "estimatedCost"
 
-#           format:
-#             format_type: "CSV"
-#           filters:
-#             - name: "Locations"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "DeviceCategory"
-#               filter_type: "SINGLE_SELECT_ARRAY"
-#               value:
-#                 - value: "Switch"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_7_DAYS"
-#                 time_zone: "Asia/Calcutta"
+          format:
+            format_type: "CSV"
+          filters:
+            - name: "Locations"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "DeviceCategory"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "Switch"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_7_DAYS"
+                time_zone: "Asia/Calcutta"
 
-# # Example 17 - Network device (Network Device Availability) with immediate execution
+# Example 17 - Network device (Network Device Availability) with immediate execution
 
-#   - generate_report:
-#       - name: "Network_Devices_report_availability"
-#         view_group_name: "Network Devices"
+  - generate_report:
+      - name: "Network_Devices_report_availability"
+        view_group_name: "Network Devices"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "Network Device Availability"
-#           field_groups:
-#             - field_group_name: "response"
-#               field_group_display_name: "Network Device Availability"
-#               fields:
-#                 - name: "nwDeviceFamily"
-#                 - name: "nwDeviceRole"
-#                 - name: "nwDeviceName"
-#                 - name: "managementIpAddr"
-#                 - name: "siteHierarchy"
+        view:
+          view_name: "Network Device Availability"
+          field_groups:
+            - field_group_name: "response"
+              field_group_display_name: "Network Device Availability"
+              fields:
+                - name: "nwDeviceFamily"
+                - name: "nwDeviceRole"
+                - name: "nwDeviceName"
+                - name: "managementIpAddr"
+                - name: "siteHierarchy"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_7_DAYS"
-#                 time_zone: "Asia/Calcutta"
-#             - name: "NwDeviceType"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Router"
-#                 - value: "Access Switch"
-#                 - value: "Distribution Switch"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_7_DAYS"
+                time_zone: "Asia/Calcutta"
+            - name: "NwDeviceType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Router"
+                - value: "Access Switch"
+                - value: "Distribution Switch"
   
-# # Example 18 - Network device (Network Interface Utilization) with immediate execution
+# Example 18 - Network device (Network Interface Utilization) with immediate execution
 
-#   - generate_report:
-#       - name: "Network_Devices_report_interface_utilization"
-#         view_group_name: "Network Devices"
+  - generate_report:
+      - name: "Network_Devices_report_interface_utilization"
+        view_group_name: "Network Devices"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "Network Interface Utilization"
-#           field_groups:
-#             - field_group_name: "Interface_Utilization_Details"
-#               field_group_display_name: "Interface Utilization Details"
-#               fields:
-#                 - name: "deviceName"
-#                 - name: "managementIpAddress"
-#                 - name: "location"
-#                 - name: "minTx"
-#                 - name: "maxTx"
-#                 - name: "avgTx"
+        view:
+          view_name: "Network Interface Utilization"
+          field_groups:
+            - field_group_name: "Interface_Utilization_Details"
+              field_group_display_name: "Interface Utilization Details"
+              fields:
+                - name: "deviceName"
+                - name: "managementIpAddress"
+                - name: "location"
+                - name: "minTx"
+                - name: "maxTx"
+                - name: "avgTx"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "SortOrder"
-#               filter_type: "SINGLE_SELECT_ARRAY"
-#               value:
-#                 - value: "asc"
-#             - name: "Limit"
-#               filter_type: "SINGLE_SELECT_ARRAY"
-#               value:
-#                 - value: "50"
-#             - name: "SortBy"
-#               filter_type: "SINGLE_SELECT_ARRAY"
-#               value:
-#                 - value: "maxTx"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_24_HOURS"
-#                 time_zone: "Asia/Calcutta"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "SortOrder"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "asc"
+            - name: "Limit"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "50"
+            - name: "SortBy"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "maxTx"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_24_HOURS"
+                time_zone: "Asia/Calcutta"
 
-# # Example 19 - Network device (PoE) with immediate execution
+# Example 19 - Network device (PoE) with immediate execution
 
-#   - generate_report:
-#       - name: "Network_Devices_report1_PoE"
-#         view_group_name: "Network Devices"
+  - generate_report:
+      - name: "Network_Devices_report1_PoE"
+        view_group_name: "Network Devices"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "PoE"
-#           field_groups:
-#             - field_group_name: "response"
-#               field_group_display_name: "PoE"
-#               fields:
-#                 - name: "managementIpAddr"
-#                 - name: "nwDeviceName"
-#                 - name: "date"
-#                 - name: "site"
-#                 - name: "powerBudget"
-#                 - name: "powerConsumed"
-#                 - name: "powerConsumedPercentage"
+        view:
+          view_name: "PoE"
+          field_groups:
+            - field_group_name: "response"
+              field_group_display_name: "PoE"
+              fields:
+                - name: "managementIpAddr"
+                - name: "nwDeviceName"
+                - name: "date"
+                - name: "site"
+                - name: "powerBudget"
+                - name: "powerConsumed"
+                - name: "powerConsumedPercentage"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
 
-# # Example 20 - Network device (Port_Capacity) with immediate execution
+# Example 20 - Network device (Port_Capacity) with immediate execution
 
-#   - generate_report:
-#       - name: "Network_Devices_report6_PORT_CAPACITY"
-#         view_group_name: "Network Devices"
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+  - generate_report:
+      - name: "Network_Devices_report6_PORT_CAPACITY"
+        view_group_name: "Network Devices"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "Port Capacity"
-#           field_groups:
-#             - field_group_name: "Port Capacity"
-#               field_group_display_name: "Port Capacity"
-#               fields:
-#                 - name: "deviceIp"
-#                 - name: "deviceName"
-#                 - name: "location"
-#                 - name: "deviceFamily"
-#                 - name: "deviceRole"
-#                 - name: "connectedPorts"
-#                 - name: "freePorts"
+        view:
+          view_name: "Port Capacity"
+          field_groups:
+            - field_group_name: "Port Capacity"
+              field_group_display_name: "Port Capacity"
+              fields:
+                - name: "deviceIp"
+                - name: "deviceName"
+                - name: "location"
+                - name: "deviceFamily"
+                - name: "deviceRole"
+                - name: "connectedPorts"
+                - name: "freePorts"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "DeviceFamily"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Routers"
-#                 - value: "Switches and Hubs"
-#             - name: "Devicerole"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "ACCESS"
-#                 - value: "DISTRIBUTION"
-#                 - value: "BORDER ROUTER"
-#             - name: "utilizationLevel"
-#               filter_type: "SINGLE_SELECT_ARRAY"
-#               value:
-#                 - value: "50"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "DeviceFamily"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Routers"
+                - value: "Switches and Hubs"
+            - name: "Devicerole"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "ACCESS"
+                - value: "DISTRIBUTION"
+                - value: "BORDER ROUTER"
+            - name: "utilizationLevel"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "50"
 
-# # Example 21 - Network device (VLAN) with immediate execution
+# Example 21 - Network device (VLAN) with immediate execution
 
-#   - generate_report:
-#       - name: "Network_Devices_report_VLAN"
-#         view_group_name: "Network Devices"
+  - generate_report:
+      - name: "Network_Devices_report_VLAN"
+        view_group_name: "Network Devices"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
 
-#         view:
-#           view_name: "VLAN"
-#           field_groups:
-#             - field_group_name: "VLAN Details"
-#               field_group_display_name: "VLAN Details"
-#               fields:
-#                 - name: "ipAddress"
-#                 - name: "deviceName"
-#                 - name: "location"
-#                 - name: "deviceFamily"
-#                 - name: "deviceType"
-#                 - name: "vlanId"
-#                 - name: "vlanName"
+        view:
+          view_name: "VLAN"
+          field_groups:
+            - field_group_name: "VLAN Details"
+              field_group_display_name: "VLAN Details"
+              fields:
+                - name: "ipAddress"
+                - name: "deviceName"
+                - name: "location"
+                - name: "deviceFamily"
+                - name: "deviceType"
+                - name: "vlanId"
+                - name: "vlanName"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "DeviceFamily"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Routers"
-#                 - value: "Switches and Hubs"
-#             - name: "DeviceType"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "Cisco Catalyst 9300 Switch"
-#                 - value: "Cisco Catalyst 9500 Switch"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "DeviceFamily"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Routers"
+                - value: "Switches and Hubs"
+            - name: "DeviceType"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Cisco Catalyst 9300 Switch"
+                - value: "Cisco Catalyst 9500 Switch"
 
-# # Example 22 - Network device (Transmit Power Change Count) with immediate execution
+# Example 22 - Network device (Transmit Power Change Count) with immediate execution
 
-#   - generate_report:
-#       - name: "Network_Devices_report_transmit_power_change_count"
-#         view_group_name: "Network Devices"
+  - generate_report:
+      - name: "Network_Devices_report_transmit_power_change_count"
+        view_group_name: "Network Devices"
 
-#         deliveries:
-#           - delivery_type: "DOWNLOAD"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
 
-#         schedule:
-#           schedule_type: "SCHEDULE_NOW"
-#           time_zone: "Asia/Calcutta"
-#         view:
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
   
-#           view_name: "Transmit Power Change Count"
-#           field_groups:
-#             - field_group_name: "response"
-#               field_group_display_name: "Tx Power Change"
-#               fields:
-#                 - name: "apName"
-#                 - name: "apMac"
-#                 - name: "slotId"
-#                 - name: "frequency"
-#                 - name: "upCount"
-#                 - name: "downCount"
-#                 - name: "totalChangeCount"
+          view_name: "Transmit Power Change Count"
+          field_groups:
+            - field_group_name: "response"
+              field_group_display_name: "Tx Power Change"
+              fields:
+                - name: "apName"
+                - name: "apMac"
+                - name: "slotId"
+                - name: "frequency"
+                - name: "upCount"
+                - name: "downCount"
+                - name: "totalChangeCount"
 
-#           format:
-#             format_type: "CSV"
+          format:
+            format_type: "CSV"
 
-#           filters:
-#             - name: "Location"
-#               filter_type: "MULTI_SELECT_TREE"
-#               value:
-#                 - value: "Global"
-#             - name: "Band"
-#               filter_type: "MULTI_SELECT"
-#               value:
-#                 - value: "2.4"
-#                 - value: "5"
-#                 - value: "6"
-#             - name: "TimeRange"
-#               filter_type: "TIME_RANGE"
-#               value:
-#                 time_range_option: "LAST_30_DAYS"
-#                 time_zone: "Asia/Calcutta"
+          filters:
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "2.4"
+                - value: "5"
+                - value: "6"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_30_DAYS"
+                time_zone: "Asia/Calcutta"
 
 # Example 23 - Audit log with immediate execution
 
