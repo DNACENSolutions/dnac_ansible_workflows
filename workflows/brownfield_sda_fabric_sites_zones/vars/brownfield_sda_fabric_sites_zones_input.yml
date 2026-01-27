@@ -1,0 +1,230 @@
+---
+# ============================================================================
+# Cisco Catalyst Center Brownfield SDA Fabric Sites and Zones Playbook Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/brownfield_sda_fabric_sites_zones/playbook/brownfield_sda_fabric_sites_zones_playbook.yml \
+#     --extra-vars VARS_FILE_PATH=../vars/brownfield_sda_fabric_sites_zones_input.yml
+#
+# ============================================================================
+
+brownfield_sda_fabric_sites_zones_config:
+  #Generate all SDA fabric sites and zones with custom file path
+  - generate_all_configurations: true
+    file_path: "/tmp/complete_sda_fabric_sites_zones_config.yaml"
+    component_specific_filters:
+      components_list: ["fabric_sites", "fabric_zones"]
+   
+  - generate_all_configurations: true
+    file_path: "/tmp/sda_fabric_sites_zones_components_config1.yaml"
+      
+  - generate_all_configurations: false
+    file_path: "/tmp/sda_fabric_sites_zones_components_config_false.yaml"
+    component_specific_filters:
+      components_list: ["fabric_sites"]
+    
+  # #Generate only fabric sites 
+  - file_path: "/tmp/sda_fabric_sites_zones_components_config2.yaml"
+    component_specific_filters:
+      components_list: ["fabric_sites"]
+    
+  #Generate only fabric zones  
+  - file_path: "/tmp/sda_fabric_sites_zones_components_config3.yaml"
+    component_specific_filters:
+      components_list: ["fabric_zones"] 
+
+  #Generate all configurations over component filters 
+  - generate_all_configurations: true
+    file_path: "/tmp/sda_fabric_sites_zones_components_config4.yaml"
+    component_specific_filters:
+      components_list: ["fabric_sites"]
+    
+  #Fabric Sites with Specific Site Filter:    
+  - file_path: "/tmp/sda_fabric_sites_zones_components_config5.yaml"
+    component_specific_filters:
+      components_list: ["fabric_sites"]
+      fabric_sites: 
+        - site_name_hierarchy: "Global/Test_Fabric"
+
+  #Fabric Zones with Specific Zone Filter:   
+  - file_path: "/tmp/sda_fabric_sites_zones_components_config6.yaml"
+    component_specific_filters:
+      components_list: ["fabric_zones"]
+      fabric_zones: 
+        - site_name_hierarchy: "Global/Test_Fabric/Bld1"
+
+  #Combined Sites and Zones with Filters   
+  - file_path: "/tmp/sda_fabric_sites_zones_components_config7.yaml"
+    component_specific_filters:
+      components_list: ["fabric_sites","fabric_zones"]
+      fabric_sites: 
+        - site_name_hierarchy: "Global/Test_Fabric"
+      fabric_zones:
+        - site_name_hierarchy: "Global/Test_Fabric/Bld1" 
+
+  #Multiple configurations with different file paths and filters
+  - file_path: "/tmp/fabric_testoutput1"
+    component_specific_filters:
+      components_list: ["fabric_zones"]
+  - file_path: "/tmp/fabric_testoutput2"
+    component_specific_filters:
+      components_list: ["fabric_sites"]
+
+# ============================================================================
+# Additional Configuration Examples
+# ============================================================================
+# Example 1: Generate all components with auto-generated filename
+# brownfield_sda_fabric_sites_zones_config:
+#   - generate_all_configurations: true
+#
+# Example 2: Multiple configuration generations in single run
+# brownfield_sda_fabric_sites_zones_config:
+#   # Generate fabric sites only
+#   - file_path: "/tmp/sites_config.yaml"
+#     component_specific_filters:
+#       components_list: ["fabric_sites"]
+#   
+#   # Generate fabric zones only
+#   - file_path: "/tmp/zones_config.yaml"
+#     component_specific_filters:
+#       components_list: ["fabric_zones"]
+#   
+#   # Generate complete configuration
+#   - file_path: "/tmp/complete_config.yaml"
+#     generate_all_configurations: true
+#
+# Example 3: Custom file path with specific components
+# brownfield_sda_fabric_sites_zones_config:
+#   - file_path: "/home/ansible/sda_configs/production_fabric_sites.yaml"
+#     component_specific_filters:
+#       components_list: ["fabric_sites"]
+#
+# Example 4: Multiple sites and zones with specific site_name_hierarchy filters
+# brownfield_sda_fabric_sites_zones_config:
+#   - file_path: "fabric_output3"
+#     component_specific_filters:
+#       components_list: ["fabric_sites","fabric_zones"]
+#       fabric_sites: 
+#         - site_name_hierarchy: "Global/USA/RTP"
+#         - site_name_hierarchy: "Global/USA/SAN JOSE"
+#       fabric_zones: 
+#         - site_name_hierarchy: "Global/USA/SAN JOSE/SJ_BLD21"
+#         - site_name_hierarchy: "Global/USA/SAN JOSE/SJ_BLD20"
+# ============================================================================
+# GENERATE_ALL_CONFIGURATIONS Parameter Documentation
+# ============================================================================
+#
+# The 'generate_all_configurations' parameter controls whether the tool retrieves
+# all available fabric sites and zones from Catalyst Center or applies component filters.
+
+# BEHAVIOR WHEN TRUE:
+# - Retrieves ALL fabric sites and zones from Catalyst Center
+# - IGNORES any component_specific_filters settings
+# - Overrides components_list filters
+# - Extracts complete fabric infrastructure configuration
+#
+# BEHAVIOR WHEN FALSE (or not specified):
+# - Respects component_specific_filters settings
+# - Only retrieves specified components from components_list
+# - Applies fabric_sites and fabric_zones sub-filters if specified
+# - Allows selective configuration generation
+# - Useful for targeted configuration extraction
+#
+# EXAMPLES:
+#
+# Example A: Generate ALL configurations (ignores filters)
+# brownfield_sda_fabric_sites_zones_config:
+#   - generate_all_configurations: true
+#     file_path: "/tmp/complete_infrastructure.yaml"
+#     component_specific_filters:
+#       components_list: ["fabric_sites"]  # <-- IGNORED when true
+#
+# Example B: Generate specific components only (respects filters)
+# brownfield_sda_fabric_sites_zones_config:
+#   - generate_all_configurations: false
+#     file_path: "/tmp/sites_only.yaml"
+#     component_specific_filters:
+#       components_list: ["fabric_sites"]  # <-- APPLIED when false
+#
+# Example C: Default behavior (same as false)
+# brownfield_sda_fabric_sites_zones_config:
+#   - file_path: "/tmp/filtered_config.yaml"
+#     component_specific_filters:
+#       components_list: ["fabric_zones"]  # <-- APPLIED when not specified
+
+# ============================================================================
+# Component Filter Details
+# ============================================================================
+#
+# components_list Options:
+# - "fabric_sites": Generate configuration for fabric sites only
+# - "fabric_zones": Generate configuration for fabric zones only  
+# - ["fabric_sites", "fabric_zones"]: Generate both components
+#
+# Sub-Filter Options for Specific Site/Zone Selection:
+#
+# FABRIC_SITES Sub-Filter:
+# - fabric_sites:
+#     - site_name_hierarchy: "Global/Site_Name" 
+#       Description: Full hierarchical path to filter specific fabric site
+#       Examples:
+#         - "Global/USA/San Jose" - Filters fabric site at San Jose location
+#         - "Global/Test_Fabric" - Filters fabric site named Test_Fabric  
+#         - "Global/Area/Building1" - Filters fabric site at Building1
+#
+# FABRIC_ZONES Sub-Filter:
+# - fabric_zones:
+#     - site_name_hierarchy: "Global/Site_Name/Zone_Name"
+#       Description: Full hierarchical path to filter specific fabric zone
+#       Examples:
+#         - "Global/USA/San Jose/Building1/Zone1" - Filters fabric zone Zone1 in Building1
+#         - "Global/Test_Fabric/Bld1" - Filters fabric zone Bld1 in Test_Fabric
+#         - "Global/Area/Building1/Floor2" - Filters fabric zone Floor2 in Building1
+#
+# Combined Sub-Filters Usage:
+# - Both fabric_sites and fabric_zones can be used together with their respective
+#   site_name_hierarchy filters to generate configurations for specific sites and zones
+#
+# Generated Configuration Structure:
+# The output YAML will contain a 'config' section with fabric_sites arrays
+# containing the site/zone configurations:
+#
+# config:
+#   - fabric_sites:
+#       - site_name_hierarchy: "Global/Site_Name"
+#         fabric_type: "fabric_site"
+#         is_pub_sub_enabled: false
+#         authentication_profile: "Closed Authentication"
+#       - site_name_hierarchy: "Global/Site_Name/Zone_Name"  
+#         fabric_type: "fabric_zone"
+#         authentication_profile: "Closed Authentication"
+#
+# ============================================================================
+# File Path Behavior
+# ============================================================================
+#
+# If file_path is specified:
+# - Uses the exact path provided
+# - Creates directory structure if it doesn't exist
+# - Overwrites existing files
+#
+# If file_path is NOT specified:
+# - Auto-generates filename in current working directory
+# - Format: sda_fabric_sites_zones_workflow_manager_playbook_<YYYY-MM-DD_HH-MM-SS>.yml
+# - Example: sda_fabric_sites_zones_workflow_manager_playbook_2026-01-28_20-24-06.yml
+
+# ============================================================================
+# Notes and Limitations
+# ============================================================================
+
+# 1. Network Connectivity: Requires HTTPS connectivity to Catalyst Center
+# 2. File Permissions: Ensure write access to specified file paths
+# 3. Component Validation: Only "fabric_sites" and "fabric_zones" are valid components
+# 4. Configuration Scope: Only retrieves existing configurations (brownfield)
+# 5. Authentication Profiles: Included automatically in generated configurations
+# 6. Site Hierarchy: Uses full hierarchical site names (e.g., "Global/Site/Zone")
+# 7. Fabric Types: Automatically sets "fabric_site" or "fabric_zone" based on component type
+#
+# ============================================================================
