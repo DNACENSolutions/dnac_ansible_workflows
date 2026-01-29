@@ -421,7 +421,7 @@ reports_details:
 # Example 9 - Access Point (AP) with JSON format and default filters
 
   - generate_report:
-      - name: "Access_point__ap_report"
+      - name: "Access_point_ap_report"
         view_group_name: "Access Point"
 
         deliveries:
@@ -471,7 +471,7 @@ reports_details:
 # Example 10 - Access Point (Usage and Client Breakdown) with immediate execution
 
   - generate_report:
-      - name: "Access_point_report_usage_client_breakdown_2611"
+      - name: "Access_point_report_usage_client_breakdown"
         view_group_name: "Access Point"
         deliveries:
           - delivery_type: "DOWNLOAD"
@@ -514,7 +514,7 @@ reports_details:
 # Example 11 - Access Point (AP Radio) with immediate execution
 
   - generate_report:
-      - name: "APDetailByRadio_RunNow_CSV_2611"
+      - name: "APDetailByRadio"
         view_group_name: "Access Point"
 
         deliveries:
@@ -577,7 +577,7 @@ reports_details:
 # Example 12 - Access Point (Worst Interferers) with immediate execution
 
   - generate_report:
-      - name: "Access_point_report4_worstinterfaces_2611"
+      - name: "Access_point_report4_worstinterfaces"
         view_group_name: "Access Point"
 
         deliveries:
@@ -1271,6 +1271,86 @@ reports_details:
                 - value: "Switches and Hubs"
                 - value: "Unified AP"
             - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+
+# Example 27 - Swim (All Data) with immediate execution
+
+  - generate_report:
+      - name: "SWIM_Data_Report"
+        view_group_name: "SWIM"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "All Data"
+          field_groups:
+            - field_group_name: "swimAllData"
+              fields:
+                - name: "hostname"
+                - name: "family"
+                - name: "type"
+                - name: "role"
+                - name: "ipAddress"
+                - name: "site"
+          format:
+            format_type: "CSV"
+          filters:
+            - name: "DeviceFamily"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Routers"
+            - name: "DeviceRole"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "ACCESS"
+                - value: "BORDER ROUTER"
+                - value: "DISTRIBUTION"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+
+# Example 28 - Swim (All Data Version 2.0) with immediate execution
+
+  - generate_report:
+      - name: "SWIM_Data_Report_V2"
+        view_group_name: "SWIM"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "All Data Version 2.0"
+          field_groups:
+            - field_group_name: "swimAllData Version 2.0"
+              fields:
+                - name: "deviceName"
+                - name: "deviceFamily"
+                - name: "deviceType"
+                - name: "deviceRole"
+                - name: "ipAddress"
+                - name: "location"
+          format:
+            format_type: "CSV"
+          filters:
+            - name: "DeviceFamily"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "Routers"
+                - value: "Switches and Hubs"
+                - value: "Unified AP"
+            - name: "DeviceRole"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "ACCESS"
+                - value: "BORDER ROUTER"
+                - value: "DISTRIBUTION"
+            - name: "Location1"
               filter_type: "MULTI_SELECT_TREE"
               value:
                 - value: "Global"

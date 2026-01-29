@@ -802,6 +802,48 @@ The following section details the available report templates in *Cisco Catalyst 
 - **File Formats:** CSV, TDE, PDF
 - **Supported fields:** deviceName, deviceIpAddress, deviceType, deviceSerialNumber, deviceImageVersion, deviceSite, deviceModelName, deviceImageType, eoxScanStatus, eoxType, endOfLifeExternalAnnouncementDate, endOfSaleDate, endOfLastHardwareShipDate, endOfSoftwareMaintenanceReleasesDate, endOfHardwareNewServiceAttachmentDate, endOfSoftwareVulnerabilityOrSecuritySupportDate, endOfHardwareServiceContractRenewalDate, lastDateOfSupport, eoxLastScanTime
 - **Field Group Name:** eoxAllData
+
+#### **27. SWIM Reports - All Data**
+
+**Template Configuration:**
+- **View Group Name:** `SWIM`
+- **View Name:** `All Data`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`)
+  - **DeviceFamily** (`MULTI_SELECT`)
+  - **DeviceRole** (`MULTI_SELECT`)
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, PDF, TDE
+- **Supported fields:** hostname, family, type, role, ipAddress, site, serialNumber, softwareVersion, codeUpgradeDate, previousUpgradeDate, currentSMU, currentSMUUpgradeDate, upgradeFailureReason
+- **Field Group Name:** swimAllData
+
+#### **28. SWIM Reports - All Data Version 2.0**
+
+**Template Configuration:**
+- **View Group Name:** `SWIM`
+- **View Name:** `All Data Version 2.0`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location1** (`MULTI_SELECT_TREE`)
+  - **DeviceFamily** (`MULTI_SELECT`)
+  - **DeviceRole** (`MULTI_SELECT`)
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, JSON, TDE
+- **Supported fields:** deviceName, deviceFamily, deviceType, deviceRole, ipAddress, location, serialNumber, currentVersion, codeUpgradeDate, priorUpgradeDate, currentSMU, currentSMUUpgradeDate, upgradeFailureReason
+- **Field Group Name:** swimAllData Version 2.0
 ---
 
 #### Example Input Files
