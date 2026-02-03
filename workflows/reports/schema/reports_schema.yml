@@ -173,8 +173,8 @@ format_type:
 filter_type:
   name: str(required=False)
   display_name: str(required=False)
-  filter_type: enum('MULTI_SELECT', 'MULTI_SELECT_TREE', 'SINGLE_SELECT_ARRAY', 'TIME_RANGE', 'REGULAR', required=False)
-  value: any(include('filter_value_multi_select'), include('filter_value_time_range'), required=False)
+  filter_type: enum('MULTI_SELECT', 'MULTI_SELECT_TREE', 'SINGLE_SELECT_ARRAY', 'TIME_RANGE', 'SINGLE_INPUT', 'REGULAR', required=False)
+  value: any(include('filter_value_multi_select'), include('filter_value_time_range'), str(), required=False)
 
 # Filter Value for Multi-Select Types
 filter_value_multi_select:

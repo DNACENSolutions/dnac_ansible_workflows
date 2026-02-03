@@ -813,6 +813,7 @@ The following section details the available report templates in *Cisco Catalyst 
 - **Filters:** 
   - **Location** (`MULTI_SELECT_TREE`)
   - **DeviceFamily** (`MULTI_SELECT`)
+      > **Note:** Do not use "Unified AP" in combination with "Switches and Hubs" and "Routers" in the Device Family filter.
   - **DeviceRole** (`MULTI_SELECT`)
 - **Schedule Types:** 
   - Immediate execution (`SCHEDULE_NOW`)
@@ -844,6 +845,225 @@ The following section details the available report templates in *Cisco Catalyst 
 - **File Formats:** CSV, JSON, TDE
 - **Supported fields:** deviceName, deviceFamily, deviceType, deviceRole, ipAddress, location, serialNumber, currentVersion, codeUpgradeDate, priorUpgradeDate, currentSMU, currentSMUUpgradeDate, upgradeFailureReason
 - **Field Group Name:** swimAllData Version 2.0
+
+
+#### **29. Client Reports - Busiest Client**
+
+**Template Configuration:**
+- **View Group Name:** `Client`
+- **View Name:** `Busiest Client`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **clientMacAddress** (`SINGLE_INPUT`) *(Try to limit to 100 MACs Comma-separated)*
+  - **DeviceType** (`SINGLE_SELECT_ARRAY`)
+  - **SSID** (`MULTI_SELECT`) *(Max of 25 options allowed)*
+  - **Band** (`MULTI_SELECT`)
+  - **SortBy** (`SINGLE_SELECT_ARRAY`)
+  - **Limit** (`SINGLE_SELECT_ARRAY`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, TDE, PDF
+- **Supported fields:** hostName, username, macAddress, ipv4, ipv6, deviceType, connectionStatus, averageHealthScore_min, averageHealthScore_max, averageHealthScore_median, usage_sum, connectedDeviceName, frequency, rssi_median, snr_median, site, lastUpdated, apGroup, ssid, vlan, vnid, onboardingEventTime, assocDoneTimestamp, authDoneTimestamp, aaaServerIp, dhcpDoneTimestamp, maxDhcpDuration_max, dhcpServerIp, linkSpeed, txRate_min, txRate_max, txRate_avg, rxRate_min, rxRate_max, rxRate_avg, txBytes_sum, rxBytes_sum, dataRate_median, dot11Protocol
+- **Field Group Name:** response
+
+#### **30. Client Reports - Client Detail**
+
+**Template Configuration:**
+- **View Group Name:** `Client`
+- **View Name:** `Client Detail`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **clientMacAddress** (`SINGLE_INPUT`) *(Try to limit to 100 MACs Comma-separated)*
+  - **DeviceType** (`SINGLE_SELECT_ARRAY`)
+  - **SSID** (`MULTI_SELECT`) *(Max of 25 options allowed)*
+  - **Band** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, TDE, PDF
+- **Supported fields:** hostName, username, macAddress, ipv4, ipv6, deviceType, deviceForm, deviceVendor, remoteEndDuplexMode, hostOS, firmwareVersion, connectionStatus, averageHealthScore_min, averageHealthScore_max, averageHealthScore_median, usage_sum, duration_latest, connectedDeviceName, frequency, rssi_median, snr_median, site, lastUpdated, connectedDeviceId, apGroup, ssid, ethernetMac, slotId, vlan, vnid, port, portDescription, channel, onboardingEventTime, assocDoneTimestamp, authDoneTimestamp, aaaServerIp, dhcpDoneTimestamp, maxDhcpDuration_max, dhcpServerIp, wlcName, linkSpeed, txRate_min, txRate_max, txRate_avg, rxRate_min, rxRate_max, rxRate_avg, txBytes_sum, rxBytes_sum, dataRate_median, dot11Protocol
+- **Field Group Name:** client_details
+
+#### **31. Client Reports - Client Session**
+
+**Template Configuration:**
+- **View Group Name:** `Client`
+- **View Name:** `Client Session`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **clientMacAddresses** (`SINGLE_INPUT`) *(Try to limit to 100 MACs Comma-separated)*
+  - **SSID** (`MULTI_SELECT`) *(Max of 25 options allowed)*
+  - **Band** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** CSV, TDE, PDF
+- **Supported fields:** macAddress, sessionStartTime, sessionEndTime, duration, apMac, ssid, siteHierarchy
+- **Field Group Name:** client_sessions
+
+#### **32. Client Reports - Client Summary**
+
+**Template Configuration:**
+- **View Group Name:** `Client`
+- **View Name:** `Client Summary`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **clientMacAddress** (`SINGLE_INPUT`) *(Try to limit to 100 MACs Comma-separated)*
+  - **DeviceType** (`SINGLE_SELECT_ARRAY`)
+  - **SSID** (`MULTI_SELECT`) *(Max of 25 options allowed)*
+  - **Band** (`MULTI_SELECT`)
+  - **GroupBy** (`SINGLE_SELECT_ARRAY`) *(Mandatory)*
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** PDF
+
+#### **33. Client Reports - Client Trend**
+
+**Template Configuration:**
+- **View Group Name:** `Client`
+- **View Name:** `Client Trend`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **clientMacAddress** (`SINGLE_INPUT`) *(Try to limit to 100 MACs Comma-separated)*
+  - **ConnectionType** (`SINGLE_SELECT_ARRAY`)
+  - **SSID** (`MULTI_SELECT`) *(Max of 25 options allowed)*
+  - **Band** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** PDF
+
+#### **34. Client Reports - Top N Summary**
+
+**Template Configuration:**
+- **View Group Name:** `Client`
+- **View Name:** `Top N Summary`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **clientMacAddress** (`SINGLE_INPUT`) *(Try to limit to 100 MACs Comma-separated)*
+  - **DeviceType** (`SINGLE_SELECT_ARRAY`)
+  - **SSID** (`MULTI_SELECT`) *(Max of 25 options allowed)*
+  - **Band** (`MULTI_SELECT`)
+  - **GroupBy** (`SINGLE_SELECT_ARRAY`) *(Mandatory)*
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** PDF
+
+#### **36. Licensing Reports - AireOS Controllers Licenses**
+
+**Template Configuration:**
+- **View Group Name:** `Licensing`
+- **View Name:** `AireOS Controllers Licenses`
+
+**Supported Features:**
+- **Filters:** 
+  > **Note:** This report template has no filters associated.
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Download
+- **File Formats:** PDF, CSV
+- **Supported fields:** deviceName, deviceType, ipAddress, model, macAddress, dnaLevel, networkLicense, uxLevel, virtualAccount, site, registrationStatus, totalAPCount, licenseConsumed
+- **Field Group Name:** virtual_assignment_devices
+
+#### **37. Licensing Reports - License Usage Upload Details**
+
+**Template Configuration:**
+- **View Group Name:** `Licensing`
+- **View Name:** `License Usage Upload Details`
+
+**Supported Features:**
+- **Filters:** 
+  > **Note:** This report template has no filters associated.
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Download
+- **File Formats:** PDF, CSV
+- **Supported fields:** smartAccount, virtualAccount, deviceCount, lastSync, syncDue, reasonIfAny
+- **Field Group Name:** license_usage_upload_details
+
+#### **38. Licensing Reports - Non Compliance Summary**
+
+**Template Configuration:**
+- **View Group Name:** `Licensing`
+- **View Name:** `Non Compliance Summary`
+
+**Supported Features:**
+- **Filters:** 
+  > **Note:** This report template has no filters associated.
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Download
+- **File Formats:** PDF, CSV
+- **Supported fields:** deviceFamily, deviceSeries, purchasedDNAEssential, purchasedDNAAdvantage, usedDNAEssential, usedDNAAdvantage, entitledUnifiedEssential, entitledUnifiedAdvantage, deployedUnifiedEssential, deployedUnifiedAdvantage, totalDevices, Reason
+- **Field Group Name:** non_compliance_summary
+
+#### **39. Licensing Reports - Non Compliant Devices**
+
+**Template Configuration:**
+- **View Group Name:** `Licensing`
+- **View Name:** `Non Compliant Devices`
+
+**Supported Features:**
+- **Filters:** 
+  > **Note:** This report template has no filters associated.
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Download
+- **File Formats:** PDF, CSV
+- **Supported fields:** deviceName, ipAddress, model, dnaLevel, networkLicense, uxLevel, deviceType, totalAPCount, licenseTerm, macAddress, serialNumber, site, virtualAccount, reason
+- **Field Group Name:** non_compliant_devices
+
 ---
 
 #### Example Input Files
