@@ -1354,3 +1354,449 @@ reports_details:
               filter_type: "MULTI_SELECT_TREE"
               value:
                 - value: "Global"
+
+# Example 29 - Client (Busiest Client) with immediate execution
+
+  - generate_report:
+      - name: "client_busiest_client_report1"
+        view_group_name: "Client"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "Busiest Client"
+          field_groups:
+            - field_group_name: "response"
+              fields:
+                - name: "hostName"
+                - name: "username"
+                - name: "macAddress"
+                - name: "ipv4"
+                - name: "ipv6"
+                - name: "deviceType"
+          format:
+            format_type: "CSV"
+          filters:
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "2.4"
+                - value: "5.0"
+                - value: "6.0"
+            - name: "clientMacAddress"
+              filter_type: "SINGLE_INPUT"
+              value: ""
+            - name: "SSID"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "SSIDDUAL BAND"
+                - value: "Single5KBand"
+                - value: "a1"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "SortBy"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "usage_sum"
+            - name: "Limit"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "50"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_3_HOURS"
+                time_zone: "Asia/Calcutta"
+
+# Example 30 - Client (Client Detail) with immediate execution
+
+  - generate_report:
+      - name: "client_detail_report"
+        view_group_name: "Client"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "Client Detail"
+          field_groups:
+            - field_group_name: "client_details"
+              fields:
+                - name: "hostName"
+                - name: "username"
+                - name: "macAddress"
+                - name: "ipv4"
+                - name: "ipv6"
+                - name: "deviceType"
+          format:
+            format_type: "CSV"
+          filters:
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "2.4"
+                - value: "5.0"
+                - value: "6.0"
+            - name: "DeviceType"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "Wired"
+            - name: "clientMacAddress"
+              filter_type: "SINGLE_INPUT"
+              value: ""
+            - name: "SSID"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "SSIDDUAL BAND"
+                - value: "Single5KBand"
+                - value: "a1"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_3_HOURS"
+                time_zone: "Asia/Calcutta"
+
+# # Example 31 - Client (Client Session) with immediate execution
+
+#   - generate_report:
+#       - name: "client_session_report"
+#         view_group_name: "Client"
+#         deliveries:
+#           - delivery_type: "DOWNLOAD"
+#         schedule:
+#           schedule_type: "SCHEDULE_NOW"
+#           time_zone: "Asia/Calcutta"
+#         view:
+#           view_name: "Client Session"
+#           field_groups:
+#             - field_group_name: "client_sessions"
+#               fields:
+#                 - name: "macAddress"
+#                 - name: "sessionStartTime"
+#                 - name: "sessionEndTime"
+#                 - name: "duration"
+#                 - name: "apMac"
+#                 - name: "ssid"
+#           format:
+#             format_type: "CSV"
+#           filters:
+#             - name: "Band"
+#               filter_type: "MULTI_SELECT"
+#               value:
+#                 - value: "2.4"
+#                 - value: "5.0"
+#                 - value: "6.0"
+#             - name: "clientMacAddresses"
+#               filter_type: "SINGLE_INPUT"
+#               value: ""
+#             - name: "SSID"
+#               filter_type: "MULTI_SELECT"
+#               value:
+#                 - value: "SSIDDUAL BAND"
+#                 - value: "a1"
+#             - name: "Location"
+#               filter_type: "MULTI_SELECT_TREE"
+#               value:
+#                 - value: "Global"
+#             - name: "TimeRange"
+#               filter_type: "TIME_RANGE"
+#               value:
+#                 time_range_option: "LAST_24_HOURS"
+#                 time_zone: "Asia/Calcutta"
+
+# Example 32 - Client (Client Summary) with immediate execution
+
+  - generate_report:
+      - name: "client_summary_report"
+        view_group_name: "Client"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "Client Summary"
+          field_groups: []
+          format:
+            format_type: "PDF"
+          filters:
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "2.4"
+                - value: "5.0"
+                - value: "6.0"
+            - name: "DeviceType"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "Wired"
+            - name: "GroupBy"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "FLOOR"
+            - name: "clientMacAddress"
+              filter_type: "SINGLE_INPUT"
+              value: ""
+            - name: "SSID"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "SSIDDUAL BAND"
+                - value: "Single5KBand"
+                - value: "a1"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_3_HOURS"
+                time_zone: "Asia/Calcutta"
+
+# Example 33 - Client (Client Trend) with immediate execution
+
+  - generate_report:
+      - name: "client_trend_report"
+        view_group_name: "Client"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "Client Trend"
+          field_groups: []
+          format:
+            format_type: "PDF"
+          filters:
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "2.4"
+                - value: "5.0"
+                - value: "6.0"
+            - name: "clientMacAddresses"
+              filter_type: "SINGLE_INPUT"
+              value: ""
+            - name: "ConnectionType"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "Wired"
+            - name: "SSID"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "SSIDDUAL BAND"
+                - value: "Single5KBand"
+                - value: "a1"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_3_HOURS"
+                time_zone: "Asia/Calcutta"
+
+# Example 34 - Client (Top N Summary) with immediate execution
+
+  - generate_report:
+      - name: "client_top_n_summary_report"
+        view_group_name: "Client"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "Top N Summary"
+          field_groups: []
+          format:
+            format_type: "PDF"
+          filters:
+            - name: "Band"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "2.4"
+                - value: "5.0"
+                - value: "6.0"
+            - name: "clientMacAddress"
+              filter_type: "SINGLE_INPUT"
+              value: ""
+            - name: "DeviceType"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "Wired"
+            - name: "SSID"
+              filter_type: "MULTI_SELECT"
+              value:
+                - value: "SSIDDUAL BAND"
+                - value: "Single5KBand"
+                - value: "a1"
+            - name: "Location"
+              filter_type: "MULTI_SELECT_TREE"
+              value:
+                - value: "Global"
+            - name: "GroupBy"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "BUILDING"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "LAST_3_HOURS"
+                time_zone: "Asia/Calcutta"
+
+# Example 35 - Client (Unique Clients and Users Summary) with immediate execution
+
+  # - generate_report:
+  #     - name: "client_unique_clients_and_summary_report"
+  #       view_group_name: "Client"
+  #       deliveries:
+  #         - delivery_type: "DOWNLOAD"
+  #       schedule:
+  #         schedule_type: "SCHEDULE_NOW"
+  #         time_zone: "Asia/Calcutta"
+  #       view:
+  #         view_name: "Unique Clients and Users Summary"
+  #         field_groups: []
+  #         format:
+  #           format_type: "PDF"
+  #         filters:
+  #           - name: "Band"
+  #             filter_type: "MULTI_SELECT"
+  #             value:
+  #               - value: "2.4"
+  #               - value: "5.0"
+  #               - value: "6.0"
+  #           - name: "clientMacAddresses"
+  #             filter_type: "SINGLE_INPUT"
+  #             value: ""
+  #           - name: "ConnectionType"
+  #             filter_type: "SINGLE_SELECT_ARRAY"
+  #             value:
+  #               - value: "Wired"
+  #           - name: "SSID"
+  #             filter_type: "MULTI_SELECT"
+  #             value:
+  #               - value: "SSIDDUAL BAND"
+  #               - value: "Single5KBand"
+  #               - value: "a1"
+  #           - name: "Location"
+  #             filter_type: "MULTI_SELECT_TREE"
+  #             value:
+  #               - value: "Global"
+  #           - name: "TimeRange"
+  #             filter_type: "TIME_RANGE"
+  #             value:
+  #               time_range_option: "LAST_3_HOURS"
+  #               time_zone: "Asia/Calcutta"
+
+# Example 36 - Licensing (AireOS Controllers Licenses) with immediate execution
+
+  - generate_report:
+      - name: "license_airos_controllers_report"
+        view_group_name: "Licensing"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "AireOS Controllers Licenses"
+          field_groups:
+            - field_group_name: "virtual_assignment_devices"
+              fields:
+                - name: "deviceName"
+                - name: "deviceType"
+                - name: "ipAddress"
+                - name: "model"
+                - name: "networkLicense"
+                - name: "virtualAccount"
+          format:
+            format_type: "CSV"
+          filters: []
+
+# Example 37 - Licensing (License Usage Upload Details) with immediate execution
+
+  - generate_report:
+      - name: "license_usage_upload_report"
+        view_group_name: "Licensing"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "License Usage Upload Details"
+          field_groups:
+            - field_group_name: "license_usage_upload_details"
+              fields:
+                - name: "smartAccount"
+                - name: "virtualAccount"
+                - name: "deviceCount"
+                - name: "lastSync"
+                - name: "syncDue"
+                - name: "reasonIfAny"
+          format:
+            format_type: "CSV"
+          filters: []
+
+# Example 38 - Licensing (Non Compliance Summary) with immediate execution
+
+  - generate_report:
+      - name: "non_compliance_summary_report"
+        view_group_name: "Licensing"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "Non Compliance Summary"
+          field_groups:
+            - field_group_name: "non_compliance_summary"
+              fields:
+                - name: "deviceFamily"
+                - name: "deviceSeries"
+                - name: "purchasedDNAEssential"
+                - name: "purchasedDNAAdvantage"
+                - name: "usedDNAEssential"
+                - name: "usedDNAAdvantage"
+          format:
+            format_type: "CSV"
+          filters: []
+
+# Example 39 - Licensing (Non Compliant Devices) with immediate execution
+
+  - generate_report:
+      - name: "non_compliance_devices_report"
+        view_group_name: "Licensing"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_NOW"
+          time_zone: "Asia/Calcutta"
+        view:
+          view_name: "Non Compliant Devices"
+          field_groups:
+            - field_group_name: "non_compliant_devices"
+              fields:
+                - name: "deviceName"
+                - name: "ipAddress"
+                - name: "model"
+                - name: "dnaLevel"
+                - name: "networkLicense"
+                - name: "uxLevel"
+          format:
+            format_type: "CSV"
+          filters: []
