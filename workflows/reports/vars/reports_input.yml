@@ -1800,3 +1800,48 @@ reports_details:
           format:
             format_type: "CSV"
           filters: []
+
+# Example 40 - Licensing (License Historical Usage) with later execution
+
+  - generate_report:
+      - name: "historical_usage_report"
+        view_group_name: "Licensing"
+        deliveries:
+          - delivery_type: "DOWNLOAD"
+        schedule:
+          schedule_type: "SCHEDULE_LATER"
+          date_time: "2026-02-05 03:00 PM"
+          time_zone: "America/New_York"
+        view:
+          view_name: "License Historical Usage"
+          field_groups:
+            - field_group_name: "license_historical_data"
+              fields:
+                - name: "license"
+                - name: "virtualaccount"
+                - name: "userdefinedtags"
+                - name: "billingtype"
+                - name: "entitled"
+                - name: "inuse"
+          format:
+            format_type: "CSV"
+          filters:
+            - name: "smartaccountuser"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "pawansi@cisco.com"
+            - name: "smartaccountname"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "PNP SDWAN POC"
+            - name: "Mode"
+              filter_type: "SINGLE_SELECT_ARRAY"
+              value:
+                - value: "Monthly"
+            - name: "TimeRange"
+              filter_type: "TIME_RANGE"
+              value:
+                time_range_option: "CUSTOM"
+                start_date_time: "2026-02-07 02:00 PM"
+                end_date_time: "2026-02-09 02:00 PM"
+                time_zone: "Asia/Calcutta"
