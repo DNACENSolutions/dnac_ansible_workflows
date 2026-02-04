@@ -1064,6 +1064,26 @@ The following section details the available report templates in *Cisco Catalyst 
 - **Supported fields:** deviceName, ipAddress, model, dnaLevel, networkLicense, uxLevel, deviceType, totalAPCount, licenseTerm, macAddress, serialNumber, site, virtualAccount, reason
 - **Field Group Name:** non_compliant_devices
 
+#### **40. Licensing Reports - License Historical Usage**
+
+**Template Configuration:**
+- **View Group Name:** `Licensing`
+- **View Name:** `License Historical Usage`
+
+**Supported Features:**
+- **Filters:** 
+  - **smartaccountuser** (`MULTI_SELECT`) *(Mandatory)*
+  - **smartaccountname** (`MULTI_SELECT`) *(Mandatory)*
+  - **Mode** (`MULTI_SELECT`) *(Mandatory)*
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory - Only custom time range supported)*
+- **Schedule Types:** 
+  - One-time scheduled execution (`SCHEDULE_LATER`) *(Schedule time should be greater than time range end time selected)*
+
+- **Delivery Options:** Email notifications, Download
+- **File Formats:** CSV
+- **Supported fields:** license, virtualaccount, userdefinedtags, billingtype, entitled, inuse, balance, entrydate
+- **Field Group Name:** license_historical_data
+
 ---
 
 #### Example Input Files
