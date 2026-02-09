@@ -988,6 +988,30 @@ The following section details the available report templates in *Cisco Catalyst 
 - **Delivery Options:** Email notifications, Webhook Endpoints, Download
 - **File Formats:** PDF
 
+#### **35. Client Reports - Unique Clients and Users Summary**
+
+**Template Configuration:**
+- **View Group Name:** `Client`
+- **View Name:** `Unique Clients and Users Summary`
+
+**Supported Features:**
+- **Filters:** 
+  - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
+  - **clientMacAddress** (`SINGLE_INPUT`) *(Try to limit to 100 MACs Comma-separated)*
+  - **ConnectionType** (`SINGLE_SELECT_ARRAY`)
+  - **SSID** (`MULTI_SELECT`) *(Max of 25 options allowed)*
+  - **Band** (`MULTI_SELECT`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
+- **Schedule Types:** 
+  - Immediate execution (`SCHEDULE_NOW`)
+  - One-time scheduled execution (`SCHEDULE_LATER`)
+  - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
+
+- **Delivery Options:** Email notifications, Webhook Endpoints, Download
+- **File Formats:** PDF
+- **Supported fields:** uniqueClientCount, uniqueUserCount, totalConnections, avgSessionDuration, peakClientCount, siteHierarchy, connectionType, ssid, band, timeStamp
+- **Field Group Name:** unique_clients_summary
+
 #### **36. Licensing Reports - AireOS Controllers Licenses**
 
 **Template Configuration:**
