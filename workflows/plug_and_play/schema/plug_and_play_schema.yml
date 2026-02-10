@@ -110,7 +110,6 @@ device_info_type:
   hostname: str(required=False)
   state: enum('Unclaimed', 'Claimed', 'Provisioned',  'Error', required=False)
   pid: str(required=False)
-  add_device_method: str(required=False)
   authorize: bool(required=False)
   is_sudi_required: bool(required=False)
 
