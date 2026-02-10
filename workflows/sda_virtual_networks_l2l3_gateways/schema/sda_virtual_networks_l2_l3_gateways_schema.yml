@@ -327,6 +327,10 @@ fabric_vlan_type:
   traffic_type: str(required=False, default="DATA")
   vlan_id: int(required=True)
   vlan_name: str(required=True)
+  wireless_flooding_enable: bool(required=False)
+  resource_guard_enable: bool(required=False, default=False)
+  flooding_address_assignment: enum("SHARED", "CUSTOM", default="SHARED", required=False)
+  flooding_address: str(required=False)
 
 virtual_networks_type:
   anchored_site_name: str(required=False)
@@ -353,6 +357,10 @@ anycast_gateways_type:
   vlan_name: str(required=False)
   vn_name: str(required=True)
   fabric_enabled_wireless: bool(required=False)
+  wireless_flooding_enable: bool(required=False)
+  resource_guard_enable: bool(required=False, default=False)
+  flooding_address_assignment: enum("SHARED", "CUSTOM", default="SHARED", required=False)
+  flooding_address: str(required=False)
 
 fabric_site_locations_type_vlan_or_gw:
   site_name_hierarchy: str(required=True)
