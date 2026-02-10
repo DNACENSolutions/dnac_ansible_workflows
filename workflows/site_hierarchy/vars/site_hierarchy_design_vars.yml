@@ -35,7 +35,7 @@ design_sites:
         height: 10.00
         floor_number: 1
         #units_of_measure: meters
-        upload_floor_image_path: {{ playbook_dir }}/../images/floor_image1.png
+        upload_floor_image_path: "{{ playbook_dir }}/../images/floor_image1.png"
         force_upload_floor_image: true
     type: floor
 
