@@ -30,8 +30,7 @@ def compare_module_spec(module_file_path, verbose=True):
                         re.match(r"\s*lan_automation_spec\s*=", line) or re.match(r"\s*lan_automation_spec\s*=\s*{", line) or \
                         re.match(r"\s*pnp_spec\s*=\s*{", line) or re.match(r"\s*pnp_spec\s*=", line) or \
                         re.match(r"\s*rma_spec\s*=", line) or re.match(r"\s*rma_spec\s*=\s*\{", line) or \
-                        re.match(r"\s*accesspoint_spec\s*=\s*\{", line) or re.match(r"\s*accesspoint_spec\s*=", line) or \
-                        re.match(r"\s*config_spec\s*=", line) or re.match(r"\s*config_spec\s*=\s*{", line):
+                        re.match(r"\s*accesspoint_spec\s*=\s*\{", line) or re.match(r"\s*accesspoint_spec\s*=", line):
                         temp_spec_found = True
                         temp_spec_lines.append(line.split('=', 1)[1].strip())
                         brace_count += temp_spec_lines[0].count('{')
