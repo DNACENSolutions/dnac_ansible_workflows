@@ -1,0 +1,191 @@
+# Catalyst Center Brownfield SDA Fabric Sites and Zones Playbook Generator Schema
+# ====================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing SDA fabric sites and zones in Cisco Catalyst Center
+# using the brownfield_sda_fabric_sites_zones_playbook_generator module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports configuration generation operations for:
+# 1. Fabric Sites - Extract existing fabric site configurations
+# 2. Fabric Zones - Extract existing fabric zone configurations  
+# 3. Combined Operations - Generate both sites and zones configurations
+# 4. Filtered Generation - Selective component extraction
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating the extraction
+# and generation of SDA fabric sites and zones configurations from existing
+# Catalyst Center deployments (brownfield scenarios).
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)  
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# BROWNFIELD_SDA_FABRIC_SITES_ZONES_CONFIG SECTION:
+# ------------------------------------------------
+# Contains configuration for generating YAML configurations from existing infrastructure:
+#
+# 1. GENERATE_ALL_CONFIGURATIONS:
+#    - Type: boolean (optional, default: false)
+#    - Description: If true, generates configurations for all components regardless of filters
+#    - When true, overrides any component_specific_filters settings
+#    - Retrieves all fabric sites and zones from Catalyst Center
+#
+# 2. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved
+#    - If not provided, auto-generates filename with timestamp
+#    - Format: sda_fabric_sites_zones_workflow_manager_playbook_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: sda_fabric_sites_zones_workflow_manager_playbook_2026-01-28_20-24-06.yml
+#    - Supports absolute and relative paths
+#    - Creates directory structure if it doesn't exist
+#
+# 3. COMPONENT_SPECIFIC_FILTERS:
+#    - Type: dictionary (optional)
+#    - Description: Filters to specify which components to include in the generated configuration
+#    - If generate_all_configurations is true, these filters are ignored
+#    
+#    Sub-options:
+#    - COMPONENTS_LIST:
+#      - Type: list of strings (optional, default: ["fabric_sites", "fabric_zones"])
+#      - Description: List of components to include in the YAML configuration file
+#      - Valid values:
+#        * "fabric_sites" - Include only fabric sites in the generated configuration
+#        * "fabric_zones" - Include only fabric zones in the generated configuration
+#        * ["fabric_sites", "fabric_zones"] - Include both sites and zones
+#      - If empty list provided, defaults to all supported components
+#      - Invalid components will result in error
+#
+#    - FABRIC_SITES:
+#      - Type: list of dictionaries (optional)
+#      - Description: Filter fabric sites by specific criteria
+#      - Sub-options:
+#        * site_name_hierarchy: Full hierarchical site path (e.g., "Global/Area/Building")
+#      
+#    - FABRIC_ZONES:
+#      - Type: list of dictionaries (optional)  
+#      - Description: Filter fabric zones by specific criteria
+#      - Sub-options:
+#        * site_name_hierarchy: Full hierarchical zone path (e.g., "Global/Area/Building/Zone1")
+#
+# GENERATED OUTPUT STRUCTURE:
+# --------------------------
+# The generated YAML file will contain a 'config' section with the following structure:
+#
+# config:
+#   - fabric_sites:
+#       - site_name_hierarchy: "Global/Site_Name"
+#         fabric_type: "fabric_site"
+#         is_pub_sub_enabled: false
+#         authentication_profile: "Closed Authentication"
+#       - site_name_hierarchy: "Global/Site_Name/Zone_Name"
+#         fabric_type: "fabric_zone"
+#         authentication_profile: "Closed Authentication"
+#
+# FABRIC SITE ATTRIBUTES:
+# ----------------------
+# - site_name_hierarchy: Full hierarchical site path (e.g., "Global/Building1")
+# - fabric_type: Always "fabric_site" for fabric sites
+# - is_pub_sub_enabled: Boolean indicating if publish-subscribe is enabled
+# - authentication_profile: Name of the authentication profile used
+#
+# FABRIC ZONE ATTRIBUTES:
+# ----------------------
+# - site_name_hierarchy: Full hierarchical zone path (e.g., "Global/Building1/Zone1")
+# - fabric_type: Always "fabric_zone" for fabric zones  
+# - authentication_profile: Name of the authentication profile used
+
+#- SITE_NAME_HIERARCHY:
+#      - Type: string
+#      - Description: Filter fabric sites and zones by site hierarchy path (e.g., "Global/US/San Jose/Building1")
+#      - Usage: Used to retrieve fabric sites/zones for a specific site in the hierarchy
+#      - Example: "Global/Area/Building" or "Global/Country/City/Campus"
+
+# OPERATION WORKFLOWS:
+# -------------------
+# 1. Configuration Generation (All Components):
+#    a. Set generate_all_configurations: true
+#    b. Optionally specify file_path
+#    c. All existing fabric sites and zones will be extracted
+#
+# 2. Selective Component Generation:
+#    a. Use component_specific_filters with components_list
+#    b. Specify required components: "fabric_sites", "fabric_zones", or both
+#    c. Only specified components will be extracted
+#
+# 3. Custom Output Path:
+#    a. Specify file_path parameter
+#    b. Can use absolute or relative paths
+#    c. Directory structure will be created if needed
+#
+# 4. Default Behavior:
+#    a. If no filters specified, all components are generated
+#    b. If no file_path specified, auto-generates filename with timestamp
+#    c. Generated in current working directory or specified path
+
+#
+# EXAMPLES:
+# --------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
+
+# Schema Definition
+brownfield_sda_fabric_sites_zones_config: list(include('sda_config_generator'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# SDA Configuration Generator Schema
+sda_config_generator:
+  # Generate all configurations flag
+  generate_all_configurations: bool(required=False)
+  
+  # Output file path
+  file_path: str(required=False)
+  
+  # Component-specific filters
+  component_specific_filters: include('component_filters', required=False)
+
+---
+# Component Filters Schema
+component_filters:
+  # List of components to include
+  components_list: list(str(), min=0, max=10, required=False)
+  
+  # Future enhancement: fabric sites filters
+  fabric_sites: list(include('fabric_site_filter'), min=0, max=100, required=False)
+  
+  # Future enhancement: fabric zones filters  
+  fabric_zones: list(include('fabric_zone_filter'), min=0, max=100, required=False)
+
+---
+# Fabric Site Filter Schema
+fabric_site_filter:
+  # Full hierarchical site path for filtering fabric sites
+  site_name_hierarchy: str(required=False)
+  
+
+---
+# Fabric Zone Filter Schema
+fabric_zone_filter:
+  # Full hierarchical zone path for filtering fabric zones
+  site_name_hierarchy: str(required=False)
