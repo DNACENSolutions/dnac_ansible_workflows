@@ -1,0 +1,294 @@
+---
+# ============================================================================
+# Cisco Catalyst Center Brownfield SDA Fabric Virtual Networks playbook Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/brownfield_sda_fabric_virtual_networks/playbook/brownfield_sda_fabric_virtual_networks_playbook.yml \
+#     --extra-vars VARS_FILE_PATH=../vars/brownfield_sda_fabric_virtual_networks_inputs.yml
+#
+# ============================================================================
+
+brownfield_sda_fabric_virtual_networks_config:
+  - generate_all_configurations: true
+    file_path: "/tmp/complete_sda_fabric_virtual_networks_config.yml"
+
+  # Generate all configurations over component filters 
+  - generate_all_configurations: false
+    file_path: "/tmp/sda_fabric_vn_components_config1.yml"
+    component_specific_filters:
+      components_list: ["fabric_vlan"]
+     
+  # Generate only fabric VLANs 
+  - file_path: "/tmp/sda_fabric_vlan_components_config2.yml"
+    component_specific_filters:
+      components_list: ["fabric_vlan"]
+    
+  # Generate only virtual networks  
+  - file_path: "/tmp/sda_virtual_networks_components_config3.yml"
+    component_specific_filters:
+      components_list: ["virtual_networks"] 
+
+  # Generate only anycast gateways
+  - file_path: "/tmp/sda_anycast_gateways_components_config4.yml"
+    component_specific_filters:
+      components_list: ["anycast_gateways"]  
+    
+  # Fabric VLANs with Specific VLAN Name Filter:    
+  - file_path: "/tmp/sda_fabric_vlan_name_filter_config5.yml"
+    component_specific_filters:
+      components_list: ["fabric_vlan"]
+      fabric_vlan: 
+        - vlan_name: "vlan_brownfield"
+
+  # Fabric VLANs with Specific VLAN ID Filter:   
+  - file_path: "/tmp/sda_fabric_vlan_id_filter_config6.yml"
+    component_specific_filters:
+      components_list: ["fabric_vlan"]
+      fabric_vlan: 
+        - vlan_id: 2036
+
+  # Fabric VLANs with Both Name and ID Filters:   
+  - file_path: "/tmp/sda_fabric_vlan_name_id_filter_config7.yml"
+    component_specific_filters:
+      components_list: ["fabric_vlan"]
+      fabric_vlan: 
+        - vlan_name: "vlan_brownfield"
+          vlan_id: 2036
+        - vlan_name: "Test_Vlan"
+          vlan_id: 1000
+
+  # Virtual Networks with Specific VN Name Filter:   
+  - file_path: "/tmp/sda_virtual_networks_vn_filter_config8.yml"
+    component_specific_filters:
+      components_list: ["virtual_networks"]
+      virtual_networks:
+        - vn_name: "vn_brownfield"
+        - vn_name: "VN1"
+
+  # Anycast Gateways with VN Name Filter:
+  - file_path: "/tmp/sda_anycast_gateways_vn_filter_config9.yml"
+    component_specific_filters:
+      components_list: ["anycast_gateways"]
+      anycast_gateways:
+        - vn_name: "vn_brownfield"        
+        
+
+  # Anycast Gateways with VLAN Name,VLAN ID and IP Pool Filter:
+  - file_path: "/tmp/sda_anycast_gateways_vlan_ip_pool_filter_config10.yml"
+    component_specific_filters:
+      components_list: ["anycast_gateways"]
+      anycast_gateways:
+        - vlan_name: vlan_brownfield
+        - vlan_id: 2036
+        - ip_pool_name: "Brownfield_reserve"
+
+  # Combined Fabric VLANs and Virtual Networks with Filters   
+  - file_path: "/tmp/sda_multiple_components_filter_config11.yml"
+    component_specific_filters:
+      components_list: ["fabric_vlan", "virtual_networks"]
+      fabric_vlan: 
+        - vlan_name: "vlan_brownfield"
+      virtual_networks:
+        - vn_name: "vn_brownfield"
+
+  # All Components with No Sub-Filters   
+  - file_path: "/tmp/sda_all_components_no_subfilters_config12.yml"
+    component_specific_filters:
+      components_list: ["fabric_vlan", "virtual_networks", "anycast_gateways"]
+
+  # Multiple configurations with different file paths and filters
+  - file_path: "/tmp/fabric_vlan_testoutput1.yml"
+    component_specific_filters:
+      components_list: ["fabric_vlan"]
+  - file_path: "/tmp/virtual_networks_testoutput2.yml"
+    component_specific_filters:
+      components_list: ["virtual_networks"]
+  - file_path: "/tmp/anycast_gateways_testoutput3.yml"
+    component_specific_filters:
+      components_list: ["anycast_gateways"]
+  
+
+# ============================================================================
+# Additional Configuration Examples
+# ============================================================================
+# Example 1: Generate all components with auto-generated filename
+# brownfield_sda_fabric_virtual_networks_config:
+#   - generate_all_configurations: true
+#
+# Example 2: Multiple configuration generations in single run
+# brownfield_sda_fabric_virtual_networks_config:
+#   # Generate fabric VLANs only
+#   - file_path: "/tmp/fabric_vlans_config.yml"
+#     component_specific_filters:
+#       components_list: ["fabric_vlan"]
+#   
+#   # Generate virtual networks only
+#   - file_path: "/tmp/virtual_networks_config.yml"
+#     component_specific_filters:
+#       components_list: ["virtual_networks"]
+#   
+#   # Generate anycast gateways only
+#   - file_path: "/tmp/anycast_gateways_config.yml"
+#     component_specific_filters:
+#       components_list: ["anycast_gateways"]
+#   
+#   # Generate complete configuration
+#   - file_path: "/tmp/complete_config.yml"
+#     generate_all_configurations: true
+#
+# Example 3: Custom file path with specific components
+# brownfield_sda_fabric_virtual_networks_config:
+#   - file_path: "/home/ansible/sda_configs/production_fabric_vlans.yml"
+#     component_specific_filters:
+#       components_list: ["fabric_vlan"]
+#
+# Example 4: Multiple component filters with specific criteria
+# brownfield_sda_fabric_virtual_networks_config:
+#   - file_path: "/tmp/filtered_components_config.yml"
+#     component_specific_filters:
+#       components_list: ["fabric_vlan", "virtual_networks", "anycast_gateways"]
+#       fabric_vlan:
+#         - vlan_name: "Production-VLAN-100"
+#         - vlan_name: "Production-VLAN-200"
+#         - vlan_id: 1050
+#         - vlan_id: 1051
+#       virtual_networks:
+#         - vn_name: "Production-VN"
+#         - vn_name: "Development-VN"
+#       anycast_gateways:
+#         - vn_name: "Production-VN"
+#         - vlan_name: "Production-VLAN-100"
+#         - vlan_id: 1050
+#         - ip_pool_name: "Production-Pool-1"
+
+# ============================================================================
+# GENERATE_ALL_CONFIGURATIONS Parameter Documentation
+# ============================================================================
+#
+# The 'generate_all_configurations' parameter controls whether the tool retrieves
+# all available fabric VLANs, virtual networks, and anycast gateways from Catalyst Center
+# or applies component-specific filters.
+
+# BEHAVIOR WHEN TRUE:
+# - Retrieves ALL fabric VLANs, virtual networks, and anycast gateways from Catalyst Center
+# - IGNORES any component_specific_filters settings
+# - Overrides components_list filters
+# - Extracts complete virtual networks infrastructure configuration
+#
+# BEHAVIOR WHEN FALSE (or not specified):
+# - Respects component_specific_filters settings
+# - Only retrieves specified components from components_list
+# - Applies fabric_vlan, virtual_networks, and anycast_gateways sub-filters if specified
+# - Allows selective configuration generation
+# - Useful for targeted configuration extraction
+#
+# EXAMPLES:
+#
+# Example A: Generate ALL configurations (ignores filters)
+# brownfield_sda_fabric_virtual_networks_config:
+#   - generate_all_configurations: true
+#     file_path: "/tmp/complete_infrastructure.yml"
+#     component_specific_filters:
+#       components_list: ["fabric_vlan"]  # <-- IGNORED when true
+#
+# Example B: Generate specific components only (respects filters)
+# brownfield_sda_fabric_virtual_networks_config:
+#   - generate_all_configurations: false
+#     file_path: "/tmp/vlans_only.yml"
+#     component_specific_filters:
+#       components_list: ["fabric_vlan"]  # <-- APPLIED when false
+#
+# Example C: Default behavior (same as false)
+# brownfield_sda_fabric_virtual_networks_config:
+#   - file_path: "/tmp/filtered_config.yml"
+#     component_specific_filters:
+#       components_list: ["virtual_networks"]  # <-- APPLIED when not specified
+
+# ============================================================================
+# Component Filter Details
+# ============================================================================
+#
+# components_list Options:
+# - "fabric_vlan": Generate configuration for fabric VLANs only
+# - "virtual_networks": Generate configuration for virtual networks only
+# - "anycast_gateways": Generate configuration for anycast gateways only  
+# - ["fabric_vlan", "virtual_networks"]: Generate fabric VLANs and virtual networks
+# - ["fabric_vlan", "virtual_networks", "anycast_gateways"]: Generate all components
+#
+# Sub-Filter Options for Specific Component Selection:
+#
+# FABRIC_VLAN Sub-Filters:
+# - fabric_vlan:
+#     - vlan_name: "Data-VLAN-100" 
+#       Description: Filter by VLAN name
+#       Examples:
+#         - "Data-VLAN-100" - Filters fabric VLAN with name Data-VLAN-100
+#         - "Voice-VLAN-200" - Filters fabric VLAN with name Voice-VLAN-200
+#         - "Chennai-VN6-Pool1" - Filters fabric VLAN with specific pool name
+#     - vlan_id: 100
+#       Description: Filter by VLAN ID (valid range: 2-4094)
+#       Examples:
+#         - 1031 - Filters fabric VLAN with ID 1031
+#         - 1038 - Filters fabric VLAN with ID 1038
+#         - 100 - Filters fabric VLAN with ID 100
+#
+# VIRTUAL_NETWORKS Sub-Filters:
+# - virtual_networks:
+#     - vn_name: "Corporate-VN"
+#       Description: Filter by virtual network name
+#       Examples:
+#         - "VN1" - Filters virtual network named VN1
+#         - "VN3" - Filters virtual network named VN3
+#         - "Corporate-VN" - Filters virtual network named Corporate-VN
+#         - "Chennai_VN1" - Filters virtual network named Chennai_VN1
+#
+# ANYCAST_GATEWAYS Sub-Filters:
+# - anycast_gateways:
+#     - vn_name: "Corporate-VN"
+#       Description: Filter by associated virtual network name
+#     - vlan_name: "Data-VLAN-100"
+#       Description: Filter by associated VLAN name
+#     - vlan_id: 100
+#       Description: Filter by associated VLAN ID (valid range: 2-4094)
+#     - ip_pool_name: "Corporate-Pool-1"
+#       Description: Filter by IP pool name
+#       Examples:
+#         - vn_name: "Chennai_VN1" - Filters gateways for VN Chennai_VN1
+#         - vlan_name: "Chennai-VN1-Pool2" - Filters gateways for VLAN Chennai-VN1-Pool2
+#         - vlan_id: 1032 - Filters gateways for VLAN ID 1032
+#         - ip_pool_name: "Chennai-VN3-Pool1" - Filters gateways for IP pool Chennai-VN3-Pool1
+#
+# Combined Sub-Filters Usage:
+# - Multiple sub-filters can be used together for precise filtering
+# - Each component type supports its specific filter criteria
+# - Filters are applied as OR conditions within the same component type
+
+
+# ============================================================================
+# File Path Behavior
+# ============================================================================
+#
+# If file_path is specified:
+# - Uses the exact path provided
+# - Creates directory structure if it doesn't exist
+# - Overwrites existing files
+#
+# If file_path is NOT specified:
+# - Auto-generates filename in current working directory
+# - Format: sda_fabric_virtual_networks_workflow_manager_playbook_<YYYY-MM-DD_HH-MM-SS>.yml
+# - Example: sda_fabric_virtual_networks_workflow_manager_playbook_2026-01-28_14-30-45.yml
+
+# ============================================================================
+# Notes and Limitations
+# ============================================================================
+
+# 1. Network Connectivity: Requires HTTPS connectivity to Catalyst Center
+# 2. File Permissions: Ensure write access to specified file paths
+# 3. Component Validation: Only "fabric_vlan", "virtual_networks", "anycast_gateways" are valid components
+# 4. Configuration Scope: Only retrieves existing configurations (brownfield)
+# 5. VLAN ID Validation: VLAN IDs must be in range 1-4094, excluding reserved VLANs (1002-1005, 2046)
+# 6. Site Hierarchy: Uses full hierarchical site names (e.g., "Global/Site/Building")
+# 7. Authentication: Uses Catalyst Center credentials from inventory configuration
+# ============================================================================

@@ -1,0 +1,240 @@
+# Catalyst Center Brownfield SDA Fabric Virtual Networks Configuration Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing SDA fabric virtual networks infrastructure in Cisco Catalyst Center
+# using the brownfield_sda_fabric_virtual_networks_playbook_generator module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports configuration generation operations for:
+# 1. Fabric VLANs - Extract existing fabric VLAN configurations
+# 2. Virtual Networks - Extract existing virtual network configurations  
+# 3. Anycast Gateways - Extract existing anycast gateway configurations
+# 4. Combined Operations - Generate multiple component configurations
+# 5. Filtered Generation - Selective component extraction with filters
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating the extraction
+# and generation of SDA fabric virtual networks configurations from existing
+# Catalyst Center deployments (brownfield scenarios).
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)  
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# BROWNFIELD_SDA_FABRIC_VIRTUAL_NETWORKS_CONFIG SECTION:
+# ----------------------------------------------------
+# Contains configuration for generating YAML configurations from existing infrastructure:
+#
+# 1. GENERATE_ALL_CONFIGURATIONS:
+#    - Type: boolean (optional, default: false)
+#    - Description: If true, generates configurations for all components regardless of filters
+#    - When true, overrides any component_specific_filters settings
+#    - Retrieves all fabric VLANs, virtual networks, and anycast gateways from Catalyst Center
+#
+# 2. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved
+#    - If not provided, auto-generates filename with timestamp
+#    - Format: sda_fabric_virtual_networks_workflow_manager_playbook_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: sda_fabric_virtual_networks_workflow_manager_playbook_2026-01-28_14-30-45.yml
+#    - Supports absolute and relative paths
+#    - Creates directory structure if it doesn't exist
+#
+# 3. COMPONENT_SPECIFIC_FILTERS:
+#    - Type: dictionary (optional)
+#    - Description: Filters to specify which components to include in the generated configuration
+#    - If generate_all_configurations is true, these filters are ignored
+#    
+#    Sub-options:
+#    - COMPONENTS_LIST:
+#      - Type: list of strings (optional, default: ["fabric_vlan", "virtual_networks", "anycast_gateways"])
+#      - Description: List of components to include in the YAML configuration file
+#      - Valid values:
+#        * "fabric_vlan" - Include only fabric VLANs in the generated configuration
+#        * "virtual_networks" - Include only virtual networks in the generated configuration
+#        * "anycast_gateways" - Include only anycast gateways in the generated configuration
+#        * ["fabric_vlan", "virtual_networks"] - Include fabric VLANs and virtual networks
+#        * ["fabric_vlan", "virtual_networks", "anycast_gateways"] - Include all components
+#      - If empty list provided, defaults to all supported components
+#      - Invalid components will result in error
+#
+#    - FABRIC_VLAN:
+#      - Type: list of dictionaries (optional)
+#      - Description: Filter fabric VLANs by specific criteria
+#      - Sub-options:
+#        * vlan_name: VLAN name to filter by
+#        * vlan_id: VLAN ID to filter by 
+#      
+#    - VIRTUAL_NETWORKS:
+#      - Type: list of dictionaries (optional)
+#      - Description: Filter virtual networks by specific criteria
+#      - Sub-options:
+#        * vn_name: Virtual network name to filter by 
+#
+#    - ANYCAST_GATEWAYS:
+#      - Type: list of dictionaries (optional)  
+#      - Description: Filter anycast gateways by specific criteria
+#      - Sub-options:
+#        * vn_name: Virtual network name to filter anycast gateway by VN name
+#        * vlan_name: VLAN name to filter anycast gateway by vlan name
+#        * vlan_id: VLAN ID to filter anycast gateway by vlan id
+#        * ip_pool_name: IP pool name to filter anycast gateway by IP Pool name
+#
+# GENERATED OUTPUT STRUCTURE:
+# --------------------------
+# The generated YAML file will contain a 'config' section with the following structure:
+#
+# config:
+#   - fabric_vlan:
+#     - vlan_name: test1
+#       vlan_id: 1024
+#       fabric_site_locations:
+#       - site_name_hierarchy: Global/USA/New York
+#         fabric_type: fabric_site
+#       traffic_type: DATA
+#       fabric_enabled_wireless: false
+#       associated_layer3_virtual_network: Fabric_VN
+#       is_wireless_flooding_enable: false
+#       is_resource_guard_enable: false
+#       flooding_address_assignment: SHARED
+#   - virtual_networks:
+#       - vn_name: VN_SanJose_1
+#         fabric_site_locations:
+#          - site_name_hierarchy: Global/USA/SAN JOSE
+#            fabric_type: fabric_site
+#   - anycast_gateways:
+#      - vn_name: WirelessVNFB
+#        ip_pool_name: WSClients_sub
+#        vlan_name: WSClients_sub-WirelessVNFB
+#        vlan_id: 1023
+#        traffic_type: DATA
+#        is_critical_pool: false
+#        layer2_flooding_enabled: true
+#        fabric_enabled_wireless: true
+#        is_wireless_flooding_enable: false
+#        is_resource_guard_enable: false
+#        ip_directed_broadcast: false
+#        intra_subnet_routing_enabled: false
+#        multiple_ip_to_mac_addresses: false
+#        supplicant_based_extended_node_onboarding: false
+#        group_policy_enforcement_enabled: true
+#        flooding_address_assignment: SHARED
+#        flooding_address: 239.0.17.3
+#        fabric_site_location:
+#          site_name_hierarchy: Global/USA/SAN JOSE
+#          fabric_type: fabric_site
+#
+# OPERATION WORKFLOWS:
+# -------------------
+# 1. Configuration Generation (All Components):
+#    a. Set generate_all_configurations: true
+#    b. Optionally specify file_path
+#    c. All existing fabric VLANs, virtual networks, and anycast gateways will be extracted
+#
+# 2. Selective Component Generation:
+#    a. Use component_specific_filters with components_list
+#    b. Specify required components from ["fabric_vlan", "virtual_networks", "anycast_gateways"]
+#    c. Only specified components will be extracted
+#
+# 3. Filtered Component Extraction:
+#    a. Use component-specific filters (fabric_vlan, virtual_networks, anycast_gateways)
+#    b. Apply filters like vlan_name, vlan_id, vn_name, ip_pool_name
+#    c. Extract only components matching the specified criteria
+#
+# 4. Custom Output Path:
+#    a. Specify file_path parameter
+#    b. Can use absolute or relative paths
+#    c. Directory structure will be created if needed
+#
+# 5. Default Behavior:
+#    a. If no filters specified, all components are generated
+#    b. If no file_path specified, auto-generates filename with timestamp
+#    c. Generated in current working directory or specified path
+#
+# EXAMPLES:
+# --------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
+
+# Schema Definition
+brownfield_sda_fabric_virtual_networks_config: list(include('sda_vn_config_generator'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# SDA Virtual Networks Configuration Generator Schema
+sda_vn_config_generator:
+  # Generate all configurations flag
+  generate_all_configurations: bool(required=False)
+  
+  # Output file path
+  file_path: str(required=False)
+  
+  # Component-specific filters
+  component_specific_filters: include('vn_component_filters', required=False)
+
+---
+# Virtual Networks Component Filters Schema
+vn_component_filters:
+  # List of components to include
+  components_list: list(str(), min=0, max=10, required=False)
+  
+  # Fabric VLAN filters
+  fabric_vlan: list(include('fabric_vlan_filter'), min=0, max=100, required=False)
+  
+  # Virtual networks filters  
+  virtual_networks: list(include('virtual_network_filter'), min=0, max=100, required=False)
+
+  # Anycast gateways filters
+  anycast_gateways: list(include('anycast_gateway_filter'), min=0, max=100, required=False)
+
+---
+# Fabric VLAN Filter Schema
+fabric_vlan_filter:
+  # VLAN name for filtering fabric VLANs
+  vlan_name: str(required=False)
+  
+  # VLAN ID for filtering fabric VLANs
+  vlan_id: int(required=False)
+
+---
+# Virtual Network Filter Schema
+virtual_network_filter:
+  # Virtual network name for filtering virtual networks
+  vn_name: str(required=False)
+
+---
+# Anycast Gateway Filter Schema
+anycast_gateway_filter:
+  # Virtual network name for filtering anycast gateways
+  vn_name: str(required=False)
+  
+  # VLAN name for filtering anycast gateways
+  vlan_name: str(required=False)
+  
+  # VLAN ID for filtering anycast gateways
+  vlan_id: int(required=False)
+  
+  # IP pool name for filtering anycast gateways
+  ip_pool_name: str(required=False)
+  
