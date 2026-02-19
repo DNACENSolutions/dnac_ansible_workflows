@@ -1,0 +1,6 @@
+---
+config:
+- tag:
+    name: a
+- tag:
+    name: b

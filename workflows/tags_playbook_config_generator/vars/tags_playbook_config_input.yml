@@ -1,0 +1,210 @@
+---
+# ============================================================================
+# Cisco Catalyst Center Tags Playbook Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=../vars/tags_playbook_config_input.yml
+#
+# ============================================================================
+
+# ============================================================================
+# Tags Configuration Generation Examples
+# ============================================================================
+
+tags_config:
+  # Generate all configurations with custom file path
+  - generate_all_configurations: true
+    file_path: "generated_file/complete_tags_config.yml"
+
+  # Generate all configurations over component filters 
+  - generate_all_configurations: false
+    file_path: "generated_file/tags_components_config1.yml"
+    component_specific_filters:
+      components_list: ["tag"]
+     
+  # Generate only tag configurations 
+  - file_path: "generated_file/tag_definitions_config2.yml"
+    component_specific_filters:
+      components_list: ["tag"]
+    
+  # Generate only tag membership configurations  
+  - file_path: "generated_file/tag_memberships_config3.yml"
+    component_specific_filters:
+      components_list: ["tag_memberships"] 
+    
+  # Tag Configurations with Specific Tag Name Filter:    
+  - file_path: "generated_file/specific_tag_filter_config4.yml"
+    component_specific_filters:
+      components_list: ["tag"]
+      tag: 
+        - tag_name: "a"
+
+  # Tag Configurations with Multiple Tag Name Filters:   
+  - file_path: "generated_file/multiple_tag_filter_config5.yml"
+    component_specific_filters:
+      components_list: ["tag"]
+      tag: 
+        - tag_name: "a"
+        - tag_name: "b"
+
+  # Tag Membership Configurations with Specific Tag Name Filter:   
+  - file_path: "generated_file/tag_memberships_filter_config6.yml"
+    component_specific_filters:
+      components_list: ["tag_memberships"]
+      tag_memberships:
+        - tag_name: "a"
+
+  # Tag Membership Configurations with Multiple Tag Name Filters:
+  - file_path: "generated_file/tag_memberships_multiple_filter_config7.yml"
+    component_specific_filters:
+      components_list: ["tag_memberships"]
+      tag_memberships:
+        - tag_name: "a"
+        - tag_name: "b"        
+
+  # Combined Tag and Tag Membership Configurations with Filters   
+  - file_path: "generated_file/combined_components_filter_config8.yml"
+    component_specific_filters:
+      components_list: ["tag", "tag_memberships"]
+      tag: 
+        - tag_name: "a"
+      tag_memberships:
+        - tag_name: "a"
+
+  # All Components with No Sub-Filters   
+  - file_path: "generated_file/all_components_no_subfilters_config9.yml"
+    component_specific_filters:
+      components_list: ["tag", "tag_memberships"]
+
+# ============================================================================
+# Additional Configuration Examples
+# ============================================================================
+# Example 1: Generate all components with auto-generated filename
+# brownfield_tags_config:
+#   - generate_all_configurations: true
+
+# Example 2: Custom file path with specific components
+# brownfield_tags_config:
+#   - file_path: "/home/ansible/tag_configs/production_tags.yml"
+#     component_specific_filters:
+#       components_list: ["tag"]
+
+# Example 3: Multiple tag filters with specific criteria
+# brownfield_tags_config:
+#   - file_path: "generated_file/filtered_tags_config.yml"
+#     component_specific_filters:
+#       components_list: ["tag", "tag_memberships"]
+#       tag:
+#         - tag_name: "Production"
+#         - tag_name: "Development"
+#       tag_memberships:
+#         - tag_name: "Production"
+#         - tag_name: "Development"
+
+# ============================================================================
+# GENERATE_ALL_CONFIGURATIONS Parameter Documentation
+# ============================================================================
+#
+# The 'generate_all_configurations' parameter controls whether the tool retrieves
+# all available tag configurations and tag memberships from Catalyst Center
+# or applies component-specific filters.
+
+# BEHAVIOR WHEN TRUE:
+# - Retrieves ALL tag configurations and tag memberships from Catalyst Center
+# - IGNORES any component_specific_filters settings
+# - Overrides components_list filters
+# - Extracts complete tag infrastructure configuration
+#
+# BEHAVIOR WHEN FALSE (or not specified):
+# - Respects component_specific_filters settings
+# - Only retrieves specified components from components_list
+# - Applies tag and tag_memberships sub-filters if specified
+# - Allows selective configuration generation
+# - Useful for targeted configuration extraction
+#
+# EXAMPLES:
+#
+# Example A: Generate ALL configurations (ignores filters)
+# brownfield_tags_config:
+#   - generate_all_configurations: true
+#     file_path: "generated_file/complete_tags_infrastructure.yml"
+#     component_specific_filters:
+#       components_list: ["tag"]  # <-- IGNORED when true
+#
+# Example B: Generate specific components only (respects filters)
+# brownfield_tags_config:
+#   - generate_all_configurations: false
+#     file_path: "generated_file/tags_only.yml"
+#     component_specific_filters:
+#       components_list: ["tag"]  # <-- APPLIED when false
+#
+# Example C: Default behavior (same as false)
+# brownfield_tags_config:
+#   - file_path: "generated_file/filtered_config.yml"
+#     component_specific_filters:
+#       components_list: ["tag_memberships"]  # <-- APPLIED when not specified
+
+# ============================================================================
+# Component Filter Details
+# ============================================================================
+#
+# components_list Options:
+# - "tag": Generate configuration for tag definitions only
+# - "tag_memberships": Generate configuration for tag memberships only
+# - ["tag", "tag_memberships"]: Generate both components
+#
+# Sub-Filter Options for Specific Component Selection:
+#
+# TAG Sub-Filters:
+# - tag:
+#     - tag_name: "Production" 
+#       Description: Filter by specific tag name
+#       Examples:
+#         - "Production" 
+#         - "Development"
+#         - "Network-Core"
+#         
+# TAG_MEMBERSHIPS Sub-Filters:
+# - tag_memberships:
+#     - tag_name: "Production"
+#       Description: Filter tag memberships by specific tag name
+#       Examples:
+#         - tag_name: "Production" - Retrieves memberships for Production tag
+#         - tag_name: "Network-Core" - Retrieves memberships for Network-Core tag
+#
+# Combined Sub-Filters Usage:
+# - Multiple sub-filters can be used together for precise filtering
+# - Each component type supports its specific filter criteria
+# - Filters are applied as OR conditions within the same component type
+# - Tag name filters must match exact tag names in Catalyst Center
+#
+# ============================================================================
+# File Path Behavior
+# ============================================================================
+#
+# If file_path is specified:
+# - Uses the exact path provided
+# - Creates directory structure if it doesn't exist
+# - Overwrites existing files
+#
+# If file_path is NOT specified:
+# - Auto-generates filename in current working directory
+# - Format: tags_workflow_manager_playbook_<timestamp>.yml
+# - Example: tags_workflow_manager_playbook_2026-01-24_12-33-20.yml
+
+# ============================================================================
+# Notes and Limitations
+# ============================================================================
+
+# 1. Network Connectivity: Requires HTTPS connectivity to Catalyst Center
+# 2. File Permissions: Ensure write access to specified file paths
+# 3. Component Validation: Only "tag", "tag_memberships" are valid components
+# 4. Configuration Scope: Only retrieves existing configurations (brownfield)
+# 5. Tag Filtering: Tag names must match exactly as they exist in Catalyst Center
+# 6. Authentication: Uses Catalyst Center credentials from inventory configuration
+# 7. Tag Memberships: Includes both device and interface (port) associations
+# 8. Dynamic Rules: Tag definitions include device rules and port rules if configured
+# ============================================================================
