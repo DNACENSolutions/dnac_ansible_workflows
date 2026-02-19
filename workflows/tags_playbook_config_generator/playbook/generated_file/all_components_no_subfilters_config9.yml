@@ -1,0 +1,36 @@
+---
+config:
+- tag:
+    name: WAN
+- tag:
+    name: AUTO_INV_EVENT_SYNC_DISABLED
+- tag:
+    name: Day0Configuration
+- tag:
+    name: b
+- tag:
+    name: INV_EVENT_SYNC_DISABLED
+- tag:
+    name: a
+- tag:
+    name: Role
+    description: Value
+    device_rules:
+      rule_descriptions:
+      - rule_name: device_family
+        search_pattern: equals
+        value: Switches and Hubs
+        operation: ILIKE
+- tag_memberships:
+    tags:
+    - b
+    device_details:
+    - serial_numbers:
+      - FJC272121AG
+- tag_memberships:
+    tags:
+    - a
+    device_details:
+    - serial_numbers:
+      - FJC27212582
+      - FJC272121AG

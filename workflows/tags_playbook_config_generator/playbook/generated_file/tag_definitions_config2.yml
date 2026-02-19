@@ -1,0 +1,23 @@
+---
+config:
+- tag:
+    name: WAN
+- tag:
+    name: AUTO_INV_EVENT_SYNC_DISABLED
+- tag:
+    name: Day0Configuration
+- tag:
+    name: b
+- tag:
+    name: INV_EVENT_SYNC_DISABLED
+- tag:
+    name: a
+- tag:
+    name: Role
+    description: Value
+    device_rules:
+      rule_descriptions:
+      - rule_name: device_family
+        search_pattern: equals
+        value: Switches and Hubs
+        operation: ILIKE
