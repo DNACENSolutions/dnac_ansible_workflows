@@ -1,0 +1,187 @@
+# Catalyst Center Backup and Restore Playbook Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing backup and restore infrastructure in Cisco Catalyst Center
+# using the backup_and_restore_playbook_config_generator module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports configuration generation operations for:
+# 1. NFS Configurations - Extract existing NFS server configurations
+# 2. Backup Storage Configurations - Extract existing backup storage settings  
+# 3. Combined Operations - Generate multiple component configurations
+# 4. Filtered Generation - Selective component extraction with filters
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating the extraction
+# and generation of backup and restore configurations from existing
+# Catalyst Center deployments (brownfield scenarios).
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)  
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# BACKUP_AND_RESTORE_PLAYBOOK_CONFIG SECTION:
+# --------------------------------------------
+# Contains configuration for generating YAML configurations from existing infrastructure:
+#
+# 1. GENERATE_ALL_CONFIGURATIONS:
+#    - Type: boolean (optional, default: false)
+#    - Description: If true, generates configurations for all components regardless of filters
+#    - When true, overrides any component_specific_filters settings
+#    - Retrieves all NFS configurations and backup storage configurations from Catalyst Center
+#
+# 2. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved
+#    - If not provided, auto-generates filename with timestamp
+#    - Format: <Module>_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: backup_and_restore_playbook_config_2026-02-19_01-45-57.yml
+#    - Supports absolute and relative paths
+#    - Creates directory structure if it doesn't exist
+#
+# 3. COMPONENT_SPECIFIC_FILTERS:
+#    - Type: dictionary (optional)
+#    - Description: Filters to specify which components to include in the generated configuration
+#    - If generate_all_configurations is true, these filters are ignored
+#    
+#    Sub-options:
+#    - COMPONENTS_LIST:
+#      - Type: list of strings (optional, default: ["nfs_configuration", "backup_storage_configuration"])
+#      - Description: List of components to include in the YAML configuration file
+#      - Valid values:
+#        * "nfs_configuration" - Include only NFS configurations in the generated configuration
+#        * "backup_storage_configuration" - Include only backup storage configurations in the generated configuration
+#        * ["nfs_configuration", "backup_storage_configuration"] - Include both components
+#      - If empty list provided, defaults to all supported components
+#      - Invalid components will result in error
+#
+#    - NFS_CONFIGURATION:
+#      - Type: list of dictionaries (optional)
+#      - Description: Filter NFS configurations by specific criteria
+#      - Sub-options:
+#        * server_ip: NFS server IP address to filter by
+#        * source_path: NFS source path to filter by 
+#      
+#    - BACKUP_STORAGE_CONFIGURATION:
+#      - Type: list of dictionaries (optional)
+#      - Description: Filter backup storage configurations by specific criteria
+#      - Sub-options:
+#        * server_type: Server type to filter by ("NFS" or "PHYSICAL_DISK")
+#
+# GENERATED OUTPUT STRUCTURE:
+# --------------------------
+# The generated YAML file will contain a 'config' section with the following structure:
+#
+# config:
+#   - nfs_configuration:
+#       - server_ip: "172.27.17.90"
+#         source_path: "/home/nfsshare/backups/TB23"
+#         nfs_port: 2049
+#         nfs_version: "nfs4"
+#         nfs_portmapper_port: 111
+#   - backup_storage_configuration:
+#       - server_type: "NFS"
+#         nfs_details:
+#           server_ip: "172.27.17.90"
+#           source_path: "/home/nfsshare/backups/TB23"
+#           nfs_port: 2049
+#           nfs_version: "nfs4"
+#           nfs_portmapper_port: 111
+#         data_retention_period: 3
+#         encryption_passphrase: "Test@zigzag123"
+#
+# OPERATION WORKFLOWS:
+# -------------------
+# 1. Configuration Generation (All Components):
+#    a. Set generate_all_configurations: true
+#    b. Optionally specify file_path
+#    c. All existing NFS configurations and backup storage configurations will be extracted
+#
+# 2. Selective Component Generation:
+#    a. Use component_specific_filters with components_list
+#    b. Specify required components from ["nfs_configuration", "backup_storage_configuration"]
+#    c. Only specified components will be extracted
+#
+# 3. Filtered Component Extraction:
+#    a. Use component-specific filters (nfs_configuration, backup_storage_configuration)
+#    b. Apply filters like server_ip and source_path, server_type
+#    c. Extract only components matching the specified criteria
+#
+# 4. Custom Output Path:
+#    a. Specify file_path parameter
+#    b. Can use absolute or relative paths
+#    c. Directory structure will be created if needed
+#
+# 5. Default Behavior:
+#    a. If no filters specified, all components are generated
+#    b. If no file_path specified, auto-generates filename
+#    c. Generated in current working directory or specified path
+#
+# EXAMPLES:
+# --------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
+
+# Schema Definition
+backup_and_restore_playbook_config: list(include('backup_restore_config_generator'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Backup and Restore Configuration Generator Schema
+backup_restore_config_generator:
+  # Generate all configurations flag
+  generate_all_configurations: bool(required=False)
+  
+  # Output file path
+  file_path: str(required=False)
+  
+  # Component-specific filters
+  component_specific_filters: include('backup_restore_component_filters', required=False)
+
+---
+# Backup and Restore Component Filters Schema
+backup_restore_component_filters:
+  # List of components to include
+  components_list: list(enum("nfs_configuration", "backup_storage_configuration"), min=0, max=10, required=False)
+  
+  # NFS configuration filters
+  nfs_configuration: list(include('nfs_configuration_filter'), min=0, max=100, required=False)
+  
+  # Backup storage configuration filters  
+  backup_storage_configuration: list(include('backup_storage_configuration_filter'), min=0, max=100, required=False)
+
+---
+# NFS Configuration Filter Schema
+nfs_configuration_filter:
+  # NFS server IP address for filtering NFS configurations
+  server_ip: str(required=False)
+  
+  # NFS source path for filtering NFS configurations
+  source_path: str(required=False)
+
+---
+# Backup Storage Configuration Filter Schema
+backup_storage_configuration_filter:
+  # Server type for filtering backup storage configurations
+  server_type: enum("NFS", "PHYSICAL_DISK")

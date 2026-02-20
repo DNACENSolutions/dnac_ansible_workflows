@@ -1,0 +1,219 @@
+---
+# ============================================================================
+# Cisco Catalyst Center Backup and Restore Playbook Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/backup_and_restore_playbook_config_generator/playbook/backup_and_restore_playbook_config_playbook.yml \
+#     --extra-vars VARS_FILE_PATH=../vars/backup_and_restore_playbook_config_inputs.yml
+#
+# ============================================================================
+
+backup_and_restore_playbook_config:
+  - generate_all_configurations: true
+    file_path: "/tmp/complete_backup_restore_config.yml"
+
+  # Generate all configurations over component filters 
+  - generate_all_configurations: false
+    file_path: "/tmp/backup_restore_components_config1.yml"
+    component_specific_filters:
+      components_list: ["nfs_configuration"]
+     
+  # Generate only NFS configurations 
+  - file_path: "/tmp/nfs_configurations_config2.yml"
+    component_specific_filters:
+      components_list: ["nfs_configuration"]
+    
+  # Generate only backup storage configurations  
+  - file_path: "/tmp/backup_storage_configurations_config3.yml"
+    component_specific_filters:
+      components_list: ["backup_storage_configuration"] 
+    
+  # NFS Configurations with Specific Server IP and Source Path Filters:    
+  - file_path: "/tmp/nfs_server_ip_filter_config4.yml"
+    component_specific_filters:
+      components_list: ["nfs_configuration"]
+      nfs_configuration: 
+        - server_ip: "172.27.17.90"
+          source_path: "/home/nfsshare/backups/TB23"
+
+  # NFS Configurations with Multiple Server IP and Source Path Filters:   
+  - file_path: "/tmp/nfs_server_ip_source_path_filter_config6.yml"
+    component_specific_filters:
+      components_list: ["nfs_configuration"]
+      nfs_configuration: 
+        - server_ip: "172.27.17.90"
+          source_path: "/home/nfsshare/backups/TB23"
+        - server_ip: "172.27.17.90"
+          source_path: "/home/nfsshare/backups/TB17"
+
+  # Backup Storage Configurations with NFS Server Type Filter:   
+  - file_path: "/tmp/backup_storage_nfs_filter_config7.yml"
+    component_specific_filters:
+      components_list: ["backup_storage_configuration"]
+      backup_storage_configuration:
+        - server_type: "NFS"
+
+  # Backup Storage Configurations with PHYSICAL_DISK Server Type Filter:
+  - file_path: "/tmp/backup_storage_physical_disk_filter_config8.yml"
+    component_specific_filters:
+      components_list: ["backup_storage_configuration"]
+      backup_storage_configuration:
+        - server_type: "PHYSICAL_DISK"        
+
+  # Backup Storage Configurations with Multiple Server Types:
+  - file_path: "/tmp/backup_storage_multiple_types_filter_config9.yml"
+    component_specific_filters:
+      components_list: ["backup_storage_configuration"]
+      backup_storage_configuration:
+        - server_type: "NFS"
+        - server_type: "PHYSICAL_DISK"
+
+  # Combined NFS and Backup Storage Configurations with Filters   
+  - file_path: "/tmp/combined_components_filter_config10.yml"
+    component_specific_filters:
+      components_list: ["nfs_configuration", "backup_storage_configuration"]
+      nfs_configuration: 
+        - server_ip: "172.27.17.90"
+          source_path: "/home/nfsshare/backups/TB23"
+      backup_storage_configuration:
+        - server_type: "NFS"
+
+  # All Components with No Sub-Filters   
+  - file_path: "/tmp/all_components_no_subfilters_config11.yml"
+    component_specific_filters:
+      components_list: ["nfs_configuration", "backup_storage_configuration"]        
+
+# ============================================================================
+# Additional Configuration Examples
+# ============================================================================
+# Example 1: Generate all components with auto-generated filename
+# backup_and_restore_playbook_config:
+#   - generate_all_configurations: true
+
+# Example 2: Custom file path with specific components
+# backup_and_restore_playbook_config:
+#   - file_path: "/home/ansible/backup_configs/production_nfs_servers.yml"
+#     component_specific_filters:
+#       components_list: ["nfs_configuration"]
+
+# Example 4: Multiple component filters with specific criteria
+# backup_and_restore_playbook_config:
+#   - file_path: "/tmp/filtered_backup_restore_config.yml"
+#     component_specific_filters:
+#       components_list: ["nfs_configuration", "backup_storage_configuration"]
+#       nfs_configuration:
+#         - server_ip: "172.27.17.90"
+#           source_path: "/home/nfsshare/backups/production"
+#         - server_ip: "172.27.17.91"
+#           source_path: "/home/nfsshare/backups/development"
+#       backup_storage_configuration:
+#         - server_type: "NFS"
+#         - server_type: "PHYSICAL_DISK"
+
+# ============================================================================
+# GENERATE_ALL_CONFIGURATIONS Parameter Documentation
+# ============================================================================
+#
+# The 'generate_all_configurations' parameter controls whether the tool retrieves
+# all available NFS configurations and backup storage configurations from Catalyst Center
+# or applies component-specific filters.
+
+# BEHAVIOR WHEN TRUE:
+# - Retrieves ALL NFS configurations and backup storage configurations from Catalyst Center
+# - IGNORES any component_specific_filters settings
+# - Overrides components_list filters
+# - Extracts complete backup and restore infrastructure configuration
+#
+# BEHAVIOR WHEN FALSE (or not specified):
+# - Respects component_specific_filters settings
+# - Only retrieves specified components from components_list
+# - Applies nfs_configuration and backup_storage_configuration sub-filters if specified
+# - Allows selective configuration generation
+# - Useful for targeted configuration extraction
+#
+# EXAMPLES:
+#
+# Example A: Generate ALL configurations (ignores filters)
+# backup_and_restore_playbook_config:
+#   - generate_all_configurations: true
+#     file_path: "/tmp/complete_infrastructure.yml"
+#     component_specific_filters:
+#       components_list: ["nfs_configuration"]  # <-- IGNORED when true
+#
+# Example B: Generate specific components only (respects filters)
+# backup_and_restore_playbook_config:
+#   - generate_all_configurations: false
+#     file_path: "/tmp/nfs_only.yml"
+#     component_specific_filters:
+#       components_list: ["nfs_configuration"]  # <-- APPLIED when false
+#
+# Example C: Default behavior (same as false)
+# backup_and_restore_playbook_config:
+#   - file_path: "/tmp/filtered_config.yml"
+#     component_specific_filters:
+#       components_list: ["backup_storage_configuration"]  # <-- APPLIED when not specified
+
+# ============================================================================
+# Component Filter Details
+# ============================================================================
+#
+# components_list Options:
+# - "nfs_configuration": Generate configuration for NFS servers only
+# - "backup_storage_configuration": Generate configuration for backup storage only
+# - ["nfs_configuration", "backup_storage_configuration"]: Generate both components
+#
+# Sub-Filter Options for Specific Component Selection:
+#
+# NFS_CONFIGURATION Sub-Filters:
+# - nfs_configuration:
+#     - server_ip: "172.27.17.90" 
+#       source_path: "/home/nfsshare/backups/TB23"
+#       Description: Filter by NFS server IP address and NFS source path
+#       Examples:
+#         - "172.27.17.90" 
+#           "/home/nfsshare/backups/TB23"
+#
+# Both server_ip and source_path must be provided together for filtering.
+#         
+# BACKUP_STORAGE_CONFIGURATION Sub-Filters:
+# - backup_storage_configuration:
+#     - server_type: "NFS"
+#       Description: Filter by backup storage server type
+#       Valid Values: "NFS", "PHYSICAL_DISK"
+#       Examples:
+#         - server_type: "NFS" - Filters backup configurations using NFS storage
+#         - server_type: "PHYSICAL_DISK" - Filters backup configurations using local disk storage
+#
+# Combined Sub-Filters Usage:
+# - Multiple sub-filters can be used together for precise filtering
+# - Each component type supports its specific filter criteria
+# - Filters are applied as OR conditions within the same component type
+# - For NFS filtering: Both server_ip and source_path must be provided together for filtering.
+#
+# ============================================================================
+# File Path Behavior
+# ============================================================================
+#
+# If file_path is specified:
+# - Uses the exact path provided
+# - Creates directory structure if it doesn't exist
+# - Overwrites existing files
+#
+# If file_path is NOT specified:
+# - Auto-generates filename in current working directory
+# - Format: <Module>_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+# - Example: backup_and_restore_playbook_config_2026-02-19_01-45-57.yml
+
+# ============================================================================
+# Notes and Limitations
+# ============================================================================
+
+# 1. Network Connectivity: Requires HTTPS connectivity to Catalyst Center
+# 2. File Permissions: Ensure write access to specified file paths
+# 3. Component Validation: Only "nfs_configuration", "backup_storage_configuration" are valid components
+# 4. Configuration Scope: Only retrieves existing configurations (brownfield)
+# 5. NFS Filtering: Both server_ip and source_path must be provided together for filtering.
+# 6. Authentication: Uses Catalyst Center credentials from inventory configuration
+# ============================================================================
