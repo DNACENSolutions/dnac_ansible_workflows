@@ -482,11 +482,11 @@ The following section details the available report templates in *Cisco Catalyst 
 
 ---
 
-#### **13. Access Point Reports - Worst Interfaces**
+#### **13. Access Point Reports - Worst Interferers**
 
 **Template Configuration:**
 - **View Group Name:** `Access Point`
-- **View Name:** `Worst Interfaces`
+- **View Name:** `Worst Interferers`
 
 **Supported Features:**
 - **Filters:** 
@@ -705,7 +705,7 @@ The following section details the available report templates in *Cisco Catalyst 
 - **Filters:** 
   - **Location** (`MULTI_SELECT_TREE`) *(Mandatory)*
   - **Band** (`MULTI_SELECT`)
-  - **TimeRange** (`TIME_RANGE`)
+  - **TimeRange** (`TIME_RANGE`) *(Mandatory)*
 - **Schedule Types:** 
   - Immediate execution (`SCHEDULE_NOW`)
   - One-time scheduled execution (`SCHEDULE_LATER`)
@@ -869,7 +869,7 @@ The following section details the available report templates in *Cisco Catalyst 
   - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
 
 - **Delivery Options:** Email notifications, Webhook Endpoints, Download
-- **File Formats:** CSV, TDE, PDF
+- **File Formats:** CSV, TDE, JSON
 - **Supported fields:** hostName, username, macAddress, ipv4, ipv6, deviceType, connectionStatus, averageHealthScore_min, averageHealthScore_max, averageHealthScore_median, usage_sum, connectedDeviceName, frequency, rssi_median, snr_median, site, lastUpdated, apGroup, ssid, vlan, vnid, onboardingEventTime, assocDoneTimestamp, authDoneTimestamp, aaaServerIp, dhcpDoneTimestamp, maxDhcpDuration_max, dhcpServerIp, linkSpeed, txRate_min, txRate_max, txRate_avg, rxRate_min, rxRate_max, rxRate_avg, txBytes_sum, rxBytes_sum, dataRate_median, dot11Protocol
 - **Field Group Name:** response
 
@@ -893,7 +893,7 @@ The following section details the available report templates in *Cisco Catalyst 
   - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
 
 - **Delivery Options:** Email notifications, Webhook Endpoints, Download
-- **File Formats:** CSV, TDE, PDF
+- **File Formats:** CSV, TDE, JSON
 - **Supported fields:** hostName, username, macAddress, ipv4, ipv6, deviceType, deviceForm, deviceVendor, remoteEndDuplexMode, hostOS, firmwareVersion, connectionStatus, averageHealthScore_min, averageHealthScore_max, averageHealthScore_median, usage_sum, duration_latest, connectedDeviceName, frequency, rssi_median, snr_median, site, lastUpdated, connectedDeviceId, apGroup, ssid, ethernetMac, slotId, vlan, vnid, port, portDescription, channel, onboardingEventTime, assocDoneTimestamp, authDoneTimestamp, aaaServerIp, dhcpDoneTimestamp, maxDhcpDuration_max, dhcpServerIp, wlcName, linkSpeed, txRate_min, txRate_max, txRate_avg, rxRate_min, rxRate_max, rxRate_avg, txBytes_sum, rxBytes_sum, dataRate_median, dot11Protocol
 - **Field Group Name:** client_details
 
@@ -916,7 +916,7 @@ The following section details the available report templates in *Cisco Catalyst 
   - Recurring execution (`SCHEDULE_RECURRENCE`) - Monthly/Weekly
 
 - **Delivery Options:** Email notifications, Webhook Endpoints, Download
-- **File Formats:** CSV, TDE, PDF
+- **File Formats:** CSV, TDE, JSON
 - **Supported fields:** macAddress, sessionStartTime, sessionEndTime, duration, apMac, ssid, siteHierarchy
 - **Field Group Name:** client_sessions
 
