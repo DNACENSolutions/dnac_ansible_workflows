@@ -1,0 +1,188 @@
+# Catalyst Center Brownfield Network Profile Switch Playbook Config Generator Schema
+# ===================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing switch profile infrastructure in Cisco Catalyst Center
+# using the playbooks module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports configuration generation operations for:
+# 1. Switch Profile Configurations - Extract existing switch profile configurations
+# 2. Day-N Template Configurations - Extract template assignments and configurations
+# 3. Site-based Filtering - Filter profiles by site hierarchy assignments
+# 4. Combined Operations - Generate multiple component configurations
+# 5. Filtered Generation - Selective component extraction with filters
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating the extraction
+# and generation of switch profile configurations from existing
+# Catalyst Center deployments (brownfield scenarios).
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)  
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# BROWNFIELD_NETWORK_PROFILE_SWITCH_CONFIG SECTION:
+# ------------------------------------------------
+# Contains configuration for generating YAML configurations from existing infrastructure:
+#
+# 1. GENERATE_ALL_CONFIGURATIONS:
+#    - Type: boolean (optional, default: false)
+#    - Description: If true, generates configurations for all switch profiles regardless of filters
+#    - When true, overrides any global_filters settings
+#    - Retrieves all switch profiles and associated configurations from Catalyst Center
+#    - Includes all Day-N templates, interface configurations, and site assignments
+#
+# 2. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved
+#    - If not provided, auto-generates filename with timestamp
+#    - Format: playbooks_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: playbooks_2025-11-12_21-43-26.yml
+#    - Supports absolute and relative paths
+#    - Creates directory structure if it doesn't exist
+#
+# 3. GLOBAL_FILTERS:
+#    - Type: dictionary (optional)
+#    - Description: Global filters to specify which switch profiles to include in the generated configuration
+#    - If generate_all_configurations is true, these filters are ignored
+#    - Filter priority (highest to lowest): profile_name_list, day_n_template_list, site_list
+#    - Only the highest priority filter with valid data will be processed
+#    
+#    Sub-options:
+#    - PROFILE_NAME_LIST:
+#      - Type: list of strings (optional)
+#      - Description: List of switch profile names to extract configurations from
+#      - HIGHEST PRIORITY - Used first if provided with valid data
+#      - Switch Profile names must match those registered in Catalyst Center
+#      - Case-sensitive and must be exact matches
+#      - Example: ["Campus_Switch_Profile", "Enterprise_Switch_Profile"]
+#      - Module will fail if any specified profile does not exist in Catalyst Center
+#      
+#    - DAY_N_TEMPLATE_LIST:
+#      - Type: list of strings (optional)
+#      - Description: List of Day-N templates to filter switch profiles
+#      - MEDIUM PRIORITY - Only used if profile_name_list is not provided
+#      - Retrieves all switch profiles containing any of the specified templates
+#      - Case-sensitive and must be exact matches
+#      - Example: ["Periodic_Config_Audit", "Security_Compliance_Check"]
+#      - Requires retrieving all profiles first, then filtering based on template assignments
+#      
+#    - SITE_LIST:
+#      - Type: list of strings (optional)
+#      - Description: List of site hierarchies to filter switch profiles
+#      - LOWEST PRIORITY - Only used if neither profile_name_list nor day_n_template_list are provided
+#      - Retrieves all switch profiles assigned to any of the specified sites
+#      - Case-sensitive and must be exact matches
+#      - Example: ["Global/India/Chennai/Main_Office", "Global/USA/San_Francisco/Regional_HQ"]
+#      - Requires retrieving all profiles first, then filtering based on site assignments
+#
+# GENERATED OUTPUT STRUCTURE:
+# --------------------------
+# The generated YAML file will contain a 'config' section with the following structure:
+#
+# config:
+#   - profile_name: "Campus_Switch_Profile"
+#     description: "Standard campus switch configuration"
+#     cli_templates:
+#       - template_name: "Basic_Switch_Config"
+#         template_content: "..."
+#         variable_mapping:
+#           - name: "VLAN_ID"
+#             value: "100"
+#     day_n_templates:
+#       - template_name: "Periodic_Config_Audit"
+#         template_content: "..."
+#         is_composite: false
+#     interface_templates:
+#       - interface_name: "GigabitEthernet1/0/1"
+#         interface_type: "Physical"
+#         template_content: "..."
+#     site_assignments:
+#       - site_hierarchy: "Global/India/Chennai/Main_Office"
+#         device_count: 15
+#
+# OPERATION WORKFLOWS:
+# -------------------
+# 1. Configuration Generation (All Switch Profiles):
+#    a. Set generate_all_configurations: true
+#    b. Optionally specify file_path
+#    c. All existing switch profiles and associated configurations will be extracted
+#
+# 2. Profile Name Based Generation:
+#    a. Use global_filters with profile_name_list
+#    b. Specify exact switch profile names
+#    c. Only specified profiles and their complete configurations will be extracted
+#
+# 3. Template Based Generation:
+#    a. Use global_filters with day_n_template_list
+#    b. Specify Day-N template names
+#    c. Extract all switch profiles that use any of the specified templates
+#
+# 4. Site Based Generation:
+#    a. Use global_filters with site_list
+#    b. Specify site hierarchies
+#    c. Extract all switch profiles assigned to any of the specified sites
+#
+# 5. Custom Output Path:
+#    a. Specify file_path parameter
+#    b. Can use absolute or relative paths
+#    c. Directory structure will be created if needed
+#
+# 6. Default Behavior:
+#    a. If no filters specified and generate_all_configurations is false, module will fail
+#    b. If no file_path specified, auto-generates filename with timestamp
+#    c. Generated in current working directory or specified path
+#
+# EXAMPLES:
+# --------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
+
+# Schema Definition
+brownfield_network_profile_switch_config: list(include('network_profile_switch_config_generator'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Network Profile Switch Configuration Generator Schema
+network_profile_switch_config_generator:
+  # Generate all configurations flag
+  generate_all_configurations: bool(required=False)
+  
+  # Output file path
+  file_path: str(required=False)
+  
+  # Global filters for switch profile extraction
+  global_filters: include('network_profile_switch_global_filters', required=False)
+
+---
+# Network Profile Switch Global Filters Schema
+network_profile_switch_global_filters:
+  # Profile name list - HIGHEST PRIORITY
+  profile_name_list: list(str(), min=1, max=100, required=False)
+  
+  # Day-N template list - MEDIUM PRIORITY
+  day_n_template_list: list(str(), min=1, max=100, required=False)
+  
+  # Site list - LOWEST PRIORITY
+  site_list: list(str(), min=1, max=100, required=False)
