@@ -1,0 +1,633 @@
+---
+# ============================================================================
+# Cisco Catalyst Center Network Profile Wireless Playbook Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/brownfield_network_profile_wireless/playbook/network_profile_wireless_playbook_config_generator_playbook.yml \
+#     --extra-vars VARS_FILE_PATH=../vars/network_profile_wireless_playbook_config_generator_inputs.yml
+#
+# ============================================================================
+
+brownfield_network_profile_wireless_config:
+  # Test 1: Generate all configurations with default file path
+    - generate_all_configurations: true
+      file_path: "network_profile_wireless/generate_all_true.yml"
+  
+  # Test 2: Generate all configurations without file path (auto-generated filename)
+    - generate_all_configurations: true
+
+  # Test 4: Filter by profile names
+    - file_path: "network_profile_wireless/profile_name_filter.yml"
+      global_filters:
+        profile_name_list:
+          - Campus_Wireless_Profile
+          - nw_profile_1
+
+  # Test 5: Filter by Day-N templates
+    - file_path: "network_profile_wireless/day_n_template_filter.yml"
+      global_filters:
+        day_n_template_list: ["Ans Wireless DayN 1"]
+
+  # Test 6: Filter by site list
+    - file_path: "network_profile_wireless/site_list_filter.yml"
+      global_filters:
+        site_list: ["Global/USA/SAN JOSE/SJ_BLD20/FLOOR3"]
+
+  # Test 7: Filter by SSID list
+    - file_path: "network_profile_wireless/ssid_list_filter.yml"
+      global_filters:
+        ssid_list: ["GUEST", "associate_profile_1"]
+
+  # Test 8: Filter by AP zone list
+    - file_path: "network_profile_wireless/ap_zone_list_filter.yml"
+      global_filters:
+        ap_zone_list: ["AP_Zone_North"]
+
+  # Test 9: Filter by feature template list
+    - file_path: "network_profile_wireless/feature_template_list_filter.yml"
+      global_filters:
+        feature_template_list: ["Default Dot11ax 6-GHz Design"]
+
+  # Test 10: Filter by additional interface list
+    - file_path: "network_profile_wireless/additional_interface_list_filter.yml"
+      global_filters:
+        additional_interface_list: ["temp_20", "VLAN_22"]
+
+  # Test 11: Generate all overriding global filters
+    - generate_all_configurations: true
+      file_path: "network_profile_wireless/generate_all_over_filters.yml"
+      global_filters:
+        profile_name_list: ["Campus_Wireless_Profile"]
+
+  # Test 12: Multiple generation requests
+    - file_path: "network_profile_wireless/multiple_generations_output1.yml"
+      global_filters:
+        profile_name_list: ["Campus_Wireless_Profile"]
+    - file_path: "network_profile_wireless/multiple_generations_output2.yml"
+      global_filters:
+        ssid_list: ["GUEST"]
+
+# ============================================================================
+# Additional Configuration Examples
+# ============================================================================
+
+# Example 1: Generate all wireless profiles with auto-generated filename
+# brownfield_network_profile_wireless_config:
+#   - generate_all_configurations: true
+
+# Example 2: Custom file path with specific profile names
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/home/ansible/wireless_configs/production_profiles.yml"
+#     global_filters:
+#       profile_name_list:
+#         - "Production_Campus_Profile"
+#         - "Production_Branch_Profile"
+
+# Example 3: Extract profiles by multiple SSIDs
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/tmp/guest_network_profiles.yml"
+#     global_filters:
+#       ssid_list:
+#         - "Guest_WiFi"
+#         - "Partner_Network"
+#         - "IoT_Network"
+
+# Example 4: Extract profiles for specific sites
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/tmp/regional_wireless_profiles.yml"
+#     global_filters:
+#       site_list:
+#         - "Global/USA/California/San_Jose/Building_1"
+#         - "Global/USA/California/San_Francisco/HQ"
+#         - "Global/USA/Texas/Austin/Campus"
+
+# Example 5: Multiple configurations with different filters
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/tmp/enterprise_profiles.yml"
+#     global_filters:
+#       profile_name_list:
+#         - "Enterprise_Wireless_Profile"
+#   - file_path: "/tmp/branch_profiles.yml"
+#     global_filters:
+#       ap_zone_list:
+#         - "Branch_Zone_1"
+#         - "Branch_Zone_2"
+
+# ============================================================================
+# GENERATE_ALL_CONFIGURATIONS Parameter Documentation
+# ============================================================================
+#
+# The 'generate_all_configurations' parameter controls whether the tool retrieves
+# all available wireless network profiles from Catalyst Center or applies
+# global_filters for selective extraction.
+
+# BEHAVIOR WHEN TRUE:
+# - Retrieves ALL wireless network profiles from Catalyst Center
+# - IGNORES any global_filters settings completely
+# - Overrides profile_name_list, day_n_template_list, site_list, ssid_list,
+#   ap_zone_list, feature_template_list, and additional_interface_list filters
+# - Extracts complete wireless infrastructure configuration including:
+#   * All wireless profiles
+#   * All site assignments
+#   * All SSID configurations
+#   * All AP zone settings
+#   * All feature templates
+#   * All Day-N templates
+#   * All additional interfaces
+# - Useful for complete brownfield discovery and documentation
+# - Best for migration scenarios or infrastructure audits
+#
+# BEHAVIOR WHEN FALSE (or not specified):
+# - Respects global_filters settings
+# - Applies filter priority hierarchy (profile_name_list > day_n_template_list > site_list > etc.)
+# - Only retrieves wireless profiles matching the highest priority filter with data
+# - Allows selective configuration generation
+# - Useful for targeted configuration extraction
+# - At least ONE filter with valid data must be provided when false
+# - Empty filter lists are treated as not provided
+#
+# EXAMPLES:
+#
+# Example A: Generate ALL configurations (ignores all filters)
+# brownfield_network_profile_wireless_config:
+#   - generate_all_configurations: true
+#     file_path: "/tmp/complete_wireless_infrastructure.yml"
+#     global_filters:
+#       profile_name_list: ["Campus_Profile"]  # <-- IGNORED when true
+#       ssid_list: ["Guest_WiFi"]               # <-- IGNORED when true
+#
+# Example B: Generate specific profiles only (respects filters)
+# brownfield_network_profile_wireless_config:
+#   - generate_all_configurations: false
+#     file_path: "/tmp/campus_profiles_only.yml"
+#     global_filters:
+#       profile_name_list: ["Campus_Profile"]  # <-- APPLIED when false
+#
+# Example C: Default behavior (same as false)
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/tmp/filtered_config.yml"
+#     global_filters:
+#       site_list: ["Global/USA/HQ"]  # <-- APPLIED when not specified
+
+# ============================================================================
+# Global Filters Priority Hierarchy
+# ============================================================================
+#
+# The module implements a strict filter priority system to ensure predictable
+# behavior. Only the HIGHEST priority filter with valid data will be processed.
+#
+# PRIORITY ORDER (Highest to Lowest):
+#
+# 1. PROFILE_NAME_LIST (HIGHEST PRIORITY)
+#    - Direct profile name matching
+#    - Most efficient method
+#    - Example: ["Campus_Wireless_Profile", "Enterprise_Wireless_Profile"]
+#    - Use Case: When you know exact profile names to extract
+#
+# 2. DAY_N_TEMPLATE_LIST
+#    - Filter profiles containing specified Day-N templates
+#    - Example: ["Wireless_Controller_Config", "Periodic_Config_Audit"]
+#    - Use Case: Extract profiles with specific operational configurations
+#
+# 3. SITE_LIST
+#    - Filter profiles assigned to specified sites
+#    - Example: ["Global/India/Chennai", "Global/USA/California/San_Jose"]
+#    - Use Case: Site-specific configuration extraction
+#
+# 4. SSID_LIST
+#    - Filter profiles containing specified SSIDs
+#    - Example: ["Guest_WiFi", "Corporate_WiFi", "IoT_Network"]
+#    - Use Case: Track SSID usage across profiles
+#
+# 5. AP_ZONE_LIST
+#    - Filter profiles containing specified AP zones
+#    - Example: ["Branch_AP_Zone", "HQ_AP_Zone", "Campus_Zone_1"]
+#    - Use Case: Zone-specific configuration management
+#
+# 6. FEATURE_TEMPLATE_LIST
+#    - Filter profiles containing specified feature templates
+#    - Example: ["Default AAA_Radius_Attributes_Configuration", "Default CleanAir 6GHz Design"]
+#    - Use Case: Extract profiles with specific features
+#
+# 7. ADDITIONAL_INTERFACE_LIST (LOWEST PRIORITY)
+#    - Filter profiles containing specified interfaces
+#    - Example: ["VLAN_22", "GigabitEthernet0/2", "management_interface"]
+#    - Use Case: Interface-specific configuration tracking
+#
+# FILTER PROCESSING RULES:
+#
+# Rule 1: If profile_name_list has valid data → Use it, ignore ALL other filters
+# Rule 2: Else if day_n_template_list has valid data → Use it, ignore lower priority filters
+# Rule 3: Else if site_list has valid data → Use it, ignore lower priority filters
+# Rule 4: Else if ssid_list has valid data → Use it, ignore lower priority filters
+# Rule 5: Else if ap_zone_list has valid data → Use it, ignore lower priority filters
+# Rule 6: Else if feature_template_list has valid data → Use it, ignore lower priority filters
+# Rule 7: Else if additional_interface_list has valid data → Use it
+# Rule 8: Else if generate_all_configurations is true → Extract all profiles
+# Rule 9: Else → Module FAILS with error requiring at least one filter
+#
+# IMPORTANT NOTES:
+# - Only ONE filter type is processed per execution
+# - Empty filter lists (e.g., profile_name_list: []) are treated as "not provided"
+# - All filter values are case-sensitive and must be exact matches
+# - Invalid filter values will cause module failure
+
+# ============================================================================
+# Global Filter Details and Examples
+# ============================================================================
+
+# PROFILE_NAME_LIST (Priority 1 - HIGHEST):
+# ------------------------------------------
+# Description: List of exact wireless profile names to extract
+# Format: List of strings
+# Case Sensitivity: YES - Must match exactly as shown in Catalyst Center
+# Validation: Module will fail if any specified profile does not exist
+#
+# global_filters:
+#   profile_name_list:
+#     - "Campus_Wireless_Profile"
+#     - "Enterprise_Wireless_Profile"
+#     - "Branch_Office_Profile"
+#
+# Use Cases:
+# - Known profile names for targeted extraction
+# - Migration of specific profiles to new environment
+# - Configuration backup of critical profiles
+# - Audit of specific wireless deployments
+
+# DAY_N_TEMPLATE_LIST (Priority 2):
+# ----------------------------------
+# Description: Filter profiles containing specified Day-N templates
+# Format: List of strings (template names)
+# Case Sensitivity: YES - Must match exactly as shown in Catalyst Center
+# Processing: Retrieves all profiles, then filters by template assignments
+#
+# global_filters:
+#   day_n_template_list:
+#     - "Wireless_Controller_Config"
+#     - "Periodic_Config_Audit"
+#     - "Security_Compliance_Check"
+#
+# Use Cases:
+# - Find all profiles using specific controller configurations
+# - Extract profiles with compliance audit templates
+# - Identify profiles with security configurations
+# - Operational configuration tracking
+
+# SITE_LIST (Priority 3):
+# -----------------------
+# Description: Filter profiles assigned to specified site hierarchies
+# Format: List of strings (full site paths)
+# Case Sensitivity: YES - Must match exactly as shown in Catalyst Center
+# Path Format: "Global/Country/State/City/Building/Floor"
+# Processing: Retrieves all profiles, then filters by site assignments
+#
+# global_filters:
+#   site_list:
+#     - "Global/India/Chennai/Main_Office"
+#     - "Global/USA/California/San_Jose/Building_1"
+#     - "Global/USA/Texas/Austin/Campus"
+#
+# Use Cases:
+# - Site-specific configuration extraction
+# - Regional wireless configuration audit
+# - Campus-specific profile backup
+# - Multi-site deployment planning
+
+# SSID_LIST (Priority 4):
+# -----------------------
+# Description: Filter profiles containing specified SSIDs
+# Format: List of strings (SSID names)
+# Case Sensitivity: YES - Must match exactly as shown in Catalyst Center
+# Processing: Retrieves all profiles, then filters by SSID presence
+#
+# global_filters:
+#   ssid_list:
+#     - "Guest_WiFi"
+#     - "Corporate_WiFi"
+#     - "IoT_Network"
+#     - "Partner_Access"
+#
+# Use Cases:
+# - Track specific SSID usage across profiles
+# - Guest network configuration extraction
+# - IoT network profile identification
+# - Wireless network segmentation audit
+
+# AP_ZONE_LIST (Priority 5):
+# ---------------------------
+# Description: Filter profiles containing specified AP zones
+# Format: List of strings (AP zone names)
+# Case Sensitivity: YES - Must match exactly as shown in Catalyst Center
+# Processing: Retrieves all profiles, then filters by AP zone presence
+#
+# global_filters:
+#   ap_zone_list:
+#     - "Branch_AP_Zone"
+#     - "HQ_AP_Zone"
+#     - "Campus_Zone_1"
+#     - "Campus_Zone_2"
+#
+# Use Cases:
+# - Zone-specific configuration management
+# - AP coverage area configuration extraction
+# - Multi-zone deployment tracking
+# - Regional AP zone audit
+
+# FEATURE_TEMPLATE_LIST (Priority 6):
+# ------------------------------------
+# Description: Filter profiles containing specified feature templates
+# Format: List of strings (feature template names)
+# Case Sensitivity: YES - Must match exactly as shown in Catalyst Center
+# Processing: Retrieves all profiles, then filters by feature template assignments
+#
+# global_filters:
+#   feature_template_list:
+#     - "Default AAA_Radius_Attributes_Configuration"
+#     - "Default CleanAir 6GHz Design"
+#     - "Default Advanced SSID Design"
+#
+# Use Cases:
+# - Extract profiles with specific feature configurations
+# - Feature template usage tracking
+# - Security configuration audit
+# - Advanced feature deployment tracking
+
+# ADDITIONAL_INTERFACE_LIST (Priority 7 - LOWEST):
+# -------------------------------------------------
+# Description: Filter profiles containing specified additional interfaces
+# Format: List of strings (interface names)
+# Case Sensitivity: YES - Must match exactly as shown in Catalyst Center
+# Processing: Retrieves all profiles, then filters by interface presence
+#
+# global_filters:
+#   additional_interface_list:
+#     - "VLAN_22"
+#     - "GigabitEthernet0/2"
+#     - "management_interface"
+#     - "Corp_Interface_1"
+#
+# Use Cases:
+# - Interface-specific configuration tracking
+# - VLAN assignment audit
+# - Network interface usage identification
+# - Interface configuration extraction
+
+# ============================================================================
+# File Path Behavior
+# ============================================================================
+#
+# FILE_PATH Parameter:
+# - Type: String (optional)
+# - Description: Output path where the YAML configuration file will be saved
+#
+# If file_path is SPECIFIED:
+# - Uses the exact path provided (absolute or relative)
+# - Creates directory structure if it doesn't exist
+# - Overwrites existing files without warning
+# - Supports both Unix (/path/to/file.yml) and Windows (C:\path\to\file.yml) paths
+# - Example: "network_profile_wireless/campus_profiles.yml"
+# - Example: "/tmp/wireless_configs/production_profiles.yml"
+#
+# If file_path is NOT SPECIFIED:
+# - Auto-generates filename in current working directory
+# - Format: network_profile_wireless_workflow_manager_playbook_<YYYY-MM-DD_HH-MM-SS>.yml
+# - Example: network_profile_wireless_workflow_manager_playbook_2025-11-12_21-43-26.yml
+# - Timestamp ensures unique filename for each execution
+# - Prevents accidental overwrites
+#
+# EXAMPLES:
+#
+# Example 1: Relative path (creates subdirectory if needed)
+# brownfield_network_profile_wireless_config:
+#   - file_path: "configs/wireless/campus_profiles.yml"
+#     global_filters:
+#       profile_name_list: ["Campus_Profile"]
+#
+# Example 2: Absolute path
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/home/ansible/backups/wireless_configs_2026_02_17.yml"
+#     generate_all_configurations: true
+#
+# Example 3: Auto-generated filename (no file_path specified)
+# brownfield_network_profile_wireless_config:
+#   - generate_all_configurations: true
+#     # Output: network_profile_wireless_workflow_manager_playbook_2026-02-17_14-30-45.yml
+
+# ============================================================================
+# Complete Usage Examples
+# ============================================================================
+
+# Example 1: Complete Brownfield Discovery
+# -----------------------------------------
+# Extract all wireless profiles for complete infrastructure documentation
+#
+# brownfield_network_profile_wireless_config:
+#   - generate_all_configurations: true
+#     file_path: "/tmp/complete_wireless_infrastructure.yml"
+#
+# Result: Generates comprehensive YAML with ALL wireless profiles, sites, SSIDs,
+#         AP zones, templates, and interfaces
+
+# Example 2: Specific Profile Extraction
+# ---------------------------------------
+# Extract only specific wireless profiles by name
+#
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/tmp/critical_wireless_profiles.yml"
+#     global_filters:
+#       profile_name_list:
+#         - "Production_Campus_Profile"
+#         - "Production_Branch_Profile"
+#         - "DR_Site_Profile"
+#
+# Result: Generates YAML with only the three specified profiles
+
+# Example 3: Site-Based Extraction
+# ---------------------------------
+# Extract all wireless profiles assigned to specific sites
+#
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/tmp/regional_wireless_configs.yml"
+#     global_filters:
+#       site_list:
+#         - "Global/USA/California/San_Jose/Building_1"
+#         - "Global/USA/California/San_Francisco/HQ"
+#         - "Global/USA/Texas/Austin/Campus"
+#
+# Result: Generates YAML with all profiles assigned to these three sites
+
+# Example 4: SSID Tracking
+# ------------------------
+# Find all profiles providing specific wireless networks
+#
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/tmp/guest_network_profiles.yml"
+#     global_filters:
+#       ssid_list:
+#         - "Guest_WiFi"
+#         - "Partner_Access"
+#
+# Result: Generates YAML with all profiles containing either Guest_WiFi or Partner_Access SSIDs
+
+# Example 5: Multiple Extractions
+# --------------------------------
+# Generate multiple configuration files with different filters
+#
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/tmp/enterprise_profiles.yml"
+#     global_filters:
+#       profile_name_list:
+#         - "Enterprise_Wireless_Profile"
+#   - file_path: "/tmp/branch_profiles.yml"
+#     global_filters:
+#       ap_zone_list:
+#         - "Branch_Zone_1"
+#         - "Branch_Zone_2"
+#   - file_path: "/tmp/campus_profiles.yml"
+#     global_filters:
+#       site_list:
+#         - "Global/USA/California/Campus"
+#
+# Result: Generates three separate YAML files with different profile sets
+
+# Example 6: Template-Based Extraction
+# -------------------------------------
+# Extract profiles using specific Day-N templates
+#
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/tmp/controller_config_profiles.yml"
+#     global_filters:
+#       day_n_template_list:
+#         - "Wireless_Controller_Config"
+#         - "WLC_HA_Configuration"
+#
+# Result: Generates YAML with all profiles using these controller templates
+
+# Example 7: Feature-Based Extraction
+# ------------------------------------
+# Extract profiles with specific feature templates
+#
+# brownfield_network_profile_wireless_config:
+#   - file_path: "/tmp/advanced_features_profiles.yml"
+#     global_filters:
+#       feature_template_list:
+#         - "Default Advanced SSID Design"
+#         - "Default CleanAir 6GHz Design"
+#
+# Result: Generates YAML with all profiles using these feature templates
+
+# ============================================================================
+# Generated Output Structure
+# ============================================================================
+#
+# The generated YAML file will be compatible with the 
+# 'network_profile_wireless_workflow_manager' module and will contain:
+#
+# config:
+#   - profile_name: "Campus_Wireless_Profile"
+#     sites:
+#       - "Global/India/Chennai/Main_Office"
+#       - "Global/India/Bangalore/Branch_Office"
+#     ssid_details:
+#       - ssid_name: "Corporate_WiFi"
+#         ssid_type: "Enterprise"
+#         enable_fabric: true
+#         flex_connect:
+#           enable_flex_connect: true
+#           local_to_vlan: 100
+#         interface_name: "management"
+#         wlan_profile_name: "Corporate_Profile"
+#         dot11be_profile_id: "12345678-1234-1234-1234-123456789012"
+#     ap_zones:
+#       - zone_name: "HQ_AP_Zone"
+#         ap_count: 25
+#     feature_templates:
+#       - template_name: "Default AAA_Radius_Attributes_Configuration"
+#         template_id: "98765432-4321-4321-4321-210987654321"
+#     day_n_template:
+#       - template_name: "Wireless_Controller_Config"
+#         template_id: "11111111-2222-3333-4444-555555555555"
+#     additional_interfaces:
+#       - interface_name: "VLAN_22"
+#         vlan_id: 22
+
+# ============================================================================
+# Validation Rules
+# ============================================================================
+#
+# 1. Configuration Requirements:
+#    - Either generate_all_configurations: true OR at least one global_filter must be provided
+#    - Empty filter lists (e.g., profile_name_list: []) will cause validation failure
+#
+# 2. Profile Name Validation:
+#    - All profile names in profile_name_list must exist in Catalyst Center
+#    - Module will fail if any specified profile is not found
+#    - Profile names are case-sensitive
+#
+# 3. Filter Value Validation:
+#    - All filter values are case-sensitive and must be exact matches
+#    - Invalid filter values (non-existent templates, sites, SSIDs, etc.) may result in empty output
+#    - No partial matching or wildcard support
+#
+# 4. File Path Validation:
+#    - File path must be valid and writable
+#    - Parent directory will be created if it doesn't exist
+#    - Existing files will be overwritten without warning
+#
+# 5. Catalyst Center Version:
+#    - Minimum required version: 2.3.7.9
+#    - Module will fail if Catalyst Center version is lower
+#
+# 6. Filter Priority Validation:
+#    - Only the highest priority filter with valid data is processed
+#    - Lower priority filters are ignored when higher priority filter has data
+#    - This is by design to ensure predictable behavior
+
+# ============================================================================
+# Error Scenarios and Troubleshooting
+# ============================================================================
+#
+# ERROR: "No configurations or components to process"
+# Solution: Provide either generate_all_configurations: true OR at least one
+#           global_filter with valid data (non-empty list)
+#
+# ERROR: "Profile 'XYZ' not found in Catalyst Center"
+# Solution: Verify profile name exists in Catalyst Center UI
+#           Check for typos and case sensitivity
+#
+# ERROR: "Unable to write to file path"
+# Solution: Verify file path is valid and writable
+#           Check directory permissions
+#           Ensure parent directory exists or can be created
+#
+# ERROR: "Catalyst Center version 2.3.5.x is not supported"
+# Solution: Upgrade Catalyst Center to version 2.3.7.9 or higher
+#           Module requires newer wireless profile APIs
+#
+# WARNING: "Empty output generated"
+# Cause: Filter criteria matched no profiles
+# Solution: Verify filter values are correct (case-sensitive)
+#           Check if profiles with specified criteria exist in Catalyst Center
+#           Try using generate_all_configurations: true to see all available profiles
+
+# ============================================================================
+# Notes and Limitations
+# ============================================================================
+#
+# 1. Network Connectivity: Requires HTTPS connectivity to Catalyst Center
+# 2. Authentication: Uses Catalyst Center credentials from inventory/hosts configuration
+# 3. File Permissions: Ensure write access to specified file paths
+# 4. Version Requirements: Minimum Catalyst Center version 2.3.7.9
+# 5. Filter Behavior: Only ONE filter type processed per execution (priority-based)
+# 6. Case Sensitivity: All filter values are case-sensitive and require exact matches
+# 7. Configuration Scope: Only retrieves existing configurations (brownfield)
+# 8. Empty Filters: Empty filter lists are treated as "not provided"
+# 9. Output Format: Generated YAML is compatible with network_profile_wireless_workflow_manager module
+# 10. Overwrites: Existing files at specified file_path will be overwritten without warning
+# 11. Performance: Generating all configurations may take longer than filtered extraction
+# 12. API Limitations: Subject to Catalyst Center API rate limits and timeouts
+#
+# ============================================================================
