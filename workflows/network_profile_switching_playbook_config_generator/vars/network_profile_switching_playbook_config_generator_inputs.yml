@@ -1,0 +1,255 @@
+# ============================================================================
+# Cisco Catalyst Center Brownfield Network Profile Switch Playbook Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/network_profile_switching_playbook_config_generator/playbook/network_profile_switching_playbook_config_generator_playbook.yml \
+#     --extra-vars VARS_FILE_PATH=../vars/network_profile_switching_playbook_config_generator_inputs.yml
+#
+# ============================================================================
+
+brownfield_network_profile_switch_config:
+  # Generate all switch profiles with filepath
+  - generate_all_configurations: true
+    file_path: "network_profile_switch/profile_name_list1"
+
+  # Generate all switch profiles without filepath (auto-generated filename)
+  - generate_all_configurations: true
+
+  # Generate all configurations (overrides any filters when true)
+  - generate_all_configurations: true
+    file_path: "network_profile_switch/profile_name_list2"
+    global_filters:
+      profile_name_list:
+        - "Test Profile BF2"
+        - "Test Profile BF1"
+  
+  # Generate specific switch profiles by name
+  - file_path: "network_profile_switch/profile_name_list3"
+    global_filters:
+      profile_name_list:
+        - "Test Profile BF2"
+        - "Test Profile BF1"
+
+  # Generate switch profiles assigned to specific sites
+  - file_path: "network_profile_switch/profile_name_list4"
+    global_filters:
+      site_list:
+        - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
+
+  # Generate switch profiles by multiple sites
+  - file_path: "network_profile_switch/profile_name_list5"
+    global_filters:
+      site_list:
+        - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
+        - "Global/USA/SAN JOSE/SJ_BLD23/FLOOR2"
+
+  # Generate switch profiles by Day-N templates
+  - file_path: "network_profile_switch/profile_name_list6"
+    global_filters:
+      day_n_template_list:
+        - "Ans Switch DayN 2"
+
+  # Generate switch profiles by multiple Day-N templates
+  - file_path: "network_profile_switch/profile_name_list7"
+    global_filters:
+      day_n_template_list:
+        - "Ans Switch DayN 2"
+        - "static_host_onboarding_template"
+
+  # Multiple generation tasks in single execution
+  - file_path: "network_profile_switch/profile_name_list8"
+    global_filters:
+      profile_name_list:
+        - "Test Profile BF3"
+
+  - file_path: "network_profile_switch/profile_name_list9"
+    global_filters:
+      day_n_template_list:
+        - "Ans Switch DayN 1"
+
+  - file_path: "network_profile_switch/profile_name_list10"
+    global_filters:
+      site_list:
+        - "Global/USA/SAN JOSE/SJ_BLD23/FLOOR2"
+
+# ============================================================================
+# Additional Configuration Examples
+# ============================================================================
+# Example 1: Generate all switch profiles with auto-generated filename
+# brownfield_network_profile_switch_config:
+#   - generate_all_configurations: true
+
+# Example 2: Custom file path with specific profiles
+# brownfield_network_profile_switch_config:
+#   - file_path: "/home/ansible/switch_configs/production_campus_profiles.yml"
+#     global_filters:
+#       profile_name_list:
+#         - "Production_Campus_Profile"
+
+# Example 3: Site-based filtering for regional deployment
+# brownfield_network_profile_switch_config:
+#   - file_path: "/tmp/regional_switch_profiles.yml"
+#     global_filters:
+#       site_list:
+#         - "Global/USA/West_Coast/San_Francisco"
+#         - "Global/USA/West_Coast/Los_Angeles"
+
+# Example 4: Template-based filtering for compliance
+# brownfield_network_profile_switch_config:
+#   - file_path: "/tmp/compliance_switch_profiles.yml"
+#     global_filters:
+#       day_n_template_list:
+#         - "Security_Compliance_Check"
+#         - "Regulatory_Audit_Template"
+
+# ============================================================================
+# GENERATE_ALL_CONFIGURATIONS Parameter Documentation
+# ============================================================================
+#
+# The 'generate_all_configurations' parameter controls whether the tool retrieves
+# all available switch profiles from Catalyst Center or applies global filters.
+
+# BEHAVIOR WHEN TRUE:
+# - Retrieves ALL switch profiles from Catalyst Center
+# - IGNORES any global_filters settings
+# - Overrides profile_name_list, day_n_template_list, and site_list filters
+# - Extracts complete switch profile infrastructure configuration
+#
+# BEHAVIOR WHEN FALSE (or not specified):
+# - Respects global_filters settings
+# - Applies priority-based filtering (Profile Names > Day-N Templates > Sites)
+# - Only retrieves switch profiles matching specified criteria
+# - Allows selective configuration generation
+# - Useful for targeted configuration extraction
+#
+# EXAMPLES:
+#
+# Example A: Generate ALL configurations (ignores filters)
+# brownfield_network_profile_switch_config:
+#   - generate_all_configurations: true
+#     file_path: "/tmp/complete_infrastructure.yml"
+#     global_filters:
+#       profile_name_list: ["Campus_Profile"]  # <-- IGNORED when true
+#
+# Example B: Generate specific profiles only (respects filters)
+# brownfield_network_profile_switch_config:
+#   - generate_all_configurations: false
+#     file_path: "/tmp/campus_only.yml"
+#     global_filters:
+#       profile_name_list: ["Campus_Profile"]  # <-- APPLIED when false
+#
+# Example C: Default behavior (same as false)
+# brownfield_network_profile_switch_config:
+#   - file_path: "/tmp/filtered_config.yml"
+#     global_filters:
+#       site_list: ["Global/USA/Main_Office"]  # <-- APPLIED when not specified
+
+# ============================================================================
+# Global Filter Details and Priority
+# ============================================================================
+#
+# FILTER PRIORITY ORDER (Highest to Lowest):
+# 1. profile_name_list (HIGHEST PRIORITY)
+# 2. day_n_template_list (MEDIUM PRIORITY)  
+# 3. site_list (LOWEST PRIORITY)
+#
+# Only the highest priority filter with data will be processed.
+# If profile_name_list is provided, day_n_template_list and site_list are ignored.
+#
+# PROFILE_NAME_LIST Filter:
+# - global_filters:
+#     profile_name_list:
+#       - "Campus_Switch_Profile"
+#       - "Enterprise_Switch_Profile"
+#   Description: Filter by exact switch profile names
+#   Case-sensitive: Must match exact profile names in Catalyst Center
+#   Behavior: Module will fail if any specified profile doesn't exist
+#   Examples:
+#     - "Campus_Switch_Profile"
+#     - "Enterprise_Switch_Profile" 
+#     - "Branch_Office_Profile"
+#
+# DAY_N_TEMPLATE_LIST Filter:
+# - global_filters:
+#     day_n_template_list:
+#       - "Periodic_Config_Audit"
+#       - "Security_Compliance_Check"
+#   Description: Filter by Day-N template names associated with switch profiles
+#   Case-sensitive: Must match exact template names in Catalyst Center
+#   Behavior: Returns all switch profiles containing any of the specified templates
+#   Examples:
+#     - "Periodic_Config_Audit"
+#     - "Security_Compliance_Check"
+#     - "Performance_Monitoring"
+#
+# SITE_LIST Filter:
+# - global_filters:
+#     site_list:
+#       - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
+#       - "Global/India/Chennai/Main_Office"
+#   Description: Filter by site hierarchy paths where switch profiles are assigned
+#   Case-sensitive: Must match exact site hierarchy paths
+#   Behavior: Returns all switch profiles assigned to any of the specified sites
+#   Examples:
+#     - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
+#     - "Global/India/Chennai/Main_Office"
+#     - "Global/UK/London/Regional_HQ"
+
+# ============================================================================
+# File Path Behavior
+# ============================================================================
+#
+# If file_path is specified:
+# - Uses the exact path provided
+# - Creates directory structure if it doesn't exist
+# - Overwrites existing files
+# - Supports absolute and relative paths
+#
+# If file_path is NOT specified:
+# - Auto-generates filename in current working directory
+# - Format: playbooks_<timestamp>.yml
+# - Example: playbooks_2026-02-19_14-30-45.yml
+# - Ensures unique filenames with timestamp
+
+# ============================================================================
+# Priority-Based Filtering Examples
+# ============================================================================
+
+# Example 1: Profile Names Take Precedence (Day-N and Sites Ignored)
+# brownfield_network_profile_switch_config:
+#   - file_path: "/tmp/priority_example1.yml"
+#     global_filters:
+#       profile_name_list: ["Campus_Profile"]        # <-- USED (HIGHEST PRIORITY)
+#       day_n_template_list: ["Some_Template"]       # <-- IGNORED
+#       site_list: ["Some/Site/Path"]                # <-- IGNORED
+
+# Example 2: Day-N Templates Used When No Profile Names (Sites Ignored)
+# brownfield_network_profile_switch_config:
+#   - file_path: "/tmp/priority_example2.yml"
+#     global_filters:
+#       day_n_template_list: ["Security_Template"]   # <-- USED (MEDIUM PRIORITY)
+#       site_list: ["Some/Site/Path"]                # <-- IGNORED
+
+# Example 3: Sites Used When No Profile Names or Day-N Templates
+# brownfield_network_profile_switch_config:
+#   - file_path: "/tmp/priority_example3.yml"
+#     global_filters:
+#       site_list: ["Global/USA/Main_Office"]        # <-- USED (LOWEST PRIORITY)
+
+# ============================================================================
+# Notes and Limitations
+# ============================================================================
+
+# 1. Network Connectivity: Requires HTTPS connectivity to Catalyst Center
+# 2. File Permissions: Ensure write access to specified file paths
+# 3. Profile Validation: Profile names must exist in Catalyst Center (case-sensitive)
+# 4. Site Hierarchy: Site paths must match exact hierarchy in Catalyst Center
+# 5. Template Names: Day-N template names must be exact matches (case-sensitive)
+# 6. Configuration Scope: Only retrieves existing switch profile configurations (brownfield)
+# 7. Filter Priority: Only highest priority filter with data is processed
+# 8. Authentication: Uses Catalyst Center credentials from inventory configuration
+# 9. API Limits: Large result sets may impact performance
+# 10. Output Format: Generated files are compatible with cisco.dnac.playbooks module
+# ============================================================================
