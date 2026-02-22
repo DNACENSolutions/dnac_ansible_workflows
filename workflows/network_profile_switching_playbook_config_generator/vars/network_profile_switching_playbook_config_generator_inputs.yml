@@ -12,64 +12,64 @@
 brownfield_network_profile_switch_config:
   # Generate all switch profiles with filepath
   - generate_all_configurations: true
-    file_path: "network_profile_switch/profile_name_list1"
+    file_path: "network_profile_switch/generate_all_config1.yml"
 
   # Generate all switch profiles without filepath (auto-generated filename)
   - generate_all_configurations: true
 
   # Generate all configurations (overrides any filters when true)
   - generate_all_configurations: true
-    file_path: "network_profile_switch/profile_name_list2"
+    file_path: "network_profile_switch/generate_all_config2.yml"
     global_filters:
       profile_name_list:
         - "Test Profile BF2"
         - "Test Profile BF1"
   
   # Generate specific switch profiles by name
-  - file_path: "network_profile_switch/profile_name_list3"
+  - file_path: "network_profile_switch/profile_name_list1.yml"
     global_filters:
       profile_name_list:
         - "Test Profile BF2"
         - "Test Profile BF1"
 
   # Generate switch profiles assigned to specific sites
-  - file_path: "network_profile_switch/profile_name_list4"
+  - file_path: "network_profile_switch/site_list1.yml"
     global_filters:
       site_list:
         - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
 
   # Generate switch profiles by multiple sites
-  - file_path: "network_profile_switch/profile_name_list5"
+  - file_path: "network_profile_switch/site_list2.yml"
     global_filters:
       site_list:
         - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
         - "Global/USA/SAN JOSE/SJ_BLD23/FLOOR2"
 
   # Generate switch profiles by Day-N templates
-  - file_path: "network_profile_switch/profile_name_list6"
+  - file_path: "network_profile_switch/day_n_template_list1.yml"
     global_filters:
       day_n_template_list:
         - "Ans Switch DayN 2"
 
   # Generate switch profiles by multiple Day-N templates
-  - file_path: "network_profile_switch/profile_name_list7"
+  - file_path: "network_profile_switch/day_n_template_list2.yml"
     global_filters:
       day_n_template_list:
         - "Ans Switch DayN 2"
         - "static_host_onboarding_template"
 
   # Multiple generation tasks in single execution
-  - file_path: "network_profile_switch/profile_name_list8"
+  - file_path: "network_profile_switch/profile_name_list2.yml"
     global_filters:
       profile_name_list:
         - "Test Profile BF3"
 
-  - file_path: "network_profile_switch/profile_name_list9"
+  - file_path: "network_profile_switch/day_n_template_list3.yml"
     global_filters:
       day_n_template_list:
         - "Ans Switch DayN 1"
 
-  - file_path: "network_profile_switch/profile_name_list10"
+  - file_path: "network_profile_switch/site_list3.yml"
     global_filters:
       site_list:
         - "Global/USA/SAN JOSE/SJ_BLD23/FLOOR2"

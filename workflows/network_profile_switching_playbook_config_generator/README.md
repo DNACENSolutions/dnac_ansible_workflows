@@ -247,7 +247,7 @@ brownfield_network_profile_switch_config:
 workflows/network_profile_switching_playbook_config_generator/schema/network_profile_switching_playbook_config_generator_schema.yml
 workflows/network_profile_switching_playbook_config_generator/vars/network_profile_switching_playbook_config_generator_inputs.yml
 yamale   -s workflows/network_profile_switching_playbook_config_generator/schema/network_profile_switching_playbook_config_generator_schema.yml  workflows/network_profile_switching_playbook_config_generator/vars/network_profile_switching_playbook_config_generator_inputs.yml
-Validating workflows/brownfield_network_profile_switch/vars/brownfield_network_profile_switch_inputs.yml...
+Validating workflows/network_profile_switching_playbook_config_generator/vars/network_profile_switching_playbook_config_generator_inputs.yml...
 Validation success! 👍
 ```
 
@@ -324,7 +324,7 @@ Extract configurations for specific switch profiles by name.
 
 ```yaml
 brownfield_network_profile_switch_config:
-  - file_path: "/tmp/campus_enterprise_profiles.yml"
+  - file_path: "/tmp/profile_name_list.yml"
     global_filters:
       profile_name_list:
         - "Test Profile BF1"
@@ -337,7 +337,7 @@ Extract all switch profiles that use specific Day-N templates.
 
 ```yaml
 brownfield_network_profile_switch_config:
-  - file_path: "/tmp/audit_template_profiles.yml"
+  - file_path: "/tmp/day_n_template_list.yml"
     global_filters:
       day_n_template_list:
         - "Ans Switch DayN 2"
@@ -366,13 +366,13 @@ brownfield_network_profile_switch_config:
     file_path: "/tmp/all_switch_profiles.yml"
   
   # Generate specific profiles
-  - file_path: "/tmp/campus_profiles_only.yml"
+  - file_path: "/tmp/name_based_profiles.yml"
     global_filters:
       profile_name_list:
         - "Campus_Switch_Profile"
   
   # Generate by template
-  - file_path: "/tmp/security_template_profiles.yml"
+  - file_path: "/tmp/day_n_template_based_profiles.yml"
     global_filters:
       day_n_template_list:
         - "Ans Switch DayN 2"
@@ -415,21 +415,21 @@ brownfield_network_profile_switch_config:
 ```yaml
 brownfield_network_profile_switch_config:
   # Primary generation task
-  - file_path: "/tmp/production_switch_profiles.yml"
+  - file_path: "/tmp/switch_profiles.yml"
     global_filters:
       profile_name_list:
         - "Test Profile BF1"
         - "Test Profile BF2"
   
   # Backup generation task with templates
-  - file_path: "/tmp/template_based_backup.yml"
+  - file_path: "/tmp/template_based_profiles.yml"
     global_filters:
       day_n_template_list:
         - "Ans Switch DayN 2"
         - "static_host_onboarding_template"
   
   # Site-specific generation for branch offices
-  - file_path: "/tmp/branch_office_profiles.yml"
+  - file_path: "/tmp/site_based_profiles.yml"
     global_filters:
       site_list:
         - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
