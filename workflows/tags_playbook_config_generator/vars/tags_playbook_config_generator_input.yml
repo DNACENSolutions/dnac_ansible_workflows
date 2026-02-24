@@ -83,17 +83,17 @@ tags_config:
 # Additional Configuration Examples
 # ============================================================================
 # Example 1: Generate all components with auto-generated filename
-# brownfield_tags_config:
+# tags_config:
 #   - generate_all_configurations: true
 
 # Example 2: Custom file path with specific components
-# brownfield_tags_config:
+# tags_config:
 #   - file_path: "/home/ansible/tag_configs/production_tags.yml"
 #     component_specific_filters:
 #       components_list: ["tag"]
 
 # Example 3: Multiple tag filters with specific criteria
-# brownfield_tags_config:
+# tags_config:
 #   - file_path: "generated_file/filtered_tags_config.yml"
 #     component_specific_filters:
 #       components_list: ["tag", "tag_memberships"]
@@ -128,21 +128,21 @@ tags_config:
 # EXAMPLES:
 #
 # Example A: Generate ALL configurations (ignores filters)
-# brownfield_tags_config:
+# tags_config:
 #   - generate_all_configurations: true
 #     file_path: "generated_file/complete_tags_infrastructure.yml"
 #     component_specific_filters:
 #       components_list: ["tag"]  # <-- IGNORED when true
 #
 # Example B: Generate specific components only (respects filters)
-# brownfield_tags_config:
+# tags_config:
 #   - generate_all_configurations: false
 #     file_path: "generated_file/tags_only.yml"
 #     component_specific_filters:
 #       components_list: ["tag"]  # <-- APPLIED when false
 #
 # Example C: Default behavior (same as false)
-# brownfield_tags_config:
+# tags_config:
 #   - file_path: "generated_file/filtered_config.yml"
 #     component_specific_filters:
 #       components_list: ["tag_memberships"]  # <-- APPLIED when not specified
