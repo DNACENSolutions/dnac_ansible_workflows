@@ -67,9 +67,9 @@ tags_playbook_config_generator/
 ├── playbook/
 │   └── tags_playbook_config_generator.yml             # Main operations
 ├── vars/
-│   ├── tags_playbook_config_input.yml                 # Configuration examples
+│   ├── tags_playbook_config_generator_input.yml                 # Configuration examples
 ├── schema/
-│   └── tags_playbook_config_schema.yml                # Input validation
+│   └── tags_playbook_config_generator_schema.yml                # Input validation
 └── README.md                                                
 ```
 
@@ -137,7 +137,7 @@ catalyst_center_hosts:
 
 ### Step 3: Configure Variables
 
-Edit `workflows/tags_playbook_config_generator/vars/tags_playbook_config_input.yml`:
+Edit `workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml`:
 
 ```yaml
 tags_config:
@@ -148,8 +148,8 @@ tags_config:
 ### Step 4: Validate Configuration
 
 ```bash
-./tools/validate.sh -s workflows/tags_playbook_config_generator/schema/tags_playbook_config_schema.yml \
-     -d workflows/tags_playbook_config_generator/vars/tags_playbook_config_input.yml
+./tools/validate.sh -s workflows/tags_playbook_config_generator/schema/tags_playbook_config_generator_schema.yml \
+     -d workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
 ```
 
 ### Step 5: Execute Playbook
@@ -157,7 +157,7 @@ tags_config:
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/tags_playbook_config_input.yml
+  --extra-vars VARS_FILE_PATH=../vars/tags_playbook_config_generator_input.yml
 ```
 
 ### Workflow Execution
@@ -216,16 +216,16 @@ tags_config:
 ```bash
 # Validate
 ./tools/validate.sh -s workflows/tags_playbook_config_generator/schema/tags_playbook_config_generator_schema.yml \
-                   -d workflows/tags_playbook_config_generator/vars/tags_playbook_config_input.yml
+                   -d workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
 ````
 Return result validate:
 ```bash
-(pyats-mekandar) [mekandar@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/tags_playbook_config_generator/schema/tags_playbook_config_schema.yml \
->                    -d workflows/tags_playbook_config_generator/vars/tags_playbook_config_input.yml
-workflows/tags_playbook_config_generator/schema/tags_playbook_config_schema.yml
-workflows/tags_playbook_config_generator/vars/tags_playbook_config_input.yml
-yamale   -s workflows/tags_playbook_config_generator/schema/tags_playbook_config_schema.yml  workflows/tags_playbook_config_generator/vars/tags_playbook_config_input.yml
-Validating workflows/tags_playbook_config_generator/vars/tags_playbook_config_input.yml...
+(pyats-mekandar) [mekandar@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/tags_playbook_config_generator/schema/tags_playbook_config_generator_schema.yml \
+>                    -d workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
+workflows/tags_playbook_config_generator/schema/tags_playbook_config_generator_schema.yml
+workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
+yamale   -s workflows/tags_playbook_config_generator/schema/tags_playbook_config_generator_schema.yml  workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
+Validating workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml...
 Validation success! 👍
 ```
 
@@ -233,7 +233,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/tags_playbook_config_input.yml
+  --extra-vars VARS_FILE_PATH=../vars/tags_playbook_config_generator_input.yml
 ```
 
 Expected Terminal Output:

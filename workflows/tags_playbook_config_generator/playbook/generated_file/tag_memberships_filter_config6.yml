@@ -1,9 +1,0 @@
----
-config:
-- tag_memberships:
-    tags:
-    - a
-    device_details:
-    - serial_numbers:
-      - FJC27212582
-      - FJC272121AG
