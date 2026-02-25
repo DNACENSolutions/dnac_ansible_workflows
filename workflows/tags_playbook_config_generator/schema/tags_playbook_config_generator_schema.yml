@@ -160,26 +160,23 @@ tags_config_generator:
   # Component-specific filters
   component_specific_filters: include('tags_component_filters', required=False)
 
----
 # Tags Component Filters Schema
 tags_component_filters:
   # List of components to include
   components_list: list(enum("tag", "tag_memberships"), min=0, max=10, required=False)
   
   # Tag configuration filters
-  tag: list(include('tag_filter'), min=0, max=100, required=False)
+  tag: list(include('tag_filter_type'), min=0, max=100, required=False)
   
   # Tag membership configuration filters  
-  tag_memberships: list(include('tag_memberships_filter'), min=0, max=100, required=False)
+  tag_memberships: list(include('tag_memberships_filter_type'), min=0, max=100, required=False)
 
----
 # Tag Filter Schema
-tag_filter:
+tag_filter_type:
   # Tag name for filtering tag configurations
   tag_name: str(required=True)
 
----
 # Tag Memberships Filter Schema
-tag_memberships_filter:
+tag_memberships_filter_type:
   # Tag name for filtering tag membership configurations
   tag_name: str(required=True)
