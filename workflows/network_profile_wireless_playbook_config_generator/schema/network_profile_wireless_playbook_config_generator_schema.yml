@@ -35,7 +35,7 @@
 # catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
 # catalyst_center_config_verify:     Configuration verification (optional, default: false)
 #
-# BROWNFIELD_NETWORK_PROFILE_WIRELESS_CONFIG SECTION:
+# network_profile_wireless_config SECTION:
 # --------------------------------------------------
 # Contains configuration for generating YAML configurations from existing wireless infrastructure:
 #
@@ -292,7 +292,7 @@
 # - vars/additional_interface_filter_example.yml
 
 # Schema Definition
-brownfield_network_profile_wireless_config: list(include('network_profile_wireless_config_generator'), min=1, max=100, required=True)
+network_profile_wireless_config: list(include('network_profile_wireless_config_type'), min=1, max=100, required=True)
 
 # Optional Catalyst Center connection parameters
 catalyst_center_version: str(required=False)
@@ -307,7 +307,7 @@ catalyst_center_config_verify: bool(required=False)
 
 ---
 # Network Profile Wireless Configuration Generator Schema
-network_profile_wireless_config_generator:
+network_profile_wireless_config_type:
   # Generate all configurations flag
   generate_all_configurations: bool(required=False)
   
@@ -315,11 +315,10 @@ network_profile_wireless_config_generator:
   file_path: str(required=False)
   
   # Global filters for wireless profile selection
-  global_filters: include('network_profile_wireless_global_filters', required=False)
+  global_filters: include('network_profile_wireless_global_filters_type', required=False)
 
----
 # Network Profile Wireless Global Filters Schema
-network_profile_wireless_global_filters:
+network_profile_wireless_global_filters_type:
   # PRIORITY 1: Profile name list (HIGHEST PRIORITY)
   # List of wireless profile names to extract configurations from
   # When provided with valid data, all other filters are ignored

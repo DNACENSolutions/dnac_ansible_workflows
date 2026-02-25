@@ -40,10 +40,10 @@
         <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ [item] }}"
-      loop: "{{ brownfield_network_profile_wireless_config }}"
+      loop: "{{ network_profile_wireless_config }}"
       when:
-        - brownfield_network_profile_wireless_config is defined
-        - brownfield_network_profile_wireless_config | length > 0
+        - network_profile_wireless_config is defined
+        - network_profile_wireless_config | length > 0
       register: config_generation_result
 
     - name: Display configuration generation results

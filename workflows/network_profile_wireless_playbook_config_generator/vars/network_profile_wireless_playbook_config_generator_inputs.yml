@@ -10,7 +10,7 @@
 #
 # ============================================================================
 
-brownfield_network_profile_wireless_config:
+network_profile_wireless_config:
   # Test 1: Generate all configurations with default file path
     - generate_all_configurations: true
       file_path: "network_profile_wireless/generate_all_true.yml"
@@ -74,11 +74,11 @@ brownfield_network_profile_wireless_config:
 # ============================================================================
 
 # Example 1: Generate all wireless profiles with auto-generated filename
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - generate_all_configurations: true
 
 # Example 2: Custom file path with specific profile names
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/home/ansible/wireless_configs/production_profiles.yml"
 #     global_filters:
 #       profile_name_list:
@@ -86,7 +86,7 @@ brownfield_network_profile_wireless_config:
 #         - "Production_Branch_Profile"
 
 # Example 3: Extract profiles by multiple SSIDs
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/tmp/guest_network_profiles.yml"
 #     global_filters:
 #       ssid_list:
@@ -95,7 +95,7 @@ brownfield_network_profile_wireless_config:
 #         - "IoT_Network"
 
 # Example 4: Extract profiles for specific sites
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/tmp/regional_wireless_profiles.yml"
 #     global_filters:
 #       site_list:
@@ -104,7 +104,7 @@ brownfield_network_profile_wireless_config:
 #         - "Global/USA/Texas/Austin/Campus"
 
 # Example 5: Multiple configurations with different filters
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/tmp/enterprise_profiles.yml"
 #     global_filters:
 #       profile_name_list:
@@ -151,7 +151,7 @@ brownfield_network_profile_wireless_config:
 # EXAMPLES:
 #
 # Example A: Generate ALL configurations (ignores all filters)
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - generate_all_configurations: true
 #     file_path: "/tmp/complete_wireless_infrastructure.yml"
 #     global_filters:
@@ -159,14 +159,14 @@ brownfield_network_profile_wireless_config:
 #       ssid_list: ["Guest_WiFi"]               # <-- IGNORED when true
 #
 # Example B: Generate specific profiles only (respects filters)
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - generate_all_configurations: false
 #     file_path: "/tmp/campus_profiles_only.yml"
 #     global_filters:
 #       profile_name_list: ["Campus_Profile"]  # <-- APPLIED when false
 #
 # Example C: Default behavior (same as false)
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/tmp/filtered_config.yml"
 #     global_filters:
 #       site_list: ["Global/USA/HQ"]  # <-- APPLIED when not specified
@@ -401,18 +401,18 @@ brownfield_network_profile_wireless_config:
 # EXAMPLES:
 #
 # Example 1: Relative path (creates subdirectory if needed)
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "configs/wireless/campus_profiles.yml"
 #     global_filters:
 #       profile_name_list: ["Campus_Profile"]
 #
 # Example 2: Absolute path
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/home/ansible/backups/wireless_configs_2026_02_17.yml"
 #     generate_all_configurations: true
 #
 # Example 3: Auto-generated filename (no file_path specified)
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - generate_all_configurations: true
 #     # Output: network_profile_wireless_workflow_manager_playbook_2026-02-17_14-30-45.yml
 
@@ -424,7 +424,7 @@ brownfield_network_profile_wireless_config:
 # -----------------------------------------
 # Extract all wireless profiles for complete infrastructure documentation
 #
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - generate_all_configurations: true
 #     file_path: "/tmp/complete_wireless_infrastructure.yml"
 #
@@ -435,7 +435,7 @@ brownfield_network_profile_wireless_config:
 # ---------------------------------------
 # Extract only specific wireless profiles by name
 #
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/tmp/critical_wireless_profiles.yml"
 #     global_filters:
 #       profile_name_list:
@@ -449,7 +449,7 @@ brownfield_network_profile_wireless_config:
 # ---------------------------------
 # Extract all wireless profiles assigned to specific sites
 #
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/tmp/regional_wireless_configs.yml"
 #     global_filters:
 #       site_list:
@@ -463,7 +463,7 @@ brownfield_network_profile_wireless_config:
 # ------------------------
 # Find all profiles providing specific wireless networks
 #
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/tmp/guest_network_profiles.yml"
 #     global_filters:
 #       ssid_list:
@@ -476,7 +476,7 @@ brownfield_network_profile_wireless_config:
 # --------------------------------
 # Generate multiple configuration files with different filters
 #
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/tmp/enterprise_profiles.yml"
 #     global_filters:
 #       profile_name_list:
@@ -497,7 +497,7 @@ brownfield_network_profile_wireless_config:
 # -------------------------------------
 # Extract profiles using specific Day-N templates
 #
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/tmp/controller_config_profiles.yml"
 #     global_filters:
 #       day_n_template_list:
@@ -510,7 +510,7 @@ brownfield_network_profile_wireless_config:
 # ------------------------------------
 # Extract profiles with specific feature templates
 #
-# brownfield_network_profile_wireless_config:
+# network_profile_wireless_config:
 #   - file_path: "/tmp/advanced_features_profiles.yml"
 #     global_filters:
 #       feature_template_list:
