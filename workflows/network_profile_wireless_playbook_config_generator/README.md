@@ -142,10 +142,9 @@ catalyst_center_hosts:
 Edit `workflows/network_profile_wireless_playbook_config_generator/vars/network_profile_wireless_playbook_config_generator_inputs.yml`:
 
 ```yaml
-generate_config:
-  generate_all_true:
-    - generate_all_configurations: true
-      file_path: "network_profile_wireless/complete_wireless_config.yml"
+network_profile_wireless_config:
+  - generate_all_configurations: true
+    file_path: "network_profile_wireless/complete_wireless_config.yml"
 ```
 
 ### Step 4: Validate Configuration
