@@ -1,5 +1,5 @@
 # ============================================================================
-# Cisco Catalyst Center Brownfield Network Profile Switch Playbook Config Generator
+# Cisco Catalyst Center Network Profile Switch Playbook Config Generator
 # ============================================================================
 #
 # Usage:
@@ -9,7 +9,7 @@
 #
 # ============================================================================
 
-brownfield_network_profile_switch_config:
+network_profile_switch_config:
   # Generate all switch profiles with filepath
   - generate_all_configurations: true
     file_path: "network_profile_switch/generate_all_config1.yml"
@@ -78,18 +78,18 @@ brownfield_network_profile_switch_config:
 # Additional Configuration Examples
 # ============================================================================
 # Example 1: Generate all switch profiles with auto-generated filename
-# brownfield_network_profile_switch_config:
+# network_profile_switch_config:
 #   - generate_all_configurations: true
 
 # Example 2: Custom file path with specific profiles
-# brownfield_network_profile_switch_config:
+# network_profile_switch_config:
 #   - file_path: "/home/ansible/switch_configs/production_campus_profiles.yml"
 #     global_filters:
 #       profile_name_list:
 #         - "Production_Campus_Profile"
 
 # Example 3: Site-based filtering for regional deployment
-# brownfield_network_profile_switch_config:
+# network_profile_switch_config:
 #   - file_path: "/tmp/regional_switch_profiles.yml"
 #     global_filters:
 #       site_list:
@@ -97,7 +97,7 @@ brownfield_network_profile_switch_config:
 #         - "Global/USA/West_Coast/Los_Angeles"
 
 # Example 4: Template-based filtering for compliance
-# brownfield_network_profile_switch_config:
+# network_profile_switch_config:
 #   - file_path: "/tmp/compliance_switch_profiles.yml"
 #     global_filters:
 #       day_n_template_list:
@@ -127,21 +127,21 @@ brownfield_network_profile_switch_config:
 # EXAMPLES:
 #
 # Example A: Generate ALL configurations (ignores filters)
-# brownfield_network_profile_switch_config:
+# network_profile_switch_config:
 #   - generate_all_configurations: true
 #     file_path: "/tmp/complete_infrastructure.yml"
 #     global_filters:
 #       profile_name_list: ["Campus_Profile"]  # <-- IGNORED when true
 #
 # Example B: Generate specific profiles only (respects filters)
-# brownfield_network_profile_switch_config:
+# network_profile_switch_config:
 #   - generate_all_configurations: false
 #     file_path: "/tmp/campus_only.yml"
 #     global_filters:
 #       profile_name_list: ["Campus_Profile"]  # <-- APPLIED when false
 #
 # Example C: Default behavior (same as false)
-# brownfield_network_profile_switch_config:
+# network_profile_switch_config:
 #   - file_path: "/tmp/filtered_config.yml"
 #     global_filters:
 #       site_list: ["Global/USA/Main_Office"]  # <-- APPLIED when not specified
@@ -218,7 +218,7 @@ brownfield_network_profile_switch_config:
 # ============================================================================
 
 # Example 1: Profile Names Take Precedence (Day-N and Sites Ignored)
-# brownfield_network_profile_switch_config:
+# network_profile_switch_config:
 #   - file_path: "/tmp/priority_example1.yml"
 #     global_filters:
 #       profile_name_list: ["Campus_Profile"]        # <-- USED (HIGHEST PRIORITY)
@@ -226,14 +226,14 @@ brownfield_network_profile_switch_config:
 #       site_list: ["Some/Site/Path"]                # <-- IGNORED
 
 # Example 2: Day-N Templates Used When No Profile Names (Sites Ignored)
-# brownfield_network_profile_switch_config:
+# network_profile_switch_config:
 #   - file_path: "/tmp/priority_example2.yml"
 #     global_filters:
 #       day_n_template_list: ["Security_Template"]   # <-- USED (MEDIUM PRIORITY)
 #       site_list: ["Some/Site/Path"]                # <-- IGNORED
 
 # Example 3: Sites Used When No Profile Names or Day-N Templates
-# brownfield_network_profile_switch_config:
+# network_profile_switch_config:
 #   - file_path: "/tmp/priority_example3.yml"
 #     global_filters:
 #       site_list: ["Global/USA/Main_Office"]        # <-- USED (LOWEST PRIORITY)
@@ -247,7 +247,7 @@ brownfield_network_profile_switch_config:
 # 3. Profile Validation: Profile names must exist in Catalyst Center (case-sensitive)
 # 4. Site Hierarchy: Site paths must match exact hierarchy in Catalyst Center
 # 5. Template Names: Day-N template names must be exact matches (case-sensitive)
-# 6. Configuration Scope: Only retrieves existing switch profile configurations (brownfield)
+# 6. Configuration Scope: Only retrieves existing switch profile configurations
 # 7. Filter Priority: Only highest priority filter with data is processed
 # 8. Authentication: Uses Catalyst Center credentials from inventory configuration
 # 9. API Limits: Large result sets may impact performance

@@ -1,4 +1,4 @@
-# Catalyst Center Brownfield Network Profile Switch Playbook Config Generator Schema
+# Catalyst Center Network Profile Switch Playbook Config Generator Schema
 # ===================================================================================
 #
 # This schema defines the configuration structure for generating YAML playbook
@@ -32,7 +32,7 @@
 # catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
 # catalyst_center_config_verify:     Configuration verification (optional, default: false)
 #
-# BROWNFIELD_NETWORK_PROFILE_SWITCH_CONFIG SECTION:
+# network_profile_switch_config SECTION:
 # ------------------------------------------------
 # Contains configuration for generating YAML configurations from existing infrastructure:
 #
@@ -150,7 +150,7 @@
 # different usage patterns and scenarios.
 
 # Schema Definition
-brownfield_network_profile_switch_config: list(include('network_profile_switch_config_generator'), min=1, max=100, required=True)
+network_profile_switch_config: list(include('network_profile_switch_config_type'), min=1, max=100, required=True)
 
 # Optional Catalyst Center connection parameters
 catalyst_center_version: str(required=False)
@@ -165,7 +165,7 @@ catalyst_center_config_verify: bool(required=False)
 
 ---
 # Network Profile Switch Configuration Generator Schema
-network_profile_switch_config_generator:
+network_profile_switch_config_type:
   # Generate all configurations flag
   generate_all_configurations: bool(required=False)
   
@@ -173,11 +173,10 @@ network_profile_switch_config_generator:
   file_path: str(required=False)
   
   # Global filters for switch profile extraction
-  global_filters: include('network_profile_switch_global_filters', required=False)
+  global_filters: include('network_profile_switch_global_filters_type', required=False)
 
----
 # Network Profile Switch Global Filters Schema
-network_profile_switch_global_filters:
+network_profile_switch_global_filters_type:
   # Profile name list - HIGHEST PRIORITY
   profile_name_list: list(str(), min=1, max=100, required=False)
   
