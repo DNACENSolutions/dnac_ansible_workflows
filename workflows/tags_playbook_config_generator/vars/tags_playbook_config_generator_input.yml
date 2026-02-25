@@ -40,39 +40,39 @@ tags_config:
     component_specific_filters:
       components_list: ["tag"]
       tag: 
-        - tag_name: "a"
+        - tag_name: "Core-Routers"
 
   # Tag Configurations with Multiple Tag Name Filters:   
   - file_path: "generated_file/multiple_tag_filter_config5.yml"
     component_specific_filters:
       components_list: ["tag"]
       tag: 
-        - tag_name: "a"
-        - tag_name: "b"
+        - tag_name: "Core-Routers"
+        - tag_name: "Campus-Switches"
 
   # Tag Membership Configurations with Specific Tag Name Filter:   
   - file_path: "generated_file/tag_memberships_filter_config6.yml"
     component_specific_filters:
       components_list: ["tag_memberships"]
       tag_memberships:
-        - tag_name: "a"
+        - tag_name: "Core-Routers"
 
   # Tag Membership Configurations with Multiple Tag Name Filters:
   - file_path: "generated_file/tag_memberships_multiple_filter_config7.yml"
     component_specific_filters:
       components_list: ["tag_memberships"]
       tag_memberships:
-        - tag_name: "a"
-        - tag_name: "b"        
+        - tag_name: "Core-Routers"
+        - tag_name: "Campus-Switches"        
 
   # Combined Tag and Tag Membership Configurations with Filters   
   - file_path: "generated_file/combined_components_filter_config8.yml"
     component_specific_filters:
       components_list: ["tag", "tag_memberships"]
       tag: 
-        - tag_name: "a"
+        - tag_name: "Core-Routers"
       tag_memberships:
-        - tag_name: "a"
+        - tag_name: "Core-Routers"
 
   # All Components with No Sub-Filters   
   - file_path: "generated_file/all_components_no_subfilters_config9.yml"
