@@ -1,5 +1,5 @@
 ---
-- name: Generate Brownfield Network Profile Switch Configuration
+- name: Generate Network Profile Switch Configuration
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -28,22 +28,22 @@
       debug:
         msg: "Input file selected: {{ VARS_FILE_PATH }}"
     
-    - name: Playbook start time for brownfield network profile switch configuration generation
+    - name: Playbook start time for network profile switch configuration generation
       set_fact:
         config_gen_start: "{{ now() }}"
 
     # =========================================================================
-    # Generate Brownfield Network Profile Switch Configuration
+    # Generate Network Profile Switch Configuration
     # =========================================================================
-    - name: Generate YAML configuration for brownfield network profile switch
+    - name: Generate YAML configuration for network profile switch
       cisco.dnac.network_profile_switching_playbook_config_generator:
         <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ [item] }}"
-      loop: "{{ brownfield_network_profile_switch_config }}"
+      loop: "{{ network_profile_switch_config }}"
       when:
-        - brownfield_network_profile_switch_config is defined
-        - brownfield_network_profile_switch_config | length > 0
+        - network_profile_switch_config is defined
+        - network_profile_switch_config | length > 0
       register: config_generation_result
 
     - name: Display configuration generation results
@@ -60,4 +60,4 @@
     
     - name: Print playbook execution time
       debug:
-        msg: "Brownfield network profile switch configuration generation playbook run time: start: {{ config_gen_start }}, end: {{ config_gen_end }}"
+        msg: "Network profile switch configuration generation playbook run time: start: {{ config_gen_start }}, end: {{ config_gen_end }}"
