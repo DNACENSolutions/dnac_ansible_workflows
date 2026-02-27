@@ -19,20 +19,20 @@ assurance_issue_config:
   - generate_all_configurations: true
     file_path: "generated_file/complete_assurance_issue_config.yml"
 
-  # Generate all configurations over component filters 
+  # Generate all configurations over component filters
   - generate_all_configurations: false
     file_path: "generated_file/assurance_issue_components_config1.yml"
     component_specific_filters:
       components_list: ["assurance_user_defined_issue_settings"]
 
-  # Issue Configurations with issue name Filter:    
+  # Issue Configurations with issue name Filter:
   - file_path: "generated_file/issue_name_filter_config2.yml"
     component_specific_filters:
       components_list: ["assurance_user_defined_issue_settings"]
-      assurance_user_defined_issue_settings: 
+      assurance_user_defined_issue_settings:
         - name: "FAN_MISSING"
 
-  # Issue Configurations with Multiple issue name Filters:   
+  # Issue Configurations with Multiple issue name Filters:
   - file_path: "generated_file/multiple_issue_name_filter_config3.yml"
     component_specific_filters:
       components_list: ["assurance_user_defined_issue_settings"]
@@ -40,7 +40,7 @@ assurance_issue_config:
         - name: "FAN_MISSING"
         - name: "FRU_FAN_DISABLED"
 
-  # Issue Configurations with Priority Filter:   
+  # Issue Configurations with Priority Filter:
   - file_path: "generated_file/priority_filter_config4.yml"
     component_specific_filters:
       components_list: ["assurance_user_defined_issue_settings"]
@@ -55,7 +55,7 @@ assurance_issue_config:
         - priority: "P2"
         - priority: "P3"
 
-  # Combined Filters: P1 Availability Issues   
+  # Combined Filters: P1 Availability Issues
   - file_path: "generated_file/combined_priority_enabled_config6.yml"
     component_specific_filters:
       components_list: ["assurance_user_defined_issue_settings"]
@@ -63,7 +63,7 @@ assurance_issue_config:
         - priority: "P1"
           is_enabled: true
 
-  # All Issue Components with No Sub-Filters   
+  # All Issue Components with No Sub-Filters
   - file_path: "generated_file/all_components_no_subfilters_config7.yml"
     component_specific_filters:
       components_list: ["assurance_user_defined_issue_settings"]
