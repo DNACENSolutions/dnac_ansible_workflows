@@ -1,9 +1,9 @@
-# Catalyst Center Brownfield SDA Fabric Sites and Zones Playbook Generator Schema
+# Catalyst Center SDA Fabric Sites and Zones Playbook Config Generator Schema
 # ====================================================================================
 #
 # This schema defines the configuration structure for generating YAML playbook
 # configurations from existing SDA fabric sites and zones in Cisco Catalyst Center
-# using the brownfield_sda_fabric_sites_zones_playbook_generator module.
+# using the sda_fabric_sites_zones_playbook_config_generator module.
 #
 # SCHEMA OVERVIEW:
 # ---------------
@@ -29,9 +29,8 @@
 # catalyst_center_log_append:        Append to log file (optional, default: true)
 # catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
 # catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
-# catalyst_center_config_verify:     Configuration verification (optional, default: false)
 #
-# BROWNFIELD_SDA_FABRIC_SITES_ZONES_CONFIG SECTION:
+# SDA_FABRIC_SITES_ZONES_CONFIG SECTION:
 # ------------------------------------------------
 # Contains configuration for generating YAML configurations from existing infrastructure:
 #
@@ -45,8 +44,8 @@
 #    - Type: string (optional)
 #    - Description: Output path where the YAML configuration file will be saved
 #    - If not provided, auto-generates filename with timestamp
-#    - Format: sda_fabric_sites_zones_workflow_manager_playbook_<YYYY-MM-DD_HH-MM-SS>.yml
-#    - Example: sda_fabric_sites_zones_workflow_manager_playbook_2026-01-28_20-24-06.yml
+#    - Format: <Module>_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: sda_fabric_sites_zones_playbook_config_2026-03-02_01-45-57.yml 
 #    - Supports absolute and relative paths
 #    - Creates directory structure if it doesn't exist
 #
@@ -140,7 +139,7 @@
 # different usage patterns and scenarios.
 
 # Schema Definition
-brownfield_sda_fabric_sites_zones_config: list(include('sda_config_generator'), min=1, max=100, required=True)
+sda_fabric_sites_zones_config: list(include('sda_config_generator_type'), min=1, max=100, required=True)
 
 # Optional Catalyst Center connection parameters
 catalyst_center_version: str(required=False)
@@ -151,11 +150,10 @@ catalyst_center_log: bool(required=False)
 catalyst_center_log_append: bool(required=False)
 catalyst_center_log_file_path: str(required=False)
 catalyst_center_log_level: str(required=False)
-catalyst_center_config_verify: bool(required=False)
 
 ---
 # SDA Configuration Generator Schema
-sda_config_generator:
+sda_config_generator_type:
   # Generate all configurations flag
   generate_all_configurations: bool(required=False)
   
@@ -163,29 +161,29 @@ sda_config_generator:
   file_path: str(required=False)
   
   # Component-specific filters
-  component_specific_filters: include('component_filters', required=False)
+  component_specific_filters: include('component_filters_type', required=False)
 
 ---
 # Component Filters Schema
-component_filters:
+component_filters_type:
   # List of components to include
   components_list: list(str(), min=0, max=10, required=False)
   
   # Future enhancement: fabric sites filters
-  fabric_sites: list(include('fabric_site_filter'), min=0, max=100, required=False)
+  fabric_sites: list(include('fabric_site_filter_type'), min=0, max=100, required=False)
   
   # Future enhancement: fabric zones filters  
-  fabric_zones: list(include('fabric_zone_filter'), min=0, max=100, required=False)
+  fabric_zones: list(include('fabric_zone_filter_type'), min=0, max=100, required=False)
 
 ---
 # Fabric Site Filter Schema
-fabric_site_filter:
+fabric_site_filter_type:
   # Full hierarchical site path for filtering fabric sites
   site_name_hierarchy: str(required=False)
   
 
 ---
 # Fabric Zone Filter Schema
-fabric_zone_filter:
+fabric_zone_filter_type:
   # Full hierarchical zone path for filtering fabric zones
   site_name_hierarchy: str(required=False)
