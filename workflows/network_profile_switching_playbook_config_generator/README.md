@@ -21,12 +21,12 @@ The Network Profile Switch playbook config generator automates the creation of Y
 
 ## Features
 
-- **Configuration Generation**: Generate YAML configurations compatible with `playbooks` module.
+- **Configuration Generation**: Generate YAML configurations compatible with `network_profile_switching_workflow_manager` module.
 Extract existing switch profiles and associated configurations from your Cisco Catalyst Center.
 Convert them into properly formatted YAML files.
 Generate files that are ready to use with Ansible automation.
 - **Profile Filtering**: Selective generation based on profile names, Day-N templates, or site assignments
-- **Priority-based Filtering**: Intelligent filter precedence (Profile Names > Day-N Templates > Sites)
+- **Combined Filtering**: Multiple filter types can be used together — all profiles matching any of the provided filters will be retrieved
 - **Flexible Output**: Configurable file paths and naming conventions with timestamp support
 - **Brownfield Support**: Extract configurations from existing Catalyst Center deployments
 - **API Integration**: Leverages native Catalyst Center APIs for data retrieval
@@ -86,33 +86,44 @@ network_profile_switching_playbook_config_generator/
 | file_path | string | No | auto-generated | Output file path for YAML configuration file |
 | global_filters | dict | No | none | Filters to specify which switch profiles to include |
 
-### Global Filtering (Priority Order)
+### Global Filtering (Combined Filter Behavior)
 
-| Parameter      | Type | Required | Priority | Description |
+| Parameter      | Type | Required | Processing Order | Description |
 |--------------|------|----------|-------------|-----------|
-| profile_name_list | list | No | **HIGHEST** | List of specific switch profile names to extract |
-| day_n_template_list      | list | No | **MEDIUM**| List of Day-N templates to filter switch profiles |
-| site_list | list | No | **LOWEST**| List of site hierarchies to filter switch profiles |
+| profile_name_list | list | No | **1st** | List of specific switch profile names to extract |
+| day_n_template_list      | list | No | **2nd**| List of Day-N templates to filter switch profiles |
+| site_list | list | No | **3rd**| List of site hierarchies to filter switch profiles |
+
+> **Important:** If multiple filter types are provided, the module will process them in the order of `profile_name_list`, `day_n_template_list`, `site_list`. All profiles matching **any** of the provided filters will be retrieved. The results are combined (union) — not exclusive.
 
 ### Filter Specifications
 
 #### Profile Name List
 - **Type**: List of strings
+- **Processing Order**: 1st
 - **Case-sensitive**: Must match exact profile names in Catalyst Center
 - **Example**: `["Campus_Switch_Profile", "Enterprise_Switch_Profile"]`
 - **Behavior**: Module will fail if any specified profile doesn't exist
 
 #### Day-N Template List
 - **Type**: List of strings
+- **Processing Order**: 2nd
 - **Case-sensitive**: Must match exact template names
 - **Example**: `["Periodic_Config_Audit", "Security_Compliance_Check"]`
 - **Behavior**: Returns all profiles containing any of the specified templates
 
 #### Site List
 - **Type**: List of strings
+- **Processing Order**: 3rd
 - **Case-sensitive**: Must match exact site hierarchy paths
 - **Example**: `["Global/India/Chennai/Main_Office", "Global/USA/San_Francisco/Regional_HQ"]`
 - **Behavior**: Returns all profiles assigned to any of the specified sites
+
+#### Combined Filters
+- When multiple filter types are provided together, the module processes each filter in order
+- Results are **combined (union)** — all profiles matching any filter are included
+- Duplicate profiles are automatically de-duplicated in the output
+- Example: If `profile_name_list` matches Profile A and `day_n_template_list` matches Profile B, both Profile A and Profile B will be included in the output
 
 ---
 
@@ -171,7 +182,7 @@ The workflow follows these steps:
 
 1. **Connect** to Catalyst Center using provided credentials
 2. **Retrieve** existing switch profiles and associated configurations via API calls
-3. **Filter** switch profiles based on specified criteria and priority
+3. **Filter** switch profiles based on specified criteria — processing filters in order and combining results
 4. **Transform** API responses into Ansible-compatible format
 5. **Generate** YAML configuration file with proper structure
 6. **Validate** output file format and content
@@ -232,6 +243,22 @@ network_profile_switch_config:
         - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
         - "Global/India/Chennai/Main_Office"
 ```
+
+#### Combined Filter Generation
+
+**Description**: Generates configuration using multiple filter types together. All profiles matching **any** of the provided filters will be retrieved and combined.
+
+```yaml
+network_profile_switch_config:
+  - file_path: "/tmp/combined_filter_profiles_config.yml"
+    global_filters:
+      profile_name_list:
+        - "Test Profile BF1"
+      day_n_template_list:
+        - "static_host_offboarding_template"
+```
+
+> **Note:** In this example, the module retrieves profiles matching the profile name `Test Profile BF1` **and** profiles containing the Day-N template `static_host_offboarding_template`. Results are combined — all unique profiles from both filters are included.
 
 **Validate and Execute:**
 
@@ -306,6 +333,25 @@ ansible-playbook -i inventory/demo_lab/hosts.yaml \
           file_path: /tmp/template_based_switch_profiles_config.yml
       status: success
 ```
+
+4. **Combined Filter Generation:**
+
+```code
+        global_filters:
+          profile_name_list:
+          - Test Profile BF1
+          day_n_template_list:
+          - static_host_offboarding_template
+        file_path: /tmp/combined_filter_profiles_config.yml
+      msg: 
+        YAML config generation Task succeeded for module 'network_profile_switching'.:
+          file_path: /tmp/combined_filter_profiles_config.yml
+      response:
+        YAML config generation Task succeeded for module 'network_profile_switching'.:
+          file_path: /tmp/combined_filter_profiles_config.yml
+      status: success
+```
+
 ---
 
 ## Examples
@@ -462,7 +508,43 @@ config:
 > **Note:** Only profiles assigned to any of the specified sites (`Global/USA/SAN JOSE/SJ_BLD21/FLOOR1`, `Global/USA/SAN JOSE/SJ_BLD21/FLOOR2`) are extracted. The output includes the complete profile with all its Day-N templates and all site assignments, not just the filtered sites.
 
 
-### Example 5: Multiple Generation Tasks
+### Example 5: Combined Filters — Profile Names + Day-N Templates
+
+Use multiple filter types together to retrieve all profiles matching **any** of the provided filters.
+
+```yaml
+network_profile_switch_config:
+  - file_path: "/tmp/combined_profile_and_template.yml"
+    global_filters:
+      profile_name_list:
+        - "Test Profile BF1"
+      day_n_template_list:
+        - "static_host_offboarding_template"
+```
+**Sample Generated Output**:
+
+```yaml
+---
+config:
+- profile_name: Test Profile BF1
+  day_n_templates:
+  - Template-Switch-for-Deploy
+  - evpn_l2vn_anycast_delete_template
+  - Ans Switch DayN 1
+- profile_name: Test Profile BF3
+  day_n_templates:
+  - evpn_l2vn_anycast_delete_template
+  - static_host_offboarding_template
+  - static_host_onboarding_template
+  - Ans Switch DayN 2
+  - Ans Switch DayN 1
+  site_names:
+  - Global/USA/SAN JOSE/SJ_BLD23/FLOOR2
+```
+
+> **Note:** The module processes `profile_name_list` first (retrieving `Test Profile BF1`), then `day_n_template_list` (retrieving `Test Profile BF3` which contains `static_host_offboarding_template`). Both results are **combined** — all unique profiles matching any filter are included.
+
+### Example 6: Multiple Generation Tasks
 
 ```yaml
 network_profile_switch_config:
@@ -482,9 +564,19 @@ network_profile_switch_config:
       day_n_template_list:
         - "Ans Switch DayN 2"
         - "static_host_onboarding_template"
+
+  # Generate with combined filters
+  - file_path: "/tmp/combined_filters_profiles.yml"
+    global_filters:
+      profile_name_list:
+        - "Test Profile BF1"
+      day_n_template_list:
+        - "static_host_offboarding_template"
+      site_list:
+        - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
 ```
 
-### Example 6: Auto-generated File Path
+### Example 7: Auto-generated File Path
 
 When no file path is specified, the module auto-generates a timestamped filename.
 
@@ -497,24 +589,6 @@ network_profile_switch_config:
 # Output: playbooks_config_2026-02-19_14-30-45.yml
 ```
 
-### Example 7: Filter Priority Demonstration
-
-Only the highest priority filter with data will be processed.
-
-```yaml
-network_profile_switch_config:
-  - file_path: "/tmp/priority_example.yml"
-    global_filters:
-      # This will be used (HIGHEST PRIORITY)
-      profile_name_list:
-        - "Campus_Switch_Profile"
-      # These will be IGNORED
-      day_n_template_list:
-        - "Some_Template"
-      site_list:
-        - "Some/Site/Path"
-```
-
 ---
 
 ## Additional Resources
@@ -522,4 +596,4 @@ network_profile_switch_config:
 - [Cisco Catalyst Center Documentation](https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/series.html)
 - [Cisco DNA Center SDK](https://dnacentersdk.readthedocs.io/)
 - [Ansible Documentation](https://docs.ansible.com/)
-- [Playbooks Module](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/)
+- [Network Profile Switching Workflow Manager Module](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/)
