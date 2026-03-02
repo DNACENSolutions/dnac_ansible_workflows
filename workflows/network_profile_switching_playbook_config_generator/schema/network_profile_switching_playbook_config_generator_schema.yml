@@ -3,7 +3,7 @@
 #
 # This schema defines the configuration structure for generating YAML playbook
 # configurations from existing switch profile infrastructure in Cisco Catalyst Center
-# using the playbooks module.
+# using the network_profile_switching_playbook_config_generator module.
 #
 # SCHEMA OVERVIEW:
 # ---------------
@@ -11,7 +11,7 @@
 # 1. Switch Profile Configurations - Extract existing switch profile configurations
 # 2. Day-N Template Configurations - Extract template assignments and configurations
 # 3. Site-based Filtering - Filter profiles by site hierarchy assignments
-# 4. Combined Operations - Generate multiple component configurations
+# 4. Combined Filtering - Use multiple filter types together to retrieve all matching profiles
 # 5. Filtered Generation - Selective component extraction with filters
 #
 # USAGE:
@@ -47,8 +47,8 @@
 #    - Type: string (optional)
 #    - Description: Output path where the YAML configuration file will be saved
 #    - If not provided, auto-generates filename with timestamp
-#    - Format: playbooks_<YYYY-MM-DD_HH-MM-SS>.yml
-#    - Example: playbooks_2025-11-12_21-43-26.yml
+#    - Format: playbooks_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: playbooks_config_2025-11-12_21-43-26.yml
 #    - Supports absolute and relative paths
 #    - Creates directory structure if it doesn't exist
 #
@@ -56,14 +56,16 @@
 #    - Type: dictionary (optional)
 #    - Description: Global filters to specify which switch profiles to include in the generated configuration
 #    - If generate_all_configurations is true, these filters are ignored
-#    - Filter priority (highest to lowest): profile_name_list, day_n_template_list, site_list
-#    - Only the highest priority filter with valid data will be processed
+#    - If multiple filter types are provided, the module will filter them in the following
+#      order of profile_name_list, day_n_template_list, site_list
+#    - All profiles matching any of the provided filters will be retrieved (union/combined results)
+#    - Duplicate profiles are automatically de-duplicated in the output
 #    
 #    Sub-options:
 #    - PROFILE_NAME_LIST:
 #      - Type: list of strings (optional)
 #      - Description: List of switch profile names to extract configurations from
-#      - HIGHEST PRIORITY - Used first if provided with valid data
+#      - Processing Order: 1st
 #      - Switch Profile names must match those registered in Catalyst Center
 #      - Case-sensitive and must be exact matches
 #      - Example: ["Campus_Switch_Profile", "Enterprise_Switch_Profile"]
@@ -72,7 +74,7 @@
 #    - DAY_N_TEMPLATE_LIST:
 #      - Type: list of strings (optional)
 #      - Description: List of Day-N templates to filter switch profiles
-#      - MEDIUM PRIORITY - Only used if profile_name_list is not provided
+#      - Processing Order: 2nd
 #      - Retrieves all switch profiles containing any of the specified templates
 #      - Case-sensitive and must be exact matches
 #      - Example: ["Periodic_Config_Audit", "Security_Compliance_Check"]
@@ -81,11 +83,22 @@
 #    - SITE_LIST:
 #      - Type: list of strings (optional)
 #      - Description: List of site hierarchies to filter switch profiles
-#      - LOWEST PRIORITY - Only used if neither profile_name_list nor day_n_template_list are provided
+#      - Processing Order: 3rd
 #      - Retrieves all switch profiles assigned to any of the specified sites
 #      - Case-sensitive and must be exact matches
 #      - Example: ["Global/India/Chennai/Main_Office", "Global/USA/San_Francisco/Regional_HQ"]
 #      - Requires retrieving all profiles first, then filtering based on site assignments
+#
+# COMBINED FILTER BEHAVIOR:
+# -------------------------
+# When multiple filter types are provided together:
+# - The module processes each filter type in order: profile_name_list → day_n_template_list → site_list
+# - Results from all filters are COMBINED (union operation)
+# - All profiles matching ANY of the provided filters will be included
+# - Duplicate profiles are automatically de-duplicated
+#
+# Example: If profile_name_list retrieves Profile A and day_n_template_list retrieves Profile B,
+#          both Profile A and Profile B will be included in the output.
 #
 # GENERATED OUTPUT STRUCTURE:
 # --------------------------
@@ -93,24 +106,11 @@
 #
 # config:
 #   - profile_name: "Campus_Switch_Profile"
-#     description: "Standard campus switch configuration"
-#     cli_templates:
-#       - template_name: "Basic_Switch_Config"
-#         template_content: "..."
-#         variable_mapping:
-#           - name: "VLAN_ID"
-#             value: "100"
 #     day_n_templates:
-#       - template_name: "Periodic_Config_Audit"
-#         template_content: "..."
-#         is_composite: false
-#     interface_templates:
-#       - interface_name: "GigabitEthernet1/0/1"
-#         interface_type: "Physical"
-#         template_content: "..."
-#     site_assignments:
-#       - site_hierarchy: "Global/India/Chennai/Main_Office"
-#         device_count: 15
+#       - "Periodic_Config_Audit"
+#       - "Security_Compliance_Check"
+#     site_names:
+#       - "Global/India/Chennai/Main_Office"
 #
 # OPERATION WORKFLOWS:
 # -------------------
@@ -134,12 +134,18 @@
 #    b. Specify site hierarchies
 #    c. Extract all switch profiles assigned to any of the specified sites
 #
-# 5. Custom Output Path:
+# 5. Combined Filter Generation:
+#    a. Use global_filters with multiple filter types
+#    b. Provide any combination of profile_name_list, day_n_template_list, site_list
+#    c. All profiles matching any of the provided filters will be retrieved
+#    d. Results are combined and de-duplicated
+#
+# 6. Custom Output Path:
 #    a. Specify file_path parameter
 #    b. Can use absolute or relative paths
 #    c. Directory structure will be created if needed
 #
-# 6. Default Behavior:
+# 7. Default Behavior:
 #    a. If no filters specified and generate_all_configurations is false, module will fail
 #    b. If no file_path specified, auto-generates filename with timestamp
 #    c. Generated in current working directory or specified path
@@ -177,11 +183,11 @@ network_profile_switch_config_type:
 
 # Network Profile Switch Global Filters Schema
 network_profile_switch_global_filters_type:
-  # Profile name list - HIGHEST PRIORITY
+  # Profile name list - Processing Order: 1st
   profile_name_list: list(str(), min=1, max=100, required=False)
   
-  # Day-N template list - MEDIUM PRIORITY
+  # Day-N template list - Processing Order: 2nd
   day_n_template_list: list(str(), min=1, max=100, required=False)
   
-  # Site list - LOWEST PRIORITY
+  # Site list - Processing Order: 3rd
   site_list: list(str(), min=1, max=100, required=False)

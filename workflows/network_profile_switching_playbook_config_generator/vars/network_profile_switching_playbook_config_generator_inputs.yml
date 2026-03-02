@@ -57,6 +57,14 @@ network_profile_switch_config:
       day_n_template_list:
         - "Ans Switch DayN 2"
         - "static_host_onboarding_template"
+  
+  # Generate switch profiles for combined Filters (Profile Names + Day-N Templates)
+  - file_path: "network_profile_switch/combined_profile_and_template1.yml"
+    global_filters:
+      profile_name_list:
+        - "Test Profile BF1"
+      day_n_template_list:
+        - "static_host_offboarding_template"
 
   # Multiple generation tasks in single execution
   - file_path: "network_profile_switch/profile_name_list2.yml"
