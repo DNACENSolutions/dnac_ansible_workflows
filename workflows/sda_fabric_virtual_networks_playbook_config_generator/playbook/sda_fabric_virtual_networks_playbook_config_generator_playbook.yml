@@ -1,5 +1,5 @@
 ---
-- name: Generate Brownfield SDA Fabric Virtual Networks Configuration
+- name: Generate SDA Fabric Virtual Networks Playbook Configuration
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -28,22 +28,22 @@
       debug:
         msg: "Input file selected: {{ VARS_FILE_PATH }}"
     
-    - name: Playbook start time for brownfield virtual networks configuration generation
+    - name: Playbook start time for virtual networks playbook configuration generation
       set_fact:
         config_gen_start: "{{ now() }}"
 
     # =========================================================================
-    # Generate Brownfield SDA Fabric Virtual Networks Configuration
+    # Generate SDA Fabric Virtual Networks Playbook Configuration
     # =========================================================================
-    - name: Generate YAML configuration for brownfield SDA fabric virtual networks
-      cisco.dnac.brownfield_sda_fabric_virtual_networks_playbook_generator:
+    - name: Generate YAML configuration for SDA fabric virtual networks
+      cisco.dnac.sda_fabric_virtual_networks_playbook_config_generator:
         <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ [item] }}"
-      loop: "{{ brownfield_sda_fabric_virtual_networks_config }}"
+      loop: "{{ sda_fabric_virtual_networks_config }}"
       when:
-        - brownfield_sda_fabric_virtual_networks_config is defined
-        - brownfield_sda_fabric_virtual_networks_config | length > 0
+        - sda_fabric_virtual_networks_config is defined
+        - sda_fabric_virtual_networks_config | length > 0
       register: config_generation_result
 
     - name: Display configuration generation results
@@ -60,4 +60,4 @@
     
     - name: Print playbook execution time
       debug:
-        msg: "Brownfield SDA fabric virtual networks configuration generation playbook run time: start: {{ config_gen_start }}, end: {{ config_gen_end }}"
+        msg: " SDA fabric virtual networks configuration generation playbook run time: start: {{ config_gen_start }}, end: {{ config_gen_end }}"
