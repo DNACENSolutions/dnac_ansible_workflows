@@ -47,8 +47,8 @@
 #    - Type: string (optional)
 #    - Description: Output path where the YAML configuration file will be saved
 #    - If not provided, auto-generates filename with timestamp
-#    - Format: playbooks_config_<YYYY-MM-DD_HH-MM-SS>.yml
-#    - Example: playbooks_config_2025-11-12_21-43-26.yml
+#    - Format: <module>_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: network_profile_switching_playbook_config_2025-11-12_21-43-26.yml
 #    - Supports absolute and relative paths
 #    - Creates directory structure if it doesn't exist
 #
