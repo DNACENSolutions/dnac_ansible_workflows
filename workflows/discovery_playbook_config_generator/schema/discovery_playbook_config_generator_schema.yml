@@ -1,0 +1,200 @@
+# Cisco Catalyst Center - Discovery Playbook Config Generator Schema
+# ===================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing discovery tasks in Cisco Catalyst Center using
+# the cisco.dnac.discovery_playbook_config_generator module.
+#
+# SCHEMA OVERVIEW:
+# ----------------
+# The schema supports configuration generation operations for:
+# 1. Generate All        - Extract all discovery task configurations
+# 2. Filter by Name      - Extract specific discoveries by exact name
+# 3. Filter by Type      - Extract discoveries by type (Single/Range/CDP/LLDP/CIDR)
+# 4. Append Mode         - Append generated configs to an existing YAML file
+# 5. Overwrite Mode      - Replace existing YAML file with new config (default)
+#
+# USAGE:
+# ------
+# This schema validates YAML input files used to drive the
+# discovery_playbook_config_generator_playbook.yml playbook.
+# Run schema validation before playbook execution:
+#
+#   ./tools/validate.sh \
+#     -s workflows/discovery_playbook_config_generator/schema/discovery_playbook_config_generator_schema.yml \
+#     -d workflows/discovery_playbook_config_generator/vars/discovery_playbook_config_generator_inputs.yml
+#
+# TOP-LEVEL PARAMETERS:
+# ---------------------
+# catalyst_center_version:          Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:           SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout: API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:            Enable debug mode (optional, default: false)
+# catalyst_center_log:              Enable logging (optional, default: false)
+# catalyst_center_log_append:       Append to log file (optional, default: true)
+# catalyst_center_log_file_path:    Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:        Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+#
+# DISCOVERY_PLAYBOOK_CONFIG_GENERATOR_DETAILS SECTION:
+# -----------------------------------------------------
+# Contains the list of config entries driving the playbook generator.
+#
+# 1. GENERATE_ALL_CONFIGURATIONS:
+#    - Type: boolean (optional, default: false)
+#    - Description: When true, generates YAML for ALL discovery tasks in Catalyst Center
+#      regardless of any global_filters provided.
+#    - When false, at least one of global_filters.discovery_name_list or
+#      global_filters.discovery_type_list MUST be provided.
+#
+# 2. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved.
+#    - If not provided, auto-generates a timestamped filename in the current directory.
+#    - Auto-generated format: discovery_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: discovery_playbook_config_2026-01-24_12-33-20.yml
+#    - Supports absolute and relative paths.
+#    - Creates parent directory structure if it does not exist.
+#
+# 3. FILE_MODE:
+#    - Type: string (optional, default: "overwrite")
+#    - Description: Controls how the output file is written.
+#    - Valid values:
+#      * "overwrite" - Creates or replaces the file entirely (default)
+#      * "append"    - Appends generated config to the existing file
+#    - Use "append" to build a combined file from multiple generator runs.
+#    - Note: "append" writes a new YAML document block (---) on each call.
+#
+# 4. GLOBAL_FILTERS:
+#    - Type: dictionary (optional)
+#    - Description: Identifies which discovery tasks to extract.
+#    - Required when generate_all_configurations is false.
+#    - Sub-options:
+#
+#    a. DISCOVERY_NAME_LIST:
+#       - Type: list of strings (optional)
+#       - Priority: HIGHEST — when provided, discovery_type_list is ignored.
+#       - Description: List of exact discovery task names to extract.
+#       - Names are case-sensitive and must exactly match Catalyst Center.
+#       - Example: ["Range Discovery", "Single Discovery"]
+#       - Invalid names are silently skipped (no match → no output for that name).
+#       - Empty list [] is treated as no filter (all discoveries included).
+#
+#    b. DISCOVERY_TYPE_LIST:
+#       - Type: list of strings (optional)
+#       - Priority: LOWER — only applied when discovery_name_list is not provided.
+#       - Description: List of discovery types to filter by.
+#       - Valid values: Single, Range, CDP, LLDP, CIDR
+#       - Case-insensitive matching (normalized to uppercase internally).
+#       - Will include all discoveries matching any of the specified types.
+#       - Example: ["CDP", "LLDP"]
+#       - Empty list [] is treated as no filter (all discoveries included).
+#       - Invalid type values will cause module validation failure.
+#
+# GENERATED OUTPUT STRUCTURE:
+# ---------------------------
+# The generated YAML file will contain a header comment block followed by:
+#
+# config:
+#   - discovery_name: Single IP Discovery
+#     discovery_type: Single
+#     ip_address_list:
+#       - 192.168.1.1
+#     global_credentials:
+#       cli_credentials_list:
+#         - description: Global CLI Credential
+#           username: admin
+#       snmp_v2_read_credential_list:
+#         - description: SNMP Read Community
+#     protocol_order: ssh
+#     cdp_level: null
+#     lldp_level: null
+#     preferred_mgmt_ip_method: None
+#     use_global_credentials: true
+#     timeout: 5
+#     retry: 3
+#     discovery_condition: Complete
+#     discovery_status: Active
+#
+#
+# OPERATION WORKFLOWS:
+# --------------------
+# 1. Generate All Discoveries:
+#    a. Set generate_all_configurations: true
+#    b. Optionally specify file_path
+#    c. All existing discoveries are extracted regardless of type or name
+#
+# 2. Filter by Name (Highest Priority):
+#    a. Provide global_filters.discovery_name_list
+#    b. Only discoveries with exact matching names are extracted
+#    c. discovery_type_list is ignored even if also provided
+#
+# 3. Filter by Type (Lower Priority):
+#    a. Provide global_filters.discovery_type_list (without discovery_name_list)
+#    b. Only discoveries matching the specified types are extracted
+#    c. Valid types: Single, Range, CDP, LLDP, CIDR
+#
+# 4. Append to Existing File:
+#    a. Set file_mode: append
+#    b. Set file_path to the target existing file
+#    c. New YAML document block is appended to the file
+#
+# 5. Default Behavior:
+#    a. If generate_all_configurations is false and no filters → validation error
+#    b. If file_path is not specified → auto-generated timestamped filename
+#    c. If file_mode is not specified → defaults to "overwrite"
+#
+# EXAMPLES:
+# ---------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
+
+# =============================================================================
+# Schema Definition
+# =============================================================================
+
+discovery_playbook_config_generator_details: include('discovery_config_generator_type', required=True)
+
+# Optional Catalyst Center connection override parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Discovery Config Generator Entry Schema
+# Each list entry is a dict passed directly as the module's config parameter (type: dict)
+discovery_config_generator_type:
+  # When true, generates YAML for all discovery tasks. Overrides global_filters.
+  # When false, global_filters with at least one filter key is required.
+  generate_all_configurations: bool(required=False)
+
+  # Output file path for generated YAML.
+  # Auto-generated as discovery_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml if omitted.
+  file_path: str(required=False)
+
+  # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
+  file_mode: enum('overwrite', 'append', required=False)
+
+  # Global filters to identify which discovery tasks to extract.
+  # Required when generate_all_configurations is false.
+  global_filters: include('discovery_global_filters_type', required=False)
+
+---
+# Global Filters Schema
+# Identifies which discovery tasks to include in the generated YAML.
+# Priority: discovery_name_list (highest) > discovery_type_list (lower)
+discovery_global_filters_type:
+  # List of exact discovery task names (case-sensitive).
+  # HIGHEST PRIORITY: when provided, discovery_type_list is ignored.
+  # Example: ["Multi_global", "Single IP Discovery", "CDP_Test_1"]
+  discovery_name_list: list(str(), min=0, max=500, required=False)
+
+  # List of discovery types to filter by.
+  # LOWER PRIORITY: only used when discovery_name_list is not provided.
+  # Valid values: Single, Range, CDP, LLDP, CIDR
+  discovery_type_list: list(str(), min=0, max=5, required=False)
