@@ -1,0 +1,210 @@
+# Catalyst Center Provision Playbook Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing provisioned devices in Cisco Catalyst Center
+# using the provision_playbook_config_generator module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports configuration generation operations for:
+# 1. Wired Devices - Extract existing wired device provisioning configurations
+# 2. Wireless Devices - Extract existing wireless device provisioning configurations
+# 3. Combined Operations - Generate multiple component configurations
+# 4. Filtered Generation - Selective device extraction with filters
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating the extraction
+# and generation of provisioning configurations from existing
+# Catalyst Center deployments (brownfield scenarios).
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# PROVISION_PLAYBOOK_CONFIG SECTION:
+# -----------------------------------
+# Contains configuration for generating YAML configurations from existing infrastructure:
+#
+# 1. GENERATE_ALL_CONFIGURATIONS:
+#    - Type: boolean (optional, default: false)
+#    - Description: If true, generates configurations for all provisioned devices regardless of filters
+#    - When true, overrides any global_filters and component_specific_filters settings
+#    - Retrieves all wired and wireless provisioned devices from Catalyst Center
+#
+# 2. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved
+#    - If not provided, auto-generates filename with timestamp
+#    - Format: provision_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: provision_playbook_config_2026-01-24_12-33-20.yml
+#    - Supports absolute and relative paths
+#    - Creates directory structure if it doesn't exist
+#
+# 3. FILE_MODE:
+#    - Type: string (optional, default: overwrite)
+#    - Description: Controls how the generated YAML content is written to the output file
+#    - Valid values:
+#      * "overwrite" - File is created or replaced with new content
+#      * "append" - Generated content is appended to the existing file
+#    - Append mode is useful for combining multiple device configurations into a single playbook
+#
+# 4. GLOBAL_FILTERS:
+#    - Type: dictionary (optional)
+#    - Description: Global filters applied across all components
+#    - If generate_all_configurations is true, these filters are ignored
+#
+#    Sub-options:
+#    - MANAGEMENT_IP_ADDRESS:
+#      - Type: list of strings (optional)
+#      - Description: Filter devices globally by management IP address
+#      - Can specify single IP or list of IPs
+#      - Example: ["10.195.243.9", "10.195.243.10"]
+#
+# 5. COMPONENT_SPECIFIC_FILTERS:
+#    - Type: dictionary (optional)
+#    - Description: Filters to specify which components to include in the generated configuration
+#    - If generate_all_configurations is true, these filters are ignored
+#    - If components_list is specified, only those components are included regardless of other filters
+#
+#    Sub-options:
+#    - COMPONENTS_LIST:
+#      - Type: list of strings (optional)
+#      - Description: List of components to include in the YAML configuration file
+#      - Valid values:
+#        * "wired" - Include only wired device configurations
+#        * "wireless" - Include only wireless device configurations
+#        * ["wired", "wireless"] - Include both components
+#      - If not specified, all components are included
+#
+#    - WIRED:
+#      - Type: list of dictionaries (optional)
+#      - Description: Filter wired devices by management IP, site name, or device family
+#      - Sub-options:
+#        * management_ip_address: Management IP address to filter by
+#        * site_name_hierarchy: List of site hierarchy paths to filter by
+#        * device_family: Device family to filter by (e.g., 'Switches and Hubs', 'Routers')
+#
+#    - WIRELESS:
+#      - Type: list of dictionaries (optional)
+#      - Description: Filter wireless devices by management IP, site name, or device family
+#      - Sub-options:
+#        * management_ip_address: Management IP address to filter by
+#        * site_name_hierarchy: List of site hierarchy paths to filter by
+#        * device_family: Device family to filter by (e.g., 'Wireless Controller')
+#
+# GENERATED OUTPUT STRUCTURE:
+# --------------------------
+# The generated YAML file will contain a 'provision_details' section compatible
+# with the provision_workflow_manager module:
+#
+# provision_details:
+#   - site_name_hierarchy: "Global/USA/San_Jose/Building_1"
+#     management_ip_address: "10.195.243.9"
+#     resync_retry_count: 3
+#     resync_retry_interval: 2
+#
+# OPERATION WORKFLOWS:
+# -------------------
+# 1. Configuration Generation (All Devices):
+#    a. Set generate_all_configurations: true
+#    b. Optionally specify file_path
+#    c. All provisioned wired and wireless devices will be extracted
+#
+# 2. Selective Component Generation:
+#    a. Use component_specific_filters with components_list
+#    b. Specify required components from ["wired", "wireless"]
+#    c. Only specified component types will be extracted
+#
+# 3. Filtered Device Extraction:
+#    a. Use wired/wireless sub-filters with management_ip_address, site_name_hierarchy, device_family
+#    b. Extract only devices matching the specified criteria
+#
+# 4. Global IP Filtering:
+#    a. Use global_filters with management_ip_address list
+#    b. Filters applied across all device types
+#
+# 5. Custom Output Path:
+#    a. Specify file_path parameter
+#    b. Can use absolute or relative paths
+#    c. Directory structure will be created if needed
+#
+# 6. File Append Mode:
+#    a. Set file_mode: append
+#    b. Useful for combining multiple device configurations into a single playbook file
+#
+# EXAMPLES:
+# --------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
+
+# Schema Definition
+provision_playbook_config: include('provision_config_generator_type', required=False)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Provision Configuration Generator Schema
+provision_config_generator_type:
+  # Generate all configurations flag
+  generate_all_configurations: bool(required=False)
+
+  # Output file path
+  file_path: str(required=False)
+
+  # File write mode
+  file_mode: enum('overwrite', 'append', required=False)
+
+  # Global filters applied across all components
+  global_filters: include('provision_global_filters_type', required=False)
+
+  # Component-specific filters
+  component_specific_filters: include('provision_component_filters_type', required=False)
+
+---
+# Provision Global Filters Schema
+provision_global_filters_type:
+  # Management IP address list for global filtering
+  management_ip_address: list(str(), min=0, max=500, required=False)
+
+---
+# Provision Component Filters Schema
+provision_component_filters_type:
+  # List of components to include
+  components_list: list(enum('wired', 'wireless'), min=0, max=2, required=False)
+
+  # Wired device filters
+  wired: list(include('provision_device_filter_type'), min=0, max=500, required=False)
+
+  # Wireless device filters
+  wireless: list(include('provision_device_filter_type'), min=0, max=500, required=False)
+
+---
+# Provision Device Filter Schema (shared by wired and wireless)
+provision_device_filter_type:
+  # Management IP address to filter devices by IP address
+  management_ip_address: str(required=False)
+
+  # Site name hierarchy to filter devices by site
+  site_name_hierarchy: list(str(), min=0, max=100, required=False)
+
+  # Device family to filter by type (e.g., 'Switches and Hubs', 'Routers', 'Wireless Controller')
+  device_family: str(required=False)
