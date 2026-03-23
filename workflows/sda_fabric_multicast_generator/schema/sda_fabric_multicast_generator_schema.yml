@@ -1,0 +1,37 @@
+# SDA Fabric Multicast Playbook Config Generator Schema
+# =====================================================
+# This schema validates input files used by:
+# workflows/sda_fabric_multicast_generator/playbook/sda_fabric_multicast_generator_playbook.yml
+#
+# Behavior summary:
+# - generate_all_configurations=true: collect all SDA fabric multicast configs.
+# - component_specific_filters: filter by fabric site and/or layer3 virtual network.
+# - file_path omitted: module auto-generates output filename.
+
+sda_fabric_multicast_generator_config: list(include('sda_fabric_multicast_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center variables (can come from inventory instead)
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+
+---
+sda_fabric_multicast_generator_type:
+  generate_all_configurations: bool(required=False)
+  file_path: str(required=False)
+  component_specific_filters: include('component_specific_filters_type', required=False)
+
+---
+component_specific_filters_type:
+  components_list: list(enum('fabric_multicast'), min=0, max=10, required=False)
+  fabric_multicast: list(include('fabric_multicast_filter_type'), min=0, max=100, required=False)
+
+---
+fabric_multicast_filter_type:
+  fabric_name: str(required=False)
+  layer3_virtual_network: str(required=False)
