@@ -1,0 +1,48 @@
+---
+# ============================================================================
+# Cisco Catalyst Center SDA Fabric Multicast Playbook Config Generator Inputs
+# ============================================================================
+#
+# Usage:
+# ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#   workflows/sda_fabric_multicast_generator/playbook/sda_fabric_multicast_generator_playbook.yml \
+#   --extra-vars VARS_FILE_PATH=../vars/sda_fabric_multicast_generator_inputs.yml
+#
+# Notes:
+# - state is fixed as gathered inside the playbook.
+# - Each item below generates one YAML output file that is compatible with:
+#   cisco.dnac.sda_fabric_multicast_workflow_manager
+# ============================================================================
+
+sda_fabric_multicast_generator_config:
+  # 1) Generate all SDA fabric multicast configurations
+  - generate_all_configurations: true
+    file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_all.yml"
+
+  # 2) Generate multicast configurations for one fabric site
+  - file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_sanjose.yml"
+    component_specific_filters:
+      components_list:
+        - fabric_multicast
+      fabric_multicast:
+        - fabric_name: "Global/USA/SAN JOSE"
+
+  # 3) Generate multicast configuration for one fabric + one L3 VN
+  - file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_sanjose_vn1.yml"
+    component_specific_filters:
+      components_list:
+        - fabric_multicast
+      fabric_multicast:
+        - fabric_name: "Global/USA/SAN JOSE"
+          layer3_virtual_network: "VN1"
+
+  # 4) Generate all configurations for a specific L3 VN across fabric sites
+  - file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_fabric_vn.yml"
+    component_specific_filters:
+      components_list:
+        - fabric_multicast
+      fabric_multicast:
+        - layer3_virtual_network: "Fabric_VN"
+
+  # 5) Generate with default auto-generated filename
+  - generate_all_configurations: true
