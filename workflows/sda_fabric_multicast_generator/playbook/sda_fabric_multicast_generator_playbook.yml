@@ -1,0 +1,57 @@
+---
+- name: Generate SDA Fabric Multicast workflow configuration from Cisco Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - "{{ VARS_FILE_PATH }}"
+
+  vars:
+    state: gathered
+    catalyst_center_login: &catalyst_center_login
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
+      dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(false) }}"
+      dnac_log: "{{ catalyst_center_log | default(false) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append | default(true) }}"
+      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
+
+  tasks:
+    - name: Print VARS_FILE_PATH
+      debug:
+        msg: "Input file selected: {{ VARS_FILE_PATH }}"
+
+    - name: Playbook start time for SDA fabric multicast configuration generation
+      set_fact:
+        config_gen_start: "{{ now() }}"
+
+    - name: Generate YAML configuration for SDA fabric multicast
+      cisco.dnac.sda_fabric_multicast_playbook_config_generator:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        config: "{{ [item] }}"
+      loop: "{{ sda_fabric_multicast_generator_config }}"
+      when:
+        - sda_fabric_multicast_generator_config is defined
+        - sda_fabric_multicast_generator_config | length > 0
+      register: config_generation_result
+
+    - name: Display configuration generation results
+      debug:
+        var: config_generation_result
+      when: config_generation_result is defined
+
+    - name: Playbook end time
+      set_fact:
+        config_gen_end: "{{ now() }}"
+
+    - name: Print playbook execution time
+      debug:
+        msg: "SDA fabric multicast configuration generation playbook run time: start: {{ config_gen_start }}, end: {{ config_gen_end }}"
