@@ -1,0 +1,11 @@
+---
+# Optional defaults:
+state: merged
+generated_config_dir: "/tmp/sda_port_assignment_migration"
+cleanup_generated_files: true
+
+# Required data model:
+port_assignment_migration:
+  - fabric_site: "Global/California/23"
+    source_device_ip: "10.195.120.173"
+    destination_device_ip: "10.195.120.219"
