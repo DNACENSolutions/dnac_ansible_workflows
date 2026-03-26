@@ -1,0 +1,112 @@
+---
+- name: Validate source and destination are not the same
+  fail:
+    msg: "source_device_ip and destination_device_ip must be different for migration."
+  when: migration_item.source_device_ip == migration_item.destination_device_ip
+
+- name: Build generated source config file path for migration
+  set_fact:
+    generated_source_config_file_path: >-
+      {{ generated_config_dir }}/sda_port_assignment_source_{{ migration_item.source_device_ip |
+      regex_replace('[^A-Za-z0-9]', '_') }}_to_{{ migration_item.destination_device_ip |
+      regex_replace('[^A-Za-z0-9]', '_') }}.yml
+
+- name: Export source port assignments for the requested fabric site
+  cisco.dnac.sda_host_port_onboarding_playbook_config_generator:
+    dnac_host: "{{ catalyst_center_login.dnac_host }}"
+    dnac_username: "{{ catalyst_center_login.dnac_username }}"
+    dnac_password: "{{ catalyst_center_login.dnac_password }}"
+    dnac_version: "{{ catalyst_center_login.dnac_version }}"
+    dnac_port: "{{ catalyst_center_login.dnac_port }}"
+    dnac_verify: "{{ catalyst_center_login.dnac_verify }}"
+    dnac_debug: "{{ catalyst_center_login.dnac_debug }}"
+    dnac_log: "{{ catalyst_center_login.dnac_log }}"
+    dnac_log_level: "{{ catalyst_center_login.dnac_log_level }}"
+    dnac_log_file_path: "{{ catalyst_center_login.dnac_log_file_path }}"
+    dnac_log_append: "{{ catalyst_center_login.dnac_log_append }}"
+    dnac_api_task_timeout: "{{ catalyst_center_login.dnac_api_task_timeout }}"
+    state: gathered
+    file_path: "{{ generated_source_config_file_path }}"
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list:
+          - port_assignments
+        port_assignments:
+          fabric_site_name_hierarchy:
+            - "{{ migration_item.fabric_site }}"
+  register: source_port_assignment_export
+
+- name: Load generated source port assignment configuration
+  ansible.builtin.include_vars:
+    file: "{{ generated_source_config_file_path }}"
+    name: generated_source_config
+
+- name: Find source device port assignment entry
+  set_fact:
+    source_device_port_assignment_entry: >-
+      {{
+        (generated_source_config.config | default([]) |
+         selectattr('ip_address', 'equalto', migration_item.source_device_ip) |
+         list | first) | default({})
+      }}
+
+- name: Fail when source device port assignments are not found
+  fail:
+    msg: >-
+      No port assignments found in fabric site {{ migration_item.fabric_site }}
+      for source_device_ip {{ migration_item.source_device_ip }}.
+  when:
+    - source_device_port_assignment_entry | length == 0
+      or source_device_port_assignment_entry.port_assignments is not defined
+      or source_device_port_assignment_entry.port_assignments | length == 0
+
+- name: Build destination device onboarding payload from source interfaces
+  set_fact:
+    destination_device_onboarding_config:
+      - ip_address: "{{ migration_item.destination_device_ip }}"
+        fabric_site_name_hierarchy: >-
+          {{ source_device_port_assignment_entry.fabric_site_name_hierarchy |
+          default(migration_item.fabric_site) }}
+        port_assignments: "{{ source_device_port_assignment_entry.port_assignments }}"
+
+- name: Apply source port assignments to destination device
+  cisco.dnac.sda_host_port_onboarding_workflow_manager:
+    dnac_host: "{{ catalyst_center_login.dnac_host }}"
+    dnac_username: "{{ catalyst_center_login.dnac_username }}"
+    dnac_password: "{{ catalyst_center_login.dnac_password }}"
+    dnac_version: "{{ catalyst_center_login.dnac_version }}"
+    dnac_port: "{{ catalyst_center_login.dnac_port }}"
+    dnac_verify: "{{ catalyst_center_login.dnac_verify }}"
+    config_verify: "{{ catalyst_center_login.config_verify }}"
+    dnac_debug: "{{ catalyst_center_login.dnac_debug }}"
+    dnac_log: "{{ catalyst_center_login.dnac_log }}"
+    dnac_log_level: "{{ catalyst_center_login.dnac_log_level }}"
+    dnac_log_file_path: "{{ catalyst_center_login.dnac_log_file_path }}"
+    dnac_log_append: "{{ catalyst_center_login.dnac_log_append }}"
+    dnac_api_task_timeout: "{{ catalyst_center_login.dnac_api_task_timeout }}"
+    state: "{{ state }}"
+    config: "{{ destination_device_onboarding_config }}"
+  register: destination_port_assignment_apply
+
+- name: Track migration result
+  set_fact:
+    port_assignment_migration_results: >-
+      {{
+        (port_assignment_migration_results | default([])) + [
+          {
+            'fabric_site': migration_item.fabric_site,
+            'source_device_ip': migration_item.source_device_ip,
+            'destination_device_ip': migration_item.destination_device_ip,
+            'generated_file': generated_source_config_file_path,
+            'generator_status': source_port_assignment_export.status | default('unknown'),
+            'migration_status': destination_port_assignment_apply.status | default('unknown')
+          }
+        ]
+      }}
+
+- name: Remove generated source config file
+  ansible.builtin.file:
+    path: "{{ generated_source_config_file_path }}"
+    state: absent
+  when: cleanup_generated_files | bool

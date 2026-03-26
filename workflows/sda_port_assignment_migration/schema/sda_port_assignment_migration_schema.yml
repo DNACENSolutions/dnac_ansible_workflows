@@ -1,0 +1,29 @@
+# Schema for SDA Port Assignment Migration workflow
+#
+# This workflow:
+# 1. Exports source device port assignments by fabric site using
+#    sda_host_port_onboarding_playbook_config_generator.
+# 2. Applies those same assignments on a destination device using
+#    sda_host_port_onboarding_workflow_manager.
+
+port_assignment_migration: list(include('port_assignment_migration_type'), min=1, required=True)
+generated_config_dir: str(required=False)
+cleanup_generated_files: bool(required=False, default=True)
+state: enum('merged', required=False)
+
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum('CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', required=False)
+catalyst_center_config_verify: bool(required=False, default=False)
+catalyst_center_task_poll_interval: int(required=False)
+
+---
+port_assignment_migration_type:
+  fabric_site: str(required=True)
+  source_device_ip: str(required=True)
+  destination_device_ip: str(required=True)
