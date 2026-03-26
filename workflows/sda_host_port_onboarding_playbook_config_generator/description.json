@@ -1,0 +1,5 @@
+{
+  "summary": "Generate brownfield SDA host port onboarding YAML playbooks from Cisco Catalyst Center for use with sda_host_port_onboarding_workflow_manager.",
+  "status": "active",
+  "managed_by": "cisco"
+}
