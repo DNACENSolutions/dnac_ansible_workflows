@@ -4,12 +4,7 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
-
   vars:
-    state: merged
-    cleanup_generated_files: true
     generated_config_dir: "/tmp/sda_port_assignment_migration"
     catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
@@ -27,9 +22,22 @@
       dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
 
   tasks:
-    - name: Print input file path
+    - name: Print input source
       debug:
-        msg: "Input file selected: {{ VARS_FILE_PATH }}"
+        msg: >-
+          {{
+            ("Input source: vars file " ~ VARS_FILE_PATH)
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else
+            "Input source: inventory variables (VARS_FILE_PATH not provided)"
+          }}
+
+    - name: Load input variables from vars file when provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
 
     - name: Validate migration input list
       fail:
