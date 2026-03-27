@@ -5,6 +5,8 @@
 #    sda_host_port_onboarding_playbook_config_generator.
 # 2. Applies those same assignments on a destination device using
 #    sda_host_port_onboarding_workflow_manager.
+# 3. Optionally remaps source interface names to destination interface names
+#    per migration entry using interface_mappings.
 
 port_assignment_migration: list(include('port_assignment_migration_type'), min=1, required=True)
 generated_config_dir: str(required=False)
@@ -27,3 +29,8 @@ port_assignment_migration_type:
   fabric_site: str(required=True)
   source_device_ip: str(required=True)
   destination_device_ip: str(required=True)
+  interface_mappings: list(include('interface_mapping_type'), required=False, min=1)
+
+interface_mapping_type:
+  source_interface_name: str(required=True)
+  destination_interface_name: str(required=True)

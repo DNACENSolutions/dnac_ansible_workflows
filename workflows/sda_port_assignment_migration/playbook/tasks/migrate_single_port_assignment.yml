@@ -11,31 +11,79 @@
       regex_replace('[^A-Za-z0-9]', '_') }}_to_{{ migration_item.destination_device_ip |
       regex_replace('[^A-Za-z0-9]', '_') }}.yml
 
+- name: Remove stale generated source config file before export
+  ansible.builtin.file:
+    path: "{{ generated_source_config_file_path }}"
+    state: absent
+  changed_when: false
+
 - name: Export source port assignments for the requested fabric site
-  cisco.dnac.sda_host_port_onboarding_playbook_config_generator:
-    dnac_host: "{{ catalyst_center_login.dnac_host }}"
-    dnac_username: "{{ catalyst_center_login.dnac_username }}"
-    dnac_password: "{{ catalyst_center_login.dnac_password }}"
-    dnac_version: "{{ catalyst_center_login.dnac_version }}"
-    dnac_port: "{{ catalyst_center_login.dnac_port }}"
-    dnac_verify: "{{ catalyst_center_login.dnac_verify }}"
-    dnac_debug: "{{ catalyst_center_login.dnac_debug }}"
-    dnac_log: "{{ catalyst_center_login.dnac_log }}"
-    dnac_log_level: "{{ catalyst_center_login.dnac_log_level }}"
-    dnac_log_file_path: "{{ catalyst_center_login.dnac_log_file_path }}"
-    dnac_log_append: "{{ catalyst_center_login.dnac_log_append }}"
-    dnac_api_task_timeout: "{{ catalyst_center_login.dnac_api_task_timeout }}"
-    state: gathered
-    file_path: "{{ generated_source_config_file_path }}"
-    file_mode: overwrite
-    config:
-      component_specific_filters:
-        components_list:
-          - port_assignments
-        port_assignments:
-          fabric_site_name_hierarchy:
-            - "{{ migration_item.fabric_site }}"
-  register: source_port_assignment_export
+  block:
+    - name: Export source port assignments using source device IP filter
+      cisco.dnac.sda_host_port_onboarding_playbook_config_generator:
+        dnac_host: "{{ catalyst_center_login.dnac_host }}"
+        dnac_username: "{{ catalyst_center_login.dnac_username }}"
+        dnac_password: "{{ catalyst_center_login.dnac_password }}"
+        dnac_version: "{{ catalyst_center_login.dnac_version }}"
+        dnac_port: "{{ catalyst_center_login.dnac_port }}"
+        dnac_verify: "{{ catalyst_center_login.dnac_verify }}"
+        dnac_debug: "{{ catalyst_center_login.dnac_debug }}"
+        dnac_log: "{{ catalyst_center_login.dnac_log }}"
+        dnac_log_level: "{{ catalyst_center_login.dnac_log_level }}"
+        dnac_log_file_path: "{{ catalyst_center_login.dnac_log_file_path }}"
+        dnac_log_append: "{{ catalyst_center_login.dnac_log_append }}"
+        dnac_api_task_timeout: "{{ catalyst_center_login.dnac_api_task_timeout }}"
+        state: gathered
+        file_path: "{{ generated_source_config_file_path }}"
+        file_mode: overwrite
+        config:
+          component_specific_filters:
+            components_list:
+              - port_assignments
+            # Preferred filter schema (supported in newer collections):
+            # per-site list with optional device-level filters.
+            port_assignments:
+              - fabric_site_name_hierarchy: "{{ migration_item.fabric_site }}"
+                device_ips:
+                  - "{{ migration_item.source_device_ip }}"
+      register: source_port_assignment_export
+      changed_when: false
+
+    - name: Track generator filter mode
+      set_fact:
+        source_export_filter_mode: "device_ip"
+  rescue:
+    - name: Export source port assignments using legacy fabric site filter
+      cisco.dnac.sda_host_port_onboarding_playbook_config_generator:
+        dnac_host: "{{ catalyst_center_login.dnac_host }}"
+        dnac_username: "{{ catalyst_center_login.dnac_username }}"
+        dnac_password: "{{ catalyst_center_login.dnac_password }}"
+        dnac_version: "{{ catalyst_center_login.dnac_version }}"
+        dnac_port: "{{ catalyst_center_login.dnac_port }}"
+        dnac_verify: "{{ catalyst_center_login.dnac_verify }}"
+        dnac_debug: "{{ catalyst_center_login.dnac_debug }}"
+        dnac_log: "{{ catalyst_center_login.dnac_log }}"
+        dnac_log_level: "{{ catalyst_center_login.dnac_log_level }}"
+        dnac_log_file_path: "{{ catalyst_center_login.dnac_log_file_path }}"
+        dnac_log_append: "{{ catalyst_center_login.dnac_log_append }}"
+        dnac_api_task_timeout: "{{ catalyst_center_login.dnac_api_task_timeout }}"
+        state: gathered
+        file_path: "{{ generated_source_config_file_path }}"
+        file_mode: overwrite
+        config:
+          component_specific_filters:
+            components_list:
+              - port_assignments
+            # Legacy filter schema (fabric-site-only).
+            port_assignments:
+              fabric_site_name_hierarchy:
+                - "{{ migration_item.fabric_site }}"
+      register: source_port_assignment_export
+      changed_when: false
+
+    - name: Track generator filter mode fallback
+      set_fact:
+        source_export_filter_mode: "fabric_site_only"
 
 - name: Load generated source port assignment configuration
   ansible.builtin.include_vars:
@@ -61,6 +109,83 @@
       or source_device_port_assignment_entry.port_assignments is not defined
       or source_device_port_assignment_entry.port_assignments | length == 0
 
+- name: Capture source interface names and requested interface mappings
+  set_fact:
+    source_interface_names: "{{ source_device_port_assignment_entry.port_assignments | map(attribute='interface_name') | list }}"
+    requested_interface_mappings: "{{ migration_item.interface_mappings | default([]) }}"
+
+- name: Validate mapped source interfaces are unique
+  fail:
+    msg: "interface_mappings contains duplicate source_interface_name entries."
+  when: >
+    (requested_interface_mappings | map(attribute='source_interface_name') | list | unique | length)
+    !=
+    (requested_interface_mappings | map(attribute='source_interface_name') | list | length)
+
+- name: Validate mapped destination interfaces are unique
+  fail:
+    msg: "interface_mappings contains duplicate destination_interface_name entries."
+  when: >
+    (requested_interface_mappings | map(attribute='destination_interface_name') | list | unique | length)
+    !=
+    (requested_interface_mappings | map(attribute='destination_interface_name') | list | length)
+
+- name: Validate mapped source interfaces exist in source payload
+  set_fact:
+    mapped_source_interfaces_not_found: >-
+      {{
+        (requested_interface_mappings | map(attribute='source_interface_name') | list)
+        | difference(source_interface_names)
+      }}
+
+- name: Fail when mapped source interfaces are missing in source payload
+  fail:
+    msg: >-
+      interface_mappings includes source interfaces that do not exist on source payload:
+      {{ mapped_source_interfaces_not_found | join(', ') }}
+  when: mapped_source_interfaces_not_found | length > 0
+
+- name: Initialize source-to-destination interface mapping lookup
+  set_fact:
+    interface_mapping_lookup: {}
+
+- name: Build source-to-destination interface mapping lookup
+  set_fact:
+    interface_mapping_lookup: >-
+      {{
+        interface_mapping_lookup | combine({
+          item.source_interface_name: item.destination_interface_name
+        })
+      }}
+  loop: "{{ requested_interface_mappings }}"
+  when: requested_interface_mappings | length > 0
+
+- name: Initialize destination port assignment payload list
+  set_fact:
+    destination_port_assignments: []
+
+- name: Build destination port assignment payload with optional interface remap
+  set_fact:
+    destination_port_assignments: >-
+      {{
+        destination_port_assignments + [
+          item | combine({
+            'interface_name': interface_mapping_lookup.get(item.interface_name, item.interface_name)
+          })
+        ]
+      }}
+  loop: "{{ source_device_port_assignment_entry.port_assignments }}"
+
+- name: Validate destination interfaces are unique after remap
+  fail:
+    msg: >-
+      Effective destination interface list contains duplicates after interface_mappings processing.
+      Review source interface assignments and mappings for overlap.
+  when: >
+    (destination_port_assignments | map(attribute='interface_name') | list | unique | length)
+    !=
+    (destination_port_assignments | map(attribute='interface_name') | list | length)
+
 - name: Build destination device onboarding payload from source interfaces
   set_fact:
     destination_device_onboarding_config:
@@ -68,7 +193,7 @@
         fabric_site_name_hierarchy: >-
           {{ source_device_port_assignment_entry.fabric_site_name_hierarchy |
           default(migration_item.fabric_site) }}
-        port_assignments: "{{ source_device_port_assignment_entry.port_assignments }}"
+        port_assignments: "{{ destination_port_assignments }}"
 
 - name: Apply source port assignments to destination device
   cisco.dnac.sda_host_port_onboarding_workflow_manager:
@@ -89,6 +214,79 @@
     config: "{{ destination_device_onboarding_config }}"
   register: destination_port_assignment_apply
 
+- name: Initialize apply outcome reporting containers
+  set_fact:
+    apply_message_objects: []
+    apply_message_blocks: []
+    apply_message_blocks_expanded: []
+    interfaces_updated_from_apply: []
+    interfaces_no_change_from_apply: []
+
+- name: Build target destination interface list for reporting
+  set_fact:
+    interfaces_targeted_for_migration: "{{ destination_port_assignments | map(attribute='interface_name') | list | unique | sort }}"
+
+- name: Collect apply message objects for reporting
+  set_fact:
+    apply_message_objects: >-
+      {{
+        (
+          []
+          + ([destination_port_assignment_apply.msg] if destination_port_assignment_apply.msg is mapping else [])
+          + ([destination_port_assignment_apply.response] if destination_port_assignment_apply.response is mapping else [])
+        )
+      }}
+
+- name: Flatten apply message dictionary blocks
+  set_fact:
+    apply_message_blocks: >-
+      {{
+        (apply_message_blocks | default([]))
+        + (item | dict2items | map(attribute='value') | list)
+      }}
+  loop: "{{ apply_message_objects }}"
+
+- name: Expand nested apply message blocks
+  set_fact:
+    apply_message_blocks_expanded: >-
+      {{
+        (apply_message_blocks_expanded | default([]))
+        + ([item] if item is mapping else [])
+        + ((item | dict2items | map(attribute='value') | list) if item is mapping else [])
+      }}
+  loop: "{{ apply_message_blocks | default([]) }}"
+
+- name: Collect interfaces reported as updated/created
+  set_fact:
+    interfaces_updated_from_apply: "{{ (interfaces_updated_from_apply | default([])) + item.success_interfaces }}"
+  loop: "{{ apply_message_blocks_expanded | default([]) }}"
+  when:
+    - item is mapping
+    - item.success_interfaces is defined
+    - item.success_interfaces is sequence
+    - item.success_interfaces is not string
+
+- name: Collect interfaces reported as no-change
+  set_fact:
+    interfaces_no_change_from_apply: "{{ (interfaces_no_change_from_apply | default([])) + item.port_assignments_no_update_needed }}"
+  loop: "{{ apply_message_blocks_expanded | default([]) }}"
+  when:
+    - item is mapping
+    - item.port_assignments_no_update_needed is defined
+    - item.port_assignments_no_update_needed is sequence
+    - item.port_assignments_no_update_needed is not string
+
+- name: Normalize apply outcome interface lists
+  set_fact:
+    interfaces_updated_from_apply: "{{ interfaces_updated_from_apply | default([]) | unique | sort }}"
+    interfaces_no_change_from_apply: "{{ interfaces_no_change_from_apply | default([]) | unique | sort }}"
+    interfaces_unreported_from_apply: >-
+      {{
+        (interfaces_targeted_for_migration | difference(
+          ((interfaces_updated_from_apply | default([])) + (interfaces_no_change_from_apply | default([]))) | unique
+        )) | sort
+      }}
+
 - name: Track migration result
   set_fact:
     port_assignment_migration_results: >-
@@ -98,6 +296,20 @@
             'fabric_site': migration_item.fabric_site,
             'source_device_ip': migration_item.source_device_ip,
             'destination_device_ip': migration_item.destination_device_ip,
+            'source_export_filter_mode': source_export_filter_mode | default('unknown'),
+            'interface_mapping_count': requested_interface_mappings | length,
+            'interfaces_moved': interfaces_targeted_for_migration | default([]),
+            'interfaces_moved_count': interfaces_targeted_for_migration | default([]) | length,
+            'interfaces_targeted': interfaces_targeted_for_migration | default([]),
+            'interfaces_targeted_count': interfaces_targeted_for_migration | default([]) | length,
+            'interfaces_updated': interfaces_updated_from_apply | default([]),
+            'interfaces_updated_count': interfaces_updated_from_apply | default([]) | length,
+            'interfaces_no_change': interfaces_no_change_from_apply | default([]),
+            'interfaces_no_change_count': interfaces_no_change_from_apply | default([]) | length,
+            'interfaces_unreported': interfaces_unreported_from_apply | default([]),
+            'interfaces_unreported_count': interfaces_unreported_from_apply | default([]) | length,
+            'catalyst_center_change_count': interfaces_updated_from_apply | default([]) | length,
+            'catalyst_center_changed': (interfaces_updated_from_apply | default([]) | length) > 0,
             'generated_file': generated_source_config_file_path,
             'generator_status': source_port_assignment_export.status | default('unknown'),
             'migration_status': destination_port_assignment_apply.status | default('unknown')
@@ -110,3 +322,4 @@
     path: "{{ generated_source_config_file_path }}"
     state: absent
   when: cleanup_generated_files | bool
+  changed_when: false

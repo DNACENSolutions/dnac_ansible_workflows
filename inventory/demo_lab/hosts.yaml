@@ -2,18 +2,19 @@
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            #(Mandatory) CatC Ip address
-            catalyst_center_host:  <DNAC IP Address>
-            #(Mandatory) CatC UI admin Password
-            catalyst_center_password: <DNAC UI admin Password>
+            #(Mandatory) CatC IP address from environment variable HOSTIP
+            catalyst_center_host: "{{ lookup('ansible.builtin.env', 'HOSTIP') }}"
+            #(Mandatory) CatC UI admin password from environment variable CATALYST_CENTER_PASSWORD
+            catalyst_center_password: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_PASSWORD') }}"
             catalyst_center_port: 443
             catalyst_center_timeout: 60
-            #(Mandatory) CatC UI admin username
-            catalyst_center_username: <DNAC UI admin username> 
+            #(Mandatory) CatC UI admin username from environment variable CATALYST_CENTER_USERNAME
+            catalyst_center_username: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_USERNAME') }}"
             catalyst_center_verify: false
             #(Mandatory) DNAC Release version
-            catalyst_center_version: <DNAC Release version>
+            catalyst_center_version: 2.3.7.9
             catalyst_center_debug: true
             catalyst_center_log_level: INFO
             catalyst_center_log: true
-            ansible_python_interpreter: /usr/bin/python3
+            #(Mandatory) Python interpreter from environment variable ANSIBLE_PYTHON_INTERPRETER
+            ansible_python_interpreter: "{{ lookup('ansible.builtin.env', 'ANSIBLE_PYTHON_INTERPRETER') }}"
