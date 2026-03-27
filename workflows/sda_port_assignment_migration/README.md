@@ -31,8 +31,8 @@ The following diagram represents the end-to-end functionality performed by this 
 ```yaml
 port_assignment_migration:
   - fabric_site: "Global/California/23"
-    source_device_ip: "10.195.120.173"
-    destination_device_ip: "10.195.120.219"
+    source_device_ip: "10.0.0.1"
+    destination_device_ip: "10.0.0.2"
 ```
 
 ### Example 2: Partial Interface Remap
@@ -40,8 +40,8 @@ port_assignment_migration:
 ```yaml
 port_assignment_migration:
   - fabric_site: "Global/California/23"
-    source_device_ip: "10.195.120.173"
-    destination_device_ip: "10.195.120.219"
+    source_device_ip: "10.0.0.1"
+    destination_device_ip: "10.0.0.2"
     interface_mappings:
       - source_interface_name: "GigabitEthernet1/0/1"
         destination_interface_name: "GigabitEthernet1/0/25"
@@ -61,43 +61,71 @@ Behavior for Example 2:
 - `vars/sda_port_assignment_migration_input.yml`
 - `slides/sda_port_assignment_migration_usecase_slide.md`
 
-## Environment Variables
+## Step 1: Virtual Env Setup
+
+Run the following from repository root:
+
+```bash
+# Create and activate virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Upgrade pip tooling
+python -m pip install --upgrade pip setuptools wheel
+
+# Install Python dependencies (includes ansible and dnacentersdk)
+pip install -r requirements.txt
+
+# Install/upgrade Cisco DNAC Ansible collection
+ansible-galaxy collection install cisco.dnac --force
+```
+
+## Step 2: Create Inputs
+
+Update the workflow input file:
+- `workflows/sda_port_assignment_migration/vars/sda_port_assignment_migration_input.yml`
+
+Minimum example:
+
+```yaml
+port_assignment_migration:
+  - fabric_site: "Global/California/23"
+    source_device_ip: "10.0.0.1"
+    destination_device_ip: "10.0.0.2"
+```
+
+Optional interface remap example:
+
+```yaml
+port_assignment_migration:
+  - fabric_site: "Global/California/23"
+    source_device_ip: "10.0.0.1"
+    destination_device_ip: "10.0.0.2"
+    interface_mappings:
+      - source_interface_name: "GigabitEthernet1/0/1"
+        destination_interface_name: "GigabitEthernet1/0/25"
+      - source_interface_name: "GigabitEthernet1/0/2"
+        destination_interface_name: "GigabitEthernet1/0/26"
+```
+
+## Step 3: Setup Env Variables and Run Playbook
 
 The inventory file `inventory/demo_lab/hosts.yaml` reads Catalyst Center connection values from environment variables.
-
-Required variables:
-- `HOSTIP`
-- `CATALYST_CENTER_USERNAME`
-- `CATALYST_CENTER_PASSWORD`
-- `ANSIBLE_PYTHON_INTERPRETER`
-
-Example:
 
 ```bash
 export HOSTIP=10.195.120.197
 export CATALYST_CENTER_USERNAME=admin
 export CATALYST_CENTER_PASSWORD='your_password'
-export ANSIBLE_PYTHON_INTERPRETER=/Users/pawansi/ansiblevenv/bin/python
+export ANSIBLE_PYTHON_INTERPRETER="$(pwd)/.venv/bin/python"
 ```
 
-## Run
-
-Use absolute paths:
-
-```bash
-CWD="$(pwd)"
-ansible-playbook -i "$CWD/inventory/demo_lab/hosts.yaml" \
-  "$CWD/workflows/sda_port_assignment_migration/playbook/sda_port_assignment_migration_playbook.yml" \
-  --extra-vars "VARS_FILE_PATH=$CWD/workflows/sda_port_assignment_migration/vars/sda_port_assignment_migration_input.yml" \
-  -vvvv
-```
-
-Or use relative paths:
+Run:
 
 ```bash
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/sda_port_assignment_migration/playbook/sda_port_assignment_migration_playbook.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_port_assignment_migration/vars/sda_port_assignment_migration_input.yml -vvvv
+  --extra-vars VARS_FILE_PATH=./workflows/sda_port_assignment_migration/vars/sda_port_assignment_migration_input.yml \
+  -vvvv
 ```
 
 ## Example Migration Result (Run on March 25, 2026)
@@ -107,17 +135,17 @@ Input used:
 ```yaml
 port_assignment_migration:
   - fabric_site: "Global/California/23"
-    source_device_ip: "10.195.120.173"
-    destination_device_ip: "10.195.120.219"
+    source_device_ip: "10.0.0.1"
+    destination_device_ip: "10.0.0.2"
 ```
 
 Generator stage result:
 - `status: success`
 - `components_processed: 1`
 - `configurations_count: 2`
-- Generated file: `/tmp/sda_port_assignment_migration/sda_port_assignment_source_10_195_120_173_to_10_195_120_219.yml`
+- Generated file: `/tmp/sda_port_assignment_migration/sda_port_assignment_source_10_0_0_1_to_10_0_0_2.yml`
 
-What was migrated from source `10.195.120.173` to destination `10.195.120.219`:
+What was migrated from source `10.0.0.1` to destination `10.0.0.2`:
 - Total interfaces in source payload: `14`
 - Interfaces: `GigabitEthernet1/0/1`, `GigabitEthernet1/0/2`, `GigabitEthernet1/0/3`, `GigabitEthernet1/0/5`, `GigabitEthernet1/0/6`, `GigabitEthernet1/0/7`, `GigabitEthernet1/0/10`, `GigabitEthernet1/0/12`, `GigabitEthernet1/0/13`, `GigabitEthernet1/0/14`, `GigabitEthernet1/0/15`, `GigabitEthernet1/0/16`, `GigabitEthernet1/0/17`, `GigabitEthernet1/0/18`
 
@@ -147,8 +175,8 @@ Workflow summary from logs:
 ## How Verification Was Done
 
 1. Verified source export succeeded and included site data for `Global/California/23`.
-2. Verified source device selection by exact IP match (`10.195.120.173`) from `generated_source_config.config`.
-3. Verified destination payload was built with destination IP (`10.195.120.219`) and source port assignments list (with optional `interface_mappings` remap when provided).
+2. Verified source device selection by exact IP match (`10.0.0.1`) from `generated_source_config.config`.
+3. Verified destination payload was built with destination IP (`10.0.0.2`) and source port assignments list (with optional `interface_mappings` remap when provided).
 4. Verified apply task returned `status: success` and reported interface-level outcomes (`success_interfaces` and `port_assignments_no_update_needed`).
 5. Verified final play recap had no failures.
 
