@@ -17,78 +17,130 @@
     state: absent
   changed_when: false
 
-- name: Export source port assignments for the requested fabric site
-  block:
-    - name: Export source port assignments using source device IP filter
-      cisco.dnac.sda_host_port_onboarding_playbook_config_generator:
-        dnac_host: "{{ catalyst_center_login.dnac_host }}"
-        dnac_username: "{{ catalyst_center_login.dnac_username }}"
-        dnac_password: "{{ catalyst_center_login.dnac_password }}"
-        dnac_version: "{{ catalyst_center_login.dnac_version }}"
-        dnac_port: "{{ catalyst_center_login.dnac_port }}"
-        dnac_verify: "{{ catalyst_center_login.dnac_verify }}"
-        dnac_debug: "{{ catalyst_center_login.dnac_debug }}"
-        dnac_log: "{{ catalyst_center_login.dnac_log }}"
-        dnac_log_level: "{{ catalyst_center_login.dnac_log_level }}"
-        dnac_log_file_path: "{{ catalyst_center_login.dnac_log_file_path }}"
-        dnac_log_append: "{{ catalyst_center_login.dnac_log_append }}"
-        dnac_api_task_timeout: "{{ catalyst_center_login.dnac_api_task_timeout }}"
-        state: gathered
-        file_path: "{{ generated_source_config_file_path }}"
-        file_mode: overwrite
-        config:
-          component_specific_filters:
-            components_list:
-              - port_assignments
-            # Preferred filter schema (supported in newer collections):
-            # per-site list with optional device-level filters.
-            port_assignments:
-              - fabric_site_name_hierarchy: "{{ migration_item.fabric_site }}"
-                device_ips:
-                  - "{{ migration_item.source_device_ip }}"
-      register: source_port_assignment_export
-      changed_when: false
+- name: Initialize source export mode
+  set_fact:
+    source_export_filter_mode: "unknown"
 
-    - name: Track generator filter mode
-      set_fact:
-        source_export_filter_mode: "device_ip"
-  rescue:
-    - name: Export source port assignments using legacy fabric site filter
-      cisco.dnac.sda_host_port_onboarding_playbook_config_generator:
-        dnac_host: "{{ catalyst_center_login.dnac_host }}"
-        dnac_username: "{{ catalyst_center_login.dnac_username }}"
-        dnac_password: "{{ catalyst_center_login.dnac_password }}"
-        dnac_version: "{{ catalyst_center_login.dnac_version }}"
-        dnac_port: "{{ catalyst_center_login.dnac_port }}"
-        dnac_verify: "{{ catalyst_center_login.dnac_verify }}"
-        dnac_debug: "{{ catalyst_center_login.dnac_debug }}"
-        dnac_log: "{{ catalyst_center_login.dnac_log }}"
-        dnac_log_level: "{{ catalyst_center_login.dnac_log_level }}"
-        dnac_log_file_path: "{{ catalyst_center_login.dnac_log_file_path }}"
-        dnac_log_append: "{{ catalyst_center_login.dnac_log_append }}"
-        dnac_api_task_timeout: "{{ catalyst_center_login.dnac_api_task_timeout }}"
-        state: gathered
-        file_path: "{{ generated_source_config_file_path }}"
-        file_mode: overwrite
-        config:
-          component_specific_filters:
-            components_list:
-              - port_assignments
-            # Legacy filter schema (fabric-site-only).
-            port_assignments:
-              fabric_site_name_hierarchy:
-                - "{{ migration_item.fabric_site }}"
-      register: source_port_assignment_export
-      changed_when: false
+- name: Export source port assignments using source device IP filter
+  cisco.dnac.sda_host_port_onboarding_playbook_config_generator:
+    dnac_host: "{{ catalyst_center_login.dnac_host }}"
+    dnac_username: "{{ catalyst_center_login.dnac_username }}"
+    dnac_password: "{{ catalyst_center_login.dnac_password }}"
+    dnac_version: "{{ catalyst_center_login.dnac_version }}"
+    dnac_port: "{{ catalyst_center_login.dnac_port }}"
+    dnac_verify: "{{ catalyst_center_login.dnac_verify }}"
+    dnac_debug: "{{ catalyst_center_login.dnac_debug }}"
+    dnac_log: "{{ catalyst_center_login.dnac_log }}"
+    dnac_log_level: "{{ catalyst_center_login.dnac_log_level }}"
+    dnac_log_file_path: "{{ catalyst_center_login.dnac_log_file_path }}"
+    dnac_log_append: "{{ catalyst_center_login.dnac_log_append }}"
+    dnac_api_task_timeout: "{{ catalyst_center_login.dnac_api_task_timeout }}"
+    state: gathered
+    file_path: "{{ generated_source_config_file_path }}"
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list:
+          - port_assignments
+        # Preferred filter schema (supported in newer collections):
+        # per-site list with optional device-level filters.
+        port_assignments:
+          - fabric_site_name_hierarchy: "{{ migration_item.fabric_site }}"
+            device_ips:
+              - "{{ migration_item.source_device_ip }}"
+  register: source_port_assignment_export_device_ip
+  changed_when: false
+  failed_when: false
 
-    - name: Track generator filter mode fallback
-      set_fact:
-        source_export_filter_mode: "fabric_site_only"
+- name: Check generated source config file after device IP export
+  ansible.builtin.stat:
+    path: "{{ generated_source_config_file_path }}"
+  register: generated_source_config_file_stat_device_ip
+  changed_when: false
+
+- name: Export source port assignments using fabric-site-only fallback
+  cisco.dnac.sda_host_port_onboarding_playbook_config_generator:
+    dnac_host: "{{ catalyst_center_login.dnac_host }}"
+    dnac_username: "{{ catalyst_center_login.dnac_username }}"
+    dnac_password: "{{ catalyst_center_login.dnac_password }}"
+    dnac_version: "{{ catalyst_center_login.dnac_version }}"
+    dnac_port: "{{ catalyst_center_login.dnac_port }}"
+    dnac_verify: "{{ catalyst_center_login.dnac_verify }}"
+    dnac_debug: "{{ catalyst_center_login.dnac_debug }}"
+    dnac_log: "{{ catalyst_center_login.dnac_log }}"
+    dnac_log_level: "{{ catalyst_center_login.dnac_log_level }}"
+    dnac_log_file_path: "{{ catalyst_center_login.dnac_log_file_path }}"
+    dnac_log_append: "{{ catalyst_center_login.dnac_log_append }}"
+    dnac_api_task_timeout: "{{ catalyst_center_login.dnac_api_task_timeout }}"
+    state: gathered
+    file_path: "{{ generated_source_config_file_path }}"
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list:
+          - port_assignments
+        # Compatibility fallback schema:
+        # site list without device-level filters.
+        port_assignments:
+          - fabric_site_name_hierarchy: "{{ migration_item.fabric_site }}"
+  register: source_port_assignment_export_fallback
+  changed_when: false
+  failed_when: false
+  when: not generated_source_config_file_stat_device_ip.stat.exists
+
+- name: Check generated source config file after export attempts
+  ansible.builtin.stat:
+    path: "{{ generated_source_config_file_path }}"
+  register: generated_source_config_file_stat_final
+  changed_when: false
+
+- name: Track export mode and generator result object used
+  set_fact:
+    source_export_filter_mode: >-
+      {{
+        'device_ip'
+        if generated_source_config_file_stat_device_ip.stat.exists else
+        (
+          'fabric_site_only'
+          if generated_source_config_file_stat_final.stat.exists else
+          'no_data'
+        )
+      }}
+    source_port_assignment_export: >-
+      {{
+        source_port_assignment_export_device_ip
+        if generated_source_config_file_stat_device_ip.stat.exists else
+        (source_port_assignment_export_fallback | default(source_port_assignment_export_device_ip))
+      }}
+
+- name: Fail when source export returned error and no file was generated
+  fail:
+    msg: >-
+      Source export failed for source_device_ip {{ migration_item.source_device_ip }}
+      in fabric_site {{ migration_item.fabric_site }} and no generated input file was created.
+      Export mode tried: {{ source_export_filter_mode }}.
+      Module status: {{ source_port_assignment_export.status | default('unknown') }}.
+      Module response: {{ source_port_assignment_export.response | default(source_port_assignment_export.msg | default('n/a')) }}.
+  when:
+    - not generated_source_config_file_stat_final.stat.exists
+    - (source_port_assignment_export.failed | default(false))
+      or
+      (
+        source_port_assignment_export.status is defined
+        and (source_port_assignment_export.status | string | lower) not in ['success', 'ok']
+      )
 
 - name: Load generated source port assignment configuration
   ansible.builtin.include_vars:
     file: "{{ generated_source_config_file_path }}"
     name: generated_source_config
+  when: generated_source_config_file_stat_final.stat.exists
+
+- name: Initialize empty generated source config when export produced no file
+  set_fact:
+    generated_source_config:
+      config: []
+  when: not generated_source_config_file_stat_final.stat.exists
 
 - name: Find source device port assignment entry
   set_fact:
@@ -99,20 +151,22 @@
          list | first) | default({})
       }}
 
-- name: Fail when source device port assignments are not found
-  fail:
-    msg: >-
-      No port assignments found in fabric site {{ migration_item.fabric_site }}
-      for source_device_ip {{ migration_item.source_device_ip }}.
-  when:
-    - source_device_port_assignment_entry | length == 0
-      or source_device_port_assignment_entry.port_assignments is not defined
-      or source_device_port_assignment_entry.port_assignments | length == 0
+- name: Capture source device port assignments for migration
+  set_fact:
+    source_port_assignments_for_migration: "{{ source_device_port_assignment_entry.port_assignments | default([]) }}"
 
 - name: Capture source interface names and requested interface mappings
   set_fact:
-    source_interface_names: "{{ source_device_port_assignment_entry.port_assignments | map(attribute='interface_name') | list }}"
+    source_interface_names: "{{ source_port_assignments_for_migration | map(attribute='interface_name') | list }}"
+    source_has_port_assignments: "{{ (source_port_assignments_for_migration | length) > 0 }}"
     requested_interface_mappings: "{{ migration_item.interface_mappings | default([]) }}"
+
+- name: Notify when no source port assignment onboarding exists
+  debug:
+    msg: >-
+      No port assignment onboarding exists for source device {{ migration_item.source_device_ip }}
+      in fabric site {{ migration_item.fabric_site }}. Nothing to migrate for this entry.
+  when: not source_has_port_assignments
 
 - name: Validate mapped source interfaces are unique
   fail:
@@ -143,7 +197,9 @@
     msg: >-
       interface_mappings includes source interfaces that do not exist on source payload:
       {{ mapped_source_interfaces_not_found | join(', ') }}
-  when: mapped_source_interfaces_not_found | length > 0
+  when:
+    - source_has_port_assignments
+    - mapped_source_interfaces_not_found | length > 0
 
 - name: Initialize source-to-destination interface mapping lookup
   set_fact:
@@ -174,7 +230,7 @@
           })
         ]
       }}
-  loop: "{{ source_device_port_assignment_entry.port_assignments }}"
+  loop: "{{ source_port_assignments_for_migration }}"
 
 - name: Validate destination interfaces are unique after remap
   fail:
@@ -210,9 +266,19 @@
     dnac_log_file_path: "{{ catalyst_center_login.dnac_log_file_path }}"
     dnac_log_append: "{{ catalyst_center_login.dnac_log_append }}"
     dnac_api_task_timeout: "{{ catalyst_center_login.dnac_api_task_timeout }}"
-    state: "{{ state }}"
+    state: "{{ state | default('merged') }}"
     config: "{{ destination_device_onboarding_config }}"
   register: destination_port_assignment_apply
+  when: destination_port_assignments | length > 0
+
+- name: Track skipped apply result when no source port assignment onboarding exists
+  set_fact:
+    destination_port_assignment_apply:
+      status: "skipped_no_source_port_assignments"
+      msg: >-
+        No port assignment onboarding exists for source device {{ migration_item.source_device_ip }}
+        in fabric site {{ migration_item.fabric_site }}. Nothing was applied on destination.
+  when: destination_port_assignments | length == 0
 
 - name: Initialize apply outcome reporting containers
   set_fact:
@@ -321,5 +387,5 @@
   ansible.builtin.file:
     path: "{{ generated_source_config_file_path }}"
     state: absent
-  when: cleanup_generated_files | bool
+  when: cleanup_generated_files | default(true) | bool
   changed_when: false
