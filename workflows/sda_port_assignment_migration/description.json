@@ -1,5 +1,5 @@
 {
-  "summary": "Migrate SDA host port assignments from a source device to a destination device using Catalyst Center exported onboarding configuration.",
+  "summary": "Migrate SDA host port assignments from a source device to a destination device using Catalyst Center exported onboarding configuration, with optional source-to-destination interface remapping.",
   "status": "active",
   "managed_by": "cisco"
 }
