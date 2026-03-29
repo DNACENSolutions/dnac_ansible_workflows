@@ -1,5 +1,5 @@
 ---
-- name: Generate SDA Fabric Multicast workflow configuration from Cisco Catalyst Center
+- name: Generate SDA Fabric Multicast Configuration
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -41,12 +41,12 @@
             else 'Input source: inventory variables (VARS_FILE_PATH not provided)'
           }}
 
-    - name: Validate that sda_fabric_multicast_generator_config is defined
+    - name: Validate that sda_fabric_multicast_config is defined
       ansible.builtin.fail:
         msg: >-
-          Variable 'sda_fabric_multicast_generator_config' is not defined.
+          Variable 'sda_fabric_multicast_config' is not defined.
           Provide it via VARS_FILE_PATH or as an inventory/host variable.
-      when: sda_fabric_multicast_generator_config is not defined
+      when: sda_fabric_multicast_config is not defined
 
     # -------------------------------------------------------------------------
     # Playbook execution
@@ -62,10 +62,10 @@
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
         config: "{{ omit if (item.generate_all_configurations | default(false)) else ({'component_specific_filters': item.component_specific_filters} if item.component_specific_filters is defined else omit) }}"
-      loop: "{{ sda_fabric_multicast_generator_config }}"
+      loop: "{{ sda_fabric_multicast_config }}"
       when:
-        - sda_fabric_multicast_generator_config is defined
-        - sda_fabric_multicast_generator_config | length > 0
+        - sda_fabric_multicast_config is defined
+        - sda_fabric_multicast_config | length > 0
       register: config_generation_result
 
     - name: Display configuration generation results
