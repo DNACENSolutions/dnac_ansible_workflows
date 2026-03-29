@@ -1,5 +1,5 @@
 ---
-- name: Generate Discovery Playbook Configuration
+- name: Generate Discovery Configuration
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -41,29 +41,29 @@
             else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
           }}
 
-    - name: Validate that discovery_playbook_config_generator_details is defined
+    - name: Validate that discovery_config_details is defined
       ansible.builtin.fail:
         msg: >-
-          Variable 'discovery_playbook_config_generator_details' is not defined.
+          Variable 'discovery_config_details' is not defined.
           Provide it via VARS_FILE_PATH or as an inventory/host variable.
-      when: discovery_playbook_config_generator_details is not defined
+      when: discovery_config_details is not defined
 
     # =========================================================================
     # Playbook execution
     # =========================================================================
-    - name: Playbook start time for discovery playbook configuration generation
+    - name: Playbook start time for discovery configuration generation
       ansible.builtin.set_fact:
         config_gen_start: "{{ now() }}"
 
-    - name: Generate YAML configuration for discovery playbook
+    - name: Generate YAML configuration for discovery
       cisco.dnac.discovery_playbook_config_generator:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        file_path: "{{ discovery_playbook_config_generator_details.file_path | default(omit) }}"
-        file_mode: "{{ discovery_playbook_config_generator_details.file_mode | default('overwrite') }}"
-        config: "{{ omit if (discovery_playbook_config_generator_details.generate_all_configurations | default(false)) else ({'global_filters': discovery_playbook_config_generator_details.global_filters} if discovery_playbook_config_generator_details.global_filters is defined else omit) }}"
+        file_path: "{{ discovery_config_details.file_path | default(omit) }}"
+        file_mode: "{{ discovery_config_details.file_mode | default('overwrite') }}"
+        config: "{{ omit if (discovery_config_details.generate_all_configurations | default(false)) else ({'global_filters': discovery_config_details.global_filters} if discovery_config_details.global_filters is defined else omit) }}"
       when:
-        - discovery_playbook_config_generator_details is defined
+        - discovery_config_details is defined
       register: config_generation_result
 
     - name: Display configuration generation results
@@ -80,4 +80,4 @@
 
     - name: Print playbook execution time
       ansible.builtin.debug:
-        msg: "Discovery playbook configuration generation playbook run time: start: {{ config_gen_start }}, end: {{ config_gen_end }}"
+        msg: "Discovery configuration generation playbook run time: start: {{ config_gen_start }}, end: {{ config_gen_end }}"

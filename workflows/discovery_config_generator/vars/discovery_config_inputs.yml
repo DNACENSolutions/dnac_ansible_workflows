@@ -1,19 +1,19 @@
 ---
 # ============================================================================
-# Cisco Catalyst Center - Discovery Playbook Config Generator
+# Cisco Catalyst Center - Discovery Config Generator
 # ============================================================================
 #
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
-#     workflows/discovery_playbook_config_generator/playbook/discovery_playbook_config_generator_playbook.yml \
-#     --extra-vars VARS_FILE_PATH=./workflows/discovery_playbook_config_generator/vars/discovery_playbook_config_generator_inputs.yml
+#     workflows/discovery_config_generator/playbook/discovery_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=/absolute/path/to/dnac_ansible_workflows/workflows/discovery_config_generator/vars/discovery_config_inputs.yml
 #
 # MODULE:  cisco.dnac.discovery_playbook_config_generator
 # AUTHOR:  Megha Kandari, Madhan Sankaranarayanan
 # VERSION: 6.44.0
 # MIN CC:  2.3.7.9
 #
-# NOTE: discovery_playbook_config_generator_details is a dict (not a list).
+# NOTE: discovery_config_details is a dict (not a list).
 #       Only ONE configuration can be active per playbook execution.
 #       Uncomment the desired use case and comment out the others.
 # ============================================================================
@@ -23,7 +23,7 @@
 # Description: Retrieves ALL discovery tasks from Catalyst Center regardless
 #              of type or name. global_filters are ignored when this is true.
 # --------------------------------------------------------------------------
-discovery_playbook_config_generator_details:
+discovery_tails:
   generate_all_configurations: true
   file_path: "/tmp/complete_discovery_config.yml"
 
@@ -32,7 +32,7 @@ discovery_playbook_config_generator_details:
 # Description: Explicitly set to false — global_filters are required.
 #              Filters by LLDP discovery type only.
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   generate_all_configurations: false
 #   file_path: "/tmp/lldp_discovery_config.yml"
 #   global_filters:
@@ -44,7 +44,7 @@ discovery_playbook_config_generator_details:
 # Description: Extracts only discoveries with exact matching names.
 #              discovery_type_list is ignored when names are provided.
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   file_path: "/tmp/specific_discoveries.yml"
 #   file_mode: overwrite
 #   global_filters:
@@ -55,7 +55,7 @@ discovery_playbook_config_generator_details:
 # --------------------------------------------------------------------------
 # Use Case 4: Filter by a single discovery name
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   file_path: "/tmp/single_name_discovery.yml"
 #   global_filters:
 #     discovery_name_list:
@@ -64,7 +64,7 @@ discovery_playbook_config_generator_details:
 # --------------------------------------------------------------------------
 # Use Case 5: Filter by discovery type - Single only
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   file_path: "/tmp/single_type_discoveries.yml"
 #   global_filters:
 #     discovery_type_list:
@@ -73,7 +73,7 @@ discovery_playbook_config_generator_details:
 # --------------------------------------------------------------------------
 # Use Case 6: Filter by discovery type - Range only
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   file_path: "/tmp/range_type_discoveries.yml"
 #   global_filters:
 #     discovery_type_list:
@@ -82,7 +82,7 @@ discovery_playbook_config_generator_details:
 # --------------------------------------------------------------------------
 # Use Case 8: Filter by discovery type - LLDP only
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   file_path: "/tmp/lldp_type_discoveries.yml"
 #   global_filters:
 #     discovery_type_list:
@@ -91,7 +91,7 @@ discovery_playbook_config_generator_details:
 # --------------------------------------------------------------------------
 # Use Case 9: Filter by discovery type - CIDR only
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   file_path: "/tmp/cidr_type_discoveries.yml"
 #   global_filters:
 #     discovery_type_list:
@@ -102,7 +102,7 @@ discovery_playbook_config_generator_details:
 # Description: Extracts all CIDR and LLDP type discoveries.
 #              Uses append mode to combine into an existing file.
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   file_path: "/tmp/cidr_lldp_discoveries.yml"
 #   file_mode: append
 #   global_filters:
@@ -113,7 +113,7 @@ discovery_playbook_config_generator_details:
 # --------------------------------------------------------------------------
 # Use Case 11: Filter by multiple discovery types - Single and Range
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   file_path: "/tmp/single_range_discoveries.yml"
 #   global_filters:
 #     discovery_type_list:
@@ -123,7 +123,7 @@ discovery_playbook_config_generator_details:
 # --------------------------------------------------------------------------
 # Use Case 12: Filter by multiple discovery types - Range, LLDP and CIDR
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   file_path: "/tmp/range_lldp_cidr_discoveries.yml"
 #   global_filters:
 #     discovery_type_list:
@@ -136,7 +136,7 @@ discovery_playbook_config_generator_details:
 # Description: Both discovery_name_list and discovery_type_list provided.
 #              discovery_name_list has HIGHEST PRIORITY — type list ignored.
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   file_path: "/tmp/name_priority_over_type.yml"
 #   global_filters:
 #     discovery_name_list:
@@ -149,7 +149,7 @@ discovery_playbook_config_generator_details:
 # Description: File saved to current directory as:
 #              discovery_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
 # --------------------------------------------------------------------------
-# discovery_playbook_config_generator_details:
+# discovery_config_details:
 #   generate_all_configurations: true
 
 
