@@ -1,12 +1,12 @@
 ---
 # ============================================================================
-# Cisco Catalyst Center SDA Fabric Multicast Playbook Config Generator Inputs
+# Cisco Catalyst Center SDA Fabric Multicast Config Generator Inputs
 # ============================================================================
 #
 # Usage:
 # ansible-playbook -i inventory/demo_lab/hosts.yaml \
-#   workflows/sda_fabric_multicast_generator/playbook/sda_fabric_multicast_generator_playbook.yml \
-#   --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_multicast_generator/vars/sda_fabric_multicast_generator_inputs.yml \
+#   workflows/sda_fabric_multicast_config_generator/playbook/sda_fabric_multicast_config_generator.yml \
+#   --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_multicast_config_generator/vars/sda_fabric_multicast_config_generator_inputs.yml \
 #   -vvvv
 #
 # Notes:
@@ -18,7 +18,7 @@
 # - file_mode defaults to "overwrite"; set "append" to add to an existing file.
 # ============================================================================
 
-sda_fabric_multicast_generator_config:
+sda_fabric_multicast_config:
   # 1) Generate all SDA fabric multicast configurations
   - generate_all_configurations: true
     file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_all.yml"

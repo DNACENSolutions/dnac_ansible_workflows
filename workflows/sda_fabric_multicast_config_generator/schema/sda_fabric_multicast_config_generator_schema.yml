@@ -1,7 +1,7 @@
-# SDA Fabric Multicast Playbook Config Generator Schema
+# SDA Fabric Multicast Config Generator Schema
 # =====================================================
 # This schema validates input files used by:
-# workflows/sda_fabric_multicast_generator/playbook/sda_fabric_multicast_generator_playbook.yml
+# workflows/sda_fabric_multicast_config_generator/playbook/sda_fabric_multicast_config_generator.yml
 #
 # Behavior summary:
 # - generate_all_configurations=true: export all SDA fabric multicast configs
@@ -11,7 +11,7 @@
 # - file_path omitted: module auto-generates output filename.
 # - file_mode: overwrite (default) or append.
 
-sda_fabric_multicast_generator_config: list(include('sda_fabric_multicast_generator_type'), min=1, max=100, required=True)
+sda_fabric_multicast_config: list(include('sda_fabric_multicast_config_type'), min=1, max=100, required=True)
 
 # Optional Catalyst Center variables (can come from inventory instead)
 catalyst_center_version: str(required=False)
@@ -24,7 +24,7 @@ catalyst_center_log_file_path: str(required=False)
 catalyst_center_log_level: str(required=False)
 
 ---
-sda_fabric_multicast_generator_type:
+sda_fabric_multicast_config_type:
   generate_all_configurations: bool(required=False)
   file_path: str(required=False)
   file_mode: enum('overwrite', 'append', required=False)
