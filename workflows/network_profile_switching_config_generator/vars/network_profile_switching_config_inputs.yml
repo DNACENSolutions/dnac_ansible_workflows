@@ -1,11 +1,11 @@
 # ============================================================================
-# Cisco Catalyst Center Network Profile Switch Playbook Config Generator
+# Cisco Catalyst Center Network Profile Switch Config Generator
 # ============================================================================
 #
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
-#     workflows/network_profile_switching_playbook_config_generator/playbook/network_profile_switching_playbook_config_generator_playbook.yml \
-#     --extra-vars VARS_FILE_PATH=./workflows/network_profile_switching_playbook_config_generator/vars/network_profile_switching_playbook_config_generator_inputs.yml
+#     workflows/network_profile_switching_config_generator/playbook/network_profile_switching_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
 #
 # ============================================================================
 
