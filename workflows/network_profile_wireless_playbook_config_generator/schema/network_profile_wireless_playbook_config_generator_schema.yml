@@ -313,10 +313,14 @@ network_profile_wireless_config_type:
   
   # Output file path
   file_path: str(required=False)
-  
+
+  # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
+  file_mode: enum('overwrite', 'append', required=False)
+
   # Global filters for wireless profile selection
   global_filters: include('network_profile_wireless_global_filters_type', required=False)
 
+---
 # Network Profile Wireless Global Filters Schema
 network_profile_wireless_global_filters_type:
   # PRIORITY 1: Profile name list (HIGHEST PRIORITY)
