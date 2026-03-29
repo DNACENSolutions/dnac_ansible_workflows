@@ -1,4 +1,4 @@
-# Brownfield SDA Fabric Sites and Zones Playbook Generator
+# SDA Fabric Sites and Zones Playbook Config Generator
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@
 
 ## Overview
 
-The Brownfield SDA Fabric Sites and Zones Configuration Generator automates the creation of YAML playbook configurations for existing fabric sites and zones deployed in Cisco Catalyst Center. This tool reduces the effort required to manually create Ansible playbooks by programmatically generating configurations from existing infrastructure.
+The SDA Fabric Sites and Zones playbook Configuration Generator automates the creation of YAML playbook configurations for existing fabric sites and zones deployed in Cisco Catalyst Center. This tool reduces the effort required to manually create Ansible playbooks by programmatically generating configurations from existing infrastructure.
 
 ---
 
@@ -64,13 +64,13 @@ pip install yamale
 ## Workflow Structure
 
 ```
-brownfield_sda_fabric_sites_zones/
+sda_fabric_sites_zones_playbook_config_generator/
 ├── playbook/
-│   └── brownfield_sda_fabric_sites_zones_playbook.yml    # Main configuration generator
+│   └── sda_fabric_sites_zones_playbook_config_generator_playbook.yml    # Main configuration generator
 ├── vars/
-│   └── brownfield_sda_fabric_sites_zones_input.yml       # Input parameters and examples
+│   └── sda_fabric_sites_zones_playbook_config_generator_input.yml       # Input parameters and examples
 ├── schema/
-│   └── brownfield_sda_fabric_sites_zones_schema.yml      # Configuration validation
+│   └── sda_fabric_sites_zones_playbook_config_generator_schema.yml      # Configuration validation
 └── README.md
 ```
 
@@ -167,10 +167,10 @@ pip install yamale
 
 3. **Configure Variables**
 
-Edit `workflows/brownfield_sda_fabric_sites_zones/vars/brownfield_sda_fabric_sites_zones_input.yml`:
+Edit `workflows/sda_fabric_sites_zones_playbook_config_generator/vars/sda_fabric_sites_zones_playbook_config_generator_input.yml`:
 
 ```yaml
-brownfield_sda_fabric_sites_zones_config:
+sda_fabric_sites_zones_config:
   # Generate all SDA fabric sites and zones with custom file path
   - generate_all_configurations: true
     file_path: "/tmp/complete_sda_fabric_sites_zones_config.yaml"
@@ -193,16 +193,16 @@ brownfield_sda_fabric_sites_zones_config:
 4. **Validate Configuration**
 
 ```bash
-./tools/validate.sh -s workflows/brownfield_sda_fabric_sites_zones/schema/brownfield_sda_fabric_sites_zones_schema.yml \
-     -d workflows/brownfield_sda_fabric_sites_zones/vars/brownfield_sda_fabric_sites_zones_input.yml
+./tools/validate.sh -s workflows/sda_fabric_sites_zones_playbook_config_generator/schema/sda_fabric_sites_zones_playbook_config_generator_schema.yml \
+     -d workflows/sda_fabric_sites_zones_playbook_config_generator/vars/sda_fabric_sites_zones_playbook_config_generator_input.yml
 ```
 
 5. **Execute Playbook**
 
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
- workflows/brownfield_sda_fabric_sites_zones/playbook/brownfield_sda_fabric_sites_zones_playbook.yml \
-  --extra-vars VARS_FILE_PATH=../vars/brownfield_sda_fabric_sites_zones_input.yml
+ workflows/sda_fabric_sites_zones_playbook_config_generator/playbook/sda_fabric_sites_zones_playbook_config_generator_playbook.yml \
+  --extra-vars VARS_FILE_PATH=../vars/sda_fabric_sites_zones_playbook_config_generator_input.yml
 ```
 
 the creation of YAML playbook configurations for existing fabric sites and zones deployed in Cisco Catalyst Center.
@@ -225,7 +225,7 @@ The workflow follows these steps:
 
 ### Generate Operations (state : gathered)
 
-Use `brownfield_sda_fabric_sites_zones_playbook.yml` for generating yaml playbook configuration operations.
+Use `sda_fabric_sites_zones_playbook_config_generator_playbook.yml` for generating yaml playbook configuration operations.
 
 
 #### 1. Generate All Configurations
@@ -271,27 +271,28 @@ Input Validation: Before executing the playbook, it is essential to validate the
 ```bash
 # Validate
 
-./tools/validate.sh -s workflows/brownfield_sda_fabric_sites_zones/schema/brownfield_sda_fabric_sites_zones_schema.yml \
-      -d workflows/brownfield_sda_fabric_sites_zones/vars/brownfield_sda_fabric_sites_zones_input.yml
+./tools/validate.sh -s workflows/sda_fabric_sites_zones_playbook_config_generator/schema/sda_fabric_sites_zones_playbook_config_generator_schema.yml \
+      -d workflows/sda_fabric_sites_zones_playbook_config_generator/vars/sda_fabric_sites_zones_playbook_config_generator_input.yml
 ```
 
 Return result validate:
 
 ```bash
-(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/brownfield_sda_fabric_sites_zones/schema/brownfield_sda_fabric_sites_zones_schema.yml \
->       -d workflows/brownfield_sda_fabric_sites_zones/vars/brownfield_sda_fabric_sites_zones_input.yml
-workflows/brownfield_sda_fabric_sites_zones/schema/brownfield_sda_fabric_sites_zones_schema.yml
-workflows/brownfield_sda_fabric_sites_zones/vars/brownfield_sda_fabric_sites_zones_input.yml
-yamale   -s workflows/brownfield_sda_fabric_sites_zones/schema/brownfield_sda_fabric_sites_zones_schema.yml  workflows/brownfield_sda_fabric_sites_zones/vars/brownfield_sda_fabric_sites_zones_input.yml
-Validating workflows/brownfield_sda_fabric_sites_zones/vars/brownfield_sda_fabric_sites_zones_input.yml...
+ ./tools/validate.sh -s workflows/sda_fabric_sites_zones_playbook_config_generator/schema/sda_fabric_sites_zones_playbook_config_generator_schema.yml \
+>      -d workflows/sda_fabric_sites_zones_playbook_config_generator/vars/sda_fabric_sites_zones_playbook_config_generator_input.yml
+workflows/sda_fabric_sites_zones_playbook_config_generator/schema/sda_fabric_sites_zones_playbook_config_generator_schema.yml
+workflows/sda_fabric_sites_zones_playbook_config_generator/vars/sda_fabric_sites_zones_playbook_config_generator_input.yml
+yamale   -s workflows/sda_fabric_sites_zones_playbook_config_generator/schema/sda_fabric_sites_zones_playbook_config_generator_schema.yml  workflows/sda_fabric_sites_zones_playbook_config_generator/vars/sda_fabric_sites_zones_playbook_config_generator_input.yml
+Validating workflows/sda_fabric_sites_zones_playbook_config_generator/vars/sda_fabric_sites_zones_playbook_config_generator_input.yml...
 Validation success! 👍
+
 ```
 
 ```bash
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
- workflows/brownfield_sda_fabric_sites_zones/playbook/brownfield_sda_fabric_sites_zones_playbook.yml \
-  --extra-vars VARS_FILE_PATH=../vars/brownfield_sda_fabric_sites_zones_input.yml
+ workflows/sda_fabric_sites_zones_playbook_config_generator/playbook/sda_fabric_sites_zones_playbook_config_generator_playbook.yml \
+  --extra-vars VARS_FILE_PATH=../vars/sda_fabric_sites_zones_playbook_config_generator_input.yml
 ```
 
 1.Generate All SDA Components
@@ -302,12 +303,13 @@ Terminal Return
 file_path: /tmp/sda_fabric_sites_zones_components_config1.yaml
         generate_all_configurations: true
       msg:
-        YAML config generation Task succeeded for module 'brownfield_sda_fabric_sites_zones_config_generator'.:
-          file_path: /tmp/sda_fabric_sites_zones_components_config1.yaml
+        file_path: /tmp/sda_fabric_sites_zones_components_config1.yaml
+        message: YAML configuration file generated successfully for module 'sda_fabric_sites_zones_workflow_manager'
+        status: success
       response:
-        YAML config generation Task succeeded for module 'brownfield_sda_fabric_sites_zones_config_generator'.:
-          file_path: /tmp/sda_fabric_sites_zones_components_config1.yaml
-      status: success
+        file_path: /tmp/sda_fabric_sites_zones_components_config1.yaml
+        message: YAML configuration file generated successfully for module 'sda_fabric_sites_zones_workflow_manager'
+        status: success
 ```
 2.Component-Specific Generation
 
@@ -319,28 +321,13 @@ Terminal Return
           - fabric_sites
         file_path: /tmp/sda_fabric_sites_zones_components_config2.yaml
       msg:
-        YAML config generation Task succeeded for module 'brownfield_sda_fabric_sites_zones_config_generator'.:
-          file_path: /tmp/sda_fabric_sites_zones_components_config2.yaml
+        file_path: /tmp/sda_fabric_sites_zones_components_config2.yaml
+        message: YAML configuration file generated successfully for module 'sda_fabric_sites_zones_workflow_manager'
+        status: success
       response:
-        YAML config generation Task succeeded for module 'brownfield_sda_fabric_sites_zones_config_generator'.:
-          file_path: /tmp/sda_fabric_sites_zones_components_config2.yaml
-      status: success
-```
-3.Custom File Path Generation
-
-```code
-component_specific_filters:
-          components_list:
-          - fabric_sites
-          - fabric_zones
-        file_path: custompath/my_fabric_config.yaml
-      msg:
-        YAML config generation Task succeeded for module 'brownfield_sda_fabric_sites_zones_config_generator'.:
-          file_path: custompath/my_fabric_config.yaml
-      response:
-        YAML config generation Task succeeded for module 'brownfield_sda_fabric_sites_zones_config_generator'.:
-          file_path: custompath/my_fabric_config.yaml
-      status: success
+        file_path: /tmp/sda_fabric_sites_zones_components_config2.yaml
+        message: YAML configuration file generated successfully for module 'sda_fabric_sites_zones_workflow_manager'
+        status: success
 ```
 ---
 
@@ -351,30 +338,117 @@ component_specific_filters:
 ```yaml
 ---
 # Generate complete SDA fabric configuration
-brownfield_sda_fabric_sites_zones_config:
+sda_fabric_sites_zones_config:
   - generate_all_configurations: true
     file_path: "/tmp/complete_sda_fabric_config.yaml"
+```
+
+After running the playbook, the following YAML configuration is generated:
+
+```yaml
+---
+config:
+- fabric_sites:
+  - site_name_hierarchy: Global/USA/SAN-FRANCISCO
+    fabric_type: fabric_site
+    is_pub_sub_enabled: true
+    authentication_profile: No Authentication
+  - site_name_hierarchy: Global/Test_VN
+    fabric_type: fabric_site
+    is_pub_sub_enabled: false
+    authentication_profile: Closed Authentication
+  - site_name_hierarchy: Global/Test_Fabric
+    fabric_type: fabric_site
+    is_pub_sub_enabled: false
+    authentication_profile: No Authentication
+  - site_name_hierarchy: Global/USA/SAN JOSE
+    fabric_type: fabric_site
+    is_pub_sub_enabled: true
+    authentication_profile: No Authentication
+  - site_name_hierarchy: Global/USA/RTP
+    fabric_type: fabric_site
+    is_pub_sub_enabled: false
+    authentication_profile: Closed Authentication
+  - site_name_hierarchy: Global/USA/New York
+    fabric_type: fabric_site
+    is_pub_sub_enabled: true
+    authentication_profile: No Authentication
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD20
+    fabric_type: fabric_zone
+    authentication_profile: No Authentication
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+    fabric_type: fabric_zone
+    authentication_profile: No Authentication
+  - site_name_hierarchy: Global/Test_Fabric/Bld1
+    fabric_type: fabric_zone
+    authentication_profile: No Authentication
 ```
 ### Example 2: Generate Fabric Sites Only
 
 ```yaml
 ---
 # Generate fabric sites configuration only
-brownfield_sda_fabric_sites_zones_config:
+sda_fabric_sites_zones_config:
   - file_path: "/tmp/fabric_sites_config.yaml"
     component_specific_filters:
       components_list: ["fabric_sites"]
 ```
+After running the playbook, the following YAML configuration is generated:
 
+```yaml
+---
+config:
+- fabric_sites:
+  - site_name_hierarchy: Global/USA/SAN-FRANCISCO
+    fabric_type: fabric_site
+    is_pub_sub_enabled: true
+    authentication_profile: No Authentication
+  - site_name_hierarchy: Global/Test_VN
+    fabric_type: fabric_site
+    is_pub_sub_enabled: false
+    authentication_profile: Closed Authentication
+  - site_name_hierarchy: Global/Test_Fabric
+    fabric_type: fabric_site
+    is_pub_sub_enabled: false
+    authentication_profile: No Authentication
+  - site_name_hierarchy: Global/USA/SAN JOSE
+    fabric_type: fabric_site
+    is_pub_sub_enabled: true
+    authentication_profile: No Authentication
+  - site_name_hierarchy: Global/USA/RTP
+    fabric_type: fabric_site
+    is_pub_sub_enabled: false
+    authentication_profile: Closed Authentication
+  - site_name_hierarchy: Global/USA/New York
+    fabric_type: fabric_site
+    is_pub_sub_enabled: true
+    authentication_profile: No Authentication
+```
 ### Example 3: Generate Fabric Zones Only
 
 ```yaml
 ---
 # Generate fabric zones configuration only
-brownfield_sda_fabric_sites_zones_config:
+sda_fabric_sites_zones_config:
   - file_path: "/tmp/fabric_zones_config.yaml"
     component_specific_filters:
       components_list: ["fabric_zones"]
+```
+
+```yaml
+---
+config:
+- fabric_sites:
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD20
+    fabric_type: fabric_zone
+    authentication_profile: No Authentication
+  - site_name_hierarchy: Global/USA/SAN JOSE/SJ_BLD21
+    fabric_type: fabric_zone
+    authentication_profile: No Authentication
+  - site_name_hierarchy: Global/Test_Fabric/Bld1
+    fabric_type: fabric_zone
+    authentication_profile: No Authentication
+
 ```
 
 ### Example 4: Default Output Path
@@ -384,7 +458,7 @@ brownfield_sda_fabric_sites_zones_config:
 ```yaml
 ---
 # Generate with auto-generated filename
-brownfield_sda_fabric_sites_zones_config:
+sda_fabric_sites_zones_config:
   - component_specific_filters:
       components_list: ["fabric_sites", "fabric_zones"]
 ```
@@ -398,7 +472,7 @@ brownfield_sda_fabric_sites_zones_config:
 ```yaml
 ---
 # Generate fabric sites configuration for specific site
-brownfield_sda_fabric_sites_zones_config:
+sda_fabric_sites_zones_config:
   - file_path: "/tmp/specific_fabric_site_config.yaml"
     component_specific_filters:
       components_list: ["fabric_sites"]
@@ -415,7 +489,7 @@ brownfield_sda_fabric_sites_zones_config:
 ```yaml
 ---
 # Generate fabric zones configuration for specific zone
-brownfield_sda_fabric_sites_zones_config:
+sda_fabric_sites_zones_config:
   - file_path: "/tmp/specific_fabric_zone_config.yaml"
     component_specific_filters:
       components_list: ["fabric_zones"]
@@ -432,7 +506,7 @@ brownfield_sda_fabric_sites_zones_config:
 ```yaml
 ---
 # Generate both fabric sites and zones with specific filters
-brownfield_sda_fabric_sites_zones_config:
+sda_fabric_sites_zones_config:
   - file_path: "/tmp/filtered_sites_and_zones_config.yaml"
     component_specific_filters:
       components_list: ["fabric_sites", "fabric_zones"]
