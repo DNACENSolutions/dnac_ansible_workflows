@@ -1,12 +1,12 @@
 ---
-# ============================================================================
-# Cisco Catalyst Center SDA Fabric Virtual Networks playbook config Generator
-# ============================================================================
+#============================================================================
+# Cisco Catalyst Center SDA Fabric Virtual Networks Config Generator
+#============================================================================
 #
 # Usage:
-#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
-#     workflows/sda_fabric_virtual_networks_playbook_config_generator/playbook/sda_fabric_virtual_networks_playbook_config_generator_playbook.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/sda_fabric_virtual_networks_playbook_config_generator_inputs.yml
+#  ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#    workflows/sda_fabric_virtual_networks_config_generator/playbook/sda_fabric_virtual_networks_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sda_fabric_virtual_networks_config_generator/vars/sda_fabric_virtual_networks_config_inputs.yml
 #
 # ============================================================================
 
