@@ -38,14 +38,16 @@ Generate files that are ready to use with Ansible automation.
 
 | Component | Version |
 |-----------|---------|
-| Ansible | 6.42.0+ |
+| Ansible | 2.13+ |
+| cisco.dnac collection | 6.49.0+ |
 | Python | 3.9+ |
-| Cisco Catalyst Center SDK | 2.9.3+ |
+| Cisco Catalyst Center | 2.3.7.9+ |
+| dnacentersdk | 2.4.5+ |
 
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.dnac
+ansible-galaxy collection install cisco.dnac    # >= 6.49.0
 ansible-galaxy collection install ansible.utils
 pip install dnacentersdk
 pip install yamale
@@ -83,6 +85,7 @@ tags_playbook_config_generator/
 |-----------|------|----------|---------|-------------|
 | generate_all_configurations | boolean | No | false | Generate all components automatically |
 | file_path | string | No | auto-generated | Output file path for YAML configuration file |
+| file_mode | string | No | overwrite | File write mode — `overwrite` replaces the file, `append` adds to it |
 | component_specific_filters | dict | No | all components | Filters to specify which components to include |
 
 ### Component Specific Filtering
@@ -154,22 +157,67 @@ tags_config:
 
 ### Step 5: Execute Playbook
 
+The playbook supports two input methods:
+
+#### Option A: Vars file input (recommended for version-controlled configs)
+
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/tags_playbook_config_generator_input.yml
+  --extra-vars VARS_FILE_PATH=./workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml \
+  -vvvv
 ```
+
+#### Option B: Inventory / host variable input
+
+Omit `VARS_FILE_PATH` and define `tags_config` directly as a host variable in your inventory file or in `host_vars`/`group_vars`.
+
+**Example inventory snippet (`inventory/demo_lab/hosts.yaml`):**
+
+```yaml
+catalyst_center_hosts:
+  hosts:
+    catalyst_center_primary:
+      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'HOSTIP') }}"
+      catalyst_center_password: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_PASSWORD') }}"
+      catalyst_center_port: 443
+      catalyst_center_username: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_USERNAME') }}"
+      catalyst_center_verify: false
+      catalyst_center_version: 2.3.7.9
+
+      # Workflow data defined as host variables
+      tags_config:
+        - generate_all_configurations: true
+          file_path: "generated_file/complete_tags_config.yml"
+```
+
+Then run **without** `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml \
+  -vvvv
+```
+
+The playbook auto-detects the input source and prints it at the start:
+- `Input source: vars file <path>` when using Option A
+- `Input source: inventory / host variables (VARS_FILE_PATH not provided)` when using Option B
+
+> **Note:** When `VARS_FILE_PATH` is provided, it takes **precedence** over inventory variables.
 
 ### Workflow Execution
 
 The workflow follows these steps:
 
-1. **Connect** to Catalyst Center using provided credentials
-2. **Retrieve** existing tag configurations and tag memberships via API calls
-3. **Filter** components based on specified criteria
-4. **Transform** API responses into Ansible-compatible format
-5. **Generate** YAML configuration file with proper structure
-6. **Validate** output file format and content
+1. **Load input** from `VARS_FILE_PATH` (if provided) or fall back to inventory / host variables
+2. **Connect** to Catalyst Center using provided credentials
+3. **Extract** `file_path` and `file_mode` as top-level module parameters; pass `component_specific_filters` inside `config`
+4. **Omit** `config` entirely when `generate_all_configurations: true` (module runs in full auto-discovery mode)
+5. **Retrieve** existing tag configurations and tag memberships via API calls
+6. **Filter** components based on specified criteria
+7. **Transform** API responses into Ansible-compatible format
+8. **Generate** YAML configuration file with proper structure
+9. **Write** output to specified file path using configured `file_mode`
 
 ---
 
@@ -233,7 +281,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/tags_playbook_config_generator_input.yml
+  --extra-vars VARS_FILE_PATH=./workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
 ```
 
 Expected Terminal Output:
