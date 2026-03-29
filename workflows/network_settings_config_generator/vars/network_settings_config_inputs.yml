@@ -1,0 +1,57 @@
+# ============================================================================
+# Cisco Catalyst Center Network Settings Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/network_settings_config_generator/playbook/network_settings_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/network_settings_config_generator/vars/network_settings_config_inputs.yml
+#
+# Module used:
+#   cisco.dnac.network_settings_playbook_config_generator
+# ============================================================================
+
+network_settings_config:
+  # 1) Generate all network settings configurations
+  - generate_all_configurations: true
+    file_path: "/tmp/network_settings_complete_config.yml"
+
+  # 2) Generate global pool settings with filters
+  - file_path: "/tmp/network_settings_global_pools.yml"
+    component_specific_filters:
+      components_list: ["global_pool_details"]
+      global_pool_details:
+        - pool_name: "Global_LAN_Pool"
+          pool_type: "Generic"
+        - pool_type: "Tunnel"
+
+  # 3) Generate reserve pool settings by site hierarchy
+  - file_path: "/tmp/network_settings_reserve_pools.yml"
+    component_specific_filters:
+      components_list: ["reserve_pool_details"]
+      reserve_pool_details:
+        - site_hierarchy: "Global/USA"
+        - site_name: "Global/India/Bangalore"
+
+  # 4) Generate network management and device controllability settings
+  - file_path: "/tmp/network_settings_management_and_controllability.yml"
+    file_mode: "append"
+    component_specific_filters:
+      components_list:
+        - "network_management_details"
+        - "device_controllability_details"
+      network_management_details:
+        - site_name_list:
+            - "Global"
+            - "Global/USA/SAN JOSE"
+      device_controllability_details:
+        - {}
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - If component_specific_filters is omitted, the workflow omits module config
+#   and runs in full discovery mode.
+# - Components can be inferred by the module from provided component filter
+#   blocks if components_list is omitted.
+# ============================================================================

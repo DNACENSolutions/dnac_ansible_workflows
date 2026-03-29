@@ -1,0 +1,59 @@
+# ============================================================================
+# Cisco Catalyst Center Inventory Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/inventory_config_generator/playbook/inventory_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/inventory_config_generator/vars/inventory_config_inputs.yml
+#
+# Module used:
+#   cisco.dnac.inventory_playbook_config_generator
+# ============================================================================
+
+inventory_config:
+  # 1) Generate all inventory components without filters
+  - generate_all_configurations: true
+    file_path: "/tmp/inventory_complete_config.yml"
+
+  # 2) Generate device details with global device filters
+  - file_path: "/tmp/inventory_device_details_filtered.yml"
+    global_filters:
+      ip_address_list: ["10.1.1.1", "10.1.1.2"]
+      hostname_list: ["dist-sw-1", "access-sw-1"]
+    component_specific_filters:
+      components_list: ["device_details"]
+      device_details:
+        - type: "NETWORK_DEVICE"
+          role: ["ACCESS", "CORE"]
+          snmp_version: "v2c"
+          cli_transport: "ssh"
+
+  # 3) Generate provision device and interface details
+  - file_path: "/tmp/inventory_provision_interface.yml"
+    component_specific_filters:
+      components_list:
+        - "provision_device"
+        - "interface_details"
+      provision_device:
+        site_name: "Global/USA/SAN JOSE"
+      interface_details:
+        interface_name: ["GigabitEthernet1/0/1", "GigabitEthernet1/0/2"]
+
+  # 4) Generate user-defined fields with append mode
+  - file_path: "/tmp/inventory_udf.yml"
+    file_mode: "append"
+    component_specific_filters:
+      components_list: ["user_defined_fields"]
+      user_defined_fields:
+        name: ["AssetOwner", "DeviceRole"]
+        value: ["NetOps", "Distribution"]
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - If both global_filters and component_specific_filters are omitted, the
+#   workflow omits module config and runs in full discovery mode.
+# - This workflow supports passing one or both of global_filters and
+#   component_specific_filters into module config.
+# ============================================================================

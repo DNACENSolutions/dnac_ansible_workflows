@@ -1,0 +1,101 @@
+# Cisco Catalyst Center Wireless Design Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing wireless design settings in Cisco Catalyst Center
+# using the wireless_design_playbook_config_generator module.
+#
+# Supported components:
+# - ssids
+# - interfaces
+# - power_profiles
+# - access_point_profiles
+# - radio_frequency_profiles
+# - anchor_groups
+# - feature_template_config
+# - 802_11_be_profiles
+# - flex_connect_configuration
+
+# Schema Definition
+wireless_design_config: list(include('wireless_design_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Wireless Design Config Generator Entry Schema
+wireless_design_config_generator_type:
+  # Workflow-level convenience flag. If true, module config is omitted.
+  generate_all_configurations: bool(required=False)
+
+  # Output file path for generated YAML
+  file_path: str(required=False)
+
+  # File write mode: overwrite or append
+  file_mode: enum('overwrite', 'append', required=False)
+
+  # Component-specific filters accepted by wireless_design_playbook_config_generator
+  component_specific_filters: include('wireless_design_component_filters_type', required=False)
+
+---
+# Wireless Design Component Filters Schema
+wireless_design_component_filters_type:
+  components_list: list(enum('ssids', 'interfaces', 'power_profiles', 'access_point_profiles', 'radio_frequency_profiles', 'anchor_groups', 'feature_template_config', '802_11_be_profiles', 'flex_connect_configuration'), min=1, max=9, required=False)
+
+  ssids: list(include('wireless_ssid_filter_type'), min=1, max=500, required=False)
+  interfaces: list(include('wireless_interface_filter_type'), min=1, max=500, required=False)
+  power_profiles: list(include('wireless_power_profile_filter_type'), min=1, max=500, required=False)
+  access_point_profiles: list(include('wireless_ap_profile_filter_type'), min=1, max=500, required=False)
+  radio_frequency_profiles: list(include('wireless_rf_profile_filter_type'), min=1, max=500, required=False)
+  anchor_groups: list(include('wireless_anchor_group_filter_type'), min=1, max=500, required=False)
+  feature_template_config: list(include('wireless_feature_template_filter_type'), min=1, max=500, required=False)
+  802_11_be_profiles: list(include('wireless_11be_profile_filter_type'), min=1, max=500, required=False)
+  flex_connect_configuration: list(include('wireless_flex_connect_filter_type'), min=1, max=500, required=False)
+
+---
+wireless_ssid_filter_type:
+  site_name_hierarchy: str(required=False)
+  ssid_name: str(required=False)
+  ssid_type: enum('Enterprise', 'Guest', required=False)
+
+---
+wireless_interface_filter_type:
+  interface_name: str(required=False)
+  vlan_id: int(required=False)
+
+---
+wireless_power_profile_filter_type:
+  power_profile_name: str(required=False)
+
+---
+wireless_ap_profile_filter_type:
+  ap_profile_name: str(required=False)
+
+---
+wireless_rf_profile_filter_type:
+  rf_profile_name: str(required=False)
+
+---
+wireless_anchor_group_filter_type:
+  anchor_group_name: str(required=False)
+
+---
+wireless_feature_template_filter_type:
+  feature_template_type: enum('aaa_radius_attribute', 'advanced_ssid', 'clean_air_configuration', 'dot11ax_configuration', 'dot11be_configuration', 'event_driven_rrm_configuration', 'flexconnect_configuration', 'multicast_configuration', 'rrm_fra_configuration', 'rrm_general_configuration', required=False)
+  design_name: str(required=False)
+
+---
+wireless_11be_profile_filter_type:
+  profile_name: str(required=False)
+
+---
+wireless_flex_connect_filter_type:
+  site_name_hierarchy: str(required=False)

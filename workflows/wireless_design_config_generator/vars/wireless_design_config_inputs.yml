@@ -1,0 +1,84 @@
+---
+# ============================================================================
+# Cisco Catalyst Center Wireless Design Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/wireless_design_config_generator/playbook/wireless_design_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/wireless_design_config_generator/vars/wireless_design_config_inputs.yml
+#
+# Module used:
+#   cisco.dnac.wireless_design_playbook_config_generator
+# ============================================================================
+
+wireless_design_config:
+  # 1) Generate all wireless design configurations
+  - generate_all_configurations: true
+    file_path: "/tmp/wireless_design_complete_config.yml"
+
+  # 2) Generate selected wireless network components only
+  - file_path: "/tmp/wireless_design_components.yml"
+    component_specific_filters:
+      components_list: ["interfaces", "anchor_groups", "power_profiles"]
+
+  # 3) Filter SSIDs by site and SSID type
+  - file_path: "/tmp/wireless_design_ssid_filters.yml"
+    component_specific_filters:
+      components_list: ["ssids"]
+      ssids:
+        - site_name_hierarchy: "Global/USA/San Jose"
+          ssid_type: "Guest"
+
+  # 4) Filter interfaces by interface name and VLAN
+  - file_path: "/tmp/wireless_design_interface_filters.yml"
+    component_specific_filters:
+      components_list: ["interfaces"]
+      interfaces:
+        - interface_name: "Wireless_VLAN_100"
+          vlan_id: 100
+
+  # 5) Filter feature template config by type and design
+  - file_path: "/tmp/wireless_design_feature_template_filters.yml"
+    component_specific_filters:
+      components_list: ["feature_template_config"]
+      feature_template_config:
+        - feature_template_type: "advanced_ssid"
+          design_name: "Enterprise Wireless Design"
+
+  # 6) Combined filters with append mode
+  - file_path: "/tmp/wireless_design_aggregate.yml"
+    file_mode: "append"
+    component_specific_filters:
+      components_list: ["ssids", "feature_template_config", "802_11_be_profiles"]
+      ssids:
+        - ssid_name: "Corp-WiFi"
+          ssid_type: "Enterprise"
+      feature_template_config:
+        - feature_template_type: "dot11be_configuration"
+      802_11_be_profiles:
+        - profile_name: "Default-11be-Profile"
+
+# ============================================================================
+# Additional examples
+# ============================================================================
+# Example: Flex Connect configuration by site hierarchy
+# wireless_design_config:
+#   - file_path: "/tmp/wireless_design_flex_connect.yml"
+#     component_specific_filters:
+#       components_list: ["flex_connect_configuration"]
+#       flex_connect_configuration:
+#         - site_name_hierarchy: "Global/USA/San Jose/SJ_BLD1/FLOOR1"
+#
+# Example: Auto-generated output file name
+# wireless_design_config:
+#   - generate_all_configurations: true
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - If component_specific_filters is omitted, the workflow omits module config
+#   and runs in full discovery mode.
+# - Module auto-populates components_list from provided component filters.
+# - An empty config dictionary is not valid for wireless_design_playbook_config_generator.
+# ============================================================================

@@ -1,0 +1,80 @@
+# Cisco Catalyst Center Template Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing template projects and configuration templates in
+# Cisco Catalyst Center using the template_playbook_config_generator module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports generation operations for:
+# 1. Generate all template projects and templates
+# 2. Generate projects only
+# 3. Generate configuration templates only
+# 4. Filter by project name, template name, and include_uncommitted
+#
+# USAGE:
+# ------
+# ./tools/validate.sh \
+#   -s workflows/template_config_generator/schema/template_config_schema.yml \
+#   -d workflows/template_config_generator/vars/template_config_inputs.yml
+#
+# NOTES:
+# ------
+# - The underlying module accepts config as a dict with component_specific_filters.
+# - In this workflow, config is omitted when generate_all_configurations is true
+#   or when no component_specific_filters are provided.
+# - This triggers full discovery mode in the module.
+
+# Schema Definition
+template_config: list(include('template_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Template Config Generator Entry Schema
+template_config_generator_type:
+  # Workflow-level convenience flag. If true, module config is omitted.
+  generate_all_configurations: bool(required=False)
+
+  # Output file path for generated YAML
+  file_path: str(required=False)
+
+  # File write mode: overwrite or append
+  file_mode: enum('overwrite', 'append', required=False)
+
+  # Component-specific filters accepted by template_playbook_config_generator
+  component_specific_filters: include('template_component_filters_type', required=False)
+
+---
+# Template Component Filters Schema
+template_component_filters_type:
+  # Components to include in generated YAML
+  components_list: list(enum('projects', 'configuration_templates'), min=1, max=2, required=False)
+
+  # Filter projects by name
+  projects: list(include('template_project_filter_type'), min=1, max=500, required=False)
+
+  # Filter templates by name/project and include_uncommitted
+  configuration_templates: list(include('template_configuration_template_filter_type'), min=1, max=500, required=False)
+
+---
+# Template project filter
+template_project_filter_type:
+  name: str(required=False)
+
+---
+# Configuration template filter
+template_configuration_template_filter_type:
+  template_name: str(required=False)
+  project_name: str(required=False)
+  include_uncommitted: bool(required=False)
