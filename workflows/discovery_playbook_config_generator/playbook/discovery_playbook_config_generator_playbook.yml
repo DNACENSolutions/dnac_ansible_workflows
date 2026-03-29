@@ -4,9 +4,6 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
-
   vars:
     state: gathered
     catalyst_center_login: &catalyst_center_login
@@ -16,36 +13,61 @@
       dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
       dnac_port: "{{ catalyst_center_port | default(443) }}"
       dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
-      dnac_debug: "{{ catalyst_center_debug | default(dnac_debug) }}"
-      dnac_log: "{{ catalyst_center_log | default(dnac_log) }}"
-      dnac_log_level: "{{ catalyst_center_log_level | default(dnac_log_level) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(false) }}"
+      dnac_log: "{{ catalyst_center_log | default(false) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
       dnac_log_file_path: "{{ catalyst_center_log_file_path | default(omit) }}"
       dnac_log_append: "{{ catalyst_center_log_append | default(True) }}"
       dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
 
   tasks:
-    - name: Print VARS_FILE_PATH
-      debug:
-        msg: "Input file selected: {{ VARS_FILE_PATH }}"
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
 
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that discovery_playbook_config_generator_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'discovery_playbook_config_generator_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: discovery_playbook_config_generator_details is not defined
+
+    # =========================================================================
+    # Playbook execution
+    # =========================================================================
     - name: Playbook start time for discovery playbook configuration generation
-      set_fact:
+      ansible.builtin.set_fact:
         config_gen_start: "{{ now() }}"
 
-    # =========================================================================
-    # Generate Discovery Playbook Configuration
-    # =========================================================================
     - name: Generate YAML configuration for discovery playbook
       cisco.dnac.discovery_playbook_config_generator:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ discovery_playbook_config_generator_details }}"
+        file_path: "{{ discovery_playbook_config_generator_details.file_path | default(omit) }}"
+        file_mode: "{{ discovery_playbook_config_generator_details.file_mode | default('overwrite') }}"
+        config: "{{ omit if (discovery_playbook_config_generator_details.generate_all_configurations | default(false)) else ({'global_filters': discovery_playbook_config_generator_details.global_filters} if discovery_playbook_config_generator_details.global_filters is defined else omit) }}"
       when:
         - discovery_playbook_config_generator_details is defined
       register: config_generation_result
 
     - name: Display configuration generation results
-      debug:
+      ansible.builtin.debug:
         var: config_generation_result
       when: config_generation_result is defined
 
@@ -53,9 +75,9 @@
     # Playbook Execution Summary
     # =========================================================================
     - name: Playbook end time
-      set_fact:
+      ansible.builtin.set_fact:
         config_gen_end: "{{ now() }}"
 
     - name: Print playbook execution time
-      debug:
+      ansible.builtin.debug:
         msg: "Discovery playbook configuration generation playbook run time: start: {{ config_gen_start }}, end: {{ config_gen_end }}"

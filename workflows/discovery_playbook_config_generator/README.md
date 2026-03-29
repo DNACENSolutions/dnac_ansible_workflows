@@ -40,7 +40,8 @@ The Discovery Playbook Config Generator automates the creation of YAML playbook 
 
 | Component | Version |
 |-----------|---------|
-| Ansible | 6.44.0+ |
+| Ansible | 2.13+ |
+| cisco.dnac collection | 6.44.0+ |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 2.3.7.9+ |
 | dnacentersdk | 2.4.5+ |
@@ -48,7 +49,7 @@ The Discovery Playbook Config Generator automates the creation of YAML playbook 
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.dnac
+ansible-galaxy collection install cisco.dnac    # >= 6.44.0
 ansible-galaxy collection install ansible.utils
 pip install dnacentersdk
 pip install yamale
@@ -151,22 +152,67 @@ discovery_playbook_config_generator_details:
 
 ### Step 5: Execute Playbook
 
+The playbook supports two input methods:
+
+#### Option A: Vars file input (recommended for version-controlled configs)
+
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/discovery_playbook_config_generator/playbook/discovery_playbook_config_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=../vars/discovery_playbook_config_generator_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/discovery_playbook_config_generator/vars/discovery_playbook_config_generator_inputs.yml \
+  -vvvv
 ```
+
+#### Option B: Inventory / host variable input
+
+Omit `VARS_FILE_PATH` and define `discovery_playbook_config_generator_details` directly as a host variable in your inventory file or in `host_vars`/`group_vars`.
+
+**Example inventory snippet (`inventory/demo_lab/hosts.yaml`):**
+
+```yaml
+catalyst_center_hosts:
+  hosts:
+    catalyst_center_primary:
+      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'HOSTIP') }}"
+      catalyst_center_password: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_PASSWORD') }}"
+      catalyst_center_port: 443
+      catalyst_center_username: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_USERNAME') }}"
+      catalyst_center_verify: false
+      catalyst_center_version: 2.3.7.9
+
+      # Workflow data defined as host variables
+      discovery_playbook_config_generator_details:
+        generate_all_configurations: true
+        file_path: "/tmp/complete_discovery_config.yml"
+```
+
+Then run **without** `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/discovery_playbook_config_generator/playbook/discovery_playbook_config_generator_playbook.yml \
+  -vvvv
+```
+
+The playbook auto-detects the input source and prints it at the start:
+- `Input source: vars file <path>` when using Option A
+- `Input source: inventory / host variables (VARS_FILE_PATH not provided)` when using Option B
+
+> **Note:** When `VARS_FILE_PATH` is provided, it takes **precedence** over inventory variables.
 
 ### Workflow Execution
 
 The workflow follows these steps:
 
-1. **Connect** to Catalyst Center using provided credentials
-2. **Retrieve** existing discovery tasks via API calls (`get_discoveries_by_range`, `get_discovery_by_id`)
-3. **Filter** discoveries based on `global_filters` criteria
-4. **Transform** API responses into `discovery_workflow_manager`-compatible format
-5. **Generate** YAML configuration file with header comments and proper structure
-6. **Write** output to specified file path using configured `file_mode`
+1. **Load input** from `VARS_FILE_PATH` (if provided) or fall back to inventory / host variables
+2. **Connect** to Catalyst Center using provided credentials
+3. **Extract** `file_path` and `file_mode` as top-level module parameters; pass `global_filters` inside `config`
+4. **Omit** `config` entirely when `generate_all_configurations: true` (module runs in auto-discovery mode)
+5. **Retrieve** existing discovery tasks via API calls (`get_discoveries_by_range`, `get_discovery_by_id`)
+6. **Filter** discoveries based on `global_filters` criteria
+7. **Transform** API responses into `discovery_workflow_manager`-compatible format
+8. **Generate** YAML configuration file with header comments and proper structure
+9. **Write** output to specified file path using configured `file_mode`
 
 ---
 
@@ -392,7 +438,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/discovery_playbook_config_generator/playbook/discovery_playbook_config_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=../vars/discovery_playbook_config_generator_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/discovery_playbook_config_generator/vars/discovery_playbook_config_generator_inputs.yml
 ```
 
 ---
