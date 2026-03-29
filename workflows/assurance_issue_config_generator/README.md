@@ -1,4 +1,4 @@
-# Assurance Issue Playbook Config Generator
+# Assurance Issue Config Generator
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@
 
 ## Overview
 
-The Assurance Issue playbook config generator automates the creation of YAML playbook configurations for existing assurance issues detected in Cisco Catalyst Center. This tool reduces the effort required to manually create Ansible playbooks by programmatically generating configurations from existing issue data. It enables you to extract issue information and create reproducible playbook configurations for executing workflows.
+The Assurance Issue config generator automates the creation of YAML playbook configurations for existing assurance issues detected in Cisco Catalyst Center. This tool reduces the effort required to manually create Ansible playbooks by programmatically generating configurations from existing issue data. It enables you to extract issue information and create reproducible playbook configurations for executing workflows.
 
 ---
 
@@ -63,13 +63,13 @@ pip install yamale
 ## Workflow Structure
 
 ```
-assurance_issue_playbook_config_generator/
+assurance_issue_config_generator/
 ├── playbook/
-│   └── assurance_issue_playbook_config_generator.yml # Main operations
+│   └── assurance_issue_config_generator.yml          # Main operations
 ├── vars/
-│   └── assurance_issue_playbook_config_input.yml # Configuration examples
+│   └── assurance_issue_config_input.yml              # Configuration examples
 ├── schema/
-│   └── assurance_issue_playbook_config_schema.yml # Input validation
+│   └── assurance_issue_config_schema.yml             # Input validation
 └── README.md
 ```
 
@@ -133,7 +133,7 @@ catalyst_center_hosts:
 
 ### Step 3: Configure Variables
 
-Edit `workflows/assurance_issue_playbook_config_generator/vars/assurance_issue_playbook_config_input.yml`:
+Edit `workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml`:
 
 ```yaml
 assurance_issue_config:
@@ -144,28 +144,71 @@ assurance_issue_config:
 ### Step 4: Validate Configuration
 
 ```bash
-./tools/validate.sh -s workflows/assurance_issue_playbook_config_generator/schema/assurance_issue_playbook_config_schema.yml \
-  -d workflows/assurance_issue_playbook_config_generator/vars/assurance_issue_playbook_config_input.yml
+./tools/validate.sh -s workflows/assurance_issue_config_generator/schema/assurance_issue_config_schema.yml \
+  -d workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
 ```
 
 ### Step 5: Execute Playbook
 
+The playbook supports two input methods:
+
+#### Option A: Vars file input (recommended for version-controlled configs)
+
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/assurance_issue_playbook_config_generator/playbook/assurance_issue_playbook_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/assurance_issue_playbook_config_input.yml
+  workflows/assurance_issue_config_generator/playbook/assurance_issue_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=./workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml \
+  -vvvv
 ```
+
+#### Option B: Inventory / host variable input
+
+Omit `VARS_FILE_PATH` and define `assurance_issue_config` directly as a host variable in your inventory file or in `host_vars`/`group_vars`.
+
+**Example inventory snippet (`inventory/demo_lab/hosts.yaml`):**
+
+```yaml
+catalyst_center_hosts:
+  hosts:
+    catalyst_center_primary:
+      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'HOSTIP') }}"
+      catalyst_center_password: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_PASSWORD') }}"
+      catalyst_center_port: 443
+      catalyst_center_username: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_USERNAME') }}"
+      catalyst_center_verify: false
+      catalyst_center_version: 2.3.7.9
+
+      # Workflow data defined as host variables
+      assurance_issue_config:
+        - generate_all_configurations: true
+          file_path: "generated_file/complete_assurance_issue_config.yml"
+```
+
+Then run **without** `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/assurance_issue_config_generator/playbook/assurance_issue_config_generator.yml \
+  -vvvv
+```
+
+The playbook auto-detects the input source and prints it at the start:
+- `Input source: vars file <path>` when using Option A
+- `Input source: inventory / host variables (VARS_FILE_PATH not provided)` when using Option B
+
+> **Note:** When `VARS_FILE_PATH` is provided, it takes **precedence** over inventory variables.
 
 ### Workflow Execution
 
 The workflow follows these steps:
 
-1. **Connect** to Catalyst Center using provided credentials
-2. **Retrieve** existing assurance issues via Assurance API calls
-3. **Filter** issues based on specified criteria (severity, category, device, site)
-4. **Transform** API responses into Ansible-compatible format
-5. **Generate** YAML configuration file with proper structure
-6. **Validate** output file format and content
+1. **Load input** from `VARS_FILE_PATH` (if provided) or fall back to inventory / host variables
+2. **Connect** to Catalyst Center using provided credentials
+3. **Retrieve** existing assurance issues via Assurance API calls
+4. **Filter** issues based on specified criteria (severity, category, device, site)
+5. **Transform** API responses into Ansible-compatible format
+6. **Generate** YAML configuration file with proper structure
+7. **Validate** output file format and content
 
 ---
 
@@ -173,7 +216,7 @@ The workflow follows these steps:
 
 ### Generate Operations (state: gathered)
 
-Use `assurance_issue_playbook_config_generator.yml` for generating YAML playbook configuration operations.
+Use `assurance_issue_config_generator.yml` for generating YAML playbook configuration operations.
 
 #### Generate All Configurations
 
@@ -205,26 +248,26 @@ assurance_issue_config:
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/assurance_issue_playbook_config_generator/schema/assurance_issue_playbook_config_schema.yml \
-  -d workflows/assurance_issue_playbook_config_generator/vars/assurance_issue_playbook_config_input.yml
+./tools/validate.sh -s workflows/assurance_issue_config_generator/schema/assurance_issue_config_schema.yml \
+  -d workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
 ```
 
 Return result validate:
 ```bash
-(pyats-rafeek) [mabdulk2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/assurance_issue_playbook_config_generator/schema/assurance_issue_playbook_config_schema.yml \
-> -d workflows/assurance_issue_playbook_config_generator/vars/assurance_issue_playbook_config_input.yml
-workflows/assurance_issue_playbook_config_generator/schema/assurance_issue_playbook_config_schema.yml
-workflows/assurance_issue_playbook_config_generator/vars/assurance_issue_playbook_config_input.yml
-yamale -s workflows/assurance_issue_playbook_config_generator/schema/assurance_issue_playbook_config_schema.yml workflows/assurance_issue_playbook_config_generator/vars/assurance_issue_playbook_config_input.yml
-Validating workflows/assurance_issue_playbook_config_generator/vars/assurance_issue_playbook_config_input.yml...
+(pyats-rafeek) [mabdulk2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/assurance_issue_config_generator/schema/assurance_issue_config_schema.yml \
+> -d workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
+workflows/assurance_issue_config_generator/schema/assurance_issue_config_schema.yml
+workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
+yamale -s workflows/assurance_issue_config_generator/schema/assurance_issue_config_schema.yml workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
+Validating workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml...
 Validation success! 👍
 ```
 
 ```bash
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/assurance_issue_playbook_config_generator/playbook/assurance_issue_playbook_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/assurance_issue_playbook_config_input.yml
+  workflows/assurance_issue_config_generator/playbook/assurance_issue_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=./workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
 ```
 
 Expected Terminal Output:
