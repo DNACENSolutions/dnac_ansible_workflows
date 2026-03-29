@@ -1,0 +1,726 @@
+---
+- name: Discover and onboard a group of devices into SDA fabric
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars:
+    catalyst_center_login: &catalyst_center_login
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
+      dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(False) }}"
+      dnac_log: "{{ catalyst_center_log | default(False) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append | default(False) }}"
+      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
+
+  tasks:
+    - name: Print input source
+      debug:
+        msg: >-
+          {{
+            ("Input source: vars file " ~ VARS_FILE_PATH)
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else
+            "Input source: inventory variables (VARS_FILE_PATH not provided)"
+          }}
+      tags:
+        - always
+
+    - name: Load input variables from vars file when provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+      tags:
+        - always
+
+    - name: Validate SDA end-to-end workflow jobs input
+      fail:
+        msg: >-
+          sda_fabric_discover_and_onboard_fabric_devices.jobs must contain at least one job entry.
+      when:
+        - sda_fabric_discover_and_onboard_fabric_devices is not defined
+          or sda_fabric_discover_and_onboard_fabric_devices.jobs is not defined
+          or sda_fabric_discover_and_onboard_fabric_devices.jobs | length == 0
+      tags:
+        - always
+
+    - name: Set workflow jobs for stage processing
+      set_fact:
+        onboarding_jobs: "{{ sda_fabric_discover_and_onboard_fabric_devices.jobs }}"
+      tags:
+        - always
+
+    - name: Check mode detection
+      debug:
+        msg: |
+          **** CHECK MODE (DRY RUN) ****
+          Running with --check flag. No changes will be made to Catalyst Center.
+          The playbook will validate inputs and show what would be configured per stage.
+      when: ansible_check_mode
+      tags:
+        - always
+
+    - name: Build configured item counts per stage
+      set_fact:
+        stage_configured_counts:
+          discovery: "{{ query('subelements', onboarding_jobs, 'discovery', {'skip_missing': True}) | length }}"
+          lan_automation: "{{ query('subelements', onboarding_jobs, 'lan_automation', {'skip_missing': True}) | length }}"
+          inventory_roles: "{{ query('subelements', onboarding_jobs, 'inventory_roles', {'skip_missing': True}) | length }}"
+          provision: "{{ query('subelements', onboarding_jobs, 'provision', {'skip_missing': True}) | length }}"
+          fabric_devices: "{{ query('subelements', onboarding_jobs, 'fabric_devices', {'skip_missing': True}) | length }}"
+          host_port_onboarding: "{{ query('subelements', onboarding_jobs, 'host_port_onboarding', {'skip_missing': True}) | length }}"
+      tags:
+        - always
+
+    - name: Initialize stage summary defaults
+      set_fact:
+        stage_discovery_summary:
+          stage: "discovery"
+          configured: "{{ stage_configured_counts.discovery | int }}"
+          attempted: 0
+          changed: 0
+          failed: 0
+          status: "{{ 'no_entries' if (stage_configured_counts.discovery | int) == 0 else ('check_mode' if ansible_check_mode else 'not_run') }}"
+        stage_lan_automation_summary:
+          stage: "lan_automation"
+          configured: "{{ stage_configured_counts.lan_automation | int }}"
+          attempted: 0
+          changed: 0
+          failed: 0
+          status: "{{ 'no_entries' if (stage_configured_counts.lan_automation | int) == 0 else ('check_mode' if ansible_check_mode else 'not_run') }}"
+        stage_inventory_roles_summary:
+          stage: "inventory_roles"
+          configured: "{{ stage_configured_counts.inventory_roles | int }}"
+          attempted: 0
+          changed: 0
+          failed: 0
+          status: "{{ 'no_entries' if (stage_configured_counts.inventory_roles | int) == 0 else ('check_mode' if ansible_check_mode else 'not_run') }}"
+        stage_provision_summary:
+          stage: "provision"
+          configured: "{{ stage_configured_counts.provision | int }}"
+          attempted: 0
+          changed: 0
+          failed: 0
+          status: "{{ 'no_entries' if (stage_configured_counts.provision | int) == 0 else ('check_mode' if ansible_check_mode else 'not_run') }}"
+        stage_fabric_devices_summary:
+          stage: "fabric_devices"
+          configured: "{{ stage_configured_counts.fabric_devices | int }}"
+          attempted: 0
+          changed: 0
+          failed: 0
+          status: "{{ 'no_entries' if (stage_configured_counts.fabric_devices | int) == 0 else ('check_mode' if ansible_check_mode else 'not_run') }}"
+        stage_host_port_onboarding_summary:
+          stage: "host_port_onboarding"
+          configured: "{{ stage_configured_counts.host_port_onboarding | int }}"
+          attempted: 0
+          changed: 0
+          failed: 0
+          status: "{{ 'no_entries' if (stage_configured_counts.host_port_onboarding | int) == 0 else ('check_mode' if ansible_check_mode else 'not_run') }}"
+      tags:
+        - always
+
+    - name: SDA end-to-end onboarding workflow start time
+      set_fact:
+        long_op_start: "{{ now() }}"
+      tags:
+        - always
+
+    - name: Stage 1 - Discover devices using discovery tool
+      cisco.dnac.discovery_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ item.1.state | default(state | default('merged')) }}"
+        config:
+          - "{{ item.1.config }}"
+      loop: "{{ query('subelements', onboarding_jobs, 'discovery', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      register: discovery_stage_output
+      when:
+        - item.1.config is defined
+        - not ansible_check_mode
+      failed_when: false
+      tags:
+        - discovery
+        - stage_1
+
+    - name: "Check mode: Stage 1 - Discovery dry run"
+      debug:
+        msg: >-
+          [CHECK MODE] Would discover devices:
+          job={{ item.0.job_name | default('unnamed-job') }},
+          discovery_name={{ item.1.config.discovery_name | default('N/A') }},
+          discovery_type={{ item.1.config.discovery_type | default('N/A') }},
+          ip_address_list={{ item.1.config.ip_address_list | default([]) }},
+          state={{ item.1.state | default(state | default('merged')) }}
+      loop: "{{ query('subelements', onboarding_jobs, 'discovery', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      when:
+        - ansible_check_mode
+        - item.1.config is defined
+      tags:
+        - discovery
+        - stage_1
+
+    - name: Build Stage 1 summary
+      set_fact:
+        stage_discovery_summary:
+          stage: "discovery"
+          configured: "{{ stage_configured_counts.discovery | int }}"
+          attempted: "{{ discovery_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          changed: "{{ discovery_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
+          failed: "{{ discovery_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
+          status: >-
+            {{
+              'no_entries'
+              if (stage_configured_counts.discovery | int) == 0
+              else
+              (
+                'failed'
+                if ((discovery_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length) > 0)
+                else
+                (
+                  'success'
+                  if ((discovery_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  else 'not_run'
+                )
+              )
+            }}
+      when:
+        - discovery_stage_output is defined
+        - not ansible_check_mode
+      tags:
+        - discovery
+        - stage_1
+
+    - name: Print Stage 1 summary
+      debug:
+        msg: >-
+          Stage 1 Summary (discovery):
+          configured={{ stage_discovery_summary.configured }},
+          attempted={{ stage_discovery_summary.attempted }},
+          changed={{ stage_discovery_summary.changed }},
+          failed={{ stage_discovery_summary.failed }},
+          status={{ stage_discovery_summary.status }}
+      tags:
+        - discovery
+        - stage_1
+
+    - name: Stage 2 - LAN automate devices and discover into inventory
+      cisco.dnac.lan_automation_workflow_manager:
+        <<: *catalyst_center_login
+        config:
+          - "{{ item.1.config }}"
+      loop: "{{ query('subelements', onboarding_jobs, 'lan_automation', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      register: lan_automation_stage_output
+      when:
+        - item.1.config is defined
+        - not ansible_check_mode
+      failed_when: false
+      tags:
+        - lan_automation
+        - stage_2
+
+    - name: "Check mode: Stage 2 - LAN Automation dry run"
+      debug:
+        msg: >-
+          [CHECK MODE] Would LAN automate:
+          job={{ item.0.job_name | default('unnamed-job') }},
+          site={{ item.1.config.lan_automation.discovered_device_site_name_hierarchy | default('N/A') }},
+          seed_ip={{ item.1.config.lan_automation.primary_device_management_ip_address | default('N/A') }},
+          interfaces={{ item.1.config.lan_automation.primary_device_interface_names | default([]) }},
+          discovery_devices={{ (item.1.config.lan_automation.discovery_devices | default([])) | length }} device(s)
+      loop: "{{ query('subelements', onboarding_jobs, 'lan_automation', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      when:
+        - ansible_check_mode
+        - item.1.config is defined
+      tags:
+        - lan_automation
+        - stage_2
+
+    - name: Build Stage 2 summary
+      set_fact:
+        stage_lan_automation_summary:
+          stage: "lan_automation"
+          configured: "{{ stage_configured_counts.lan_automation | int }}"
+          attempted: "{{ lan_automation_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          changed: "{{ lan_automation_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
+          failed: "{{ lan_automation_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
+          status: >-
+            {{
+              'no_entries'
+              if (stage_configured_counts.lan_automation | int) == 0
+              else
+              (
+                'failed'
+                if ((lan_automation_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length) > 0)
+                else
+                (
+                  'success'
+                  if ((lan_automation_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  else 'not_run'
+                )
+              )
+            }}
+      when:
+        - lan_automation_stage_output is defined
+        - not ansible_check_mode
+      tags:
+        - lan_automation
+        - stage_2
+
+    - name: Print Stage 2 summary
+      debug:
+        msg: >-
+          Stage 2 Summary (lan_automation):
+          configured={{ stage_lan_automation_summary.configured }},
+          attempted={{ stage_lan_automation_summary.attempted }},
+          changed={{ stage_lan_automation_summary.changed }},
+          failed={{ stage_lan_automation_summary.failed }},
+          status={{ stage_lan_automation_summary.status }}
+      tags:
+        - lan_automation
+        - stage_2
+
+    - name: Stage 3 - Fix device roles in inventory
+      cisco.dnac.inventory_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ item.1.state | default(state | default('merged')) }}"
+        config:
+          - "{{ item.1.config }}"
+      loop: "{{ query('subelements', onboarding_jobs, 'inventory_roles', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      register: inventory_roles_stage_output
+      when:
+        - item.1.config is defined
+        - not ansible_check_mode
+      failed_when: false
+      tags:
+        - inventory_roles
+        - stage_3
+
+    - name: "Check mode: Stage 3 - Inventory roles dry run"
+      debug:
+        msg: >-
+          [CHECK MODE] Would update inventory role:
+          job={{ item.0.job_name | default('unnamed-job') }},
+          ip={{ item.1.config.management_ip_address | default(item.1.config.ip_address_list | default('N/A')) }},
+          role={{ item.1.config.role | default('N/A') }},
+          state={{ item.1.state | default(state | default('merged')) }}
+      loop: "{{ query('subelements', onboarding_jobs, 'inventory_roles', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      when:
+        - ansible_check_mode
+        - item.1.config is defined
+      tags:
+        - inventory_roles
+        - stage_3
+
+    - name: Build Stage 3 summary
+      set_fact:
+        stage_inventory_roles_summary:
+          stage: "inventory_roles"
+          configured: "{{ stage_configured_counts.inventory_roles | int }}"
+          attempted: "{{ inventory_roles_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          changed: "{{ inventory_roles_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
+          failed: "{{ inventory_roles_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
+          status: >-
+            {{
+              'no_entries'
+              if (stage_configured_counts.inventory_roles | int) == 0
+              else
+              (
+                'failed'
+                if ((inventory_roles_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length) > 0)
+                else
+                (
+                  'success'
+                  if ((inventory_roles_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  else 'not_run'
+                )
+              )
+            }}
+      when:
+        - inventory_roles_stage_output is defined
+        - not ansible_check_mode
+      tags:
+        - inventory_roles
+        - stage_3
+
+    - name: Print Stage 3 summary
+      debug:
+        msg: >-
+          Stage 3 Summary (inventory_roles):
+          configured={{ stage_inventory_roles_summary.configured }},
+          attempted={{ stage_inventory_roles_summary.attempted }},
+          changed={{ stage_inventory_roles_summary.changed }},
+          failed={{ stage_inventory_roles_summary.failed }},
+          status={{ stage_inventory_roles_summary.status }}
+      tags:
+        - inventory_roles
+        - stage_3
+
+    - name: Stage 4 - Provision devices to sites
+      cisco.dnac.provision_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ item.1.state | default(state | default('merged')) }}"
+        config:
+          - "{{ item.1.config }}"
+      loop: "{{ query('subelements', onboarding_jobs, 'provision', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      register: provision_stage_output
+      when:
+        - item.1.config is defined
+        - not ansible_check_mode
+      failed_when: false
+      tags:
+        - provision
+        - stage_4
+
+    - name: "Check mode: Stage 4 - Provision dry run"
+      debug:
+        msg: >-
+          [CHECK MODE] Would provision device:
+          job={{ item.0.job_name | default('unnamed-job') }},
+          ip={{ item.1.config.management_ip_address | default('N/A') }},
+          site={{ item.1.config.site_name_hierarchy | default('N/A') }},
+          state={{ item.1.state | default(state | default('merged')) }}
+      loop: "{{ query('subelements', onboarding_jobs, 'provision', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      when:
+        - ansible_check_mode
+        - item.1.config is defined
+      tags:
+        - provision
+        - stage_4
+
+    - name: Build Stage 4 summary
+      set_fact:
+        stage_provision_summary:
+          stage: "provision"
+          configured: "{{ stage_configured_counts.provision | int }}"
+          attempted: "{{ provision_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          changed: "{{ provision_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
+          failed: "{{ provision_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
+          status: >-
+            {{
+              'no_entries'
+              if (stage_configured_counts.provision | int) == 0
+              else
+              (
+                'failed'
+                if ((provision_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length) > 0)
+                else
+                (
+                  'success'
+                  if ((provision_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  else 'not_run'
+                )
+              )
+            }}
+      when:
+        - provision_stage_output is defined
+        - not ansible_check_mode
+      tags:
+        - provision
+        - stage_4
+
+    - name: Print Stage 4 summary
+      debug:
+        msg: >-
+          Stage 4 Summary (provision):
+          configured={{ stage_provision_summary.configured }},
+          attempted={{ stage_provision_summary.attempted }},
+          changed={{ stage_provision_summary.changed }},
+          failed={{ stage_provision_summary.failed }},
+          status={{ stage_provision_summary.status }}
+      tags:
+        - provision
+        - stage_4
+
+    - name: Stage 5 - Add devices into SDA fabric sites
+      cisco.dnac.sda_fabric_devices_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ item.1.state | default(state | default('merged')) }}"
+        config:
+          - "{{ item.1.config }}"
+      loop: "{{ query('subelements', onboarding_jobs, 'fabric_devices', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      register: fabric_devices_stage_output
+      when:
+        - item.1.config is defined
+        - not ansible_check_mode
+      failed_when: false
+      tags:
+        - fabric_devices
+        - stage_5
+
+    - name: "Check mode: Stage 5 - Fabric devices dry run"
+      debug:
+        msg: >-
+          [CHECK MODE] Would add to fabric:
+          job={{ item.0.job_name | default('unnamed-job') }},
+          fabric={{ item.1.config.fabric_devices.fabric_name | default('N/A') }},
+          devices={{ (item.1.config.fabric_devices.device_config | default([])) | map(attribute='device_ip') | list }},
+          state={{ item.1.state | default(state | default('merged')) }}
+      loop: "{{ query('subelements', onboarding_jobs, 'fabric_devices', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      when:
+        - ansible_check_mode
+        - item.1.config is defined
+      tags:
+        - fabric_devices
+        - stage_5
+
+    - name: Build Stage 5 summary
+      set_fact:
+        stage_fabric_devices_summary:
+          stage: "fabric_devices"
+          configured: "{{ stage_configured_counts.fabric_devices | int }}"
+          attempted: "{{ fabric_devices_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          changed: "{{ fabric_devices_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
+          failed: "{{ fabric_devices_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
+          status: >-
+            {{
+              'no_entries'
+              if (stage_configured_counts.fabric_devices | int) == 0
+              else
+              (
+                'failed'
+                if ((fabric_devices_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length) > 0)
+                else
+                (
+                  'success'
+                  if ((fabric_devices_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  else 'not_run'
+                )
+              )
+            }}
+      when:
+        - fabric_devices_stage_output is defined
+        - not ansible_check_mode
+      tags:
+        - fabric_devices
+        - stage_5
+
+    - name: Print Stage 5 summary
+      debug:
+        msg: >-
+          Stage 5 Summary (fabric_devices):
+          configured={{ stage_fabric_devices_summary.configured }},
+          attempted={{ stage_fabric_devices_summary.attempted }},
+          changed={{ stage_fabric_devices_summary.changed }},
+          failed={{ stage_fabric_devices_summary.failed }},
+          status={{ stage_fabric_devices_summary.status }}
+      tags:
+        - fabric_devices
+        - stage_5
+
+    - name: Stage 6 - Onboard SDA host ports on fabric devices
+      cisco.dnac.sda_host_port_onboarding_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ item.1.state | default(state | default('merged')) }}"
+        config:
+          - "{{ item.1.config }}"
+      loop: "{{ query('subelements', onboarding_jobs, 'host_port_onboarding', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      register: host_port_onboarding_stage_output
+      when:
+        - item.1.config is defined
+        - not ansible_check_mode
+      failed_when: false
+      tags:
+        - host_port_onboarding
+        - stage_6
+
+    - name: "Check mode: Stage 6 - Host port onboarding dry run"
+      debug:
+        msg: >-
+          [CHECK MODE] Would onboard host ports:
+          job={{ item.0.job_name | default('unnamed-job') }},
+          device={{ item.1.config.ip_address | default(item.1.config.hostname | default('N/A')) }},
+          site={{ item.1.config.fabric_site_name_hierarchy | default('N/A') }},
+          port_assignments={{ (item.1.config.port_assignments | default([])) | length }},
+          port_channels={{ (item.1.config.port_channels | default([])) | length }},
+          wireless_ssids={{ (item.1.config.wireless_ssids | default([])) | length }},
+          state={{ item.1.state | default(state | default('merged')) }}
+      loop: "{{ query('subelements', onboarding_jobs, 'host_port_onboarding', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      when:
+        - ansible_check_mode
+        - item.1.config is defined
+      tags:
+        - host_port_onboarding
+        - stage_6
+
+    - name: Build Stage 6 summary
+      set_fact:
+        stage_host_port_onboarding_summary:
+          stage: "host_port_onboarding"
+          configured: "{{ stage_configured_counts.host_port_onboarding | int }}"
+          attempted: "{{ host_port_onboarding_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          changed: "{{ host_port_onboarding_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
+          failed: "{{ host_port_onboarding_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
+          status: >-
+            {{
+              'no_entries'
+              if (stage_configured_counts.host_port_onboarding | int) == 0
+              else
+              (
+                'failed'
+                if ((host_port_onboarding_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length) > 0)
+                else
+                (
+                  'success'
+                  if ((host_port_onboarding_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  else 'not_run'
+                )
+              )
+            }}
+      when:
+        - host_port_onboarding_stage_output is defined
+        - not ansible_check_mode
+      tags:
+        - host_port_onboarding
+        - stage_6
+
+    - name: Print Stage 6 summary
+      debug:
+        msg: >-
+          Stage 6 Summary (host_port_onboarding):
+          configured={{ stage_host_port_onboarding_summary.configured }},
+          attempted={{ stage_host_port_onboarding_summary.attempted }},
+          changed={{ stage_host_port_onboarding_summary.changed }},
+          failed={{ stage_host_port_onboarding_summary.failed }},
+          status={{ stage_host_port_onboarding_summary.status }}
+      tags:
+        - host_port_onboarding
+        - stage_6
+
+    - name: Build final stage status summary
+      set_fact:
+        sda_fabric_discover_and_onboard_summary:
+          jobs_processed: "{{ onboarding_jobs | length }}"
+          stages:
+            - "{{ stage_discovery_summary }}"
+            - "{{ stage_lan_automation_summary }}"
+            - "{{ stage_inventory_roles_summary }}"
+            - "{{ stage_provision_summary }}"
+            - "{{ stage_fabric_devices_summary }}"
+            - "{{ stage_host_port_onboarding_summary }}"
+          stages_ran_count: >-
+            {{
+              [
+                stage_discovery_summary,
+                stage_lan_automation_summary,
+                stage_inventory_roles_summary,
+                stage_provision_summary,
+                stage_fabric_devices_summary,
+                stage_host_port_onboarding_summary
+              ]
+              | rejectattr('status', 'in', ['not_run', 'no_entries', 'check_mode'])
+              | list
+              | length
+            }}
+          stages_failed_count: >-
+            {{
+              [
+                stage_discovery_summary,
+                stage_lan_automation_summary,
+                stage_inventory_roles_summary,
+                stage_provision_summary,
+                stage_fabric_devices_summary,
+                stage_host_port_onboarding_summary
+              ]
+              | selectattr('status', 'equalto', 'failed')
+              | list
+              | length
+            }}
+      tags:
+        - always
+
+    - name: Print final stage status summary
+      debug:
+        msg: |
+          SDA Fabric Discover and Onboard Final Summary{{ ' (CHECK MODE - DRY RUN)' if ansible_check_mode else '' }}
+          - Jobs processed: {{ sda_fabric_discover_and_onboard_summary.jobs_processed }}
+          - Stages ran: {{ sda_fabric_discover_and_onboard_summary.stages_ran_count }}
+          - Stages failed: {{ sda_fabric_discover_and_onboard_summary.stages_failed_count }}
+          - Stage Statuses:
+            - discovery: {{ stage_discovery_summary.status }} (configured={{ stage_discovery_summary.configured }}, attempted={{ stage_discovery_summary.attempted }}, changed={{ stage_discovery_summary.changed }}, failed={{ stage_discovery_summary.failed }})
+            - lan_automation: {{ stage_lan_automation_summary.status }} (configured={{ stage_lan_automation_summary.configured }}, attempted={{ stage_lan_automation_summary.attempted }}, changed={{ stage_lan_automation_summary.changed }}, failed={{ stage_lan_automation_summary.failed }})
+            - inventory_roles: {{ stage_inventory_roles_summary.status }} (configured={{ stage_inventory_roles_summary.configured }}, attempted={{ stage_inventory_roles_summary.attempted }}, changed={{ stage_inventory_roles_summary.changed }}, failed={{ stage_inventory_roles_summary.failed }})
+            - provision: {{ stage_provision_summary.status }} (configured={{ stage_provision_summary.configured }}, attempted={{ stage_provision_summary.attempted }}, changed={{ stage_provision_summary.changed }}, failed={{ stage_provision_summary.failed }})
+            - fabric_devices: {{ stage_fabric_devices_summary.status }} (configured={{ stage_fabric_devices_summary.configured }}, attempted={{ stage_fabric_devices_summary.attempted }}, changed={{ stage_fabric_devices_summary.changed }}, failed={{ stage_fabric_devices_summary.failed }})
+            - host_port_onboarding: {{ stage_host_port_onboarding_summary.status }} (configured={{ stage_host_port_onboarding_summary.configured }}, attempted={{ stage_host_port_onboarding_summary.attempted }}, changed={{ stage_host_port_onboarding_summary.changed }}, failed={{ stage_host_port_onboarding_summary.failed }})
+      tags:
+        - always
+
+    - name: Fail workflow when one or more stages failed
+      fail:
+        msg: >-
+          One or more stages failed. Review stage summaries above.
+          Failed stages count: {{ sda_fabric_discover_and_onboard_summary.stages_failed_count }}.
+      when:
+        - (sda_fabric_discover_and_onboard_summary.stages_failed_count | int) > 0
+        - not ansible_check_mode
+      tags:
+        - always
+
+    - name: Check mode completion notice
+      debug:
+        msg: >-
+          Check mode (dry run) completed successfully. No changes were made to Catalyst Center.
+          Configured items per stage: discovery={{ stage_configured_counts.discovery }},
+          lan_automation={{ stage_configured_counts.lan_automation }},
+          inventory_roles={{ stage_configured_counts.inventory_roles }},
+          provision={{ stage_configured_counts.provision }},
+          fabric_devices={{ stage_configured_counts.fabric_devices }},
+          host_port_onboarding={{ stage_configured_counts.host_port_onboarding }}.
+          Remove --check flag to execute the workflow.
+      when: ansible_check_mode
+      tags:
+        - always
+
+    - name: SDA end-to-end onboarding workflow end time
+      set_fact:
+        long_op_end: "{{ now() }}"
+      tags:
+        - always
+
+    - name: Print workflow execution time
+      debug:
+        msg: "Start: {{ long_op_start }}, End: {{ long_op_end }}"
+      tags:
+        - always
+
+  post_tasks:
+    - name: Get python path
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
+      changed_when: false
+      tags:
+        - always
