@@ -1,0 +1,73 @@
+---
+# ============================================================================
+# Cisco Catalyst Center Site Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/site_config_generator/playbook/site_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/site_config_generator/vars/site_config_inputs.yml
+#
+# Module used:
+#   cisco.dnac.site_playbook_config_generator
+# ============================================================================
+
+site_config:
+  # 1) Generate all site hierarchy configurations
+  - generate_all_configurations: true
+    file_path: "/tmp/site_complete_config.yml"
+
+  # 2) Filter by parent hierarchy
+  - file_path: "/tmp/site_parent_hierarchy_filter.yml"
+    component_specific_filters:
+      components_list: ["site"]
+      site:
+        - parent_name_hierarchy: "Global/USA"
+
+  # 3) Filter by parent hierarchy and site types
+  - file_path: "/tmp/site_parent_and_type_filter.yml"
+    component_specific_filters:
+      components_list: ["site"]
+      site:
+        - parent_name_hierarchy: ["Global/USA", "Global/India"]
+          site_type: ["building", "floor"]
+
+  # 4) Filter by explicit site hierarchy list
+  - file_path: "/tmp/site_name_hierarchy_filter.yml"
+    component_specific_filters:
+      components_list: ["site"]
+      site:
+        - site_name_hierarchy:
+            - "Global/USA/San Francisco"
+            - "Global/USA/New York"
+
+  # 5) Combined site filters with append mode
+  - file_path: "/tmp/site_aggregate.yml"
+    file_mode: "append"
+    component_specific_filters:
+      components_list: ["site"]
+      site:
+        - parent_name_hierarchy: "Global/USA"
+          site_type: ["area"]
+        - site_name_hierarchy: "Global/India"
+
+# ============================================================================
+# Additional examples
+# ============================================================================
+# Example: Generate only floor sites under one hierarchy
+# site_config:
+#   - file_path: "/tmp/site_floor_only.yml"
+#     component_specific_filters:
+#       components_list: ["site"]
+#       site:
+#         - parent_name_hierarchy: "Global/USA/San Jose"
+#           site_type: ["floor"]
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - If component_specific_filters is omitted, the workflow omits module config
+#   and runs in full discovery mode.
+# - In a single site filter item, avoid combining site_name_hierarchy and
+#   parent_name_hierarchy together for unambiguous behavior.
+# ============================================================================

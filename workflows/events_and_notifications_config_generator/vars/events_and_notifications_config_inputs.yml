@@ -1,0 +1,64 @@
+# ============================================================================
+# Cisco Catalyst Center Events and Notifications Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/events_and_notifications_config_generator/playbook/events_and_notifications_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/events_and_notifications_config_generator/vars/events_and_notifications_config_inputs.yml
+#
+# Module used:
+#   cisco.dnac.events_and_notifications_playbook_config_generator
+# ============================================================================
+
+events_and_notifications_config:
+  # 1) Generate all events and notifications configurations
+  - generate_all_configurations: true
+    file_path: "/tmp/events_and_notifications_complete_config.yml"
+
+  # 2) Generate selected destination components
+  - file_path: "/tmp/events_notifications_destinations.yml"
+    component_specific_filters:
+      components_list:
+        - "webhook_destinations"
+        - "email_destinations"
+        - "syslog_destinations"
+      destination_filters:
+        destination_names:
+          - "my-webhook-1"
+          - "ops-email-destination"
+        destination_types:
+          - "webhook"
+          - "email"
+
+  # 3) Generate selected event notification subscriptions
+  - file_path: "/tmp/events_notifications_subscriptions.yml"
+    component_specific_filters:
+      components_list:
+        - "webhook_event_notifications"
+        - "email_event_notifications"
+      notification_filters:
+        subscription_names:
+          - "Critical Alerts"
+          - "Device Down Alerts"
+        notification_types:
+          - "webhook"
+
+  # 4) Generate ITSM settings with append mode
+  - file_path: "/tmp/events_notifications_itsm.yml"
+    file_mode: "append"
+    component_specific_filters:
+      components_list: ["itsm_settings"]
+      itsm_filters:
+        instance_names:
+          - "ServiceNow-Prod"
+          - "BMC-Remedy"
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - If component_specific_filters is omitted, the workflow omits module config
+#   and runs in full discovery mode.
+# - When filter blocks are provided, the module auto-adds corresponding
+#   components to components_list if needed.
+# ============================================================================

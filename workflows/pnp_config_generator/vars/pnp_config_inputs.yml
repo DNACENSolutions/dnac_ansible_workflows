@@ -1,0 +1,91 @@
+---
+# ============================================================================
+# Cisco Catalyst Center Plug and Play Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/pnp_config_generator/playbook/pnp_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/pnp_config_generator/vars/pnp_config_inputs.yml
+#
+# Module used:
+#   cisco.dnac.pnp_playbook_config_generator
+#
+# Notes:
+# - This workflow uses 'generate_all_configurations' as a convenience flag.
+# - When generate_all_configurations: true, the playbook omits module 'config'
+#   and retrieves all PnP devices.
+# ============================================================================
+
+pnp_config:
+  # 1) Generate all PnP device info with explicit output path
+  - generate_all_configurations: true
+    file_path: "/tmp/pnp_all_device_info.yml"
+
+  # 2) Generate all PnP device info with auto-generated file name
+  - generate_all_configurations: true
+
+  # 3) Generate only the device_info component
+  - file_path: "/tmp/pnp_device_info_component.yml"
+    file_mode: "overwrite"
+    component_specific_filters:
+      components_list: ["device_info"]
+
+  # 4) Filter by single PnP state (Unclaimed)
+  - file_path: "/tmp/pnp_unclaimed_devices.yml"
+    component_specific_filters:
+      components_list: ["device_info"]
+    global_filters:
+      device_state: ["Unclaimed"]
+
+  # 5) Filter by multiple PnP states
+  - file_path: "/tmp/pnp_unclaimed_planned_devices.yml"
+    component_specific_filters:
+      components_list: ["device_info"]
+    global_filters:
+      device_state: ["Unclaimed", "Planned"]
+
+  # 6) Append output from Provisioned devices to an existing file
+  - file_path: "/tmp/pnp_device_info_aggregate.yml"
+    file_mode: "append"
+    component_specific_filters:
+      components_list: ["device_info"]
+    global_filters:
+      device_state: ["Provisioned"]
+
+# ============================================================================
+# Additional examples
+# ============================================================================
+# Example: Use only global filter without component filter
+# pnp_config:
+#   - file_path: "/tmp/pnp_error_devices.yml"
+#     global_filters:
+#       device_state: ["Error"]
+#
+# Example: Filter onboarding devices and append to same file
+# pnp_config:
+#   - file_path: "/tmp/pnp_device_info_aggregate.yml"
+#     file_mode: "append"
+#     component_specific_filters:
+#       components_list: ["device_info"]
+#     global_filters:
+#       device_state: ["Onboarding"]
+
+# ============================================================================
+# Parameter Reference
+# ============================================================================
+# generate_all_configurations:
+# - true: module config is omitted, all PnP devices are discovered.
+# - false/not set: playbook passes config when filters are provided.
+#
+# file_mode:
+# - overwrite: create/replace file
+# - append: append generated YAML content to existing file
+#
+# global_filters.device_state valid values:
+# - Unclaimed
+# - Planned
+# - Onboarding
+# - Provisioned
+# - Error
+# ============================================================================

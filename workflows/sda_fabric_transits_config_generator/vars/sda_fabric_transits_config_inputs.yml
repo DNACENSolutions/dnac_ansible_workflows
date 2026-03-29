@@ -1,0 +1,50 @@
+# ============================================================================
+# Cisco Catalyst Center SDA Fabric Transits Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/sda_fabric_transits_config_generator/playbook/sda_fabric_transits_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
+#
+# Module used:
+#   cisco.dnac.sda_fabric_transits_playbook_config_generator
+# ============================================================================
+
+sda_fabric_transits_config:
+  # 1) Generate all SDA fabric transits
+  - generate_all_configurations: true
+    file_path: "/tmp/sda_fabric_transits_complete_config.yml"
+
+  # 2) Filter by specific transit names
+  - file_path: "/tmp/sda_fabric_transits_by_name.yml"
+    component_specific_filters:
+      components_list: ["sda_fabric_transits"]
+      sda_fabric_transits:
+        - name: "IP-Transit-West"
+        - name: "SDA-BGP-Transit-East"
+
+  # 3) Filter by transit type
+  - file_path: "/tmp/sda_fabric_transits_ip_based_only.yml"
+    component_specific_filters:
+      components_list: ["sda_fabric_transits"]
+      sda_fabric_transits:
+        - transit_type: "IP_BASED_TRANSIT"
+
+  # 4) Combined filter and append mode
+  - file_path: "/tmp/sda_fabric_transits_aggregate.yml"
+    file_mode: "append"
+    component_specific_filters:
+      components_list: ["sda_fabric_transits"]
+      sda_fabric_transits:
+        - name: "SDA-PubSub-Transit"
+          transit_type: "SDA_LISP_PUB_SUB_TRANSIT"
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - If component_specific_filters is omitted, the workflow omits module config
+#   and runs in full discovery mode.
+# - If you provide sda_fabric_transits filters without components_list, the
+#   module auto-adds sda_fabric_transits internally.
+# ============================================================================

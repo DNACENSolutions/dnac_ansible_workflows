@@ -1,0 +1,40 @@
+# Cisco Catalyst Center SDA Extranet Policies Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing SDA extranet policies in Cisco Catalyst Center
+# using the sda_extranet_policies_playbook_config_generator module.
+
+# Schema Definition
+sda_extranet_policies_config: list(include('sda_extranet_policies_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# SDA Extranet Policies Config Generator Entry Schema
+sda_extranet_policies_config_generator_type:
+  generate_all_configurations: bool(required=False)
+  file_path: str(required=False)
+  file_mode: enum('overwrite', 'append', required=False)
+  component_specific_filters: include('sda_extranet_policies_component_filters_type', required=False)
+
+---
+# SDA Extranet Policies Component Filters Schema
+sda_extranet_policies_component_filters_type:
+  components_list: list(enum('extranet_policies'), min=1, max=1, required=False)
+  extranet_policies: list(include('sda_extranet_policy_filter_type'), min=1, max=500, required=False)
+
+---
+# SDA Extranet Policy filter schema
+sda_extranet_policy_filter_type:
+  # Extranet policy name to filter by exact name
+  extranet_policy_name: str(required=False)

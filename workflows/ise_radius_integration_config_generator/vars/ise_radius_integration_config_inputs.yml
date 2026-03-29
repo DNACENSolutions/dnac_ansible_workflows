@@ -1,0 +1,47 @@
+# ============================================================================
+# Cisco Catalyst Center ISE Radius Integration Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/ise_radius_integration_config_generator/playbook/ise_radius_integration_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
+#
+# Module used:
+#   cisco.dnac.ise_radius_integration_playbook_config_generator
+# ============================================================================
+
+ise_radius_integration_config:
+  # 1) Generate all authentication policy server configurations
+  - generate_all_configurations: true
+    file_path: "/tmp/ise_radius_integration_complete_config.yml"
+
+  # 2) Generate authentication policy server component only
+  - file_path: "/tmp/ise_radius_component_only.yml"
+    component_specific_filters:
+      components_list: ["authentication_policy_server"]
+
+  # 3) Filter by server type (Cisco ISE)
+  - file_path: "/tmp/ise_radius_server_type_ise.yml"
+    component_specific_filters:
+      components_list: ["authentication_policy_server"]
+      authentication_policy_server:
+        server_type: "ISE"
+
+  # 4) Filter by server type and specific IP
+  - file_path: "/tmp/ise_radius_server_specific.yml"
+    file_mode: "append"
+    component_specific_filters:
+      components_list: ["authentication_policy_server"]
+      authentication_policy_server:
+        server_type: "AAA"
+        server_ip_address: "10.100.10.50"
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - If component_specific_filters is omitted, the workflow omits module config
+#   and runs in full discovery mode.
+# - If authentication_policy_server filter is provided without components_list,
+#   the module auto-adds authentication_policy_server internally.
+# ============================================================================

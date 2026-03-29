@@ -1,0 +1,67 @@
+# Cisco Catalyst Center Inventory Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing inventory data in Cisco Catalyst Center using
+# the inventory_playbook_config_generator module.
+
+# Schema Definition
+inventory_config: list(include('inventory_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Inventory Config Generator Entry Schema
+inventory_config_generator_type:
+  generate_all_configurations: bool(required=False)
+  file_path: str(required=False)
+  file_mode: enum('overwrite', 'append', required=False)
+  global_filters: include('inventory_global_filters_type', required=False)
+  component_specific_filters: include('inventory_component_filters_type', required=False)
+
+---
+# Inventory global filters schema
+inventory_global_filters_type:
+  ip_address_list: list(str(), min=1, max=500, required=False)
+  hostname_list: list(str(), min=1, max=500, required=False)
+  serial_number_list: list(str(), min=1, max=500, required=False)
+  mac_address_list: list(str(), min=1, max=500, required=False)
+
+---
+# Inventory component filters schema
+inventory_component_filters_type:
+  components_list: list(
+    enum('device_details', 'provision_device', 'interface_details', 'user_defined_fields'),
+    min=1,
+    max=4,
+    required=False
+  )
+  device_details: any(required=False)
+  provision_device: include('inventory_provision_device_filter_type', required=False)
+  interface_details: include('inventory_interface_details_filter_type', required=False)
+  user_defined_fields: include('inventory_user_defined_fields_filter_type', required=False)
+
+---
+# Provision device filter schema
+inventory_provision_device_filter_type:
+  site_name: str(required=False)
+
+---
+# Interface details filter schema
+inventory_interface_details_filter_type:
+  interface_name: any(str(), list(str()), required=False)
+
+---
+# User defined fields filter schema
+inventory_user_defined_fields_filter_type:
+  name: any(str(), list(str()), required=False)
+  value: any(str(), list(str()), required=False)

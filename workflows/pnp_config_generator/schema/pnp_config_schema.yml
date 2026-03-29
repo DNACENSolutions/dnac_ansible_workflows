@@ -1,0 +1,110 @@
+# Cisco Catalyst Center Plug and Play Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing Plug and Play (PnP) device registrations in
+# Cisco Catalyst Center using the pnp_playbook_config_generator module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports configuration generation operations for:
+# 1. Generate all PnP device information
+# 2. Filtered generation by PnP workflow state
+# 3. Component-based generation (device_info)
+# 4. File output controls (overwrite/append)
+#
+# USAGE:
+# ------
+# Validate variables before execution:
+#
+# ./tools/validate.sh \
+#   -s workflows/pnp_config_generator/schema/pnp_config_schema.yml \
+#   -d workflows/pnp_config_generator/vars/pnp_config_inputs.yml
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional)
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# pnp_config SECTION:
+# -------------------
+# Each item drives one YAML generation operation:
+#
+# 1. generate_all_configurations:
+#    - Type: boolean (optional, workflow convenience key)
+#    - If true, module is called without config (auto-discovery of all PnP devices)
+#
+# 2. file_path:
+#    - Type: string (optional)
+#    - Output path for generated YAML file
+#
+# 3. file_mode:
+#    - Type: string (optional)
+#    - Valid values: overwrite, append
+#
+# 4. component_specific_filters:
+#    - Type: dict (optional)
+#    - components_list currently supports only: device_info
+#
+# 5. global_filters:
+#    - Type: dict (optional)
+#    - device_state filters supported: Unclaimed, Planned, Onboarding,
+#      Provisioned, Error
+#
+# NOTES:
+# ------
+# - The underlying module accepts config as a dict.
+# - In this workflow, config is omitted when generate_all_configurations is true
+#   or when no filters are provided.
+# - This enables full brownfield extraction mode.
+
+# Schema Definition
+pnp_config: list(include('pnp_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# PnP Config Generator Entry Schema
+pnp_config_generator_type:
+  # Workflow-level convenience flag. If true, module config is omitted.
+  generate_all_configurations: bool(required=False)
+
+  # Output file path for generated YAML
+  file_path: str(required=False)
+
+  # File write mode: overwrite or append
+  file_mode: enum('overwrite', 'append', required=False)
+
+  # Component-specific filters
+  component_specific_filters: include('pnp_component_filters_type', required=False)
+
+  # Global filters
+  global_filters: include('pnp_global_filters_type', required=False)
+
+---
+# PnP Component Filters Schema
+pnp_component_filters_type:
+  # List of components to include (currently only device_info supported)
+  components_list: list(enum('device_info'), min=1, max=10, required=False)
+
+---
+# PnP Global Filters Schema
+pnp_global_filters_type:
+  # Filter by one or more PnP workflow states
+  device_state: list(enum('Unclaimed', 'Planned', 'Onboarding', 'Provisioned', 'Error'), min=1, max=5, required=False)

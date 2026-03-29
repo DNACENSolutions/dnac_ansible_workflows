@@ -1,0 +1,87 @@
+---
+# ============================================================================
+# Cisco Catalyst Center User Role Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/user_role_config_generator/playbook/user_role_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/user_role_config_generator/vars/user_role_config_inputs.yml
+#
+# Module used:
+#   cisco.dnac.user_role_playbook_config_generator
+# ============================================================================
+
+user_role_config:
+  # 1) Generate all users and roles
+  - generate_all_configurations: true
+    file_path: "/tmp/user_role_complete_config.yml"
+
+  # 2) Generate user component only
+  - file_path: "/tmp/user_role_users_only.yml"
+    component_specific_filters:
+      components_list: ["user_details"]
+
+  # 3) Generate role component only
+  - file_path: "/tmp/user_role_roles_only.yml"
+    component_specific_filters:
+      components_list: ["role_details"]
+
+  # 4) Filter users by username
+  - file_path: "/tmp/user_role_users_by_username.yml"
+    component_specific_filters:
+      components_list: ["user_details"]
+      user_details:
+        - username: ["testuser1", "testuser2"]
+
+  # 5) Filter users by email
+  - file_path: "/tmp/user_role_users_by_email.yml"
+    component_specific_filters:
+      components_list: ["user_details"]
+      user_details:
+        - email: ["admin@example.com", "operator@example.com"]
+
+  # 6) Filter users by role assignment
+  - file_path: "/tmp/user_role_users_by_role.yml"
+    component_specific_filters:
+      components_list: ["user_details"]
+      user_details:
+        - role_name: ["SUPER-ADMIN-ROLE", "NETWORK-ADMIN-ROLE"]
+
+  # 7) Filter roles by role_name
+  - file_path: "/tmp/user_role_role_name_filter.yml"
+    component_specific_filters:
+      components_list: ["role_details"]
+      role_details:
+        - role_name: ["Custom-Admin-Role", "Network-Operator-Role"]
+
+  # 8) Combined user and role filters
+  - file_path: "/tmp/user_role_combined_filters.yml"
+    file_mode: "overwrite"
+    component_specific_filters:
+      components_list: ["user_details", "role_details"]
+      user_details:
+        - username: ["testuser1"]
+      role_details:
+        - role_name: ["Custom-Admin-Role"]
+
+# ============================================================================
+# Additional examples
+# ============================================================================
+# Example: Append another filtered dataset into same output file
+# user_role_config:
+#   - file_path: "/tmp/user_role_aggregate.yml"
+#     file_mode: "append"
+#     component_specific_filters:
+#       components_list: ["user_details"]
+#       user_details:
+#         - email: ["security@example.com"]
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - If component_specific_filters is omitted, the workflow omits module config
+#   and runs in full discovery mode.
+# - username/email/role_name filters under user_details are list-of-string values.
+# - role_name under role_details is list-of-string values.
+# ============================================================================

@@ -1,0 +1,45 @@
+# Cisco Catalyst Center Application Policy Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing application policies and queuing profiles in
+# Cisco Catalyst Center using the application_policy_playbook_config_generator module.
+
+# Schema Definition
+application_policy_config: list(include('application_policy_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Application Policy Config Generator Entry Schema
+application_policy_config_generator_type:
+  generate_all_configurations: bool(required=False)
+  file_path: str(required=False)
+  file_mode: enum('overwrite', 'append', required=False)
+  component_specific_filters: include('application_policy_component_filters_type', required=False)
+
+---
+# Application Policy Component Filters Schema
+application_policy_component_filters_type:
+  components_list: list(enum('queuing_profile', 'application_policy'), min=1, max=2, required=False)
+  queuing_profile: include('queuing_profile_filter_type', required=False)
+  application_policy: include('application_policy_filter_type', required=False)
+
+---
+# Queuing profile filter schema
+queuing_profile_filter_type:
+  profile_names_list: list(str(), min=1, max=500, required=False)
+
+---
+# Application policy filter schema
+application_policy_filter_type:
+  policy_names_list: list(str(), min=1, max=500, required=False)

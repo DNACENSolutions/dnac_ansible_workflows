@@ -41,6 +41,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - [Contributing](#contributing)
 - [License](#license)
 - [Cisco Validated Playbooks](#cisco-validated-playbooks)
+- [Configuration Generation Workflows](#configuration-generation-workflows)
 
 # Cisco Validated Playbooks
 
@@ -90,6 +91,34 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - [Catalyst Center Network Devices Information and Inventory Management](./workflows/network_devices_info/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 - [Catalyst Center Configuration Backup and Restore Management](./workflows/backup_restore/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=3.1.6**</span></mark>
 - [Catalyst Center Reports Management and Scheduling](./workflows/reports/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+
+## Configuration Generation Workflows
+
+- [Application Policy Config Generator](./workflows/application_policy_config_generator/README.md)
+- [Assurance Issue Config Generator](./workflows/assurance_issue_config_generator/README.md)
+- [Backup and Restore Config Generator](./workflows/backup_and_restore_config_generator/README.md)
+- [Device Credential Config Generator](./workflows/device_credential_config_generator/README.md)
+- [Discovery Config Generator](./workflows/discovery_config_generator/README.md)
+- [Events and Notifications Config Generator](./workflows/events_and_notifications_config_generator/README.md)
+- [Inventory Config Generator](./workflows/inventory_config_generator/README.md)
+- [ISE Radius Integration Config Generator](./workflows/ise_radius_integration_config_generator/README.md)
+- [Network Profile Switching Config Generator](./workflows/network_profile_switching_config_generator/README.md)
+- [Network Profile Wireless Config Generator](./workflows/network_profile_wireless_config_generator/README.md)
+- [Network Settings Config Generator](./workflows/network_settings_config_generator/README.md)
+- [PnP Config Generator](./workflows/pnp_config_generator/README.md)
+- [Provision Config Generator](./workflows/provision_config_generator/README.md)
+- [SDA Extranet Policies Config Generator](./workflows/sda_extranet_policies_config_generator/README.md)
+- [SDA Fabric Devices Config Generator](./workflows/sda_fabric_devices_config_generator/README.md)
+- [SDA Fabric Multicast Config Generator](./workflows/sda_fabric_multicast_config_generator/README.md)
+- [SDA Fabric Sites Zones Config Generator](./workflows/sda_fabric_sites_zones_config_generator/README.md)
+- [SDA Fabric Transits Config Generator](./workflows/sda_fabric_transits_config_generator/README.md)
+- [SDA Fabric Virtual Networks Config Generator](./workflows/sda_fabric_virtual_networks_config_generator/README.md)
+- [SDA Host Port Onboarding Config Generator](./workflows/sda_host_port_onboarding_config_generator/README.md)
+- [Site Config Generator](./workflows/site_config_generator/README.md)
+- [Tags Playbook Config Generator](./workflows/tags_playbook_config_generator/README.md)
+- [Template Config Generator](./workflows/template_config_generator/README.md)
+- [User Role Config Generator](./workflows/user_role_config_generator/README.md)
+- [Wireless Design Config Generator](./workflows/wireless_design_config_generator/README.md)
 
 ## Demo Videos
 [IaC Demo Videos](http://3.136.0.140/index.html)
