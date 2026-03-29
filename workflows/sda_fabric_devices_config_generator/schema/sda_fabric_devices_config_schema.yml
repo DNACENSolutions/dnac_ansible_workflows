@@ -1,0 +1,57 @@
+# Cisco Catalyst Center SDA Fabric Devices Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing SDA fabric device roles and handoff settings
+# using the sda_fabric_devices_playbook_config_generator module.
+
+# Schema Definition
+sda_fabric_devices_config: list(include('sda_fabric_devices_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# SDA Fabric Devices Config Generator Entry Schema
+sda_fabric_devices_config_generator_type:
+  generate_all_configurations: bool(required=False)
+  file_path: str(required=False)
+  file_mode: enum('overwrite', 'append', required=False)
+  component_specific_filters: include('sda_fabric_devices_component_filters_type', required=False)
+
+---
+# SDA Fabric Devices Component Filters Schema
+sda_fabric_devices_component_filters_type:
+  components_list: list(enum('fabric_devices'), min=1, max=1, required=False)
+  fabric_devices: include('sda_fabric_devices_filter_type', required=False)
+
+---
+# SDA Fabric Devices filter schema
+sda_fabric_devices_filter_type:
+  # Fabric hierarchy name (required when fabric_devices filter block is used)
+  fabric_name: str(required=True)
+
+  # Optional specific device IP within the fabric
+  device_ip: str(required=False)
+
+  # Optional device role filter list
+  device_roles: list(
+    enum(
+      'CONTROL_PLANE_NODE',
+      'EDGE_NODE',
+      'BORDER_NODE',
+      'WIRELESS_CONTROLLER_NODE',
+      'EXTENDED_NODE'
+    ),
+    min=1,
+    max=5,
+    required=False
+  )

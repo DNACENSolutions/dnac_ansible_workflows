@@ -1,0 +1,50 @@
+# Cisco Catalyst Center SDA Fabric Transits Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing SDA fabric transit networks in Cisco Catalyst Center
+# using the sda_fabric_transits_playbook_config_generator module.
+
+# Schema Definition
+sda_fabric_transits_config: list(include('sda_fabric_transits_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# SDA Fabric Transits Config Generator Entry Schema
+sda_fabric_transits_config_generator_type:
+  # Workflow-level convenience flag. If true, module config is omitted.
+  generate_all_configurations: bool(required=False)
+
+  # Output file path for generated YAML
+  file_path: str(required=False)
+
+  # File write mode: overwrite or append
+  file_mode: enum('overwrite', 'append', required=False)
+
+  # Component-specific filters accepted by sda_fabric_transits_playbook_config_generator
+  component_specific_filters: include('sda_fabric_transits_component_filters_type', required=False)
+
+---
+# SDA Fabric Transits Component Filters Schema
+sda_fabric_transits_component_filters_type:
+  components_list: list(enum('sda_fabric_transits'), min=1, max=1, required=False)
+  sda_fabric_transits: list(include('sda_fabric_transit_filter_type'), min=1, max=500, required=False)
+
+---
+# SDA Fabric Transit filter schema
+sda_fabric_transit_filter_type:
+  # Transit name to filter by exact name match
+  name: str(required=False)
+
+  # Transit type to filter by transit type
+  transit_type: enum('IP_BASED_TRANSIT', 'SDA_LISP_PUB_SUB_TRANSIT', 'SDA_LISP_BGP_TRANSIT', required=False)

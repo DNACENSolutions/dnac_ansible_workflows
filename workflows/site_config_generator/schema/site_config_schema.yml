@@ -1,0 +1,56 @@
+# Cisco Catalyst Center Site Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing site hierarchy in Cisco Catalyst Center using
+# the site_playbook_config_generator module.
+#
+# Supported component:
+# - site
+
+# Schema Definition
+site_config: list(include('site_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Site Config Generator Entry Schema
+site_config_generator_type:
+  # Workflow-level convenience flag. If true, module config is omitted.
+  generate_all_configurations: bool(required=False)
+
+  # Output file path for generated YAML
+  file_path: str(required=False)
+
+  # File write mode: overwrite or append
+  file_mode: enum('overwrite', 'append', required=False)
+
+  # Component-specific filters accepted by site_playbook_config_generator
+  component_specific_filters: include('site_component_filters_type', required=False)
+
+---
+# Site Component Filters Schema
+site_component_filters_type:
+  components_list: list(enum('site'), min=1, max=1, required=False)
+  site: list(include('site_filter_type'), min=1, max=500, required=False)
+
+---
+# Site filter schema
+site_filter_type:
+  # Can be a single hierarchy string or list of hierarchy strings
+  site_name_hierarchy: any(str(), list(str()), required=False)
+
+  # Can be a single parent hierarchy string or list of hierarchy strings
+  parent_name_hierarchy: any(str(), list(str()), required=False)
+
+  # List of site types to include
+  site_type: list(enum('area', 'building', 'floor'), min=1, max=3, required=False)

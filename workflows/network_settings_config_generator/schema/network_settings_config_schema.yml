@@ -1,0 +1,59 @@
+# Cisco Catalyst Center Network Settings Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing network settings in Cisco Catalyst Center using
+# the network_settings_playbook_config_generator module.
+
+# Schema Definition
+network_settings_config: list(include('network_settings_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Network Settings Config Generator Entry Schema
+network_settings_config_generator_type:
+  generate_all_configurations: bool(required=False)
+  file_path: str(required=False)
+  file_mode: enum('overwrite', 'append', required=False)
+  component_specific_filters: include('network_settings_component_filters_type', required=False)
+
+---
+# Network Settings Component Filters Schema
+network_settings_component_filters_type:
+  components_list: list(
+    enum('global_pool_details', 'reserve_pool_details', 'network_management_details', 'device_controllability_details'),
+    min=1,
+    max=4,
+    required=False
+  )
+  global_pool_details: list(include('global_pool_filter_type'), min=1, max=500, required=False)
+  reserve_pool_details: list(include('reserve_pool_filter_type'), min=1, max=500, required=False)
+  network_management_details: list(include('network_management_filter_type'), min=1, max=500, required=False)
+  device_controllability_details: list(any(), min=1, max=500, required=False)
+
+---
+# Global pool filter schema
+global_pool_filter_type:
+  pool_name: str(required=False)
+  pool_type: enum('Generic', 'Tunnel', required=False)
+
+---
+# Reserve pool filter schema
+reserve_pool_filter_type:
+  site_name: str(required=False)
+  site_hierarchy: str(required=False)
+
+---
+# Network management filter schema
+network_management_filter_type:
+  site_name_list: list(str(), min=1, max=500, required=False)
