@@ -42,15 +42,16 @@ The Network Profile Wireless Playbook Config Generator automates the creation of
 
 | Component | Version |
 |-----------|---------|
-| Ansible | 6.42.0+ |
+| Ansible | 2.13+ |
+| cisco.dnac collection | 6.49.0+ |
 | Python | 3.9+ |
-| Cisco Catalyst Center SDK | 2.9.3+ |
 | Cisco Catalyst Center | 2.3.7.9+ |
+| dnacentersdk | 2.10.10+ |
 
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.dnac
+ansible-galaxy collection install cisco.dnac    # >= 6.49.0
 ansible-galaxy collection install ansible.utils
 pip install dnacentersdk
 pip install yamale
@@ -88,6 +89,7 @@ network_profile_wireless_playbook_config_generator/
 |-----------|------|----------|---------|-------------|
 | generate_all_configurations | boolean | No | false | Generate all wireless profiles automatically |
 | file_path | string | No | auto-generated | Output file path for YAML configuration |
+| file_mode | string | No | overwrite | File write mode — `overwrite` replaces the file, `append` adds to it |
 | global_filters | dict | No | None | Filters to specify which profiles to include |
 
 ### Global Filters (Priority-Based)
@@ -156,23 +158,68 @@ network_profile_wireless_config:
 
 ### Step 5: Execute Playbook
 
+The playbook supports two input methods:
+
+#### Option A: Vars file input (recommended for version-controlled configs)
+
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/network_profile_wireless_playbook_config_generator/playbook/network_profile_wireless_playbook_config_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=../vars/network_profile_wireless_playbook_config_generator_inputs.yml
+  --extra-vars VARS_FILE_PATH=/absolute/path/to/dnac_ansible_workflows/workflows/network_profile_wireless_playbook_config_generator/vars/network_profile_wireless_playbook_config_generator_inputs.yml \
+  -vvvv
 ```
+
+#### Option B: Inventory / host variable input
+
+Omit `VARS_FILE_PATH` and define `network_profile_wireless_config` directly as a host variable in your inventory file or in `host_vars`/`group_vars`.
+
+**Example inventory snippet (`inventory/demo_lab/hosts.yaml`):**
+
+```yaml
+catalyst_center_hosts:
+  hosts:
+    catalyst_center_primary:
+      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'HOSTIP') }}"
+      catalyst_center_password: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_PASSWORD') }}"
+      catalyst_center_port: 443
+      catalyst_center_username: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_USERNAME') }}"
+      catalyst_center_verify: false
+      catalyst_center_version: 2.3.7.9
+
+      # Workflow data defined as host variables
+      network_profile_wireless_config:
+        - generate_all_configurations: true
+          file_path: "/tmp/complete_wireless_profiles.yml"
+```
+
+Then run **without** `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/network_profile_wireless_playbook_config_generator/playbook/network_profile_wireless_playbook_config_generator_playbook.yml \
+  -vvvv
+```
+
+The playbook auto-detects the input source and prints it at the start:
+- `Input source: vars file <path>` when using Option A
+- `Input source: inventory / host variables (VARS_FILE_PATH not provided)` when using Option B
+
+> **Note:** When `VARS_FILE_PATH` is provided, it takes **precedence** over inventory variables.
 
 ### Workflow Execution
 
 The workflow follows these steps:
 
-1. **Connect** to Catalyst Center using provided credentials
-2. **Retrieve** existing wireless network profiles via API calls
-3. **Filter** profiles based on specified criteria and priority
-4. **Extract** associated components (SSIDs, AP zones, templates, interfaces)
-5. **Transform** API responses into Ansible-compatible format
-6. **Generate** YAML configuration file with proper structure
-7. **Validate** output file format and content
+1. **Load input** from `VARS_FILE_PATH` (if provided) or fall back to inventory / host variables
+2. **Connect** to Catalyst Center using provided credentials
+3. **Extract** `file_path` and `file_mode` as top-level module parameters; pass `global_filters` inside `config`
+4. **Omit** `config` entirely when `generate_all_configurations: true` (module runs in full auto-discovery mode)
+5. **Retrieve** existing wireless network profiles via API calls
+6. **Filter** profiles based on specified criteria and priority
+7. **Extract** associated components (SSIDs, AP zones, templates, interfaces)
+8. **Transform** API responses into Ansible-compatible format
+9. **Generate** YAML configuration file with proper structure
+10. **Write** output to specified file path using configured `file_mode`
 
 ---
 
