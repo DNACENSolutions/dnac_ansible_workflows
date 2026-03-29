@@ -1096,9 +1096,9 @@ The following section details the available report templates in *Cisco Catalyst 
 
 **Supported Features:**
 - **Filters:** 
-  - **smartaccountuser** (`MULTI_SELECT`) *(Mandatory)*
-  - **smartaccountname** (`MULTI_SELECT`) *(Mandatory)*
-  - **Mode** (`MULTI_SELECT`) *(Mandatory)*
+  - **smartaccountuser** (`SINGLE_SELECT_ARRAY`) *(Mandatory)*
+  - **smartaccountname** (`SINGLE_SELECT_ARRAY`) *(Mandatory)*
+  - **Mode** (`SINGLE_SELECT_ARRAY`) *(Mandatory)*
   - **TimeRange** (`TIME_RANGE`) *(Mandatory - Only custom time range supported)*
 - **Schedule Types:** 
   - One-time scheduled execution (`SCHEDULE_LATER`) *(Schedule time should be greater than time range end time selected)*
