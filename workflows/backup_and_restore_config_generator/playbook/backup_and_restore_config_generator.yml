@@ -1,5 +1,5 @@
 ---
-- name: Generate Backup and Restore playbook Configuration
+- name: Generate Backup and Restore Configuration
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -41,17 +41,17 @@
             else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
           }}
 
-    - name: Validate that backup_and_restore_playbook_config is defined
+    - name: Validate that backup_and_restore_config is defined
       ansible.builtin.fail:
         msg: >-
-          Variable 'backup_and_restore_playbook_config' is not defined.
+          Variable 'backup_and_restore_config' is not defined.
           Provide it via VARS_FILE_PATH or as an inventory/host variable.
-      when: backup_and_restore_playbook_config is not defined
+      when: backup_and_restore_config is not defined
 
     # =========================================================================
     # Playbook execution
     # =========================================================================
-    - name: Playbook start time for backup and restore playbook configuration generation
+    - name: Playbook start time for backup and restore configuration generation
       ansible.builtin.set_fact:
         config_gen_start: "{{ now() }}"
 
@@ -62,10 +62,10 @@
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
         config: "{{ omit if (item.generate_all_configurations | default(false)) else ({'component_specific_filters': item.component_specific_filters} if item.component_specific_filters is defined else omit) }}"
-      loop: "{{ backup_and_restore_playbook_config }}"
+      loop: "{{ backup_and_restore_config }}"
       when:
-        - backup_and_restore_playbook_config is defined
-        - backup_and_restore_playbook_config | length > 0
+        - backup_and_restore_config is defined
+        - backup_and_restore_config | length > 0
       register: config_generation_result
 
     - name: Display configuration generation results

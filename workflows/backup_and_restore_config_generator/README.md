@@ -1,4 +1,4 @@
-# Backup and Restore Playbook Config Generator
+# Backup and Restore Config Generator
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@
 
 ## Overview
 
-The Backup and Restore playbook config generator automates the creation of YAML playbook configurations for existing NFS configurations and backup storage configurations deployed in Cisco Catalyst Center. This tool reduces the effort required to manually create Ansible playbooks by programmatically generating configurations from existing infrastructure.
+The Backup and Restore config generator automates the creation of YAML playbook configurations for existing NFS configurations and backup storage configurations deployed in Cisco Catalyst Center. This tool reduces the effort required to manually create Ansible playbooks by programmatically generating configurations from existing infrastructure.
 
 ---
 
@@ -65,13 +65,13 @@ pip install yamale
 ## Workflow Structure
 
 ```
-backup_and_restore_playbook_config_generator/
+backup_and_restore_config_generator/
 ├── playbook/
-│   └── backup_and_restore_playbook_config_generator_playbook.yml   # Main operations
+│   └── backup_and_restore_config_generator.yml          # Main operations
 ├── vars/
-│   ├── backup_and_restore_playbook_config_generator_inputs.yml     # Configuration examples
+│   ├── backup_and_restore_config_inputs.yml             # Configuration examples
 ├── schema/
-│   └── backup_and_restore_playbook_config_generator_schema.yml     # Input validation
+│   └── backup_and_restore_config_schema.yml             # Input validation
 └── README.md                                                
 ```
 
@@ -141,10 +141,10 @@ catalyst_center_hosts:
 
 ### Step 3: Configure Variables
 
-Edit `workflows/backup_and_restore_playbook_config_generator/vars/backup_and_restore_playbook_config_generator_inputs.yml`:
+Edit `workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml`:
 
 ```yaml
-backup_and_restore_playbook_config:
+backup_and_restore_config:
   - generate_all_configurations: true
     file_path: "/tmp/complete_backup_restore_config.yml"
 ```
@@ -152,8 +152,8 @@ backup_and_restore_playbook_config:
 ### Step 4: Validate Configuration
 
 ```bash
-./tools/validate.sh -s workflows/backup_and_restore_playbook_config_generator/schema/backup_and_restore_playbook_config_generator_schema.yml \
-     -d workflows/backup_and_restore_playbook_config_generator/vars/backup_and_restore_playbook_config_generator_inputs.yml
+./tools/validate.sh -s workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml \
+     -d workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
 ```
 
 ### Step 5: Execute Playbook
@@ -164,14 +164,14 @@ The playbook supports two input methods:
 
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/backup_and_restore_playbook_config_generator/playbook/backup_and_restore_playbook_config_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/backup_and_restore_playbook_config_generator/vars/backup_and_restore_playbook_config_generator_inputs.yml \
+  workflows/backup_and_restore_config_generator/playbook/backup_and_restore_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=./workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml \
   -vvvv
 ```
 
 #### Option B: Inventory / host variable input
 
-Omit `VARS_FILE_PATH` and define `backup_and_restore_playbook_config` directly as a host variable in your inventory file or in `host_vars`/`group_vars`.
+Omit `VARS_FILE_PATH` and define `backup_and_restore_config` directly as a host variable in your inventory file or in `host_vars`/`group_vars`.
 
 **Example inventory snippet (`inventory/demo_lab/hosts.yaml`):**
 
@@ -187,7 +187,7 @@ catalyst_center_hosts:
       catalyst_center_version: 2.3.7.9
 
       # Workflow data defined as host variables
-      backup_and_restore_playbook_config:
+      backup_and_restore_config:
         - generate_all_configurations: true
           file_path: "/tmp/complete_backup_restore_config.yml"
 ```
@@ -196,7 +196,7 @@ Then run **without** `VARS_FILE_PATH`:
 
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/backup_and_restore_playbook_config_generator/playbook/backup_and_restore_playbook_config_generator_playbook.yml \
+  workflows/backup_and_restore_config_generator/playbook/backup_and_restore_config_generator.yml \
   -vvvv
 ```
 
@@ -226,14 +226,14 @@ The workflow follows these steps:
 
 ### Generate Operations (state: gathered)
 
-Use `backup_and_restore_playbook_config_generator_playbook.yml` for generating YAML playbook configuration operations.
+Use `backup_and_restore_config_generator.yml` for generating YAML playbook configuration operations.
 
 #### Generate All Configurations
 
 **Description**: Retrieves all NFS configurations and backup storage configurations from Catalyst Center regardless of any filters.
 
 ```yaml
-backup_and_restore_playbook_config:
+backup_and_restore_config:
   - generate_all_configurations: true
     file_path: "/tmp/complete_backup_restore_config.yml"
 ```
@@ -245,7 +245,7 @@ backup_and_restore_playbook_config:
 **Extract NFS Configurations Only**
 
 ```yaml
-backup_and_restore_playbook_config:
+backup_and_restore_config:
   - file_path: "/tmp/nfs_configurations_config.yml"
     component_specific_filters:
       components_list: ["nfs_configuration"]
@@ -254,7 +254,7 @@ backup_and_restore_playbook_config:
 **Extract Backup Storage Configurations Only**
 
 ```yaml
-backup_and_restore_playbook_config:
+backup_and_restore_config:
   - file_path: "/tmp/backup_storage_configurations_config.yml"
     component_specific_filters:
       components_list: ["backup_storage_configuration"]
@@ -264,18 +264,18 @@ backup_and_restore_playbook_config:
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/backup_and_restore_playbook_config_generator/schema/backup_and_restore_playbook_config_generator_schema.yml \
-     -d workflows/backup_and_restore_playbook_config_generator/vars/backup_and_restore_playbook_config_generator_inputs.yml
+./tools/validate.sh -s workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml \
+     -d workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
 ````
 Return result validate:
 ```bash
 
-(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/backup_and_restore_playbook_config_generator/schema/backup_and_restore_playbook_config_generator_schema.yml \
->      -d workflows/backup_and_restore_playbook_config_generator/vars/backup_and_restore_playbook_config_generator_inputs.yml
-workflows/backup_and_restore_playbook_config_generator/schema/backup_and_restore_playbook_config_generator_schema.yml
-workflows/backup_and_restore_playbook_config_generator/vars/backup_and_restore_playbook_config_generator_inputs.yml
-yamale   -s workflows/backup_and_restore_playbook_config_generator/schema/backup_and_restore_playbook_config_generator_schema.yml  workflows/backup_and_restore_playbook_config_generator/vars/backup_and_restore_playbook_config_generator_inputs.yml
-Validating workflows/backup_and_restore_playbook_config_generator/vars/backup_and_restore_playbook_config_generator_inputs.yml...
+(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml \
+>      -d workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
+workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml
+workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
+yamale   -s workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml  workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
+Validating workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml...
 Validation success! 👍
 
 ```
@@ -283,8 +283,8 @@ Validation success! 👍
 ```bash
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/backup_and_restore_playbook_config_generator/playbook/backup_and_restore_playbook_config_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/backup_and_restore_playbook_config_generator/vars/backup_and_restore_playbook_config_generator_inputs.yml
+  workflows/backup_and_restore_config_generator/playbook/backup_and_restore_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=./workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
 ```
 
 Expected Terminal Output:
@@ -353,7 +353,7 @@ component_specific_filters:
 ### Example 1: Generate ALL backup and restore components
 
 ```yaml
-backup_and_restore_playbook_config:
+backup_and_restore_config:
   - generate_all_configurations: true
     file_path: "/tmp/complete_backup_restore_infrastructure.yml"
 ```
@@ -399,7 +399,7 @@ config:
 Extract all NFS configurations.
 
 ```yaml
-backup_and_restore_playbook_config:
+backup_and_restore_config:
   - file_path: "/tmp/nfs_configurations_audit.yml"
     component_specific_filters:
       components_list: ["nfs_configuration"]
@@ -438,7 +438,7 @@ config:
 Extract all backup storage configurations
 
 ```yaml
-backup_and_restore_playbook_config:
+backup_and_restore_config:
   - file_path: "/tmp/backup_storage_configurations.yml"
     component_specific_filters:
       components_list: ["backup_storage_configuration"]
@@ -465,7 +465,7 @@ config:
 ### Example 4: Filtered NFS Configurations
 
 ```yaml
-backup_and_restore_playbook_config:
+backup_and_restore_config:
   - file_path: "/tmp/filtered_nfs_configurations.yml"
     component_specific_filters:
       components_list: ["nfs_configuration"]
@@ -479,7 +479,7 @@ backup_and_restore_playbook_config:
 ### Example 5: Multi-Component configurations
 
 ```yaml
-backup_and_restore_playbook_config:
+backup_and_restore_config:
   - file_path: "/tmp/nfs_and_backup_storage.yml"
     component_specific_filters:
       components_list: ["nfs_configuration", "backup_storage_configuration"]
@@ -493,7 +493,7 @@ backup_and_restore_playbook_config:
 ### Example 6: Backup Storage with multiple server types
 
 ```yaml
-backup_and_restore_playbook_config:
+backup_and_restore_config:
   - file_path: "/tmp/backup_storage_all_types.yml"
     component_specific_filters:
       components_list: ["backup_storage_configuration"]
