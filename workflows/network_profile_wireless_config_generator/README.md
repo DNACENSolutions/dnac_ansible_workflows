@@ -69,13 +69,13 @@ pip install yamale
 ## Workflow Structure
 
 ```
-network_profile_wireless_playbook_config_generator/
+network_profile_wireless_config_generator/
 ├── playbook/
-│   └── network_profile_wireless_playbook_config_generator_playbook.yml   # Main operations
+│   └── network_profile_wireless_config_generator.yml   # Main operations
 ├── vars/
-│   └── network_profile_wireless_playbook_config_generator_inputs.yml     # Configuration examples
+│   └── network_profile_wireless_config_generator_inputs.yml     # Configuration examples
 ├── schema/
-│   └── network_profile_wireless_playbook_config_generator_schema.yml     # Input validation
+│   └── network_profile_wireless_config_generator_schema.yml     # Input validation
 └── README.md                                                
 ```
 
@@ -141,7 +141,7 @@ catalyst_center_hosts:
 
 ### Step 3: Configure Variables
 
-Edit `workflows/network_profile_wireless_playbook_config_generator/vars/network_profile_wireless_playbook_config_generator_inputs.yml`:
+Edit `workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml`:
 
 ```yaml
 network_profile_wireless_config:
@@ -152,8 +152,8 @@ network_profile_wireless_config:
 ### Step 4: Validate Configuration
 
 ```bash
-./tools/validate.sh -s workflows/network_profile_wireless_playbook_config_generator/schema/network_profile_wireless_playbook_config_generator_schema.yml \
-     -d workflows/network_profile_wireless_playbook_config_generator/vars/network_profile_wireless_playbook_config_generator_inputs.yml
+./tools/validate.sh -s workflows/network_profile_wireless_config_generator/schema/network_profile_wireless_config_generator_schema.yml \
+     -d workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
 ```
 
 ### Step 5: Execute Playbook
@@ -164,8 +164,8 @@ The playbook supports two input methods:
 
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/network_profile_wireless_playbook_config_generator/playbook/network_profile_wireless_playbook_config_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=/absolute/path/to/dnac_ansible_workflows/workflows/network_profile_wireless_playbook_config_generator/vars/network_profile_wireless_playbook_config_generator_inputs.yml \
+  workflows/network_profile_wireless_config_generator/playbook/network_profile_wireless_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=/absolute/path/to/dnac_ansible_workflows/workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml \
   -vvvv
 ```
 
@@ -196,7 +196,7 @@ Then run **without** `VARS_FILE_PATH`:
 
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/network_profile_wireless_playbook_config_generator/playbook/network_profile_wireless_playbook_config_generator_playbook.yml \
+  workflows/network_profile_wireless_config_generator/playbook/network_profile_wireless_config_generator.yml \
   -vvvv
 ```
 
@@ -227,7 +227,7 @@ The workflow follows these steps:
 
 ### Generate Operations (state: gathered)
 
-Use `network_profile_wireless_playbook_config_generator_playbook.yml` for generating YAML playbook configuration operations.
+Use `network_profile_wireless_config_generator.yml` for generating YAML playbook configuration operations.
 
 #### Generate All Configurations
 
@@ -330,27 +330,27 @@ generate_config:
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/network_profile_wireless_playbook_config_generator/schema/network_profile_wireless_playbook_config_generator_schema.yml \
-                   -d workflows/network_profile_wireless_playbook_config_generator/vars/network_profile_wireless_playbook_config_generator_inputs.yml
+./tools/validate.sh -s workflows/network_profile_wireless_config_generator/schema/network_profile_wireless_config_generator_schema.yml \
+                   -d workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
 ```
 
 Return result validate:
 
 ```bash
-(pyats-syedkahm) [syedkahm@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/network_profile_wireless_playbook_config_generator/schema/network_profile_wireless_playbook_config_generator_schema.yml \
->                    -d workflows/network_profile_wireless_playbook_config_generator/vars/network_profile_wireless_playbook_config_generator_inputs.yml
-workflows/network_profile_wireless_playbook_config_generator/schema/network_profile_wireless_playbook_config_generator_schema.yml
-workflows/network_profile_wireless_playbook_config_generator/vars/network_profile_wireless_playbook_config_generator_inputs.yml
-yamale   -s workflows/network_profile_wireless_playbook_config_generator/schema/network_profile_wireless_playbook_config_generator_schema.yml  workflows/network_profile_wireless_playbook_config_generator/vars/network_profile_wireless_playbook_config_generator_inputs.yml
-Validating workflows/network_profile_wireless_playbook_config_generator/vars/network_profile_wireless_playbook_config_generator_inputs.yml...
+(pyats-syedkahm) [syedkahm@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/network_profile_wireless_config_generator/schema/network_profile_wireless_config_generator_schema.yml \
+>                    -d workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
+workflows/network_profile_wireless_config_generator/schema/network_profile_wireless_config_generator_schema.yml
+workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
+yamale   -s workflows/network_profile_wireless_config_generator/schema/network_profile_wireless_config_generator_schema.yml  workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
+Validating workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml...
 Validation success! 👍
 ```
 
 ```bash
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/network_profile_wireless_playbook_config_generator/playbook/network_profile_wireless_playbook_config_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=../vars/network_profile_wireless_playbook_config_generator_inputs.yml
+  workflows/network_profile_wireless_config_generator/playbook/network_profile_wireless_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=/absolute/path/to/dnac_ansible_workflows/workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
 ```
 
 Expected Terminal Output:

@@ -1,9 +1,9 @@
-# Catalyst Center Network Profile Wireless Playbook Config Generator Schema
+# Catalyst Center Network Profile Wireless Config Generator Schema
 # ==========================================================================
 #
 # This schema defines the configuration structure for generating YAML playbook
 # configurations from existing network profile wireless infrastructure in Cisco Catalyst Center
-# using the network_profile_wireless_playbook_config_generator module.
+# using the network_profile_wireless_config_generator module.
 #
 # SCHEMA OVERVIEW:
 # ---------------

@@ -1,12 +1,12 @@
 ---
 # ============================================================================
-# Cisco Catalyst Center Network Profile Wireless Playbook Config Generator
+# Cisco Catalyst Center Network Profile Wireless Config Generator
 # ============================================================================
 #
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
-#     workflows/network_profile_wireless_playbook_config_generator/playbook/network_profile_wireless_playbook_config_generator_playbook.yml \
-#     --extra-vars VARS_FILE_PATH=/absolute/path/to/dnac_ansible_workflows/workflows/network_profile_wireless_playbook_config_generator/vars/network_profile_wireless_playbook_config_generator_inputs.yml
+#     workflows/network_profile_wireless_config_generator/playbook/network_profile_wireless_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=/absolute/path/to/dnac_ansible_workflows/workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
 #
 # ============================================================================
 
