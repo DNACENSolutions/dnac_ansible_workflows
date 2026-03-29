@@ -4,9 +4,12 @@
 # workflows/sda_fabric_multicast_generator/playbook/sda_fabric_multicast_generator_playbook.yml
 #
 # Behavior summary:
-# - generate_all_configurations=true: collect all SDA fabric multicast configs.
+# - generate_all_configurations=true: export all SDA fabric multicast configs
+#   (the playbook omits `config` when this is set, so the module runs in
+#   full-discovery mode).
 # - component_specific_filters: filter by fabric site and/or layer3 virtual network.
 # - file_path omitted: module auto-generates output filename.
+# - file_mode: overwrite (default) or append.
 
 sda_fabric_multicast_generator_config: list(include('sda_fabric_multicast_generator_type'), min=1, max=100, required=True)
 
@@ -24,12 +27,13 @@ catalyst_center_log_level: str(required=False)
 sda_fabric_multicast_generator_type:
   generate_all_configurations: bool(required=False)
   file_path: str(required=False)
+  file_mode: enum('overwrite', 'append', required=False)
   component_specific_filters: include('component_specific_filters_type', required=False)
 
 ---
 component_specific_filters_type:
-  components_list: list(enum('fabric_multicast'), min=0, max=10, required=False)
-  fabric_multicast: list(include('fabric_multicast_filter_type'), min=0, max=100, required=False)
+  components_list: list(enum('fabric_multicast'), min=1, max=10, required=False)
+  fabric_multicast: list(include('fabric_multicast_filter_type'), min=1, max=100, required=False)
 
 ---
 fabric_multicast_filter_type:
