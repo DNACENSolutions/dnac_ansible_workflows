@@ -1,4 +1,4 @@
-# Catalyst Center Assurance Issue Playbook Config Generator Schema
+# Catalyst Center Assurance Issue Config Generator Schema
 #
 # ======================================================================================
 #
@@ -32,7 +32,7 @@
 # catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
 # catalyst_center_config_verify:     Configuration verification (optional, default: false)
 #
-# ASSURANCE_ISSUE_CONFIG SECTION:
+# assurance_issue_config SECTION:
 # --------------------------------------------
 # Contains configuration for generating YAML configurations from existing assurance issues:
 #
