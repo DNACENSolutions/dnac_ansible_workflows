@@ -1,12 +1,12 @@
 ---
-# ============================================================================
-# Cisco Catalyst Center SDA Fabric Sites and Zones Playbook Generator
-# ============================================================================
+#============================================================================
+# Cisco Catalyst Center SDA Fabric Sites and Zones Config Generator
+#============================================================================
 #
 # Usage:
-#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
-#     workflows/sda_fabric_sites_zones_playbook_config_generator/playbook/sda_fabric_sites_zones_playbook_config_generator_playbook.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/sda_fabric_sites_zones_playbook_config_generator_input.yml
+#  ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#    workflows/sda_fabric_sites_zones_config_generator/playbook/sda_fabric_sites_zones_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
 #
 # ============================================================================
 
