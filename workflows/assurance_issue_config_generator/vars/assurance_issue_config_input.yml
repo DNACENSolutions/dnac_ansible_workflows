@@ -1,12 +1,12 @@
 ---
 #============================================================================
-# Cisco Catalyst Center Assurance Issue Playbook Config Generator
+# Cisco Catalyst Center Assurance Issue Config Generator
 #============================================================================
 #
 # Usage:
 #  ansible-playbook -i inventory/demo_lab/hosts.yaml \
-#    workflows/assurance_issue_playbook_config_generator/playbook/assurance_issue_playbook_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/assurance_issue_playbook_config_input.yml
+#    workflows/assurance_issue_config_generator/playbook/assurance_issue_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
 #
 #============================================================================
 
