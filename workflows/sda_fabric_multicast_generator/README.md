@@ -67,7 +67,7 @@ sda_fabric_multicast_generator/
 ### Required packages
 
 ```bash
-ansible-galaxy collection install cisco.dnac
+ansible-galaxy collection install cisco.dnac    # >= 6.44.0
 ansible-galaxy collection install ansible.utils
 pip install dnacentersdk
 pip install yamale
@@ -91,9 +91,10 @@ Each list item supports:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `generate_all_configurations` | bool | No | Export all multicast configuration; ignores filters when `true` |
-| `file_path` | str | No | Output file path for generated YAML |
-| `component_specific_filters` | dict | No | Selective export filters |
+| `generate_all_configurations` | bool | No | When `true`, the playbook omits `config` so the module exports **all** multicast configuration (full-discovery mode). Filters are ignored. |
+| `file_path` | str | No | Output file path for generated YAML. If omitted, module auto-generates a timestamped filename. |
+| `file_mode` | str | No | `overwrite` (default) replaces existing file; `append` adds to an existing file. |
+| `component_specific_filters` | dict | No | Selective export filters (ignored when `generate_all_configurations` is `true`). |
 
 `component_specific_filters` supports:
 
@@ -113,11 +114,11 @@ Each list item supports:
 
 ## Operational Behavior
 
-1. The playbook loops each item in `sda_fabric_multicast_generator_config`.
-2. For each item, module `cisco.dnac.sda_fabric_multicast_playbook_config_generator` runs with `state: gathered`.
-3. If `generate_all_configurations: true`, module ignores component filters and exports all supported data.
-4. If `file_path` is set, output is written exactly there.
-5. If `file_path` is omitted, module auto-generates:
+1. The playbook loads input from `VARS_FILE_PATH` (if provided) or falls back to inventory/host variables.
+2. It loops each item in `sda_fabric_multicast_generator_config`.
+3. For each item, the playbook extracts `file_path` and `file_mode` as top-level module parameters and passes `component_specific_filters` inside `config`.
+4. If `generate_all_configurations: true`, the playbook omits `config` entirely so the module runs in full-discovery mode.
+5. If `file_path` is set, output is written exactly there. If omitted, module auto-generates:
    `sda_fabric_multicast_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml`
 6. Generated file uses top-level key `config`, ready for workflow manager consumption.
 
@@ -160,11 +161,51 @@ Edit:
 
 ### 4. Execute workflow
 
+The playbook supports two input methods:
+
+#### Option A: Vars file input (recommended for version-controlled configs)
+
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/sda_fabric_multicast_generator/playbook/sda_fabric_multicast_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=../vars/sda_fabric_multicast_generator_inputs.yml -vvvv
+  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_multicast_generator/vars/sda_fabric_multicast_generator_inputs.yml \
+  -vvvv
 ```
+
+#### Option B: Inventory file input
+
+Omit `VARS_FILE_PATH` and define `sda_fabric_multicast_generator_config` directly as a host variable in your inventory file or in `host_vars`/`group_vars`.
+
+**Example inventory snippet (`inventory/demo_lab/hosts.yaml`):**
+
+```yaml
+catalyst_center_hosts:
+  hosts:
+    catalyst_center220:
+      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'HOSTIP') }}"
+      catalyst_center_password: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_PASSWORD') }}"
+      catalyst_center_port: 443
+      catalyst_center_username: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_USERNAME') }}"
+      catalyst_center_verify: false
+      catalyst_center_version: 2.3.7.9
+
+      # Workflow data defined as host variables
+      sda_fabric_multicast_generator_config:
+        - generate_all_configurations: true
+          file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_all.yml"
+```
+
+Then run **without** `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/sda_fabric_multicast_generator/playbook/sda_fabric_multicast_generator_playbook.yml \
+  -vvvv
+```
+
+The playbook auto-detects the input source and prints it at the start:
+- `Input source: vars file <path>` when using Option A
+- `Input source: inventory variables (VARS_FILE_PATH not provided)` when using Option B
 
 ---
 
@@ -215,7 +256,20 @@ sda_fabric_multicast_generator_config:
         - layer3_virtual_network: "Fabric_VN"
 ```
 
-### Example 5: Auto-generated timestamp filename
+### Example 5: Append mode
+
+```yaml
+sda_fabric_multicast_generator_config:
+  - file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_all.yml"
+    file_mode: append
+    component_specific_filters:
+      components_list:
+        - fabric_multicast
+      fabric_multicast:
+        - fabric_name: "Global/Europe/London/DataCenter1"
+```
+
+### Example 6: Auto-generated timestamp filename
 
 ```yaml
 sda_fabric_multicast_generator_config:
