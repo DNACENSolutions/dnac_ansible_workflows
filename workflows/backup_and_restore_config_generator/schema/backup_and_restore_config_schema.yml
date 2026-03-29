@@ -1,4 +1,4 @@
-# Catalyst Center Backup and Restore Playbook Config Generator Schema
+# Catalyst Center Backup and Restore Config Generator Schema
 # ======================================================================================
 #
 # This schema defines the configuration structure for generating YAML playbook
@@ -31,7 +31,7 @@
 # catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
 # catalyst_center_config_verify:     Configuration verification (optional, default: false)
 #
-# BACKUP_AND_RESTORE_PLAYBOOK_CONFIG SECTION:
+# backup_and_restore_config SECTION:
 # --------------------------------------------
 # Contains configuration for generating YAML configurations from existing infrastructure:
 #
@@ -134,7 +134,7 @@
 # different usage patterns and scenarios.
 
 # Schema Definition
-backup_and_restore_playbook_config: list(include('backup_restore_config_generator_type'), min=1, max=100, required=True)
+backup_and_restore_config: list(include('backup_restore_config_generator_type'), min=1, max=100, required=True)
 
 # Optional Catalyst Center connection parameters
 catalyst_center_version: str(required=False)

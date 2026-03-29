@@ -1,16 +1,16 @@
 ---
 # ============================================================================
-# Cisco Catalyst Center Backup and Restore Playbook Config Generator
+# Cisco Catalyst Center Backup and Restore Config Generator
 # ============================================================================
 #
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
-#     workflows/backup_and_restore_playbook_config_generator/playbook/backup_and_restore_playbook_config_generator_playbook.yml \
-#     --extra-vars VARS_FILE_PATH=./workflows/backup_and_restore_playbook_config_generator/vars/backup_and_restore_playbook_config_generator_inputs.yml
+#     workflows/backup_and_restore_config_generator/playbook/backup_and_restore_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
 #
 # ============================================================================
 
-backup_and_restore_playbook_config:
+backup_and_restore_config:
   - generate_all_configurations: true
     file_path: "/tmp/complete_backup_restore_config.yml"
 
@@ -89,17 +89,17 @@ backup_and_restore_playbook_config:
 # Additional Configuration Examples
 # ============================================================================
 # Example 1: Generate all components with auto-generated filename
-# backup_and_restore_playbook_config:
+# backup_and_restore_config:
 #   - generate_all_configurations: true
 
 # Example 2: Custom file path with specific components
-# backup_and_restore_playbook_config:
+# backup_and_restore_config:
 #   - file_path: "/home/ansible/backup_configs/production_nfs_servers.yml"
 #     component_specific_filters:
 #       components_list: ["nfs_configuration"]
 
 # Example 4: Multiple component filters with specific criteria
-# backup_and_restore_playbook_config:
+# backup_and_restore_config:
 #   - file_path: "/tmp/filtered_backup_restore_config.yml"
 #     component_specific_filters:
 #       components_list: ["nfs_configuration", "backup_storage_configuration"]
@@ -136,21 +136,21 @@ backup_and_restore_playbook_config:
 # EXAMPLES:
 #
 # Example A: Generate ALL configurations (ignores filters)
-# backup_and_restore_playbook_config:
+# backup_and_restore_config:
 #   - generate_all_configurations: true
 #     file_path: "/tmp/complete_infrastructure.yml"
 #     component_specific_filters:
 #       components_list: ["nfs_configuration"]  # <-- IGNORED when true
 #
 # Example B: Generate specific components only (respects filters)
-# backup_and_restore_playbook_config:
+# backup_and_restore_config:
 #   - generate_all_configurations: false
 #     file_path: "/tmp/nfs_only.yml"
 #     component_specific_filters:
 #       components_list: ["nfs_configuration"]  # <-- APPLIED when false
 #
 # Example C: Default behavior (same as false)
-# backup_and_restore_playbook_config:
+# backup_and_restore_config:
 #   - file_path: "/tmp/filtered_config.yml"
 #     component_specific_filters:
 #       components_list: ["backup_storage_configuration"]  # <-- APPLIED when not specified
