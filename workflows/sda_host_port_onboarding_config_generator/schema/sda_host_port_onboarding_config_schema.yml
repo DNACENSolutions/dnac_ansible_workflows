@@ -1,0 +1,133 @@
+# Catalyst Center SDA Host Port Onboarding Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing SDA host port onboarding infrastructure in Cisco Catalyst Center
+# using the sda_host_port_onboarding_playbook_config_generator module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports configuration generation operations for:
+# 1. Port Assignments - Extract existing port assignment configurations
+# 2. Port Channels - Extract existing port channel configurations
+# 3. Wireless SSIDs - Extract existing wireless SSID configurations
+# 4. Combined Operations - Generate multiple component configurations
+# 5. Filtered Generation - Selective component extraction with filters
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating the extraction
+# and generation of SDA host port onboarding configurations from existing
+# Catalyst Center deployments (brownfield scenarios).
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# SDA_HOST_PORT_ONBOARDING_CONFIG SECTION:
+# ----------------------------------------
+# Contains configuration for generating YAML configurations from existing infrastructure:
+#
+# 1. GENERATE_ALL_CONFIGURATIONS:
+#    - Type: boolean (optional, default: false)
+#    - Description: If true, generates configurations for all components regardless of filters
+#    - When true, overrides any component_specific_filters settings
+#    - Retrieves all port assignments, port channels, and wireless SSIDs from Catalyst Center
+#
+# 2. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved
+#    - If not provided, auto-generates filename with timestamp
+#    - Supports absolute and relative paths
+#    - Creates directory structure if it doesn't exist
+#
+# 3. FILE_MODE:
+#    - Type: string (optional, default: overwrite)
+#    - Description: File write mode — "overwrite" replaces the file; "append" adds to it
+#
+# 4. COMPONENT_SPECIFIC_FILTERS:
+#    - Type: dictionary (optional)
+#    - Description: Filters to specify which components to include in the generated configuration
+#    - If generate_all_configurations is true, these filters are ignored
+#
+#    Sub-options:
+#    - COMPONENTS_LIST:
+#      - Type: list of strings (optional)
+#      - Description: List of components to include in the YAML configuration file
+#      - Valid values: "port_assignments", "port_channels", "wireless_ssids"
+#
+#    - PORT_ASSIGNMENTS:
+#      - Type: dictionary (optional)
+#      - Description: Filter port assignments by fabric site
+#      - Sub-options:
+#        * fabric_site_name_hierarchy: List of fabric site hierarchy paths
+#
+#    - PORT_CHANNELS:
+#      - Type: dictionary (optional)
+#      - Description: Filter port channels by fabric site
+#      - Sub-options:
+#        * fabric_site_name_hierarchy: List of fabric site hierarchy paths
+#
+#    - WIRELESS_SSIDS:
+#      - Type: dictionary (optional)
+#      - Description: Filter wireless SSIDs by fabric site
+#      - Sub-options:
+#        * fabric_site_name_hierarchy: List of fabric site hierarchy paths
+
+# Schema Definition
+sda_host_port_onboarding_config: list(include('sda_host_port_onboarding_config_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# SDA Host Port Onboarding Configuration Generator Schema
+sda_host_port_onboarding_config_type:
+  # Generate all configurations flag
+  generate_all_configurations: bool(required=False)
+
+  # Output file path
+  file_path: str(required=False)
+
+  # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
+  file_mode: enum('overwrite', 'append', required=False)
+
+  # Component-specific filters
+  component_specific_filters: include('component_specific_filters_type', required=False)
+
+---
+# Component Specific Filters Schema
+component_specific_filters_type:
+  # List of components to include
+  components_list: list(enum('port_assignments', 'port_channels', 'wireless_ssids'), min=0, max=10, required=False)
+
+  # Port assignments filters
+  port_assignments: include('fabric_site_filter_type', required=False)
+
+  # Port channels filters
+  port_channels: include('fabric_site_filter_type', required=False)
+
+  # Wireless SSIDs filters
+  wireless_ssids: include('fabric_site_filter_type', required=False)
+
+---
+# Fabric Site Filter Schema
+fabric_site_filter_type:
+  # Fabric site name hierarchy for filtering
+  fabric_site_name_hierarchy: list(str(), min=0, max=100, required=False)

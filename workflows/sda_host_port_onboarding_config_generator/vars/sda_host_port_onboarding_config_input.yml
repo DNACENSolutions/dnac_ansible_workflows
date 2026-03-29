@@ -1,0 +1,174 @@
+---
+# ============================================================================
+# Cisco Catalyst Center SDA Host Port Onboarding Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/sda_host_port_onboarding_config_generator/playbook/sda_host_port_onboarding_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=/absolute/path/to/dnac_ansible_workflows/workflows/sda_host_port_onboarding_config_generator/vars/sda_host_port_onboarding_config_input.yml
+#
+# ============================================================================
+
+# ============================================================================
+# SDA Host Port Onboarding Configuration Generation Examples
+# ============================================================================
+
+sda_host_port_onboarding_config:
+  # Generate all configurations with custom file path
+  - generate_all_configurations: true
+    file_path: "/tmp/complete_sda_host_port_onboarding_config.yml"
+
+  # Generate all configurations over component filters
+  - generate_all_configurations: false
+    file_path: "/tmp/sda_host_port_components_config1.yml"
+    component_specific_filters:
+      components_list: ["port_assignments"]
+
+  # Generate only port assignments
+  - file_path: "/tmp/port_assignments_config2.yml"
+    component_specific_filters:
+      components_list: ["port_assignments"]
+
+  # Generate only port channels
+  - file_path: "/tmp/port_channels_config3.yml"
+    component_specific_filters:
+      components_list: ["port_channels"]
+
+  # Generate only wireless SSIDs
+  - file_path: "/tmp/wireless_ssids_config4.yml"
+    component_specific_filters:
+      components_list: ["wireless_ssids"]
+
+  # Port Assignments with Specific Fabric Site Filter:
+  - file_path: "/tmp/port_assignments_fabric_site_filter_config5.yml"
+    component_specific_filters:
+      components_list: ["port_assignments"]
+      port_assignments:
+        fabric_site_name_hierarchy:
+          - "Global/California/23"
+
+  # Port Assignments with Multiple Fabric Site Filters:
+  - file_path: "/tmp/port_assignments_multiple_sites_config6.yml"
+    component_specific_filters:
+      components_list: ["port_assignments"]
+      port_assignments:
+        fabric_site_name_hierarchy:
+          - "Global/California/23"
+          - "Global/USA/SAN JOSE"
+
+  # Combined Components with Filters
+  - file_path: "/tmp/combined_components_filter_config7.yml"
+    component_specific_filters:
+      components_list: ["port_assignments", "port_channels"]
+      port_assignments:
+        fabric_site_name_hierarchy:
+          - "Global/California/23"
+      port_channels:
+        fabric_site_name_hierarchy:
+          - "Global/USA/SAN JOSE"
+
+  # All Components with No Sub-Filters
+  - file_path: "/tmp/all_components_no_subfilters_config8.yml"
+    component_specific_filters:
+      components_list: ["port_assignments", "port_channels", "wireless_ssids"]
+
+# ============================================================================
+# Additional Configuration Examples
+# ============================================================================
+# Example 1: Generate all components with auto-generated filename
+# sda_host_port_onboarding_config:
+#   - generate_all_configurations: true
+
+# Example 2: Custom file path with specific components
+# sda_host_port_onboarding_config:
+#   - file_path: "/home/ansible/sda_configs/production_port_assignments.yml"
+#     component_specific_filters:
+#       components_list: ["port_assignments"]
+
+# Example 3: Multiple component filters with specific criteria
+# sda_host_port_onboarding_config:
+#   - file_path: "/tmp/filtered_sda_config.yml"
+#     component_specific_filters:
+#       components_list: ["port_assignments", "wireless_ssids"]
+#       port_assignments:
+#         fabric_site_name_hierarchy:
+#           - "Global/USA/SAN JOSE"
+#       wireless_ssids:
+#         fabric_site_name_hierarchy:
+#           - "Global/USA/SAN JOSE"
+
+# ============================================================================
+# GENERATE_ALL_CONFIGURATIONS Parameter Documentation
+# ============================================================================
+#
+# The 'generate_all_configurations' parameter controls whether the tool retrieves
+# all available SDA host port onboarding configurations from Catalyst Center
+# or applies component-specific filters.
+
+# BEHAVIOR WHEN TRUE:
+# - Retrieves ALL port assignments, port channels, and wireless SSIDs from Catalyst Center
+# - IGNORES any component_specific_filters settings
+# - Overrides components_list filters
+# - Extracts complete SDA host port onboarding infrastructure configuration
+#
+# BEHAVIOR WHEN FALSE (or not specified):
+# - Respects component_specific_filters settings
+# - Only retrieves specified components from components_list
+# - Applies component sub-filters if specified
+# - Allows selective configuration generation
+# - Useful for targeted configuration extraction
+
+# ============================================================================
+# Component Filter Details
+# ============================================================================
+#
+# components_list Options:
+# - "port_assignments": Generate configuration for port assignments only
+# - "port_channels": Generate configuration for port channels only
+# - "wireless_ssids": Generate configuration for wireless SSIDs only
+# - ["port_assignments", "port_channels", "wireless_ssids"]: Generate all components
+#
+# Sub-Filter Options for Specific Component Selection:
+#
+# PORT_ASSIGNMENTS Sub-Filters:
+# - port_assignments:
+#     fabric_site_name_hierarchy:
+#       - "Global/California/23"
+#       Description: Filter by specific fabric site hierarchy paths
+#
+# PORT_CHANNELS Sub-Filters:
+# - port_channels:
+#     fabric_site_name_hierarchy:
+#       - "Global/USA/SAN JOSE"
+#       Description: Filter by specific fabric site hierarchy paths
+#
+# WIRELESS_SSIDS Sub-Filters:
+# - wireless_ssids:
+#     fabric_site_name_hierarchy:
+#       - "Global/USA/SAN JOSE"
+#       Description: Filter by specific fabric site hierarchy paths
+
+# ============================================================================
+# File Path Behavior
+# ============================================================================
+#
+# If file_path is specified:
+# - Uses the exact path provided
+# - Creates directory structure if it doesn't exist
+# - Overwrites existing files
+#
+# If file_path is NOT specified:
+# - Auto-generates filename in current working directory
+# - Format: sda_host_port_onboarding_workflow_manager_playbook_<timestamp>.yml
+
+# ============================================================================
+# Notes and Limitations
+# ============================================================================
+# 1. Network Connectivity: Requires HTTPS connectivity to Catalyst Center
+# 2. File Permissions: Ensure write access to specified file paths
+# 3. Component Validation: Only "port_assignments", "port_channels", "wireless_ssids" are valid components
+# 4. Configuration Scope: Only retrieves existing configurations (brownfield)
+# 5. Fabric Site Filtering: Fabric site names must match exactly as they exist in Catalyst Center
+# 6. Authentication: Uses Catalyst Center credentials from inventory configuration
+# ============================================================================

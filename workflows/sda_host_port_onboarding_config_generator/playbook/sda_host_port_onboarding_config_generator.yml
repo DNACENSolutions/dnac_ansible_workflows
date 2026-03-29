@@ -1,0 +1,85 @@
+---
+- name: Generate SDA Host Port Onboarding Configuration
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars:
+    state: gathered
+    catalyst_center_login: &catalyst_center_login
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
+      dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(false) }}"
+      dnac_log: "{{ catalyst_center_log | default(false) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append | default(True) }}"
+      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
+
+  tasks:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that sda_host_port_onboarding_config is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'sda_host_port_onboarding_config' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: sda_host_port_onboarding_config is not defined
+
+    # =========================================================================
+    # Playbook execution
+    # =========================================================================
+    - name: Playbook start time for SDA host port onboarding configuration generation
+      ansible.builtin.set_fact:
+        config_gen_start: "{{ now() }}"
+
+    - name: Generate YAML configuration for SDA host port onboarding
+      cisco.dnac.sda_host_port_onboarding_playbook_config_generator:
+        <<: *catalyst_center_login
+        state: "{{ state }}"
+        file_path: "{{ item.file_path | default(omit) }}"
+        file_mode: "{{ item.file_mode | default('overwrite') }}"
+        config: "{{ omit if (item.generate_all_configurations | default(false)) else ({'component_specific_filters': item.component_specific_filters} if item.component_specific_filters is defined else omit) }}"
+      loop: "{{ sda_host_port_onboarding_config }}"
+      when:
+        - sda_host_port_onboarding_config is defined
+        - sda_host_port_onboarding_config | length > 0
+      register: config_generation_result
+
+    - name: Display configuration generation results
+      ansible.builtin.debug:
+        var: config_generation_result
+      when: config_generation_result is defined
+
+    # =========================================================================
+    # Playbook Execution Summary
+    # =========================================================================
+    - name: Playbook end time
+      ansible.builtin.set_fact:
+        config_gen_end: "{{ now() }}"
+
+    - name: Print playbook execution time
+      ansible.builtin.debug:
+        msg: "SDA host port onboarding configuration generation playbook run time: start: {{ config_gen_start }}, end: {{ config_gen_end }}"
