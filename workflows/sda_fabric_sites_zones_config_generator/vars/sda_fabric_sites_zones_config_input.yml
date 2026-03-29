@@ -1,16 +1,16 @@
 ---
 # ============================================================================
-# Cisco Catalyst Center Brownfield SDA Fabric Sites and Zones Playbook Generator
+# Cisco Catalyst Center SDA Fabric Sites and Zones Playbook Generator
 # ============================================================================
 #
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
-#     workflows/brownfield_sda_fabric_sites_zones/playbook/brownfield_sda_fabric_sites_zones_playbook.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/brownfield_sda_fabric_sites_zones_input.yml
+#     workflows/sda_fabric_sites_zones_playbook_config_generator/playbook/sda_fabric_sites_zones_playbook_config_generator_playbook.yml \
+#     --extra-vars VARS_FILE_PATH=../vars/sda_fabric_sites_zones_playbook_config_generator_input.yml
 #
 # ============================================================================
 
-brownfield_sda_fabric_sites_zones_config:
+sda_fabric_sites_zones_config:
   #Generate all SDA fabric sites and zones with custom file path
   - generate_all_configurations: true
     file_path: "/tmp/complete_sda_fabric_sites_zones_config.yaml"
@@ -76,11 +76,11 @@ brownfield_sda_fabric_sites_zones_config:
 # Additional Configuration Examples
 # ============================================================================
 # Example 1: Generate all components with auto-generated filename
-# brownfield_sda_fabric_sites_zones_config:
+# sda_fabric_sites_zones_playbook_config:
 #   - generate_all_configurations: true
 #
 # Example 2: Multiple configuration generations in single run
-# brownfield_sda_fabric_sites_zones_config:
+# sda_fabric_sites_zones_playbook_config:
 #   # Generate fabric sites only
 #   - file_path: "/tmp/sites_config.yaml"
 #     component_specific_filters:
@@ -96,13 +96,13 @@ brownfield_sda_fabric_sites_zones_config:
 #     generate_all_configurations: true
 #
 # Example 3: Custom file path with specific components
-# brownfield_sda_fabric_sites_zones_config:
+# sda_fabric_sites_zones_playbook_config:
 #   - file_path: "/home/ansible/sda_configs/production_fabric_sites.yaml"
 #     component_specific_filters:
 #       components_list: ["fabric_sites"]
 #
 # Example 4: Multiple sites and zones with specific site_name_hierarchy filters
-# brownfield_sda_fabric_sites_zones_config:
+# sda_fabric_sites_zones_playbook_config:
 #   - file_path: "fabric_output3"
 #     component_specific_filters:
 #       components_list: ["fabric_sites","fabric_zones"]
@@ -135,21 +135,21 @@ brownfield_sda_fabric_sites_zones_config:
 # EXAMPLES:
 #
 # Example A: Generate ALL configurations (ignores filters)
-# brownfield_sda_fabric_sites_zones_config:
+# sda_fabric_sites_zones_playbook_config:
 #   - generate_all_configurations: true
 #     file_path: "/tmp/complete_infrastructure.yaml"
 #     component_specific_filters:
 #       components_list: ["fabric_sites"]  # <-- IGNORED when true
 #
 # Example B: Generate specific components only (respects filters)
-# brownfield_sda_fabric_sites_zones_config:
+# sda_fabric_sites_zones_playbook_config:
 #   - generate_all_configurations: false
 #     file_path: "/tmp/sites_only.yaml"
 #     component_specific_filters:
 #       components_list: ["fabric_sites"]  # <-- APPLIED when false
 #
 # Example C: Default behavior (same as false)
-# brownfield_sda_fabric_sites_zones_config:
+# sda_fabric_sites_zones_playbook_config:
 #   - file_path: "/tmp/filtered_config.yaml"
 #     component_specific_filters:
 #       components_list: ["fabric_zones"]  # <-- APPLIED when not specified
@@ -212,9 +212,8 @@ brownfield_sda_fabric_sites_zones_config:
 #
 # If file_path is NOT specified:
 # - Auto-generates filename in current working directory
-# - Format: sda_fabric_sites_zones_workflow_manager_playbook_<YYYY-MM-DD_HH-MM-SS>.yml
-# - Example: sda_fabric_sites_zones_workflow_manager_playbook_2026-01-28_20-24-06.yml
-
+# - Format: <Module>_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+# - Example: sda_fabric_sites_zones_playbook_config_2026-03-02_01-45-57.yml
 # ============================================================================
 # Notes and Limitations
 # ============================================================================
