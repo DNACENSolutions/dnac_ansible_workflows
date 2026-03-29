@@ -6,7 +6,7 @@
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/backup_and_restore_playbook_config_generator/playbook/backup_and_restore_playbook_config_generator_playbook.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/backup_and_restore_playbook_config_generator_inputs.yml
+#     --extra-vars VARS_FILE_PATH=./workflows/backup_and_restore_playbook_config_generator/vars/backup_and_restore_playbook_config_generator_inputs.yml
 #
 # ============================================================================
 
