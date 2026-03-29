@@ -6,12 +6,16 @@
 # Usage:
 # ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #   workflows/sda_fabric_multicast_generator/playbook/sda_fabric_multicast_generator_playbook.yml \
-#   --extra-vars VARS_FILE_PATH=../vars/sda_fabric_multicast_generator_inputs.yml
+#   --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_multicast_generator/vars/sda_fabric_multicast_generator_inputs.yml \
+#   -vvvv
 #
 # Notes:
 # - state is fixed as gathered inside the playbook.
 # - Each item below generates one YAML output file that is compatible with:
 #   cisco.dnac.sda_fabric_multicast_workflow_manager
+# - generate_all_configurations: true  --> omits config so the module
+#   exports all multicast data (full discovery mode).
+# - file_mode defaults to "overwrite"; set "append" to add to an existing file.
 # ============================================================================
 
 sda_fabric_multicast_generator_config:
@@ -44,5 +48,14 @@ sda_fabric_multicast_generator_config:
       fabric_multicast:
         - layer3_virtual_network: "Fabric_VN"
 
-  # 5) Generate with default auto-generated filename
+  # 5) Append multicast config for London DC to an existing file
+  - file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_all.yml"
+    file_mode: append
+    component_specific_filters:
+      components_list:
+        - fabric_multicast
+      fabric_multicast:
+        - fabric_name: "Global/Europe/London/DataCenter1"
+
+  # 6) Generate with default auto-generated filename (no file_path)
   - generate_all_configurations: true
