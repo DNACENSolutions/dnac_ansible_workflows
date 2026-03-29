@@ -1,0 +1,198 @@
+---
+#============================================================================
+# Cisco Catalyst Center Assurance Issue Playbook Config Generator
+#============================================================================
+#
+# Usage:
+#  ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#    workflows/assurance_issue_playbook_config_generator/playbook/assurance_issue_playbook_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=../vars/assurance_issue_playbook_config_input.yml
+#
+#============================================================================
+
+#============================================================================
+# Assurance Issue Configuration Generation Examples
+#============================================================================
+
+assurance_issue_config:
+  # Generate all configurations with custom file path
+  - generate_all_configurations: true
+    file_path: "generated_file/complete_assurance_issue_config.yml"
+
+  # Generate all configurations over component filters
+  - generate_all_configurations: false
+    file_path: "generated_file/assurance_issue_components_config1.yml"
+    component_specific_filters:
+      components_list: ["assurance_user_defined_issue_settings"]
+
+  # Issue Configurations with issue name Filter:
+  - file_path: "generated_file/issue_name_filter_config2.yml"
+    component_specific_filters:
+      components_list: ["assurance_user_defined_issue_settings"]
+      assurance_user_defined_issue_settings:
+        - name: "FAN_MISSING"
+
+  # Issue Configurations with Multiple issue name Filters:
+  - file_path: "generated_file/multiple_issue_name_filter_config3.yml"
+    component_specific_filters:
+      components_list: ["assurance_user_defined_issue_settings"]
+      assurance_user_defined_issue_settings:
+        - name: "FAN_MISSING"
+        - name: "FRU_FAN_DISABLED"
+
+  # Issue Configurations with Priority Filter:
+  - file_path: "generated_file/priority_filter_config4.yml"
+    component_specific_filters:
+      components_list: ["assurance_user_defined_issue_settings"]
+      assurance_user_defined_issue_settings:
+        - priority: "P2"
+
+  # Issue Configurations with Multiple Priority Filters:
+  - file_path: "generated_file/multiple_priority_filter_config5.yml"
+    component_specific_filters:
+      components_list: ["assurance_user_defined_issue_settings"]
+      assurance_user_defined_issue_settings:
+        - priority: "P2"
+        - priority: "P3"
+
+  # Combined Filters: P1 Availability Issues
+  - file_path: "generated_file/combined_priority_enabled_config6.yml"
+    component_specific_filters:
+      components_list: ["assurance_user_defined_issue_settings"]
+      assurance_user_defined_issue_settings:
+        - priority: "P1"
+          is_enabled: true
+
+  # All Issue Components with No Sub-Filters
+  - file_path: "generated_file/all_components_no_subfilters_config7.yml"
+    component_specific_filters:
+      components_list: ["assurance_user_defined_issue_settings"]
+
+#============================================================================
+# Additional Configuration Examples
+#============================================================================
+# Example 1: Generate all issues with auto-generated filename
+# assurance_issue_config:
+#   - generate_all_configurations: true
+
+# Example 2: Custom file path with specific Priority
+# assurance_issue_config:
+#   - file_path: "/home/ansible/issue_configs/p1_critical_issues.yml"
+#     component_specific_filters:
+#       components_list: ["assurance_user_defined_issue_settings"]
+#       assurance_user_defined_issue_settings:
+#         - priority: "P1"
+
+# Example 3: Multiple filters with specific criteria
+# assurance_issue_config:
+#   - file_path: "generated_file/filtered_issues_config.yml"
+#     component_specific_filters:
+#       components_list: ["assurance_user_defined_issue_settings"]
+#       assurance_user_defined_issue_settings:
+#         - priority: "P1"
+#           name: "FAN_FAILURE_SYS_SHUTDOWN"
+#         - priority: "P2"
+#           name: "FAN_FAIL_SHUTDOWN"
+
+#============================================================================
+# GENERATE_ALL_CONFIGURATIONS Parameter Documentation
+#============================================================================
+#
+# The 'generate_all_configurations' parameter controls whether the tool retrieves
+# all available assurance issues from Catalyst Center
+# or applies component-specific filters.
+
+# BEHAVIOR WHEN TRUE:
+# - Retrieves ALL assurance issues from Catalyst Center
+# - IGNORES any component_specific_filters settings
+# - Overrides components_list filters
+# - Extracts complete assurance issue infrastructure data
+#
+# BEHAVIOR WHEN FALSE (or not specified):
+# - Respects component_specific_filters settings
+# - Only retrieves specified components from components_list
+# - Applies issue sub-filters if specified
+# - Allows selective configuration generation
+# - Useful for targeted issue extraction
+#
+# EXAMPLES:
+#
+# Example A: Generate ALL configurations (ignores filters)
+# assurance_issue_config:
+#   - generate_all_configurations: true
+#     file_path: "generated_file/complete_assurance_infrastructure.yml"
+#     component_specific_filters:
+#       components_list: ["assurance_user_defined_issue_settings"]  # <-- IGNORED when true
+#
+# Example B: Generate specific components only (respects filters)
+# assurance_issue_config:
+#   - generate_all_configurations: false
+#     file_path: "generated_file/issues_only.yml"
+#     component_specific_filters:
+#       components_list: ["assurance_user_defined_issue_settings"]  # <-- APPLIED when false
+#
+# Example C: Default behavior (same as false)
+# assurance_issue_config:
+#   - file_path: "generated_file/filtered_config.yml"
+#     component_specific_filters:
+#       components_list: ["assurance_user_defined_issue_settings"]  # <-- APPLIED when not specified
+
+#============================================================================
+# Component Filter Details
+#============================================================================
+#
+# components_list Options:
+# - "assurance_user_defined_issue_settings": Generate configuration for assurance issues only
+#
+# Sub-Filter Options for Specific Issue Selection:
+#
+# ISSUE Sub-Filters:
+# - assurance_user_defined_issue_settings:
+#     - name: "Interface Down" 
+#       description: Filter by specific issue name or description
+#       Examples:
+#         - "Interface Down" 
+#         - "High CPU Utilization"
+#         - "shut fan fail"
+#     
+#     - priority: "P1"
+#       description: Filter by issue priority level
+#       Valid Values: P1, P2, P3, P4
+#       Examples:
+#         - priority: "P1" - Critical issues only
+#         - priority: "P2" - High priority issues only
+#         - priority: "P3" - Medium priority issues only
+#         - priority: "P4" - Low priority issues only
+#
+# Combined Sub-Filters Usage:
+# - Multiple sub-filters can be used together for precise filtering
+# - Each filter type supports its specific criteria
+# - Filters are applied as OR conditions within the same component type
+# - Filter values must match exact values in Catalyst Center
+
+#============================================================================
+# File Path Behavior
+#============================================================================
+#
+# If file_path is specified:
+# - Uses the exact path provided
+# - Creates directory structure if it doesn't exist
+# - Overwrites existing files
+#
+# If file_path is NOT specified:
+# - Auto-generates filename in current working directory
+# - Format: assurance_issue_workflow_manager_playbook_<timestamp>.yml
+# - Example: assurance_issue_workflow_manager_playbook_2026-01-24_12-33-20.yml
+
+#============================================================================
+# Notes and Limitations
+#============================================================================
+# 1. Network Connectivity: Requires HTTPS connectivity to Catalyst Center
+# 2. File Permissions: Ensure write access to specified file paths
+# 3. Component Validation: Only "assurance_user_defined_issue_settings" is a valid component
+# 4. Configuration Scope: Only retrieves existing issues (generates configuration based on current Catalyst Center data)
+# 5. Issue Filtering: Filter values must match exactly as they exist in Catalyst Center
+# 6. Authentication: Uses Catalyst Center credentials from inventory configuration
+# 7. Assurance Enabled: Requires Assurance to be enabled in Catalyst Center
+# 8. Issue Details: Extracted issues include all available details and metadata
+#============================================================================
