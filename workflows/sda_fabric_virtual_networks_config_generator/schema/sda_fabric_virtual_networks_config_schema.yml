@@ -187,6 +187,9 @@ sda_vn_config_generator_type:
   
   # Output file path
   file_path: str(required=False)
+
+  # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
+  file_mode: enum('overwrite', 'append', required=False)
   
   # Component-specific filters
   component_specific_filters: include('vn_component_filters_type', required=False)
