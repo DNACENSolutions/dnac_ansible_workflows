@@ -177,10 +177,14 @@ network_profile_switch_config_type:
   
   # Output file path
   file_path: str(required=False)
-  
+
+  # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
+  file_mode: enum('overwrite', 'append', required=False)
+
   # Global filters for switch profile extraction
   global_filters: include('network_profile_switch_global_filters_type', required=False)
 
+---
 # Network Profile Switch Global Filters Schema
 network_profile_switch_global_filters_type:
   # Profile name list - Processing Order: 1st
