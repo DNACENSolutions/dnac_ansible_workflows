@@ -6,7 +6,7 @@
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/tags_playbook_config_input.yml
+#     --extra-vars VARS_FILE_PATH=./workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
 #
 # ============================================================================
 
