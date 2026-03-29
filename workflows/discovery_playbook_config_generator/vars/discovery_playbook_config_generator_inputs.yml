@@ -4,9 +4,9 @@
 # ============================================================================
 #
 # Usage:
-#   ansible-playbook -i inventory/demo_lab/hosts.yml \
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/discovery_playbook_config_generator/playbook/discovery_playbook_config_generator_playbook.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/discovery_playbook_config_generator_inputs.yml
+#     --extra-vars VARS_FILE_PATH=./workflows/discovery_playbook_config_generator/vars/discovery_playbook_config_generator_inputs.yml
 #
 # MODULE:  cisco.dnac.discovery_playbook_config_generator
 # AUTHOR:  Megha Kandari, Madhan Sankaranarayanan

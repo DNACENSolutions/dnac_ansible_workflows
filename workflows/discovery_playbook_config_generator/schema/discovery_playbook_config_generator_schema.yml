@@ -197,4 +197,4 @@ discovery_global_filters_type:
   # List of discovery types to filter by.
   # LOWER PRIORITY: only used when discovery_name_list is not provided.
   # Valid values: Single, Range, CDP, LLDP, CIDR
-  discovery_type_list: list(str(), min=0, max=5, required=False)
+  discovery_type_list: list(enum('Single', 'Range', 'CDP', 'LLDP', 'CIDR'), min=0, max=5, required=False)
