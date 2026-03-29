@@ -1,9 +1,9 @@
-# Catalyst Center Brownfield SDA Fabric Virtual Networks Configuration Generator Schema
+# Catalyst Center SDA Fabric Virtual Networks Playbook Configuration Generator Schema
 # ======================================================================================
 #
 # This schema defines the configuration structure for generating YAML playbook
 # configurations from existing SDA fabric virtual networks infrastructure in Cisco Catalyst Center
-# using the brownfield_sda_fabric_virtual_networks_playbook_generator module.
+# using the sda_fabric_virtual_networks_playbook_config_generator module.
 #
 # SCHEMA OVERVIEW:
 # ---------------
@@ -23,16 +23,15 @@
 # TOP-LEVEL PARAMETERS:
 # -------------------
 # catalyst_center_version:           Catalyst Center version (optional, overrides host file)
-# catalyst_center_verify:            SSL certificate verification (optional, default: false)  
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)
 # catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
 # catalyst_center_debug:             Enable debug mode (optional, default: false)
 # catalyst_center_log:               Enable logging (optional, default: false)
 # catalyst_center_log_append:        Append to log file (optional, default: true)
 # catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
 # catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
-# catalyst_center_config_verify:     Configuration verification (optional, default: false)
 #
-# BROWNFIELD_SDA_FABRIC_VIRTUAL_NETWORKS_CONFIG SECTION:
+# SDA_FABRIC_VIRTUAL_NETWORKS_CONFIG SECTION:
 # ----------------------------------------------------
 # Contains configuration for generating YAML configurations from existing infrastructure:
 #
@@ -46,8 +45,8 @@
 #    - Type: string (optional)
 #    - Description: Output path where the YAML configuration file will be saved
 #    - If not provided, auto-generates filename with timestamp
-#    - Format: sda_fabric_virtual_networks_workflow_manager_playbook_<YYYY-MM-DD_HH-MM-SS>.yml
-#    - Example: sda_fabric_virtual_networks_workflow_manager_playbook_2026-01-28_14-30-45.yml
+#    - Format:  <Module>_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: sda_fabric_virtual_networks_playbook_config_2026-01-28_14-30-45.yml
 #    - Supports absolute and relative paths
 #    - Creates directory structure if it doesn't exist
 #
@@ -168,7 +167,7 @@
 # different usage patterns and scenarios.
 
 # Schema Definition
-brownfield_sda_fabric_virtual_networks_config: list(include('sda_vn_config_generator'), min=1, max=100, required=True)
+sda_fabric_virtual_networks_config: list(include('sda_vn_config_generator_type'), min=1, max=100, required=True)
 
 # Optional Catalyst Center connection parameters
 catalyst_center_version: str(required=False)
@@ -179,38 +178,40 @@ catalyst_center_log: bool(required=False)
 catalyst_center_log_append: bool(required=False)
 catalyst_center_log_file_path: str(required=False)
 catalyst_center_log_level: str(required=False)
-catalyst_center_config_verify: bool(required=False)
 
 ---
 # SDA Virtual Networks Configuration Generator Schema
-sda_vn_config_generator:
+sda_vn_config_generator_type:
   # Generate all configurations flag
   generate_all_configurations: bool(required=False)
   
   # Output file path
   file_path: str(required=False)
+
+  # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
+  file_mode: enum('overwrite', 'append', required=False)
   
   # Component-specific filters
-  component_specific_filters: include('vn_component_filters', required=False)
+  component_specific_filters: include('vn_component_filters_type', required=False)
 
 ---
 # Virtual Networks Component Filters Schema
-vn_component_filters:
+vn_component_filters_type:
   # List of components to include
   components_list: list(str(), min=0, max=10, required=False)
   
   # Fabric VLAN filters
-  fabric_vlan: list(include('fabric_vlan_filter'), min=0, max=100, required=False)
+  fabric_vlan: list(include('fabric_vlan_filter_type'), min=0, max=100, required=False)
   
   # Virtual networks filters  
-  virtual_networks: list(include('virtual_network_filter'), min=0, max=100, required=False)
+  virtual_networks: list(include('virtual_network_filter_type'), min=0, max=100, required=False)
 
   # Anycast gateways filters
-  anycast_gateways: list(include('anycast_gateway_filter'), min=0, max=100, required=False)
+  anycast_gateways: list(include('anycast_gateway_filter_type'), min=0, max=100, required=False)
 
 ---
 # Fabric VLAN Filter Schema
-fabric_vlan_filter:
+fabric_vlan_filter_type:
   # VLAN name for filtering fabric VLANs
   vlan_name: str(required=False)
   
@@ -219,13 +220,13 @@ fabric_vlan_filter:
 
 ---
 # Virtual Network Filter Schema
-virtual_network_filter:
+virtual_network_filter_type:
   # Virtual network name for filtering virtual networks
   vn_name: str(required=False)
 
 ---
 # Anycast Gateway Filter Schema
-anycast_gateway_filter:
+anycast_gateway_filter_type:
   # Virtual network name for filtering anycast gateways
   vn_name: str(required=False)
   

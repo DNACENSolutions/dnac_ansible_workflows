@@ -1,16 +1,16 @@
 ---
-# ============================================================================
-# Cisco Catalyst Center Brownfield SDA Fabric Virtual Networks playbook Generator
-# ============================================================================
+#============================================================================
+# Cisco Catalyst Center SDA Fabric Virtual Networks Config Generator
+#============================================================================
 #
 # Usage:
-#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
-#     workflows/brownfield_sda_fabric_virtual_networks/playbook/brownfield_sda_fabric_virtual_networks_playbook.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/brownfield_sda_fabric_virtual_networks_inputs.yml
+#  ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#    workflows/sda_fabric_virtual_networks_config_generator/playbook/sda_fabric_virtual_networks_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/sda_fabric_virtual_networks_config_generator/vars/sda_fabric_virtual_networks_config_inputs.yml
 #
 # ============================================================================
 
-brownfield_sda_fabric_virtual_networks_config:
+sda_fabric_virtual_networks_config:
   - generate_all_configurations: true
     file_path: "/tmp/complete_sda_fabric_virtual_networks_config.yml"
 
@@ -114,11 +114,11 @@ brownfield_sda_fabric_virtual_networks_config:
 # Additional Configuration Examples
 # ============================================================================
 # Example 1: Generate all components with auto-generated filename
-# brownfield_sda_fabric_virtual_networks_config:
+# sda_fabric_virtual_networks_config:
 #   - generate_all_configurations: true
 #
 # Example 2: Multiple configuration generations in single run
-# brownfield_sda_fabric_virtual_networks_config:
+# sda_fabric_virtual_networks_config:
 #   # Generate fabric VLANs only
 #   - file_path: "/tmp/fabric_vlans_config.yml"
 #     component_specific_filters:
@@ -139,13 +139,13 @@ brownfield_sda_fabric_virtual_networks_config:
 #     generate_all_configurations: true
 #
 # Example 3: Custom file path with specific components
-# brownfield_sda_fabric_virtual_networks_config:
+# sda_fabric_virtual_networks_config:
 #   - file_path: "/home/ansible/sda_configs/production_fabric_vlans.yml"
 #     component_specific_filters:
 #       components_list: ["fabric_vlan"]
 #
 # Example 4: Multiple component filters with specific criteria
-# brownfield_sda_fabric_virtual_networks_config:
+# sda_fabric_virtual_networks_config:
 #   - file_path: "/tmp/filtered_components_config.yml"
 #     component_specific_filters:
 #       components_list: ["fabric_vlan", "virtual_networks", "anycast_gateways"]
@@ -187,21 +187,21 @@ brownfield_sda_fabric_virtual_networks_config:
 # EXAMPLES:
 #
 # Example A: Generate ALL configurations (ignores filters)
-# brownfield_sda_fabric_virtual_networks_config:
+# sda_fabric_virtual_networks_config:
 #   - generate_all_configurations: true
 #     file_path: "/tmp/complete_infrastructure.yml"
 #     component_specific_filters:
 #       components_list: ["fabric_vlan"]  # <-- IGNORED when true
 #
 # Example B: Generate specific components only (respects filters)
-# brownfield_sda_fabric_virtual_networks_config:
+# sda_fabric_virtual_networks_config:
 #   - generate_all_configurations: false
 #     file_path: "/tmp/vlans_only.yml"
 #     component_specific_filters:
 #       components_list: ["fabric_vlan"]  # <-- APPLIED when false
 #
 # Example C: Default behavior (same as false)
-# brownfield_sda_fabric_virtual_networks_config:
+# sda_fabric_virtual_networks_config:
 #   - file_path: "/tmp/filtered_config.yml"
 #     component_specific_filters:
 #       components_list: ["virtual_networks"]  # <-- APPLIED when not specified
@@ -277,8 +277,8 @@ brownfield_sda_fabric_virtual_networks_config:
 #
 # If file_path is NOT specified:
 # - Auto-generates filename in current working directory
-# - Format: sda_fabric_virtual_networks_workflow_manager_playbook_<YYYY-MM-DD_HH-MM-SS>.yml
-# - Example: sda_fabric_virtual_networks_workflow_manager_playbook_2026-01-28_14-30-45.yml
+# - Format:  <Module>_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+# - Example: sda_fabric_virtual_networks_playbook_config_2026-01-28_14-30-45.yml
 
 # ============================================================================
 # Notes and Limitations
