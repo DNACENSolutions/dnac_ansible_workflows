@@ -1,0 +1,5 @@
+{
+  "summary": "End-to-end workflow to LAN automate devices, fix inventory roles, provision to sites, add to SDA fabric, and onboard host ports using section-based tags.",
+  "status": "active",
+  "managed_by": "cisco"
+}

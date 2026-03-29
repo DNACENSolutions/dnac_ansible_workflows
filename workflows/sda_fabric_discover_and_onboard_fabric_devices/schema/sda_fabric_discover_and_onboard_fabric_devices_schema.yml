@@ -1,0 +1,311 @@
+# Yamale schema for end-to-end SDA fabric device discover and onboarding workflow
+# Combined data model with typed fields for each stage sourced from individual module schemas.
+
+state: enum('merged', 'deleted', required=False)
+sda_fabric_discover_and_onboard_fabric_devices: include('workflow_root', required=True)
+
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum('CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', required=False)
+catalyst_center_config_verify: bool(required=False)
+
+jinjatemplate: bool(required=False)
+passwords_file: str(required=False)
+jinjatemplate_file: str(required=False)
+catalyst_center_task_poll_interval: int(required=False)
+
+---
+
+# ==============================================================================
+# Workflow root and job structure
+# ==============================================================================
+
+workflow_root:
+  jobs: list(include('workflow_job'), min=1, max=500, required=True)
+
+workflow_job:
+  job_name: str(required=False)
+  discovery: list(include('discovery_stage'), min=0, max=1000, required=False)
+  lan_automation: list(include('lan_automation_stage'), min=0, max=1000, required=False)
+  inventory_roles: list(include('inventory_roles_stage'), min=0, max=2000, required=False)
+  provision: list(include('provision_stage'), min=0, max=2000, required=False)
+  fabric_devices: list(include('fabric_devices_stage'), min=0, max=2000, required=False)
+  host_port_onboarding: list(include('host_port_onboarding_stage'), min=0, max=2000, required=False)
+
+# ==============================================================================
+# Stage 1: Device Discovery (cisco.dnac.discovery_workflow_manager)
+# ==============================================================================
+
+discovery_stage:
+  state: enum('merged', 'deleted', required=False)
+  config: include('discovery_config_type', required=True)
+
+discovery_config_type:
+  discovery_name: str(min=1, max=255, required=True)
+  discovery_type: enum('SINGLE', 'RANGE', 'MULTI RANGE', 'CDP', 'LLDP', 'CIDR', required=True)
+  ip_address_list: list(str(), min=1, max=100, required=True)
+  ip_filter_list: list(str(), min=0, max=100, required=False)
+  protocol_order: enum('ssh', 'telnet', required=False)
+  devices_list: list(str(), min=0, max=100, required=False)
+  discovery_specific_credentials: include('discovery_specific_credentials_type', required=False)
+  global_credentials: include('discovery_global_credentials_type', required=False)
+  preferred_mgmt_ip_method: str(required=False)
+  retry: int(required=False)
+  timeout: int(required=False)
+  use_global_credentials: bool(required=False)
+  lldp_level: int(required=False)
+  net_conf_port: str(required=False)
+  enable_password_list: list(str(), min=0, max=100, required=False)
+
+discovery_specific_credentials_type:
+  cli_credentials_list: list(include('disc_cli_credential_type'), min=0, max=100, required=False)
+  http_read_credential: include('disc_http_credential_type', required=False)
+  http_write_credential: include('disc_http_credential_type', required=False)
+  snmp_v2_read_credential: include('disc_snmp_v2_credential_type', required=False)
+  snmp_v2_write_credential: include('disc_snmp_v2_credential_type', required=False)
+  snmp_v3_credential: include('disc_snmp_v3_credential_type', required=False)
+  net_conf_port: str(required=False)
+
+disc_cli_credential_type:
+  description: str(required=False)
+  username: str(required=True)
+  password: str(required=True)
+  enable_password: str(required=False)
+
+disc_http_credential_type:
+  description: str(required=False)
+  username: str(required=True)
+  password: str(required=True)
+  port: int(required=False)
+  secure: bool(required=False)
+
+disc_snmp_v2_credential_type:
+  description: str(required=False)
+  community: str(required=False)
+
+disc_snmp_v3_credential_type:
+  description: str(required=False)
+  username: str(required=True)
+  snmp_mode: enum('AUTHPRIV', 'AUTHNOPRIV', 'NOAUTHNOPRIV', required=False)
+  auth_password: str(required=False)
+  auth_type: enum('SHA', 'MD5', required=False)
+  privacy_type: enum('AES128', 'AES192', 'AES256', required=False)
+  privacy_password: str(required=False)
+
+discovery_global_credentials_type:
+  cli_credentials_list: list(include('disc_gl_cli_credential_type'), min=0, max=100, required=False)
+  snmp_v3_credential_list: list(include('disc_gl_snmp_v3_credential_type'), min=0, max=100, required=False)
+  snmp_v2_read_credential_list: list(include('disc_gl_snmp_v2_credential_type'), min=0, max=100, required=False)
+  snmp_v2_write_credential_list: list(include('disc_gl_snmp_v2_credential_type'), min=0, max=100, required=False)
+  http_read_credential_list: list(include('disc_gl_http_credential_type'), min=0, max=100, required=False)
+  http_write_credential_list: list(include('disc_gl_http_credential_type'), min=0, max=100, required=False)
+  net_conf_port_list: list(include('disc_gl_net_conf_port_type'), min=0, max=100, required=False)
+
+disc_gl_cli_credential_type:
+  description: str(required=False)
+  username: str(required=True)
+
+disc_gl_snmp_v3_credential_type:
+  description: str(required=False)
+  username: str(required=True)
+
+disc_gl_snmp_v2_credential_type:
+  description: str(required=False)
+  community: str(required=False)
+
+disc_gl_http_credential_type:
+  description: str(required=False)
+  username: str(required=True)
+
+disc_gl_net_conf_port_type:
+  description: str(required=False)
+  net_conf_port: str(required=False)
+
+# ==============================================================================
+# Stage 2: LAN Automation (cisco.dnac.lan_automation_workflow_manager)
+# ==============================================================================
+
+lan_automation_stage:
+  config: include('lan_automation_config_type', required=True)
+
+lan_automation_config_type:
+  lan_automation: include('lan_automation_session_type', required=True)
+
+lan_automation_session_type:
+  discovered_device_site_name_hierarchy: str(required=True)
+  primary_device_management_ip_address: str(required=True)
+  peer_device_management_ip_address: str(required=False)
+  primary_device_interface_names: list(str(), min=1, max=100, required=True)
+  ip_pools: list(include('lan_auto_ip_pool_type'), min=1, max=100, required=True)
+  multicast_enabled: bool(required=False)
+  redistribute_isis_to_bgp: bool(required=False)
+  host_name_prefix: str(required=False)
+  isis_domain_pwd: str(required=False)
+  discovery_level: int(min=1, max=5, required=False)
+  discovery_timeout: int(required=False)
+  discovery_devices: list(include('lan_auto_discovery_device_type'), min=0, max=100, required=False)
+  launch_and_wait: bool(required=False)
+  pnp_authorization: bool(required=False)
+  device_serial_number_authorization: list(str(), min=0, max=100, required=False)
+
+lan_auto_ip_pool_type:
+  ip_pool_name: str(required=True)
+  ip_pool_role: enum('MAIN_POOL', 'PHYSICAL_LINK_POOL', required=True)
+
+lan_auto_discovery_device_type:
+  device_serial_number: str(required=True)
+  device_host_name: str(required=False)
+  device_site_name_hierarchy: str(required=False)
+  device_management_ip_address: str(required=False)
+
+# ==============================================================================
+# Stage 3: Inventory Role Updates (cisco.dnac.inventory_workflow_manager)
+# ==============================================================================
+
+inventory_roles_stage:
+  state: enum('merged', 'deleted', required=False)
+  config: include('inventory_roles_config_type', required=True)
+
+inventory_roles_config_type:
+  management_ip_address: str(required=False)
+  ip_address_list: list(str(), min=1, max=100, required=False)
+  hostname_list: list(str(), min=1, max=100, required=False)
+  serial_number_list: list(str(), min=1, max=100, required=False)
+  mac_address_list: list(str(), min=1, max=100, required=False)
+  role: enum('ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER_ROUTER', 'UNKNOWN', required=False)
+
+# ==============================================================================
+# Stage 4: Provision Devices to Sites (cisco.dnac.provision_workflow_manager)
+# ==============================================================================
+
+provision_stage:
+  state: enum('merged', 'deleted', required=False)
+  config: include('provision_config_type', required=True)
+
+provision_config_type:
+  management_ip_address: str(required=True)
+  site_name_hierarchy: str(required=True)
+  provisioning: bool(required=False)
+  force_provisioning: bool(required=False)
+  managed_ap_locations: list(str(), min=1, max=100, required=False)
+  primary_managed_ap_locations: list(str(), min=1, max=100, required=False)
+  secondary_managed_ap_locations: list(str(), min=1, max=100, required=False)
+  dynamic_interfaces: list(include('provision_dynamic_interface_type'), min=0, max=100, required=False)
+  skip_ap_provision: bool(required=False)
+  ap_authorization_list_name: str(required=False)
+  rolling_ap_upgrade: include('provision_rolling_ap_upgrade_type', required=False)
+
+provision_dynamic_interface_type:
+  interface_name: str(required=True)
+  vlan_id: str(required=False)
+  interface_ip_address: str(required=False)
+  interface_gateway: str(required=False)
+  interface_netmask_in_c_i_d_r: str(required=False)
+  lag_or_port_number: str(required=False)
+
+provision_rolling_ap_upgrade_type:
+  enable_rolling_ap_upgrade: bool(required=False)
+  ap_reboot_percentage: int(required=False)
+
+# ==============================================================================
+# Stage 5: Add Devices to SDA Fabric (cisco.dnac.sda_fabric_devices_workflow_manager)
+# ==============================================================================
+
+fabric_devices_stage:
+  state: enum('merged', 'deleted', required=False)
+  config: include('fabric_devices_config_type', required=True)
+
+fabric_devices_config_type:
+  fabric_devices: include('fabric_devices_site_type', required=True)
+
+fabric_devices_site_type:
+  fabric_name: str(required=True)
+  device_config: list(include('fabric_device_entry_type'), min=1, max=2000, required=True)
+
+fabric_device_entry_type:
+  device_ip: str(required=True)
+  device_roles: list(enum('CONTROL_PLANE_NODE', 'EDGE_NODE', 'BORDER_NODE', 'WIRELESS_CONTROLLER_NODE'), min=1, max=4, required=False)
+  delete_fabric_device: bool(required=False)
+  borders_settings: include('fabric_borders_settings_type', required=False)
+
+fabric_borders_settings_type:
+  layer3_settings: include('fabric_layer3_settings_type', required=False)
+  layer2_handoff: list(include('fabric_layer2_handoff_type'), min=0, max=100, required=False)
+  layer3_handoff_ip_transit: list(include('fabric_l3_ip_transit_type'), min=0, max=100, required=False)
+  layer3_handoff_sda_transit: include('fabric_l3_sda_transit_type', required=False)
+
+fabric_layer3_settings_type:
+  local_autonomous_system_number: any(str(), int(), required=True)
+  is_default_exit: bool(required=False)
+  import_external_routes: bool(required=False)
+  border_priority: int(min=1, max=9, required=False)
+  prepend_autonomous_system_count: int(min=0, max=10, required=False)
+
+fabric_layer2_handoff_type:
+  interface_name: str(required=True)
+  internal_vlan_id: int(required=True)
+  external_vlan_id: int(required=True)
+
+fabric_l3_ip_transit_type:
+  transit_network_name: str(required=True)
+  interface_name: str(required=True)
+  external_connectivity_ip_pool_name: str(required=False)
+  virtual_network_name: str(required=False)
+  vlan_id: int(required=False)
+  tcp_mss_adjustment: int(min=500, max=1440, required=False)
+  local_ip_address: str(required=False)
+  remote_ip_address: str(required=False)
+  local_ipv6_address: str(required=False)
+  remote_ipv6_address: str(required=False)
+
+fabric_l3_sda_transit_type:
+  transit_network_name: str(required=True)
+  affinity_id_prime: int(required=False)
+  affinity_id_decider: int(required=False)
+  connected_to_internet: bool(required=False)
+  is_multicast_over_transit_enabled: bool(required=False)
+
+# ==============================================================================
+# Stage 6: Host Port Onboarding (cisco.dnac.sda_host_port_onboarding_workflow_manager)
+# ==============================================================================
+
+host_port_onboarding_stage:
+  state: enum('merged', 'deleted', required=False)
+  config: include('host_port_onboarding_config_type', required=True)
+
+host_port_onboarding_config_type:
+  hostname: str(required=False)
+  ip_address: str(required=False)
+  fabric_site_name_hierarchy: str(required=True)
+  port_assignments: list(include('hpo_port_assignment_type'), min=0, max=100, required=False)
+  port_channels: list(include('hpo_port_channel_type'), min=0, max=100, required=False)
+  wireless_ssids: list(include('hpo_wireless_ssid_type'), min=0, max=100, required=False)
+
+hpo_port_assignment_type:
+  interface_name: str(required=True)
+  connected_device_type: enum('TRUNKING_DEVICE', 'ACCESS_POINT', 'USER_DEVICE', required=True)
+  authentication_template_name: enum('No Authentication', 'Open Authentication', 'Closed Authentication', 'Low Impact', required=False)
+  data_vlan_name: str(required=False)
+  voice_vlan_name: str(required=False)
+  security_group_name: str(required=False)
+  interface_description: str(required=False)
+
+hpo_port_channel_type:
+  interface_names: list(str(), min=1, max=16, required=True)
+  connected_device_type: enum('TRUNK', 'EXTENDED_NODE', required=True)
+  protocol: enum('ON', 'LACP', 'PAGP', required=False)
+  port_channel_description: str(required=False)
+  port_channel_name: str(required=False)
+
+hpo_wireless_ssid_type:
+  vlan_name: str(required=True)
+  ssid_details: list(include('hpo_ssid_detail_type'), min=0, max=100, required=False)
+
+hpo_ssid_detail_type:
+  ssid_name: str(required=True)
+  security_group_name: str(required=False)

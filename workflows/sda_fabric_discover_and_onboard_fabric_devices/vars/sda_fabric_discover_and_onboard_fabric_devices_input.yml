@@ -1,0 +1,431 @@
+---
+# Optional global state for stages that support state (inventory_roles, provision, fabric_devices, host_port_onboarding)
+state: merged
+
+# Optional Catalyst Center version override
+catalyst_center_version: 2.3.7.9
+
+# End-to-end SDA fabric discover and onboarding workflow data model
+#
+# This file contains two example jobs:
+#   Job 1: Discovery-based onboarding — devices already cabled with known IPs (stages 1, 3-6)
+#   Job 2: LAN Automation-based onboarding — greenfield PnP deployment (stages 2-6)
+#   Job 3: Combined discovery + LAN automation (all 6 stages) — commented out
+#
+# Use only the jobs and stages you need. Uncomment or remove sections as required.
+
+sda_fabric_discover_and_onboard_fabric_devices:
+  jobs:
+    # =========================================================================
+    # Job 1: Discovery-based onboarding (Stages 1, 3–6)
+    #   Use when devices are already cabled and reachable via known IP addresses.
+    #   The discovery tool scans the network, adds devices to inventory, then
+    #   the remaining stages provision and onboard them into the SDA fabric.
+    # =========================================================================
+    - job_name: "sanjose_bld23_discovery_onboarding"
+
+      # Stage 1: Discover seed/border devices and edge switches by IP range
+      discovery:
+        - config:
+            discovery_name: "BLD23_Seed_Discovery"
+            discovery_type: "MULTI RANGE"
+            ip_address_list:
+              - "204.1.1.5-204.1.1.6"
+              - "204.1.1.10-204.1.1.16"
+            protocol_order: "ssh"
+            timeout: 30
+            retry: 2
+            global_credentials:
+              cli_credentials_list:
+                - description: "switch_cli"
+                  username: "admin"
+              snmp_v3_credential_list:
+                - description: "SNMPv3-credentials"
+                  username: "admin"
+              http_read_credential_list:
+                - description: "http_read"
+                  username: "admin"
+              http_write_credential_list:
+                - description: "httpwrite"
+                  username: "admin"
+
+        # Discover a WLC separately using CDP from a known seed IP
+        - config:
+            discovery_name: "BLD23_CDP_WLC_Discovery"
+            discovery_type: "CDP"
+            ip_address_list:
+              - "204.1.1.20"
+            protocol_order: "ssh"
+            discovery_specific_credentials:
+              cli_credentials_list:
+                - username: "wlcadmin"
+                  password: "Cisco#123"
+                  enable_password: "Cisco#123"
+              snmp_v3_credential:
+                description: "snmpv3_wlc"
+                username: "wlcadmin"
+                snmp_mode: "AUTHPRIV"
+                auth_password: "Cisco#123"
+                auth_type: "SHA"
+                privacy_type: "AES128"
+                privacy_password: "Cisco#123"
+              net_conf_port: "830"
+            retry: 2
+
+      # Stage 3: Fix device roles after discovery
+      inventory_roles:
+        - config:
+            ip_address_list:
+              - "204.1.1.5"
+              - "204.1.1.6"
+            role: "BORDER_ROUTER"
+        - config:
+            ip_address_list:
+              - "204.1.1.10"
+              - "204.1.1.11"
+              - "204.1.1.12"
+              - "204.1.1.13"
+              - "204.1.1.14"
+              - "204.1.1.15"
+              - "204.1.1.16"
+            role: "ACCESS"
+
+      # Stage 4: Provision discovered devices to sites
+      provision:
+        - config:
+            management_ip_address: "204.1.1.5"
+            site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+        - config:
+            management_ip_address: "204.1.1.6"
+            site_name_hierarchy: "Global/USA/SAN JOSE/BLD20"
+        - config:
+            management_ip_address: "204.1.1.10"
+            site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+        - config:
+            management_ip_address: "204.1.1.11"
+            site_name_hierarchy: "Global/USA/SAN JOSE/BLD20"
+        - config:
+            management_ip_address: "204.1.1.13"
+            site_name_hierarchy: "Global/USA/SAN JOSE/BLD20/BLD20_FLOOR1"
+        - config:
+            management_ip_address: "204.1.1.15"
+            site_name_hierarchy: "Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1"
+
+      # Stage 5: Add devices to SDA fabric with roles and border settings
+      fabric_devices:
+        - config:
+            fabric_devices:
+              fabric_name: "Global/USA/SAN JOSE"
+              device_config:
+                - device_ip: "204.1.1.5"
+                  device_roles: ["BORDER_NODE", "CONTROL_PLANE_NODE"]
+                  borders_settings:
+                    layer3_settings:
+                      local_autonomous_system_number: 65001
+                      is_default_exit: true
+                      import_external_routes: true
+                      border_priority: 1
+                    layer3_handoff_ip_transit:
+                      - transit_network_name: "IP_TRANSIT_1"
+                        interface_name: "GigabitEthernet0/0/1"
+                        external_connectivity_ip_pool_name: "BORDER_POOL"
+                        virtual_network_name: "EMPLOYEE_VN"
+                        vlan_id: 400
+                - device_ip: "204.1.1.6"
+                  device_roles: ["BORDER_NODE", "CONTROL_PLANE_NODE"]
+                  borders_settings:
+                    layer3_settings:
+                      local_autonomous_system_number: 65001
+                      is_default_exit: false
+                      border_priority: 2
+                - device_ip: "204.1.1.10"
+                  device_roles: ["EDGE_NODE"]
+                - device_ip: "204.1.1.11"
+                  device_roles: ["EDGE_NODE"]
+                - device_ip: "204.1.1.15"
+                  device_roles: ["EDGE_NODE"]
+
+      # Stage 6: Configure host-facing ports on edge switches
+      host_port_onboarding:
+        - config:
+            ip_address: "204.1.1.10"
+            fabric_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+            port_assignments:
+              - interface_name: "GigabitEthernet1/0/10"
+                connected_device_type: "USER_DEVICE"
+                data_vlan_name: "EMPLOYEEPOOL_Employee_VN"
+                voice_vlan_name: "VOICEPOOL_Employee_VN"
+              - interface_name: "GigabitEthernet1/0/11"
+                connected_device_type: "ACCESS_POINT"
+                data_vlan_name: "APPOOL_INFRA_VN"
+        - config:
+            ip_address: "204.1.1.15"
+            fabric_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1"
+            port_assignments:
+              - interface_name: "GigabitEthernet1/0/5"
+                connected_device_type: "USER_DEVICE"
+                data_vlan_name: "EMPLOYEEPOOL_Employee_VN"
+            wireless_ssids:
+              - vlan_name: "EMPLOYEEPOOL_Employee_VN"
+                ssid_details:
+                  - ssid_name: "Corporate-WiFi"
+                    security_group_name: "Employees"
+
+    # =========================================================================
+    # Job 2: LAN Automation-based onboarding (Stages 2–6)
+    #   Use for greenfield deployments where new devices boot through PnP.
+    #   LAN Automation assigns underlay IPs, hostnames, and discovers devices
+    #   through the seed device's interfaces.
+    # =========================================================================
+    # - job_name: "sanjose_bld23_lan_auto_onboarding"
+    #
+    #   # Stage 2: LAN Automation — discover devices through seed switches
+    #   lan_automation:
+    #     - config:
+    #         lan_automation:
+    #           discovered_device_site_name_hierarchy: "Global/USA/SAN JOSE"
+    #           primary_device_management_ip_address: "204.1.1.6"
+    #           peer_device_management_ip_address: "204.1.1.5"
+    #           primary_device_interface_names:
+    #             - "HundredGigE1/0/2"
+    #             - "HundredGigE1/0/29"
+    #             - "HundredGigE1/0/31"
+    #             - "HundredGigE1/0/33"
+    #             - "HundredGigE1/0/35"
+    #           ip_pools:
+    #             - ip_pool_name: "underlay_sub"
+    #               ip_pool_role: "MAIN_POOL"
+    #             - ip_pool_name: "underlay_sub_small"
+    #               ip_pool_role: "PHYSICAL_LINK_POOL"
+    #           multicast_enabled: true
+    #           redistribute_isis_to_bgp: true
+    #           isis_domain_pwd: "cisco"
+    #           discovery_level: 5
+    #           discovery_timeout: 40
+    #           discovery_devices:
+    #             - device_serial_number: "FJC27172JDX"
+    #               device_host_name: "SR-LAN-9300-IM1"
+    #               device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+    #               device_management_ip_address: "204.1.1.10"
+    #             - device_serial_number: "FJC2721261G"
+    #               device_host_name: "SR-LAN-9300-IM2"
+    #               device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD20"
+    #               device_management_ip_address: "204.1.1.11"
+    #             - device_serial_number: "FCW2152L02V"
+    #               device_host_name: "SR-LAN-9300-TRANSIT"
+    #               device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+    #               device_management_ip_address: "204.1.1.12"
+    #             - device_serial_number: "FXS2429Q0WE"
+    #               device_host_name: "SR-LAN-9400X-EDGE1"
+    #               device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD20/BLD20_FLOOR1"
+    #               device_management_ip_address: "204.1.1.13"
+    #             - device_serial_number: "FOC2722YGWW"
+    #               device_host_name: "SR-LAN-9300X-EDGE2"
+    #               device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD20/BLD20_FLOOR1"
+    #               device_management_ip_address: "204.1.1.14"
+    #             - device_serial_number: "FCW2213G01S"
+    #               device_host_name: "SR-LAN-9300-EDGE3"
+    #               device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1"
+    #               device_management_ip_address: "204.1.1.15"
+    #
+    #   # Stage 3: Update roles — LAN Automation may assign default roles
+    #   inventory_roles:
+    #     - config:
+    #         ip_address_list:
+    #           - "204.1.1.10"
+    #           - "204.1.1.11"
+    #           - "204.1.1.12"
+    #           - "204.1.1.13"
+    #           - "204.1.1.14"
+    #           - "204.1.1.15"
+    #         role: "ACCESS"
+    #
+    #   # Stage 4: Provision devices to sites
+    #   provision:
+    #     - config:
+    #         management_ip_address: "204.1.1.10"
+    #         site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+    #     - config:
+    #         management_ip_address: "204.1.1.11"
+    #         site_name_hierarchy: "Global/USA/SAN JOSE/BLD20"
+    #     - config:
+    #         management_ip_address: "204.1.1.12"
+    #         site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+    #     - config:
+    #         management_ip_address: "204.1.1.13"
+    #         site_name_hierarchy: "Global/USA/SAN JOSE/BLD20/BLD20_FLOOR1"
+    #     - config:
+    #         management_ip_address: "204.1.1.14"
+    #         site_name_hierarchy: "Global/USA/SAN JOSE/BLD20/BLD20_FLOOR1"
+    #     - config:
+    #         management_ip_address: "204.1.1.15"
+    #         site_name_hierarchy: "Global/USA/SAN JOSE/BLD23/FLOOR1_LEVEL1"
+    #
+    #   # Stage 5: Add devices into fabric as edge nodes
+    #   fabric_devices:
+    #     - config:
+    #         fabric_devices:
+    #           fabric_name: "Global/USA/SAN JOSE"
+    #           device_config:
+    #             - device_ip: "204.1.1.10"
+    #               device_roles: ["EDGE_NODE"]
+    #             - device_ip: "204.1.1.11"
+    #               device_roles: ["EDGE_NODE"]
+    #             - device_ip: "204.1.1.12"
+    #               device_roles: ["EDGE_NODE"]
+    #             - device_ip: "204.1.1.13"
+    #               device_roles: ["EDGE_NODE"]
+    #             - device_ip: "204.1.1.14"
+    #               device_roles: ["EDGE_NODE"]
+    #             - device_ip: "204.1.1.15"
+    #               device_roles: ["EDGE_NODE"]
+    #
+    #   # Stage 6: Onboard host ports on edge switches
+    #   host_port_onboarding:
+    #     - config:
+    #         ip_address: "204.1.1.13"
+    #         fabric_site_name_hierarchy: "Global/USA/SAN JOSE/BLD20/BLD20_FLOOR1"
+    #         port_assignments:
+    #           - interface_name: "GigabitEthernet1/0/1"
+    #             connected_device_type: "USER_DEVICE"
+    #             data_vlan_name: "EMPLOYEEPOOL_Employee_VN"
+    #             voice_vlan_name: "VOICEPOOL_Employee_VN"
+    #           - interface_name: "GigabitEthernet1/0/2"
+    #             connected_device_type: "ACCESS_POINT"
+    #             data_vlan_name: "APPOOL_INFRA_VN"
+    #         port_channels:
+    #           - interface_names:
+    #               - "GigabitEthernet1/0/23"
+    #               - "GigabitEthernet1/0/24"
+    #             connected_device_type: "TRUNK"
+    #             protocol: "LACP"
+
+    # =========================================================================
+    # Job 3: Combined Discovery + LAN Automation (All 6 Stages)
+    #   First discover seed/border devices by IP (already online), then use
+    #   LAN Automation from those seeds to bring up greenfield devices.
+    # =========================================================================
+    # - job_name: "sanjose_combined_onboarding"
+    #
+    #   # Stage 1: Discover seed/border devices that are already online
+    #   discovery:
+    #     - config:
+    #         discovery_name: "Seed_Border_Discovery"
+    #         discovery_type: "MULTI RANGE"
+    #         ip_address_list:
+    #           - "91.1.1.2-91.1.1.2"
+    #           - "91.1.1.6-91.1.1.6"
+    #         protocol_order: "ssh"
+    #         timeout: 30
+    #         retry: 2
+    #         global_credentials:
+    #           cli_credentials_list:
+    #             - description: "switch_cli"
+    #               username: "admin"
+    #           snmp_v3_credential_list:
+    #             - description: "SNMPv3-credentials"
+    #               username: "admin"
+    #           http_read_credential_list:
+    #             - description: "http_read"
+    #               username: "admin"
+    #           http_write_credential_list:
+    #             - description: "httpwrite"
+    #               username: "admin"
+    #         enable_password_list:
+    #           - "Cisco#123"
+    #
+    #   # Stage 2: LAN Automation — use discovered seeds to bring up greenfield devices
+    #   lan_automation:
+    #     - config:
+    #         lan_automation:
+    #           discovered_device_site_name_hierarchy: "Global/USA/SAN JOSE"
+    #           primary_device_management_ip_address: "91.1.1.6"
+    #           peer_device_management_ip_address: "91.1.1.2"
+    #           primary_device_interface_names:
+    #             - "HundredGigE1/0/2"
+    #             - "HundredGigE1/0/29"
+    #             - "HundredGigE1/0/35"
+    #           ip_pools:
+    #             - ip_pool_name: "underlay_sub"
+    #               ip_pool_role: "MAIN_POOL"
+    #             - ip_pool_name: "underlay_sub_small"
+    #               ip_pool_role: "PHYSICAL_LINK_POOL"
+    #           multicast_enabled: true
+    #           redistribute_isis_to_bgp: true
+    #           isis_domain_pwd: "cisco"
+    #           discovery_level: 3
+    #           discovery_timeout: 40
+    #           discovery_devices:
+    #             - device_serial_number: "FJC27172JDX"
+    #               device_host_name: "SR-LAN-9300-IM1"
+    #               device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+    #               device_management_ip_address: "204.1.1.10"
+    #             - device_serial_number: "FJC2721261G"
+    #               device_host_name: "SR-LAN-9300-IM2"
+    #               device_site_name_hierarchy: "Global/USA/SAN JOSE/BLD20"
+    #               device_management_ip_address: "204.1.1.11"
+    #
+    #   # Stage 3: Fix roles for all devices (seeds become border routers)
+    #   inventory_roles:
+    #     - config:
+    #         ip_address_list:
+    #           - "204.1.1.5"
+    #           - "204.1.1.6"
+    #         role: "BORDER_ROUTER"
+    #     - config:
+    #         ip_address_list:
+    #           - "204.1.1.10"
+    #           - "204.1.1.11"
+    #         role: "ACCESS"
+    #
+    #   # Stage 4: Provision to sites
+    #   provision:
+    #     - config:
+    #         management_ip_address: "204.1.1.5"
+    #         site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+    #     - config:
+    #         management_ip_address: "204.1.1.6"
+    #         site_name_hierarchy: "Global/USA/SAN JOSE/BLD20"
+    #     - config:
+    #         management_ip_address: "204.1.1.10"
+    #         site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+    #     - config:
+    #         management_ip_address: "204.1.1.11"
+    #         site_name_hierarchy: "Global/USA/SAN JOSE/BLD20"
+    #
+    #   # Stage 5: Add to SDA fabric with roles and border settings
+    #   fabric_devices:
+    #     - config:
+    #         fabric_devices:
+    #           fabric_name: "Global/USA/SAN JOSE"
+    #           device_config:
+    #             - device_ip: "204.1.1.5"
+    #               device_roles: ["BORDER_NODE", "CONTROL_PLANE_NODE"]
+    #               borders_settings:
+    #                 layer3_settings:
+    #                   local_autonomous_system_number: 65001
+    #                   is_default_exit: true
+    #                   import_external_routes: true
+    #             - device_ip: "204.1.1.6"
+    #               device_roles: ["BORDER_NODE", "CONTROL_PLANE_NODE"]
+    #               borders_settings:
+    #                 layer3_settings:
+    #                   local_autonomous_system_number: 65001
+    #                   is_default_exit: false
+    #             - device_ip: "204.1.1.10"
+    #               device_roles: ["EDGE_NODE"]
+    #             - device_ip: "204.1.1.11"
+    #               device_roles: ["EDGE_NODE"]
+    #
+    #   # Stage 6: Configure host-facing ports
+    #   host_port_onboarding:
+    #     - config:
+    #         ip_address: "204.1.1.10"
+    #         fabric_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+    #         port_assignments:
+    #           - interface_name: "GigabitEthernet1/0/10"
+    #             connected_device_type: "USER_DEVICE"
+    #             data_vlan_name: "EMPLOYEEPOOL_Employee_VN"
+    #           - interface_name: "GigabitEthernet1/0/11"
+    #             connected_device_type: "ACCESS_POINT"
+    #             data_vlan_name: "APPOOL_INFRA_VN"
