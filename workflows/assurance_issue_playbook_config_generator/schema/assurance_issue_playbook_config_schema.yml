@@ -1,0 +1,178 @@
+# Catalyst Center Assurance Issue Playbook Config Generator Schema
+#
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing assurance issues in Cisco Catalyst Center
+# using the assurance_issue_playbook_config_generator module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports configuration generation operations for:
+# 1. Issue Configurations - Extract existing assurance issues with details
+# 2. Filtered Generation - Selective issue extraction with name, description, priority, is_enabled filters
+# 3. Multi-criteria Filtering - Combine multiple filter types for precise extraction
+# 4. Automated Remediation - Generate configurations for remediation workflows
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating the extraction
+# and generation of assurance issue configurations from existing
+# Catalyst Center deployments (assurance issue playbook config generator scenarios).
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# ASSURANCE_ISSUE_CONFIG SECTION:
+# --------------------------------------------
+# Contains configuration for generating YAML configurations from existing assurance issues:
+#
+# 1. GENERATE_ALL_CONFIGURATIONS:
+#    - Type: boolean (optional, default: false)
+#    - Description: If true, generates configurations for all issues regardless of filters
+#    - When true, overrides any component_specific_filters settings
+#    - Retrieves all assurance issues from Catalyst Center
+#
+# 2. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved
+#    - If not provided, auto-generates filename with timestamp
+#    - Format: assurance_issue_workflow_manager_playbook_<timestamp>.yml
+#    - Example: assurance_issue_workflow_manager_playbook_2026-01-24_12-33-20.yml
+#    - Supports absolute and relative paths
+#    - Creates directory structure if it doesn't exist
+#
+# 3. COMPONENT_SPECIFIC_FILTERS:
+#    - Type: dictionary (optional)
+#    - Description: Filters to specify which issues to include in the generated configuration
+#    - If generate_all_configurations is true, these filters are ignored
+#    
+#    Sub-options:
+#    - COMPONENTS_LIST:
+#      - Type: list of strings (optional, default: ["assurance_user_defined_issue_settings"])
+#      - Description: List of components to include in the YAML configuration file
+#      - Valid values:
+#        * "assurance_user_defined_issue_settings" - Include issue configurations in the generated configuration
+#      - If empty list provided, defaults to all supported components
+#      - Invalid components will result in error
+#
+#    - ISSUE:
+#      - Type: list of dictionaries (optional)
+#      - Description: Filter assurance issue configurations by specific criteria
+#      - Sub-options:
+#        * name: Issue name or description to filter by (optional)
+#        * priority: Issue priority level (P1, P2, P3, P4) (optional)
+#        * is_enabled: Issue enabled status (true, false) (optional)
+#
+# GENERATED OUTPUT STRUCTURE:
+# --------------------------
+# The generated YAML file will contain a 'config' section with the following structure:
+#
+# config:
+#   - assurance_user_defined_issue_settings:
+#     - name: "Interface Down"
+#       description: "Interface GigabitEthernet1/0/1 is down"
+#       priority: "P1"
+#       is_enabled: true
+#       is_notification_enabled: false
+#       rules:
+#       - severity: 0
+#         facility: CI
+#         mnemonic: SHUTFANGONE
+#         pattern: shut *, fan has gone
+#         occurrences: 1
+#         duration_in_minutes: 1
+#
+# OPERATION WORKFLOWS:
+# -------------------
+# 1. Configuration Generation (All Issues):
+#    a. Set generate_all_configurations: true
+#    b. Optionally specify file_path
+#    c. All existing assurance issues will be extracted
+#
+# 2. Selective Issue Generation:
+#    a. Use component_specific_filters with components_list
+#    b. Specify required components (currently only ["assurance_user_defined_issue_settings"])
+#    c. Only specified components will be extracted
+#
+# 3. Filtered Issue Extraction:
+#    a. Use component-specific filters (assurance_user_defined_issue_settings)
+#    b. Apply filters like name, priority, is_enabled, description
+#    c. Extract only issues matching the specified criteria
+#
+# 4. Custom Output Path:
+#    a. Specify file_path parameter
+#    b. Can use absolute or relative paths
+#    c. Directory structure will be created if needed
+#
+# 5. Default Behavior:
+#    a. If no filters specified, all issues are generated
+#    b. If no file_path specified, auto-generates filename
+#    c. Generated in current working directory or specified path
+#
+# EXAMPLES:
+# --------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
+
+# Schema Definition
+assurance_issue_config: list(include('assurance_issue_config_generator'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Assurance Issue Configuration Generator Schema
+assurance_issue_config_generator:
+  # Generate all configurations flag
+  generate_all_configurations: bool(required=False)
+  
+  # Output file path
+  file_path: str(required=False)
+  
+  # Component-specific filters
+  component_specific_filters: include('assurance_issue_component_filters', required=False)
+
+---
+# Assurance Issue Component Filters Schema
+assurance_issue_component_filters:
+  # List of components to include
+  components_list: list(enum("assurance_user_defined_issue_settings"), min=0, max=10, required=False)
+  
+  # Issue configuration filters
+  assurance_user_defined_issue_settings: list(include('issue_filter'), min=0, max=100, required=False)
+
+---
+# Issue Filter Schema
+issue_filter:
+  # Issue name or description for filtering
+  name: str(required=False)
+  
+  # Issue priority level (P1, P2, P3, P4)
+  priority: enum("P1", "P2", "P3", "P4", required=False)
+  
+  # Issue enabled status (true, false)
+  is_enabled: bool(required=False)
+  
+  # Issue notification enabled status (true, false)
+  is_notification_enabled: bool(required=False)
+  
+  # Site hierarchy path for filtering
+  description: str(required=False)
