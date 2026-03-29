@@ -1,0 +1,5 @@
+{
+  "summary": "Generate SDA Fabric Multicast workflow-manager YAML inputs from existing Catalyst Center configurations using flexible site and virtual-network filters.",
+  "status": "active",
+  "managed_by": "cisco"
+}
