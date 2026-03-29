@@ -1,4 +1,4 @@
-# SDA Fabric Multicast Playbook Config Generator
+# SDA Fabric Multicast Config Generator
 
 ## Table of Contents
 
@@ -41,15 +41,15 @@ It is designed for brownfield operations where multicast already exists and you 
 ## Workflow Structure
 
 ```text
-sda_fabric_multicast_generator/
+sda_fabric_multicast_config_generator/
 ├── README.md
 ├── description.json
 ├── playbook/
-│   └── sda_fabric_multicast_generator_playbook.yml
+│   └── sda_fabric_multicast_config_generator.yml
 ├── schema/
-│   └── sda_fabric_multicast_generator_schema.yml
+│   └── sda_fabric_multicast_config_generator_schema.yml
 └── vars/
-    └── sda_fabric_multicast_generator_inputs.yml
+    └── sda_fabric_multicast_config_generator_inputs.yml
 ```
 
 ---
@@ -85,7 +85,7 @@ pip install yamale
 
 Top-level variable:
 
-- `sda_fabric_multicast_generator_config` (list, required)
+- `sda_fabric_multicast_config` (list, required)
 
 Each list item supports:
 
@@ -115,7 +115,7 @@ Each list item supports:
 ## Operational Behavior
 
 1. The playbook loads input from `VARS_FILE_PATH` (if provided) or falls back to inventory/host variables.
-2. It loops each item in `sda_fabric_multicast_generator_config`.
+2. It loops each item in `sda_fabric_multicast_config`.
 3. For each item, the playbook extracts `file_path` and `file_mode` as top-level module parameters and passes `component_specific_filters` inside `config`.
 4. If `generate_all_configurations: true`, the playbook omits `config` entirely so the module runs in full-discovery mode.
 5. If `file_path` is set, output is written exactly there. If omitted, module auto-generates:
@@ -149,14 +149,14 @@ catalyst_center_hosts:
 
 Edit:
 
-- `workflows/sda_fabric_multicast_generator/vars/sda_fabric_multicast_generator_inputs.yml`
+- `workflows/sda_fabric_multicast_config_generator/vars/sda_fabric_multicast_config_generator_inputs.yml`
 
 ### 3. Validate input schema
 
 ```bash
 ./tools/validate.sh \
-  -s workflows/sda_fabric_multicast_generator/schema/sda_fabric_multicast_generator_schema.yml \
-  -d workflows/sda_fabric_multicast_generator/vars/sda_fabric_multicast_generator_inputs.yml
+  -s workflows/sda_fabric_multicast_config_generator/schema/sda_fabric_multicast_config_generator_schema.yml \
+  -d workflows/sda_fabric_multicast_config_generator/vars/sda_fabric_multicast_config_generator_inputs.yml
 ```
 
 ### 4. Execute workflow
@@ -167,14 +167,14 @@ The playbook supports two input methods:
 
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/sda_fabric_multicast_generator/playbook/sda_fabric_multicast_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_multicast_generator/vars/sda_fabric_multicast_generator_inputs.yml \
+  workflows/sda_fabric_multicast_config_generator/playbook/sda_fabric_multicast_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_multicast_config_generator/vars/sda_fabric_multicast_config_generator_inputs.yml \
   -vvvv
 ```
 
 #### Option B: Inventory file input
 
-Omit `VARS_FILE_PATH` and define `sda_fabric_multicast_generator_config` directly as a host variable in your inventory file or in `host_vars`/`group_vars`.
+Omit `VARS_FILE_PATH` and define `sda_fabric_multicast_config` directly as a host variable in your inventory file or in `host_vars`/`group_vars`.
 
 **Example inventory snippet (`inventory/demo_lab/hosts.yaml`):**
 
@@ -190,7 +190,7 @@ catalyst_center_hosts:
       catalyst_center_version: 2.3.7.9
 
       # Workflow data defined as host variables
-      sda_fabric_multicast_generator_config:
+      sda_fabric_multicast_config:
         - generate_all_configurations: true
           file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_all.yml"
 ```
@@ -199,7 +199,7 @@ Then run **without** `VARS_FILE_PATH`:
 
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/sda_fabric_multicast_generator/playbook/sda_fabric_multicast_generator_playbook.yml \
+  workflows/sda_fabric_multicast_config_generator/playbook/sda_fabric_multicast_config_generator.yml \
   -vvvv
 ```
 
@@ -214,7 +214,7 @@ The playbook auto-detects the input source and prints it at the start:
 ### Example 1: Export all multicast configuration
 
 ```yaml
-sda_fabric_multicast_generator_config:
+sda_fabric_multicast_config:
   - generate_all_configurations: true
     file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_all.yml"
 ```
@@ -222,7 +222,7 @@ sda_fabric_multicast_generator_config:
 ### Example 2: Export by fabric site
 
 ```yaml
-sda_fabric_multicast_generator_config:
+sda_fabric_multicast_config:
   - file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_sanjose.yml"
     component_specific_filters:
       components_list:
@@ -234,7 +234,7 @@ sda_fabric_multicast_generator_config:
 ### Example 3: Export by fabric site + L3 VN
 
 ```yaml
-sda_fabric_multicast_generator_config:
+sda_fabric_multicast_config:
   - file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_sanjose_vn1.yml"
     component_specific_filters:
       components_list:
@@ -247,7 +247,7 @@ sda_fabric_multicast_generator_config:
 ### Example 4: Export VN across all eligible sites
 
 ```yaml
-sda_fabric_multicast_generator_config:
+sda_fabric_multicast_config:
   - file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_fabric_vn.yml"
     component_specific_filters:
       components_list:
@@ -259,7 +259,7 @@ sda_fabric_multicast_generator_config:
 ### Example 5: Append mode
 
 ```yaml
-sda_fabric_multicast_generator_config:
+sda_fabric_multicast_config:
   - file_path: "{{ playbook_dir }}/sda_fabric_multicast_playbook_config_all.yml"
     file_mode: append
     component_specific_filters:
@@ -272,7 +272,7 @@ sda_fabric_multicast_generator_config:
 ### Example 6: Auto-generated timestamp filename
 
 ```yaml
-sda_fabric_multicast_generator_config:
+sda_fabric_multicast_config:
   - generate_all_configurations: true
 ```
 
@@ -354,11 +354,11 @@ Use the exported file directly as `vars_files`, then pass `config` to the manage
 ## References
 
 - Workflow playbook:
-  `workflows/sda_fabric_multicast_generator/playbook/sda_fabric_multicast_generator_playbook.yml`
+  `workflows/sda_fabric_multicast_config_generator/playbook/sda_fabric_multicast_config_generator.yml`
 - Input file:
-  `workflows/sda_fabric_multicast_generator/vars/sda_fabric_multicast_generator_inputs.yml`
+  `workflows/sda_fabric_multicast_config_generator/vars/sda_fabric_multicast_config_generator_inputs.yml`
 - Schema:
-  `workflows/sda_fabric_multicast_generator/schema/sda_fabric_multicast_generator_schema.yml`
+  `workflows/sda_fabric_multicast_config_generator/schema/sda_fabric_multicast_config_generator_schema.yml`
 - Target module:
   `cisco.dnac.sda_fabric_multicast_playbook_config_generator`
 - Consumer module:
