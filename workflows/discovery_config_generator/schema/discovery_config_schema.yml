@@ -152,7 +152,7 @@
 # Schema Definition
 # =============================================================================
 
-discovery_playbook_config_generator_details: include('discovery_config_generator_type', required=True)
+discovery_config_details: include('discovery_config_generator_type', required=True)
 
 # Optional Catalyst Center connection override parameters
 catalyst_center_version: str(required=False)
