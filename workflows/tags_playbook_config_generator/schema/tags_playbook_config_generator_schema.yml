@@ -156,10 +156,14 @@ tags_config_generator:
   
   # Output file path
   file_path: str(required=False)
-  
+
+  # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
+  file_mode: enum('overwrite', 'append', required=False)
+
   # Component-specific filters
   component_specific_filters: include('tags_component_filters', required=False)
 
+---
 # Tags Component Filters Schema
 tags_component_filters:
   # List of components to include
