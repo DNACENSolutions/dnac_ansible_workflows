@@ -16,17 +16,7 @@
 - [Using Generated Output with Workflow Manager](#using-generated-output-with-workflow-manager)
 - [Troubleshooting](#troubleshooting)
 - [Best Practices](#best-practices)
-- [References](#references)
-
-## User Flow (3 Steps)
-
-```mermaid
-flowchart TD
-  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (filters, components, and output path)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
-```
-
----
+- [References](#references)---
 
 ## Overview
 
@@ -373,3 +363,13 @@ Use the exported file directly as `vars_files`, then pass `config` to the manage
   `cisco.dnac.sda_fabric_multicast_playbook_config_generator`
 - Consumer module:
   `cisco.dnac.sda_fabric_multicast_workflow_manager`
+
+## Workflow Steps
+
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```

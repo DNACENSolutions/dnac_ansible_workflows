@@ -30,6 +30,14 @@ Before starting, ensure the following requirements are met:
 
 
 ## Workflow Steps
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```
+
 ### Step 1: Install and Generate Inventory
 
 1. **Install Ansible**: Follow the [official Ansible documentation](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) for installation.
@@ -813,10 +821,3 @@ The following environment was used for testing:
 For detailed information on Plug and Play workflow, refer to the official documentation:  Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/pnp_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/pnp_workflow_manager/)
 
 ---
-## User Flow (3 Steps)
-
-```mermaid
-flowchart TD
-  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
-```

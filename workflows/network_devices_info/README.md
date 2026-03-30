@@ -130,6 +130,16 @@ Specify which information to retrieve using the `requested_info` parameter:
 
 ## Configuration
 
+## Workflow Steps
+
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```
+
 ### Step 1: Update Connection Parameters
 
 Edit the `vars/network_devices_info_input.yml` file and update the Catalyst Center connection parameters:
@@ -755,11 +765,3 @@ interface_info:
 1. Check the [Cisco Catalyst Center Ansible Collection Documentation](https://galaxy.ansible.com/cisco/dnac)
 2. Review the [Catalyst Center API Documentation](https://developer.cisco.com/docs/dna-center/)
 3. Consult the module documentation[Catalyst Center Network Devices Info Workflow Manager](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/network_devices_info_workflow_manager/?keywords=workflow_manager )
-
-## User Flow (3 Steps)
-
-```mermaid
-flowchart TD
-  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
-```

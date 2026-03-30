@@ -22,6 +22,14 @@ Key features include:
 
 ## Workflow Steps
 
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```
+
 This workflow typically involves the following steps:
 
 ### Step 1: Install and Generate Inventory
@@ -259,11 +267,3 @@ dnacentersdk: 2.8.8
 
 For detailed information on the assurance ICAP workflow, refer to the following documentation:  
 https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/assurance_icap_settings_workflow_manager/
-
-## User Flow (3 Steps)
-
-```mermaid
-flowchart TD
-  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
-```

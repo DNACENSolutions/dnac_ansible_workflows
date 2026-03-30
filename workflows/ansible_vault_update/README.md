@@ -32,10 +32,12 @@ ansible-playbook -i host_inventory workflows/ansible_vault_update/playbook/ansib
 ## Removing variables from ansible vault
 
 ansible-playbook -i host_inventory workflows/ansible_vault_update/playbook/delete_ansible_vault_update_playbook.yml --extra-vars "VARS_FILE_PATH=../vars/ansible_vault_update_inputs.yml"
+## Workflow Steps
+
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
   S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
 ```
