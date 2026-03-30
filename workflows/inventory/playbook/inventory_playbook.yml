@@ -30,16 +30,45 @@
     - name: Playbook start time for the inventory playbook
       set_fact:
         long_op_start: "{{ now() }}"
+    - name: Initialize payload containers
+      set_fact:
+        inventory_devices_payload: []
+        maintenance_payload: []
+    - name: Separate maintenance schedules from standard inventory actions
+      set_fact:
+        inventory_devices_payload: "{{ inventory_devices_payload + ([sanitized_entry] if (sanitized_entry | length) > 0 else []) }}"
+        maintenance_payload: "{{ maintenance_payload + ([{'devices_maintenance_schedule': item.devices_maintenance_schedule}] if (item.devices_maintenance_schedule is defined and (item.devices_maintenance_schedule | length) > 0) else []) }}"
+      vars:
+        sanitized_entry: "{{ item | dict2items | rejectattr('key', 'equalto', 'devices_maintenance_schedule') | list | items2dict }}"
+      loop: "{{ (inventory_details.network_devices if (inventory_details is defined and inventory_details.network_devices is defined) else []) }}"
+      loop_control:
+        label: "{{ item.ip_address_list | default(item.hostname_list | default(item.serial_number_list | default(item.mac_address_list | default('maintenance-only')))) }}"
     - name: Add/Update/assig to site/Provision in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
       cisco.dnac.inventory_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ inventory_details.network_devices }}" 
+        config: "{{ inventory_devices_payload }}" 
       register: inventory_output
-      when: inventory_details.network_devices is defined
+      when:
+        - inventory_devices_payload is defined
+        - inventory_devices_payload | length > 0
     - name: Print the Inventory devices output
       debug:
-        msg: "{{inventory_output}}"
+        msg: "{{ inventory_output }}"
+      when: inventory_output is defined
+    - name: Schedule maintenance windows defined in file "{{ VARS_FILE_PATH }}"
+      cisco.dnac.inventory_workflow_manager:
+        <<: *catalyst_center_login
+        state: "{{ maintenance_state | default(state) }}"
+        config: "{{ maintenance_payload }}"
+      register: maintenance_output
+      when:
+        - maintenance_payload is defined
+        - maintenance_payload | length > 0
+    - name: Print maintenance schedule output
+      debug:
+        msg: "{{ maintenance_output }}"
+      when: maintenance_output is defined
     - name: Playbook end time for the inventory playbook
       set_fact:
         long_op_end: "{{ now() }}"
@@ -50,7 +79,7 @@
     - name: run command module to find python version
       ansible.builtin.command: which python
       register: ansible_play_path
-      delegate_to: catalyst_center_hosts
-      connection: local
+      delegate_to: localhost
+      run_once: true
   
 

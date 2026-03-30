@@ -126,76 +126,44 @@ sda_fabric_virtual_networks_playbook_config_generator/
 ## Getting Started
 
 ## Workflow Steps
-
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+  A[Start] --> B[Step 1: Create virtual env and install dependencies]
+  B --> C[Step 2: Provide workflow inputs]
+  C --> D{Choose input location}
+  D -->|Option A| E[Update inventory hosts.yaml]
+  D -->|Option B| F[Update vars input file]
+  E --> G[Step 3: Export env vars]
+  F --> G
+  G --> H[Run ansible-playbook]
+  H --> I[Review playbook summary output]
+  I --> J[Done]
 ```
 
-### Step 1: Install Prerequisites
+### Installation and Run (Aligned)
+
+1. Create and activate a Python virtual environment, then install dependencies.
 
 ```bash
-ansible-galaxy collection install cisco.dnac
-ansible-galaxy collection install ansible.utils
-pip install dnacentersdk
-pip install yamale
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ansible-galaxy collection install cisco.dnac --force
 ```
 
-### Step 2: Configure Inventory
+2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
 
-Edit `inventory/demo_lab/hosts.yml`:
-
-```yaml
-catalyst_center_hosts:
-  hosts:
-    catalyst_center_primary:
-      catalyst_center_host: 10.0.0.0
-      catalyst_center_username: admin
-      catalyst_center_password: "password"
-```
-
-### Step 3: Configure Variables
-
-Edit `workflows/sda_fabric_virtual_networks_playbook_config_generator/vars/sda_fabric_virtual_networks_playbook_config_generator_inputs.yml`:
-
-```yaml
-sda_fabric_virtual_networks_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/complete_sda_config.yml"
-```
-
-### Step 4: Validate Configuration
+3. Export Catalyst Center environment variables and run the playbook.
 
 ```bash
-./tools/validate.sh -s workflows/sda_fabric_virtual_networks_playbook_config_generator/schema/sda_fabric_virtual_networks_playbook_config_generator_schema.yml \
-     -d workflows/sda_fabric_virtual_networks_playbook_config_generator/vars/sda_fabric_virtual_networks_playbook_config_generator_inputs.yml
+export HOSTIP=<catalyst-center-ip-or-fqdn>
+export CATALYST_CENTER_USERNAME=<username>
+export CATALYST_CENTER_PASSWORD='<password>'
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/sda_fabric_virtual_networks_config_generator/playbook/sda_fabric_virtual_networks_config_generator.yml -vvvv
 ```
 
-### Step 5: Execute Playbook
-
-```bash
-ansible-playbook -i inventory/demo_lab/hosts.yml \
-  workflows/sda_fabric_virtual_networks_playbook_config_generator/playbook/sda_fabric_virtual_networks_playbook_config_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=../vars/sda_fabric_virtual_networks_playbook_config_generator_inputs.yml
-```
-
-the creation of YAML playbook configurations for existing fabric vlans,virtual networks and anycast gateways deployed in Cisco Catalyst Center.
-
-### Workflow Execution
-
-The workflow follows these steps:
-
-1. **Connect** to Catalyst Center using provided credentials
-2. **Retrieve** existing fabric vlans,virtual networks and anycast gateways via API calls
-3. **Filter** components based on specified criteria
-4. **Transform** API responses into Ansible-compatible format
-5. **Generate** YAML configuration file with proper structure
-6. **Validate** output file format and content
-
----
 
 ## Operations
 
@@ -249,7 +217,6 @@ sda_fabric_virtual_networks_config:
 **Validate and Execute:**
 Validate Configuration: To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
 Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/validate.sh -s to perform the validation providing the schema path -d and the input path.
-
 
 
 ```bash

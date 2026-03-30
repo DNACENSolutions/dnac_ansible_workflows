@@ -1,6 +1,7 @@
 # catalyst-center-ansible-iac
 [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/DNACENSolutions/dnac_ansible_workflows)
 [![Run in Cisco Cloud IDE](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-runable-icon.svg)](https://developer.cisco.com/codeexchange/devenv/DNACENSolutions/dnac_ansible_workflows/)
+![Catalyst Center Cisco Validated Ansible Playbooks Official](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git)
 
 ## Overview
 This repository provides Cisco-validated Ansible playbooks to automate Catalyst Center configurations, accelerating your network automation journey. It includes:
@@ -43,8 +44,9 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - [Update](#update)
 - [Raising an issue or enhancement request](#raising-an-issue-or-enhancement-request)
 - [Contributing](#contributing)
-- [Code of Conduct](#code-of-conduct)
-- [Releasing, Versioning and Deprecation](#releasing-versioning-and-deprecation)
+- [License](#license)
+- [Cisco Validated Playbooks](#cisco-validated-playbooks)
+- [Configuration Generation Workflows](#configuration-generation-workflows)
 
 # Cisco Validated Playbooks
 
@@ -240,7 +242,7 @@ pip install dnacentersdk --upgrade
 ### Install a specific version
 To install a specific version like 2.8.3
 ```bash
-pip install dnacentersdk==2.8.3
+pip install dnacentersdk==2.9.1
 ```
 
 ## Ansible configuration file

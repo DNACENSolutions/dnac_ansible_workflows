@@ -545,12 +545,3 @@ ok: [catalyst_center220 -> catalyst_center_hosts]
 
 PLAY RECAP *****************************************************************************************************************
 catalyst_center220         : ok=37   changed=1    unreachable=0    failed=0    skipped=14   rescued=0    ignored=0  
-## Workflow Steps
-
-## User Flow (3 Steps)
-
-```mermaid
-flowchart TD
-  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
-```

@@ -46,6 +46,6 @@
     - name: run command module to find python version
       ansible.builtin.command: which python
       register: ansible_play_path
-      delegate_to: catalyst_center_hosts
-      connection: local
+      delegate_to: localhost
+      run_once: true
 

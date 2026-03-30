@@ -105,65 +105,44 @@ sda_fabric_transits_config_generator/
 ## Getting Started
 
 ## Workflow Steps
-
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+  A[Start] --> B[Step 1: Create virtual env and install dependencies]
+  B --> C[Step 2: Provide workflow inputs]
+  C --> D{Choose input location}
+  D -->|Option A| E[Update inventory hosts.yaml]
+  D -->|Option B| F[Update vars input file]
+  E --> G[Step 3: Export env vars]
+  F --> G
+  G --> H[Run ansible-playbook]
+  H --> I[Review playbook summary output]
+  I --> J[Done]
 ```
 
-### Step 1: Configure Inventory
+### Installation and Run (Aligned)
 
-Example `inventory/demo_lab/hosts.yml`:
-
-```yaml
-catalyst_center_hosts:
-  hosts:
-    catalyst_center_primary:
-      catalyst_center_host: 10.0.0.0
-      catalyst_center_username: admin
-      catalyst_center_password: "password"
-      catalyst_center_port: 443
-      catalyst_center_verify: false
-      catalyst_center_version: 2.3.7.9
-```
-
-### Step 2: Configure Variables
-
-Edit:
-`workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml`
-
-```yaml
-sda_fabric_transits_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/sda_fabric_transits_complete_config.yml"
-```
-
-### Step 3: Validate Configuration
+1. Create and activate a Python virtual environment, then install dependencies.
 
 ```bash
-./tools/validate.sh -s workflows/sda_fabric_transits_config_generator/schema/sda_fabric_transits_config_schema.yml \
-  -d workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ansible-galaxy collection install cisco.dnac --force
 ```
 
-### Step 4: Execute Playbook
+2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
 
-#### Option A: Vars file input (recommended)
+3. Export Catalyst Center environment variables and run the playbook.
 
 ```bash
-ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/sda_fabric_transits_config_generator/playbook/sda_fabric_transits_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml \
-  -vvvv
+export HOSTIP=<catalyst-center-ip-or-fqdn>
+export CATALYST_CENTER_USERNAME=<username>
+export CATALYST_CENTER_PASSWORD='<password>'
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/sda_fabric_transits_config_generator/playbook/sda_fabric_transits_config_generator.yml -vvvv
 ```
 
-#### Option B: Inventory / host variable input
-
-Omit `VARS_FILE_PATH` and define `sda_fabric_transits_config` in inventory or `host_vars`.
-
----
 
 ## Operations
 

@@ -46,59 +46,44 @@ To initiate LAN automation, the following prerequisites in Catalyst Center must 
 ## Getting Started
 
 ## Workflow Steps
-
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+  A[Start] --> B[Step 1: Create virtual env and install dependencies]
+  B --> C[Step 2: Provide workflow inputs]
+  C --> D{Choose input location}
+  D -->|Option A| E[Update inventory hosts.yaml]
+  D -->|Option B| F[Update vars input file]
+  E --> G[Step 3: Export env vars]
+  F --> G
+  G --> H[Run ansible-playbook]
+  H --> I[Review playbook summary output]
+  I --> J[Done]
 ```
 
-### Step 1: Prepare Your Ansible Environment
+### Installation and Run (Aligned)
 
-Ensure that Ansible is installed on your system. If it isn't, please refer to the [official Ansible installation guide](https://docs.ansible.com/ansible/latest/installation_guide/index.html) specific to your operating system for step-by-step instructions.
-
-**Environment Requirements:**
-- **Ansible**: Version 2.9 or later
-- **Python**: Version 3.9 or later
-- **cisco.dnac Collection**: Version 6.20.0 or later
-- **dnacentersdk**: Version 2.9.2 or later
-
-**Clone the Repository:**
-
-Next, verify that you have stable network connectivity to your Catalyst Center instance to ensure smooth communication between Ansible and the Catalyst Center. Once these prerequisites are met, clone the project repository along with the necessary playbooks by executing the following command in your terminal:
+1. Create and activate a Python virtual environment, then install dependencies.
 
 ```bash
-git clone git@github.com:cisco-en-programmability/catalyst-center-ansible-iac.git
-cd catalyst-center-ansible-iac
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ansible-galaxy collection install cisco.dnac --force
 ```
 
----
+2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
 
-### Step 2: Configure Host Inventory
+3. Export Catalyst Center environment variables and run the playbook.
 
-The `host_inventory_dnac1/hosts.yml` file is essential for establishing connectivity to your Catalyst Center instance, as it contains all the necessary connection details, including the IP address, credentials, and other relevant parameters. To ensure seamless operation, it is important to verify that the `catalyst_center_version` specified in this file aligns with your actual Catalyst Center version, thereby avoiding any potential compatibility issues that could disrupt functionality.
-
-**Sample host_inventory_dnac1/hosts.yml:**
-
-```yaml
-catalyst_center_hosts:
-  hosts:
-    catalyst_center220:
-      catalyst_center_host: xx.xx.xx.xx
-      catalyst_center_password: XXXXXXXX
-      catalyst_center_port: 443
-      catalyst_center_timeout: 60
-      catalyst_center_username: admin
-      catalyst_center_verify: false
-      catalyst_center_version: 2.3.7.6
-      catalyst_center_debug: true
-      catalyst_center_log_level: INFO
-      catalyst_center_log: true
+```bash
+export HOSTIP=<catalyst-center-ip-or-fqdn>
+export CATALYST_CENTER_USERNAME=<username>
+export CATALYST_CENTER_PASSWORD='<password>'
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml -vvvv
 ```
 
----
 
 ## Configuration Parameters
 

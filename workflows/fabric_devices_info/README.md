@@ -96,110 +96,44 @@ The workflow uses a Yamale schema file to validate input parameters before execu
 ## Getting Started
 
 ## Workflow Steps
-
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+  A[Start] --> B[Step 1: Create virtual env and install dependencies]
+  B --> C[Step 2: Provide workflow inputs]
+  C --> D{Choose input location}
+  D -->|Option A| E[Update inventory hosts.yaml]
+  D -->|Option B| F[Update vars input file]
+  E --> G[Step 3: Export env vars]
+  F --> G
+  G --> H[Run ansible-playbook]
+  H --> I[Review playbook summary output]
+  I --> J[Done]
 ```
 
-### Step 1: Update Credentials File
+### Installation and Run (Aligned)
 
-Ensure your Catalyst Center credentials are configured in the credentials file (`ex: inventory/demo_lab/hosts.yaml`):
-
-```yaml
-catalyst_center_host: "xxxxx"
-catalyst_center_username: "xxxxx"
-catalyst_center_password: "xxxxx"
-catalyst_center_verify: false
-catalyst_center_port: 443
-catalyst_center_version: "2.3.7.9"
-catalyst_center_debug: false
-catalyst_center_log: true
-catalyst_center_log_level: "INFO"
-```
-
-### Step 2: Customize Input Variables
-
-1. Navigate to the vars directory:
-   ```bash
-   cd dnac_ansible_workflows/workflows/fabric_devices_info/vars/
-   ```
-
-2. Edit the input file with your fabric device query parameters:
-   ```bash
-   vi fabric_devices_info_input.yml
-   ```
-
-3. Configure the following parameters:
-   - **fabric_site_hierarchy**: (Required) The full hierarchical path of your SDA fabric site
-   - **fabric_device_role**: (Optional) Filter by device role (CONTROL_PLANE_NODE, BORDER_NODE, EDGE_NODE, EXTENDED_NODE, WIRELESS_CONTROLLER_NODE)
-   - **device_identifier**: (Optional) Filter by IP address, hostname, serial number, or IP range
-   - **requested_info**: (Optional) Select specific information categories or leave blank for all
-   - **timeout/retries/interval**: (Optional) Adjust retry mechanisms as needed
-   - **output_file_info**: (Optional) Configure file output with path, format, and mode
-
-Example configuration:
-```yaml
-fabric_device_info_details:
-  - fabric_devices:
-      - fabric_site_hierarchy: "Global/USA/San Jose/Building23"
-        fabric_device_role: "BORDER_NODE"
-        device_identifier:
-          - ip_address:
-              - "204.1.2.2"
-        requested_info:
-          - fabric_info
-          - handoff_info
-        output_file_info:
-          file_path: "/tmp/fabric_devices/border_nodes"
-          file_format: "yaml"
-          file_mode: "w"
-          timestamp: true
-```
-
-### Step 3: Validate Input Schema
-
-Validate your input file against the schema before running the playbook:
+1. Create and activate a Python virtual environment, then install dependencies.
 
 ```bash
-cd dnac_ansible_workflows/workflows/network_devices_info/
-yamale -s schema/network_devices_info_schema.yml vars/network_devices_info_input.yml
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ansible-galaxy collection install cisco.dnac --force
 ```
 
-If validation passes, you'll see:
-```
-Validating fabric_devices_info_input.yml...
-Validation success! 👍
-```
+2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
 
-### Step 4: Run the Playbook
+3. Export Catalyst Center environment variables and run the playbook.
 
-Execute the playbook with your inventory:
-
-For verbose output:
 ```bash
-ansible-playbook -i inventory/demo_lab/hosts.yaml \
-workflows/fabric_devices_info/playbook/fabric_devices_info_playbook.yml \
---e VARS_FILE_PATH=./../vars/fabric_devices_info_input.yml \
--v
+export HOSTIP=<catalyst-center-ip-or-fqdn>
+export CATALYST_CENTER_USERNAME=<username>
+export CATALYST_CENTER_PASSWORD='<password>'
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/fabric_devices_info/playbook/fabric_devices_info_playbook.yml -vvvv
 ```
 
-### Step 5: Verify the Results
-
-1. **Check Ansible Output**: Review the playbook execution results showing:
-   - List of fabric devices that match your filters
-   - Retrieved information for each requested category
-   - Success or error messages
-
-2. **Review File Output** (if configured):
-   ```bash
-   cat /tmp/fabric_devices/border_nodes.yaml
-   ```
-
-3. **Verify Information Retrieved**: Confirm that the expected information categories are present in the output
 
 ## Usage Examples
 The UI display (example):
@@ -512,7 +446,6 @@ fabric_device_info_details:
 ```
 
 **What this does**: Targets a specific wireless controller by serial number at the SAN JOSE campus and retrieves detailed onboarding information including SSID configurations, port channel assignments, and wireless-specific fabric settings. Serial number identification ensures accuracy when IP addresses may change.
-
 
 
 ## References
