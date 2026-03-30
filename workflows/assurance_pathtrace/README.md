@@ -306,3 +306,10 @@ All the below listed Catalyst Center Path trace limitation apply to workflow/pla
         For a path trace request, Catalyst Center does not have the right egress virtual interface highlighted on any foreign wireless controller.
 
         The path trace request does not highlight any ACLs applied on the foreign wireless controller.
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```

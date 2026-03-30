@@ -17,3 +17,11 @@ This Readme describes how to configure Security Groups, Access Contracts and Acc
 ## ISE Catalyst Center Integration:
     This playbook assumes that a Catalyst Center and ISE Integration is already performed. If not yet that should be performed first. To perform Catalyst Center Ise Integration check the playbooks in [Catalyst Center ISE and AAA Servers Integration](./workflows/ise_radius_integration/#readme)
 
+
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```
