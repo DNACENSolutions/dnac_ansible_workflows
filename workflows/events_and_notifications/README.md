@@ -71,6 +71,16 @@ events_notifications_destination_and_subscription_details:
         smtp_type: "TLS"
 ```
 
+## Workflow Steps
+
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```
+
 ### Step 1: Execute events_and_notifications playbook
 
 Run the following command to create/update the Email destination
@@ -957,12 +967,4 @@ yamale -s workflows/events_and_notifications/schema/events_and_notifications_sch
   dnacentersdk: 2.8.3
   cisco.dnac: 6.29.0
   dnac version: 2.3.7.6
-```
-
-## User Flow (3 Steps)
-
-```mermaid
-flowchart TD
-  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
 ```

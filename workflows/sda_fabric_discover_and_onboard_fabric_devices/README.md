@@ -790,11 +790,12 @@ If any stage fails, the playbook completes all stages first, then fails at the e
 - Stages 1 (Discovery) and 2 (LAN Automation) are alternative device discovery methods. Use either, both, or neither.
 - The playbook evaluates all stages first, then fails at the end if one or more stages report `failed`.
 - Refer to the [discovery_workflow_manager](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/discovery_workflow_manager) and [lan_automation_workflow_manager](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/lan_automation_workflow_manager) module documentation for the full list of supported parameters.
+## Workflow Steps
 
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
   S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
 ```
