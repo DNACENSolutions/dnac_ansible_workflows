@@ -8,6 +8,14 @@ This workflow runs the `cisco.dnac.sda_host_port_onboarding_playbook_config_gene
 - `schema/sda_host_port_onboarding_config_schema.yml`
 - `vars/sda_host_port_onboarding_config_input.yml`
 
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (filters, components, and output path)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```
+
 ## Run
 
 The playbook supports two input methods:

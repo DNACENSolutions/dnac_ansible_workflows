@@ -208,3 +208,11 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_discovery/pl
 ### Consider backing up your configuration before running the playbooks, especially the delete playbook.
 ### If you encounter any issues, review the Ansible playbook output for error messages and consult the Catalyst Center documentation or support resources.
 
+
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```

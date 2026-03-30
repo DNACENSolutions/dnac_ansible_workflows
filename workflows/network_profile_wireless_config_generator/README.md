@@ -2,6 +2,8 @@
 
 ## Table of Contents
 
+- [User Flow (3 Steps)](#user-flow-3-steps)
+
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -12,6 +14,14 @@
 - [Examples](#examples)
 - [Filter Priority System](#filter-priority-system)
 - [Troubleshooting](#troubleshooting)
+
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (filters, components, and output path)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```
 
 ---
 

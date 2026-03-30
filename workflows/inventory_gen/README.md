@@ -45,3 +45,10 @@ This will generate an inventory file based on the specified parameters and save 
 ## Contributing
 
 Contributions are welcome! 
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```
