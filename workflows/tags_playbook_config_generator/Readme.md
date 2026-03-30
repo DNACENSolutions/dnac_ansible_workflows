@@ -117,119 +117,44 @@ tags_playbook_config_generator/
 ## Getting Started
 
 ## Workflow Steps
-
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+  A[Start] --> B[Step 1: Create virtual env and install dependencies]
+  B --> C[Step 2: Provide workflow inputs]
+  C --> D{Choose input location}
+  D -->|Option A| E[Update inventory hosts.yaml]
+  D -->|Option B| F[Update vars input file]
+  E --> G[Step 3: Export env vars]
+  F --> G
+  G --> H[Run ansible-playbook]
+  H --> I[Review playbook summary output]
+  I --> J[Done]
 ```
 
-### Step 1: Install Prerequisites
+### Installation and Run (Aligned)
+
+1. Create and activate a Python virtual environment, then install dependencies.
 
 ```bash
-ansible-galaxy collection install cisco.dnac
-ansible-galaxy collection install ansible.utils
-pip install dnacentersdk
-pip install yamale
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ansible-galaxy collection install cisco.dnac --force
 ```
 
-### Step 2: Configure Inventory
+2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
 
-Edit `inventory/demo_lab/hosts.yml`:
-
-```yaml
-catalyst_center_hosts:
-  hosts:
-    catalyst_center_primary:
-      catalyst_center_host: 10.0.0.0
-      catalyst_center_username: admin
-      catalyst_center_password: "password"
-```
-
-### Step 3: Configure Variables
-
-Edit `workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml`:
-
-```yaml
-tags_config:
-  - generate_all_configurations: true
-    file_path: "generated_file/complete_tags_config.yml"
-```
-
-### Step 4: Validate Configuration
+3. Export Catalyst Center environment variables and run the playbook.
 
 ```bash
-./tools/validate.sh -s workflows/tags_playbook_config_generator/schema/tags_playbook_config_generator_schema.yml \
-     -d workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
+export HOSTIP=<catalyst-center-ip-or-fqdn>
+export CATALYST_CENTER_USERNAME=<username>
+export CATALYST_CENTER_PASSWORD='<password>'
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml -vvvv
 ```
 
-### Step 5: Execute Playbook
-
-The playbook supports two input methods:
-
-#### Option A: Vars file input (recommended for version-controlled configs)
-
-```bash
-ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml \
-  -vvvv
-```
-
-#### Option B: Inventory / host variable input
-
-Omit `VARS_FILE_PATH` and define `tags_config` directly as a host variable in your inventory file or in `host_vars`/`group_vars`.
-
-**Example inventory snippet (`inventory/demo_lab/hosts.yaml`):**
-
-```yaml
-catalyst_center_hosts:
-  hosts:
-    catalyst_center_primary:
-      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'HOSTIP') }}"
-      catalyst_center_password: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_PASSWORD') }}"
-      catalyst_center_port: 443
-      catalyst_center_username: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_USERNAME') }}"
-      catalyst_center_verify: false
-      catalyst_center_version: 2.3.7.9
-
-      # Workflow data defined as host variables
-      tags_config:
-        - generate_all_configurations: true
-          file_path: "generated_file/complete_tags_config.yml"
-```
-
-Then run **without** `VARS_FILE_PATH`:
-
-```bash
-ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml \
-  -vvvv
-```
-
-The playbook auto-detects the input source and prints it at the start:
-- `Input source: vars file <path>` when using Option A
-- `Input source: inventory / host variables (VARS_FILE_PATH not provided)` when using Option B
-
-> **Note:** When `VARS_FILE_PATH` is provided, it takes **precedence** over inventory variables.
-
-### Workflow Execution
-
-The workflow follows these steps:
-
-1. **Load input** from `VARS_FILE_PATH` (if provided) or fall back to inventory / host variables
-2. **Connect** to Catalyst Center using provided credentials
-3. **Extract** `file_path` and `file_mode` as top-level module parameters; pass `component_specific_filters` inside `config`
-4. **Omit** `config` entirely when `generate_all_configurations: true` (module runs in full auto-discovery mode)
-5. **Retrieve** existing tag configurations and tag memberships via API calls
-6. **Filter** components based on specified criteria
-7. **Transform** API responses into Ansible-compatible format
-8. **Generate** YAML configuration file with proper structure
-9. **Write** output to specified file path using configured `file_mode`
-
----
 
 ## Operations
 

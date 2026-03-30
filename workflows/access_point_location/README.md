@@ -165,103 +165,44 @@ The following schema outlines the structure for configuring Access Point locatio
 Follow these steps to configure and manage Access Point locations in *Cisco Catalyst Center* using Ansible playbooks.
 
 ## Workflow Steps
-
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+  A[Start] --> B[Step 1: Create virtual env and install dependencies]
+  B --> C[Step 2: Provide workflow inputs]
+  C --> D{Choose input location}
+  D -->|Option A| E[Update inventory hosts.yaml]
+  D -->|Option B| F[Update vars input file]
+  E --> G[Step 3: Export env vars]
+  F --> G
+  G --> H[Run ansible-playbook]
+  H --> I[Review playbook summary output]
+  I --> J[Done]
 ```
 
-### Step 1: Install and Generate Inventory
+### Installation and Run (Aligned)
 
-**Prepare your environment** by installing Ansible and the required *Cisco Catalyst Center* collection, then generate an inventory file.
+1. Create and activate a Python virtual environment, then install dependencies.
 
-1. **Install Ansible**:  
-   Refer to the [official Ansible documentation](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) for installation instructions.
-
-2. **Install Cisco Catalyst Center Collection**:  
-   ```bash
-   ansible-galaxy collection install cisco.dnac
-   ```
-
-3. **Generate Inventory**:  
-   Create an Ansible inventory file (e.g., `inventory.yml`) with your *Cisco Catalyst Center* appliance details. Define variables such as `catalyst_center_host`, `catalyst_center_username`, and `catalyst_center_password`.  
-   > **Note**: For security, consider using *Ansible Vault* to encrypt sensitive data like passwords.  
-   ```yaml
-   catalyst_center_hosts:
-       hosts:
-           your_catalyst_center_instance_name:
-               catalyst_center_host: xx.xx.xx.xx
-               catalyst_center_password: XXXXXXXX
-               catalyst_center_port: 443
-               catalyst_center_timeout: 60
-               catalyst_center_username: admin
-               catalyst_center_verify: false  # Enable for production with valid certificates
-               catalyst_center_version: 3.1.3.0  # Minimum version required
-               catalyst_center_debug: true
-               catalyst_center_log_level: INFO
-               catalyst_center_log: true
-   ```
-
----
-
-### Step 2: Define Inputs and Validate
-
-Define input variables and validate your configuration to ensure successful AP location management.
-
-#### Define Input Variables
-Create a variable file (e.g., `vars/access_point_location_inputs.yml`) to specify the desired state of your Access Point locations for creation, update, or deletion.
-
----
-
-#### Validate Configuration
-> **Important**: Validate your input schema before executing the playbook to ensure all parameters are correctly formatted.  
-Run the following command to validate your input file against the schema:  
 ```bash
-./tools/validate.sh -s ./workflows/access_point_location/schema/access_point_location_schema.yml -d ./workflows/access_point_location/vars/access_point_location_inputs.yml
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ansible-galaxy collection install cisco.dnac --force
 ```
 
----
+2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
 
-### Step 3: Deploy and Verify
+3. Export Catalyst Center environment variables and run the playbook.
 
-**Deploy** your configuration to *Cisco Catalyst Center* and **verify** the changes.
+```bash
+export HOSTIP=<catalyst-center-ip-or-fqdn>
+export CATALYST_CENTER_USERNAME=<username>
+export CATALYST_CENTER_PASSWORD='<password>'
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/access_point_location/playbook/access_point_location_playbook.yml -vvvv
+```
 
-1. **Deploy Configuration**:  
-   Run the playbook to apply the Access Point location configuration. Ensure the input file is validated before execution. Specify the input file path using the `--e` variable (`VARS_FILE_PATH`).
-
-   ### a. Create or Update AP Locations (state = 'merged')
-   ```bash
-   ansible-playbook -i inventory/demo_lab/hosts.yaml \
-   workflows/access_point_location/playbook/access_point_location_playbook.yml \
-   --e VARS_FILE_PATH=./../vars/access_point_location_inputs.yml \
-   -vvv
-   ```
-
-   ### b. Delete AP Locations (state = 'deleted')
-   ```bash
-   ansible-playbook -i inventory/demo_lab/hosts.yaml \
-   workflows/access_point_location/playbook/delete_access_point_location_playbook.yml \
-   --e VARS_FILE_PATH=./../vars/delete_access_point_location_inputs.yml \
-   -vvv
-   ```
-
-   > **Note**: If an error occurs (e.g., invalid input or API failure), the playbook will halt and display details. Check the execution logs for troubleshooting.
-
-2. **Verify Deployment**:  
-   After execution, verify the configuration in the *Cisco Catalyst Center* UI:
-   - Navigate to **Design** > **Network Hierarchy** > Select your floor.
-   - Click on **Maps** to view the floor plan.
-   - Verify that access points are positioned correctly on the map.
-   - Check AP details including position coordinates and radio configurations.
-   - For planned positions, verify they appear with planned icon.
-   - For real/assigned positions, verify they show actual AP information.
-   
-   If `catalyst_center_debug` is enabled, review the logs for detailed operation information.
-
----
 
 ## Operations
 
