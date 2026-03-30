@@ -94,7 +94,10 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 
 ## Configuration Generation Workflows
 
+- [Access Point Config Generator](./workflows/accesspoint_config_generator/README.md)
+- [Access Point Location Config Generator](./workflows/accesspoint_location_config_generator/README.md)
 - [Application Policy Config Generator](./workflows/application_policy_config_generator/README.md)
+- [Assurance Device Health Score Settings Config Generator](./workflows/assurance_device_health_score_settings_config_generator/README.md)
 - [Assurance Issue Config Generator](./workflows/assurance_issue_config_generator/README.md)
 - [Backup and Restore Config Generator](./workflows/backup_and_restore_config_generator/README.md)
 - [Device Credential Config Generator](./workflows/device_credential_config_generator/README.md)

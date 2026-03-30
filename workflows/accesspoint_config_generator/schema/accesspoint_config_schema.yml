@@ -1,0 +1,37 @@
+# Cisco Catalyst Center Access Point Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing access point settings in Cisco Catalyst Center
+# using the accesspoint_playbook_config_generator module.
+
+# Schema Definition
+accesspoint_config: list(include('accesspoint_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Access Point Config Generator Entry Schema
+accesspoint_config_generator_type:
+  generate_all_configurations: bool(required=False)
+  file_path: str(required=False)
+  file_mode: enum('overwrite', 'append', required=False)
+  global_filters: include('accesspoint_global_filters_type', required=False)
+
+---
+# Access Point Global Filters Schema
+accesspoint_global_filters_type:
+  site_list: list(str(), min=1, max=500, required=False)
+  provision_hostname_list: list(str(), min=1, max=500, required=False)
+  accesspoint_config_list: list(str(), min=1, max=500, required=False)
+  accesspoint_provision_config_list: list(str(), min=1, max=500, required=False)
+  accesspoint_provision_config_mac_list: list(str(), min=1, max=500, required=False)
