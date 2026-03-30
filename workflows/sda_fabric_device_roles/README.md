@@ -328,11 +328,12 @@ fabric_devices_details:
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_device_roles/playbook/delete_sda_fabric_device_roles_playbook.yml --e VARS_FILE_PATH=w/Users/majlona/Desktop/dnac_ansible_workflows_vs_copilot/workflows/sda_fabric_device_roles/vars/delete_sda_fabric_device_roles_input.yml -vvv
 ```
+## Workflow Steps
 
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
   S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
 ```

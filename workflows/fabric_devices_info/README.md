@@ -95,6 +95,16 @@ The workflow uses a Yamale schema file to validate input parameters before execu
 
 ## Getting Started
 
+## Workflow Steps
+
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```
+
 ### Step 1: Update Credentials File
 
 Ensure your Catalyst Center credentials are configured in the credentials file (`ex: inventory/demo_lab/hosts.yaml`):
@@ -519,11 +529,4 @@ dnac_version: 3.1.5
 ansible: 9.9.0
 dnacentersdk: 2.10.4
 cisco.dnac: 6.42.0
-```
-## User Flow (3 Steps)
-
-```mermaid
-flowchart TD
-  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
 ```
