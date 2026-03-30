@@ -1,9 +1,8 @@
 # catalyst-center-ansible-iac
 [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/DNACENSolutions/dnac_ansible_workflows)
 [![Run in Cisco Cloud IDE](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-runable-icon.svg)](https://developer.cisco.com/codeexchange/devenv/DNACENSolutions/dnac_ansible_workflows/)
-![Catalyst Center Cisco Validated Ansible Playbooks Official](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git)
 
-# Catalyst Center Cisco Validated Playbooks
+## Overview
 This repository provides Cisco-validated Ansible playbooks to automate Catalyst Center configurations, accelerating your network automation journey. It includes:
 
 ## Ready-to-use playbooks
@@ -32,40 +31,44 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 ![Enterprise Usecases](./images/enterpriseUsecases.png)
 
 # Table of Contents
+- [Enterprise Usecases](#enterprise-usecases)
+- [Cisco Validated Playbooks](#cisco-validated-playbooks)
+- [Compatibility Matrix](#compatibility-matrix)
+- [Released Versions](#released-versions)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Usage](#usage)
-- [Examples](#examples)
-- [Troubleshooting](#troubleshooting)
+- [Create your Catalyst Center cluster inventory](#create-your-catalyst-center-cluster-inventory)
+- [Executing playbook (Sample)](#executing-playbook-sample)
+- [Attention macOS users](#attention-macos-users)
 - [Update](#update)
+- [Raising an issue or enhancement request](#raising-an-issue-or-enhancement-request)
 - [Contributing](#contributing)
-- [License](#license)
-- [Cisco Validated Playbooks](#cisco-validated-playbooks)
-- [Configuration Generation Workflows](#configuration-generation-workflows)
+- [Code of Conduct](#code-of-conduct)
+- [Releasing, Versioning and Deprecation](#releasing-versioning-and-deprecation)
 
 # Cisco Validated Playbooks
 
 ## Day 0 Configurations (Access and Integrations)
 - [Catalyst Center Role Based Access Control and Users Management](./workflows/users_and_roles/README.md)
-- [Catalyst Center ISE and AAA Servers Integration](./workflows/ise_radius_integration/#readme)
+- [Catalyst Center ISE and AAA Servers Integration](./workflows/ise_radius_integration/README.md)
 
 ## Day 1 Configurations (Design and Discovery)
-- [Catalyst Center Site Hierarchy and Floor Maps design](./workflows/site_hierarchy/#readme)
-- [Catalyst Center Device Credentials configurations and assignment](./workflows/device_credentials/#readme)
-- [Catalyst Center Network Settings (Servers, Banners, TZ, SNMP, Logging, Telemetry Management](./workflows/network_settings/#readme)
-- [Catalyst Center Network Settings Global IP Address Pools and Site IP Address Pools reservation Management](./workflows/network_settings/#readme)
-- [Catalyst Center Network Settings Wireless Design Management](./workflows/wireless_design/#readme) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Wireless Network Profile Management](./workflows/network_profile_wireless/#readme) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Network Profile Switching Management](./workflows/network_profile_switching/#readme) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Devices Discovery](./workflows/device_discovery/#readme)
-- [Catalyst Center Device Inventory and device management](./workflows/inventory#readme)
+- [Catalyst Center Site Hierarchy and Floor Maps design](./workflows/site_hierarchy/README.md)
+- [Catalyst Center Device Credentials configurations and assignment](./workflows/device_credentials/README.md)
+- [Catalyst Center Network Settings (Servers, Banners, TZ, SNMP, Logging, Telemetry Management](./workflows/network_settings/README.md)
+- [Catalyst Center Network Settings Global IP Address Pools and Site IP Address Pools reservation Management](./workflows/network_settings/README.md)
+- [Catalyst Center Network Settings Wireless Design Management](./workflows/wireless_design/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Wireless Network Profile Management](./workflows/network_profile_wireless/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Network Profile Switching Management](./workflows/network_profile_switching/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Devices Discovery](./workflows/device_discovery/README.md)
+- [Catalyst Center Device Inventory and device management](./workflows/inventory/README.md)
 - [Catalyst Center Plug and Play Device Onboarding](./workflows/plug_and_play/README.md)
 - [Catalyst Center Device Provisioning and Re-Provisioning Management](./workflows/provision/README.md)
 - [Catalyst Center Design and Deploy Device Templates](./workflows/device_templates/README.md)
 - [Catalyst Center Tags Management](./workflows/tags_manager/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 
 ## Day 2 Configurations (Underlay automation and SD Access fabric)
-- [Catalyst Center Underlay Automation (LAN Automation) Management](./workflows/lan_automation/#readme)
+- [Catalyst Center Underlay Automation (LAN Automation) Management](./workflows/lan_automation/README.md)
 - [Catalyst Center SDA Fabric Site and Fabric Zones](./workflows/sda_fabric_sites_zones/README.md)
 - [Catalyst Center SDA Fabric Transits (IP transit and SDA Transit) Management](./workflows/sda_fabric_transits/README.md)
 - [Catalyst Center Virtual Networks and L3 Anycast Gateways and L2 VLANs Management](./workflows/sda_virtual_networks_l2l3_gateways/README.md)
@@ -87,9 +90,9 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - [Catalyst Center Assurance Path Trace Management](./workflows/assurance_pathtrace/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 - [Catalyst Center Assurance issues and events management](./workflows/assurance_issues_management/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 - [Catalyst Center Assurance ICAP Management](./workflows/assurance_intelligent_capture/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center SDA Fabric Devices Information and Inventory Management](./workflows/sda_fabric_devices_info/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center SDA Fabric Devices Information and Inventory Management](./workflows/fabric_devices_info/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 - [Catalyst Center Network Devices Information and Inventory Management](./workflows/network_devices_info/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Configuration Backup and Restore Management](./workflows/backup_restore/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=3.1.6**</span></mark>
+- [Catalyst Center Configuration Backup and Restore Management](./workflows/backup_and_restore/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=3.1.6**</span></mark>
 - [Catalyst Center Reports Management and Scheduling](./workflows/reports/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 
 ## Migration Usecases
@@ -131,7 +134,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 ## Demo Videos
 [IaC Demo Videos](http://3.136.0.140/index.html)
 
-# CompatibilityMatrix
+# Compatibility Matrix
 | Deployed Catalyst Center Version   | Catalyst Center Version in Input   | Ansible Galaxy collection (cisco.dnac)Version    | Python SDK (dnacentersdk) Version    |
 | :--------------------------------: | :--------------------------------: | :-----------------------: | :-------------------: |
 | 2.3.5.3 | 2.3.5.3   | latest   | latest |
@@ -237,7 +240,7 @@ pip install dnacentersdk --upgrade
 ### Install a specific version
 To install a specific version like 2.8.3
 ```bash
-pip install dnacentersdk:2.8.3
+pip install dnacentersdk==2.8.3
 ```
 
 ## Ansible configuration file
@@ -320,10 +323,10 @@ ansible-playbook -i ./inventory_dnaccluster ./workflows/swim/playbook/swim_workf
 ```
     
 ## Example 2: 
-Create sites, buildings floors using playbook: workflows/sites/playbook/site_hierarchy_playbook.yml
+Create sites, buildings floors using playbook: workflows/site_hierarchy/playbook/site_hierarchy_playbook.yml
     
 ```bash
- ansible-playbook -i ./inventory_dnaccluster ./workflows/sites/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/site_hierarchy_design_vars_.yml
+ansible-playbook -i ./inventory_dnaccluster ./workflows/site_hierarchy/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILE_PATH=./workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml
 ```
     
 Explore the playbooks/ directory for additional examples and use cases.
@@ -350,7 +353,7 @@ Clone the Catalyst Center ansible IaC repository if not already cloned.
 git clone https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git
 ```
     
-Go to the dnacenter-ansible directory
+Go to the catalyst-center-ansible-iac directory
 ```bash
 cd catalyst-center-ansible-iac
 ```
@@ -364,11 +367,11 @@ git pull origin master
 - Visit the Catalyst Center Ansible repository: https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/issues
 - Click the "New Issue" button.
 - Carefully follow the provided issue template, ensuring you include:
-- - A clear and concise description of the problem
-- - Steps to reproduce the issue.
-- - Relevant code snippets or configurations, playbook, variable files.
-- - Expected behavior vs. actual behavior.
-- - Catalyst Center and Ansible versions you're using.
+  - A clear and concise description of the problem
+  - Steps to reproduce the issue.
+  - Relevant code snippets or configurations, playbook, variable files.
+  - Expected behavior vs. actual behavior.
+  - Catalyst Center and Ansible versions you're using.
 
 # Contributing
 Contributions are welcome! To contribute to this project, follow these steps:
