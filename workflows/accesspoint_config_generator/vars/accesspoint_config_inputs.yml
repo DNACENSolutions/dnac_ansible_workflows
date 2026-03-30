@@ -1,0 +1,56 @@
+# ============================================================================
+# Cisco Catalyst Center Access Point Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/accesspoint_config_generator/playbook/accesspoint_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/accesspoint_config_generator/vars/accesspoint_config_inputs.yml
+#
+# Module used:
+#   cisco.dnac.accesspoint_playbook_config_generator
+# ============================================================================
+
+accesspoint_config:
+  # 1) Generate all access point configurations
+  - generate_all_configurations: true
+    file_path: "/tmp/accesspoint_complete_config.yml"
+
+  # 2) Filter by floor site hierarchy (highest priority)
+  - file_path: "/tmp/accesspoint_by_site.yml"
+    global_filters:
+      site_list:
+        - "Global/USA/SAN JOSE/SJ_BLD20/FLOOR1"
+
+  # 3) Filter by provisioned hostnames
+  - file_path: "/tmp/accesspoint_by_provision_hostname.yml"
+    global_filters:
+      provision_hostname_list:
+        - "test_ap_1"
+        - "test_ap_2"
+
+  # 4) Filter by AP config hostnames
+  - file_path: "/tmp/accesspoint_by_config_hostname.yml"
+    global_filters:
+      accesspoint_config_list:
+        - "Test_ap_1"
+        - "Test_ap_2"
+
+  # 5) Filter by provision+config MAC list with append mode
+  - file_path: "/tmp/accesspoint_aggregate.yml"
+    file_mode: "append"
+    global_filters:
+      accesspoint_provision_config_mac_list:
+        - "a4:88:73:d4:dd:80"
+        - "a4:88:73:d4:dd:81"
+
+# ============================================================================
+# Notes
+# ============================================================================
+# - If global_filters is omitted, the workflow omits module config and runs
+#   in full discovery mode.
+# - Filter priority in module is: site_list > provision_hostname_list >
+#   accesspoint_config_list > accesspoint_provision_config_list >
+#   accesspoint_provision_config_mac_list.
+# - Only the highest-priority filter with valid data is applied by the module.
+# ============================================================================
