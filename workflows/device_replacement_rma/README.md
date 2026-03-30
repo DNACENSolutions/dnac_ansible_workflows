@@ -171,3 +171,11 @@ LAN automation uses overlapping pools.
 ** If the replacement device onboards through the PnP-DHCP functionality, make sure that the device gets the same IP address after every reload and the lease timeout of DHCP is longer than two hours. **
 
 
+
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```

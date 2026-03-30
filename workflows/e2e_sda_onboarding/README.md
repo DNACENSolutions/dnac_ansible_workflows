@@ -62,3 +62,11 @@ The Steps followed by this playbook are:
     14. Create L3 Gateways and L2 Vlans and assigne them to sites
     15. Add devices to Fabric and assign them to sites with roles and transits, L2/L3 Handoffs
     16. Onboard host Devices on fabric sites.
+
+## User Flow (3 Steps)
+
+```mermaid
+flowchart TD
+  S1["Step 1: Configure inventory with Catalyst Center connection details"] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
+  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+```
