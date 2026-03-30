@@ -58,7 +58,6 @@ catalyst_center_hosts:
 The workflows/device_config_backup/vars device_config_backup_workflow_input.yml file stores the sites details you want to configure
 
 
-
 This step involves preparing the input data for creating or managing device configuration backup and validating your setup.
 
 **Define Input Variables:** Create variable files (e.g., `vars/device_config_backup_workflow_input.yml`) that define the desired state of your device backup configurations.
@@ -80,7 +79,6 @@ This step involves preparing the input data for creating or managing device conf
 | `site_list`            | List     | No           | N/A               | List of site names to backup devices from.                          |
 | `type`                 | String   | No           | N/A               | Device type filter for backup.                                      |
 | `unzip_backup`         | Boolean  | No           | false             | Whether to unzip the backup file after download.                    |
-
 
 
 ### 4. Generate your Input:
@@ -283,7 +281,6 @@ device_configs_backup_details:
 - file_path: The directory path where the backup files will be stored.
 
 
-
 ### 4. Take Backup Using collection_status, ip_address_list and hostname_list
 
 #### **Example Input **
@@ -318,11 +315,40 @@ Note: The environment is used for the references in the above instructions.
   ansible.utils: 5.1.2
 ```
 ## Workflow Steps
-
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+  A[Start] --> B[Step 1: Create virtual env and install dependencies]
+  B --> C[Step 2: Provide workflow inputs]
+  C --> D{Choose input location}
+  D -->|Option A| E[Update inventory hosts.yaml]
+  D -->|Option B| F[Update vars input file]
+  E --> G[Step 3: Export env vars]
+  F --> G
+  G --> H[Run ansible-playbook]
+  H --> I[Review playbook summary output]
+  I --> J[Done]
+```
+
+### Installation and Run (Aligned)
+
+1. Create and activate a Python virtual environment, then install dependencies.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ansible-galaxy collection install cisco.dnac --force
+```
+
+2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
+
+3. Export Catalyst Center environment variables and run the playbook.
+
+```bash
+export HOSTIP=<catalyst-center-ip-or-fqdn>
+export CATALYST_CENTER_USERNAME=<username>
+export CATALYST_CENTER_PASSWORD='<password>'
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/device_config_backup/playbook/device_config_backup_workflow_playbook.yml -vvvv
 ```

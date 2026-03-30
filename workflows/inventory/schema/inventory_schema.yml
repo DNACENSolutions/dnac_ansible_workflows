@@ -30,7 +30,7 @@ network_devices_type_type:
   http_port: any(int(), str(), required=False)
   http_secure: bool(required=False)
   http_username: str(required=False)
-  ip_address_list: list(str(), required=True)
+  ip_address_list: list(str(), required=False)
   hostname_list: list(str(), required=False)
   serial_number_list: list(str(), required=False)
   mac_address_list: list(str(), required=False)

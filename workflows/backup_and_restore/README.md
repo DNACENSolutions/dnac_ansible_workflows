@@ -136,88 +136,44 @@ backup_and_restore/
 ## Getting Started
 
 ## Workflow Steps
-
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+  A[Start] --> B[Step 1: Create virtual env and install dependencies]
+  B --> C[Step 2: Provide workflow inputs]
+  C --> D{Choose input location}
+  D -->|Option A| E[Update inventory hosts.yaml]
+  D -->|Option B| F[Update vars input file]
+  E --> G[Step 3: Export env vars]
+  F --> G
+  G --> H[Run ansible-playbook]
+  H --> I[Review playbook summary output]
+  I --> J[Done]
 ```
 
-### Step 1: Install Collections
+### Installation and Run (Aligned)
+
+1. Create and activate a Python virtual environment, then install dependencies.
 
 ```bash
-ansible-galaxy collection install cisco.dnac
-ansible-galaxy collection install ansible.utils
-pip install dnacentersdk
-pip install yamale
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ansible-galaxy collection install cisco.dnac --force
 ```
 
-### Step 2: Configure Inventory
+2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
 
-Edit `inventory/demo_lab/hosts.yml`:
-
-```yaml
-catalyst_center_hosts:
-  hosts:
-    catalyst_center_primary:
-      catalyst_center_host: 10.0.0.0
-      catalyst_center_username: admin
-      catalyst_center_password: "{{ vault_catalyst_center_password }}"
-      catalyst_center_verify: false
-      catalyst_center_debug: false
-      catalyst_center_log: true
-```
-
-### Step 3: Configure Variables
-
-Edit `workflows/backup_and_restore/vars/backup_and_restore_inputs.yml`:
-
-```yaml
-backup_restore_details:
-  - nfs_configuration:
-      - server_ip: 172.27.17.90
-        source_path: /home/nfsshare/backups/TB23
-        nfs_version: nfs4
-    
-    backup_storage_configuration:
-      - server_type: NFS
-        nfs_details:
-          server_ip: 172.27.17.90
-          source_path: /home/nfsshare/backups/TB23
-        data_retention_period: 30
-        encryption_passphrase: "YourSecurePassphrase123!"
-    
-    backup:
-      - name: WEEKLY_BACKUP
-        scope: CISCO_DNA_DATA_WITH_ASSURANCE
-        generate_new_backup: false
-```
-
-### Step 4: Validate Configuration
+3. Export Catalyst Center environment variables and run the playbook.
 
 ```bash
-yamale -s workflows/backup_and_restore/schema/backup_and_restore_schema.yml \
-       workflows/backup_and_restore/vars/backup_and_restore_inputs.yml
+export HOSTIP=<catalyst-center-ip-or-fqdn>
+export CATALYST_CENTER_USERNAME=<username>
+export CATALYST_CENTER_PASSWORD='<password>'
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/backup_and_restore/playbook/backup_and_restore_playbook.yml -vvvv
 ```
 
-### Step 5: Execute Playbook
-
-```bash
-ansible-playbook -i inventory/demo_lab/hosts.yml \
-  workflows/backup_and_restore/playbook/backup_and_restore_playbook.yml \
-  --extra-vars VARS_FILE_PATH=../vars/backup_and_restore_inputs.yml
-```
-
-### Step 6: Verify Configuration
-
-1. Check playbook output for task completion status
-2. Log in to Catalyst Center web interface
-3. Navigate to **System > Backup & Restore**
-4. Verify NFS configuration, storage settings, and backup creation
-
----
 
 ## Operations
 

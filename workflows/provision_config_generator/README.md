@@ -120,74 +120,44 @@ provision_playbook_config_generator/
 ## Getting Started
 
 ## Workflow Steps
-
 ## User Flow (3 Steps)
 
 ```mermaid
 flowchart TD
-  S1["Step1: Create python env, install SDK and Collection and create cluster inventory file."] --> S2["Step 2: Design input variables in vars/ (workflow-specific parameters and options)"]
-  S2 --> S3["Step 3: Run the playbook (optionally validate schema first)"]
+  A[Start] --> B[Step 1: Create virtual env and install dependencies]
+  B --> C[Step 2: Provide workflow inputs]
+  C --> D{Choose input location}
+  D -->|Option A| E[Update inventory hosts.yaml]
+  D -->|Option B| F[Update vars input file]
+  E --> G[Step 3: Export env vars]
+  F --> G
+  G --> H[Run ansible-playbook]
+  H --> I[Review playbook summary output]
+  I --> J[Done]
 ```
 
-### Step 1: Install Prerequisites
+### Installation and Run (Aligned)
+
+1. Create and activate a Python virtual environment, then install dependencies.
 
 ```bash
-ansible-galaxy collection install cisco.dnac
-ansible-galaxy collection install ansible.utils
-pip install dnacentersdk
-pip install yamale
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ansible-galaxy collection install cisco.dnac --force
 ```
 
-### Step 2: Configure Inventory
+2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
 
-Edit `inventory/demo_lab/hosts.yml`:
-
-```yaml
-catalyst_center_hosts:
-  hosts:
-    catalyst_center_primary:
-      catalyst_center_host: 10.0.0.0
-      catalyst_center_username: admin
-      catalyst_center_password: "password"
-```
-
-### Step 3: Configure Variables
-
-Edit `workflows/provision_playbook_config_generator/vars/provision_playbook_config_generator_vars.yml`:
-
-```yaml
-provision_playbook_config:
-    generate_all_configurations: true
-    file_path: "/tmp/complete_provision_config.yml"
-```
-
-### Step 4: Validate Configuration
+3. Export Catalyst Center environment variables and run the playbook.
 
 ```bash
-./tools/validate.sh -s workflows/provision_playbook_config_generator/schema/provision_playbook_config_generator_schema.yml \
-     -d workflows/provision_playbook_config_generator/vars/provision_playbook_config_generator_vars.yml
+export HOSTIP=<catalyst-center-ip-or-fqdn>
+export CATALYST_CENTER_USERNAME=<username>
+export CATALYST_CENTER_PASSWORD='<password>'
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/provision_config_generator/playbook/provision_config_generator.yml -vvvv
 ```
 
-### Step 5: Execute Playbook
-
-```bash
-ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/provision_playbook_config_generator/playbook/provision_playbook_config_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=../vars/provision_playbook_config_generator_vars.yml
-```
-
-### Workflow Execution
-
-The workflow follows these steps:
-
-1. **Connect** to Catalyst Center using provided credentials
-2. **Retrieve** existing provisioned wired and wireless devices via API calls
-3. **Filter** devices based on specified criteria (IP, site, device family)
-4. **Transform** API responses into Ansible-compatible format
-5. **Generate** YAML configuration file with proper structure
-6. **Validate** output file format and content
-
----
 
 ## Operations
 
