@@ -1,0 +1,51 @@
+# Cisco Catalyst Center Assurance Device Health Score Settings Config Generator Schema
+# ======================================================================================
+#
+# This schema defines the configuration structure for generating YAML playbook
+# configurations from existing assurance device health score settings in Cisco
+# Catalyst Center using the assurance_device_health_score_settings_playbook_config_generator module.
+
+# Schema Definition
+assurance_device_health_score_settings_config: list(include('assurance_device_health_score_settings_config_generator_type'), min=1, max=100, required=True)
+
+# Optional Catalyst Center connection parameters
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
+catalyst_center_debug: bool(required=False)
+catalyst_center_log: bool(required=False)
+catalyst_center_log_append: bool(required=False)
+catalyst_center_log_file_path: str(required=False)
+catalyst_center_log_level: str(required=False)
+catalyst_center_config_verify: bool(required=False)
+
+---
+# Assurance Device Health Score Settings Config Generator Entry Schema
+assurance_device_health_score_settings_config_generator_type:
+  generate_all_configurations: bool(required=False)
+  file_path: str(required=False)
+  file_mode: enum('overwrite', 'append', required=False)
+  component_specific_filters: include('assurance_device_health_score_component_filters_type', required=False)
+
+---
+# Assurance Device Health Score Settings Component Filters Schema
+assurance_device_health_score_component_filters_type:
+  components_list: list(enum('device_health_score_settings'), min=1, max=1, required=False)
+  device_health_score_settings: include('device_health_score_settings_filter_type', required=False)
+
+---
+# Device health score settings filter schema
+device_health_score_settings_filter_type:
+  device_families: list(
+    enum(
+      'ROUTER',
+      'SWITCH_AND_HUB',
+      'WIRELESS_CONTROLLER',
+      'UNIFIED_AP',
+      'WIRELESS_CLIENT',
+      'WIRED_CLIENT'
+    ),
+    min=1,
+    max=6,
+    required=False
+  )
