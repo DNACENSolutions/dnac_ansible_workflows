@@ -1,8 +1,8 @@
 # Catalyst Center Backup and Restore Config Generator Schema
 # ======================================================================================
 #
-# This schema defines the configuration structure for generating YAML playbook
-# configurations from existing backup and restore infrastructure in Cisco Catalyst Center
+# This schema defines the configuration structure for generating YAML configurations
+# from existing backup and restore infrastructure in Cisco Catalyst Center
 # using the backup_and_restore_playbook_config_generator module.
 #
 # SCHEMA OVERVIEW:
@@ -30,18 +30,12 @@
 # catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
 # catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
 # catalyst_center_config_verify:     Configuration verification (optional, default: false)
-#
+#backup_and_restore_config
 # backup_and_restore_config SECTION:
 # --------------------------------------------
 # Contains configuration for generating YAML configurations from existing infrastructure:
 #
-# 1. GENERATE_ALL_CONFIGURATIONS:
-#    - Type: boolean (optional, default: false)
-#    - Description: If true, generates configurations for all components regardless of filters
-#    - When true, overrides any component_specific_filters settings
-#    - Retrieves all NFS configurations and backup storage configurations from Catalyst Center
-#
-# 2. FILE_PATH:
+# 1. FILE_PATH:
 #    - Type: string (optional)
 #    - Description: Output path where the YAML configuration file will be saved
 #    - If not provided, auto-generates filename with timestamp
@@ -49,67 +43,113 @@
 #    - Example: backup_and_restore_playbook_config_2026-02-19_01-45-57.yml
 #    - Supports absolute and relative paths
 #    - Creates directory structure if it doesn't exist
+#    - This is a module-level parameter (outside config)
 #
-# 3. COMPONENT_SPECIFIC_FILTERS:
+# 2. FILE_MODE:
+#    - Type: string (optional, default: "overwrite")
+#    - Description: File write mode for the generated YAML configuration file
+#    - Valid values: "overwrite" (replaces existing file), "append" (adds to existing file)
+#    - Only applicable when file_path is provided
+#    - This is a module-level parameter (outside config)
+#
+# 3. CONFIG:
 #    - Type: dictionary (optional)
+#    - Description: Configuration filters for generating YAML configurations compatible with 
+#      the 'backup_and_restore_workflow_manager' module
+#    - If not provided or omitted, all configurations are auto-generated
+#    - If provided as empty dict {}, component_specific_filters is mandatory
+#    - Contains component_specific_filters for selective component extraction
+#
+# 4. COMPONENT_SPECIFIC_FILTERS:
+#    - Type: dictionary (required when config is provided)
 #    - Description: Filters to specify which components to include in the generated configuration
-#    - If generate_all_configurations is true, these filters are ignored
+#    - If omitted entirely, module generates all supported components
+#    - This becomes the module's 'config.component_specific_filters' parameter
 #    
 #    Sub-options:
 #    - COMPONENTS_LIST:
-#      - Type: list of strings (optional, default: ["nfs_configuration", "backup_storage_configuration"])
+#      - Type: list of strings (optional)
 #      - Description: List of components to include in the YAML configuration file
 #      - Valid values:
 #        * "nfs_configuration" - Include only NFS configurations in the generated configuration
 #        * "backup_storage_configuration" - Include only backup storage configurations in the generated configuration
 #        * ["nfs_configuration", "backup_storage_configuration"] - Include both components
-#      - If empty list provided, defaults to all supported components
-#      - Invalid components will result in error
+#      - Required when no component-specific filter blocks are provided
+#      - Empty list is invalid when no component-specific filter blocks are provided
+#      - If component filter blocks are provided, components are automatically added to this list
 #
 #    - NFS_CONFIGURATION:
 #      - Type: list of dictionaries (optional)
 #      - Description: Filter NFS configurations by specific criteria
+#      - Both server_ip and source_path must be provided together for filtering
 #      - Sub-options:
-#        * server_ip: NFS server IP address to filter by
-#        * source_path: NFS source path to filter by 
+#        * server_ip: NFS server IP address to filter by (required)
+#        * source_path: NFS source path to filter by (required)
 #      
 #    - BACKUP_STORAGE_CONFIGURATION:
 #      - Type: list of dictionaries (optional)
 #      - Description: Filter backup storage configurations by specific criteria
+#      - Only server_type filtering is supported
 #      - Sub-options:
-#        * server_type: Server type to filter by ("NFS" or "PHYSICAL_DISK")
+#        * server_type: Server type to filter by ("NFS" or "PHYSICAL_DISK") (required)
 #
 # GENERATED OUTPUT STRUCTURE:
 # --------------------------
 # The generated YAML file will contain a 'config' section with the following structure:
 #
 # config:
-#   - nfs_configuration:
-#       - server_ip: "172.27.17.90"
-#         source_path: "/home/nfsshare/backups/TB23"
-#         nfs_port: 2049
-#         nfs_version: "nfs4"
-#         nfs_portmapper_port: 111
-#   - backup_storage_configuration:
-#       - server_type: "NFS"
-#         nfs_details:
-#           server_ip: "172.27.17.90"
-#           source_path: "/home/nfsshare/backups/TB23"
-#           nfs_port: 2049
-#           nfs_version: "nfs4"
-#           nfs_portmapper_port: 111
-#         data_retention_period: 3
-#         encryption_passphrase: "Test@zigzag123"
+# - nfs_configuration:
+#   - server_ip: 172.27.17.90
+#     source_path: /home/nfsshare/backups/TB23
+#     nfs_port: 2049
+#     nfs_version: nfs4
+#     nfs_portmapper_port: 111
+#   - server_ip: 10.195.189.95
+#     source_path: /data/nfsshare/iac
+#     nfs_port: 2049
+#     nfs_version: nfs4
+#     nfs_portmapper_port: 111
+#   - server_ip: 172.27.17.90
+#     source_path: /home/nfsshare/backups/TB17
+#     nfs_port: 2049
+#     nfs_version: nfs4
+#     nfs_portmapper_port: 111
+# - backup_storage_configuration:
+#   - server_type: NFS
+#     nfs_details:
+#       server_ip: null
+#       source_path: null
+#       nfs_port: 2049
+#       nfs_version: nfs4
+#       nfs_portmapper_port: 111
+#     data_retention_period: 3
+#
+# VALIDATION RULES:
+# ----------------
+# 1. If config is not provided (None), all configurations are auto-generated with default behavior
+# 2. If config is provided as empty dict {}, component_specific_filters is mandatory
+# 3. component_specific_filters is required when config is provided
+# 4. Auto-population of components_list: If component-specific filters (such as 'nfs_configuration' 
+#    or 'backup_storage_configuration') are provided without explicitly including them in 
+#    'components_list', those components will be automatically added to 'components_list'
+# 5. If no component filter blocks are provided, components_list is mandatory and must not be empty
+# 6. NFS filtering requires both server_ip and source_path together
+# 7. Backup storage filtering only supports server_type parameter
+# 8. file_path and file_mode can be specified outside of the config
+# 9. Idempotency: In overwrite mode, the full file content is compared (excluding volatile
+#     fields like timestamps and playbook path). In append mode, only the last YAML document 
+#     in the file is compared against the newly generated configuration. If a file contains 
+#     multiple config entries from previous appends, only the most recent entry is used for 
+#     the idempotency check
 #
 # OPERATION WORKFLOWS:
 # -------------------
 # 1. Configuration Generation (All Components):
-#    a. Set generate_all_configurations: true
-#    b. Optionally specify file_path
-#    c. All existing NFS configurations and backup storage configurations will be extracted
+#    a. Omit config parameter entirely at module level
+#    b. All existing NFS configurations and backup storage configurations will be extracted
 #
 # 2. Selective Component Generation:
-#    a. Use component_specific_filters with components_list
+#    a. Use config with component_specific_filters and components_list
 #    b. Specify required components from ["nfs_configuration", "backup_storage_configuration"]
 #    c. Only specified components will be extracted
 #
@@ -117,16 +157,28 @@
 #    a. Use component-specific filters (nfs_configuration, backup_storage_configuration)
 #    b. Apply filters like server_ip and source_path, server_type
 #    c. Extract only components matching the specified criteria
+#    d. Components are auto-populated in components_list if filter blocks are provided
 #
-# 4. Custom Output Path:
-#    a. Specify file_path parameter
+# 4. Auto-population Workflow:
+#    a. Provide component filter blocks (e.g., nfs_configuration) without components_list
+#    b. Module automatically adds those components to components_list internally
+#    c. Reduces configuration verbosity while maintaining explicit control
+#
+# 5. Custom Output Path:
+#    a. Specify file_path parameter (module-level)
 #    b. Can use absolute or relative paths
 #    c. Directory structure will be created if needed
 #
-# 5. Default Behavior:
-#    a. If no filters specified, all components are generated
-#    b. If no file_path specified, auto-generates filename
-#    c. Generated in current working directory or specified path
+# 6. Idempotency Behavior:
+#    a. Overwrite mode: Compares full file content (ignores timestamps/playbook paths)
+#    b. Append mode: Compares only the last YAML document in existing file
+#    c. Multiple appends: Only most recent entry is used for comparison
+#    d. Prevents duplicate content generation when configuration hasn't changed
+#
+# 7. Default Behavior:
+#    a. If no config specified, all components are generated
+#    b. If no file_path specified, auto-generates filename with timestamp
+#    c. Generated in current working directory with default overwrite mode
 #
 # EXAMPLES:
 # --------
@@ -134,6 +186,8 @@
 # different usage patterns and scenarios.
 
 # Schema Definition
+
+# List of backup and restore configuration generation tasks
 backup_and_restore_config: list(include('backup_restore_config_generator_type'), min=1, max=100, required=True)
 
 # Optional Catalyst Center connection parameters
@@ -148,27 +202,31 @@ catalyst_center_log_level: str(required=False)
 catalyst_center_config_verify: bool(required=False)
 
 ---
-# Backup and Restore Configuration Generator Schema
+# Individual Configuration Generation Task Schema
 backup_restore_config_generator_type:
-  # Generate all configurations flag
-  generate_all_configurations: bool(required=False)
-  
-  # Output file path
+  # Output file path (optional - module level parameter)
   file_path: str(required=False)
-
-  # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
+  
+  # File write mode (optional, default: overwrite - module level parameter)
   file_mode: enum('overwrite', 'append', required=False)
-
-  # Component-specific filters
-  component_specific_filters: include('backup_restore_component_filters_type', required=False)
-
+  
+  # Config parameter containing component filters (optional - module level parameter)
+  # Optional config block. Omit to gather all backup and restore configurations.
+  config: include('backup_restore_component_filters_type', required=False)
+  
 ---
 # Backup and Restore Component Filters Schema
 backup_restore_component_filters_type:
+
+  # Component-specific filters (required when config is provided)
+  component_specific_filters: include('backup_restore_component_list_filters_type', required=True)
+
+backup_restore_component_list_filters_type:
+
   # List of components to include
   components_list: list(enum("nfs_configuration", "backup_storage_configuration"), min=0, max=10, required=False)
   
-  # NFS configuration filters
+  # NFS configuration filters (both server_ip and source_path must be provided together)
   nfs_configuration: list(include('nfs_configuration_filter_type'), min=0, max=100, required=False)
   
   # Backup storage configuration filters  
@@ -176,15 +234,16 @@ backup_restore_component_filters_type:
 
 ---
 # NFS Configuration Filter Schema
+# Both server_ip and source_path must be provided together for filtering
 nfs_configuration_filter_type:
-  # NFS server IP address for filtering NFS configurations
+  # NFS server IP address for filtering NFS configurations (required when filtering)
   server_ip: str(required=False)
   
-  # NFS source path for filtering NFS configurations
+  # NFS source path for filtering NFS configurations (required when filtering)
   source_path: str(required=False)
 
 ---
 # Backup Storage Configuration Filter Schema
 backup_storage_configuration_filter_type:
-  # Server type for filtering backup storage configurations
-  server_type: enum("NFS", "PHYSICAL_DISK")
+  # Server type for filtering backup storage configurations (required)
+  server_type: enum("NFS", "PHYSICAL_DISK", required=True)
