@@ -11,11 +11,11 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
 
 ## Overview
 
-The Backup and Restore config generator automates the creation of YAML playbook configurations for existing NFS configurations and backup storage configurations deployed in Cisco Catalyst Center. This tool reduces the effort required to manually create Ansible playbooks by programmatically generating configurations from existing infrastructure.
+The Backup and Restore config generator automates the creation of YAML configurations for existing NFS configurations and backup storage configurations deployed in Cisco Catalyst Center. This tool reduces the effort required to manually create Ansible playbooks by programmatically generating configurations from existing infrastructure.
 
 ---
 
@@ -47,7 +47,7 @@ Generate files that are ready to use with Ansible automation.
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.dnac    # >= 6.49.0
+ansible-galaxy collection install cisco.dnac  
 ansible-galaxy collection install ansible.utils
 pip install dnacentersdk
 pip install yamale
@@ -79,22 +79,28 @@ backup_and_restore_config_generator/
 
 ## Schema Parameters
 
-### Basic Configuration
+### Top-Level Parameters
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| generate_all_configurations | boolean | No | false | Generate all components automatically |
-| file_path | string | No | auto-generated | Output file path for YAML configuration file |
-| file_mode | string | No | overwrite | File write mode — `overwrite` replaces the file, `append` adds to it |
-| component_specific_filters | dict | No | all components | Filters to specify which components to include |
+| file_path | string | No | auto-generated | Output file path for YAML configuration file. Default filename: `backup_and_restore_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml` |
+| file_mode | string | No | overwrite | File write mode — `overwrite` replaces the file, `append` adds to it. Only applicable when `file_path` is provided. |
+| config | dict | No | omitted (all components) | Configuration filters dict. When omitted, all NFS and backup storage configurations are retrieved. When provided, `component_specific_filters` is mandatory. |
 
-### Component Specific Filtering
+### Component Specific Filtering (within `config` parameter)
 
 | Parameter      | Type | Required | Default | Description |
 |--------------|------|----------|-------------|-----------|
-| components_list | list | No | ["nfs_configuration","backup_storage_configuration"] |List of components to include in generation |
-| nfs_configuration      | list | No | all NFS configurations|NFS configuration filtering criteria |
-| backup_storage_configuration | list | No | all backup storage configurations| Backup storage configuration filtering criteria |
+| component_specific_filters | dict | Yes (when `config` provided) | N/A | Required when `config` is provided. Filters to specify which components to include. |
+| components_list | list | Conditional | N/A | List of components to include. **Required when no component filter blocks are provided.** Empty list is invalid when no filter blocks exist. |
+| nfs_configuration      | list(dict) | No | all NFS configurations | NFS configuration filtering criteria. Both `server_ip` and `source_path` must be provided together for filtering. |
+| backup_storage_configuration | list(dict) | No | all backup storage configurations | Backup storage configuration filtering criteria. Only `server_type` filtering is supported. |
+
+**Component Logic Rules:**
+- **No `config`**: All components are retrieved (equivalent to both `nfs_configuration` and `backup_storage_configuration`)
+- **`config` provided**: `component_specific_filters` is mandatory
+- **Component filter blocks provided** (e.g., `nfs_configuration`): Those components are automatically added to `components_list` when missing
+- **No component filter blocks**: `components_list` is required and must not be empty
 
 **Valid Component Types:**
 - `nfs_configuration`: NFS server configurations
@@ -165,12 +171,15 @@ Use `backup_and_restore_config_generator.yml` for generating YAML playbook confi
 
 #### Generate All Configurations
 
-**Description**: Retrieves all NFS configurations and backup storage configurations from Catalyst Center regardless of any filters.
+**Description**:  Omit config parameter entirely at module level
+                  All existing NFS configurations and backup storage configurations will be extracted.
 
 ```yaml
+# No config at all - only DNAC connection details
+# Expected: defaults to generates all configs
 backup_and_restore_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/complete_backup_restore_config.yml"
+  - file_path: "/tmp/complete_backup_restore_config.yml"  
+
 ```
 
 #### Component-Specific Generation
@@ -180,19 +189,24 @@ backup_and_restore_config:
 **Extract NFS Configurations Only**
 
 ```yaml
-backup_and_restore_config:
-  - file_path: "/tmp/nfs_configurations_config.yml"
-    component_specific_filters:
-      components_list: ["nfs_configuration"]
+#Test NFS configuration filter
+ backup_and_restore_config:
+   - file_path: "/tmp/backup_restore_components_config1.yml"
+     config:
+       component_specific_filters:
+         components_list: ["nfs_configuration"]
+
 ```
 
 **Extract Backup Storage Configurations Only**
 
 ```yaml
+#Test Backup configuration filter
 backup_and_restore_config:
-  - file_path: "/tmp/backup_storage_configurations_config.yml"
-    component_specific_filters:
-      components_list: ["backup_storage_configuration"]
+  - file_path: "/tmp/backup_storage_configurations_config3.yml"
+    config:
+      component_specific_filters:
+        components_list: ["backup_storage_configuration"]
 ```
 
 **Validate and Execute:**
@@ -201,7 +215,7 @@ backup_and_restore_config:
 # Validate
 ./tools/validate.sh -s workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml \
      -d workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
-````
+```
 Return result validate:
 ```bash
 
@@ -216,10 +230,10 @@ Validation success! 👍
 ```
 
 ```bash
-# Execute
+# Execute (run from project root directory)
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/backup_and_restore_config_generator/playbook/backup_and_restore_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=../vars/backup_and_restore_config_inputs.yml
 ```
 
 Expected Terminal Output:
@@ -228,12 +242,11 @@ Expected Terminal Output:
 
 ```code
         file_path: /tmp/complete_backup_restore_config.yml
-        generate_all_configurations: true
-   msg: YAML configuration file generated successfully for module 'backup_and_restore_workflow_manager'
+      msg: YAML configuration file generated successfully for module 'backup_and_restore_workflow_manager'
       response:
-        components_processed: 2
-        components_skipped: 0
-        configurations_count: 5
+        components_processed: 1
+        components_skipped: 1
+        configurations_count: 1
         file_path: /tmp/complete_backup_restore_config.yml
         message: YAML configuration file generated successfully for module 'backup_and_restore_workflow_manager'
         status: success
@@ -288,9 +301,8 @@ component_specific_filters:
 ### Example 1: Generate ALL backup and restore components
 
 ```yaml
-backup_and_restore_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/complete_backup_restore_infrastructure.yml"
+  backup_and_restore_config:
+    - file_path: "/tmp/complete_backup_restore_config.yml"
 ```
 After running the playbook , the followning YAML configuration is generated .
 
@@ -334,10 +346,11 @@ config:
 Extract all NFS configurations.
 
 ```yaml
-backup_and_restore_config:
-  - file_path: "/tmp/nfs_configurations_audit.yml"
-    component_specific_filters:
-      components_list: ["nfs_configuration"]
+ backup_and_restore_config:
+   - file_path: "/tmp/backup_restore_components_config1.yml"
+     config:
+       component_specific_filters:
+         components_list: ["nfs_configuration"]
 ```
 
 After running the playbook , the followning YAML configuration is generated .
@@ -374,11 +387,10 @@ Extract all backup storage configurations
 
 ```yaml
 backup_and_restore_config:
-  - file_path: "/tmp/backup_storage_configurations.yml"
-    component_specific_filters:
-      components_list: ["backup_storage_configuration"]
-      backup_storage_configuration:
-        - server_type: "NFS"
+  - file_path: "/tmp/backup_storage_configurations_config3.yml"
+    config:
+      component_specific_filters:
+        components_list: ["backup_storage_configuration"]
 ```
 
 After running the playbook , the followning YAML configuration is generated .
@@ -400,41 +412,44 @@ config:
 ### Example 4: Filtered NFS Configurations
 
 ```yaml
-backup_and_restore_config:
-  - file_path: "/tmp/filtered_nfs_configurations.yml"
-    component_specific_filters:
-      components_list: ["nfs_configuration"]
-      nfs_configuration:
-        - server_ip: "172.27.17.90"
-          source_path: "/home/nfsshare/backups/TB23"
-        - server_ip: "172.27.17.90"
-          source_path: "/home/nfsshare/backups/TB17"
+ backup_and_restore_config:
+   - file_path: "/tmp/filtered_nfs_configurations.yml"
+     config:
+       component_specific_filters:
+         components_list: ["nfs_configuration"]
+         nfs_configuration:
+           - server_ip: "172.27.17.90"
+             source_path: "/home/nfsshare/backups/TB23"
+           - server_ip: "172.27.17.90"
+             source_path: "/home/nfsshare/backups/TB17"
 ```
 
 ### Example 5: Multi-Component configurations
 
 ```yaml
-backup_and_restore_config:
-  - file_path: "/tmp/nfs_and_backup_storage.yml"
-    component_specific_filters:
-      components_list: ["nfs_configuration", "backup_storage_configuration"]
-      nfs_configuration:
-        - server_ip: "172.27.17.90"
-          source_path: "/home/nfsshare/backups/TB23"
-      backup_storage_configuration:
-        - server_type: "NFS"
+ backup_and_restore_config:
+   - file_path: "/tmp/nfs_and_backup_storage.yml"
+     config:
+       component_specific_filters:
+         components_list: ["nfs_configuration", "backup_storage_configuration"]
+         nfs_configuration:
+           - server_ip: "172.27.17.90"
+             source_path: "/home/nfsshare/backups/TB23"
+         backup_storage_configuration:
+           - server_type: "NFS"
 ```
 
 ### Example 6: Backup Storage with multiple server types
 
 ```yaml
-backup_and_restore_config:
-  - file_path: "/tmp/backup_storage_all_types.yml"
-    component_specific_filters:
-      components_list: ["backup_storage_configuration"]
-      backup_storage_configuration:
-        - server_type: "NFS"
-        - server_type: "PHYSICAL_DISK"
+ backup_and_restore_config:
+   - file_path: "/tmp/backup_storage_all_types.yml"
+     config:  
+       component_specific_filters:
+         components_list: ["backup_storage_configuration"]
+         backup_storage_configuration:
+           - server_type: "NFS"
+           - server_type: "PHYSICAL_DISK"
 ```
 
 ---
