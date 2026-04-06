@@ -227,7 +227,7 @@ Validation success! 👍
 # Execute (run from project root directory)
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/tags_config_generator/playbook/tags_config_generator.yml \
-  -e VARS_FILE_PATH=./workflows/tags_config_generator/vars/tags_config_generator_input.yml \
+  -e VARS_FILE_PATH=../vars/tags_config_generator_input.yml \
   -vvvv
 ```
 
