@@ -1,0 +1,284 @@
+---
+# ============================================================================
+# Cisco Catalyst Center Tags Config Generator
+# ============================================================================
+#
+# Usage:
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/tags_config_generator/playbook/tags_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/tags_config_generator/vars/tags_config_generator_input.yml
+#
+# ============================================================================
+
+# ============================================================================
+# Tags Configuration Generation Examples
+# ============================================================================
+
+tags_config:
+  # Generate ALL configurations (no config key = full auto-discovery; system tags auto-excluded)
+  - file_path: "generated_file/complete_tags_config.yml"
+
+  # Generate ALL configurations (empty config key — same as omitting config)
+  - file_path: "generated_file/complete_tags_empty_config.yml"
+    config:
+
+  # Generate only tag configurations
+  - file_path: "generated_file/tag_definitions_config2.yml"
+    config:
+      component_specific_filters:
+        components_list: ["tag"]
+
+  # Generate only tag membership configurations
+  - file_path: "generated_file/tag_memberships_config3.yml"
+    config:
+      component_specific_filters:
+        components_list: ["tag_memberships"]
+
+  # Tag configurations with specific tag name filter
+  - file_path: "generated_file/specific_tag_filter_config4.yml"
+    config:
+      component_specific_filters:
+        components_list: ["tag"]
+        tag:
+          - tag_name: "Core-Routers"
+
+  # Tag configurations with multiple tag name filters
+  - file_path: "generated_file/multiple_tag_filter_config5.yml"
+    config:
+      component_specific_filters:
+        components_list: ["tag"]
+        tag:
+          - tag_name: "Core-Routers"
+          - tag_name: "Campus-Switches"
+
+  # Tag membership configurations with specific tag name filter (default: serial_number identifier)
+  - file_path: "generated_file/tag_memberships_filter_config6.yml"
+    config:
+      component_specific_filters:
+        components_list: ["tag_memberships"]
+        tag_memberships:
+          - tag_name: "Core-Routers"
+
+  # Tag membership configurations using hostname as device identifier
+  - file_path: "generated_file/tag_memberships_hostname_config7.yml"
+    config:
+      component_specific_filters:
+        components_list: ["tag_memberships"]
+        tag_memberships:
+          - tag_name: "Core-Routers"
+            device_identifier: "hostname"
+
+  # Tag membership configurations with multiple tag name filters and ip_address identifier
+  - file_path: "generated_file/tag_memberships_multiple_filter_config8.yml"
+    config:
+      component_specific_filters:
+        components_list: ["tag_memberships"]
+        tag_memberships:
+          - tag_name: "Core-Routers"
+            device_identifier: "ip_address"
+          - tag_name: "Campus-Switches"
+            device_identifier: "ip_address"
+
+  # Combined tag and tag membership configurations with filters
+  - file_path: "generated_file/combined_components_filter_config9.yml"
+    config:
+      component_specific_filters:
+        components_list: ["tag", "tag_memberships"]
+        tag:
+          - tag_name: "Core-Routers"
+        tag_memberships:
+          - tag_name: "Core-Routers"
+            device_identifier: "mac_address"
+
+  # All components with no sub-filters
+  - file_path: "generated_file/all_components_no_subfilters_config10.yml"
+    config:
+      component_specific_filters:
+        components_list: ["tag", "tag_memberships"]
+
+  # ---- Legacy format: component_specific_filters at item level (without config: wrapper) ----
+  # The playbook auto-wraps these into {'component_specific_filters': ...} before passing to the module.
+
+  # Generate only tag membership configurations (legacy format)
+  - file_path: "generated_file/tag_memberships_legacy_config11.yml"
+    component_specific_filters:
+      components_list: ["tag_memberships"]
+
+  # Tag configurations with specific tag name filter (legacy format)
+  - file_path: "generated_file/specific_tag_legacy_config12.yml"
+    component_specific_filters:
+      components_list: ["tag"]
+      tag:
+        - tag_name: "Core-Routers"
+
+  # Tag membership configurations with device identifier (legacy format)
+  - file_path: "generated_file/tag_memberships_hostname_legacy_config13.yml"
+    component_specific_filters:
+      components_list: ["tag_memberships"]
+      tag_memberships:
+        - tag_name: "Core-Routers"
+          device_identifier: "hostname"
+
+  # Combined components — no sub-filters (legacy format)
+  # Expected: Auto-population adds both components
+  - file_path: "generated_file/all_components_legacy_config14.yml"
+    component_specific_filters:
+      components_list: ["tag", "tag_memberships"]
+
+  # No components_list — only component filters provided (legacy format)
+  # Expected: Auto-population infers components_list from provided filters
+  - file_path: "generated_file/auto_population_from_filters_legacy_config15.yml"
+    component_specific_filters:
+      tag:
+        - tag_name: "Core-Routers"
+      tag_memberships:
+        - tag_name: "Core-Routers"
+          device_identifier: "serial_number"
+
+# # ============================================================================
+# Additional Configuration Examples
+# ============================================================================
+# Example 1: Generate all components with auto-generated filename
+# tags_config:
+#   - {}   # empty item = omit config = generate all (auto-generated filename)
+
+# Example 2: Custom file path, generate all
+# tags_config:
+#   - file_path: "/home/ansible/tag_configs/all_tags.yml"
+
+# Example 3: Multiple tag filters with specific criteria
+# tags_config:
+#   - file_path: "generated_file/filtered_tags_config.yml"
+#     config:
+#       component_specific_filters:
+#         components_list: ["tag", "tag_memberships"]
+#         tag:
+#           - tag_name: "Production"
+#           - tag_name: "Development"
+#         tag_memberships:
+#           - tag_name: "Production"
+#             device_identifier: "hostname"
+#           - tag_name: "Development"
+#             device_identifier: "serial_number"
+
+# ============================================================================
+# CONFIG Parameter Documentation
+# ============================================================================
+#
+# GENERATING ALL CONFIGURATIONS:
+# - Omit the 'config' key entirely from the tags_config item.
+# - The module runs in full auto-discovery mode and retrieves all tag
+#   configurations and tag memberships from Catalyst Center.
+# - System tags (systemTag=True) are automatically excluded from output.
+#
+# SELECTIVE GENERATION:
+# - Add a 'config:' key containing 'component_specific_filters' to control
+#   what is extracted. This matches the module's parameter name exactly.
+# - 'components_list' specifies which components to include.
+# - If component filters (tag / tag_memberships) are provided without their
+#   component in components_list, they are auto-added to components_list.
+#
+# DEVICE_IDENTIFIER for tag_memberships:
+# - Controls how devices are identified in the generated YAML output.
+# - Choices: hostname | serial_number (default) | mac_address | ip_address
+# - If the chosen identifier is unavailable for a device, the module falls
+#   back in this order: serial_number -> ip_address -> mac_address -> hostname
+# - The output key in the generated YAML matches the actual identifier used.
+#   (e.g., 'hostnames' instead of 'serial_numbers' when hostname is used)
+#
+# EXAMPLES:
+#
+# Example A: Generate ALL configurations (no config key)
+# tags_config:
+#   - file_path: "generated_file/complete_tags_infrastructure.yml"
+#
+# Example B: Generate specific components only
+# tags_config:
+#   - file_path: "generated_file/tags_only.yml"
+#     config:
+#       component_specific_filters:
+#         components_list: ["tag"]
+#
+# Example C: Tag memberships using hostname as identifier
+# tags_config:
+#   - file_path: "generated_file/memberships_by_hostname.yml"
+#     config:
+#       component_specific_filters:
+#         components_list: ["tag_memberships"]
+#         tag_memberships:
+#           - tag_name: "Production"
+#             device_identifier: "hostname"
+
+# ============================================================================
+# Component Filter Details
+# ============================================================================
+#
+# components_list Options:
+# - "tag": Generate configuration for tag definitions only
+# - "tag_memberships": Generate configuration for tag memberships only
+# - ["tag", "tag_memberships"]: Generate both components
+#
+# Sub-Filter Options for Specific Component Selection:
+#
+# TAG Sub-Filters:
+# - config:
+#     component_specific_filters:
+#       tag:
+#         - tag_name: "Production"
+#           Description: Filter by specific tag name
+#           Examples:
+#             - "Production"
+#             - "Development"
+#             - "Network-Core"
+#         
+# TAG_MEMBERSHIPS Sub-Filters:
+# - config:
+#     component_specific_filters:
+#       tag_memberships:
+#         - tag_name: "Production"    (optional) filter memberships by tag name
+#           device_identifier: "serial_number"   (optional, default: serial_number)
+#           Description: Filter tag memberships by specific tag name; control device ID format
+#           device_identifier choices:
+#             - hostname       Uses device hostname
+#             - serial_number  Uses device serial number (default)
+#             - mac_address    Uses device MAC address
+#             - ip_address     Uses device IP address
+#           Examples:
+#             - tag_name: "Production"
+#               device_identifier: "hostname"
+#             - tag_name: "Network-Core"
+#               device_identifier: "ip_address"
+#
+# Combined Sub-Filters Usage:
+# - Multiple sub-filters can be used together for precise filtering
+# - Each component type supports its specific filter criteria
+# - Filters are applied as OR conditions within the same component type
+# - Tag name filters must match exact tag names in Catalyst Center
+#
+# ============================================================================
+# File Path Behavior
+# ============================================================================
+#
+# If file_path is specified:
+# - Uses the exact path provided
+# - Creates directory structure if it doesn't exist
+# - Overwrites existing files
+#
+# If file_path is NOT specified:
+# - Auto-generates filename in current working directory
+# - Format: tags_config_<timestamp>.yml
+# - Example: tags_config_2026-01-24_12-33-20.yml
+
+# ============================================================================
+# Notes and Limitations
+# ============================================================================
+
+# 1. Network Connectivity: Requires HTTPS connectivity to Catalyst Center
+# 2. File Permissions: Ensure write access to specified file paths
+# 3. Component Validation: Only "tag", "tag_memberships" are valid components
+# 4. Configuration Scope: Only retrieves existing configurations (brownfield)
+# 5. Tag Filtering: Tag names must match exactly as they exist in Catalyst Center
+# 6. Authentication: Uses Catalyst Center credentials from inventory configuration
+# 7. Tag Memberships: Includes both device and interface (port) associations
+# 8. Dynamic Rules: Tag definitions include device rules and port rules if configured
+# ============================================================================
