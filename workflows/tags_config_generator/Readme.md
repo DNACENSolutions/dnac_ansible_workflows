@@ -85,8 +85,8 @@ tags_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| file_path | string | No | auto-generated | Output file path for YAML configuration file. Default filename: `tags_config_<YYYY-MM-DD_HH-MM-SS>.yml` |
-| file_mode | string | No | overwrite | File write mode — `overwrite` replaces the file, `append` adds to it. Only applicable when `file_path` is provided. |
+| file_path | string | No | auto-generated | Output file path for YAML configuration file |
+| file_mode | string | No | overwrite | File write mode — `overwrite` replaces the file, `append` adds to it |
 | config | dict | No | omitted (all components) | Configuration filters dict. When omitted, all tag configurations and tag memberships are retrieved. When provided, `component_specific_filters` is mandatory. |
 
 ### Component Specific Filtering (within `config` parameter)
@@ -97,17 +97,6 @@ tags_config_generator/
 | components_list | list | Conditional | N/A | List of components to include. **Required when no component filter blocks are provided.** Empty list is invalid when no filter blocks exist. |
 | tag | list(dict) | No | all tag configurations | Tag configuration filtering criteria. |
 | tag_memberships | list(dict) | No | all tag membership configurations | Tag membership configuration filtering criteria. |
-
-**Component Logic Rules:**
-- **No `config`**: All components are retrieved (equivalent to both `tag` and `tag_memberships`)
-- **`config` provided**: `component_specific_filters` is mandatory
-- **Component filter blocks provided** (e.g., `tag`): Those components are automatically added to `components_list` when missing
-- **No component filter blocks**: `components_list` is required and must not be empty
-- **System Tags**: Tags with `systemTag=True` are automatically excluded from all generated output
-
-**Valid Component Types:**
-- `tag`: Tag configurations with device and port rules
-- `tag_memberships`: Tag membership associations (devices and interfaces)
 
 ### Tag Configuration Filters
 
