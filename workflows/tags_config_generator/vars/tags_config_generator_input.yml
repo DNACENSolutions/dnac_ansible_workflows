@@ -8,9 +8,6 @@
 #     workflows/tags_config_generator/playbook/tags_config_generator.yml \
 #     --extra-vars VARS_FILE_PATH=../vars/tags_config_generator_input.yml
 #
-# Note: VARS_FILE_PATH is relative to the playbook directory (playbook/).
-#       Use an absolute path to avoid ambiguity, e.g.:
-#         VARS_FILE_PATH=/absolute/path/to/tags_config_generator_input.yml
 #
 # ============================================================================
 
