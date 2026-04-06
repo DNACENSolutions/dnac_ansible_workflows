@@ -225,12 +225,9 @@ Validation success! 👍
 
 ```bash
 # Execute (run from project root directory)
-# Note: VARS_FILE_PATH is resolved relative to the playbook directory
-#       ../vars/ = workflows/tags_config_generator/vars/ from the playbook's location
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/tags_config_generator/playbook/tags_config_generator.yml \
-  -e VARS_FILE_PATH=../vars/tags_config_generator_input.yml \
-  -vvvv
+  --extra-vars VARS_FILE_PATH=../vars/tags_config_generator_input.yml
 ```
 
 Expected Terminal Output:
