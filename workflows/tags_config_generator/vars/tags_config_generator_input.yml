@@ -18,6 +18,17 @@ tags_config:
   # Generate all configurations with custom file path
   - file_path: "generated_file/complete_tags_config.yml"
 
+  # Legacy flag: generate_all_configurations: true forces full export and
+  # ignores component_specific_filters even when provided
+  - generate_all_configurations: true
+    file_path: "generated_file/complete_tags_config_legacy.yml"
+
+  # Legacy flag: generate_all_configurations: false respects filters (same as omitting the flag)
+  - generate_all_configurations: false
+    file_path: "generated_file/tags_components_config1.yml"
+    component_specific_filters:
+      components_list: ["tag"]
+
   # Generate only tag configurations 
   - file_path: "generated_file/tag_definitions_config2.yml"
     config:
