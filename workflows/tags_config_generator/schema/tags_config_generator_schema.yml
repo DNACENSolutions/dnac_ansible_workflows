@@ -165,12 +165,17 @@ tags_config_generator:
   # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
   file_mode: enum('overwrite', 'append', required=False)
 
+  # Legacy flag: when true, forces full export and ignores all filters.
+  # Takes priority over config and component_specific_filters.
+  generate_all_configurations: bool(required=False)
+
   # config: mirrors the module's 'config' parameter.
   # Omit this key to generate all configurations.
   config: include('tags_config_filters', required=False)
 
   # Legacy alternative: component_specific_filters directly at item level
   # (without wrapping inside config:). The playbook will auto-wrap it.
+  # Ignored when generate_all_configurations: true.
   component_specific_filters: include('tags_component_filters', required=False)
 
 ---
