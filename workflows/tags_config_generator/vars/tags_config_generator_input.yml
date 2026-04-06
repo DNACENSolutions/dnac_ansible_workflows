@@ -15,26 +15,22 @@
 # ============================================================================
 
 tags_config:
-  # Generate ALL configurations (no config key = full auto-discovery; system tags auto-excluded)
+  # Generate all configurations with custom file path
   - file_path: "generated_file/complete_tags_config.yml"
 
-  # Generate ALL configurations (empty config key — same as omitting config)
-  - file_path: "generated_file/complete_tags_empty_config.yml"
-    config:
-
-  # Generate only tag configurations
+  # Generate only tag configurations 
   - file_path: "generated_file/tag_definitions_config2.yml"
     config:
       component_specific_filters:
         components_list: ["tag"]
 
-  # Generate only tag membership configurations
+  # Generate only tag membership configurations  
   - file_path: "generated_file/tag_memberships_config3.yml"
     config:
       component_specific_filters:
         components_list: ["tag_memberships"]
 
-  # Tag configurations with specific tag name filter
+  # Tag Configurations with Specific Tag Name Filter:   
   - file_path: "generated_file/specific_tag_filter_config4.yml"
     config:
       component_specific_filters:
@@ -42,7 +38,7 @@ tags_config:
         tag:
           - tag_name: "Core-Routers"
 
-  # Tag configurations with multiple tag name filters
+  # Tag Configurations with Multiple Tag Name Filters:  
   - file_path: "generated_file/multiple_tag_filter_config5.yml"
     config:
       component_specific_filters:
@@ -51,7 +47,7 @@ tags_config:
           - tag_name: "Core-Routers"
           - tag_name: "Campus-Switches"
 
-  # Tag membership configurations with specific tag name filter (default: serial_number identifier)
+  # Tag Membership Configurations with Specific Tag Name Filter:  
   - file_path: "generated_file/tag_memberships_filter_config6.yml"
     config:
       component_specific_filters:
@@ -59,7 +55,7 @@ tags_config:
         tag_memberships:
           - tag_name: "Core-Routers"
 
-  # Tag membership configurations using hostname as device identifier
+  # Tag Membership Configurations with hostname device identifier:
   - file_path: "generated_file/tag_memberships_hostname_config7.yml"
     config:
       component_specific_filters:
@@ -68,7 +64,7 @@ tags_config:
           - tag_name: "Core-Routers"
             device_identifier: "hostname"
 
-  # Tag membership configurations with multiple tag name filters and ip_address identifier
+  # Tag Membership Configurations with Multiple Tag Name Filters:
   - file_path: "generated_file/tag_memberships_multiple_filter_config8.yml"
     config:
       component_specific_filters:
@@ -79,7 +75,7 @@ tags_config:
           - tag_name: "Campus-Switches"
             device_identifier: "ip_address"
 
-  # Combined tag and tag membership configurations with filters
+  # Combined Tag and Tag Membership Configurations with Filters  
   - file_path: "generated_file/combined_components_filter_config9.yml"
     config:
       component_specific_filters:
@@ -90,76 +86,36 @@ tags_config:
           - tag_name: "Core-Routers"
             device_identifier: "mac_address"
 
-  # All components with no sub-filters
+  # All Components with No Sub-Filters  
   - file_path: "generated_file/all_components_no_subfilters_config10.yml"
     config:
       component_specific_filters:
         components_list: ["tag", "tag_memberships"]
 
-  # ---- Legacy format: component_specific_filters at item level (without config: wrapper) ----
-  # The playbook auto-wraps these into {'component_specific_filters': ...} before passing to the module.
-
-  # Generate only tag membership configurations (legacy format)
-  - file_path: "generated_file/tag_memberships_legacy_config11.yml"
-    component_specific_filters:
-      components_list: ["tag_memberships"]
-
-  # Tag configurations with specific tag name filter (legacy format)
-  - file_path: "generated_file/specific_tag_legacy_config12.yml"
-    component_specific_filters:
-      components_list: ["tag"]
-      tag:
-        - tag_name: "Core-Routers"
-
-  # Tag membership configurations with device identifier (legacy format)
-  - file_path: "generated_file/tag_memberships_hostname_legacy_config13.yml"
-    component_specific_filters:
-      components_list: ["tag_memberships"]
-      tag_memberships:
-        - tag_name: "Core-Routers"
-          device_identifier: "hostname"
-
-  # Combined components — no sub-filters (legacy format)
-  # Expected: Auto-population adds both components
-  - file_path: "generated_file/all_components_legacy_config14.yml"
-    component_specific_filters:
-      components_list: ["tag", "tag_memberships"]
-
-  # No components_list — only component filters provided (legacy format)
-  # Expected: Auto-population infers components_list from provided filters
-  - file_path: "generated_file/auto_population_from_filters_legacy_config15.yml"
-    component_specific_filters:
-      tag:
-        - tag_name: "Core-Routers"
-      tag_memberships:
-        - tag_name: "Core-Routers"
-          device_identifier: "serial_number"
-
-# # ============================================================================
+# ============================================================================
 # Additional Configuration Examples
 # ============================================================================
 # Example 1: Generate all components with auto-generated filename
 # tags_config:
-#   - {}   # empty item = omit config = generate all (auto-generated filename)
+#   - file_path: "generated_file/complete_tags_config.yml"
 
-# Example 2: Custom file path, generate all
+# Example 2: Custom file path with specific components
 # tags_config:
-#   - file_path: "/home/ansible/tag_configs/all_tags.yml"
+#   - file_path: "/home/ansible/tag_configs/production_tags.yml"
+#     component_specific_filters:
+#       components_list: ["tag"]
 
 # Example 3: Multiple tag filters with specific criteria
 # tags_config:
 #   - file_path: "generated_file/filtered_tags_config.yml"
-#     config:
-#       component_specific_filters:
-#         components_list: ["tag", "tag_memberships"]
-#         tag:
-#           - tag_name: "Production"
-#           - tag_name: "Development"
-#         tag_memberships:
-#           - tag_name: "Production"
-#             device_identifier: "hostname"
-#           - tag_name: "Development"
-#             device_identifier: "serial_number"
+#     component_specific_filters:
+#       components_list: ["tag", "tag_memberships"]
+#       tag:
+#         - tag_name: "Production"
+#         - tag_name: "Development"
+#       tag_memberships:
+#         - tag_name: "Production"
+#         - tag_name: "Development"
 
 # ============================================================================
 # CONFIG Parameter Documentation
@@ -221,33 +177,25 @@ tags_config:
 # Sub-Filter Options for Specific Component Selection:
 #
 # TAG Sub-Filters:
-# - config:
-#     component_specific_filters:
-#       tag:
-#         - tag_name: "Production"
-#           Description: Filter by specific tag name
-#           Examples:
-#             - "Production"
-#             - "Development"
-#             - "Network-Core"
+# - tag:
+#     - tag_name: "Production" 
+#       Description: Filter by specific tag name
+#       Examples:
+#         - "Production" 
+#         - "Development"
+#         - "Network-Core"
 #         
 # TAG_MEMBERSHIPS Sub-Filters:
-# - config:
-#     component_specific_filters:
-#       tag_memberships:
-#         - tag_name: "Production"    (optional) filter memberships by tag name
-#           device_identifier: "serial_number"   (optional, default: serial_number)
-#           Description: Filter tag memberships by specific tag name; control device ID format
-#           device_identifier choices:
-#             - hostname       Uses device hostname
-#             - serial_number  Uses device serial number (default)
-#             - mac_address    Uses device MAC address
-#             - ip_address     Uses device IP address
-#           Examples:
-#             - tag_name: "Production"
-#               device_identifier: "hostname"
-#             - tag_name: "Network-Core"
-#               device_identifier: "ip_address"
+# - tag_memberships:
+#     - tag_name: "Production"
+#       Description: Filter tag memberships by specific tag name
+#       device_identifier: "serial_number"   (optional, default: serial_number)
+#       Choices: hostname | serial_number | mac_address | ip_address
+#       Examples:
+#         - tag_name: "Production"
+#           device_identifier: "hostname"
+#         - tag_name: "Network-Core"
+#           device_identifier: "ip_address"
 #
 # Combined Sub-Filters Usage:
 # - Multiple sub-filters can be used together for precise filtering
