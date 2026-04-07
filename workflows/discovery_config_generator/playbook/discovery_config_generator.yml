@@ -58,11 +58,13 @@
       cisco.dnac.discovery_playbook_config_generator:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        file_path: "{{ discovery_config_details.file_path | default(omit) }}"
-        file_mode: "{{ discovery_config_details.file_mode | default('overwrite') }}"
-        config: "{{ omit if (discovery_config_details.generate_all_configurations | default(false)) else ({'global_filters': discovery_config_details.global_filters} if discovery_config_details.global_filters is defined else omit) }}"
+        file_path: "{{ item.file_path | default(omit) }}"
+        file_mode: "{{ item.file_mode | default('overwrite') }}"
+        config: "{{ item.config | default(omit) }}"
+      loop: "{{ discovery_config_details }}"
       when:
         - discovery_config_details is defined
+        - discovery_config_details | length > 0
       register: config_generation_result
 
     - name: Display configuration generation results
