@@ -82,7 +82,7 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # PnP Config Generator Entry Schema
 pnp_config_generator_type:
-  # Workflow-level convenience flag. If true, module config is omitted.
+  # Workflow-level convenience flag. When true, module config is omitted (full discovery).
   generate_all_configurations: bool(required=False)
 
   # Output file path for generated YAML
@@ -91,10 +91,19 @@ pnp_config_generator_type:
   # File write mode: overwrite or append
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Component-specific filters
-  component_specific_filters: include('pnp_component_filters_type', required=False)
+  # config: mirrors the module's 'config' parameter directly.
+  # Omit this key (or set generate_all_configurations: true) to retrieve all PnP devices.
+  config: include('pnp_config_filters_type', required=False)
 
-  # Global filters
+  # Legacy alternative: component_specific_filters and global_filters at item level.
+  # Ignored when generate_all_configurations: true or when config: is provided.
+  component_specific_filters: include('pnp_component_filters_type', required=False)
+  global_filters: include('pnp_global_filters_type', required=False)
+
+---
+# PnP Config Filters Schema (mirrors module 'config' parameter)
+pnp_config_filters_type:
+  component_specific_filters: include('pnp_component_filters_type', required=False)
   global_filters: include('pnp_global_filters_type', required=False)
 
 ---

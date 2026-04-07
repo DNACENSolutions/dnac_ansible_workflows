@@ -63,18 +63,16 @@
         config: >-
           {{
             omit
-            if (
-              item.generate_all_configurations | default(false)
-              or (
-                item.component_specific_filters is not defined
-                and item.global_filters is not defined
-              )
-            )
-            else
-            (
-              {}
-              | combine({'component_specific_filters': item.component_specific_filters} if item.component_specific_filters is defined else {})
-              | combine({'global_filters': item.global_filters} if item.global_filters is defined else {})
+            if (item.generate_all_configurations | default(false) | bool)
+            else (
+              item.config
+              if (item.config is defined and item.config is not none)
+              else (
+                {}
+                | combine({'component_specific_filters': item.component_specific_filters} if item.component_specific_filters is defined else {})
+                | combine({'global_filters': item.global_filters} if item.global_filters is defined else {})
+              ) if (item.component_specific_filters is defined or item.global_filters is defined)
+              else omit
             )
           }}
       loop: "{{ pnp_config }}"

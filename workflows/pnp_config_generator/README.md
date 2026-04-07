@@ -11,7 +11,9 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
+
+---
 
 ## Overview
 
@@ -82,19 +84,29 @@ pnp_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `generate_all_configurations` | boolean | No | false | Workflow convenience flag. When true, playbook omits module `config` and retrieves all PnP devices |
+| `generate_all_configurations` | boolean | No | false | Legacy convenience flag. When `true`, playbook omits module `config` and retrieves all PnP devices |
 | `file_path` | string | No | auto-generated | Output file path for YAML configuration file |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `component_specific_filters` | dict | No | omitted | Component-level filters |
-| `global_filters` | dict | No | omitted | Global filters such as PnP state |
+| `config` | dict | No | omitted | Module-level filter dict (see [Config Filters](#config-filters) below). Omit for full discovery |
+| `component_specific_filters` | dict | No | omitted | **Legacy** — component-level filters at item level (auto-wrapped into `config` by the playbook) |
+| `global_filters` | dict | No | omitted | **Legacy** — global filters at item level (auto-wrapped into `config` by the playbook) |
 
-### Component Filters
+### Config Filters
+
+The `config` dict mirrors the module's `config` parameter and supports:
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `component_specific_filters` | dict | No | Component-level filters |
+| `global_filters` | dict | No | Global filters such as PnP state |
+
+#### Component Specific Filters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `components_list` | list[string] | No | Supported value: `device_info` |
 
-### Global Filters
+#### Global Filters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -147,7 +159,9 @@ ansible-galaxy collection install cisco.dnac --force
 export HOSTIP=<catalyst-center-ip-or-fqdn>
 export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/pnp_config_generator/playbook/pnp_config_generator.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
+  workflows/pnp_config_generator/playbook/pnp_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=../vars/pnp_config_inputs.yml -vvvv
 ```
 
 
@@ -157,24 +171,201 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/pnp_config_gener
 
 Use `pnp_config_generator.yml` for all generation tasks.
 
-1. **Generate All PnP Devices**
-- Set `generate_all_configurations: true`
-- Playbook omits module `config` and retrieves all supported PnP device information
+#### Generate All Configurations
 
-2. **Generate with Component Filter**
-- Use `component_specific_filters.components_list: ["device_info"]`
+**Description**: Retrieves all registered PnP devices from Catalyst Center. To generate all configurations, omit `config`.
 
-3. **Generate with State Filter**
-- Use `global_filters.device_state` to target one or more PnP states
+```yaml
+pnp_config:
+  - file_path: "/tmp/pnp_all_device_info.yml"
+    file_mode: overwrite
+```
 
-4. **Append Outputs**
-- Set `file_mode: append` to accumulate generated YAML into an existing file
+#### State-Based Filtering
+
+**Description**: Generates configuration for devices in specific PnP workflow states only.
+
+**Filter Unclaimed Devices**
+
+```yaml
+pnp_config:
+  - file_path: "/tmp/pnp_unclaimed_devices.yml"
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list: ["device_info"]
+      global_filters:
+        device_state: ["Unclaimed"]
+```
+
+**Filter Planned and Onboarding Devices**
+
+```yaml
+pnp_config:
+  - file_path: "/tmp/pnp_planned_onboarding.yml"
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list: ["device_info"]
+      global_filters:
+        device_state: ["Planned", "Onboarding"]
+```
+
+**Validate and Execute:**
+
+```bash
+# Validate
+./tools/validate.sh -s workflows/pnp_config_generator/schema/pnp_config_schema.yml \
+     -d workflows/pnp_config_generator/vars/pnp_config_inputs.yml
+```
+Expected validation output:
+```
+# Command to run (from dnac_ansible_workflows/ directory):
+# ./tools/validate.sh -s workflows/pnp_config_generator/schema/pnp_config_schema.yml \
+#      -d workflows/pnp_config_generator/vars/pnp_config_inputs.yml
+
+# --- Output ---
+workflows/pnp_config_generator/schema/pnp_config_schema.yml
+workflows/pnp_config_generator/vars/pnp_config_inputs.yml
+yamale   -s workflows/pnp_config_generator/schema/pnp_config_schema.yml  workflows/pnp_config_generator/vars/pnp_config_inputs.yml
+Validating workflows/pnp_config_generator/vars/pnp_config_inputs.yml...
+Validation success! 👍
+```
+
+```bash
+# Execute
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/pnp_config_generator/playbook/pnp_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=../vars/pnp_config_inputs.yml
+```
+
+Expected Terminal Output:
+1. Generate All Configurations
+```code
+        file_path: /tmp/pnp_all_device_info.yml
+      msg:
+        YAML config generation Task succeeded for module 'pnp_workflow_manager'.:
+          devices_count: 5
+          file_path: /tmp/pnp_all_device_info.yml
+      response:
+        YAML config generation Task succeeded for module 'pnp_workflow_manager'.:
+          devices_count: 5
+          file_path: /tmp/pnp_all_device_info.yml
+      status: success
+    skipped: false
+```
+
+2. State-Based Filtering:
+
+a. Unclaimed Device Filter:
+```code
+        config:
+          component_specific_filters:
+            components_list:
+            - device_info
+          global_filters:
+            device_state:
+            - Unclaimed
+        file_path: /tmp/pnp_unclaimed_devices.yml
+      msg:
+        YAML config generation Task succeeded for module 'pnp_workflow_manager'.:
+          devices_count: 3
+          file_path: /tmp/pnp_unclaimed_devices.yml
+      response:
+        YAML config generation Task succeeded for module 'pnp_workflow_manager'.:
+          devices_count: 3
+          file_path: /tmp/pnp_unclaimed_devices.yml
+      status: success
+    skipped: false
+```
+
+b. Planned and Onboarding Device Filter:
+```code
+        config:
+          component_specific_filters:
+            components_list:
+            - device_info
+          global_filters:
+            device_state:
+            - Planned
+            - Onboarding
+        file_path: /tmp/pnp_planned_onboarding.yml
+      msg:
+        YAML config generation Task succeeded for module 'pnp_workflow_manager'.:
+          devices_count: 2
+          file_path: /tmp/pnp_planned_onboarding.yml
+      response:
+        YAML config generation Task succeeded for module 'pnp_workflow_manager'.:
+          devices_count: 2
+          file_path: /tmp/pnp_planned_onboarding.yml
+      status: success
+    skipped: false
+```
 
 ---
 
 ## Examples
 
-### Example 1: Generate all PnP device info
+### Example 1: Generate ALL PnP devices (full discovery)
+
+```yaml
+pnp_config:
+  - file_path: "/tmp/pnp_all_device_info.yml"
+```
+
+After running the playbook, the following YAML configuration is generated.
+
+```yaml
+---
+config:
+- deviceInfo:
+    hostname: switch-01
+    serialNumber: FJC2234L0GH
+    pid: C9300-48P
+    state: Unclaimed
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+- deviceInfo:
+    hostname: switch-02
+    serialNumber: FJC2241L0TQ
+    pid: C9200-24P
+    state: Planned
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+- deviceInfo:
+    hostname: router-01
+    serialNumber: FGL2214L09J
+    pid: ISR4451-X/K9
+    state: Onboarding
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+- deviceInfo:
+    hostname: switch-03
+    serialNumber: FJC2254L0ZR
+    pid: C9300-24T
+    state: Provisioned
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+- deviceInfo:
+    hostname: switch-04
+    serialNumber: FJC2261L0MK
+    pid: C9200-48P
+    state: Error
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+```
+
+### Example 2: Generate all PnP device info (legacy flag)
 
 ```yaml
 pnp_config:
@@ -182,33 +373,179 @@ pnp_config:
     file_path: "/tmp/pnp_all_device_info.yml"
 ```
 
-### Example 2: Generate only unclaimed devices
+### Example 3: Generate only device_info component (config: key)
+
+```yaml
+pnp_config:
+  - file_path: "/tmp/pnp_device_info_component.yml"
+    config:
+      component_specific_filters:
+        components_list: ["device_info"]
+```
+
+After running the playbook, the following YAML configuration is generated.
+
+```yaml
+---
+config:
+- deviceInfo:
+    hostname: switch-01
+    serialNumber: FJC2234L0GH
+    pid: C9300-48P
+    state: Unclaimed
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+- deviceInfo:
+    hostname: switch-02
+    serialNumber: FJC2241L0TQ
+    pid: C9200-24P
+    state: Planned
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+```
+
+### Example 4: Generate only unclaimed devices (config: key)
 
 ```yaml
 pnp_config:
   - file_path: "/tmp/pnp_unclaimed_devices.yml"
+    config:
+      component_specific_filters:
+        components_list: ["device_info"]
+      global_filters:
+        device_state: ["Unclaimed"]
+```
+
+After running the playbook, the following YAML configuration is generated having details for only Unclaimed PnP devices.
+
+```yaml
+---
+config:
+- deviceInfo:
+    hostname: switch-01
+    serialNumber: FJC2234L0GH
+    pid: C9300-48P
+    state: Unclaimed
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+- deviceInfo:
+    hostname: router-02
+    serialNumber: FGL2224L08B
+    pid: ISR4331/K9
+    state: Unclaimed
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+- deviceInfo:
+    hostname: ap-01
+    serialNumber: KWC2143L0FT
+    pid: AIR-AP2802I-B-K9
+    state: Unclaimed
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+```
+
+### Example 5: Generate multiple states and append output (config: key)
+
+```yaml
+pnp_config:
+  - file_path: "/tmp/pnp_device_info_aggregate.yml"
+    file_mode: "append"
+    config:
+      component_specific_filters:
+        components_list: ["device_info"]
+      global_filters:
+        device_state: ["Planned", "Provisioned"]
+```
+
+After running the playbook, the following YAML configuration is generated having details for Planned and Provisioned PnP devices.
+
+```yaml
+---
+config:
+- deviceInfo:
+    hostname: switch-02
+    serialNumber: FJC2241L0TQ
+    pid: C9200-24P
+    state: Planned
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+- deviceInfo:
+    hostname: switch-03
+    serialNumber: FJC2254L0ZR
+    pid: C9300-24T
+    state: Provisioned
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+```
+
+### Example 6: Generate unclaimed devices (legacy item-level filters)
+
+```yaml
+pnp_config:
+  - file_path: "/tmp/pnp_unclaimed_legacy.yml"
     component_specific_filters:
       components_list: ["device_info"]
     global_filters:
       device_state: ["Unclaimed"]
 ```
 
-### Example 3: Generate multiple states and append output
+After running the playbook, the following YAML configuration is generated having details for Unclaimed PnP devices using legacy filter format.
 
 ```yaml
-pnp_config:
-  - file_path: "/tmp/pnp_device_info_aggregate.yml"
-    file_mode: "append"
-    component_specific_filters:
-      components_list: ["device_info"]
-    global_filters:
-      device_state: ["Planned", "Provisioned"]
+---
+config:
+- deviceInfo:
+    hostname: switch-01
+    serialNumber: FJC2234L0GH
+    pid: C9300-48P
+    state: Unclaimed
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
+- deviceInfo:
+    hostname: router-02
+    serialNumber: FGL2224L08B
+    pid: ISR4331/K9
+    state: Unclaimed
+    sudiRequired: false
+    aaaCredentials:
+      username: ''
+      password: ''
 ```
 
 ---
 
 ## Notes
 
-- `pnp_playbook_config_generator` accepts `config` as a dictionary.
-- This workflow allows multiple entries via `pnp_config` list and executes the module once per entry.
-- If both filters are omitted in an entry, the workflow omits `config` and runs in full discovery mode.
+- `pnp_playbook_config_generator` accepts `config` as a dictionary with `component_specific_filters` and `global_filters` suboptions.
+- This workflow supports multiple entries via the `pnp_config` list, executing the module once per entry.
+- The playbook resolves `config` using the following priority chain per item:
+  1. `generate_all_configurations: true` → module `config` omitted (full discovery)
+  2. `config:` dict defined → passed directly to module
+  3. `component_specific_filters` / `global_filters` at item level → auto-wrapped into `config` dict (legacy)
+  4. None defined → module `config` omitted (full discovery)
+- Only `device_info` is currently supported for `components_list`.
+- Valid `device_state` values: `Unclaimed`, `Planned`, `Onboarding`, `Provisioned`, `Error`.
+
+---
+
+## Additional Resources
+
+- [Cisco Catalyst Center Documentation](https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/series.html)
+- [Cisco DNA Center SDK](https://dnacentersdk.readthedocs.io/)
+- [Ansible Documentation](https://docs.ansible.com/)
