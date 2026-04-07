@@ -84,12 +84,11 @@ pnp_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `generate_all_configurations` | boolean | No | false | Legacy convenience flag. When `true`, playbook omits module `config` and retrieves all PnP devices |
 | `file_path` | string | No | auto-generated | Output file path for YAML configuration file |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
 | `config` | dict | No | omitted | Module-level filter dict (see [Config Filters](#config-filters) below). Omit for full discovery |
-| `component_specific_filters` | dict | No | omitted | **Legacy** — component-level filters at item level (auto-wrapped into `config` by the playbook) |
-| `global_filters` | dict | No | omitted | **Legacy** — global filters at item level (auto-wrapped into `config` by the playbook) |
+| `component_specific_filters` | dict | No | omitted | **Legacy** — component-level filters at item level (auto-wrapped into `config` by the playbook when `config` is not provided) |
+| `global_filters` | dict | No | omitted | **Legacy** — global filters at item level (auto-wrapped into `config` by the playbook when `config` is not provided) |
 
 ### Config Filters
 
@@ -365,15 +364,7 @@ config:
       password: ''
 ```
 
-### Example 2: Generate all PnP device info (legacy flag)
-
-```yaml
-pnp_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/pnp_all_device_info.yml"
-```
-
-### Example 3: Generate only device_info component (config: key)
+### Example 2: Generate only device_info component (config: key)
 
 ```yaml
 pnp_config:
@@ -382,6 +373,7 @@ pnp_config:
       component_specific_filters:
         components_list: ["device_info"]
 ```
+
 
 After running the playbook, the following YAML configuration is generated.
 
@@ -535,10 +527,9 @@ config:
 - `pnp_playbook_config_generator` accepts `config` as a dictionary with `component_specific_filters` and `global_filters` suboptions.
 - This workflow supports multiple entries via the `pnp_config` list, executing the module once per entry.
 - The playbook resolves `config` using the following priority chain per item:
-  1. `generate_all_configurations: true` → module `config` omitted (full discovery)
-  2. `config:` dict defined → passed directly to module
-  3. `component_specific_filters` / `global_filters` at item level → auto-wrapped into `config` dict (legacy)
-  4. None defined → module `config` omitted (full discovery)
+  1. `config:` dict defined → passed directly to module
+  2. `component_specific_filters` / `global_filters` at item level → auto-wrapped into `config` dict (legacy)
+  3. None defined → module `config` omitted (full discovery)
 - Only `device_info` is currently supported for `components_list`.
 - Valid `device_state` values: `Unclaimed`, `Planned`, `Onboarding`, `Provisioned`, `Error`.
 

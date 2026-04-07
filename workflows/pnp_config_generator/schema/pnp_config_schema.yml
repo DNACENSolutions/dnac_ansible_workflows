@@ -37,32 +37,34 @@
 # -------------------
 # Each item drives one YAML generation operation:
 #
-# 1. generate_all_configurations:
-#    - Type: boolean (optional, workflow convenience key)
-#    - If true, module is called without config (auto-discovery of all PnP devices)
-#
-# 2. file_path:
+# 1. file_path:
 #    - Type: string (optional)
 #    - Output path for generated YAML file
 #
-# 3. file_mode:
+# 2. file_mode:
 #    - Type: string (optional)
 #    - Valid values: overwrite, append
 #
-# 4. component_specific_filters:
+# 3. config:
 #    - Type: dict (optional)
+#    - Mirrors the module's config parameter directly.
+#    - Omit to retrieve all PnP devices (full brownfield discovery mode).
+#
+# 4. component_specific_filters:
+#    - Type: dict (optional, legacy)
 #    - components_list currently supports only: device_info
+#    - Auto-wrapped into config by the playbook when config: is not provided.
 #
 # 5. global_filters:
-#    - Type: dict (optional)
+#    - Type: dict (optional, legacy)
 #    - device_state filters supported: Unclaimed, Planned, Onboarding,
 #      Provisioned, Error
+#    - Auto-wrapped into config by the playbook when config: is not provided.
 #
 # NOTES:
 # ------
 # - The underlying module accepts config as a dict.
-# - In this workflow, config is omitted when generate_all_configurations is true
-#   or when no filters are provided.
+# - Omit config entirely to run in full brownfield extraction mode.
 # - This enables full brownfield extraction mode.
 
 # Schema Definition
@@ -82,9 +84,6 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # PnP Config Generator Entry Schema
 pnp_config_generator_type:
-  # Workflow-level convenience flag. When true, module config is omitted (full discovery).
-  generate_all_configurations: bool(required=False)
-
   # Output file path for generated YAML
   file_path: str(required=False)
 
@@ -92,11 +91,11 @@ pnp_config_generator_type:
   file_mode: enum('overwrite', 'append', required=False)
 
   # config: mirrors the module's 'config' parameter directly.
-  # Omit this key (or set generate_all_configurations: true) to retrieve all PnP devices.
+  # Omit this key to retrieve all PnP devices (full discovery).
   config: include('pnp_config_filters_type', required=False)
 
   # Legacy alternative: component_specific_filters and global_filters at item level.
-  # Ignored when generate_all_configurations: true or when config: is provided.
+  # Auto-wrapped into config by the playbook when config: is not provided.
   component_specific_filters: include('pnp_component_filters_type', required=False)
   global_filters: include('pnp_global_filters_type', required=False)
 

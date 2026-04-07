@@ -12,45 +12,40 @@
 #   cisco.dnac.pnp_playbook_config_generator
 #
 # Notes:
-# - Omit 'config' key entirely (or set generate_all_configurations: true)
-#   to retrieve all PnP devices (full brownfield discovery mode).
+# - Omit 'config' key entirely to retrieve all PnP devices (full brownfield discovery mode).
 # - Use 'config:' key with component_specific_filters / global_filters
 #   for selective generation.
 # ============================================================================
 
 pnp_config:
   # 1) Generate all PnP device info - no config key (full discovery)
-  - file_path: "/tmp/pnp_all_device_info.yml"
+  - file_path: "tmp/pnp_all_device_info.yml"
 
-  # 2) Generate all PnP device info using generate_all_configurations legacy flag
-  - generate_all_configurations: true
-    file_path: "/tmp/pnp_all_device_info_legacy.yml"
-
-  # 3) Generate only the device_info component (using config: key)
-  - file_path: "/tmp/pnp_device_info_component.yml"
+  # 2) Generate only the device_info component (using config: key)
+  - file_path: "tmp/pnp_device_info_component.yml"
     file_mode: "overwrite"
     config:
       component_specific_filters:
         components_list: ["device_info"]
 
-  # 4) Filter by single PnP state - Unclaimed (using config: key)
-  - file_path: "/tmp/pnp_unclaimed_devices.yml"
+  # 3) Filter by single PnP state - Unclaimed (using config: key)
+  - file_path: "tmp/pnp_unclaimed_devices.yml"
     config:
       component_specific_filters:
         components_list: ["device_info"]
       global_filters:
         device_state: ["Unclaimed"]
 
-  # 5) Filter by multiple PnP states (using config: key)
-  - file_path: "/tmp/pnp_unclaimed_planned_devices.yml"
+  # 4) Filter by multiple PnP states (using config: key)
+  - file_path: "tmp/pnp_unclaimed_planned_devices.yml"
     config:
       component_specific_filters:
         components_list: ["device_info"]
       global_filters:
         device_state: ["Unclaimed", "Planned"]
 
-  # 6) Append output from Provisioned devices (using config: key)
-  - file_path: "/tmp/pnp_device_info_aggregate.yml"
+  # 5) Append output from Provisioned devices (using config: key)
+  - file_path: "tmp/pnp_device_info_aggregate.yml"
     file_mode: "append"
     config:
       component_specific_filters:
@@ -61,20 +56,20 @@ pnp_config:
   # ---- Legacy format: component_specific_filters / global_filters at item level ----
   # The playbook auto-builds config from these when config: is not provided.
 
-  # 7) Filter by single state - legacy format
-  - file_path: "/tmp/pnp_unclaimed_legacy.yml"
+  # 6) Filter by single state - legacy format
+  - file_path: "tmp/pnp_unclaimed_legacy.yml"
     component_specific_filters:
       components_list: ["device_info"]
     global_filters:
       device_state: ["Unclaimed"]
 
-  # 8) Global filter only - no component filter (legacy)
-  - file_path: "/tmp/pnp_error_devices.yml"
+  # 7) Global filter only - no component filter (legacy)
+  - file_path: "tmp/pnp_error_devices.yml"
     global_filters:
       device_state: ["Error"]
 
-  # 9) Append onboarding devices - legacy format
-  - file_path: "/tmp/pnp_device_info_aggregate.yml"
+  # 8) Append onboarding devices - legacy format
+  - file_path: "tmp/pnp_device_info_aggregate.yml"
     file_mode: "append"
     component_specific_filters:
       components_list: ["device_info"]
@@ -86,7 +81,7 @@ pnp_config:
 # ============================================================================
 # Example: All states filtered, output combined
 # pnp_config:
-#   - file_path: "/tmp/pnp_all_states.yml"
+#   - file_path: "tmp/pnp_all_states.yml"
 #     config:
 #       component_specific_filters:
 #         components_list: ["device_info"]
@@ -101,10 +96,7 @@ pnp_config:
 #     components_list: ["device_info"]   # only 'device_info' currently supported
 #   global_filters:
 #     device_state: ["Unclaimed", "Planned", "Onboarding", "Provisioned", "Error"]
-#
-# generate_all_configurations (legacy convenience flag):
-# - true:  module config is omitted, all PnP devices are discovered
-# - false/not set: playbook passes config when filters are provided
+# Omit config entirely to retrieve all PnP devices (full brownfield discovery mode).
 #
 # file_mode:
 # - overwrite: create/replace file
