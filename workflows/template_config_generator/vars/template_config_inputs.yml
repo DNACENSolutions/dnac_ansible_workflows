@@ -10,84 +10,91 @@
 #
 # Module used:
 #   cisco.dnac.template_playbook_config_generator
+#
 # ============================================================================
 
 template_config:
-  # 1) Generate all projects and configuration templates
-  - generate_all_configurations: true
-    file_path: "/tmp/template_complete_config.yml"
+  # 1) Generate all projects and configuration templates (omit config)
+  - file_path: "/tmp/template_complete_config.yml"
 
   # 2) Generate projects only
   - file_path: "/tmp/template_projects_only.yml"
-    component_specific_filters:
-      components_list: ["projects"]
+    config:
+      component_specific_filters:
+        components_list: ["projects"]
 
   # 3) Generate templates only
   - file_path: "/tmp/template_configuration_templates_only.yml"
-    component_specific_filters:
-      components_list: ["configuration_templates"]
+    config:
+      component_specific_filters:
+        components_list: ["configuration_templates"]
 
   # 4) Filter projects by name
   - file_path: "/tmp/template_project_filter.yml"
-    component_specific_filters:
-      components_list: ["projects"]
-      projects:
-        - name: "Onboarding Configuration"
-        - name: "Branch Templates"
+    config:
+      component_specific_filters:
+        components_list: ["projects"]
+        projects:
+          - name: "Onboarding Configuration"
+          - name: "Branch Templates"
 
   # 5) Filter templates by template_name
   - file_path: "/tmp/template_name_filter.yml"
-    component_specific_filters:
-      components_list: ["configuration_templates"]
-      configuration_templates:
-        - template_name: "PnP-Devices-SW"
-        - template_name: "Access_Switch_Base"
+    config:
+      component_specific_filters:
+        components_list: ["configuration_templates"]
+        configuration_templates:
+          - template_name: "PnP-Devices-SW"
+          - template_name: "Access_Switch_Base"
 
   # 6) Filter templates by project_name
   - file_path: "/tmp/template_project_name_filter.yml"
-    component_specific_filters:
-      components_list: ["configuration_templates"]
-      configuration_templates:
-        - project_name: "Onboarding Configuration"
+    config:
+      component_specific_filters:
+        components_list: ["configuration_templates"]
+        configuration_templates:
+          - project_name: "Onboarding Configuration"
 
   # 7) Include uncommitted templates
   - file_path: "/tmp/template_with_uncommitted.yml"
-    component_specific_filters:
-      components_list: ["configuration_templates"]
-      configuration_templates:
-        - include_uncommitted: true
+    config:
+      component_specific_filters:
+        components_list: ["configuration_templates"]
+        configuration_templates:
+          - include_uncommitted: true
 
   # 8) Combined template filters
   - file_path: "/tmp/template_combined_filters.yml"
     file_mode: "overwrite"
-    component_specific_filters:
-      components_list: ["configuration_templates"]
-      configuration_templates:
-        - project_name: "Onboarding Configuration"
-          template_name: "PnP-Devices-SW"
-          include_uncommitted: true
+    config:
+      component_specific_filters:
+        components_list: ["configuration_templates"]
+        configuration_templates:
+          - project_name: "Onboarding Configuration"
+            template_name: "PnP-Devices-SW"
+            include_uncommitted: true
 
 # ============================================================================
 # Additional examples
 # ============================================================================
 # Example: Auto-generate filename (no file_path)
 # template_config:
-#   - generate_all_configurations: true
+#   - {}
 #
 # Example: Append templates into an aggregate file
 # template_config:
 #   - file_path: "/tmp/template_aggregate.yml"
 #     file_mode: "append"
-#     component_specific_filters:
-#       components_list: ["configuration_templates"]
-#       configuration_templates:
-#         - project_name: "Campus"
+#     config:
+#       component_specific_filters:
+#         components_list: ["configuration_templates"]
+#         configuration_templates:
+#           - project_name: "Campus"
 
 # ============================================================================
 # Notes
 # ============================================================================
-# - If component_specific_filters is omitted, the workflow omits module config
-#   and runs in full discovery mode.
+# - If config is omitted, the module runs in full discovery mode.
+# - Use config.component_specific_filters for selective generation.
 # - Module auto-populates components_list from component filters when omitted.
-# - An empty config dictionary is not valid for template_playbook_config_generator.
 # ============================================================================
