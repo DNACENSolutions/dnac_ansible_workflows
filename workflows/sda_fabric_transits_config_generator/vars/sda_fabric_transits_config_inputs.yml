@@ -5,41 +5,60 @@
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/sda_fabric_transits_config_generator/playbook/sda_fabric_transits_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
+#     --extra-vars VARS_FILE_PATH=../vars/sda_fabric_transits_config_inputs.yml
 #
 # Module used:
 #   cisco.dnac.sda_fabric_transits_playbook_config_generator
 # ============================================================================
 
 sda_fabric_transits_config:
-  # 1) Generate all SDA fabric transits
-  - generate_all_configurations: true
-    file_path: "/tmp/sda_fabric_transits_complete_config.yml"
+  # Generate all SDA fabric transits
+  - file_path: "/tmp/sda_fabric_transits_complete_config.yml"
 
-  # 2) Filter by specific transit names
+  # Filter by specific transit name
   - file_path: "/tmp/sda_fabric_transits_by_name.yml"
-    component_specific_filters:
-      components_list: ["sda_fabric_transits"]
-      sda_fabric_transits:
-        - name: "IP-Transit-West"
-        - name: "SDA-BGP-Transit-East"
+    config:
+      component_specific_filters:
+        components_list: ["sda_fabric_transits"]
+        sda_fabric_transits:
+          - name: "ip_transit_2"
 
-  # 3) Filter by transit type
-  - file_path: "/tmp/sda_fabric_transits_ip_based_only.yml"
-    component_specific_filters:
-      components_list: ["sda_fabric_transits"]
-      sda_fabric_transits:
-        - transit_type: "IP_BASED_TRANSIT"
+  # Filter by transit type
+  - file_path: "/tmp/sda_fabric_transits_lisp_pub_only.yml"
+    config:
+      component_specific_filters:
+        components_list: ["sda_fabric_transits"]
+        sda_fabric_transits:
+          - transit_type: "SDA_LISP_PUB_SUB_TRANSIT"
 
-  # 4) Combined filter and append mode
+  # Combined filter
   - file_path: "/tmp/sda_fabric_transits_aggregate.yml"
-    file_mode: "append"
-    component_specific_filters:
-      components_list: ["sda_fabric_transits"]
-      sda_fabric_transits:
-        - name: "SDA-PubSub-Transit"
-          transit_type: "SDA_LISP_PUB_SUB_TRANSIT"
+    config:
+      component_specific_filters:
+        components_list: ["sda_fabric_transits"]
+        sda_fabric_transits:
+          - name: "TRANSITSDA"
+            transit_type: "SDA_LISP_PUB_SUB_TRANSIT"
 
+  #sda_fabric_transits filters without components_list, the
+  #module auto-adds sda_fabric_transits internally.
+  - file_path: "/tmp/sda_fabric_transits_test1.yml"
+    config:
+      component_specific_filters:
+        sda_fabric_transits:
+          - name: "ip_transit_4"
+
+  # Multiple transit types and names together
+  - file_path: "/tmp/sda_fabric_transits_test2.yml"
+    config:
+      component_specific_filters: 
+        components_list: ["sda_fabric_transits"]
+        sda_fabric_transits: 
+          - transit_type: IP_BASED_TRANSIT
+            name: ip_transit_5
+          - name: "TRANSITSDA"
+            transit_type: "SDA_LISP_PUB_SUB_TRANSIT"
+  
 # ============================================================================
 # Notes
 # ============================================================================
