@@ -168,7 +168,7 @@ Use `ise_radius_integration_config_generator.yml` for generating YAML playbook c
 **Description**: Retrieves all policy servers config from Catalyst Center regardless of any filters.
 
 ```yaml
-# No config at all - only Catelyst Center connection details
+# No config at all - only Catalyst Center connection details
 # Expected: defaults to generates all configs
  - name: No config provided
    cisco.dnac.ise_radius_integration_playbook_config_generator:
