@@ -1,17 +1,17 @@
 ---
 # ============================================================================
-# Cisco Catalyst Center Brownfield Provision Playbook Config Generator
+# Cisco Catalyst Center Provision Playbook Config Generator
 # ============================================================================
 #
 # Description:
-#   Generates YAML playbook configurations for existing provisioned devices
-#   from Cisco Catalyst Center. Extracts provisioning configurations and
-#   converts them into Ansible-compatible YAML files.
+#   Generates YAML playbook configurations for provisioned devices from
+#   Cisco Catalyst Center. The generated YAML is compatible with the
+#   provision_workflow_manager module.
 #
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
-#     workflows/provision_playbook_config_generator/playbook/provision_playbook_config_generator_playbook.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/provision_playbook_config_generator_vars.yml
+#     workflows/provision_config_generator/playbook/provision_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=../vars/provision_config_vars.yml
 #
 # ============================================================================
 
@@ -48,215 +48,16 @@
       set_fact:
         config_gen_start: "{{ now() }}"
 
-    # =========================================================================
-    # Generate Provision Playbook Configuration (Config 0)
-    # =========================================================================
-    - name: Generate YAML configuration for provision (provision_playbook_config)
+    - name: Generate YAML configuration for provisioned devices
       cisco.dnac.provision_playbook_config_generator:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ provision_playbook_config }}"
+        file_path: "{{ provision_playbook_config.file_path | default(omit) }}"
+        file_mode: "{{ provision_playbook_config.file_mode | default('overwrite') }}"
+        config: "{{ provision_playbook_config.config | default(omit) }}"
       when:
         - provision_playbook_config is defined
       register: config_generation_result_0
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 1)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config1)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config1 }}"
-    #   when:
-    #     - provision_playbook_config1 is defined
-    #   register: config_generation_result_1
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 2)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config2)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config2 }}"
-    #   when:
-    #     - provision_playbook_config2 is defined
-    #   register: config_generation_result_2
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 3)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config3)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config3 }}"
-    #   when:
-    #     - provision_playbook_config3 is defined
-    #   register: config_generation_result_3
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 4)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config4)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config4 }}"
-    #   when:
-    #     - provision_playbook_config4 is defined
-    #   register: config_generation_result_4
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 5)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config5)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config5 }}"
-    #   when:
-    #     - provision_playbook_config5 is defined
-    #   register: config_generation_result_5
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 6)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config6)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config6 }}"
-    #   when:
-    #     - provision_playbook_config6 is defined
-    #   register: config_generation_result_6
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 7)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config7)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config7 }}"
-    #   when:
-    #     - provision_playbook_config7 is defined
-    #   register: config_generation_result_7
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 8)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config8)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config8 }}"
-    #   when:
-    #     - provision_playbook_config8 is defined
-    #   register: config_generation_result_8
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 9)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config9)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config9 }}"
-    #   when:
-    #     - provision_playbook_config9 is defined
-    #   register: config_generation_result_9
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 10)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config10)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config10 }}"
-    #   when:
-    #     - provision_playbook_config10 is defined
-    #   register: config_generation_result_10
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 11)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config11)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config11 }}"
-    #   when:
-    #     - provision_playbook_config11 is defined
-    #   register: config_generation_result_11
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 12)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config12)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config12 }}"
-    #   when:
-    #     - provision_playbook_config12 is defined
-    #   register: config_generation_result_12
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 13)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config13)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config13 }}"
-    #   when:
-    #     - provision_playbook_config13 is defined
-    #   register: config_generation_result_13
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 14)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config14)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config14 }}"
-    #   when:
-    #     - provision_playbook_config14 is defined
-    #   register: config_generation_result_14
-
-    # # =========================================================================
-    # # Generate Provision Playbook Configuration (Config 15)
-    # # =========================================================================
-    # - name: Generate YAML configuration for provision (provision_playbook_config15)
-    #   cisco.dnac.provision_playbook_config_generator:
-    #     <<: *catalyst_center_login
-    #     state: "{{ state }}"
-    #     config: "{{ provision_playbook_config15 }}"
-    #   when:
-    #     - provision_playbook_config15 is defined
-    #   register: config_generation_result_15
-
-    # # =========================================================================
-    # # Display Configuration Generation Results
-    # # =========================================================================
-    # - name: Display configuration generation results (config 0)
-    #   debug:
-    #     var: config_generation_result_0
-    #   when: config_generation_result_0 is defined
-
-    # - name: Display configuration generation results (config 1)
-    #   debug:
-    #     var: config_generation_result_1
-    #   when: config_generation_result_1 is defined
-
-    # - name: Display configuration generation results (config 2)
-    #   debug:
-    #     var: config_generation_result_2
-    #   when: config_generation_result_2 is defined
 
     # - name: Display configuration generation results (config 3)
     #   debug:
