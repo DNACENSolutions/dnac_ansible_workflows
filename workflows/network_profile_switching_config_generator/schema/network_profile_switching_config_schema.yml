@@ -36,14 +36,7 @@
 # ------------------------------------------------
 # Contains configuration for generating YAML configurations from existing infrastructure:
 #
-# 1. GENERATE_ALL_CONFIGURATIONS:
-#    - Type: boolean (optional, default: false)
-#    - Description: If true, generates configurations for all switch profiles regardless of filters
-#    - When true, overrides any global_filters settings
-#    - Retrieves all switch profiles and associated configurations from Catalyst Center
-#    - Includes all Day-N templates, interface configurations, and site assignments
-#
-# 2. FILE_PATH:
+# 1. FILE_PATH:
 #    - Type: string (optional)
 #    - Description: Output path where the YAML configuration file will be saved
 #    - If not provided, auto-generates filename with timestamp
@@ -52,10 +45,22 @@
 #    - Supports absolute and relative paths
 #    - Creates directory structure if it doesn't exist
 #
-# 3. GLOBAL_FILTERS:
+# 2. FILE_MODE:
+#    - Type: string (optional, default: overwrite)
+#    - Description: Determines how generated YAML is written when file_path is provided
+#    - Supported values: overwrite, append
+#    - overwrite replaces existing file content
+#    - append adds new content to the existing file
+#
+# 3. CONFIG:
 #    - Type: dictionary (optional)
+#    - Description: Optional filter configuration
+#    - If omitted, the module retrieves all switch profiles
+#    - If provided, global_filters is mandatory
+#
+# 4. GLOBAL_FILTERS:
+#    - Type: dictionary (inside config)
 #    - Description: Global filters to specify which switch profiles to include in the generated configuration
-#    - If generate_all_configurations is true, these filters are ignored
 #    - If multiple filter types are provided, the module will filter them in the following
 #      order of profile_name_list, day_n_template_list, site_list
 #    - All profiles matching any of the provided filters will be retrieved (union/combined results)
@@ -115,27 +120,27 @@
 # OPERATION WORKFLOWS:
 # -------------------
 # 1. Configuration Generation (All Switch Profiles):
-#    a. Set generate_all_configurations: true
+#    a. Omit config
 #    b. Optionally specify file_path
 #    c. All existing switch profiles and associated configurations will be extracted
 #
 # 2. Profile Name Based Generation:
-#    a. Use global_filters with profile_name_list
+#    a. Use config.global_filters with profile_name_list
 #    b. Specify exact switch profile names
 #    c. Only specified profiles and their complete configurations will be extracted
 #
 # 3. Template Based Generation:
-#    a. Use global_filters with day_n_template_list
+#    a. Use config.global_filters with day_n_template_list
 #    b. Specify Day-N template names
 #    c. Extract all switch profiles that use any of the specified templates
 #
 # 4. Site Based Generation:
-#    a. Use global_filters with site_list
+#    a. Use config.global_filters with site_list
 #    b. Specify site hierarchies
 #    c. Extract all switch profiles assigned to any of the specified sites
 #
 # 5. Combined Filter Generation:
-#    a. Use global_filters with multiple filter types
+#    a. Use config.global_filters with multiple filter types
 #    b. Provide any combination of profile_name_list, day_n_template_list, site_list
 #    c. All profiles matching any of the provided filters will be retrieved
 #    d. Results are combined and de-duplicated
@@ -146,7 +151,7 @@
 #    c. Directory structure will be created if needed
 #
 # 7. Default Behavior:
-#    a. If no filters specified and generate_all_configurations is false, module will fail
+#    a. If config is omitted, module retrieves all switch profiles
 #    b. If no file_path specified, auto-generates filename with timestamp
 #    c. Generated in current working directory or specified path
 #
@@ -172,17 +177,19 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # Network Profile Switch Configuration Generator Schema
 network_profile_switch_config_type:
-  # Generate all configurations flag
-  generate_all_configurations: bool(required=False)
-  
   # Output file path
   file_path: str(required=False)
 
   # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Global filters for switch profile extraction
-  global_filters: include('network_profile_switch_global_filters_type', required=False)
+  # Optional config block. Omit to gather all switch profiles.
+  config: include('network_profile_switch_config_wrapper_type', required=False)
+
+---
+# Wrapper for config block
+network_profile_switch_config_wrapper_type:
+  global_filters: include('network_profile_switch_global_filters_type', required=True)
 
 ---
 # Network Profile Switch Global Filters Schema
