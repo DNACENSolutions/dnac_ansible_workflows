@@ -60,15 +60,7 @@
         state: "{{ state }}"
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
-        config: >-
-          {{
-            omit
-            if (
-              item.generate_all_configurations | default(false)
-              or (item.component_specific_filters is not defined)
-            )
-            else {'component_specific_filters': item.component_specific_filters}
-          }}
+        config: "{{ item.config | default(omit) }}"
       loop: "{{ template_config }}"
       when:
         - template_config is defined

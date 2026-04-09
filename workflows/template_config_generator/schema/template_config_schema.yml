@@ -1,7 +1,7 @@
 # Cisco Catalyst Center Template Config Generator Schema
 # ======================================================================================
 #
-# This schema defines the configuration structure for generating YAML playbook
+# This schema defines the configuration structure for generating YAML
 # configurations from existing template projects and configuration templates in
 # Cisco Catalyst Center using the template_playbook_config_generator module.
 #
@@ -15,16 +15,173 @@
 #
 # USAGE:
 # ------
-# ./tools/validate.sh \
-#   -s workflows/template_config_generator/schema/template_config_schema.yml \
-#   -d workflows/template_config_generator/vars/template_config_inputs.yml
+# This schema validates YAML configuration files for automating the extraction
+# and generation of template configurations from existing
+# Catalyst Center deployments (template playbook config generator scenarios).
 #
-# NOTES:
-# ------
-# - The underlying module accepts config as a dict with component_specific_filters.
-# - In this workflow, config is omitted when generate_all_configurations is true
-#   or when no component_specific_filters are provided.
-# - This triggers full discovery mode in the module.
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# TEMPLATE_PLAYBOOK_CONFIG SECTION:
+# --------------------------------------------
+# Contains configuration for generating YAML configurations from existing template infrastructure:
+#
+# NOTE: To generate ALL template configurations and template memberships, simply omit 'config'
+#       (do not specify component_specific_filters). Providing no config causes the module
+#       to run in full auto-discovery mode, retrieving everything from Catalyst Center.
+#
+# 1. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved
+#    - If not provided, auto-generates filename with timestamp
+#    - Format: template_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: template_config_2026-01-24_12-33-20.yml
+#    - Supports absolute and relative paths
+#    - Creates directory structure if it doesn't exist
+#
+# 2. FILE_MODE:
+#    - Type: string (optional, default: "overwrite")
+#    - Description: File write mode for the generated YAML configuration file
+#    - Valid values: "overwrite" (replaces existing file), "append" (adds to existing file)
+#    - Only applicable when file_path is provided
+#    - This is a module-level parameter (outside config)
+#
+# 3. CONFIG:
+#    - Type: dictionary (optional)
+#    - Description: Configuration filters for generating YAML playbook compatible with
+#      the 'template_workflow_manager' module
+#    - If not provided or omitted, all configurations are auto-generated
+#    - If provided as empty dict {}, component_specific_filters is mandatory
+#    - Contains component_specific_filters for selective component extraction
+#
+# 4. COMPONENT_SPECIFIC_FILTERS:
+#    - Type: dictionary (required when config is provided)
+#    - Description: Filters to specify which components to include in the generated configuration
+#    - If omitted entirely, module generates all supported components
+#    - This becomes the module's 'config.component_specific_filters' parameter
+#
+#    Sub-options:
+#    - COMPONENTS_LIST:
+#      - Type: list of strings (optional, default: ["projects", "configuration_templates"])
+#      - Description: List of components to include in the YAML configuration file
+#      - Valid values:
+#        * "projects" - Include only projects in the generated configuration
+#        * "configuration_templates" - Include only configuration templates in the generated configuration
+#        * ["projects", "configuration_templates"] - Include both projects and configuration templates
+#      - Required when no component-specific filter blocks are provided
+#      - Empty list is invalid when no component-specific filter blocks are provided
+#      - If component filter blocks are provided, components are automatically added to this list
+#
+#    - projects:
+#      - Type: list of dictionaries (optional)
+#      - Description: Filter projects by specific criteria
+#      - Sub-options:
+#        * name: Name of the project to filter by
+#
+#    - configuration_templates:
+#      - Type: list of dictionaries (optional)
+#      - Description: Filter configuration templates by specific criteria
+#      - Sub-options:
+#        * template_name: Configuration template name to filter by
+#        * project_name: Project name to filter by
+#        * include_uncommitted: Include uncommitted changes
+#
+# GENERATED OUTPUT STRUCTURE:
+# --------------------------
+# The generated YAML file will contain a 'config' section with the following structure:
+#
+# config:
+#   - projects:
+#     - name: Onboarding Configuration
+#       description: Onboarding Configuration
+#     - name: Sample Jinja Templates
+#       description: Sample Jinja Templates
+#     - name: Sample Velocity Templates
+#       description: Sample Velocity Templates
+#   - configuration_templates:
+#      template_name: Ans Switch DayN 1
+#      project_name: Cloud DayN Templates
+#      author: admin
+#      language: JINJA
+#      composite: false
+#      software_type: IOS-XE
+#      custom_params_order: false
+#      device_types:
+#      - product_family: Switches and Hubs
+# - configuration_templates:
+#     template_name: Ans Switch DayN 2
+#     project_name: Cloud DayN Templates
+#     author: admin
+#     language: JINJA
+#     composite: false
+#     software_type: IOS-XE
+#     custom_params_order: false
+#     device_types:
+#     - product_family: Switches and Hubs
+#
+# VALIDATION RULES:
+# ----------------
+# 1. If config is not provided (None), all configurations are auto-generated with default behavior
+# 2. If config is provided as empty dict {}, component_specific_filters is mandatory
+# 3. component_specific_filters is required when config is provided
+# 4. Auto-population of components_list: If component-specific filters (such as 'projects', 'configuration_templates')
+#    are provided without explicitly including them in
+#    'components_list', those components will be automatically added to 'components_list'
+# 5. If no component filter blocks are provided, components_list is mandatory and must not be empty
+# 6. file_path and file_mode can be specified outside of the config
+# 7. Idempotency: In overwrite mode, the full file content is compared (excluding volatile
+#     fields like timestamps and playbook path). In append mode, only the last YAML document
+#     in the file is compared against the newly generated configuration. If a file contains
+#     multiple config entries from previous appends, only the most recent entry is used for
+#     the idempotency check
+#
+# OPERATION WORKFLOWS:
+# -------------------
+# 1. Configuration Generation (All Components):
+#    a. Omit config parameter entirely at module level
+#    b. All existing projects and configuration templates will be extracted
+#
+# 2. Selective Component Generation:
+#    a. Use component_specific_filters with components_list
+#    a. Use component-specific filters (projects, configuration_templates)
+#    b. Apply filters like name, template_name
+#    c. Extract only components matching the specified criteria
+#    d. Components are auto-populated in components_list if filter blocks are provided
+#
+# 4. Auto-population Workflow:
+#    a. Provide component filter blocks (e.g., projects) without components_list
+#    b. Module automatically adds those components to components_list internally
+#    c. Reduces configuration verbosity while maintaining explicit control
+#
+# 5. Custom Output Path:
+#    a. Specify file_path parameter
+#    b. Can use absolute or relative paths
+#    c. Directory structure will be created if needed
+#
+# 6. Idempotency Behavior:
+#    a. Overwrite mode: Compares full file content (ignores timestamps/playbook paths)
+#    b. Append mode: Compares only the last YAML document in existing file
+#    c. Multiple appends: Only most recent entry is used for comparison
+#    d. Prevents duplicate content generation when configuration hasn't changed
+#
+# 7. Default Behavior:
+#    a. If no filters specified, all components are generated
+#    b. If no file_path specified, auto-generates filename with timestamp
+#    c. Generated in current working directory or specified path
+#
+# EXAMPLES:
+# --------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
 
 # Schema Definition
 template_config: list(include('template_config_generator_type'), min=1, max=100, required=True)
@@ -38,21 +195,22 @@ catalyst_center_log: bool(required=False)
 catalyst_center_log_append: bool(required=False)
 catalyst_center_log_file_path: str(required=False)
 catalyst_center_log_level: str(required=False)
-catalyst_center_config_verify: bool(required=False)
 
 ---
 # Template Config Generator Entry Schema
 template_config_generator_type:
-  # Workflow-level convenience flag. If true, module config is omitted.
-  generate_all_configurations: bool(required=False)
-
   # Output file path for generated YAML
   file_path: str(required=False)
 
   # File write mode: overwrite or append
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Component-specific filters accepted by template_playbook_config_generator
+  # Config payload accepted by template_playbook_config_generator
+  config: include('template_config_type', required=False)
+
+---
+# Template config wrapper
+template_config_type:
   component_specific_filters: include('template_component_filters_type', required=False)
 
 ---
