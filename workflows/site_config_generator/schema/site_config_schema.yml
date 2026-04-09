@@ -1,12 +1,74 @@
 # Cisco Catalyst Center Site Config Generator Schema
 # ======================================================================================
 #
-# This schema defines the configuration structure for generating YAML playbook
+# This schema defines the configuration structure for generating YAML
 # configurations from existing site hierarchy in Cisco Catalyst Center using
 # the site_playbook_config_generator module.
 #
-# Supported component:
-# - site
+# OVERVIEW:
+# ========
+# The Site Config Generator automates YAML configurations generation for existing site
+# hierarchy components (areas, buildings, floors) in Cisco Catalyst Center. It generates
+# output compatible with the site_workflow_manager module, enabling brownfield
+# infrastructure documentation, audit workflows, and migration scenarios.
+#
+# KEY FEATURES:
+# ============
+# 1. **Brownfield Discovery**: Omit config to generate all site hierarchy configurations
+# 2. **Hierarchy Filtering**: Filter by site_name_hierarchy or parent_name_hierarchy
+# 3. **Type-Based Selection**: Filter by site types (area, building, floor)
+# 4. **Component-Based Generation**: Generate specific components using components_list
+# 5. **Flexible Output**: Custom file paths, overwrite/append modes
+# 6. **Auto-Population**: Components are automatically added to components_list when filters are provided
+#
+# OPERATION WORKFLOWS:
+# ===================
+# 1. **Generate All Configurations**: Omit 'config' parameter entirely
+#    - Extracts complete site hierarchy from Catalyst Center
+#    - No filtering applied - complete infrastructure discovery
+#    - Useful for brownfield documentation and audit
+#
+# 2. **Generate by Parent Hierarchy**: 
+#    - Filter specific parent sites and all their descendants
+#    - Case-sensitive exact matching required
+#    - Supports single parent or list of parent hierarchies
+#
+# 3. **Generate by Site Name Hierarchy**:
+#    - Filter specific sites by their exact hierarchy paths
+#    - Multiple hierarchy paths can be specified
+#    - Retrieves exact sites without including children
+#
+# 4. **Generate by Site Type**:
+#    - Filter by site types: area, building, floor
+#    - Multiple types can be specified
+#    - Can be combined with hierarchy filters
+#
+# 5. **Combined Filtering**:
+#    - Apply both hierarchy and type filters simultaneously
+#    - Multiple filter entries create union (OR) behavior
+#    - Single filter entry with multiple criteria creates intersection (AND) behavior
+#
+# VALIDATION RULES:
+# ================
+# 1. **Config Parameter**: 
+#    - If provided, cannot be empty dictionary {}
+#    - Either omit entirely (generate all) or provide specific filters
+#
+# 2. **Component Specific Filters**:
+#    - Requires at least one of: components_list OR component filters
+#    - Auto-populates components_list from provided filters
+#    - Invalid component names cause validation failure
+#
+# 3. **Filter Processing**:
+#    - site_name_hierarchy: Exact matches only, no pattern support
+#    - parent_name_hierarchy: Includes parent and all descendants
+#    - site_type: Must use valid enum values (area, building, floor)
+#    - Cannot combine site_name_hierarchy and parent_name_hierarchy in same filter item
+#
+# 4. **File Operations**:
+#    - file_path: Optional, auto-generates timestamped name if omitted
+#    - file_mode: 'overwrite' (default) or 'append'
+#    - Idempotency: Compares generated content to avoid unnecessary writes
 
 # Schema Definition
 site_config: list(include('site_config_generator_type'), min=1, max=100, required=True)
@@ -24,33 +86,62 @@ catalyst_center_config_verify: bool(required=False)
 
 ---
 # Site Config Generator Entry Schema
+# Each entry represents one generation task with its own filters and output settings
 site_config_generator_type:
-  # Workflow-level convenience flag. If true, module config is omitted.
-  generate_all_configurations: bool(required=False)
 
-  # Output file path for generated YAML
+  # Output file path (optional - module level parameter)
   file_path: str(required=False)
 
-  # File write mode: overwrite or append
+  # File write mode (optional, default: overwrite - module level parameter)
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Component-specific filters accepted by site_playbook_config_generator
-  component_specific_filters: include('site_component_filters_type', required=False)
+  # Config parameter containing component filters (optional - module level parameter)
+  config: include('site_component_filters_type', required=False)
+
 
 ---
 # Site Component Filters Schema
+# Defines filtering criteria for selective site configuration generation
 site_component_filters_type:
-  components_list: list(enum('site'), min=1, max=1, required=False)
+
+  # Component-specific filters passed to site_playbook_config_generator module
+  # Contains filtering criteria for selective configuration generation
+  component_specific_filters: include('site_component_list_filters_type', required=False)
+
+---
+
+site_component_list_filters_type:
+  
+  # List of components to include in generated configuration
+  components_list: list(str(), min=0, max=10, required=False)
+  
+  # Site hierarchy filters for selective generation
+  # Each entry can specify site_name_hierarchy, parent_name_hierarchy, and/or site_type
+  # Multiple entries create OR conditions (any matching site included)
+  # Combined filters in single entry create AND condition (all must match)
   site: list(include('site_filter_type'), min=1, max=500, required=False)
 
 ---
-# Site filter schema
+# Site Filter Schema
+# Individual site filtering criteria for precise selection
 site_filter_type:
-  # Can be a single hierarchy string or list of hierarchy strings
+  
+  # Site name hierarchy for exact site matching
+  # Supports single hierarchy string or list of hierarchy strings
+  # Case-sensitive exact match against site hierarchy paths in Catalyst Center
+  # Does not include children - retrieves only specified sites
+  # Example: "Global/USA/San Francisco" or ["Global/USA/San Francisco", "Global/USA/New York"]
   site_name_hierarchy: any(str(), list(str()), required=False)
 
-  # Can be a single parent hierarchy string or list of hierarchy strings
+  # Parent name hierarchy for hierarchical scope matching
+  # Supports single parent hierarchy string or list of parent hierarchy strings
+  # Includes parent site and ALL descendant sites under the hierarchy
+  # Case-sensitive exact match against parent hierarchy paths
+  # Example: "Global/USA" (includes all sites under USA) or ["Global/USA", "Global/India"]
   parent_name_hierarchy: any(str(), list(str()), required=False)
 
-  # List of site types to include
+  # Site type filter for type-based selection
+  # List of site types to include in generation
+  # Valid values: "area", "building", "floor"
+  # Example: ["building", "floor"] to exclude areas
   site_type: list(enum('area', 'building', 'floor'), min=1, max=3, required=False)
