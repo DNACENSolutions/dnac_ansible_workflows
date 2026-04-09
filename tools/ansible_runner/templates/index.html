@@ -32,9 +32,9 @@
     body {
       font-family: 'Manrope', sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(8, 145, 178, 0.12), transparent 30%),
-        radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 28%),
-        linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+        radial-gradient(circle at top left, rgba(15, 23, 42, 0.16), transparent 30%),
+        radial-gradient(circle at top right, rgba(8, 145, 178, 0.18), transparent 26%),
+        linear-gradient(180deg, #dbe4f0 0%, #cfdcf0 100%);
     }
     .terminal {
       font-family: 'JetBrains Mono', monospace;
@@ -75,60 +75,55 @@
 <body class="min-h-full text-slate-900">
   <div id="toast" class="hidden fixed bottom-6 right-6 z-50 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-medium text-white shadow-soft transition-opacity duration-300"></div>
 
-  <header class="border-b border-white/70 bg-white/80 backdrop-blur">
+  <header class="border-b border-slate-300 bg-slate-50/95 backdrop-blur">
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6">
       <div>
         <p class="text-xs font-semibold uppercase tracking-[0.32em] text-cyan-700">Cisco Automation</p>
         <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">Ansible Workflow Runner</h1>
-        <p class="mt-2 max-w-2xl text-sm text-slate-600">
+        <p class="mt-2 max-w-2xl text-sm text-slate-700">
           Launch workflow playbooks, edit vars, validate inputs, and switch to custom inventory or vars files when the defaults are not enough.
         </p>
       </div>
-      <div class="hidden rounded-3xl border border-slate-200 bg-white/80 px-5 py-4 text-right shadow-soft lg:block">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-500">Runner Scope</p>
-        <p class="mt-2 text-sm font-semibold text-slate-900">Repository defaults + custom file browse</p>
-        <p class="mt-1 text-xs text-slate-500">Browse YAML files from the repo or your home directory.</p>
+      <div class="hidden rounded-3xl border border-slate-800 bg-slate-900 px-5 py-4 text-right text-white shadow-soft lg:block">
+        <p class="text-xs uppercase tracking-[0.28em] text-slate-300">Runner Scope</p>
+        <p class="mt-2 text-sm font-semibold text-white">Repository defaults + custom file browse</p>
+        <p class="mt-1 text-xs text-slate-300">Browse YAML files from the repo or your home directory.</p>
       </div>
     </div>
   </header>
 
   <main class="mx-auto max-w-7xl px-6 pb-10 pt-6">
-    <section class="grid gap-4 md:grid-cols-3">
-      <div class="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-soft backdrop-blur">
-        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Available Workflows</p>
+    <section class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-3xl border border-slate-300 bg-white p-5 shadow-soft">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Available Workflows</p>
         <p id="card-workflow-count" class="mt-3 text-3xl font-extrabold text-slate-900">0</p>
-        <p class="mt-2 text-sm text-slate-600">Discovered directly from the repository structure.</p>
+        <p class="mt-2 text-sm text-slate-700">Discovered directly from the repository structure.</p>
       </div>
-      <div class="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-soft backdrop-blur">
-        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Default Inventories</p>
+      <div class="rounded-3xl border border-slate-300 bg-white p-5 shadow-soft">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Default Inventories</p>
         <p id="card-inventory-count" class="mt-3 text-3xl font-extrabold text-slate-900">0</p>
-        <p class="mt-2 text-sm text-slate-600">Use the repo inventory list or browse to a different YAML inventory file.</p>
-      </div>
-      <div class="rounded-3xl border border-white/70 bg-slate-900 p-5 text-white shadow-soft">
-        <p class="text-xs uppercase tracking-[0.24em] text-slate-300">Input Modes</p>
-        <p class="mt-3 text-3xl font-extrabold">Default + Custom</p>
-        <p class="mt-2 text-sm text-slate-300">Keep the normal workflow vars flow, or choose alternate vars and inventory files when needed.</p>
+        <p class="mt-2 text-sm text-slate-700">Use the repo inventory list or browse to a different YAML inventory file.</p>
       </div>
     </section>
 
-    <nav class="sticky top-0 z-20 mt-6 rounded-3xl border border-white/70 bg-white/85 p-2 shadow-soft backdrop-blur">
+    <nav class="sticky top-0 z-20 mt-6 rounded-3xl border border-slate-300 bg-slate-50/95 p-2 shadow-soft backdrop-blur">
       <div class="flex flex-wrap gap-2">
         <button class="tab-btn tab-active rounded-2xl px-4 py-2.5 text-sm font-semibold transition" data-tab="run" onclick="switchTab('run')">Run Playbook</button>
-        <button class="tab-btn rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-500 transition hover:bg-slate-100" data-tab="workflow" onclick="switchTab('workflow')">Workflow Builder</button>
-        <button class="tab-btn rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-500 transition hover:bg-slate-100" data-tab="history" onclick="switchTab('history')">Job History</button>
+        <button class="tab-btn rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-200" data-tab="workflow" onclick="switchTab('workflow')">Workflow Builder</button>
+        <button class="tab-btn rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-200" data-tab="history" onclick="switchTab('history')">Job History</button>
       </div>
     </nav>
 
     <section id="tab-run" class="tab-content pt-6">
       <div class="grid gap-6 xl:grid-cols-[430px_minmax(0,1fr)]">
         <div class="space-y-6">
-          <div class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-soft backdrop-blur">
+          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700">Run Setup</p>
                 <h2 class="mt-2 text-xl font-bold text-slate-900">Prepare a single playbook run</h2>
               </div>
-              <div class="rounded-2xl bg-cyan-50 px-3 py-2 text-xs font-semibold text-cyan-700">Guided flow</div>
+              <div class="rounded-2xl bg-cyan-100 px-3 py-2 text-xs font-semibold text-cyan-900">Guided flow</div>
             </div>
 
             <div class="mt-6 space-y-4">
@@ -159,13 +154,13 @@
             </div>
           </div>
 
-          <div class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-soft backdrop-blur">
+          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Vars Input</p>
                 <h3 class="mt-2 text-lg font-bold text-slate-900">Choose the vars source</h3>
               </div>
-              <div id="run-vars-source" data-mode="workflow" class="rounded-2xl bg-slate-100 p-1">
+              <div id="run-vars-source" data-mode="workflow" class="rounded-2xl bg-slate-200 p-1">
                 <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-vars" data-source-mode="workflow" onclick="setSourceMode('run-vars','workflow')">Workflow vars</button>
                 <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-vars" data-source-mode="custom" onclick="setSourceMode('run-vars','custom')">Browse another file</button>
               </div>
@@ -189,17 +184,17 @@
                       class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
                       oninput="updateSourceHint('run','vars'); refreshRunSummary()">
                     <button type="button" onclick="browseForField('run','vars')"
-                      class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100">
+                      class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-200">
                       Browse
                     </button>
                   </div>
                 </div>
-                <p class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+                <p class="rounded-2xl border border-dashed border-slate-300 bg-slate-100 px-4 py-3 text-xs text-slate-600">
                   Browse YAML files in the repository or your home directory, or paste a relative or absolute path manually.
                 </p>
               </div>
 
-              <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current vars selection</p>
                 <p id="run-vars-selection" class="mt-2 text-sm font-medium text-slate-700">Using workflow vars by default.</p>
               </div>
@@ -219,13 +214,13 @@
             </div>
           </div>
 
-          <div class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-soft backdrop-blur">
+          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Inventory Input</p>
                 <h3 class="mt-2 text-lg font-bold text-slate-900">Choose the inventory source</h3>
               </div>
-              <div id="run-inventory-source" data-mode="default" class="rounded-2xl bg-slate-100 p-1">
+              <div id="run-inventory-source" data-mode="default" class="rounded-2xl bg-slate-200 p-1">
                 <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-inventory" data-source-mode="default" onclick="setSourceMode('run-inventory','default')">Repo inventory</button>
                 <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-inventory" data-source-mode="custom" onclick="setSourceMode('run-inventory','custom')">Browse another file</button>
               </div>
@@ -249,21 +244,21 @@
                       class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
                       oninput="updateSourceHint('run','inventory'); refreshRunSummary()">
                     <button type="button" onclick="browseForField('run','inventory')"
-                      class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100">
+                      class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-200">
                       Browse
                     </button>
                   </div>
                 </div>
               </div>
 
-              <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current inventory selection</p>
                 <p id="run-inventory-selection" class="mt-2 text-sm font-medium text-slate-700">Using the repository inventory list by default.</p>
               </div>
             </div>
           </div>
 
-          <div class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-soft backdrop-blur">
+          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
             <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Run Options</p>
             <h3 class="mt-2 text-lg font-bold text-slate-900">Adjust the execution</h3>
 
@@ -300,7 +295,7 @@
         </div>
 
         <div class="space-y-6">
-          <div class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-soft backdrop-blur">
+          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Selection Summary</p>
@@ -328,13 +323,13 @@
               </div>
             </div>
 
-            <p class="mt-5 rounded-2xl border border-dashed border-cyan-200 bg-cyan-50 px-4 py-3 text-sm text-cyan-900">
+            <p class="mt-5 rounded-2xl border border-dashed border-cyan-300 bg-cyan-100 px-4 py-3 text-sm text-cyan-950">
               Workflow vars and inventory stay as the default path. Switch to custom mode only when you want alternate YAML input.
             </p>
           </div>
 
-          <div id="editor-section" class="hidden overflow-hidden rounded-[28px] border border-white/70 bg-white/90 shadow-soft backdrop-blur">
-            <div class="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/80 px-5 py-4">
+          <div id="editor-section" class="hidden overflow-hidden rounded-[28px] border border-slate-300 bg-white shadow-soft">
+            <div class="flex items-center justify-between gap-3 border-b border-slate-300 bg-slate-100 px-5 py-4">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">YAML Editor</p>
                 <p id="editor-path" class="mt-1 text-sm font-medium text-slate-700"></p>
@@ -347,7 +342,7 @@
             <div id="editor-container" class="h-[560px]"></div>
           </div>
 
-          <div id="editor-hint" class="rounded-[28px] border border-dashed border-slate-300 bg-white/70 px-8 py-20 text-center shadow-soft backdrop-blur">
+          <div id="editor-hint" class="rounded-[28px] border border-dashed border-slate-400 bg-slate-100 px-8 py-20 text-center shadow-soft">
             <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900 text-2xl text-white">Y</div>
             <h3 class="mt-5 text-xl font-bold text-slate-900">Vars editor ready</h3>
             <p class="mx-auto mt-3 max-w-md text-sm text-slate-600">
@@ -370,7 +365,7 @@
 
     <section id="tab-workflow" class="tab-content hidden pt-6">
       <div class="space-y-6">
-        <div class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-soft backdrop-blur">
+        <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Workflow Builder</p>
@@ -393,16 +388,16 @@
           </div>
         </div>
 
-        <div class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-soft backdrop-blur">
+        <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
           <div class="flex items-center justify-between gap-4">
             <div>
               <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Workflow Steps</p>
               <h3 class="mt-2 text-lg font-bold text-slate-900">Execution order</h3>
             </div>
-            <span class="rounded-2xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">Drag-free reorder with arrows</span>
+            <span class="rounded-2xl bg-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">Drag-free reorder with arrows</span>
           </div>
           <div id="wf-steps" class="mt-5 space-y-3">
-            <p class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+            <p class="rounded-2xl border border-dashed border-slate-300 bg-slate-100 px-4 py-8 text-center text-sm text-slate-600">
               No steps added yet. Start with <span class="font-semibold text-slate-700">Add step</span>.
             </p>
           </div>
@@ -419,8 +414,8 @@
     </section>
 
     <section id="tab-history" class="tab-content hidden pt-6">
-      <div class="overflow-hidden rounded-[28px] border border-white/70 bg-white/90 shadow-soft backdrop-blur">
-        <div class="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50/80 px-6 py-5">
+      <div class="overflow-hidden rounded-[28px] border border-slate-300 bg-white shadow-soft">
+        <div class="flex items-center justify-between gap-4 border-b border-slate-300 bg-slate-100 px-6 py-5">
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Execution History</p>
             <h2 class="mt-2 text-xl font-bold text-slate-900">Recent jobs</h2>
@@ -453,7 +448,7 @@
 
   <div id="step-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-slate-950/55 px-4 backdrop-blur-sm">
     <div class="w-full max-w-2xl overflow-hidden rounded-[28px] border border-white/20 bg-white shadow-soft">
-      <div class="border-b border-slate-200 bg-slate-50/80 px-6 py-5">
+      <div class="border-b border-slate-300 bg-slate-100 px-6 py-5">
         <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Add Step</p>
         <h3 class="mt-2 text-xl font-bold text-slate-900">Create a workflow step</h3>
       </div>
@@ -485,7 +480,7 @@
             </div>
           </div>
 
-          <div class="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
+          <div class="rounded-3xl border border-slate-300 bg-slate-100 p-5">
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Vars Source</p>
@@ -518,7 +513,7 @@
             </div>
           </div>
 
-          <div class="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
+          <div class="rounded-3xl border border-slate-300 bg-slate-100 p-5">
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Inventory Source</p>
@@ -553,7 +548,7 @@
         </div>
       </div>
 
-      <div class="flex justify-end gap-3 border-t border-slate-200 bg-slate-50/80 px-6 py-5">
+      <div class="flex justify-end gap-3 border-t border-slate-300 bg-slate-100 px-6 py-5">
         <button onclick="closeModal()" class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Cancel</button>
         <button onclick="confirmAddStep()" class="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">Add step</button>
       </div>
@@ -562,7 +557,7 @@
 
   <div id="file-picker-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm">
     <div class="w-full max-w-4xl overflow-hidden rounded-[28px] border border-white/15 bg-white shadow-soft">
-      <div class="flex flex-col gap-4 border-b border-slate-200 bg-slate-50/80 px-6 py-5 lg:flex-row lg:items-start lg:justify-between">
+      <div class="flex flex-col gap-4 border-b border-slate-300 bg-slate-100 px-6 py-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">File Browser</p>
           <h3 id="picker-title" class="mt-2 text-xl font-bold text-slate-900">Choose file</h3>
@@ -586,8 +581,8 @@
         </div>
 
         <div class="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div class="rounded-3xl border border-slate-200 bg-slate-50/70 p-4">
-            <div class="flex items-center justify-between gap-3 border-b border-slate-200 pb-3">
+          <div class="rounded-3xl border border-slate-300 bg-slate-100 p-4">
+            <div class="flex items-center justify-between gap-3 border-b border-slate-300 pb-3">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Folders and YAML files</p>
                 <p id="picker-current-path" class="mt-1 text-sm font-medium text-slate-700"></p>
@@ -596,7 +591,7 @@
             <div id="picker-browser" class="mt-4 max-h-[420px] space-y-2 overflow-auto pr-1"></div>
           </div>
 
-          <div class="rounded-3xl border border-slate-200 bg-white p-4">
+          <div class="rounded-3xl border border-slate-300 bg-white p-4">
             <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Selected path</p>
             <textarea id="picker-manual-path" rows="7" placeholder="Click a file, or paste a path manually"
               class="mt-3 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"></textarea>
@@ -613,7 +608,7 @@
         </div>
       </div>
 
-      <div class="flex justify-end gap-3 border-t border-slate-200 bg-slate-50/80 px-6 py-5">
+      <div class="flex justify-end gap-3 border-t border-slate-300 bg-slate-100 px-6 py-5">
         <button type="button" onclick="closeFilePicker()" class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Cancel</button>
       </div>
     </div>
@@ -819,7 +814,8 @@
         const active = button.dataset.tab === tab;
         button.classList.toggle('tab-active', active);
         button.classList.toggle('text-slate-500', !active);
-        button.classList.toggle('hover:bg-slate-100', !active);
+        button.classList.toggle('text-slate-600', !active);
+        button.classList.toggle('hover:bg-slate-200', !active);
       });
 
       if (tab === 'run') {
@@ -1132,7 +1128,7 @@
     function renderSteps() {
       const el = $('wf-steps');
       if (!wfSteps.length) {
-        el.innerHTML = '<p class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">No steps added yet. Start with <span class="font-semibold text-slate-700">Add step</span>.</p>';
+        el.innerHTML = '<p class="rounded-2xl border border-dashed border-slate-300 bg-slate-100 px-4 py-8 text-center text-sm text-slate-600">No steps added yet. Start with <span class="font-semibold text-slate-800">Add step</span>.</p>';
         return;
       }
 
