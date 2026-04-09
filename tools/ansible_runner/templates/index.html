@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ansible Workflow Runner</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f172a'/%3E%3Cpath d='M18 46V18h7l7 11 7-11h7v28h-7V30l-7 11-7-11v16z' fill='%23f8fafc'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Manrope', 'ui-sans-serif', 'system-ui'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          boxShadow: {
+            soft: '0 18px 45px rgba(15, 23, 42, 0.08)',
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/yaml/yaml.min.js"></script>
+  <style>
+    body {
+      font-family: 'Manrope', sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(15, 23, 42, 0.16), transparent 30%),
+        radial-gradient(circle at top right, rgba(8, 145, 178, 0.18), transparent 26%),
+        linear-gradient(180deg, #dbe4f0 0%, #cfdcf0 100%);
+    }
+    .terminal {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+    .CodeMirror {
+      height: 100% !important;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+    .tab-active {
+      background: #0f172a;
+      color: #f8fafc;
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+    }
+    .source-btn-active {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: #f8fafc;
+    }
+    .source-btn-inactive {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #475569;
+    }
+    .picker-entry:hover {
+      transform: translateX(2px);
+    }
+    .step-card {
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .step-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+    }
+  </style>
+</head>
+<body class="min-h-full text-slate-900">
+  <div id="toast" class="hidden fixed bottom-6 right-6 z-50 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-medium text-white shadow-soft transition-opacity duration-300"></div>
+
+  <header class="border-b border-slate-300 bg-slate-50/95 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-cyan-700">Cisco Automation</p>
+        <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">Ansible Workflow Runner</h1>
+        <p class="mt-2 max-w-2xl text-sm text-slate-700">
+          Launch workflow playbooks, edit vars, validate inputs, and switch to custom inventory or vars files when the defaults are not enough.
+        </p>
+      </div>
+      <div class="hidden rounded-3xl border border-slate-800 bg-slate-900 px-5 py-4 text-right text-white shadow-soft lg:block">
+        <p class="text-xs uppercase tracking-[0.28em] text-slate-300">Runner Scope</p>
+        <p class="mt-2 text-sm font-semibold text-white">Repository defaults + custom file browse</p>
+        <p class="mt-1 text-xs text-slate-300">Browse YAML files from the repo or your home directory.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-10 pt-6">
+    <section class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-3xl border border-slate-300 bg-white p-5 shadow-soft">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Available Workflows</p>
+        <p id="card-workflow-count" class="mt-3 text-3xl font-extrabold text-slate-900">0</p>
+        <p class="mt-2 text-sm text-slate-700">Discovered directly from the repository structure.</p>
+      </div>
+      <div class="rounded-3xl border border-slate-300 bg-white p-5 shadow-soft">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Default Inventories</p>
+        <p id="card-inventory-count" class="mt-3 text-3xl font-extrabold text-slate-900">0</p>
+        <p class="mt-2 text-sm text-slate-700">Use the repo inventory list or browse to a different YAML inventory file.</p>
+      </div>
+    </section>
+
+    <nav class="sticky top-0 z-20 mt-6 rounded-3xl border border-slate-300 bg-slate-50/95 p-2 shadow-soft backdrop-blur">
+      <div class="flex flex-wrap gap-2">
+        <button class="tab-btn tab-active rounded-2xl px-4 py-2.5 text-sm font-semibold transition" data-tab="run" onclick="switchTab('run')">Run Playbook</button>
+        <button class="tab-btn rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-200" data-tab="workflow" onclick="switchTab('workflow')">Workflow Builder</button>
+        <button class="tab-btn rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-200" data-tab="history" onclick="switchTab('history')">Job History</button>
+      </div>
+    </nav>
+
+    <section id="tab-run" class="tab-content pt-6">
+      <div class="grid gap-6 xl:grid-cols-[430px_minmax(0,1fr)]">
+        <div class="space-y-6">
+          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700">Run Setup</p>
+                <h2 class="mt-2 text-xl font-bold text-slate-900">Prepare a single playbook run</h2>
+              </div>
+              <div class="rounded-2xl bg-cyan-100 px-3 py-2 text-xs font-semibold text-cyan-900">Guided flow</div>
+            </div>
+
+            <div class="mt-6 space-y-4">
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Search workflows</label>
+                <input id="search-wf" type="text" placeholder="Filter workflow names"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                  oninput="filterWorkflows('search-wf','sel-workflow')">
+              </div>
+
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow</label>
+                <select id="sel-workflow"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                  onchange="onWorkflowChange('sel-workflow','sel-playbook','sel-vars'); refreshRunSummary();">
+                  <option value="">Select a workflow...</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Playbook</label>
+                <select id="sel-playbook"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                  onchange="refreshRunSummary()">
+                  <option value="">Select playbook...</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Vars Input</p>
+                <h3 class="mt-2 text-lg font-bold text-slate-900">Choose the vars source</h3>
+              </div>
+              <div id="run-vars-source" data-mode="workflow" class="rounded-2xl bg-slate-200 p-1">
+                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-vars" data-source-mode="workflow" onclick="setSourceMode('run-vars','workflow')">Workflow vars</button>
+                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-vars" data-source-mode="custom" onclick="setSourceMode('run-vars','custom')">Browse another file</button>
+              </div>
+            </div>
+
+            <div class="mt-5 space-y-4">
+              <div data-source-panel="run-vars" data-source-mode="workflow">
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow vars file</label>
+                <select id="sel-vars"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                  onchange="updateSourceHint('run','vars'); refreshRunSummary()">
+                  <option value="">Select vars file...</option>
+                </select>
+              </div>
+
+              <div data-source-panel="run-vars" data-source-mode="custom" class="hidden space-y-3">
+                <div>
+                  <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Custom vars path</label>
+                  <div class="flex gap-2">
+                    <input id="run-vars-custom-path" type="text" placeholder="Choose or paste a YAML file path"
+                      class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                      oninput="updateSourceHint('run','vars'); refreshRunSummary()">
+                    <button type="button" onclick="browseForField('run','vars')"
+                      class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-200">
+                      Browse
+                    </button>
+                  </div>
+                </div>
+                <p class="rounded-2xl border border-dashed border-slate-300 bg-slate-100 px-4 py-3 text-xs text-slate-600">
+                  Browse YAML files in the repository or your home directory, or paste a relative or absolute path manually.
+                </p>
+              </div>
+
+              <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current vars selection</p>
+                <p id="run-vars-selection" class="mt-2 text-sm font-medium text-slate-700">Using workflow vars by default.</p>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="loadActiveVarsFile()"
+                  class="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                  Open in editor
+                </button>
+                <button type="button" onclick="validateSchema()"
+                  class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                  Validate against schema
+                </button>
+              </div>
+
+              <div id="validate-result" class="hidden rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap"></div>
+            </div>
+          </div>
+
+          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Inventory Input</p>
+                <h3 class="mt-2 text-lg font-bold text-slate-900">Choose the inventory source</h3>
+              </div>
+              <div id="run-inventory-source" data-mode="default" class="rounded-2xl bg-slate-200 p-1">
+                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-inventory" data-source-mode="default" onclick="setSourceMode('run-inventory','default')">Repo inventory</button>
+                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-inventory" data-source-mode="custom" onclick="setSourceMode('run-inventory','custom')">Browse another file</button>
+              </div>
+            </div>
+
+            <div class="mt-5 space-y-4">
+              <div data-source-panel="run-inventory" data-source-mode="default">
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Repository inventory</label>
+                <select id="sel-inventory"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                  onchange="updateSourceHint('run','inventory'); refreshRunSummary()">
+                  <option value="">Select inventory...</option>
+                </select>
+              </div>
+
+              <div data-source-panel="run-inventory" data-source-mode="custom" class="hidden space-y-3">
+                <div>
+                  <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Custom inventory path</label>
+                  <div class="flex gap-2">
+                    <input id="run-inventory-custom-path" type="text" placeholder="Choose or paste a YAML inventory path"
+                      class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                      oninput="updateSourceHint('run','inventory'); refreshRunSummary()">
+                    <button type="button" onclick="browseForField('run','inventory')"
+                      class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-200">
+                      Browse
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current inventory selection</p>
+                <p id="run-inventory-selection" class="mt-2 text-sm font-medium text-slate-700">Using the repository inventory list by default.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Run Options</p>
+            <h3 class="mt-2 text-lg font-bold text-slate-900">Adjust the execution</h3>
+
+            <div class="mt-5 grid gap-4">
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Verbosity</label>
+                <select id="sel-verbosity"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  <option value="">Default</option>
+                  <option value="-v">-v</option>
+                  <option value="-vv">-vv</option>
+                  <option value="-vvv">-vvv</option>
+                  <option value="-vvvv">-vvvv</option>
+                </select>
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Extra arguments</label>
+                <input id="extra-args" type="text" placeholder="Example: --check --diff"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+              </div>
+            </div>
+
+            <div class="mt-6 space-y-3">
+              <button id="btn-run" onclick="runPlaybook()"
+                class="w-full rounded-2xl bg-cyan-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500">
+                Launch playbook
+              </button>
+              <button id="btn-cancel" onclick="cancelJob()"
+                class="hidden w-full rounded-2xl bg-rose-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-rose-500">
+                Cancel running playbook
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Selection Summary</p>
+                <h2 class="mt-2 text-xl font-bold text-slate-900">Review before running</h2>
+              </div>
+              <span id="run-status" class="hidden rounded-full px-3 py-1 text-xs font-semibold"></span>
+            </div>
+
+            <div class="mt-5 grid gap-4 md:grid-cols-2">
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow</p>
+                <p id="summary-workflow" class="mt-2 text-sm font-semibold text-slate-900">Not selected</p>
+              </div>
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Playbook</p>
+                <p id="summary-playbook" class="mt-2 text-sm font-semibold text-slate-900">Not selected</p>
+              </div>
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Vars file</p>
+                <p id="summary-vars" class="mt-2 text-sm font-semibold text-slate-900">Not selected</p>
+              </div>
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Inventory</p>
+                <p id="summary-inventory" class="mt-2 text-sm font-semibold text-slate-900">Not selected</p>
+              </div>
+            </div>
+
+            <p class="mt-5 rounded-2xl border border-dashed border-cyan-300 bg-cyan-100 px-4 py-3 text-sm text-cyan-950">
+              Workflow vars and inventory stay as the default path. Switch to custom mode only when you want alternate YAML input.
+            </p>
+          </div>
+
+          <div id="editor-section" class="hidden overflow-hidden rounded-[28px] border border-slate-300 bg-white shadow-soft">
+            <div class="flex items-center justify-between gap-3 border-b border-slate-300 bg-slate-100 px-5 py-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">YAML Editor</p>
+                <p id="editor-path" class="mt-1 text-sm font-medium text-slate-700"></p>
+              </div>
+              <button id="btn-save" onclick="saveFile()"
+                class="hidden rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                Save file
+              </button>
+            </div>
+            <div id="editor-container" class="h-[560px]"></div>
+          </div>
+
+          <div id="editor-hint" class="rounded-[28px] border border-dashed border-slate-400 bg-slate-100 px-8 py-20 text-center shadow-soft">
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900 text-2xl text-white">Y</div>
+            <h3 class="mt-5 text-xl font-bold text-slate-900">Vars editor ready</h3>
+            <p class="mx-auto mt-3 max-w-md text-sm text-slate-600">
+              Open the currently selected vars file to inspect or edit YAML before you launch the playbook.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="output-section" class="hidden mt-6 overflow-hidden rounded-[28px] border border-slate-900 bg-slate-950 shadow-soft">
+        <div class="flex items-center justify-between border-b border-slate-800 bg-slate-900/70 px-5 py-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Execution Output</p>
+            <p class="mt-1 text-sm text-slate-300">Live stream from the current `ansible-playbook` run.</p>
+          </div>
+        </div>
+        <pre id="output" class="terminal h-[420px] overflow-auto px-5 py-5 text-slate-100 whitespace-pre-wrap leading-6"></pre>
+      </div>
+    </section>
+
+    <section id="tab-workflow" class="tab-content hidden pt-6">
+      <div class="space-y-6">
+        <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Workflow Builder</p>
+              <h2 class="mt-2 text-2xl font-bold text-slate-900">Chain multiple playbook runs</h2>
+              <p class="mt-2 max-w-3xl text-sm text-slate-600">
+                Each step can use the workflow defaults or a custom vars or inventory file. The sequence stops on the first failed step.
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <button onclick="addStep()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                Add step
+              </button>
+              <button id="btn-run-wf" onclick="runWorkflow()" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500">
+                Run workflow
+              </button>
+              <button id="btn-cancel-wf" onclick="cancelWorkflow()" class="hidden rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-500">
+                Cancel workflow
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Workflow Steps</p>
+              <h3 class="mt-2 text-lg font-bold text-slate-900">Execution order</h3>
+            </div>
+            <span class="rounded-2xl bg-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">Drag-free reorder with arrows</span>
+          </div>
+          <div id="wf-steps" class="mt-5 space-y-3">
+            <p class="rounded-2xl border border-dashed border-slate-300 bg-slate-100 px-4 py-8 text-center text-sm text-slate-600">
+              No steps added yet. Start with <span class="font-semibold text-slate-700">Add step</span>.
+            </p>
+          </div>
+        </div>
+
+        <div id="wf-output-section" class="hidden overflow-hidden rounded-[28px] border border-slate-900 bg-slate-950 shadow-soft">
+          <div class="border-b border-slate-800 bg-slate-900/70 px-5 py-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Workflow Output</p>
+            <p class="mt-1 text-sm text-slate-300">Sequential run log for all workflow steps.</p>
+          </div>
+          <pre id="wf-output" class="terminal h-[500px] overflow-auto px-5 py-5 text-slate-100 whitespace-pre-wrap leading-6"></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-history" class="tab-content hidden pt-6">
+      <div class="overflow-hidden rounded-[28px] border border-slate-300 bg-white shadow-soft">
+        <div class="flex items-center justify-between gap-4 border-b border-slate-300 bg-slate-100 px-6 py-5">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Execution History</p>
+            <h2 class="mt-2 text-xl font-bold text-slate-900">Recent jobs</h2>
+          </div>
+          <button onclick="refreshHistory()" class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+            Refresh
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead>
+              <tr class="border-b border-slate-200 text-left text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                <th class="px-6 py-4">ID</th>
+                <th class="px-6 py-4">Label</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4">Duration</th>
+                <th class="px-6 py-4">Time</th>
+              </tr>
+            </thead>
+            <tbody id="history-body">
+              <tr>
+                <td colspan="5" class="px-6 py-10 text-center text-sm text-slate-500">No jobs yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="step-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-slate-950/55 px-4 backdrop-blur-sm">
+    <div class="w-full max-w-2xl overflow-hidden rounded-[28px] border border-white/20 bg-white shadow-soft">
+      <div class="border-b border-slate-300 bg-slate-100 px-6 py-5">
+        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Add Step</p>
+        <h3 class="mt-2 text-xl font-bold text-slate-900">Create a workflow step</h3>
+      </div>
+
+      <div class="max-h-[78vh] overflow-auto px-6 py-6">
+        <div class="space-y-5">
+          <div>
+            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Search workflows</label>
+            <input id="modal-search-wf" type="text" placeholder="Filter workflow names"
+              class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+              oninput="filterWorkflows('modal-search-wf','modal-workflow')">
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <div>
+              <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow</label>
+              <select id="modal-workflow"
+                class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                onchange="onWorkflowChange('modal-workflow','modal-playbook','modal-vars')">
+                <option value="">Select...</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Playbook</label>
+              <select id="modal-playbook"
+                class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                <option value="">Select...</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="rounded-3xl border border-slate-300 bg-slate-100 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Vars Source</p>
+                <h4 class="mt-2 text-base font-bold text-slate-900">Step vars file</h4>
+              </div>
+              <div id="modal-vars-source" data-mode="workflow" class="rounded-2xl bg-white p-1">
+                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="modal-vars" data-source-mode="workflow" onclick="setSourceMode('modal-vars','workflow')">Workflow vars</button>
+                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="modal-vars" data-source-mode="custom" onclick="setSourceMode('modal-vars','custom')">Browse another file</button>
+              </div>
+            </div>
+
+            <div class="mt-4 space-y-4">
+              <div data-source-panel="modal-vars" data-source-mode="workflow">
+                <select id="modal-vars"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  <option value="">Select vars file...</option>
+                </select>
+              </div>
+
+              <div data-source-panel="modal-vars" data-source-mode="custom" class="hidden">
+                <div class="flex gap-2">
+                  <input id="modal-vars-custom-path" type="text" placeholder="Choose or paste a vars YAML file"
+                    class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  <button type="button" onclick="browseForField('modal','vars')"
+                    class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                    Browse
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-3xl border border-slate-300 bg-slate-100 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Inventory Source</p>
+                <h4 class="mt-2 text-base font-bold text-slate-900">Step inventory file</h4>
+              </div>
+              <div id="modal-inventory-source" data-mode="default" class="rounded-2xl bg-white p-1">
+                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="modal-inventory" data-source-mode="default" onclick="setSourceMode('modal-inventory','default')">Repo inventory</button>
+                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="modal-inventory" data-source-mode="custom" onclick="setSourceMode('modal-inventory','custom')">Browse another file</button>
+              </div>
+            </div>
+
+            <div class="mt-4 space-y-4">
+              <div data-source-panel="modal-inventory" data-source-mode="default">
+                <select id="modal-inventory"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  <option value="">Select inventory...</option>
+                </select>
+              </div>
+
+              <div data-source-panel="modal-inventory" data-source-mode="custom" class="hidden">
+                <div class="flex gap-2">
+                  <input id="modal-inventory-custom-path" type="text" placeholder="Choose or paste an inventory YAML file"
+                    class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  <button type="button" onclick="browseForField('modal','inventory')"
+                    class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                    Browse
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 border-t border-slate-300 bg-slate-100 px-6 py-5">
+        <button onclick="closeModal()" class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Cancel</button>
+        <button onclick="confirmAddStep()" class="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">Add step</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="file-picker-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm">
+    <div class="w-full max-w-4xl overflow-hidden rounded-[28px] border border-white/15 bg-white shadow-soft">
+      <div class="flex flex-col gap-4 border-b border-slate-300 bg-slate-100 px-6 py-5 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">File Browser</p>
+          <h3 id="picker-title" class="mt-2 text-xl font-bold text-slate-900">Choose file</h3>
+          <p class="mt-2 text-sm text-slate-600">Browse YAML files under the repository or home directory.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button id="picker-root-repo" type="button" onclick="setPickerRoot('repo')" class="rounded-2xl border px-4 py-2.5 text-sm font-semibold transition">Repository</button>
+          <button id="picker-root-home" type="button" onclick="setPickerRoot('home')" class="rounded-2xl border px-4 py-2.5 text-sm font-semibold transition">Home</button>
+        </div>
+      </div>
+
+      <div class="px-6 py-5">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div class="min-w-0">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Current folder</p>
+            <div id="picker-breadcrumbs" class="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-700"></div>
+          </div>
+          <button id="picker-parent-btn" type="button" onclick="goToPickerParent()" class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+            Up one level
+          </button>
+        </div>
+
+        <div class="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div class="rounded-3xl border border-slate-300 bg-slate-100 p-4">
+            <div class="flex items-center justify-between gap-3 border-b border-slate-300 pb-3">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Folders and YAML files</p>
+                <p id="picker-current-path" class="mt-1 text-sm font-medium text-slate-700"></p>
+              </div>
+            </div>
+            <div id="picker-browser" class="mt-4 max-h-[420px] space-y-2 overflow-auto pr-1"></div>
+          </div>
+
+          <div class="rounded-3xl border border-slate-300 bg-white p-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Selected path</p>
+            <textarea id="picker-manual-path" rows="7" placeholder="Click a file, or paste a path manually"
+              class="mt-3 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"></textarea>
+            <div class="mt-4 flex flex-wrap gap-3">
+              <button type="button" onclick="browseManualPath()" class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                Browse this path
+              </button>
+              <button type="button" onclick="confirmFilePick()" class="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                Use selected file
+              </button>
+            </div>
+            <p class="mt-4 text-xs text-slate-500">Relative paths are resolved from the repository root. Absolute paths must stay under your home directory.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 border-t border-slate-300 bg-slate-100 px-6 py-5">
+        <button type="button" onclick="closeFilePicker()" class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let workflows = [];
+    let inventories = [];
+    let editor = null;
+    let fileDirty = false;
+    let currentJobId = null;
+    let currentES = null;
+    let wfSteps = [];
+    let wfRunning = false;
+    let stepId = 0;
+    let filePickerState = {
+      targetInputId: '',
+      root: 'repo',
+      currentPath: '',
+      rootPath: '',
+      title: 'Choose file',
+      afterSelect: null,
+    };
+
+    function $(id) { return document.getElementById(id); }
+    function show(id) { $(id).classList.remove('hidden'); }
+    function hide(id) { $(id).classList.add('hidden'); }
+
+    function htmlEscape(value) {
+      return (value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function basename(path) {
+      if (!path) return '';
+      return path.split(/[\\/]/).pop();
+    }
+
+    function isAbsolutePath(path) {
+      return !!path && (path.startsWith('/') || /^[A-Za-z]:[\\/]/.test(path));
+    }
+
+    function detectPickerRoot(path) {
+      return isAbsolutePath(path) ? 'home' : 'repo';
+    }
+
+    function populateSelect(id, options, placeholder) {
+      const select = $(id);
+      const currentValue = select.value;
+      select.innerHTML = '<option value="">' + (placeholder || 'Select...') + '</option>';
+      options.forEach(function(option) {
+        const element = document.createElement('option');
+        element.value = option.v;
+        element.textContent = option.t;
+        select.appendChild(element);
+      });
+      if (options.some(function(option) { return option.v === currentValue; })) {
+        select.value = currentValue;
+      }
+    }
+
+    function workflowOptions() {
+      return workflows.map(function(workflow) {
+        return { v: workflow.name, t: workflow.name };
+      });
+    }
+
+    function inventoryOptions() {
+      return inventories.map(function(inventory) {
+        return { v: inventory, t: inventory };
+      });
+    }
+
+    function setSourceMode(sectionKey, mode) {
+      const container = $(sectionKey + '-source');
+      if (!container) return;
+      container.dataset.mode = mode;
+      document.querySelectorAll('[data-source-target="' + sectionKey + '"]').forEach(function(button) {
+        const active = button.dataset.sourceMode === mode;
+        button.classList.toggle('source-btn-active', active);
+        button.classList.toggle('source-btn-inactive', !active);
+      });
+      document.querySelectorAll('[data-source-panel="' + sectionKey + '"]').forEach(function(panel) {
+        panel.classList.toggle('hidden', panel.dataset.sourceMode !== mode);
+      });
+
+      if (sectionKey === 'run-vars') updateSourceHint('run', 'vars');
+      if (sectionKey === 'run-inventory') updateSourceHint('run', 'inventory');
+      if (sectionKey.startsWith('run-')) refreshRunSummary();
+    }
+
+    function getSourceMode(sectionKey) {
+      const container = $(sectionKey + '-source');
+      return container ? container.dataset.mode : 'workflow';
+    }
+
+    function getSelectedVarsPath(scope) {
+      const mode = getSourceMode(scope + '-vars');
+      return mode === 'workflow' ? $(scope === 'run' ? 'sel-vars' : 'modal-vars').value : $(scope + '-vars-custom-path').value.trim();
+    }
+
+    function getSelectedInventoryPath(scope) {
+      const mode = getSourceMode(scope + '-inventory');
+      return mode === 'default' ? $(scope === 'run' ? 'sel-inventory' : 'modal-inventory').value : $(scope + '-inventory-custom-path').value.trim();
+    }
+
+    function describePath(path, fallback) {
+      if (!path) return fallback;
+      return basename(path) + '  •  ' + path;
+    }
+
+    function jobDetailHref(jobId) {
+      return '/jobs/' + encodeURIComponent(jobId);
+    }
+
+    function updateSourceHint(scope, kind) {
+      if (scope !== 'run') return;
+      if (kind === 'vars') {
+        const path = getSelectedVarsPath('run');
+        $('run-vars-selection').textContent = describePath(path, 'Using workflow vars by default.');
+      }
+      if (kind === 'inventory') {
+        const path = getSelectedInventoryPath('run');
+        $('run-inventory-selection').textContent = describePath(path, 'Using the repository inventory list by default.');
+      }
+    }
+
+    function refreshRunSummary() {
+      $('summary-workflow').textContent = $('sel-workflow').value || 'Not selected';
+      $('summary-playbook').textContent = basename($('sel-playbook').value) || 'Not selected';
+      $('summary-vars').textContent = describePath(getSelectedVarsPath('run'), 'Not selected');
+      $('summary-inventory').textContent = describePath(getSelectedInventoryPath('run'), 'Not selected');
+    }
+
+    function refreshDashboardCards() {
+      $('card-workflow-count').textContent = String(workflows.length);
+      $('card-inventory-count').textContent = String(inventories.length);
+    }
+
+    async function fetchJson(url, options) {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Request failed');
+      }
+      return data;
+    }
+
+    window.addEventListener('DOMContentLoaded', async function() {
+      try {
+        const data = await Promise.all([
+          fetchJson('/api/workflows'),
+          fetchJson('/api/inventories'),
+        ]);
+        workflows = data[0];
+        inventories = data[1];
+      } catch (error) {
+        document.body.innerHTML = '<div class="mx-auto mt-24 max-w-xl rounded-3xl border border-rose-200 bg-white p-8 text-center shadow-soft"><h1 class="text-2xl font-bold text-rose-700">Failed to connect to the runner</h1><p class="mt-3 text-sm text-slate-600">' + htmlEscape(error.message) + '</p></div>';
+        return;
+      }
+
+      editor = CodeMirror($('editor-container'), {
+        mode: 'yaml',
+        theme: 'material-darker',
+        lineNumbers: true,
+        tabSize: 2,
+        indentWithTabs: false,
+        lineWrapping: true,
+      });
+      editor.on('change', function() {
+        if (!fileDirty && $('editor-path').textContent) {
+          fileDirty = true;
+          show('btn-save');
+        }
+      });
+
+      populateSelect('sel-workflow', workflowOptions(), 'Select a workflow...');
+      populateSelect('sel-inventory', inventoryOptions(), 'Select inventory...');
+      if (inventories.length === 1) {
+        $('sel-inventory').selectedIndex = 1;
+      }
+      updateSourceHint('run', 'vars');
+      updateSourceHint('run', 'inventory');
+      setSourceMode('run-vars', 'workflow');
+      setSourceMode('run-inventory', 'default');
+      setSourceMode('modal-vars', 'workflow');
+      setSourceMode('modal-inventory', 'default');
+      refreshDashboardCards();
+      refreshRunSummary();
+      switchTab('run');
+    });
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(function(element) {
+        element.classList.add('hidden');
+      });
+      $('tab-' + tab).classList.remove('hidden');
+      document.querySelectorAll('.tab-btn').forEach(function(button) {
+        const active = button.dataset.tab === tab;
+        button.classList.toggle('tab-active', active);
+        button.classList.toggle('text-slate-500', !active);
+        button.classList.toggle('text-slate-600', !active);
+        button.classList.toggle('hover:bg-slate-200', !active);
+      });
+
+      if (tab === 'run') {
+        setTimeout(function() {
+          if (editor) editor.refresh();
+        }, 20);
+      }
+      if (tab === 'history') refreshHistory();
+    }
+
+    function onWorkflowChange(workflowId, playbookId, varsId) {
+      const workflow = workflows.find(function(item) { return item.name === $(workflowId).value; });
+      populateSelect(playbookId, [], 'Select playbook...');
+      populateSelect(varsId, [], 'Select vars file...');
+      if (!workflow) {
+        if (workflowId === 'sel-workflow') {
+          refreshRunSummary();
+          updateSourceHint('run', 'vars');
+        }
+        return;
+      }
+
+      populateSelect(playbookId, workflow.playbooks.map(function(playbook) {
+        return { v: 'workflows/' + workflow.name + '/playbook/' + playbook, t: playbook };
+      }), 'Select playbook...');
+      populateSelect(varsId, workflow.vars.map(function(file) {
+        return { v: 'workflows/' + workflow.name + '/vars/' + file, t: file };
+      }), 'Select vars file...');
+
+      if (workflow.playbooks.length === 1) $(playbookId).selectedIndex = 1;
+      if (workflow.vars.length === 1) $(varsId).selectedIndex = 1;
+
+      if (workflowId === 'sel-workflow') {
+        updateSourceHint('run', 'vars');
+        refreshRunSummary();
+      }
+    }
+
+    function filterWorkflows(inputId, selectId) {
+      const query = $(inputId).value.toLowerCase();
+      populateSelect(selectId,
+        workflows.filter(function(workflow) {
+          return workflow.name.toLowerCase().indexOf(query) !== -1;
+        }).map(function(workflow) {
+          return { v: workflow.name, t: workflow.name };
+        }),
+        'Select a workflow...'
+      );
+    }
+
+    async function loadActiveVarsFile() {
+      const path = getSelectedVarsPath('run');
+      if (!path) {
+        alert('Select a vars file first');
+        return;
+      }
+
+      try {
+        const data = await fetchJson('/api/file?path=' + encodeURIComponent(path));
+        editor.setValue(data.content);
+        $('editor-path').textContent = data.path;
+        show('editor-section');
+        hide('editor-hint');
+        hide('btn-save');
+        fileDirty = false;
+        setTimeout(function() { editor.refresh(); }, 20);
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    async function saveFile() {
+      const path = $('editor-path').textContent;
+      if (!path) return;
+      try {
+        await fetchJson('/api/file', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: path, content: editor.getValue() }),
+        });
+        hide('btn-save');
+        fileDirty = false;
+        showToast('File saved successfully');
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    async function validateSchema() {
+      const workflowName = $('sel-workflow').value;
+      const varsPath = getSelectedVarsPath('run');
+      if (!workflowName || !varsPath) {
+        alert('Select a workflow and vars file first');
+        return;
+      }
+
+      const workflow = workflows.find(function(item) { return item.name === workflowName; });
+      if (!workflow || !workflow.schemas || !workflow.schemas.length) {
+        alert('No schema found for this workflow');
+        return;
+      }
+
+      const schema = 'workflows/' + workflowName + '/schema/' + workflow.schemas[0];
+      const resultEl = $('validate-result');
+      try {
+        const result = await fetchJson('/api/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ schema: schema, data: varsPath }),
+        });
+        show('validate-result');
+        resultEl.className = 'rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap ' + (result.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700');
+        resultEl.textContent = result.ok ? 'Validation passed.\n' + result.out : 'Validation failed.\n' + result.out;
+      } catch (error) {
+        show('validate-result');
+        resultEl.className = 'rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700 whitespace-pre-wrap';
+        resultEl.textContent = error.message;
+      }
+    }
+
+    function ansiToHtml(text) {
+      text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const colors = {
+        '30': '#6b7280', '31': '#ef4444', '32': '#22c55e', '33': '#eab308',
+        '34': '#3b82f6', '35': '#a855f7', '36': '#06b6d4', '37': '#e5e7eb',
+        '90': '#9ca3af', '91': '#f87171', '92': '#4ade80', '93': '#facc15',
+        '94': '#60a5fa', '95': '#c084fc', '96': '#22d3ee', '97': '#f8fafc'
+      };
+      let result = '';
+      let openTags = 0;
+      const parts = text.split(/(\x1b\[[0-9;]*m)/);
+      parts.forEach(function(part) {
+        const match = part.match(/^\x1b\[([0-9;]*)m$/);
+        if (!match) {
+          result += part;
+          return;
+        }
+        match[1].split(';').forEach(function(code) {
+          if (code === '0' || code === '') {
+            while (openTags > 0) {
+              result += '</span>';
+              openTags -= 1;
+            }
+          } else if (code === '1') {
+            result += '<span style="font-weight:700">';
+            openTags += 1;
+          } else if (colors[code]) {
+            result += '<span style="color:' + colors[code] + '">';
+            openTags += 1;
+          }
+        });
+      });
+      while (openTags > 0) {
+        result += '</span>';
+        openTags -= 1;
+      }
+      return result;
+    }
+
+    function appendLine(element, text, className) {
+      const div = document.createElement('div');
+      if (className) div.className = className;
+      div.innerHTML = ansiToHtml(text);
+      element.appendChild(div);
+      element.scrollTop = element.scrollHeight;
+    }
+
+    function updateRunStatus(status) {
+      const badge = $('run-status');
+      const classes = {
+        completed: 'bg-emerald-100 text-emerald-700',
+        failed: 'bg-rose-100 text-rose-700',
+        cancelled: 'bg-slate-200 text-slate-700',
+        error: 'bg-rose-100 text-rose-700',
+      };
+      badge.textContent = status;
+      badge.className = 'rounded-full px-3 py-1 text-xs font-semibold ' + (classes[status] || 'bg-slate-200 text-slate-700');
+      show('run-status');
+    }
+
+    function streamJob(jobId, outputEl, onDone) {
+      if (currentES) currentES.close();
+      currentES = new EventSource('/api/run/' + jobId + '/stream');
+      currentES.onmessage = function(event) {
+        const msg = JSON.parse(event.data);
+        if (msg.t === 'o') {
+          appendLine(outputEl, msg.l);
+        } else if (msg.t === 'd') {
+          currentES.close();
+          currentES = null;
+          if (onDone) onDone(msg.s);
+        }
+      };
+      currentES.onerror = function() {
+        if (currentES) currentES.close();
+        currentES = null;
+        if (onDone) onDone('error');
+      };
+    }
+
+    async function runPlaybook() {
+      const playbook = $('sel-playbook').value;
+      const inventory = getSelectedInventoryPath('run');
+      if (!playbook) {
+        alert('Select a playbook');
+        return;
+      }
+      if (!inventory) {
+        alert('Select an inventory file');
+        return;
+      }
+
+      show('output-section');
+      hide('run-status');
+      $('output').innerHTML = '';
+
+      try {
+        const data = await fetchJson('/api/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inventory: inventory,
+            playbook: playbook,
+            vars_file: getSelectedVarsPath('run'),
+            verbosity: $('sel-verbosity').value,
+            extra_args: $('extra-args').value,
+          }),
+        });
+
+        currentJobId = data.job_id;
+        appendLine($('output'), '$ ' + data.command + '\n', 'text-cyan-300');
+        show('btn-cancel');
+        hide('btn-run');
+
+        streamJob(data.job_id, $('output'), function(status) {
+          show('btn-run');
+          hide('btn-cancel');
+          updateRunStatus(status);
+          refreshHistory();
+        });
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    async function cancelJob() {
+      if (!currentJobId) return;
+      try {
+        await fetchJson('/api/run/' + currentJobId + '/cancel', { method: 'POST' });
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    function addStep() {
+      show('step-modal');
+      $('modal-search-wf').value = '';
+      populateSelect('modal-workflow', workflowOptions(), 'Select...');
+      populateSelect('modal-playbook', [], 'Select...');
+      populateSelect('modal-vars', [], 'Select vars file...');
+      populateSelect('modal-inventory', inventoryOptions(), 'Select inventory...');
+      $('modal-vars-custom-path').value = '';
+      $('modal-inventory-custom-path').value = '';
+      setSourceMode('modal-vars', 'workflow');
+      setSourceMode('modal-inventory', 'default');
+    }
+
+    function closeModal() {
+      hide('step-modal');
+    }
+
+    function confirmAddStep() {
+      const workflow = $('modal-workflow').value;
+      const playbook = $('modal-playbook').value;
+      const varsFile = getSelectedVarsPath('modal');
+      const inventory = getSelectedInventoryPath('modal');
+      if (!playbook || !inventory) {
+        alert('Playbook and inventory are required');
+        return;
+      }
+
+      wfSteps.push({
+        id: ++stepId,
+        workflow: workflow || 'Custom workflow step',
+        playbook: playbook,
+        varsFile: varsFile,
+        inventory: inventory,
+        status: 'pending',
+        jobId: null,
+      });
+      renderSteps();
+      closeModal();
+    }
+
+    function removeStep(id) {
+      wfSteps = wfSteps.filter(function(step) { return step.id !== id; });
+      renderSteps();
+    }
+
+    function moveStep(id, delta) {
+      const index = wfSteps.findIndex(function(step) { return step.id === id; });
+      const swapIndex = index + delta;
+      if (index < 0 || swapIndex < 0 || swapIndex >= wfSteps.length) return;
+      const current = wfSteps[index];
+      wfSteps[index] = wfSteps[swapIndex];
+      wfSteps[swapIndex] = current;
+      renderSteps();
+    }
+
+    function renderSteps() {
+      const el = $('wf-steps');
+      if (!wfSteps.length) {
+        el.innerHTML = '<p class="rounded-2xl border border-dashed border-slate-300 bg-slate-100 px-4 py-8 text-center text-sm text-slate-600">No steps added yet. Start with <span class="font-semibold text-slate-800">Add step</span>.</p>';
+        return;
+      }
+
+      const statusMeta = {
+        pending: { icon: '⋯', badge: 'bg-slate-100 text-slate-600' },
+        running: { icon: '↻', badge: 'bg-cyan-100 text-cyan-700' },
+        completed: { icon: '✓', badge: 'bg-emerald-100 text-emerald-700' },
+        failed: { icon: '✕', badge: 'bg-rose-100 text-rose-700' },
+        cancelled: { icon: '•', badge: 'bg-slate-100 text-slate-600' },
+      };
+
+      el.innerHTML = wfSteps.map(function(step, index) {
+        const meta = statusMeta[step.status] || statusMeta.pending;
+        const controls = !wfRunning
+          ? '<div class="flex items-center gap-1">'
+              + '<button onclick="moveStep(' + step.id + ',-1)" class="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50" title="Move up">▲</button>'
+              + '<button onclick="moveStep(' + step.id + ',1)" class="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50" title="Move down">▼</button>'
+              + '<button onclick="removeStep(' + step.id + ')" class="rounded-xl border border-rose-200 bg-white px-2.5 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50" title="Remove">✕</button>'
+            + '</div>'
+          : '';
+
+        return ''
+          + '<div class="step-card rounded-3xl border border-slate-200 bg-white p-4">'
+          +   '<div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">'
+          +     '<div class="flex min-w-0 gap-4">'
+          +       '<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-lg font-bold text-white">' + (index + 1) + '</div>'
+          +       '<div class="min-w-0">'
+          +         '<div class="flex flex-wrap items-center gap-2">'
+          +           '<p class="truncate text-sm font-bold text-slate-900">' + htmlEscape(step.workflow) + '</p>'
+          +           '<span class="rounded-full px-2.5 py-1 text-xs font-semibold ' + meta.badge + '">' + meta.icon + ' ' + htmlEscape(step.status) + '</span>'
+          +         '</div>'
+          +         '<p class="mt-2 text-sm text-slate-600">Playbook: <span class="font-semibold text-slate-900">' + htmlEscape(basename(step.playbook)) + '</span></p>'
+          +         '<p class="mt-1 text-xs text-slate-500">Vars: ' + htmlEscape(step.varsFile ? basename(step.varsFile) : 'none') + '</p>'
+          +         '<p class="mt-1 text-xs text-slate-500">Inventory: ' + htmlEscape(basename(step.inventory)) + '</p>'
+          +       '</div>'
+          +     '</div>'
+          +     controls
+          +   '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    async function runWorkflow() {
+      if (!wfSteps.length) {
+        alert('Add at least one step');
+        return;
+      }
+
+      wfRunning = true;
+      $('wf-output').innerHTML = '';
+      show('wf-output-section');
+      hide('btn-run-wf');
+      show('btn-cancel-wf');
+      wfSteps.forEach(function(step) {
+        step.status = 'pending';
+        step.jobId = null;
+      });
+      renderSteps();
+
+      for (let index = 0; index < wfSteps.length; index += 1) {
+        const step = wfSteps[index];
+        step.status = 'running';
+        renderSteps();
+        appendLine($('wf-output'), '\n═══ Step ' + (index + 1) + '/' + wfSteps.length + ': ' + step.workflow + ' ═══\n', 'text-cyan-300 font-bold');
+
+        try {
+          const data = await fetchJson('/api/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              inventory: step.inventory,
+              playbook: step.playbook,
+              vars_file: step.varsFile,
+              label: 'Step ' + (index + 1) + ': ' + step.workflow,
+            }),
+          });
+          step.jobId = data.job_id;
+          appendLine($('wf-output'), '$ ' + data.command + '\n', 'text-slate-400');
+        } catch (error) {
+          step.status = 'failed';
+          renderSteps();
+          appendLine($('wf-output'), 'Failed to start step: ' + error.message + '\n', 'text-rose-300 font-bold');
+          break;
+        }
+
+        const result = await new Promise(function(resolve) {
+          streamJob(step.jobId, $('wf-output'), resolve);
+        });
+        step.status = result === 'completed' ? 'completed' : result === 'cancelled' ? 'cancelled' : 'failed';
+        renderSteps();
+
+        if (result !== 'completed') {
+          for (let next = index + 1; next < wfSteps.length; next += 1) {
+            wfSteps[next].status = 'cancelled';
+          }
+          renderSteps();
+          appendLine($('wf-output'), '\nWorkflow stopped at step ' + (index + 1) + '.\n', 'text-rose-300 font-bold');
+          break;
+        }
+      }
+
+      if (wfSteps.every(function(step) { return step.status === 'completed'; })) {
+        appendLine($('wf-output'), '\nWorkflow completed successfully.\n', 'text-emerald-300 font-bold');
+      }
+
+      wfRunning = false;
+      show('btn-run-wf');
+      hide('btn-cancel-wf');
+      refreshHistory();
+    }
+
+    async function cancelWorkflow() {
+      const runningStep = wfSteps.find(function(step) { return step.status === 'running'; });
+      if (!runningStep || !runningStep.jobId) return;
+      try {
+        await fetchJson('/api/run/' + runningStep.jobId + '/cancel', { method: 'POST' });
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    async function refreshHistory() {
+      let jobs = [];
+      try {
+        jobs = await fetchJson('/api/jobs');
+      } catch (error) {
+        $('history-body').innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-sm text-rose-600">' + htmlEscape(error.message) + '</td></tr>';
+        return;
+      }
+
+      if (!jobs.length) {
+        $('history-body').innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-sm text-slate-500">No jobs yet.</td></tr>';
+        return;
+      }
+
+      const statusClasses = {
+        completed: 'bg-emerald-100 text-emerald-700',
+        failed: 'bg-rose-100 text-rose-700',
+        running: 'bg-cyan-100 text-cyan-700',
+        cancelled: 'bg-slate-200 text-slate-700',
+        queued: 'bg-amber-100 text-amber-700',
+      };
+
+      $('history-body').innerHTML = jobs.map(function(job) {
+        const duration = job.t0 && job.t1 ? (job.t1 - job.t0).toFixed(1) + 's' : (job.t0 ? 'running...' : '-');
+        const time = job.t0 ? new Date(job.t0 * 1000).toLocaleTimeString() : '-';
+        const detailHref = jobDetailHref(job.id);
+        return ''
+          + '<tr class="border-b border-slate-100 text-sm text-slate-700 last:border-b-0 hover:bg-slate-50">'
+          +   '<td class="px-6 py-4 font-mono text-xs"><a href="' + detailHref + '" class="font-semibold text-cyan-700 underline decoration-cyan-200 underline-offset-4 transition hover:text-cyan-800">#' + htmlEscape(job.id) + '</a></td>'
+          +   '<td class="px-6 py-4">'
+          +     '<a href="' + detailHref + '" class="font-semibold text-slate-800 transition hover:text-cyan-800">' + htmlEscape(job.label) + '</a>'
+          +     '<div class="mt-1"><a href="' + detailHref + '" class="text-xs font-semibold text-cyan-700 underline decoration-cyan-200 underline-offset-4 transition hover:text-cyan-800">Open detailed Ansible log</a></div>'
+          +   '</td>'
+          +   '<td class="px-6 py-4"><span class="rounded-full px-2.5 py-1 text-xs font-semibold ' + (statusClasses[job.status] || 'bg-slate-200 text-slate-700') + '">' + htmlEscape(job.status) + '</span></td>'
+          +   '<td class="px-6 py-4 text-slate-500">' + htmlEscape(duration) + '</td>'
+          +   '<td class="px-6 py-4 text-slate-500">' + htmlEscape(time) + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    function browseForField(scope, kind) {
+      const inputId = scope + '-' + kind + '-custom-path';
+      const currentPath = $(inputId).value.trim();
+      openFilePicker(inputId, {
+        title: kind === 'vars' ? 'Choose vars file' : 'Choose inventory file',
+        root: detectPickerRoot(currentPath),
+        currentPath: currentPath,
+        afterSelect: function() {
+          if (scope === 'run') {
+            updateSourceHint('run', kind);
+            refreshRunSummary();
+          }
+        },
+      });
+    }
+
+    async function openFilePicker(targetInputId, options) {
+      filePickerState = {
+        targetInputId: targetInputId,
+        root: options.root || 'repo',
+        currentPath: options.currentPath || '',
+        title: options.title || 'Choose file',
+        afterSelect: options.afterSelect || null,
+      };
+      $('picker-title').textContent = filePickerState.title;
+      $('picker-manual-path').value = $(targetInputId).value.trim() || filePickerState.currentPath;
+      show('file-picker-modal');
+      updatePickerRootButtons();
+      await loadPickerPath(filePickerState.currentPath);
+    }
+
+    function closeFilePicker() {
+      hide('file-picker-modal');
+    }
+
+    function updatePickerRootButtons() {
+      ['repo', 'home'].forEach(function(rootName) {
+        const button = $('picker-root-' + rootName);
+        const active = filePickerState.root === rootName;
+        button.className = 'rounded-2xl border px-4 py-2.5 text-sm font-semibold transition ' + (active
+          ? 'border-slate-900 bg-slate-900 text-white'
+          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50');
+      });
+    }
+
+    async function setPickerRoot(rootName) {
+      filePickerState.root = rootName;
+      filePickerState.currentPath = '';
+      updatePickerRootButtons();
+      await loadPickerPath('');
+    }
+
+    async function loadPickerPath(path) {
+      const query = new URLSearchParams({ root: filePickerState.root });
+      if (path) query.set('path', path);
+      try {
+        const data = await fetchJson('/api/fs?' + query.toString());
+        filePickerState.currentPath = data.current_path;
+        filePickerState.rootPath = data.root_path;
+        renderPickerBrowser(data);
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    function renderPickerBrowser(data) {
+      $('picker-current-path').textContent = data.current_display;
+      $('picker-parent-btn').disabled = data.current_path === data.root_path;
+      $('picker-parent-btn').className = 'rounded-2xl border px-4 py-2.5 text-sm font-semibold transition '
+        + (data.current_path === data.root_path
+          ? 'border-slate-200 bg-slate-100 text-slate-400'
+          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50');
+      $('picker-breadcrumbs').innerHTML = data.breadcrumbs.map(function(crumb, index) {
+        return ''
+          + (index > 0 ? '<span class="text-slate-300">/</span>' : '')
+          + '<button type="button" onclick="loadPickerPath(decodeURIComponent(\'' + encodeURIComponent(crumb.path) + '\'))" class="rounded-xl px-2 py-1 text-sm font-medium text-slate-700 transition hover:bg-slate-200/70">'
+          + htmlEscape(crumb.name)
+          + '</button>';
+      }).join('');
+
+      if (data.selected_file) {
+        $('picker-manual-path').value = data.selected_file;
+      }
+
+      const entries = [];
+      if (!data.directories.length && !data.files.length) {
+        entries.push('<div class="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-500">No visible folders or YAML files here.</div>');
+      } else {
+        data.directories.forEach(function(entry) {
+          entries.push(
+            '<button type="button" onclick="loadPickerPath(decodeURIComponent(\'' + encodeURIComponent(entry.path) + '\'))" class="picker-entry flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm transition hover:border-slate-300 hover:bg-slate-50">'
+              + '<span class="font-semibold text-slate-900">📁 ' + htmlEscape(entry.name) + '</span>'
+              + '<span class="text-xs text-slate-400">open</span>'
+            + '</button>'
+          );
+        });
+        data.files.forEach(function(entry) {
+          entries.push(
+            '<button type="button" onclick="selectPickerFile(decodeURIComponent(\'' + encodeURIComponent(entry.value) + '\'))" class="picker-entry flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm transition hover:border-cyan-300 hover:bg-cyan-50">'
+              + '<span class="font-semibold text-slate-900">📄 ' + htmlEscape(entry.name) + '</span>'
+              + '<span class="truncate pl-4 text-xs text-slate-400">' + htmlEscape(entry.value) + '</span>'
+            + '</button>'
+          );
+        });
+      }
+
+      $('picker-browser').innerHTML = entries.join('');
+    }
+
+    function selectPickerFile(value) {
+      $('picker-manual-path').value = value;
+    }
+
+    async function goToPickerParent() {
+      if (!filePickerState.currentPath || filePickerState.currentPath === filePickerState.rootPath) return;
+      await loadPickerPath(filePickerState.currentPath + '/..');
+    }
+
+    async function browseManualPath() {
+      const path = $('picker-manual-path').value.trim();
+      await loadPickerPath(path);
+    }
+
+    function confirmFilePick() {
+      const path = $('picker-manual-path').value.trim();
+      if (!path) {
+        alert('Select or enter a file path');
+        return;
+      }
+      $(filePickerState.targetInputId).value = path;
+      if (filePickerState.afterSelect) filePickerState.afterSelect(path);
+      closeFilePicker();
+    }
+
+    function showToast(message) {
+      const toast = $('toast');
+      toast.textContent = message;
+      toast.classList.remove('hidden', 'opacity-0');
+      toast.classList.add('opacity-100');
+      setTimeout(function() {
+        toast.classList.add('opacity-0');
+        setTimeout(function() {
+          toast.classList.add('hidden');
+        }, 300);
+      }, 2200);
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+        event.preventDefault();
+        if ($('editor-path').textContent) saveFile();
+      }
+      if (event.key === 'Escape') {
+        if (!$('file-picker-modal').classList.contains('hidden')) closeFilePicker();
+        if (!$('step-modal').classList.contains('hidden')) closeModal();
+      }
+    });
+  </script>
+</body>
+</html>

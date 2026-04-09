@@ -5,236 +5,226 @@
 #
 # Usage:
   # ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  #   workflows/provision_playbook_config_generator/playbook/provision_playbook_config_generator_playbook.yml \
-  #   --extra-vars VARS_FILE_PATH=../vars/provision_playbook_config_generator_vars.yml
+  #   workflows/provision_config_generator/playbook/provision_config_generator.yml \
+  #   --extra-vars VARS_FILE_PATH=../vars/provision_config_vars.yml
 #
 # ============================================================================
 
 provision_playbook_config:
-  file_path: "provision/combined_global_components_filter.yml"
-  global_filters:
-    management_ip_address:
-      - "204.1.2.9"
-      - "204.192.4.200"
-  component_specific_filters:
-    components_list: ["wired", "wireless"]
-    wired:
-      - site_name_hierarchy:
-          - "Global/India/Bangalore/bld1"
-        device_family: "Routers"
-    wireless:
-      - site_name_hierarchy:
-          - "Global/USA/SAN JOSE/SJ_BLD23"
-        device_family: "Wireless Controller"
+  file_path: "provision/combined_components_filter.yml"
+  file_mode: overwrite
+  config:
+    component_specific_filters:
+      components_list: ["wired", "wireless"]
+      wired:
+        - site_name_hierarchy:
+            - "Global/India/Bangalore/bld1"
+          device_family:
+            - "Routers"
+      wireless:
+        - site_name_hierarchy:
+            - "Global/USA/SAN JOSE/SJ_BLD23"
+          device_family:
+            - "Wireless Controller"
 
 # Other examples with different filter combinations are provided below for reference.
 
 # provision_playbook_config1:
-#   # Generate all configurations (overrides any component filters)
-#   generate_all_configurations: false
-#   file_path: "provision/generate_all_config_overrides_filters.yml"
-#   component_specific_filters:
-#     components_list: ["wired"]
+#   # Generate all provisioned devices by omitting config
+#   file_path: "provision/all_provisioned_devices.yml"
+#   file_mode: overwrite
 
 # provision_playbook_config2:
 #   # Generate only wired device configurations
 #   file_path: "provision/wired_devices_config2.yml"
-#   component_specific_filters:
-#     components_list: ["wired"]
+#   file_mode: overwrite
+#   config:
+#     component_specific_filters:
+#       components_list: ["wired"]
 
 # provision_playbook_config3:
 #   # Generate only wireless device configurations
 #   file_path: "provision/wireless_devices_config3.yml"
-#   component_specific_filters:
-#     components_list: ["wireless"]
+#   config:
+#     component_specific_filters:
+#       components_list: ["wireless"]
 
 # provision_playbook_config4:
 #   # Wired devices filtered by management IP address
 #   file_path: "provision/wired_ip_filter_config4.yml"
-#   component_specific_filters:
-#     components_list: ["wired"]
-#     wired:
-#       - management_ip_address: "204.1.2.8"
+#   config:
+#     component_specific_filters:
+#       components_list: ["wired"]
+#       wired:
+#         - management_ip_address:
+#             - "204.1.2.8"
 
 # provision_playbook_config5:
 #   # Wired devices filtered by multiple management IP addresses
 #   file_path: "provision/wired_multiple_ip_filter_config5.yml"
-#   component_specific_filters:
-#     components_list: ["wired"]
-#     wired:
-#       - management_ip_address: "204.1.2.8"
-#       - management_ip_address: "204.1.2.9"
-#       - management_ip_address: "204.1.2.69"
+#   config:
+#     component_specific_filters:
+#       components_list: ["wired"]
+#       wired:
+#         - management_ip_address:
+#             - "204.1.2.8"
+#             - "204.1.2.9"
+#             - "204.1.2.69"
 
 # provision_playbook_config6:
 #   # Wired devices filtered by site name hierarchy
 #   file_path: "provision/wired_site_filter_config6.yml"
-#   component_specific_filters:
-#     components_list: ["wired"]
-#     wired:
-#       - site_name_hierarchy:
-#           - "Global/USA/New York/NY_BLD3"
-#           - "Global/India/Bangalore/bld1"
+#   config:
+#     component_specific_filters:
+#       components_list: ["wired"]
+#       wired:
+#         - site_name_hierarchy:
+#             - "Global/USA/New York/NY_BLD3"
+#             - "Global/India/Bangalore/bld1"
 
 # provision_playbook_config7:
 #   # Wired devices filtered by device family (Switches and Hubs)
 #   file_path: "provision/wired_device_family_filter_config7.yml"
-#   component_specific_filters:
-#     components_list: ["wired"]
-#     wired:
-#       - device_family: "Switches and Hubs"
+#   config:
+#     component_specific_filters:
+#       components_list: ["wired"]
+#       wired:
+#         - device_family:
+#             - "Switches and Hubs"
 
 # provision_playbook_config8:
 #   # Wired devices filtered by Routers family
 #   file_path: "provision/wired_routers_filter_config8.yml"
-#   component_specific_filters:
-#     components_list: ["wired"]
-#     wired:
-#       - device_family: "Routers"
+#   config:
+#     component_specific_filters:
+#       components_list: ["wired"]
+#       wired:
+#         - device_family:
+#             - "Routers"
 
 # provision_playbook_config9:
 #   # Wireless devices filtered by management IP address
 #   file_path: "provision/wireless_ip_filter_config9.yml"
-#   component_specific_filters:
-#     components_list: ["wireless"]
-#     wireless:
-#       - management_ip_address: "204.192.6.200"
+#   config:
+#     component_specific_filters:
+#       components_list: ["wireless"]
+#       wireless:
+#         - management_ip_address:
+#             - "204.192.6.200"
 
 # provision_playbook_config10:
 #   # Wireless devices filtered by site name hierarchy
 #   file_path: "provision/wireless_site_filter_config10.yml"
-#   component_specific_filters:
-#     components_list: ["wireless"]
-#     wireless:
-#       - site_name_hierarchy:
-#           - "Global/USA/New York/NY_BLD1"
-#           - "Global/USA/SAN JOSE/SJ_BLD23"
+#   config:
+#     component_specific_filters:
+#       components_list: ["wireless"]
+#       wireless:
+#         - site_name_hierarchy:
+#             - "Global/USA/New York/NY_BLD1"
+#             - "Global/USA/SAN JOSE/SJ_BLD23"
 
 # provision_playbook_config11:
 #   # Wireless devices filtered by device family
 #   file_path: "provision/wireless_device_family_filter_config11.yml"
-#   component_specific_filters:
-#     components_list: ["wireless"]
-#     wireless:
-#       - device_family: "Wireless Controller"
+#   config:
+#     component_specific_filters:
+#       components_list: ["wireless"]
+#       wireless:
+#         - device_family:
+#             - "Wireless Controller"
 
 # provision_playbook_config12:
 #   # Combined wired and wireless with no sub-filters
 #   file_path: "provision/all_components_no_subfilters_config12.yml"
-#   component_specific_filters:
-#     components_list: ["wired", "wireless"]
+#   config:
+#     component_specific_filters:
+#       components_list: ["wired", "wireless"]
 
 # provision_playbook_config13:
 #   # Combined wired and wireless with filters
 #   file_path: "provision/combined_components_filter_config13.yml"
-#   component_specific_filters:
-#     components_list: ["wired", "wireless"]
-#     wired:
-#       - site_name_hierarchy:
-#           - "Global/USA/SAN JOSE/SJ_BLD23"
-#         device_family: "Switches and Hubs"
-#     wireless:
-#       - site_name_hierarchy:
-#           - "Global/USA/SAN JOSE/SJ_BLD23"
-#         device_family: "Wireless Controller"
-
-# provision_playbook_config14:
-#   # Global filter by management IP address (applied across all components)
-#   file_path: "provision/global_ip_filter_config14.yml"
-#   global_filters:
-#     management_ip_address:
-#       - "204.1.2.9"
-#       - "204.192.6.200"
+#   config:
+#     component_specific_filters:
+#       components_list: ["wired", "wireless"]
+#       wired:
+#         - site_name_hierarchy:
+#             - "Global/USA/SAN JOSE/SJ_BLD23"
+#           device_family:
+#             - "Switches and Hubs"
+#       wireless:
+#         - site_name_hierarchy:
+#             - "Global/USA/SAN JOSE/SJ_BLD23"
+#           device_family:
+#             - "Wireless Controller"
 
 # provision_playbook_config15:
 #   # Append mode - combine multiple generations into a single file
 #   file_path: "provision/combined_append_config15.yml"
 #   file_mode: append
-#   component_specific_filters:
-#     components_list: ["wired"]
-#     wired:
-#       - device_family: "Switches and Hubs"
+#   config:
+#     component_specific_filters:
+#       components_list: ["wired"]
+#       wired:
+#         - device_family:
+#             - "Switches and Hubs"
 
 # ============================================================================
 # Additional Configuration Examples
 # ============================================================================
 # Example 1: Generate all provisioned devices with auto-generated filename
 # provision_playbook_config:
-#     generate_all_configurations: true
+#     file_mode: overwrite
 
 # Example 2: Custom file path with specific wired devices
 # provision_playbook_config:
 #     file_path: "/home/ansible/provision_configs/production_wired_devices.yml"
-#     component_specific_filters:
-#       components_list: ["wired"]
+#     config:
+#       component_specific_filters:
+#         components_list: ["wired"]
 
 # Example 3: Multiple site-based wired device extraction
 # provision_playbook_config:
 #     file_path: "/tmp/multi_site_wired_config.yml"
-#     component_specific_filters:
-#       components_list: ["wired"]
-#       wired:
-#         - site_name_hierarchy:
-#             - "Global/USA/San_Jose/Building_1"
-#             - "Global/USA/San_Jose/Building_2"
-#           device_family: "Switches and Hubs"
-#         - site_name_hierarchy:
-#             - "Global/India/Chennai/Office"
-#           device_family: "Routers"
+#     config:
+#       component_specific_filters:
+#         components_list: ["wired"]
+#         wired:
+#           - site_name_hierarchy:
+#               - "Global/USA/San_Jose/Building_1"
+#               - "Global/USA/San_Jose/Building_2"
+#             device_family:
+#               - "Switches and Hubs"
+#           - site_name_hierarchy:
+#               - "Global/India/Chennai/Office"
+#             device_family:
+#               - "Routers"
 
 # Example 4: Combined wired and wireless with detailed filters
 # provision_playbook_config:
 #     file_path: "/tmp/filtered_provision_config.yml"
-#     component_specific_filters:
-#       components_list: ["wired", "wireless"]
-#       wired:
-#         - management_ip_address: "10.195.243.9"
-#         - management_ip_address: "10.195.243.10"
-#       wireless:
-#         - management_ip_address: "10.195.243.20"
-#         - management_ip_address: "10.195.243.21"
+#     config:
+#       component_specific_filters:
+#         components_list: ["wired", "wireless"]
+#         wired:
+#           - management_ip_address:
+#               - "10.195.243.9"
+#               - "10.195.243.10"
+#         wireless:
+#           - management_ip_address:
+#               - "10.195.243.20"
+#               - "10.195.243.21"
 
 # ============================================================================
-# GENERATE_ALL_CONFIGURATIONS Parameter Documentation
+# COMPONENT_SPECIFIC_FILTERS Parameter Documentation
 # ============================================================================
 #
-# The 'generate_all_configurations' parameter controls whether the tool retrieves
-# all provisioned devices from Catalyst Center or applies component-specific filters.
+# To generate all provisioned devices, omit `config` entirely.
+# When `config` is present, only `component_specific_filters` is supported.
 #
-# BEHAVIOR WHEN TRUE:
-# - Retrieves ALL provisioned wired and wireless devices from Catalyst Center
-# - IGNORES any global_filters and component_specific_filters settings
-# - Overrides components_list, wired, and wireless filters
-# - Extracts complete provisioning configuration
-#
-# BEHAVIOR WHEN FALSE (or not specified):
-# - Respects global_filters and component_specific_filters settings
-# - Only retrieves specified device types from components_list
-# - Applies wired and wireless sub-filters if specified
-# - Allows selective configuration generation
-# - Useful for targeted configuration extraction
-#
-# EXAMPLES:
-#
-# Example A: Generate ALL configurations (ignores filters)
-# provision_playbook_config:
-#     generate_all_configurations: true
-#     file_path: "/tmp/complete_provision.yml"
-#     component_specific_filters:
-#       components_list: ["wired"]  # <-- IGNORED when true
-#
-# Example B: Generate specific components only (respects filters)
-# provision_playbook_config:
-#     generate_all_configurations: false
-#     file_path: "/tmp/wired_only.yml"
-#     component_specific_filters:
-#       components_list: ["wired"]  # <-- APPLIED when false
-#
-# Example C: Default behavior (same as false)
-# provision_playbook_config:
-#     file_path: "/tmp/filtered_config.yml"
-#     component_specific_filters:
-#       components_list: ["wireless"]  # <-- APPLIED when not specified
+# components_list rules:
+# - Valid values are "wired" and "wireless"
+# - If filter blocks are present, missing component names are auto-added
+# - If no filter block is present, components_list should be non-empty
 
 # ============================================================================
 # Component Filter Details
@@ -249,23 +239,27 @@ provision_playbook_config:
 #
 # WIRED Sub-Filters:
 # - wired:
-#     - management_ip_address: "10.195.243.9"
+#     - management_ip_address:
+#         - "10.195.243.9"
 #       Description: Filter by device management IP address
 #     - site_name_hierarchy:
 #         - "Global/USA/San_Jose/Building_1"
 #       Description: Filter by site hierarchy paths (list of sites)
-#     - device_family: "Switches and Hubs"
+#     - device_family:
+#         - "Switches and Hubs"
 #       Description: Filter by device family type
 #       Valid Values: "Switches and Hubs", "Routers"
 #
 # WIRELESS Sub-Filters:
 # - wireless:
-#     - management_ip_address: "10.195.243.20"
+#     - management_ip_address:
+#         - "10.195.243.20"
 #       Description: Filter by device management IP address
 #     - site_name_hierarchy:
 #         - "Global/USA/San_Jose/Building_1"
 #       Description: Filter by site hierarchy paths (list of sites)
-#     - device_family: "Wireless Controller"
+#     - device_family:
+#         - "Wireless Controller"
 #       Description: Filter by device family type
 #       Valid Values: "Wireless Controller"
 #

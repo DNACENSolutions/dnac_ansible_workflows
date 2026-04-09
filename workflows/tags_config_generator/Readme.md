@@ -1,4 +1,4 @@
-# Tags Playbook Config Generator
+# Tags Config Generator
 
 ## Table of Contents
 
@@ -11,7 +11,9 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
+
+---
 
 ## Overview
 
@@ -65,13 +67,13 @@ pip install yamale
 ## Workflow Structure
 
 ```
-tags_playbook_config_generator/
+tags_config_generator/
 ├── playbook/
-│   └── tags_playbook_config_generator.yml             # Main operations
+│   └── tags_config_generator.yml             # Main operations
 ├── vars/
-│   ├── tags_playbook_config_generator_input.yml                 # Configuration examples
+│   ├── tags_config_generator_input.yml                 # Configuration examples
 ├── schema/
-│   └── tags_playbook_config_generator_schema.yml                # Input validation
+│   └── tags_config_generator_schema.yml                # Input validation
 └── README.md                                                
 ```
 
@@ -79,38 +81,35 @@ tags_playbook_config_generator/
 
 ## Schema Parameters
 
-### Basic Configuration
+### Top-Level Parameters
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| generate_all_configurations | boolean | No | false | Generate all components automatically |
 | file_path | string | No | auto-generated | Output file path for YAML configuration file |
 | file_mode | string | No | overwrite | File write mode — `overwrite` replaces the file, `append` adds to it |
-| component_specific_filters | dict | No | all components | Filters to specify which components to include |
+| config | dict | No | omitted (all components) | Configuration filters dict. When omitted, all tag configurations and tag memberships are retrieved. When provided, `component_specific_filters` is mandatory. |
 
-### Component Specific Filtering
+### Component Specific Filtering (within `config` parameter)
 
-| Parameter      | Type | Required | Default | Description |
+| Parameter | Type | Required | Default | Description |
 |--------------|------|----------|-------------|-----------|
-| components_list | list | No | ["tag","tag_memberships"] |List of components to include in generation |
-| tag      | list | No | all tag configurations|Tag configuration filtering criteria |
-| tag_memberships | list | No | all tag membership configurations| Tag membership configuration filtering criteria |
-
-**Valid Component Types:**
-- `tag`: Tag configurations with device and port rules
-- `tag_memberships`: Tag membership associations (devices and interfaces)
+| component_specific_filters | dict | Yes (when `config` provided) | N/A | Required when `config` is provided. Filters to specify which components to include. |
+| components_list | list | Conditional | N/A | List of components to include. **Required when no component filter blocks are provided.** Empty list is invalid when no filter blocks exist. |
+| tag | list(dict) | No | all tag configurations | Tag configuration filtering criteria. |
+| tag_memberships | list(dict) | No | all tag membership configurations | Tag membership configuration filtering criteria. |
 
 ### Tag Configuration Filters
 
-| Parameter | Type   | Required |  Description |
-|-----------|--------|-------------|----------------|
-| tag_name | string | True |  Filter by tag name | 
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| tag_name | string | No | Filter by tag name |
 
 ### Tag Membership Configuration Filters
 
-| Parameter | Type | Required |  Description |
-|-----------|------|-------------|-----------------|
-| tag_name    | string | False |  Filter by tag name for membership retrieval | 
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| tag_name | string | No | Filter by tag name for membership retrieval |
+| device_identifier | string | No | Device identifier in generated output: `hostname`, `serial_number` (default), `mac_address`, `ip_address` |
 
 ---
 
@@ -152,7 +151,7 @@ ansible-galaxy collection install cisco.dnac --force
 export HOSTIP=<catalyst-center-ip-or-fqdn>
 export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/tags_config_generator/playbook/tags_config_generator.yml -vvvv
 ```
 
 
@@ -160,16 +159,20 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/tags_playbook_co
 
 ### Generate Operations (state: gathered)
 
-Use `tags_playbook_config_generator.yml` for generating YAML playbook configuration operations.
+Use `tags_config_generator.yml` for generating YAML playbook configuration operations.
 
 #### Generate All Configurations
 
-**Description**: Retrieves all tag configurations and tag memberships from Catalyst Center regardless of any filters.
+**Description**: Omit `config` parameter entirely at module level. All existing tag configurations and tag memberships will be extracted. System tags are automatically excluded.
 
 ```yaml
-tags_config:
-  - generate_all_configurations: true
-    file_path: "generated_file/complete_tags_config.yml"
+# No config at all - only DNAC connection details
+# Expected: defaults to generates all configs
+
+ - name: No config provided
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/complete_tags_config.yml"
 ```
 
 #### Component-Specific Generation
@@ -179,44 +182,52 @@ tags_config:
 **Extract Tag Configurations Only**
 
 ```yaml
-tags_config:
-  - file_path: "generated_file/tag_configurations_config.yml"
-    component_specific_filters:
-      components_list: ["tag"]
+# Test tag configuration filter
+ - name: Test tag configuration
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/tag_configurations_config.yml"
+     config:
+       component_specific_filters:
+         components_list: ["tag"]
 ```
 
 **Extract Tag Memberships Only**
 
 ```yaml
-tags_config:
-  - file_path: "generated_file/tag_memberships_config.yml"
-    component_specific_filters:
-      components_list: ["tag_memberships"]
+# Test tag membership configuration filter
+ - name: Test tag memberships configuration
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/tag_memberships_config.yml"
+     config:
+       component_specific_filters:
+         components_list: ["tag_memberships"]
 ```
 
 **Validate and Execute:**
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/tags_playbook_config_generator/schema/tags_playbook_config_generator_schema.yml \
-                   -d workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
+./tools/validate.sh -s workflows/tags_config_generator/schema/tags_config_generator_schema.yml \
+                   -d workflows/tags_config_generator/vars/tags_config_generator_input.yml
 ````
 Return result validate:
 ```bash
-(pyats-mekandar) [mekandar@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/tags_playbook_config_generator/schema/tags_playbook_config_generator_schema.yml \
->                    -d workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
-workflows/tags_playbook_config_generator/schema/tags_playbook_config_generator_schema.yml
-workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
-yamale   -s workflows/tags_playbook_config_generator/schema/tags_playbook_config_generator_schema.yml  workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
-Validating workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml...
+(pyats-mekandar) [mekandar@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/tags_config_generator/schema/tags_config_generator_schema.yml \
+>                    -d workflows/tags_config_generator/vars/tags_config_generator_input.yml
+workflows/tags_config_generator/schema/tags_config_generator_schema.yml
+workflows/tags_config_generator/vars/tags_config_generator_input.yml
+yamale   -s workflows/tags_config_generator/schema/tags_config_generator_schema.yml  workflows/tags_config_generator/vars/tags_config_generator_input.yml
+Validating workflows/tags_config_generator/vars/tags_config_generator_input.yml...
 Validation success! 👍
 ```
 
 ```bash
-# Execute
+# Execute (run from project root directory)
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/tags_playbook_config_generator/playbook/tags_playbook_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/tags_playbook_config_generator/vars/tags_playbook_config_generator_input.yml
+  workflows/tags_config_generator/playbook/tags_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=../vars/tags_config_generator_input.yml
 ```
 
 Expected Terminal Output:
@@ -225,7 +236,6 @@ Expected Terminal Output:
 
 ```code
         file_path: generated_file/complete_tags_config.yml
-        generate_all_configurations: true
    "msg": "YAML configuration file generated successfully for module 'tags_workflow_manager'. File: generated_file/complete_tags_config.yml, Components processed: 2, Components skipped: 0, Configurations count: 9",
                 "response": "YAML configuration file generated successfully for module 'tags_workflow_manager'. File: generated_file/complete_tags_config.yml, Components processed: 2, Components skipped: 0, Configurations count: 9",
                 "status": "success"
@@ -236,9 +246,10 @@ Expected Terminal Output:
 a. Tag Configuration Filter:
 
 ```code
-        component_specific_filters:
-          components_list:
-          - tag
+        config:
+          component_specific_filters:
+            components_list:
+            - tag
         file_path: generated_file/tag_configurations_config2.yml
       "msg": "YAML configuration file generated successfully for module 'tags_workflow_manager'. File: generated_file/tag_definitions_config2.yml, Components processed: 1, Components skipped: 0, Configurations count: 7",
                 "response": "YAML configuration file generated successfully for module 'tags_workflow_manager'. File: generated_file/tag_definitions_config2.yml, Components processed: 1, Components skipped: 0, Configurations count: 7",
@@ -249,9 +260,10 @@ a. Tag Configuration Filter:
 b. Tag Memberships Configuration Filter:
 
 ```code
-component_specific_filters:
-          components_list:
-          - tag_memberships
+        config:
+          component_specific_filters:
+            components_list:
+            - tag_memberships
         file_path: generated_file/tag_memberships_config3.yml
       "msg": "YAML configuration file generated successfully for module 'tags_workflow_manager'. File: generated_file/tag_memberships_config3.yml, Components processed: 1, Components skipped: 0, Configurations count: 2",
                 "response": "YAML configuration file generated successfully for module 'tags_workflow_manager'. File: generated_file/tag_memberships_config3.yml, Components processed: 1, Components skipped: 0, Configurations count: 2",
@@ -266,13 +278,13 @@ component_specific_filters:
 ### Example 1: Generate ALL tag components
 
 ```yaml
-tags_config:
-  - generate_all_configurations: true
-    file_path: "generated_file/complete_tags_infrastructure.yml"
+ - name: No config provided
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/complete_tags_infrastructure.yml"
 ```
-**Sample Generated Output**:
 
-Below is a sample YAML configuration file generated by the module when `generate_all_configurations: true` is used:
+After running the playbook, the following YAML configuration is generated:
 
 ```yaml
 ---
@@ -333,15 +345,16 @@ config:
 Extract all tag configurations.
 
 ```yaml
-tags_config:
-  - file_path: "generated_file/tag_configurations_audit.yml"
-    component_specific_filters:
-      components_list: ["tag"]
+ - name: Test tag configuration
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/tag_configurations_audit.yml"
+     config:
+       component_specific_filters:
+         components_list: ["tag"]
 ```
 
-**Sample Generated Output**:
-
-Below is a sample YAML configuration file generated by the module when only tag configurations are requested:
+After running the playbook, the following YAML configuration is generated:
 
 ```yaml
 ---
@@ -386,18 +399,19 @@ config:
 
 ### Example 3: Tag Membership Configuration Filters only
 
-Extract all tag memberships
+Extract all tag memberships.
 
 ```yaml
-tags_config:
-  - file_path: "generated_file/tag_memberships_configurations.yml"
-    component_specific_filters:
-      components_list: ["tag_memberships"]
+ - name: Test tag memberships configuration
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/tag_memberships_configurations.yml"
+     config:
+       component_specific_filters:
+         components_list: ["tag_memberships"]
 ```
 
-**Sample Generated Output**:
-
-Below is a sample YAML configuration file generated by the module when only tag memberships are requested:
+After running the playbook, the following YAML configuration is generated:
 
 ```yaml
 ---
@@ -420,18 +434,19 @@ config:
 ### Example 4: Filtered Tag Configurations
 
 ```yaml
-tags_config:
-  - file_path: "generated_file/filtered_tag_configurations.yml"
-    component_specific_filters:
-      components_list: ["tag"]
-      tag:
-        - tag_name: "Production"
-        - tag_name: "Data-Center"
+ - name: Test multiple tag configurations
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/filtered_tag_configurations.yml"
+     config:
+       component_specific_filters:
+         components_list: ["tag"]
+         tag:
+           - tag_name: "Production"
+           - tag_name: "Data-Center"
 ```
 
-**Sample Generated Output**:
-
-Below is a sample YAML configuration file generated by the module when filtered tag configurations are requested:
+After running the playbook, the following YAML configuration is generated:
 
 ```yaml
 ---
@@ -447,58 +462,104 @@ config:
 ### Example 5: Multi-Component configurations
 
 ```yaml
-tags_config:
-  - file_path: "generated_file/tags_and_memberships.yml"
-    component_specific_filters:
-      components_list: ["tag", "tag_memberships"]
-      tag:
-        - tag_name: "Production"
-      tag_memberships:
-        - tag_name: "Production"
+ - name: Test multi component configurations
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/tags_and_memberships.yml"
+     config:
+       component_specific_filters:
+         components_list: ["tag", "tag_memberships"]
+         tag:
+           - tag_name: "Production"
+         tag_memberships:
+           - tag_name: "Production"
 ```
 
 ### Example 6: Tag Memberships with multiple tag names
 
 ```yaml
-tags_config:
-  - file_path: "generated_file/multiple_tag_memberships.yml"
-    component_specific_filters:
-      components_list: ["tag_memberships"]
-      tag_memberships:
-        - tag_name: "Production"
-        - tag_name: "Campus-Switches"
-        - tag_name: "Core-Routers"
+ - name: Test tag memberships with multiple tag names
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/multiple_tag_memberships.yml"
+     config:
+       component_specific_filters:
+         components_list: ["tag_memberships"]
+         tag_memberships:
+           - tag_name: "Production"
+           - tag_name: "Campus-Switches"
+           - tag_name: "Core-Routers"
 ```
 
 ### Example 7: Specific tag with memberships
 
 ```yaml
-tags_config:
-  - file_path: "generated_file/production_tags_complete.yml"
-    component_specific_filters:
-      components_list: ["tag", "tag_memberships"]
-      tag:
-        - tag_name: "Production"
-      tag_memberships:
-        - tag_name: "Production"
+ - name: Test specific tag with memberships
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/production_tags_complete.yml"
+     config:
+       component_specific_filters:
+         components_list: ["tag", "tag_memberships"]
+         tag:
+           - tag_name: "Production"
+         tag_memberships:
+           - tag_name: "Production"
 ```
 
 ### Example 8: Network infrastructure tags
 
 ```yaml
-tags_config:
-  - file_path: "generated_file/network_infrastructure_tags.yml"
-    component_specific_filters:
-      components_list: ["tag", "tag_memberships"]
-      tag:
-        - tag_name: "Campus-Switches"
-        - tag_name: "Access-Points"
-        - tag_name: "Core-Routers"
-      tag_memberships:
-        - tag_name: "Campus-Switches"
-        - tag_name: "Access-Points"
-        - tag_name: "Core-Routers"
+ - name: Test network infrastructure tags
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/network_infrastructure_tags.yml"
+     config:
+       component_specific_filters:
+         components_list: ["tag", "tag_memberships"]
+         tag:
+           - tag_name: "Campus-Switches"
+           - tag_name: "Access-Points"
+           - tag_name: "Core-Routers"
+         tag_memberships:
+           - tag_name: "Campus-Switches"
+           - tag_name: "Access-Points"
+           - tag_name: "Core-Routers"
 ```
+
+### Example 9: Tag memberships with custom device identifier
+
+Use `device_identifier` to control how devices appear in the generated YAML output.
+
+```yaml
+ # Identify devices by hostname
+ - name: Test tag memberships with hostname identifier
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/memberships_by_hostname.yml"
+     config:
+       component_specific_filters:
+         components_list: ["tag_memberships"]
+         tag_memberships:
+           - tag_name: "Production"
+             device_identifier: "hostname"
+
+ # Identify devices by IP address
+ - name: Test tag memberships with ip_address identifier
+   cisco.dnac.tags_playbook_config_generator:
+     <<: *catalyst_center_login
+     file_path: "generated_file/memberships_by_ip.yml"
+     config:
+       component_specific_filters:
+         components_list: ["tag_memberships"]
+         tag_memberships:
+           - tag_name: "Core-Routers"
+             device_identifier: "ip_address"
+           - tag_name: "Campus-Switches"
+             device_identifier: "ip_address"
+```
+
+> **Note:** If the chosen `device_identifier` is unavailable for a device, the module falls back in this order: `serial_number` → `ip_address` → `mac_address` → `hostname`. The output key in the generated YAML reflects the actual identifier used.
 
 ---
 

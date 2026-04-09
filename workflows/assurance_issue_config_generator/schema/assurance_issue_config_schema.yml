@@ -36,13 +36,7 @@
 # --------------------------------------------
 # Contains configuration for generating YAML configurations from existing assurance issues:
 #
-# 1. GENERATE_ALL_CONFIGURATIONS:
-#    - Type: boolean (optional, default: false)
-#    - Description: If true, generates configurations for all issues regardless of filters
-#    - When true, overrides any component_specific_filters settings
-#    - Retrieves all assurance issues from Catalyst Center
-#
-# 2. FILE_PATH:
+# 1. FILE_PATH:
 #    - Type: string (optional)
 #    - Description: Output path where the YAML configuration file will be saved
 #    - If not provided, auto-generates filename with timestamp
@@ -51,10 +45,26 @@
 #    - Supports absolute and relative paths
 #    - Creates directory structure if it doesn't exist
 #
-# 3. COMPONENT_SPECIFIC_FILTERS:
+# 2. FILE_MODE:
+#    - Type: string (optional, default: overwrite)
+#    - Description: Determines how generated YAML is written when file_path is provided
+#    - Supported values: overwrite, append
+#    - overwrite replaces existing file content
+#    - append adds new content to the existing file
+#
+# 3. CONFIG:
+#    - Type: dictionary (required when config is provided)
+#    - Description: Configuration filters for generating YAML playbook compatible with 
+#      the 'assurance_issue_workflow_manager' module
+#    - If not provided or omitted, all configurations are auto-generated
+#    - If provided as empty dict {}, component_specific_filters is mandatory
+#    - Contains component_specific_filters for selective component extraction
+#
+# 4. COMPONENT_SPECIFIC_FILTERS:
 #    - Type: dictionary (optional)
 #    - Description: Filters to specify which issues to include in the generated configuration
-#    - If generate_all_configurations is true, these filters are ignored
+#    - If omitted entirely, module generates all supported components
+#    - This becomes the module's 'config.component_specific_filters' parameter
 #    
 #    Sub-options:
 #    - COMPONENTS_LIST:
@@ -62,8 +72,9 @@
 #      - Description: List of components to include in the YAML configuration file
 #      - Valid values:
 #        * "assurance_user_defined_issue_settings" - Include issue configurations in the generated configuration
-#      - If empty list provided, defaults to all supported components
-#      - Invalid components will result in error
+#      - Required when no component-specific filter blocks are provided
+#      - Empty list is invalid when no component-specific filter blocks are provided
+#      - If component filter blocks are provided, components are automatically added to this list
 #
 #    - ISSUE:
 #      - Type: list of dictionaries (optional)
@@ -92,29 +103,51 @@
 #         occurrences: 1
 #         duration_in_minutes: 1
 #
+# VALIDATION RULES:
+# ----------------
+# 1. If config is not provided (None), all configurations are auto-generated with default behavior
+# 2. If config is provided as empty dict {}, component_specific_filters is mandatory
+# 3. component_specific_filters is required when config is provided
+# 4. Auto-population of components_list: If component-specific filters (such as 'assurance_user_defined_issue_settings')
+#    are provided without explicitly including them in
+#    'components_list', those components will be automatically added to 'components_list'
+# 5. If no component filter blocks are provided, components_list is mandatory and must not be empty
+# 6. file_path and file_mode can be specified outside of the config
+# 7. Idempotency: In overwrite mode, the full file content is compared (excluding volatile
+#     fields like timestamps and playbook path). In append mode, only the last YAML document
+#     in the file is compared against the newly generated configuration. If a file contains
+#     multiple config entries from previous appends, only the most recent entry is used for
+#     the idempotency check
+#
 # OPERATION WORKFLOWS:
 # -------------------
 # 1. Configuration Generation (All Issues):
-#    a. Set generate_all_configurations: true
-#    b. Optionally specify file_path
-#    c. All existing assurance issues will be extracted
+#    a. Omit config parameter entirely at module level
+#    b. All existing assurance issues will be extracted
 #
 # 2. Selective Issue Generation:
 #    a. Use component_specific_filters with components_list
 #    b. Specify required components (currently only ["assurance_user_defined_issue_settings"])
 #    c. Only specified components will be extracted
 #
-# 3. Filtered Issue Extraction:
+# 3. Filtered Component Extraction:
 #    a. Use component-specific filters (assurance_user_defined_issue_settings)
 #    b. Apply filters like name, priority, is_enabled, description
 #    c. Extract only issues matching the specified criteria
+#    d. Components are auto-populated in components_list if filter blocks are provided
 #
 # 4. Custom Output Path:
 #    a. Specify file_path parameter
 #    b. Can use absolute or relative paths
 #    c. Directory structure will be created if needed
 #
-# 5. Default Behavior:
+# 5. Idempotency Behavior:
+#    a. Overwrite mode: Compares full file content (ignores timestamps/playbook paths)
+#    b. Append mode: Compares only the last YAML document in existing file
+#    c. Multiple appends: Only most recent entry is used for comparison
+#    d. Prevents duplicate content generation when configuration hasn't changed
+#
+# 6. Default Behavior:
 #    a. If no filters specified, all issues are generated
 #    b. If no file_path specified, auto-generates filename
 #    c. Generated in current working directory or specified path
@@ -136,17 +169,19 @@ catalyst_center_log: bool(required=False)
 catalyst_center_log_append: bool(required=False)
 catalyst_center_log_file_path: str(required=False)
 catalyst_center_log_level: str(required=False)
-catalyst_center_config_verify: bool(required=False)
 
 ---
 # Assurance Issue Configuration Generator Schema
 assurance_issue_config_generator:
-  # Generate all configurations flag
-  generate_all_configurations: bool(required=False)
-  
-  # Output file path
+  # Output file path (optional - module level parameter)
   file_path: str(required=False)
-  
+
+  # File write mode (optional, default: overwrite - module level parameter)
+  file_mode: enum('overwrite', 'append', required=False)
+
+  # Config parameter containing component filters (optional - module level parameter)
+  config: include('assurance_issue_component_filters', required=False)
+
   # Component-specific filters
   component_specific_filters: include('assurance_issue_component_filters', required=False)
 
