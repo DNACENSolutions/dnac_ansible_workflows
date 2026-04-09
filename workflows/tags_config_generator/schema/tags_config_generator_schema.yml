@@ -1,9 +1,9 @@
-# Catalyst Center Tags Playbook Config Generator Schema
+# Catalyst Center Tags Config Generator Schema
 # ======================================================================================
 #
 # This schema defines the configuration structure for generating YAML playbook
 # configurations from existing tags infrastructure in Cisco Catalyst Center
-# using the tags_playbook_config_generator module.
+# using the tags_config_generator module.
 #
 # SCHEMA OVERVIEW:
 # ---------------
@@ -35,25 +35,27 @@
 # --------------------------------------------
 # Contains configuration for generating YAML configurations from existing tags infrastructure:
 #
-# 1. GENERATE_ALL_CONFIGURATIONS:
-#    - Type: boolean (optional, default: false)
-#    - Description: If true, generates configurations for all components regardless of filters
-#    - When true, overrides any component_specific_filters settings
-#    - Retrieves all tag configurations and tag memberships from Catalyst Center
+# NOTE: To generate ALL tag configurations and tag memberships, simply omit 'config'
+#       (do not specify component_specific_filters). Providing no config causes the module
+#       to run in full auto-discovery mode, retrieving everything from Catalyst Center.
 #
-# 2. FILE_PATH:
+# NOTE: System tags (systemTag=True) are automatically excluded from all generated output.
+#
+# 1. FILE_PATH:
 #    - Type: string (optional)
 #    - Description: Output path where the YAML configuration file will be saved
 #    - If not provided, auto-generates filename with timestamp
-#    - Format: tags_workflow_manager_playbook_<timestamp>.yml
-#    - Example: tags_workflow_manager_playbook_2026-01-24_12-33-20.yml
+#    - Format: tags_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: tags_config_2026-01-24_12-33-20.yml
 #    - Supports absolute and relative paths
 #    - Creates directory structure if it doesn't exist
 #
-# 3. COMPONENT_SPECIFIC_FILTERS:
+# 2. CONFIG (optional dict — omit entirely to generate all configurations):
+#
+# 3. COMPONENT_SPECIFIC_FILTERS (inside config):
 #    - Type: dictionary (optional)
 #    - Description: Filters to specify which components to include in the generated configuration
-#    - If generate_all_configurations is true, these filters are ignored
+#    - Components not explicitly in components_list are auto-added if their filters are provided
 #    
 #    Sub-options:
 #    - COMPONENTS_LIST:
@@ -76,7 +78,11 @@
 #      - Type: list of dictionaries (optional)
 #      - Description: Filter tag membership configurations by specific criteria
 #      - Sub-options:
-#        * tag_name: Tag name to filter memberships by
+#        * tag_name: Tag name to filter memberships by (optional)
+#        * device_identifier: How devices are identified in generated output
+#          Valid values: hostname, serial_number (default), mac_address, ip_address
+#          Falls back through serial_number -> ip_address -> mac_address -> hostname
+#          if primary identifier is unavailable for a device
 #
 # GENERATED OUTPUT STRUCTURE:
 # --------------------------
@@ -105,9 +111,10 @@
 # OPERATION WORKFLOWS:
 # -------------------
 # 1. Configuration Generation (All Components):
-#    a. Set generate_all_configurations: true
+#    a. Omit component_specific_filters entirely (do not specify config)
 #    b. Optionally specify file_path
 #    c. All existing tag configurations and tag memberships will be extracted
+#       (system tags are automatically excluded)
 #
 # 2. Selective Component Generation:
 #    a. Use component_specific_filters with components_list
@@ -150,17 +157,31 @@ catalyst_center_config_verify: bool(required=False)
 
 ---
 # Tags Configuration Generator Schema
+# Omit 'config' key entirely to generate all configurations (full auto-discovery)
 tags_config_generator:
-  # Generate all configurations flag
-  generate_all_configurations: bool(required=False)
-  
   # Output file path
   file_path: str(required=False)
 
   # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Component-specific filters
+  # Legacy flag: when true, forces full export and ignores all filters.
+  # Takes priority over config and component_specific_filters.
+  generate_all_configurations: bool(required=False)
+
+  # config: mirrors the module's 'config' parameter.
+  # Omit this key to generate all configurations.
+  config: include('tags_config_filters', required=False)
+
+  # Legacy alternative: component_specific_filters directly at item level
+  # (without wrapping inside config:). The playbook will auto-wrap it.
+  # Ignored when generate_all_configurations: true.
+  component_specific_filters: include('tags_component_filters', required=False)
+
+---
+# Tags Config Schema (mirrors module 'config' parameter)
+tags_config_filters:
+  # Component-specific filters inside config
   component_specific_filters: include('tags_component_filters', required=False)
 
 ---
@@ -182,5 +203,7 @@ tag_filter_type:
 
 # Tag Memberships Filter Schema
 tag_memberships_filter_type:
-  # Tag name for filtering tag membership configurations
-  tag_name: str(required=True)
+  # Tag name for filtering tag membership configurations (optional)
+  tag_name: str(required=False)
+  # Device identifier to use in generated output (default: serial_number)
+  device_identifier: enum('hostname', 'serial_number', 'mac_address', 'ip_address', required=False)
