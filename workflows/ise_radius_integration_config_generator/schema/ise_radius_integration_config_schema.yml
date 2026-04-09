@@ -4,6 +4,139 @@
 # This schema defines the configuration structure for generating YAML playbook
 # configurations from existing authentication policy server settings in Cisco
 # Catalyst Center using the ise_radius_integration_playbook_config_generator module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports configuration generation operations for:
+# 1. Policy Server - Extract existing authentication policy server settings with details
+# 2. Filtered Generation - Selective extraction with server_ip_address, server_type filters
+# 3. Multi-criteria Filtering - Combine multiple filter types for precise extraction
+# 4. Automated Remediation - Generate configurations for remediation workflows
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating the extraction
+# and generation of ISE Radius integration configurations from existing
+# Catalyst Center deployments (ISE Radius integration playbook config generator scenarios).
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+#
+# ise_radius_integration_config SECTION:
+# --------------------------------------------
+# Contains configuration for generating YAML configurations from existing ISE Radius integration settings:
+#
+# 1. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved
+#    - If not provided, auto-generates filename with timestamp
+#    - Format: ise_radius_integration_playbook_<timestamp>.yml
+#    - Example: ise_radius_integration_playbook_2026-01-24_12-33-20.yml
+#    - Supports absolute and relative paths
+#    - Creates directory structure if it doesn't exist
+#
+# 2. FILE_MODE:
+#    - Type: string (optional, default: overwrite)
+#    - Description: Determines how generated YAML is written when file_path is provided
+#    - Supported values: overwrite, append
+#    - overwrite replaces existing file content
+#    - append adds new content to the existing file
+#
+# 3. CONFIG:
+#    - Type: dictionary (required when config is provided)
+#    - Description: Configuration filters for generating YAML playbook compatible with
+#      the 'ise_radius_integration_workflow_manager' module
+#    - If not provided or omitted, all configurations are auto-generated
+#    - If provided as empty dict {}, component_specific_filters is mandatory
+#    - Contains component_specific_filters for selective component extraction
+#
+# 4. COMPONENT_SPECIFIC_FILTERS:
+#    - Type: dictionary (optional)
+#    - Description: Filters to specify which policy server to include in the generated configuration
+#    - If omitted entirely, module generates all supported components
+#    - This becomes the module's 'config.component_specific_filters' parameter
+#
+#    Sub-options:
+#    - COMPONENTS_LIST:
+#      - Type: list of strings (optional, default: ["authentication_policy_server"])
+#      - Description: List of components to include in the YAML configuration file
+#      - Valid values:
+#        * "authentication_policy_server" - Include authentication policy server configurations in the generated configuration
+#      - Required when no component-specific filter blocks are provided
+#      - Empty list is invalid when no component-specific filter blocks are provided
+#      - If component filter blocks are provided, components are automatically added to this list
+#
+#    - SERVER_TYPE:
+#      - Type: list of dictionaries (optional)
+#         occurrences: 1
+#         duration_in_minutes: 1
+#
+#    - SERVER_IP_ADDRESS:
+#      - Type: list of dictionaries (optional)
+#         occurrences: 1
+#         duration_in_minutes: 1
+#
+# VALIDATION RULES:
+# ----------------
+# 1. If config is not provided (None), all configurations are auto-generated with default behavior
+# 2. If config is provided as empty dict {}, component_specific_filters is mandatory
+# 3. component_specific_filters is required when config is provided
+# 4. Auto-population of components_list: If component-specific filters (such as 'authentication_policy_server')
+#    are provided without explicitly including them in
+#    'components_list', those components will be automatically added to 'components_list'
+# 5. If no component filter blocks are provided, components_list is mandatory and must not be empty
+# 6. file_path and file_mode can be specified outside of the config
+# 7. Idempotency: In overwrite mode, the full file content is compared (excluding volatile
+#     fields like timestamps and playbook path). In append mode, only the last YAML document
+#     in the file is compared against the newly generated configuration. If a file contains
+#     multiple config entries from previous appends, only the most recent entry is used for
+#     the idempotency check
+#
+# OPERATION WORKFLOWS:
+# -------------------
+# 1. Configuration Generation (All Issues):
+#    a. Omit config parameter entirely at module level
+#    b. All existing policy server configurations will be extracted
+#
+# 2. Selective Issue Generation:
+#    a. Use component_specific_filters with components_list
+#    b. Specify required components (currently only ["authentication_policy_server"])
+#    c. Only specified components will be extracted
+#
+# 3. Filtered Component Extraction:
+#    a. Use component-specific filters (authentication_policy_server)
+#    b. Apply filters like server_type, server_ip_address
+#    c. Extract only issues matching the specified criteria
+#    d. Components are auto-populated in components_list if filter blocks are provided
+#
+# 4. Custom Output Path:
+#    a. Specify file_path parameter
+#    b. Can use absolute or relative paths
+#    c. Directory structure will be created if needed
+#
+# 5. Idempotency Behavior:
+#    a. Overwrite mode: Compares full file content (ignores timestamps/playbook paths)
+#    b. Append mode: Compares only the last YAML document in existing file
+#    c. Multiple appends: Only most recent entry is used for comparison
+#    d. Prevents duplicate content generation when configuration hasn't changed
+#
+# 6. Default Behavior:
+#    a. If no filters specified, all issues are generated
+#    b. If no file_path specified, auto-generates filename
+#    c. Generated in current working directory or specified path
+#
+# EXAMPLES:
+# --------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
 
 # Schema Definition
 ise_radius_integration_config: list(include('ise_radius_integration_config_generator_type'), min=1, max=100, required=True)
@@ -17,24 +150,39 @@ catalyst_center_log: bool(required=False)
 catalyst_center_log_append: bool(required=False)
 catalyst_center_log_file_path: str(required=False)
 catalyst_center_log_level: str(required=False)
-catalyst_center_config_verify: bool(required=False)
 
 ---
 # ISE Radius Integration Config Generator Entry Schema
 ise_radius_integration_config_generator_type:
-  generate_all_configurations: bool(required=False)
+  # Output file path (optional - module level parameter)
   file_path: str(required=False)
+
+  # Config parameter containing component filters (optional - module level parameter)
   file_mode: enum('overwrite', 'append', required=False)
+
+  # Component-specific filters
+  config: include('ise_radius_config_type', required=False)
+
+---
+# ISE Radius config wrapper schema
+ise_radius_config_type:
+  # Component-specific filters
   component_specific_filters: include('ise_radius_component_filters_type', required=False)
 
 ---
 # ISE Radius component filters schema
 ise_radius_component_filters_type:
+  # List of components to include
   components_list: list(enum('authentication_policy_server'), min=1, max=1, required=False)
+
+  # Authentication policy server filters
   authentication_policy_server: include('authentication_policy_server_filter_type', required=False)
 
 ---
 # Authentication policy server filter schema
 authentication_policy_server_filter_type:
+  # Server type filter (AAA or ISE)
   server_type: enum('AAA', 'ISE', required=False)
+
+  # Server IP address filter
   server_ip_address: str(required=False)
