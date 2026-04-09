@@ -1,5 +1,5 @@
 ---
-- name: Generate Tags Playbook Configuration
+- name: Generate Tags Configuration
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
@@ -60,7 +60,20 @@
         state: "{{ state }}"
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
-        config: "{{ omit if (item.generate_all_configurations | default(false)) else ({'component_specific_filters': item.component_specific_filters} if item.component_specific_filters is defined else omit) }}"
+        config: >-
+          {{
+            omit
+            if (item.generate_all_configurations | default(false) | bool)
+            else (
+              item.config
+              if (item.config is defined and item.config is not none)
+              else (
+                {'component_specific_filters': item.component_specific_filters}
+                if (item.component_specific_filters is defined and item.component_specific_filters is not none)
+                else omit
+              )
+            )
+          }}
       loop: "{{ tags_config }}"
       when:
         - tags_config is defined

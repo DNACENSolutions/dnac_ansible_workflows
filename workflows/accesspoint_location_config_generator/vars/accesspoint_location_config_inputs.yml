@@ -5,46 +5,86 @@
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/accesspoint_location_config_generator/playbook/accesspoint_location_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=./workflows/accesspoint_location_config_generator/vars/accesspoint_location_config_inputs.yml
+#     --extra-vars VARS_FILE_PATH=../vars/accesspoint_location_config_inputs.yml
 #
 # Module used:
 #   cisco.dnac.accesspoint_location_playbook_config_generator
 # ============================================================================
 
 accesspoint_location_config:
-  # 1) Generate all access point locations
-  - generate_all_configurations: true
-    file_path: "/tmp/accesspoint_location_complete_config.yml"
+  - file_path: "/tmp/accesspoint_location_complete_config.yml"
 
-  # 2) Filter by floor site hierarchy list (highest priority)
+  # # Filter by floor site hierarchy list (highest priority)
   - file_path: "/tmp/accesspoint_location_by_site.yml"
-    global_filters:
-      site_list:
-        - "Global/USA/SAN JOSE/SJ_BLD20/FLOOR1"
-        - "Global/USA/SAN JOSE/SJ_BLD20/FLOOR2"
-
-  # 3) Filter by planned access point names
+    config:
+      global_filters:
+        site_list:
+          - "Global/USA/SAN JOSE/SJ_BLD22/FLOOR4"
+        
+  # # Filter by planned access point names
   - file_path: "/tmp/accesspoint_location_by_planned_ap.yml"
-    global_filters:
-      planned_accesspoint_list:
-        - "test_ap_location"
-        - "test_ap2_location"
-
-  # 4) Filter by real access point names
+    config:
+      global_filters:
+        planned_accesspoint_list:
+          - "Planned_AP1"
+     
+  # Filter by real access point names
   - file_path: "/tmp/accesspoint_location_by_real_ap.yml"
-    global_filters:
-      real_accesspoint_list:
-        - "Test_ap"
-        - "AP687D.B402.1614-AP-Test6"
+    config:
+      global_filters:
+        real_accesspoint_list:
+          - "Test_ap"
 
-  # 5) Filter by AP model and append output
-  - file_path: "/tmp/accesspoint_location_aggregate.yml"
-    file_mode: "append"
-    global_filters:
-      accesspoint_model_list:
-        - "AP9120E"
-        - "AP9130E"
+  # Filter by AP model and append output
+  - file_path: "/tmp/accesspoint_location_by_model.yml"
+    config:
+      global_filters:
+        accesspoint_model_list:
+          - AP9166I
 
+  # Filter by mac address
+  - file_path: "/tmp/accesspoint_location_by_mac.yml"
+    config:
+      global_filters:
+        mac_address_list:
+          - "2c:e3:8e:af:d2:e0"
+
+  # Filter by multiple criteria
+  - file_path: "/tmp/accesspoint_location_by_multiple_criteria.yml"
+    config:
+      global_filters:
+        planned_accesspoint_list:
+          - Planned_AP1
+        accesspoint_model_list:
+          - AP9166I
+        real_accesspoint_list:
+          - AP687D.B402.1614
+        site_list:
+          - Global/USA/New York/NY_BLD1/FLOOR1
+        mac_address_list:
+          - "68:7d:b4:06:b0:a0"
+
+  # Retrieves all planned access points.
+  - file_path: "/tmp/accesspoint_location_by_all_pap.yml"
+    config:
+      global_filters:
+        planned_accesspoint_list:
+          - all
+
+  # Retrieves all real access points.
+  - file_path: "/tmp/accesspoint_location_by_all_real.yml"
+    config:
+      global_filters:
+        real_accesspoint_list:
+          - all
+
+  # Retrieves all floor locations.
+  - file_path: "/tmp/accesspoint_location_by_all_site.yml"
+    config:
+      global_filters:
+        site_list:
+          - all
+          
 # ============================================================================
 # Notes
 # ============================================================================
