@@ -84,10 +84,10 @@ network_profile_switching_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| generate_all_configurations | boolean | No | false | Generate all switch profiles automatically |
 | file_path | string | No | auto-generated | Output file path for YAML configuration file |
 | file_mode | string | No | overwrite | File write mode — `overwrite` replaces the file, `append` adds to it |
-| global_filters | dict | No | none | Filters to specify which switch profiles to include |
+| config | dict | No | omitted | Optional filter wrapper. Omit `config` to generate all switch profiles |
+| global_filters | dict | Yes if `config` is provided | none | Filters to specify which switch profiles to include |
 
 ### Global Filtering (Combined Filter Behavior)
 
@@ -184,8 +184,8 @@ Use `network_profile_switching_config_generator.yml` for generating YAML playboo
 
 ```yaml
 network_profile_switch_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/complete_switch_profiles_config.yml"
+  - file_path: "/tmp/complete_switch_profiles_config.yml"
+    file_mode: "overwrite"
 ```
 
 #### Profile Name Based Generation
@@ -195,10 +195,12 @@ network_profile_switch_config:
 ```yaml
 network_profile_switch_config:
   - file_path: "/tmp/specific_switch_profiles_config.yml"
-    global_filters:
-      profile_name_list:
-        - "Campus_Switch_Profile"
-        - "Enterprise_Switch_Profile"
+    file_mode: "overwrite"
+    config:
+      global_filters:
+        profile_name_list:
+          - "Campus_Switch_Profile"
+          - "Enterprise_Switch_Profile"
 ```
 
 #### Day-N Template Based Generation
@@ -208,10 +210,12 @@ network_profile_switch_config:
 ```yaml
 network_profile_switch_config:
   - file_path: "/tmp/template_based_switch_profiles_config.yml"
-    global_filters:
-      day_n_template_list:
-        - "Periodic_Config_Audit"
-        - "Security_Compliance_Check"
+    file_mode: "overwrite"
+    config:
+      global_filters:
+        day_n_template_list:
+          - "Periodic_Config_Audit"
+          - "Security_Compliance_Check"
 ```
 
 #### Site Based Generation
@@ -221,10 +225,11 @@ network_profile_switch_config:
 ```yaml
 network_profile_switch_config:
   - file_path: "/tmp/site_based_switch_profiles_config.yml"
-    global_filters:
-      site_list:
-        - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
-        - "Global/India/Chennai/Main_Office"
+    file_mode: "overwrite"
+    config:
+      global_filters:
+        site_list:
+          - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
 ```
 
 #### Combined Filter Generation
@@ -234,11 +239,13 @@ network_profile_switch_config:
 ```yaml
 network_profile_switch_config:
   - file_path: "/tmp/combined_filter_profiles_config.yml"
-    global_filters:
-      profile_name_list:
-        - "Test Profile BF1"
-      day_n_template_list:
-        - "static_host_offboarding_template"
+    file_mode: "overwrite"
+    config:
+      global_filters:
+        profile_name_list:
+          - "Test Profile BF1"
+        day_n_template_list:
+          - "static_host_offboarding_template"
 ```
 
 > **Note:** In this example, the module retrieves profiles matching the profile name `Test Profile BF1` **and** profiles containing the Day-N template `static_host_offboarding_template`. Results are combined — all unique profiles from both filters are included.
@@ -274,7 +281,7 @@ ansible-playbook -i inventory/demo_lab/hosts.yaml \
 
 ```code
         file_path: /tmp/complete_switch_profiles_config.yml
-        generate_all_configurations: true
+        file_mode: overwrite
    msg: 
         YAML config generation Task succeeded for module 'network_profile_switching'.:
           file_path: /tmp/complete_switch_profiles_config.yml
@@ -287,10 +294,11 @@ ansible-playbook -i inventory/demo_lab/hosts.yaml \
 2. **Profile Name Based Generation:**
 
 ```code
-        global_filters:
-          profile_name_list:
-          - Campus_Switch_Profile
-          - Enterprise_Switch_Profile
+        config:
+          global_filters:
+            profile_name_list:
+            - Campus_Switch_Profile
+            - Enterprise_Switch_Profile
         file_path: /tmp/specific_switch_profiles_config.yml
       msg: 
         YAML config generation Task succeeded for module 'network_profile_switching'.:
@@ -304,9 +312,10 @@ ansible-playbook -i inventory/demo_lab/hosts.yaml \
 3. **Day-N Template Based Generation:**
 
 ```code
-        global_filters:
-          day_n_template_list:
-          - Periodic_Config_Audit
+        config:
+          global_filters:
+            day_n_template_list:
+            - Periodic_Config_Audit
         file_path: /tmp/template_based_switch_profiles_config.yml
       msg: 
         YAML config generation Task succeeded for module 'network_profile_switching'.:
@@ -320,11 +329,12 @@ ansible-playbook -i inventory/demo_lab/hosts.yaml \
 4. **Combined Filter Generation:**
 
 ```code
-        global_filters:
-          profile_name_list:
-          - Test Profile BF1
-          day_n_template_list:
-          - static_host_offboarding_template
+        config:
+          global_filters:
+            profile_name_list:
+            - Test Profile BF1
+            day_n_template_list:
+            - static_host_offboarding_template
         file_path: /tmp/combined_filter_profiles_config.yml
       msg: 
         YAML config generation Task succeeded for module 'network_profile_switching'.:
@@ -343,12 +353,12 @@ ansible-playbook -i inventory/demo_lab/hosts.yaml \
 
 ```yaml
 network_profile_switch_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/complete_switch_infrastructure.yml"
+  - file_path: "/tmp/complete_switch_infrastructure.yml"
+    file_mode: "overwrite"
 ```
 **Sample Generated Output**:
 
-Below is a sample YAML configuration file generated by the module when `generate_all_configurations: true` is used:
+Below is a sample YAML configuration file generated by the module when `config` is omitted:
 
 ```yaml
 ---
@@ -390,10 +400,12 @@ Extract configurations for specific switch profiles by name.
 ```yaml
 network_profile_switch_config:
   - file_path: "/tmp/profile_name_list.yml"
-    global_filters:
-      profile_name_list:
-        - "Test Profile BF1"
-        - "Test Profile BF2"
+    file_mode: "overwrite"
+    config:
+      global_filters:
+        profile_name_list:
+          - "Test Profile BF1"
+          - "Test Profile BF2"
 ```
 **Sample Generated Output**:
 
@@ -430,10 +442,12 @@ Extract all switch profiles that use specific Day-N templates.
 ```yaml
 network_profile_switch_config:
   - file_path: "/tmp/day_n_template_list.yml"
-    global_filters:
-      day_n_template_list:
-        - "Ans Switch DayN 2"
-        - "static_host_offboarding_template"
+    file_mode: "overwrite"
+    config:
+      global_filters:
+        day_n_template_list:
+          - "Ans Switch DayN 2"
+          - "static_host_offboarding_template"
 ```
 **Sample Generated Output**:
 
@@ -463,10 +477,12 @@ Extract switch profiles assigned to specific sites.
 ```yaml
 network_profile_switch_config:
   - file_path: "/tmp/site_specific_profiles.yml"
-    global_filters:
-      site_list:
-        - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
-        - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR2"
+    file_mode: "overwrite"
+    config:
+      global_filters:
+        site_list:
+          - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
+          - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR2"
 ```
 **Sample Generated Output**:
 
@@ -498,11 +514,13 @@ Use multiple filter types together to retrieve all profiles matching **any** of 
 ```yaml
 network_profile_switch_config:
   - file_path: "/tmp/combined_profile_and_template.yml"
-    global_filters:
-      profile_name_list:
-        - "Test Profile BF1"
-      day_n_template_list:
-        - "static_host_offboarding_template"
+    file_mode: "overwrite"
+    config:
+      global_filters:
+        profile_name_list:
+          - "Test Profile BF1"
+        day_n_template_list:
+          - "static_host_offboarding_template"
 ```
 **Sample Generated Output**:
 
@@ -532,31 +550,37 @@ config:
 ```yaml
 network_profile_switch_config:
   # Generate all configurations
-  - generate_all_configurations: true
-    file_path: "/tmp/all_switch_profiles.yml"
+  - file_path: "/tmp/all_switch_profiles.yml"
+    file_mode: "overwrite"
   
   # Generate specific profiles
   - file_path: "/tmp/name_based_profiles.yml"
-    global_filters:
-      profile_name_list:
-        - "Campus_Switch_Profile"
+    file_mode: "overwrite"
+    config:
+      global_filters:
+        profile_name_list:
+          - "Campus_Switch_Profile"
   
   # Generate by template
   - file_path: "/tmp/day_n_template_based_profiles.yml"
-    global_filters:
-      day_n_template_list:
-        - "Ans Switch DayN 2"
-        - "static_host_onboarding_template"
+    file_mode: "overwrite"
+    config:
+      global_filters:
+        day_n_template_list:
+          - "Ans Switch DayN 2"
+          - "static_host_onboarding_template"
 
   # Generate with combined filters
   - file_path: "/tmp/combined_filters_profiles.yml"
-    global_filters:
-      profile_name_list:
-        - "Test Profile BF1"
-      day_n_template_list:
-        - "static_host_offboarding_template"
-      site_list:
-        - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
+    file_mode: "overwrite"
+    config:
+      global_filters:
+        profile_name_list:
+          - "Test Profile BF1"
+        day_n_template_list:
+          - "static_host_offboarding_template"
+        site_list:
+          - "Global/USA/SAN JOSE/SJ_BLD21/FLOOR1"
 ```
 
 ### Example 7: Auto-generated File Path
@@ -565,11 +589,12 @@ When no file path is specified, the module auto-generates a timestamped filename
 
 ```yaml
 network_profile_switch_config:
-  - global_filters:
-      profile_name_list:
-        - "Test Profile BF1"
-        - "Test Profile BF2"
-# Output: playbooks_config_2026-02-19_14-30-45.yml
+  - config:
+      global_filters:
+        profile_name_list:
+          - "Test Profile BF1"
+          - "Test Profile BF2"
+# Output: network_profile_switching_playbook_config_2025-11-12_21-43-26.yml
 ```
 
 ---
