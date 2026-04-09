@@ -11,25 +11,21 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
 
 ## Overview
 
-The Provision playbook config generator automates the creation of YAML playbook configurations for existing provisioned devices deployed in Cisco Catalyst Center. This tool reduces the effort required to manually create Ansible playbooks by programmatically generating configurations from existing provisioning infrastructure.
+The Provision playbook config generator automates the creation of YAML playbook configurations for provisioned devices configured on Cisco Catalyst Center. This reduces the effort required to manually create Ansible playbooks and enables programmatic modifications.
 
 ---
 
 ## Features
 
-- **Configuration Generation**: Generate YAML configurations compatible with `provision_workflow_manager` module.
-Extract existing wired and wireless device provisioning configurations from your Cisco Catalyst Center.
-Convert them into properly formatted YAML files.
-Generate files that are ready to use with Ansible automation.
-- **Component Filtering**: Selective generation of wired or wireless device configurations
-- **Global Filtering**: Filter devices by management IP address across all components
-- **File Append Mode**: Combine multiple device configurations into a single playbook file
-- **Flexible Output**: Configurable file paths and naming conventions
-- **Brownfield Support**: Extract configurations from existing Catalyst Center deployments
+- **Configuration Generation**: Generate YAML configurations compatible with `provision_workflow_manager`.
+- **Component Filtering**: Selective generation of wired or wireless device configurations.
+- **File Write Control**: Support for `overwrite` and `append` modes.
+- **Flexible Output**: Configurable file paths and naming conventions.
+- **Brownfield Support**: Extract configurations from provisioned devices in Cisco Catalyst Center.
 - **API Integration**: Leverages native Catalyst Center APIs for data retrieval
 
 ---
@@ -40,9 +36,9 @@ Generate files that are ready to use with Ansible automation.
 
 | Component | Version |
 |-----------|---------|
-| Ansible | 6.42.0+ |
+| Ansible | 6.44.0+ |
 | Python | 3.9+ |
-| Cisco Catalyst Center SDK | 2.9.3+ |
+| Cisco Catalyst Center SDK | 2.7.2+ |
 
 ### Required Collections
 
@@ -64,14 +60,14 @@ pip install yamale
 
 ## Workflow Structure
 
-```
-provision_playbook_config_generator/
+```text
+provision_config_generator/
 ├── playbook/
-│   └── provision_playbook_config_generator_playbook.yml   # Main operations
+│   └── provision_config_generator.yml   # Main operations
 ├── vars/
-│   ├── provision_playbook_config_generator_vars.yml       # Configuration examples
+│   └── provision_config_vars.yml       # Configuration examples
 ├── schema/
-│   └── provision_playbook_config_generator_schema.yml     # Input validation
+│   └── provision_config_schema.yml     # Input validation
 └── README.md
 ```
 
@@ -83,23 +79,17 @@ provision_playbook_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| generate_all_configurations | boolean | No | false | Generate all provisioned devices automatically |
+| state | string | No | gathered | Desired state of Cisco Catalyst Center after module execution |
 | file_path | string | No | auto-generated | Output file path for YAML configuration file |
 | file_mode | string | No | overwrite | File write mode (`overwrite` or `append`) |
-| global_filters | dict | No | none | Global filters applied across all components |
-| component_specific_filters | dict | No | all components | Filters to specify which device types to include |
-
-### Global Filtering
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| management_ip_address | list | No | List of management IP addresses to filter devices globally |
+| config | dict | No | omitted | Configuration dictionary controlling component filters |
 
 ### Component Specific Filtering
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| components_list | list | No | `["wired", "wireless"]` | List of device types to include in generation |
+| component_specific_filters | dict | Yes when `config` is provided | none | Filters to specify which components to include |
+| components_list | list | No | auto-added when filter blocks are provided | List of device types to include in generation |
 | wired | list | No | all wired devices | Wired device filtering criteria |
 | wireless | list | No | all wireless devices | Wireless device filtering criteria |
 
@@ -111,9 +101,9 @@ provision_playbook_config_generator/
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| management_ip_address | string | No | Filter by device management IP address |
+| management_ip_address | list | No | Filter by one or more management IP addresses |
 | site_name_hierarchy | list | No | Filter by site hierarchy paths |
-| device_family | string | No | Filter by device family type (e.g., `Switches and Hubs`, `Routers`, `Wireless Controller`) |
+| device_family | list | No | Filter by one or more device family values |
 
 ---
 
@@ -163,16 +153,16 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/provision_config
 
 ### Generate Operations (state: gathered)
 
-Use `provision_playbook_config_generator_playbook.yml` for generating YAML playbook configuration operations.
+Use `provision_config_generator.yml` for generating YAML playbook configuration operations.
 
 #### Generate All Configurations
 
-**Description**: Retrieves all provisioned wired and wireless devices from Catalyst Center regardless of any filters.
+**Description**: Retrieves all provisioned wired and wireless devices from Catalyst Center. To generate all configurations, omit `config`.
 
 ```yaml
 provision_playbook_config:
-    generate_all_configurations: true
     file_path: "/tmp/complete_provision_config.yml"
+    file_mode: overwrite
 ```
 
 #### Component-Specific Generation
@@ -184,8 +174,10 @@ provision_playbook_config:
 ```yaml
 provision_playbook_config:
     file_path: "/tmp/wired_devices_config.yml"
-    component_specific_filters:
-      components_list: ["wired"]
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list: ["wired"]
 ```
 
 **Extract Wireless Device Configurations Only**
@@ -193,41 +185,40 @@ provision_playbook_config:
 ```yaml
 provision_playbook_config:
     file_path: "/tmp/wireless_devices_config.yml"
-    component_specific_filters:
-      components_list: ["wireless"]
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list: ["wireless"]
 ```
 
 **Validate and Execute:**
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/provision_playbook_config_generator/schema/provision_playbook_config_generator_schema.yml \
-     -d workflows/provision_playbook_config_generator/vars/provision_playbook_config_generator_vars.yml
+./tools/validate.sh -s workflows/provision_config_generator/schema/provision_config_schema.yml \
+     -d workflows/provision_config_generator/vars/provision_config_vars.yml
 ```
 Return result validate:
 ```bash
-(pyats-priya) [pbalaku2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/provision_playbook_config_generator/schema/provision_playbook_config_generator_schema.yml      -d workflows/provision_playbook_config_generator/vars/provision_playbook_config_generator_vars.yml
-workflows/provision_playbook_config_generator/schema/provision_playbook_config_generator_schema.yml
-workflows/provision_playbook_config_generator/vars/provision_playbook_config_generator_vars.yml
-yamale   -s workflows/provision_playbook_config_generator/schema/provision_playbook_config_generator_schema.yml  workflows/provision_playbook_config_generator/vars/provision_playbook_config_generator_vars.yml
-Validating workflows/provision_playbook_config_generator/vars/provision_playbook_config_generator_vars.yml...
+(pyats-priya) [pbalaku2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/provision_config_generator/schema/provision_config_schema.yml      -d workflows/provision_config_generator/vars/provision_config_vars.yml
+workflows/provision_config_generator/schema/provision_config_schema.yml
+workflows/provision_config_generator/vars/provision_config_vars.yml
+yamale   -s workflows/provision_config_generator/schema/provision_config_schema.yml  workflows/provision_config_generator/vars/provision_config_vars.yml
+Validating workflows/provision_config_generator/vars/provision_config_vars.yml...
 Validation success! 👍
 ```
 
 ```bash
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  workflows/provision_playbook_config_generator/playbook/provision_playbook_config_generator_playbook.yml \
-  --extra-vars VARS_FILE_PATH=../vars/provision_playbook_config_generator_vars.yml
+  workflows/provision_config_generator/playbook/provision_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=../vars/provision_config_vars.yml
 ```
 
 Expected Terminal Output:
-
 1. Generate All Configurations
-
 ```code
         file_path: /tmp/complete_provision_config.yml
-        generate_all_configurations: true
       msg:
         YAML config generation Task succeeded for module 'provision_workflow_manager'.:
           devices_count: 11
@@ -243,11 +234,11 @@ Expected Terminal Output:
 2. Component Specific Generation:
 
 a. Wired Device Filter:
-
 ```code
-        component_specific_filters:
-          components_list:
-          - wired
+        config:
+          component_specific_filters:
+            components_list:
+            - wired
         file_path: /tmp/wired_devices_config.yml
       msg:
         YAML config generation Task succeeded for module 'provision_workflow_manager'.:
@@ -264,9 +255,10 @@ a. Wired Device Filter:
 b. Wireless Device Filter:
 
 ```code
-        component_specific_filters:
-          components_list:
-          - wireless
+        config:
+          component_specific_filters:
+            components_list:
+            - wireless
         file_path: /tmp/wireless_devices_config.yml
       msg:
         YAML config generation Task succeeded for module 'provision_workflow_manager'.:
@@ -288,8 +280,8 @@ b. Wireless Device Filter:
 
 ```yaml
 provision_playbook_config:
-    generate_all_configurations: true
     file_path: "/tmp/complete_provision_infrastructure.yml"
+    file_mode: overwrite
 ```
 
 After running the playbook, the following YAML configuration is generated.
@@ -367,8 +359,10 @@ Extract all wired device provisioning configurations.
 ```yaml
 provision_playbook_config:
     file_path: "provision/component_wired_only"
-    component_specific_filters:
-      components_list: ["wired"]
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list: ["wired"]
 ```
 
 After running the playbook, the following YAML configuration is generated having details for only wired devices.
@@ -421,10 +415,13 @@ Extract all wireless device provisioning configurations.
 ```yaml
 provision_playbook_config:
     file_path: "provision/wireless_devices_audit.yml"
-    component_specific_filters:
-      components_list: ["wireless"]
-      wireless:
-        - device_family: "Wireless Controller"
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list: ["wireless"]
+        wireless:
+          - device_family:
+              - "Wireless Controller"
 ```
 
 After running the playbook, the following YAML configuration is generated having details for only wireless devices.
@@ -464,10 +461,13 @@ config:
 ```yaml
 provision_playbook_config:
     file_path: "provision/filtered_wired_devices.yml"
-    component_specific_filters:
-      components_list: ["wired"]
-      wired:
-        - management_ip_address: "204.1.2.69"
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list: ["wired"]
+        wired:
+          - management_ip_address:
+              - "204.1.2.69"
 ```
 
 After running the playbook, the following YAML configuration is generated having details for only the filtered wired device.
@@ -486,12 +486,15 @@ config:
 ```yaml
 provision_playbook_config:
     file_path: "provision/site_based_wired_devices.yml"
-    component_specific_filters:
-      components_list: ["wired"]
-      wired:
-        - site_name_hierarchy:
-            - "Global/USA/SAN JOSE/SJ_BLD23"
-          device_family: "Switches and Hubs"
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list: ["wired"]
+        wired:
+          - site_name_hierarchy:
+              - "Global/USA/SAN JOSE/SJ_BLD23"
+            device_family:
+              - "Switches and Hubs"
 ```
 
 After running the playbook, the following YAML configuration is generated having details for only wired devices at the specified site.
@@ -505,19 +508,25 @@ config:
   force_provisioning: false
 ```
 
-### Example 6: Global IP Filter Across All Components
+### Example 6: IP-Based Filtering Across Wired and Wireless Components
 
 ```yaml
 provision_playbook_config:
     file_path: "provision/global_ip_filtered_devices.yml"
-    global_filters:
-      management_ip_address:
-        - "204.1.2.7"
-        - "204.1.2.8"
-        - "204.192.4.200"
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list: ["wired", "wireless"]
+        wired:
+          - management_ip_address:
+              - "204.1.2.7"
+              - "204.1.2.8"
+        wireless:
+          - management_ip_address:
+              - "204.192.4.200"
 ```
 
-After running the playbook, the following YAML configuration is generated having details for devices matching the specified management IP addresses across all components.
+After running the playbook, the following YAML configuration is generated having details for devices matching the specified management IP addresses across the selected components.
 
 ```yaml
 ---
@@ -549,16 +558,20 @@ config:
 ```yaml
 provision_playbook_config:
     file_path: "provision/combined_wired_wireless_filters"
-    component_specific_filters:
-      components_list: ["wired", "wireless"]
-      wired:
-        - site_name_hierarchy:
-            - "Global/USA/SAN-FRANCISCO/SF_BLD1"
-          device_family: "Switches and Hubs"
-      wireless:
-        - site_name_hierarchy:
-            - "Global/USA/SAN JOSE/SJ_BLD23"
-          device_family: "Wireless Controller"
+    file_mode: overwrite
+    config:
+      component_specific_filters:
+        components_list: ["wired", "wireless"]
+        wired:
+          - site_name_hierarchy:
+              - "Global/USA/SAN-FRANCISCO/SF_BLD1"
+            device_family:
+              - "Switches and Hubs"
+        wireless:
+          - site_name_hierarchy:
+              - "Global/USA/SAN JOSE/SJ_BLD23"
+            device_family:
+              - "Wireless Controller"
 ```
 
 After running the playbook, the following YAML configuration is generated having details for both wired and wireless devices at the specified site.
@@ -587,22 +600,27 @@ config:
 ### Example 8: Append Mode - Combine Multiple Generations
 
 ```yaml
+# First: extract wired devices
 provision_playbook_config:
-  # First: extract wired devices
     file_path: "provision/combined_all_devices.yml"
     file_mode: overwrite
-    component_specific_filters:
-      components_list: ["wired"]
-      wired:
-        - device_family: "Switches and Hubs"
+    config:
+      component_specific_filters:
+        components_list: ["wired"]
+        wired:
+          - device_family:
+              - "Switches and Hubs"
 
-  # Then: append wireless devices to the same file
+# Then: append wireless devices to the same file
+provision_playbook_config:
     file_path: "provision/combined_all_devices.yml"
     file_mode: append
-    component_specific_filters:
-      components_list: ["wireless"]
-      wireless:
-        - device_family: "Wireless Controller"
+    config:
+      component_specific_filters:
+        components_list: ["wireless"]
+        wireless:
+          - device_family:
+              - "Wireless Controller"
 ```
 
 After running the playbook, the first task generates the wired device configurations (overwrite mode), and the second task appends the wireless device configurations to the same file.
