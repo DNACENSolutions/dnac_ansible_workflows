@@ -6,169 +6,65 @@
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/discovery_config_generator/playbook/discovery_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=/absolute/path/to/dnac_ansible_workflows/workflows/discovery_config_generator/vars/discovery_config_inputs.yml
-#
-# MODULE:  cisco.dnac.discovery_playbook_config_generator
-# AUTHOR:  Megha Kandari, Madhan Sankaranarayanan
-# VERSION: 6.44.0
-# MIN CC:  2.3.7.9
-#
-# NOTE: discovery_config_details is a dict (not a list).
-#       Only ONE configuration can be active per playbook execution.
-#       Uncomment the desired use case and comment out the others.
+#     --extra-vars VARS_FILE_PATH=../vars/discovery_config_inputs.yml
 # ============================================================================
 
-# --------------------------------------------------------------------------
-# Use Case 1: Generate ALL discovery configurations
-# Description: Retrieves ALL discovery tasks from Catalyst Center regardless
-#              of type or name. global_filters are ignored when this is true.
-# --------------------------------------------------------------------------
-discovery_tails:
-  generate_all_configurations: true
-  file_path: "/tmp/complete_discovery_config.yml"
+discovery_config_details:
+  # Generate all configurations (omit config)
+  - file_path: "/tmp/complete_discovery_config.yml"
 
-# --------------------------------------------------------------------------
-# Use Case 2: generate_all_configurations false with global_filters
-# Description: Explicitly set to false — global_filters are required.
-#              Filters by LLDP discovery type only.
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   generate_all_configurations: false
-#   file_path: "/tmp/lldp_discovery_config.yml"
-#   global_filters:
-#     discovery_type_list:
-#       - "LLDP"
+  # Filter by a single discovery name
+  - file_path: "/tmp/single_name_discovery.yml"
+    config:
+      global_filters:
+        discovery_name_list:
+          - "Range Discovery"
 
-# --------------------------------------------------------------------------
-# Use Case 3: Filter by discovery name list (HIGHEST PRIORITY)
-# Description: Extracts only discoveries with exact matching names.
-#              discovery_type_list is ignored when names are provided.
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   file_path: "/tmp/specific_discoveries.yml"
-#   file_mode: overwrite
-#   global_filters:
-#     discovery_name_list:
-#       - "Range Discovery"
-#       - "Single Discovery"
+  # Filter by a multiple discovery names
+  - file_path: "/tmp/multiple_name_discovery.yml"
+    config:
+      global_filters:
+        discovery_name_list:
+          - "Range Discovery"
+          - "Single Discovery"
 
-# --------------------------------------------------------------------------
-# Use Case 4: Filter by a single discovery name
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   file_path: "/tmp/single_name_discovery.yml"
-#   global_filters:
-#     discovery_name_list:
-#       - "Range Discovery"
+  # Filter by a single discovery type
+  - file_path: "/tmp/single_type_discovery.yml"
+    config:
+      global_filters:
+        discovery_type_list:
+          - "Single"
 
-# --------------------------------------------------------------------------
-# Use Case 5: Filter by discovery type - Single only
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   file_path: "/tmp/single_type_discoveries.yml"
-#   global_filters:
-#     discovery_type_list:
-#       - "Single"
+  # Filter by a single discovery type
+  - file_path: "/tmp/multiple_type_discovery.yml"
+    config:
+      global_filters:
+        discovery_type_list:
+          - "LLDP"
+          - "Single"
+          - "CIDR"
 
-# --------------------------------------------------------------------------
-# Use Case 6: Filter by discovery type - Range only
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   file_path: "/tmp/range_type_discoveries.yml"
-#   global_filters:
-#     discovery_type_list:
-#       - "Range"
-
-# --------------------------------------------------------------------------
-# Use Case 8: Filter by discovery type - LLDP only
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   file_path: "/tmp/lldp_type_discoveries.yml"
-#   global_filters:
-#     discovery_type_list:
-#       - "LLDP"
-
-# --------------------------------------------------------------------------
-# Use Case 9: Filter by discovery type - CIDR only
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   file_path: "/tmp/cidr_type_discoveries.yml"
-#   global_filters:
-#     discovery_type_list:
-#       - "CIDR"
-
-# --------------------------------------------------------------------------
-# Use Case 10: Filter by multiple discovery types - CIDR and LLDP
-# Description: Extracts all CIDR and LLDP type discoveries.
-#              Uses append mode to combine into an existing file.
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   file_path: "/tmp/cidr_lldp_discoveries.yml"
-#   file_mode: append
-#   global_filters:
-#     discovery_type_list:
-#       - "CIDR"
-#       - "LLDP"
-
-# --------------------------------------------------------------------------
-# Use Case 11: Filter by multiple discovery types - Single and Range
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   file_path: "/tmp/single_range_discoveries.yml"
-#   global_filters:
-#     discovery_type_list:
-#       - "Single"
-#       - "Range"
-
-# --------------------------------------------------------------------------
-# Use Case 12: Filter by multiple discovery types - Range, LLDP and CIDR
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   file_path: "/tmp/range_lldp_cidr_discoveries.yml"
-#   global_filters:
-#     discovery_type_list:
-#       - "Range"
-#       - "LLDP"
-#       - "CIDR"
-
-# --------------------------------------------------------------------------
-# Use Case 13: Name filter takes priority over type filter
-# Description: Both discovery_name_list and discovery_type_list provided.
-#              discovery_name_list has HIGHEST PRIORITY — type list ignored.
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   file_path: "/tmp/name_priority_over_type.yml"
-#   global_filters:
-#     discovery_name_list:
-#       - "Range Discovery"
-#     discovery_type_list:
-#       - "CIDR"   # <-- IGNORED because discovery_name_list is provided
-
-# --------------------------------------------------------------------------
-# Use Case 15: Auto-generated filename (no file_path specified)
-# Description: File saved to current directory as:
-#              discovery_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
-# --------------------------------------------------------------------------
-# discovery_config_details:
-#   generate_all_configurations: true
-
-
-# ============================================================================
-# GENERATE_ALL_CONFIGURATIONS Parameter Documentation
-# ============================================================================
-#
-# BEHAVIOR WHEN TRUE:
-# - Retrieves ALL discovery tasks from Catalyst Center
-# - IGNORES any global_filters settings (name list and type list are ignored)
-# - Includes discoveries regardless of current status
-# - Useful for complete brownfield discovery infrastructure documentation
-#
-# BEHAVIOR WHEN FALSE (or not specified):
-# - global_filters with at least one of discovery_name_list or
-#   discovery_type_list MUST be provided
-# - Failure when neither is provided:
-#   "Minimum requirements validation FAILED for configuration..."
-
+# Filter by discovery name list (HIGHEST PRIORITY)
+# Extracts only discoveries with exact matching names.
+# discovery_type_list is ignored when names are provided.
+  - file_path: "/tmp/specific_discoveries.yml"
+    config:
+      global_filters:
+        discovery_name_list:
+          - "Range Discovery"
+        discovery_type_list:
+          - "Single" # <-- IGNORED because discovery_name_list is provided
+       
+# Multiple discovery names and discovery types together (name filter takes precedence)
+  - file_path: "/tmp/specific_discoveries_multiple_filters.yml"
+    config:
+      global_filters:
+        discovery_name_list:  
+          - "Range Discovery"
+          - "Single Discovery"
+        discovery_type_list:
+          - "LLDP" 
+          - "CDP"  
 
 # ============================================================================
 # GLOBAL_FILTERS Priority Documentation
@@ -177,7 +73,7 @@ discovery_tails:
 # discovery_name_list: HIGHEST PRIORITY
 # - Exact case-sensitive match against discovery task names in Catalyst Center
 # - When provided, discovery_type_list is completely ignored
-# - Invalid/non-existent names produce no output for that name (silently skipped)
+# - Invalid/non-existent names produce no output for that name
 # - Empty list [] treated as no filter (all discoveries included)
 # - Example: ["Range Discovery","Single Discovery"]
 #
@@ -187,47 +83,13 @@ discovery_tails:
 # - Invalid type values cause module validation failure
 # - Empty list [] treated as no filter (all discoveries included)
 # - Example: ["CDP", "LLDP"]
-
-
-# ============================================================================
-# FILE_MODE Documentation
-# ============================================================================
 #
-# overwrite (default):
-# - Creates a new file or completely replaces an existing file
-# - Each run starts fresh — previous content is lost
-# - Use when you want a clean output for each generation
-#
-# append:
-# - Adds generated content to the end of an existing file
-# - Writes a new YAML document block (---) separator before each append
-# - Use when building a combined file from multiple filtered runs
-# - Useful for aggregating different discovery types into one file
-
-
-# ============================================================================
-# FILE_PATH Documentation
-# ============================================================================
-#
-# If file_path IS specified:
-# - Uses the exact path provided (absolute or relative)
-# - Creates parent directory structure if it does not exist
-# - Behaviour controlled by file_mode (overwrite or append)
-#
-# If file_path is NOT specified:
-# - Auto-generates filename in current working directory
-# - Format: discovery_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
-# - Example: discovery_playbook_config_2026-01-24_12-33-20.yml
-
-
 # ============================================================================
 # Notes and Limitations
 # ============================================================================
-#
-# 1. Minimum CC Version : Catalyst Center >= 2.3.7.9 required
-# 2. Network Connectivity: Requires HTTPS connectivity to Catalyst Center
-# 3. File Permissions   : Ensure write access to specified file paths
-# 4. State Support      : Only 'gathered' state is supported
-# 5. Configuration Scope: Only retrieves existing configurations (brownfield)
-# 6. Authentication     : Uses Catalyst Center credentials from inventory
+# 1. Network Connectivity: Requires HTTPS connectivity to Catalyst Center
+# 2. File Permissions   : Ensure write access to specified file paths
+# 3. State Support      : Only 'gathered' state is supported
+# 4. Configuration Scope: Only retrieves existing configurations (brownfield)
+# 5. Authentication     : Uses Catalyst Center credentials from inventory
 # ============================================================================
