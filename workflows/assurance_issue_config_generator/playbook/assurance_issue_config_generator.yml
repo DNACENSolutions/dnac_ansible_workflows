@@ -58,7 +58,9 @@
       cisco.dnac.assurance_issue_playbook_config_generator:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ [item] }}"
+        file_path: "{{ item.file_path | default(omit) }}"
+        file_mode: "{{ item.file_mode | default('overwrite') }}"
+        config: "{{ item.config | default(omit) }}"
       loop: "{{ assurance_issue_config }}"
       when:
         - assurance_issue_config is defined
