@@ -28,7 +28,7 @@ The Template config generator automates YAML playbook generation for existing te
 - **Component Filtering**: Generate `projects`, `configuration_templates`, or both.
 - **Template Filtering**: Filter templates by `template_name`, `project_name`, and `include_uncommitted`.
 - **Flexible Output**: Configure custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `config` (or set workflow convenience flag) to generate all available template data.
+- **Brownfield Discovery**: Omit `config` to generate all available template data.
 
 ---
 
@@ -39,7 +39,7 @@ The Template config generator automates YAML playbook generation for existing te
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.dnac collection | 6.44.0+ |
+| cisco.dnac collection | 6.49.0+ |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 2.3.7.9+ |
 | dnacentersdk | 2.9.3+ |
@@ -82,18 +82,41 @@ template_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `generate_all_configurations` | boolean | No | false | Workflow convenience flag. When true, playbook omits module `config` |
 | `file_path` | string | No | auto-generated | Output file path for YAML configuration file |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `component_specific_filters` | dict | No | omitted | Component and filter details passed to module `config` |
+| `config` | dict | No | omitted | Module config dictionary passed to `template_playbook_config_generator` |
 
-### Component Filters
+### Config Filters (`config.component_specific_filters`)
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `components_list` | list[string] | No | Supported values: `projects`, `configuration_templates` |
 | `projects` | list[dict] | No | Project filters (`name`) |
 | `configuration_templates` | list[dict] | No | Template filters (`template_name`, `project_name`, `include_uncommitted`) |
+
+**Component Logic Rules:**
+- **No `config`**: All components are retrieved (equivalent to both projects and configuration_templates)
+- **`config` provided**: `component_specific_filters` is mandatory
+- **Component filter blocks provided** (e.g., `configuration_templates`): Those components are automatically added to `components_list` when missing
+- **No component filter blocks**: `components_list` is required and must not be empty
+
+**Valid Component Types:**
+- `projects`: Include only projects in the generated configuration
+- `configuration_templates`: Include only configuration templates in the generated configuration
+
+### Project Filters
+
+| Parameter | Type   | Description
+|-----------|--------|-------------|
+| name | string | Filter by Project name |
+
+### Configuration Template Filters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| template_name    string | Filter by template name name |
+| project_name    | string | Filter by Project name  |
+| include_uncommitted| string | Un committed template configuration |
 
 ---
 
@@ -146,13 +169,13 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/template_config_
 Use `template_config_generator.yml` for all generation tasks.
 
 1. **Generate all template data**
-- Set `generate_all_configurations: true` (or omit filters).
+- Omit `config`.
 
 2. **Generate projects only**
-- Use `component_specific_filters.components_list: ["projects"]`.
+- Use `config.component_specific_filters.components_list: ["projects"]`.
 
 3. **Generate templates only**
-- Use `component_specific_filters.components_list: ["configuration_templates"]`.
+- Use `config.component_specific_filters.components_list: ["configuration_templates"]`.
 
 4. **Filter templates**
 - Filter by `template_name`, `project_name`, and/or `include_uncommitted`.
@@ -168,8 +191,7 @@ Use `template_config_generator.yml` for all generation tasks.
 
 ```yaml
 template_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/template_complete_config.yml"
+  - file_path: "/tmp/template_complete_config.yml"
 ```
 
 ### Example 2: Project-specific generation
@@ -177,10 +199,11 @@ template_config:
 ```yaml
 template_config:
   - file_path: "/tmp/template_project_filter.yml"
-    component_specific_filters:
-      components_list: ["projects"]
-      projects:
-        - name: "Onboarding Configuration"
+    config:
+      component_specific_filters:
+        components_list: ["projects"]
+        projects:
+          - name: "Onboarding Configuration"
 ```
 
 ### Example 3: Template-specific generation including uncommitted
@@ -188,18 +211,192 @@ template_config:
 ```yaml
 template_config:
   - file_path: "/tmp/template_with_uncommitted.yml"
-    component_specific_filters:
-      components_list: ["configuration_templates"]
-      configuration_templates:
-        - project_name: "Onboarding Configuration"
-          template_name: "PnP-Devices-SW"
-          include_uncommitted: true
+    config:
+      component_specific_filters:
+        components_list: ["configuration_templates"]
+        configuration_templates:
+          - project_name: "Onboarding Configuration"
+            template_name: "PnP-Devices-SW"
+            include_uncommitted: true
 ```
 
+**Validate and Execute:**
+
+```bash
+# Validate
+./tools/validate.sh -s workflows/template_config_generator/schema/template_config_schema.yml \
+ -d workflows/template_config_generator/vars/template_config_inputs.yml
+
+```
+
+Return result validate:
+```bash
+(pyats-mabdulk2) [mabdulk2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/template_config_generator/schema/template_config_schema.yml \
+>  -d workflows/template_config_generator/vars/template_config_inputs.yml
+workflows/template_config_generator/schema/template_config_schema.yml
+workflows/template_config_generator/vars/template_config_inputs.yml
+yamale   -s workflows/template_config_generator/schema/template_config_schema.yml  workflows/template_config_generator/vars/template_config_inputs.yml
+Validating workflows/template_config_generator/vars/template_config_inputs.yml...
+Validation success! 👍
+
+```
+
+```bash
+# Execute
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/template_config_generator/playbook/template_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=../vars/template_config_inputs.yml
+```
+
+1.Generate All Configurations
+
+Terminal Return
+
+```code
+
+ response:
+        components_processed: 3
+        components_skipped: 0
+        configurations_count: 3
+        file_mode: overwrite
+        file_path: /tmp/template_config.yml
+        message: YAML configuration file generated successfully for module 'template_workflow_manager'
+        status: success
+      status: success
+```
 ---
 
-## Notes
+## Examples
 
-- `template_playbook_config_generator` expects `config` as a dictionary when filters are used.
-- An empty dictionary for `config` is invalid at module level.
-- This workflow omits `config` when filters are absent, which triggers full generation mode.
+### Example 1: Generate ALL template configuration (full discovery)
+
+```yaml
+template_config:
+  - file_path: "/tmp/all_template_config.yml"
+```
+
+After running the playbook, the following YAML configuration is generated.
+
+```yaml
+---
+config:
+- projects:
+  - name: Cloud DayN Templates
+  - name: Onboarding Configuration
+    description: Onboarding Configuration
+  - name: Sample Jinja Templates
+    description: Sample Jinja Templates
+- configuration_templates:
+    template_name: Ans Switch DayN 1
+    project_name: Cloud DayN Templates
+    author: admin
+    language: JINJA
+    composite: false
+    software_type: IOS-XE
+    custom_params_order: false
+    device_types:
+    - product_family: Switches and Hubs
+- configuration_templates:
+    template_name: Ans Switch DayN 2
+    project_name: Cloud DayN Templates
+    author: admin
+    language: JINJA
+    composite: false
+    software_type: IOS-XE
+    custom_params_order: false
+    device_types:
+    - product_family: Switches and Hubs
+```
+
+### Example 2: Generate only project component (config: key)
+
+Extract all projects
+
+```yaml
+template_config:
+  - file_path: "/tmp/all_project_components_config3.yml"
+    config:
+      component_specific_filters:
+        components_list: ["projects"]
+```
+
+After running the playbook, the following YAML configuration is generated:
+
+```yaml
+---
+config:
+- projects:
+  - name: Cloud DayN Templates
+  - name: Onboarding Configuration
+    description: Onboarding Configuration
+  - name: Sample Jinja Templates
+    description: Sample Jinja Templates
+```
+
+### Example 3: Generate only configuration template component (config: key)
+
+Extract all configuration template
+
+```yaml
+template_config:
+  - file_path: "/tmp/all_config_template_components_config3.yml"
+    config:
+      component_specific_filters:
+        components_list: ["configuration_templates"]
+```
+
+After running the playbook, the following YAML configuration is generated:
+
+```yaml
+---
+config:
+- configuration_templates:
+    template_name: Ans Switch DayN 1
+    project_name: Cloud DayN Templates
+    author: admin
+    language: JINJA
+    composite: false
+    software_type: IOS-XE
+    custom_params_order: false
+    device_types:
+    - product_family: Switches and Hubs
+- configuration_templates:
+    template_name: Ans Switch DayN 2
+    project_name: Cloud DayN Templates
+    author: admin
+    language: JINJA
+    composite: false
+    software_type: IOS-XE
+    custom_params_order: false
+    device_types:
+    - product_family: Switches and Hubs
+```
+
+### Example 4: Specific project name Filter configurations
+
+```yaml
+template_config:
+  - file_path: "/tmp/specific_projects_config3.yml"
+    config:
+      component_specific_filters:
+        components_list: ["projects"]
+        projects:
+          - name: "Sample Project1"
+          - name: "Sample Project2"
+```
+
+### Example 5: Generate the playbook config for template with multiple filters
+
+```yaml
+template_config:
+  - file_path: "/tmp/specific_config_template_config3.yml"
+    config:
+      component_specific_filters:
+        components_list: ["configuration_templates"]
+        configuration_templates:
+          - template_name: "Template1"
+            project_name: "Project1"
+            include_uncommitted: true
+          - template_name: "Template2"
+            project_name: "Project2"
+```

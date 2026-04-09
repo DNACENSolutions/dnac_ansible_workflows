@@ -60,15 +60,7 @@
         state: "{{ state }}"
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
-        config: >-
-          {{
-            omit
-            if (
-              item.generate_all_configurations | default(false)
-              or (item.global_filters is not defined)
-            )
-            else {'global_filters': item.global_filters}
-          }}
+        config: "{{ item.config | default(omit) }}"
       loop: "{{ accesspoint_location_config }}"
       when:
         - accesspoint_location_config is defined

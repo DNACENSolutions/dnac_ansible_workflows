@@ -60,7 +60,7 @@
         state: "{{ state }}"
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
-        config: "{{ omit if (item.generate_all_configurations | default(false)) else ({'component_specific_filters': item.component_specific_filters} if item.component_specific_filters is defined else omit) }}"
+        config: "{{ item.config | default(omit) }}"
       loop: "{{ backup_and_restore_config }}"
       when:
         - backup_and_restore_config is defined

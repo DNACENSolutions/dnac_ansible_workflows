@@ -38,7 +38,7 @@ The Assurance Issue config generator automates the creation of YAML playbook con
 
 | Component | Version |
 |-----------|---------|
-| Ansible | 6.42.0+ |
+| Ansible | 6.49.0+ |
 | Python | 3.9+ |
 | Cisco Catalyst Center SDK | 2.9.3+ |
 
@@ -77,20 +77,27 @@ assurance_issue_config_generator/
 
 ## Schema Parameters
 
-### Basic Configuration
+### Top-Level Parameters
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| generate_all_configurations | boolean | No | false | Generate all issue configurations automatically |
-| file_path | string | No | auto-generated | Output file path for YAML configuration file |
-| component_specific_filters | dict | No | all issues | Filters to specify which issues to include |
+| file_path | string | No | auto-generated | Output file path for YAML configuration file. Default filename: `assurance_issue_playbook_config__<YYYY-MM-DD_HH-MM-SS>.yml` |
+| file_mode | string | No | overwrite | File write mode — `overwrite` replaces the file, `append` adds to it. Only applicable when `file_path` is provided. |
+| config | dict | No | omitted (all components) | Configuration filters dict. When omitted, all issue setting are retrieved. When provided, `component_specific_filters` is mandatory. |
 
-### Component Specific Filtering
+### Component Specific Filtering (within `config` parameter)
 
 | Parameter | Type | Required | Default | Description |
 |--------------|------|----------|-------------|-----------|
-| components_list | list | No | ["assurance_user_defined_issue_settings"] | List of components to include in generation |
+| component_specific_filters | dict | Yes (when `config` provided) | N/A | Required when `config` is provided. Filters to specify which components to include. |
+| components_list | list | Conditional | N/A | List of components to include. **Required when no component filter blocks are provided.** Empty list is invalid when no filter blocks exist. |
 | assurance_user_defined_issue_settings | list | No | all issues configurations | Issue filtering criteria |
+
+**Component Logic Rules:**
+- **No `config`**: All components are retrieved (equivalent to assurance_user_defined_issue_settings)
+- **`config` provided**: `component_specific_filters` is mandatory
+- **Component filter blocks provided** (e.g., `assurance_user_defined_issue_settings`): Those components are automatically added to `components_list` when missing
+- **No component filter blocks**: `components_list` is required and must not be empty
 
 **Valid Component Types:**
 - `assurance_user_defined_issue_settings`: Assurance issue configurations with details, severity, and affected devices
@@ -151,7 +158,7 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/assurance_issue_
 
 ## Operations
 
-### Generate Operations (state: gathered)
+### 1.Generate Operations (state: gathered)
 
 Use `assurance_issue_config_generator.yml` for generating YAML playbook configuration operations.
 
@@ -160,20 +167,25 @@ Use `assurance_issue_config_generator.yml` for generating YAML playbook configur
 **Description**: Retrieves all assurance issues from Catalyst Center regardless of any filters.
 
 ```yaml
-assurance_issue_config:
-  - generate_all_configurations: true
+# No config at all - only Catelyst Center connection details
+# Expected: defaults to generates all configs
+ - name: No config provided
+   cisco.dnac.assurance_issue_playbook_config_generator:
+    <<: *common_config
     file_path: "generated_file/complete_assurance_issue_config.yml"
 ```
 
-#### Component-Specific Generation
+#### 2.Component-Specific Generation
 
 **Description**: Generates configuration for specific issue types only.
 
 **Extract Assurance User Defined Issue Settings only**
 
 ```yaml
-assurance_issue_config:
-  - file_path: "generated_file/assurance_issues_config.yml"
+ - name: No config provided
+   cisco.dnac.assurance_issue_playbook_config_generator:
+    <<: *common_config
+    file_path: "generated_file/assurance_issues_config.yml"
     component_specific_filters:
       components_list: ["assurance_user_defined_issue_settings"]
       assurance_user_defined_issue_settings:
@@ -213,7 +225,6 @@ Expected Terminal Output:
 
 ```code
     file_path: generated_file/complete_assurance_issue_config.yml
-    generate_all_configurations: true
 
     "msg": "YAML configuration file generated successfully for module 'assurance_issue_workflow_manager'. File: generated_file/                    complete_assurance_issue_config.yml, Components processed: 1, Components skipped: 0, Configurations count: 45",
     "response": "YAML configuration file generated successfully for module 'assurance_issue_workflow_manager'. File: generated_file/complete_assurance_issue_config.yml, Components processed: 1, Components skipped: 0, Configurations count: 45",
@@ -231,6 +242,7 @@ a. Issue Severity Filter:
         assurance_user_defined_issue_settings:
             - name: BGP_SESSION_NOTIFICATION
     file_path: generated_file/p1_issues_config.yml
+    file_mode: overwrite
 
     "msg": "YAML configuration file generated successfully for module 'assurance_issue_workflow_manager'. File: generated_file/assurance_issues_config.yml, Components processed: 1, Components skipped: 0, Configurations count: 12",
     "response": "YAML configuration file generated successfully for module 'assurance_issue_workflow_manager'. File: generated_file/assurance_issues_config.yml, Components processed: 1, Components skipped: 0, Configurations count: 12",
@@ -246,6 +258,7 @@ b. Issue Category Filter:
         assurance_user_defined_issue_settings:
             - priority: P1
     file_path: generated_file/availability_issues_config.yml
+    file_mode: overwrite
 
     "msg": "YAML configuration file generated successfully for module 'assurance_issue_workflow_manager'. File: generated_file/availability_issues_config.yml, Components processed: 1, Components skipped: 0, Configurations count: 8",
     "response": "YAML configuration file generated successfully for module 'assurance_issue_workflow_manager'. File: generated_file/availability_issues_config.yml, Components processed: 1, Components skipped: 0, Configurations count: 8",
@@ -259,9 +272,11 @@ b. Issue Category Filter:
 ### Example 1: Generate ALL assurance issues
 
 ```yaml
-assurance_issue_config:
-  - generate_all_configurations: true
+- name: Generate all issue configuration
+  cisco.dnac.assurance_issue_playbook_config_generator:
+     <<: *common_config
     file_path: "generated_file/complete_assurance_infrastructure.yml"
+    file_mode: "overwrite"
 ```
 
 ### Example 2: Assurance user defined issue settings Filters only
@@ -269,8 +284,11 @@ assurance_issue_config:
 Extract all P1 severity issues.
 
 ```yaml
-    assurance_issue_config:
-    - file_path: "generated_file/assurance_issues_filter.yml"
+- name: Generate configuration based on component specific filter
+  cisco.dnac.assurance_issue_playbook_config_generator:
+     <<: *common_config
+    file_path: "generated_file/assurance_issues_filter.yml"
+    file_mode: "overwrite"
       component_specific_filters:
         components_list: ["assurance_user_defined_issue_settings"]
 ```
@@ -280,8 +298,11 @@ Extract all P1 severity issues.
 Extract config based on issue names.
 
 ```yaml
-assurance_issue_config:
-  - file_path: "generated_file/assurance_issues_name_filter.yml"
+- name: Generate configuration based on component specific filter
+  cisco.dnac.assurance_issue_playbook_config_generator:
+     <<: *common_config
+    file_path: "generated_file/assurance_issues_name_filter.yml"
+    file_mode: "overwrite"
     component_specific_filters:
       components_list: ["assurance_user_defined_issue_settings"]
       assurance_user_defined_issue_settings:
@@ -291,8 +312,11 @@ assurance_issue_config:
 ### Example 4: Assurance user defined issue settings based on multiple issue and priority
 
 ```yaml
-assurance_issue_config:
-  - file_path: "generated_file/availability_issues.yml"
+- name: Assurance user defined issue settings based on multiple issue and priority
+  cisco.dnac.assurance_issue_playbook_config_generator:
+     <<: *common_config
+    file_path: "generated_file/availability_issues.yml"
+    file_mode: "overwrite"
     component_specific_filters:
       components_list: ["assurance_user_defined_issue_settings"]
       assurance_user_defined_issue_settings:
@@ -303,8 +327,11 @@ assurance_issue_config:
 ### Example 5: Assurance user defined issue settings based on multiple issue name
 
 ```yaml
-assurance_issue_config:
-  - file_path: "generated_file/availability_issues.yml"
+- name: Assurance user defined issue settings based on multiple issue name
+  cisco.dnac.assurance_issue_playbook_config_generator:
+     <<: *common_config
+    file_path: "generated_file/availability_issues.yml"
+    file_mode: "overwrite"
     component_specific_filters:
       components_list: ["assurance_user_defined_issue_settings"]
       assurance_user_defined_issue_settings:

@@ -39,9 +39,13 @@
         - VARS_FILE_PATH is defined
         - VARS_FILE_PATH | length > 0
 
+    - name: Confirm port_assignment_migration variable is loaded
+      debug:
+        msg: "Loaded {{ port_assignment_migration | default([]) | length }} migration entries"
+
     - name: Validate migration input list
       fail:
-        msg: "port_assignment_migration must contain at least one migration entry."
+        msg: "port_assignment_migration must contain at least one migration entry. Please check your vars file or inventory variables."
       when: port_assignment_migration is not defined or port_assignment_migration | length == 0
 
     - name: Ensure generated config directory exists
@@ -54,6 +58,13 @@
     - name: Port assignment migration workflow start time
       set_fact:
         long_op_start: "{{ now() }}"
+
+    - name: Debug - Verify port_assignment_migration before loop
+      debug:
+        msg: 
+          - "Variable defined: {{ port_assignment_migration is defined }}"
+          - "Variable length: {{ port_assignment_migration | default([]) | length }}"
+          - "Variable content: {{ port_assignment_migration | default('NOT DEFINED') }}"
 
     - name: Process each source to destination migration entry
       ansible.builtin.include_tasks: ./tasks/migrate_single_port_assignment.yml

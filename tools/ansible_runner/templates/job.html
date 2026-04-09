@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job {{ job_id }} Logs</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f172a'/%3E%3Cpath d='M18 46V18h7l7 11 7-11h7v28h-7V30l-7 11-7-11v16z' fill='%23f8fafc'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Manrope', 'ui-sans-serif', 'system-ui'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          boxShadow: {
+            soft: '0 18px 45px rgba(15, 23, 42, 0.08)',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Manrope', sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(8, 145, 178, 0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 24%),
+        linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+    }
+    .terminal {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-900">
+  <main class="mx-auto max-w-7xl px-6 py-8">
+    <div class="flex flex-col gap-6">
+      <header class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-soft backdrop-blur">
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <a href="/" class="text-sm font-semibold text-cyan-700 underline decoration-cyan-200 underline-offset-4 transition hover:text-cyan-800">Back to runner</a>
+            <p class="mt-4 text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Detailed Ansible Log</p>
+            <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">Job <span id="job-title-id">#{{ job_id }}</span></h1>
+            <p id="job-label" class="mt-2 text-sm text-slate-600">Loading job details...</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" onclick="copyPageLink()" class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+              Copy page link
+            </button>
+            <a id="raw-log-link" href="/api/jobs/{{ job_id }}/log" target="_blank" rel="noopener noreferrer" class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+              Open raw log
+            </a>
+            <button type="button" onclick="loadJob()" class="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+              Refresh
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div class="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-soft backdrop-blur">
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Status</p>
+          <div class="mt-3">
+            <span id="status-badge" class="rounded-full px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-700">Loading</span>
+          </div>
+        </div>
+        <div class="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-soft backdrop-blur">
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Started</p>
+          <p id="started-at" class="mt-3 text-sm font-semibold text-slate-900">-</p>
+        </div>
+        <div class="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-soft backdrop-blur">
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Duration</p>
+          <p id="duration" class="mt-3 text-sm font-semibold text-slate-900">-</p>
+        </div>
+        <div class="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-soft backdrop-blur">
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Output Lines</p>
+          <p id="line-count" class="mt-3 text-sm font-semibold text-slate-900">0</p>
+        </div>
+      </section>
+
+      <section class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-soft backdrop-blur">
+        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Command</p>
+        <pre id="job-command" class="terminal mt-4 overflow-auto rounded-2xl border border-slate-200 bg-slate-950 px-4 py-4 text-slate-100 whitespace-pre-wrap">Loading...</pre>
+      </section>
+
+      <section class="overflow-hidden rounded-[28px] border border-slate-900 bg-slate-950 shadow-soft">
+        <div class="flex items-center justify-between gap-3 border-b border-slate-800 bg-slate-900/70 px-5 py-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Execution Output</p>
+            <p class="mt-1 text-sm text-slate-300">Direct log view for this job. Running jobs continue streaming here.</p>
+          </div>
+          <span id="stream-state" class="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300">Loading</span>
+        </div>
+        <pre id="job-log" class="terminal h-[560px] overflow-auto px-5 py-5 text-slate-100 whitespace-pre-wrap leading-6"></pre>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const JOB_ID = {{ job_id|tojson }};
+    let jobEventSource = null;
+    let renderedLineCount = 0;
+
+    function $(id) { return document.getElementById(id); }
+
+    function htmlEscape(value) {
+      return (value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    async function fetchJson(url, options) {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Request failed');
+      }
+      return data;
+    }
+
+    function ansiToHtml(text) {
+      text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const colors = {
+        '30': '#6b7280', '31': '#ef4444', '32': '#22c55e', '33': '#eab308',
+        '34': '#3b82f6', '35': '#a855f7', '36': '#06b6d4', '37': '#e5e7eb',
+        '90': '#9ca3af', '91': '#f87171', '92': '#4ade80', '93': '#facc15',
+        '94': '#60a5fa', '95': '#c084fc', '96': '#22d3ee', '97': '#f8fafc'
+      };
+      let result = '';
+      let openTags = 0;
+      const parts = text.split(/(\x1b\[[0-9;]*m)/);
+      parts.forEach(function(part) {
+        const match = part.match(/^\x1b\[([0-9;]*)m$/);
+        if (!match) {
+          result += part;
+          return;
+        }
+        match[1].split(';').forEach(function(code) {
+          if (code === '0' || code === '') {
+            while (openTags > 0) {
+              result += '</span>';
+              openTags -= 1;
+            }
+          } else if (code === '1') {
+            result += '<span style="font-weight:700">';
+            openTags += 1;
+          } else if (colors[code]) {
+            result += '<span style="color:' + colors[code] + '">';
+            openTags += 1;
+          }
+        });
+      });
+      while (openTags > 0) {
+        result += '</span>';
+        openTags -= 1;
+      }
+      return result;
+    }
+
+    function formatTimestamp(epochSeconds) {
+      if (!epochSeconds) return '-';
+      return new Date(epochSeconds * 1000).toLocaleString();
+    }
+
+    function formatDuration(job) {
+      if (job.t0 && job.t1) return (job.t1 - job.t0).toFixed(1) + 's';
+      if (job.t0 && job.status === 'running') return 'running...';
+      return '-';
+    }
+
+    function setStatusBadge(status) {
+      const styles = {
+        completed: 'bg-emerald-100 text-emerald-700',
+        failed: 'bg-rose-100 text-rose-700',
+        running: 'bg-cyan-100 text-cyan-700',
+        cancelled: 'bg-slate-200 text-slate-700',
+        queued: 'bg-amber-100 text-amber-700',
+      };
+      $('status-badge').className = 'rounded-full px-3 py-1 text-xs font-semibold ' + (styles[status] || 'bg-slate-100 text-slate-700');
+      $('status-badge').textContent = status || 'unknown';
+      $('stream-state').textContent = status === 'running' ? 'Live stream active' : 'Static log';
+    }
+
+    function renderLogLines(lines) {
+      $('job-log').innerHTML = lines.length
+        ? lines.map(function(line) { return '<div>' + ansiToHtml(line) + '</div>'; }).join('')
+        : '<div class="text-slate-500">No output captured yet.</div>';
+      renderedLineCount = lines.length;
+      $('line-count').textContent = String(renderedLineCount);
+      $('job-log').scrollTop = $('job-log').scrollHeight;
+    }
+
+    function appendLogLine(line) {
+      const div = document.createElement('div');
+      div.innerHTML = ansiToHtml(line);
+      $('job-log').appendChild(div);
+      renderedLineCount += 1;
+      $('line-count').textContent = String(renderedLineCount);
+      $('job-log').scrollTop = $('job-log').scrollHeight;
+    }
+
+    function closeStream() {
+      if (jobEventSource) {
+        jobEventSource.close();
+        jobEventSource = null;
+      }
+    }
+
+    function startStreamIfNeeded(job) {
+      if (job.status !== 'running') {
+        closeStream();
+        return;
+      }
+      closeStream();
+      jobEventSource = new EventSource('/api/run/' + encodeURIComponent(JOB_ID) + '/stream?start=' + renderedLineCount);
+      jobEventSource.onmessage = function(event) {
+        const msg = JSON.parse(event.data);
+        if (msg.t === 'o') {
+          appendLogLine(msg.l);
+        } else if (msg.t === 'd') {
+          closeStream();
+          loadJob();
+        }
+      };
+      jobEventSource.onerror = function() {
+        closeStream();
+        $('stream-state').textContent = 'Stream disconnected';
+      };
+    }
+
+    function renderJob(job) {
+      document.title = 'Job ' + job.id + ' Logs';
+      $('job-title-id').textContent = '#' + job.id;
+      $('job-label').textContent = job.label || 'Unnamed job';
+      $('started-at').textContent = formatTimestamp(job.t0);
+      $('duration').textContent = formatDuration(job);
+      $('job-command').textContent = job.cmd || 'No command recorded';
+      setStatusBadge(job.status);
+      renderLogLines(job.lines || []);
+      startStreamIfNeeded(job);
+    }
+
+    async function loadJob() {
+      try {
+        const job = await fetchJson('/api/jobs/' + encodeURIComponent(JOB_ID));
+        renderJob(job);
+      } catch (error) {
+        closeStream();
+        $('job-label').textContent = error.message;
+        $('job-command').textContent = 'Unable to load job metadata';
+        $('job-log').innerHTML = '<div class="text-rose-300">' + htmlEscape(error.message) + '</div>';
+        $('stream-state').textContent = 'Unavailable';
+        $('status-badge').className = 'rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700';
+        $('status-badge').textContent = 'not found';
+      }
+    }
+
+    async function copyPageLink() {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        $('stream-state').textContent = 'Page link copied';
+      } catch (error) {
+        $('stream-state').textContent = 'Copy failed';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadJob);
+    window.addEventListener('beforeunload', closeStream);
+  </script>
+</body>
+</html>
