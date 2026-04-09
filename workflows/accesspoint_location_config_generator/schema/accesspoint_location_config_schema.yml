@@ -1,9 +1,270 @@
 # Cisco Catalyst Center Access Point Location Config Generator Schema
 # ======================================================================================
 #
-# This schema defines the configuration structure for generating YAML playbook
+# This schema defines the configuration structure for generating YAML
 # configurations from existing access point location data in Cisco Catalyst Center
 # using the accesspoint_location_playbook_config_generator module.
+# SCHEMA OVERVIEW:
+# ----------------
+# The schema supports configuration generation operations for:
+# 1. Generate All        - Extract all access point location configurations
+# 2. Filter by Site      - Extract specific locations by floor site hierarchy
+# 3. Filter by AP Name   - Extract locations by planned or real access point names
+# 4. Filter by Model     - Extract locations by AP hardware models
+# 5. Filter by MAC       - Extract locations by AP MAC addresses
+# 6. Append Mode         - Append generated configs to an existing YAML file
+# 7. Overwrite Mode      - Replace existing YAML file with new config (default)
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating the extraction
+# and generation of accesspoint location configurations from existing
+# Catalyst Center deployments (brownfield scenarios).
+#
+#
+# TOP-LEVEL PARAMETERS:
+# ---------------------
+# catalyst_center_version:          Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:           SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout: API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:            Enable debug mode (optional, default: false)
+# catalyst_center_log:              Enable logging (optional, default: false)
+# catalyst_center_log_append:       Append to log file (optional, default: true)
+# catalyst_center_log_file_path:    Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:        Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+#
+#  
+# ACCESSPOINT_LOCATION_CONFIG_GENERATOR_DETAILS SECTION:
+# -----------------------------------------------------
+# Contains configuration for generating YAML configurations from existing infrastructure:
+#
+# 1. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved.
+#    - If not provided, auto-generates a timestamped filename in the current directory.
+#    - Auto-generated format: <Module>_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: accesspoint_location_playbook_config_2026-01-24_12-33-20.yml
+#    - Supports absolute and relative paths.
+#    - Creates directory structure if it doesn't exist
+#    - This is a module-level parameter (outside config)
+#
+# 2. FILE_MODE:
+#    - Type: string (optional, default: "overwrite")
+#    - Description: File write mode for the generated YAML configuration file
+#    - Valid values: "overwrite" (replaces existing file), "append" (adds to existing file)
+#    - Only applicable when file_path is provided
+#    - This is a module-level parameter (outside config)
+#
+# 3. CONFIG:
+#    - Type: dictionary (optional)
+#    - Description: Configuration filters for generating YAML configurations compatible with 
+#      the 'accesspoint_location_workflow_manager' module
+#    - If not provided or omitted, all configurations are auto-generated
+#
+# 4. GLOBAL_FILTERS:
+#    - Type: dictionary (required when config is provided)
+#    - Description: Global filters to apply when generating the YAML configuration file.
+#    - These filters apply to all components unless overridden by component-specific filters.
+#    - At least one filter type must be specified to identify target access point locations.
+#    - Filter priority (highest to lowest) is site_list, planned_accesspoint_list, 
+#      real_accesspoint_list, accesspoint_model_list, mac_address_list.
+#    - Only the highest priority filter with valid data will be processed.
+#    - Mandatory when CONFIG is provided.
+#    - If config is omitted, module runs in internal auto-discovery mode.
+#
+#    a. SITE_LIST:
+#       - Type: list of strings (optional)
+#       - Priority: HIGHEST PRIORITY — Used first if provided with valid data.
+#       - Description: List of floor site hierarchies to extract access point location 
+#         configurations from.
+#       - Site paths must match floor locations registered in Catalyst Center.
+#       - Case-sensitive and must be exact matches.
+#       - Can also be set to "all" to include all floor locations.
+#       - Example: ["Global/USA/SAN JOSE/SJ_BLD20/FLOOR1", "Global/USA/SAN JOSE/SJ_BLD20/FLOOR2"]
+#
+#    b. PLANNED_ACCESSPOINT_LIST:
+#       - Type: list of strings (optional)
+#       - Priority: MEDIUM-HIGH PRIORITY — Only used if site_list is not provided.
+#       - Description: List of planned access point names to filter locations.
+#       - Retrieves all floor locations containing any of the specified planned access points.
+#       - Case-sensitive and must be exact matches.
+#       - Can also be set to "all" to include all planned access points.
+#       - Example: ["test_ap_location", "test_ap2_location"]
+#
+#    c. REAL_ACCESSPOINT_LIST:
+#       - Type: list of strings (optional)
+#       - Priority: MEDIUM PRIORITY — Only used if neither site_list nor 
+#         planned_accesspoint_list are provided.
+#       - Description: List of real (provisioned) access point names to filter locations.
+#       - Retrieves all floor locations containing any of the specified real access points.
+#       - Case-sensitive and must be exact matches.
+#       - Can also be set to "all" to include all real access points.
+#       - Example: ["Test_ap", "AP687D.B402.1614-AP-Test6"]
+#
+#    d. ACCESSPOINT_MODEL_LIST:
+#       - Type: list of strings (optional)
+#       - Priority: MEDIUM-LOW PRIORITY — Only used if higher priority filters are not provided.
+#       - Description: List of access point models to filter locations.
+#       - Retrieves all floor locations containing any of the specified AP models.
+#       - Case-sensitive and must be exact matches.
+#       - Example: ["AP9120E", "AP9130E"]
+#
+#    e. MAC_ADDRESS_LIST:
+#       - Type: list of strings (optional)
+#       - Priority: LOWEST PRIORITY — Only used if all other filters are not provided.
+#       - Description: List of access point MAC addresses to filter locations.
+#       - Retrieves all floor locations containing access points with the specified MAC addresses.
+#       - Case-sensitive and must be exact matches.
+#       - Example: ["a4:88:73:d4:dd:80", "a4:88:73:d4:dd:81"]
+#
+#
+# GENERATED OUTPUT STRUCTURE:
+# ---------------------------
+# The generated YAML file will contain a 'config' section with the following structure:
+#
+# config:
+# - floor_site_hierarchy: Global/USA/New York/NY_BLD4/FLOOR1
+#   access_points:
+#   - accesspoint_name: Test_AP
+#     accesspoint_model: CW9172I
+#     position:
+#       x_position: 51
+#       y_position: 45
+#       z_position: 10
+#     mac_address: 2c:e3:8e:af:d2:e0
+#     radios:
+#     - bands:
+#       - '2.4'
+#       channel: 1
+#       tx_power: -96
+#       antenna:
+#         antenna_name: Internal-CW9172I-x-2.4GHz
+#         azimuth: 0
+#         elevation: 0
+#     - bands:
+#       - '6'
+#       channel: 1
+#       tx_power: 0
+#       antenna:
+#         antenna_name: Internal-CW9172I-x-Single-6GHz
+#         azimuth: 0
+#         elevation: 0
+#     - bands:
+#       - '5'
+#       channel: 36
+#       tx_power: 0
+#       antenna:
+#         antenna_name: Internal-CW9172I-x-5GHz
+#         azimuth: 0
+#         elevation: 0
+# - floor_site_hierarchy: Global/Test_Scale_AP/AREA1/AREA1_BLD1/AREA1_BLD1_FLOOR1
+#   access_points:
+#   - accesspoint_name: Planned_AP_A1_B1_F1_1
+#     accesspoint_model: AP9120E
+#     position:
+#       x_position: 7
+#       y_position: 7
+#       z_position: 8
+#     radios:
+#     - bands:
+#       - '5'
+#       channel: 36
+#       tx_power: 6
+#       antenna:
+#         antenna_name: AIR-ANT2524DB-R-5GHz
+#         azimuth: 73
+#         elevation: 30
+#     - bands:
+#       - '2.4'
+#       - '5'
+#       channel: 36
+#       tx_power: 6
+#       antenna:
+#         antenna_name: AIR-ANT2524DB-R
+#         azimuth: 53
+#         elevation: 30
+#     - bands:
+#       - '2.4'
+#       channel: 1
+#       tx_power: 5
+#       antenna:
+#         antenna_name: AIR-ANT2524DB-R-2.4GHz
+#         azimuth: 36
+#         elevation: 30
+# #
+# VALIDATION RULES:
+# ----------------
+# 1. If config is not provided (None), all access point location configurations are auto-generated with default behavior
+# 2. If config is provided as empty dict {}, global_filters is mandatory
+# 3. global_filters is required when config is provided
+# 4. file_path and file_mode can be specified outside of the config
+# 5. Filter priority hierarchy ensures only one filter type is processed per execution
+# 6. "all" keyword (case-insensitive) bypasses individual item validation for that filter type
+# 7. Invalid filter values cause module validation failure with detailed error messages
+# 8. Missing access points/sites in filtered mode causes playbook execution failure
+# 9. Idempotency: In overwrite mode, the full file content is compared (excluding volatile
+#     fields like timestamps and playbook path). In append mode, only the last YAML document 
+#     in the file is compared against the newly generated configuration. If a file contains 
+#     multiple config entries from previous appends, only the most recent entry is used for 
+#     the idempotency check
+#
+# OPERATION WORKFLOWS:
+# --------------------
+# 1. Generate All Access Point Locations:
+#    a. Omit config parameter entirely at module level
+#    b. All existing access point locations are extracted regardless of floor or AP type
+#
+# 2. Filter by Site List (Highest Priority):
+#    a. Provide global_filters.site_list
+#    b. Only AP locations from exact matching floor sites are extracted
+#    c. All other filters are ignored even if also provided
+#
+# 3. Filter by Planned Access Points (Medium-High Priority):
+#    a. Provide global_filters.planned_accesspoint_list (without site_list)
+#    b. Only floors containing specified planned APs are extracted
+#    c. Valid values: exact planned AP names or "all"
+#
+# 4. Filter by Real Access Points (Medium Priority):
+#    a. Provide global_filters.real_accesspoint_list (without higher priority filters)
+#    b. Only floors containing specified real/deployed APs are extracted
+#    c. Valid values: exact real AP names or "all"
+#
+# 5. Filter by AP Models (Medium-Low Priority):
+#    a. Provide global_filters.accesspoint_model_list (without higher priority filters)
+#    b. Only floors containing specified AP hardware models are extracted
+#    c. Valid values: exact model names like "AP9120E", "AP9130E"
+#
+# 6. Filter by MAC Addresses (Lowest Priority):
+#    a. Provide global_filters.mac_address_list (without any higher priority filters)
+#    b. Only floors containing APs with specified MAC addresses are extracted
+#    c. Valid values: MAC addresses in format "aa:bb:cc:dd:ee:ff"
+#
+# 7. Custom Output Path:
+#    a. Specify file_path parameter (module-level)
+#    b. Can use absolute or relative paths
+#    c. Directory structure will be created if needed
+#
+# 8. Idempotency Behavior:
+#    a. Overwrite mode: Compares full file content (ignores timestamps/playbook paths)
+#    b. Append mode: Compares only the last YAML document in existing file
+#    c. Multiple appends: Only most recent entry is used for comparison
+#    d. Prevents duplicate content generation when configuration hasn't changed
+#
+# 9. Default Behavior:
+#    a. If no config specified, all access point locations are generated
+#    b. If no file_path specified, auto-generates filename with timestamp
+#    c. Generated in current working directory with default overwrite mode
+#
+# 10. Filter Priority Processing:
+#    a. Only the highest priority filter with data is processed
+#    b. Lower priority filters are ignored if higher priority filter exists
+#    c. "all" keyword bypasses individual item validation
+#    d. Empty lists are treated as no filter (excluded from processing)
+
+# EXAMPLES:
+# ---------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
 
 # Schema Definition
 accesspoint_location_config: list(include('accesspoint_location_config_generator_type'), min=1, max=100, required=True)
@@ -22,16 +283,38 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # Access Point Location Config Generator Entry Schema
 accesspoint_location_config_generator_type:
-  generate_all_configurations: bool(required=False)
+
+ # Output file path (optional - module level parameter)
   file_path: str(required=False)
+
+  # File write mode (optional, default: overwrite - module level parameter)
   file_mode: enum('overwrite', 'append', required=False)
-  global_filters: include('accesspoint_location_global_filters_type', required=False)
+
+  # Config parameter containing global filters (optional - module level parameter)
+  config: include('accesspoint_global_type', required=False)
+
+---
+# Config Schema - what goes inside the config parameter
+accesspoint_global_type:
+  # Global filters (required when config is provided)
+  global_filters: include('accesspoint_location_global_filters_type', required=True)
 
 ---
 # Access Point Location Global Filters Schema
+# Identifies which access point locations to include in the generated YAML.
 accesspoint_location_global_filters_type:
+
+  # List of floor site hierarchy paths to extract AP location configurations from.
   site_list: list(str(), min=1, max=500, required=False)
+
+  # List of planned access point names to filter locations.
   planned_accesspoint_list: list(str(), min=1, max=500, required=False)
+
+  # List of real (provisioned) access point names to filter locations.
   real_accesspoint_list: list(str(), min=1, max=500, required=False)
+
+  # List of access point models to filter locations.
   accesspoint_model_list: list(str(), min=1, max=500, required=False)
+
+  # List of access point MAC addresses to filter locations.
   mac_address_list: list(str(), min=1, max=500, required=False)
