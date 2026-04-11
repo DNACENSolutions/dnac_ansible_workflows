@@ -12,9 +12,9 @@
 # ============================================================================
 
 network_settings_config:
-  # 1) Generate all network settings configurations
-  - generate_all_configurations: true
-    file_path: "/tmp/network_settings_complete_config.yml"
+  # 1) Generate all network settings configurations (auto-discovery mode)
+  #    Omit component_specific_filters to trigger full discovery of all supported components.
+  - file_path: "/tmp/network_settings_complete_config.yml"
 
   # 2) Generate global pool settings with filters
   - file_path: "/tmp/network_settings_global_pools.yml"
@@ -50,8 +50,10 @@ network_settings_config:
 # ============================================================================
 # Notes
 # ============================================================================
-# - If component_specific_filters is omitted, the workflow omits module config
-#   and runs in full discovery mode.
-# - Components can be inferred by the module from provided component filter
-#   blocks if components_list is omitted.
+# - If component_specific_filters is omitted, the module runs in auto-discovery
+#   mode and extracts all supported network settings components.
+# - If component_specific_filters is provided, only the specified components
+#   and filters are applied.
+# - If components_list is omitted within component_specific_filters, the module
+#   infers components from the provided component filter blocks.
 # ============================================================================
