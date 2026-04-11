@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-- [User Flow (3 Steps)](#user-flow-3-steps)
+- [User Flow (4 Steps)](#user-flow-4-steps)
 
 - [Overview](#overview)
 - [Features](#features)
@@ -15,7 +15,7 @@
 
 ## Overview
 
-The Network Settings config generator automates YAML playbook generation for existing network settings in Cisco Catalyst Center. It generates output compatible with `network_settings_workflow_manager` for brownfield export, audit, and migration workflows.
+The Network Settings Config Generator automates YAML playbook generation for existing network settings in Cisco Catalyst Center. It generates output compatible with `network_settings_workflow_manager` for brownfield export, audit, and migration workflows.
 
 ---
 
@@ -28,7 +28,7 @@ The Network Settings config generator automates YAML playbook generation for exi
 - **Component Filtering**: Generate selected components only.
 - **Granular Filters**: Filter global pools, reserve pools, and network management by documented attributes.
 - **Flexible Output**: Supports custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `config` (or use workflow convenience flag) to generate all supported network settings.
+- **Brownfield Discovery**: Omit `component_specific_filters` entirely to export all supported network settings in full auto-discovery mode.
 
 ---
 
@@ -82,10 +82,9 @@ network_settings_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `generate_all_configurations` | boolean | No | false | Workflow convenience flag. When true, playbook omits module `config` |
-| `file_path` | string | No | auto-generated | Output file path for generated YAML |
-| `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `component_specific_filters` | dict | No | omitted | Component and filters passed to module `config` |
+| `file_path` | string | No | auto-generated | Output file path for generated YAML. If omitted, module writes `network_settings_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml` in the current working directory. |
+| `file_mode` | string | No | `overwrite` | File write mode: `overwrite` replaces existing file; `append` adds to existing file. Relevant only when `file_path` is provided. |
+| `component_specific_filters` | dict | No | omitted | Filters passed to module `config`. When omitted, module runs auto-discovery for all supported components. |
 
 ### Supported Components
 
@@ -96,34 +95,34 @@ network_settings_config_generator/
 
 ### Component Filter Fields
 
-- `global_pool_details[]`
-  - `pool_name`
-  - `pool_type` (`Generic` or `Tunnel`)
+- `global_pool_details[]` — AND logic within each entry, OR logic across entries
+  - `pool_name` — exact name match
+  - `pool_type` — `Generic` or `Tunnel`
 - `reserve_pool_details[]`
-  - `site_name`
-  - `site_hierarchy`
+  - `site_name` — exact site name match
+  - `site_hierarchy` — includes all child sites under the hierarchy (e.g. `Global/USA` includes all USA sites)
 - `network_management_details[]`
-  - `site_name_list` (list of hierarchy names)
+  - `site_name_list` — list of full hierarchy paths; defaults to `Global` root site if omitted
 - `device_controllability_details[]`
-  - list entries used to include component output
+  - include an empty entry `{}` to retrieve device controllability settings
 
 ---
 
 ## Getting Started
 
 ## Workflow Steps
-## User Flow (3 Steps)
+## User Flow (4 Steps)
 
 ```mermaid
 flowchart TD
   A[Start] --> B[Step 1: Create virtual env and install dependencies]
-  B --> C[Step 2: Provide workflow inputs]
+  B --> C[Step 2: Update input variables]
   C --> D{Choose input location}
-  D -->|Option A| E[Update inventory hosts.yaml]
-  D -->|Option B| F[Update vars input file]
-  E --> G[Step 3: Export env vars]
+  D -->|Option A| E[Update vars input file]
+  D -->|Option B| F[Update inventory hosts.yaml]
+  E --> G[Step 3: Validate input schema]
   F --> G
-  G --> H[Run ansible-playbook]
+  G --> H[Step 4: Export env vars and run ansible-playbook]
   H --> I[Review playbook summary output]
   I --> J[Done]
 ```
@@ -139,16 +138,89 @@ pip install -r requirements.txt
 ansible-galaxy collection install cisco.dnac --force
 ```
 
-2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
+2. Update input variables.
 
-3. Export Catalyst Center environment variables and run the playbook.
+Edit:
+
+- `workflows/network_settings_config_generator/vars/network_settings_config_inputs.yml`
+
+And configure Catalyst Center credentials and `network_settings_config` directly in your inventory (`inventory/demo_lab/hosts.yaml`). Example:
+
+```yaml
+catalyst_center_hosts:
+  hosts:
+    catalyst_center_primary:
+      catalyst_center_host: 10.10.10.10
+      catalyst_center_username: admin
+      catalyst_center_password: "password"
+      catalyst_center_verify: false
+      catalyst_center_port: 443
+      catalyst_center_version: "2.3.7.9"
+      catalyst_center_debug: false
+      catalyst_center_log: true
+      catalyst_center_log_level: "INFO"
+```
+
+3. Validate input schema.
+
+```bash
+./tools/validate.sh \
+  -s workflows/network_settings_config_generator/schema/network_settings_config_schema.yml \
+  -d workflows/network_settings_config_generator/vars/network_settings_config_inputs.yml
+```
+
+4. Export Catalyst Center environment variables and run the playbook.
+
+The playbook supports two input methods:
+
+#### Option A: Vars file input (recommended for version-controlled configs)
 
 ```bash
 export HOSTIP=<catalyst-center-ip-or-fqdn>
 export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/network_settings_config_generator/playbook/network_settings_config_generator.yml -vvvv
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/network_settings_config_generator/playbook/network_settings_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=./workflows/network_settings_config_generator/vars/network_settings_config_inputs.yml \
+  -vvvv
 ```
+
+#### Option B: Inventory file input
+
+Omit `VARS_FILE_PATH` and define `network_settings_config` directly as a host variable in your inventory file or in `host_vars`/`group_vars`.
+
+**Example inventory snippet (`inventory/demo_lab/hosts.yaml`):**
+
+```yaml
+catalyst_center_hosts:
+  hosts:
+    catalyst_center220:
+      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'HOSTIP') }}"
+      catalyst_center_password: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_PASSWORD') }}"
+      catalyst_center_port: 443
+      catalyst_center_username: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_USERNAME') }}"
+      catalyst_center_verify: false
+      catalyst_center_version: 2.3.7.9
+
+      # Workflow data defined as host variables
+      network_settings_config:
+        - file_path: "{{ playbook_dir }}/network_settings_playbook_config_all.yml"
+```
+
+Then run **without** `VARS_FILE_PATH`:
+
+```bash
+export HOSTIP=<catalyst-center-ip-or-fqdn>
+export CATALYST_CENTER_USERNAME=<username>
+export CATALYST_CENTER_PASSWORD='<password>'
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/network_settings_config_generator/playbook/network_settings_config_generator.yml \
+  -vvvv
+```
+
+The playbook auto-detects the input source and prints it at the start:
+- `Input source: vars file <path>` when using Option A
+- `Input source: inventory / host variables (VARS_FILE_PATH not provided)` when using Option B
 
 
 ## Operations
@@ -156,13 +228,13 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/network_settings
 ### Generate Operations (state: gathered)
 
 1. **Generate all network settings**
-- Set `generate_all_configurations: true`.
+- Omit `component_specific_filters` to trigger full auto-discovery mode (module runs without `config`).
 
 2. **Generate selected component types**
 - Set `component_specific_filters.components_list`.
 
 3. **Generate using component-specific filters**
-- Use filter blocks under component names.
+- Use filter blocks under each component name.
 
 4. **Append generated output**
 - Set `file_mode: append`.
@@ -175,8 +247,7 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/network_settings
 
 ```yaml
 network_settings_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/network_settings_complete_config.yml"
+  - file_path: "/tmp/network_settings_complete_config.yml"
 ```
 
 ### Example 2: Filter global and reserve pools
@@ -208,6 +279,7 @@ network_settings_config:
 
 ## Notes
 
-- `network_settings_playbook_config_generator` expects `config` as a dictionary when filters are used.
-- This workflow omits `config` when filters are absent, which triggers full generation mode.
-- If component filter blocks are provided without `components_list`, the module can infer and auto-populate components internally.
+- `network_settings_playbook_config_generator` expects `config` as a dictionary containing `component_specific_filters` when selective export is needed.
+- This workflow omits `config` when `component_specific_filters` is absent, which triggers full auto-discovery mode.
+- If component filter blocks are provided without `components_list`, the module infers and auto-adds the relevant components internally.
+- `network_management_details` defaults to the `Global` (root) site if `site_name_list` is omitted.
