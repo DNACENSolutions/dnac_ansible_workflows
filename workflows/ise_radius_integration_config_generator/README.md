@@ -28,7 +28,7 @@ The ISE Radius Integration config generator automates YAML playbook generation f
 - **Component Filtering**: Generate `authentication_policy_server` selectively.
 - **Server Filtering**: Filter by `server_type` and/or `server_ip_address`.
 - **Flexible Output**: Supports custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `config` (or use workflow convenience flag) to generate all server configurations.
+- **Brownfield Discovery**: Omit `config` to generate all server configurations.
 
 ---
 
@@ -39,7 +39,7 @@ The ISE Radius Integration config generator automates YAML playbook generation f
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.dnac collection | 6.45.0+ |
+| cisco.dnac collection | 6.49.0+ |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 2.3.7.9+ |
 | dnacentersdk | 2.10.10+ |
@@ -78,26 +78,42 @@ ise_radius_integration_config_generator/
 
 ## Schema Parameters
 
-### Basic Configuration
+### Top-Level Parameters
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `generate_all_configurations` | boolean | No | false | Workflow convenience flag. When true, playbook omits module `config` |
 | `file_path` | string | No | auto-generated | Output file path for generated YAML |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `component_specific_filters` | dict | No | omitted | Component and filters passed to module `config` |
+| `config` | dict | No | omitted | Module config dictionary passed to `ise_radius_integration_playbook_config_generator` |
 
-### Component Filters
+### Config Filters (`config.component_specific_filters`)
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
+| `component_specific_filters` | dict | Yes (when `config` provided) | N/A | Required when `config` is provided. Filters to specify which components to include. |
 | `components_list` | list[string] | No | Supported value: `authentication_policy_server` |
 | `authentication_policy_server` | dict | No | Server filters (`server_type`, `server_ip_address`) |
+
+**Component Logic Rules:**
+- **No `config`**: All components are retrieved (equivalent to authentication_policy_server)
+- **`config` provided**: `component_specific_filters` is mandatory
+- **Component filter blocks provided** (e.g., `authentication_policy_server`): Those components are automatically added to `components_list` when missing
+- **No component filter blocks**: `components_list` is required and must not be empty
+
+**Valid Component Types:**
+- `authentication_policy_server`: Authentication policy server details
 
 ### Server Type Values
 
 - `AAA`
 - `ISE`
+
+### Authentication Policy server Configuration Filters
+
+| Parameter | Type | Required | Description |
+|-----------|--------|-------------|----------------|
+| server_type | string | False | Filter by specific server type(ISE, AAA) |
+| server_ip_address | string | False | Filter by specific IP address of the server |
 
 ---
 
@@ -145,19 +161,127 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/ise_radius_integ
 
 ## Operations
 
-### Generate Operations (state: gathered)
+### 1.Generate Operations (state: gathered)
 
-1. **Generate all authentication policy servers**
-- Set `generate_all_configurations: true`.
+Use `ise_radius_integration_config_generator.yml` for generating YAML playbook configuration operations.
 
-2. **Generate by server type**
-- Set `authentication_policy_server.server_type`.
+**Description**: Retrieves all policy servers config from Catalyst Center regardless of any filters.
 
-3. **Generate a specific server**
-- Set `authentication_policy_server.server_ip_address`.
+```yaml
+# No config at all - only Catalyst Center connection details
+# Expected: defaults to generates all configs
+ - name: No config provided
+   cisco.dnac.ise_radius_integration_playbook_config_generator:
+    <<: *common_config
+    file_path: "generated_file/complete_policy_servers_config.yml"
+```
 
-4. **Append generated output**
-- Set `file_mode: append`.
+#### 2.Component-Specific Generation
+
+**Description**: Generates configuration for specific policy servers.
+
+**Extract Authentication policy server**
+
+```yaml
+ - name: No config provided
+   cisco.dnac.ise_radius_integration_playbook_config_generator:
+    <<: *common_config
+    file_path: "generated_file/policy_server_config.yml"
+    config:
+      component_specific_filters:
+        components_list: ["authentication_policy_server"]
+        authentication_policy_server:
+          - server_type: "ISE"
+```
+
+**Validate and Execute:**
+
+```bash
+# Validate
+./tools/validate.sh -s workflows/ise_radius_integration_config_generator/schema/ise_radius_integration_config_schema.yml \
+  -d workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
+```
+
+Return result validate:
+```bash
+(pyats-rafeek) [mabdulk2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/ise_radius_integration_config_generator/schema/ise_radius_integration_config_schema.yml \
+> -d workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
+workflows/ise_radius_integration_config_generator/schema/assurance_issue_config_schema.yml
+workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
+yamale -s workflows/ise_radius_integration_config_generator/schema/assurance_issue_config_schema.yml workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
+Validating workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml...
+Validation success! 👍
+```
+
+```bash
+# Execute
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/ise_radius_integration_config_generator/playbook/ise_radius_integration_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=./workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
+```
+
+Expected Terminal Output:
+
+1. Generate All Configurations
+
+```code
+    file_path: generated_file/complete_assurance_issue_config.yml
+
+    "msg": {
+        "components_processed": 1,
+        "components_skipped": 0,
+        "configurations_count": 1,
+        "file_mode": "overwrite",
+        "file_path": "tmp/ise_radius_integration_config_without_config.yml",
+        "message": "YAML configuration file generated successfully for module 'ise_radius_integration_workflow_manager'",
+        "status": "success"
+    },
+    "response": {
+        "components_processed": 1,
+        "components_skipped": 0,
+        "configurations_count": 1,
+        "file_mode": "overwrite",
+        "file_path": "tmp/ise_radius_integration_config_without_config.yml",
+        "message": "YAML configuration file generated successfully for module 'ise_radius_integration_workflow_manager'",
+        "status": "success"
+    },
+    "status": "success"
+```
+
+2. Component Specific Generation:
+
+a. Authentication policy server Filter:
+
+```code
+  config:
+    component_specific_filters:
+        components_list:
+            - authentication_policy_server
+        authentication_policy_server:
+            - server_ip_address: 204.192.1.252
+  file_path: tmp/ise_radius_integration_config_with_server_ip_filter.yml
+  file_mode: overwrite
+
+    "msg": {
+        "components_processed": 1,
+        "components_skipped": 0,
+        "configurations_count": 1,
+        "file_mode": "overwrite",
+        "file_path": "tmp/ise_radius_integration_config_with_server_ip_filter.yaml",
+        "message": "YAML configuration file generated successfully for module 'ise_radius_integration_workflow_manager'",
+        "status": "success"
+    },
+    "response": {
+        "components_processed": 1,
+        "components_skipped": 0,
+        "configurations_count": 1,
+        "file_mode": "overwrite",
+        "file_path": "tmp/ise_radius_integration_config_with_server_ip_filter.yaml",
+        "message": "YAML configuration file generated successfully for module 'ise_radius_integration_workflow_manager'",
+        "status": "success"
+    },
+    "status": "success"
+```
 
 ---
 
@@ -166,9 +290,11 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/ise_radius_integ
 ### Example 1: Generate all authentication policy server configurations
 
 ```yaml
-ise_radius_integration_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/ise_radius_integration_complete_config.yml"
+- name: Generate all authentication policy server configurations
+  cisco.dnac.ise_radius_integration_playbook_config_generator:
+     <<: *common_config
+    file_path: "ise_radius_integration_config_with_server_ip_filter.yml"
+    file_mode: "overwrite"
 ```
 
 ### Example 2: Filter by ISE server type
@@ -176,10 +302,11 @@ ise_radius_integration_config:
 ```yaml
 ise_radius_integration_config:
   - file_path: "/tmp/ise_radius_server_type_ise.yml"
-    component_specific_filters:
-      components_list: ["authentication_policy_server"]
-      authentication_policy_server:
-        server_type: "ISE"
+    config:
+      component_specific_filters:
+        components_list: ["authentication_policy_server"]
+        authentication_policy_server:
+          server_type: "ISE"
 ```
 
 ### Example 3: Filter by AAA server IP
@@ -187,13 +314,13 @@ ise_radius_integration_config:
 ```yaml
 ise_radius_integration_config:
   - file_path: "/tmp/ise_radius_server_specific.yml"
-    component_specific_filters:
-      components_list: ["authentication_policy_server"]
-      authentication_policy_server:
-        server_type: "AAA"
-        server_ip_address: "10.100.10.50"
+    config:
+      component_specific_filters:
+        components_list: ["authentication_policy_server"]
+        authentication_policy_server:
+          server_type: "AAA"
+          server_ip_address: "10.100.10.50"
 ```
-
 ---
 
 ## Notes
