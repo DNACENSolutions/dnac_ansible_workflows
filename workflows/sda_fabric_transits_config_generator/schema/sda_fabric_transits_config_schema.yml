@@ -1,9 +1,72 @@
 # Cisco Catalyst Center SDA Fabric Transits Config Generator Schema
 # ======================================================================================
 #
-# This schema defines the configuration structure for generating YAML playbook
+# This schema defines the configuration structure for generating YAML
 # configurations from existing SDA fabric transit networks in Cisco Catalyst Center
 # using the sda_fabric_transits_playbook_config_generator module.
+#
+# OVERVIEW:
+# ========
+# The SDA Fabric Transits Config Generator extracts existing SDA fabric transit configurations
+# from Cisco Catalyst Center and generates YAML configurations compatible with the
+# sda_fabric_transits_workflow_manager module. This enables brownfield infrastructure documentation,
+# audit workflows, and migration scenarios.
+#
+# KEY FEATURES:
+# ============
+# 1. **Brownfield Discovery**: Omit config to generate all SDA fabric transit configurations
+# 2. **Selective Filtering**: Filter by transit name and/or transit type
+# 3. **Component-Based Generation**: Generate specific components using components_list
+# 4. **Flexible Output**: Custom file paths, overwrite/append modes
+# 5. **Auto-Population**: Components are automatically added to components_list when filters are provided
+#
+# OPERATION WORKFLOWS:
+# ===================
+# 1. **Generate All Configurations**: Omit 'config' parameter entirely
+#    - Extracts all SDA fabric transits from Catalyst Center
+#    - No filtering applied - complete infrastructure discovery
+#    - Useful for brownfield documentation and audit
+#
+# 2. **Generate by Transit Name**: 
+#    - Filter specific transits using exact name matches
+#    - Case-sensitive matching required
+#    - Multiple names can be specified in sda_fabric_transits list
+#
+# 3. **Generate by Transit Type**:
+#    - Filter by transit types: IP_BASED_TRANSIT, SDA_LISP_PUB_SUB_TRANSIT, SDA_LISP_BGP_TRANSIT
+#    - Multiple types can be specified
+#    - Retrieves all transits matching any specified type
+#
+# 4. **Combined Name and Type Filtering**:
+#    - Apply both name and transit_type filters simultaneously
+#    - Transits must match both criteria to be included
+#    - Enables precise filtering for specific scenarios
+#
+# 5. **Component-Specific Generation**:
+#    - Use components_list to specify which components to generate
+#    - Currently supports: "sda_fabric_transits"
+#    - Auto-populated when component filters are provided
+#
+# VALIDATION RULES:
+# ================
+# 1. **Config Parameter**: 
+#    - If provided, cannot be empty dictionary {}
+#    - Either omit entirely (generate all) or provide specific filters
+#
+# 2. **Component Specific Filters**:
+#    - Requires at least one of: components_list OR component filters
+#    - Auto-populates components_list from provided filters
+#    - Invalid component names cause validation failure
+#
+# 3. **Filter Processing**:
+#    - Name filters: Case-sensitive exact matches
+#    - Transit type filters: Must use valid enum values
+#    - Missing transits in Catalyst Center will not cause failures
+#
+# 4. **File Operations**:
+#    - file_path: Optional, auto-generates timestamped name if omitted
+#    - file_mode: 'overwrite' (default) or 'append'
+#    - Idempotency: Compares generated content to avoid unnecessary writes
 
 # Schema Definition
 sda_fabric_transits_config: list(include('sda_fabric_transits_config_generator_type'), min=1, max=100, required=True)
@@ -17,34 +80,62 @@ catalyst_center_log: bool(required=False)
 catalyst_center_log_append: bool(required=False)
 catalyst_center_log_file_path: str(required=False)
 catalyst_center_log_level: str(required=False)
-catalyst_center_config_verify: bool(required=False)
 
 ---
 # SDA Fabric Transits Config Generator Entry Schema
+# Each entry represents one generation task with its own filters and output settings
 sda_fabric_transits_config_generator_type:
-  # Workflow-level convenience flag. If true, module config is omitted.
-  generate_all_configurations: bool(required=False)
-
-  # Output file path for generated YAML
+  
+  # Output file path for generated YAML configuration
+  # If omitted, auto-generates timestamped filename: sda_fabric_transits_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+  # Supports absolute and relative paths, creates directory structure if needed
   file_path: str(required=False)
 
-  # File write mode: overwrite or append
+  # File write mode for output operations
+  # 'overwrite': Replaces existing file content (default)
+  # 'append': Adds generated content to existing file
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Component-specific filters accepted by sda_fabric_transits_playbook_config_generator
-  component_specific_filters: include('sda_fabric_transits_component_filters_type', required=False)
+  # Config parameter containing component filters (optional - module level parameter)
+  config: include('sda_fabric_transits_component_filters_type', required=False)
+  
+  
 
 ---
 # SDA Fabric Transits Component Filters Schema
+# Defines filtering criteria for selective transit configuration generation
 sda_fabric_transits_component_filters_type:
+  
+# Component-specific filters passed to sda_fabric_transits_playbook_config_generator module
+  # Contains filtering criteria for selective configuration generation
+  component_specific_filters: include('sda_fabric_transits_component_list_filters_type', required=False)
+
+---
+sda_fabric_transits_component_list_filters_type:
+
+  # List of components to include in generated configuration
+  # Currently supports: "sda_fabric_transits"
+  # Auto-populated when sda_fabric_transits filters are provided
   components_list: list(enum('sda_fabric_transits'), min=1, max=1, required=False)
+  
+  # SDA Fabric Transit filters for selective generation
+  # Each entry can specify name and/or transit_type filters
+  # Multiple entries create OR conditions (any matching transit included)
+  # Combined name+type in single entry creates AND condition (both must match)
   sda_fabric_transits: list(include('sda_fabric_transit_filter_type'), min=1, max=500, required=False)
 
 ---
-# SDA Fabric Transit filter schema
+# SDA Fabric Transit Filter Schema
+# Individual transit filtering criteria for precise selection
 sda_fabric_transit_filter_type:
-  # Transit name to filter by exact name match
+  
+  # Transit name for exact name matching
+  # Case-sensitive exact match against transit names in Catalyst Center
+  # Example: "IP-Transit-West", "SDA-BGP-Transit-East"
   name: str(required=False)
 
-  # Transit type to filter by transit type
+  # Transit type for type-based filtering
+  # Filters transits by their configured type
+  # Valid values: IP_BASED_TRANSIT, SDA_LISP_PUB_SUB_TRANSIT, SDA_LISP_BGP_TRANSIT
+  # Case-sensitive enum matching
   transit_type: enum('IP_BASED_TRANSIT', 'SDA_LISP_PUB_SUB_TRANSIT', 'SDA_LISP_BGP_TRANSIT', required=False)
