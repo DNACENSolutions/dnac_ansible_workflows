@@ -6,62 +6,87 @@
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/site_config_generator/playbook/site_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=./workflows/site_config_generator/vars/site_config_inputs.yml
+#     --extra-vars VARS_FILE_PATH=../vars/site_config_inputs.yml
 #
 # Module used:
 #   cisco.dnac.site_playbook_config_generator
 # ============================================================================
 
 site_config:
-  # 1) Generate all site hierarchy configurations
-  - generate_all_configurations: true
-    file_path: "/tmp/site_complete_config.yml"
+  # Generate all site hierarchy configurations
+  - file_path: "/tmp/site_complete_config.yml"
 
-  # 2) Filter by parent hierarchy
+  # Filter by parent hierarchy
   - file_path: "/tmp/site_parent_hierarchy_filter.yml"
-    component_specific_filters:
-      components_list: ["site"]
-      site:
-        - parent_name_hierarchy: "Global/USA"
+    config:
+      component_specific_filters:
+        components_list: ["site"]
+        site:
+          - parent_name_hierarchy: "Global/USA"
 
-  # 3) Filter by parent hierarchy and site types
+  # Filter by parent hierarchy and site types
   - file_path: "/tmp/site_parent_and_type_filter.yml"
-    component_specific_filters:
-      components_list: ["site"]
-      site:
-        - parent_name_hierarchy: ["Global/USA", "Global/India"]
-          site_type: ["building", "floor"]
+    config:
+      component_specific_filters:
+        components_list: ["site"]
+        site:
+          - parent_name_hierarchy: ["Global/USA", "Global/India"]
+            site_type: ["building", "floor"]
 
-  # 4) Filter by explicit site hierarchy list
+  # Filter by explicit site hierarchy list
   - file_path: "/tmp/site_name_hierarchy_filter.yml"
-    component_specific_filters:
-      components_list: ["site"]
-      site:
-        - site_name_hierarchy:
-            - "Global/USA/San Francisco"
-            - "Global/USA/New York"
+    config:
+      component_specific_filters:
+        components_list: ["site"]
+        site:
+          - site_name_hierarchy:
+              - "Global/USA/SAN-FRANCISCO"
+              - "Global/USA/New York"
 
-  # 5) Combined site filters with append mode
+  # 5) Combined site filters 
   - file_path: "/tmp/site_aggregate.yml"
-    file_mode: "append"
-    component_specific_filters:
-      components_list: ["site"]
-      site:
-        - parent_name_hierarchy: "Global/USA"
-          site_type: ["area"]
-        - site_name_hierarchy: "Global/India"
+    config:
+      component_specific_filters:
+        components_list: ["site"]
+        site:
+          - parent_name_hierarchy: "Global/USA"
+            site_type: ["area"]
+          - site_name_hierarchy: "Global/India"
 
 # ============================================================================
 # Additional examples
 # ============================================================================
-# Example: Generate only floor sites under one hierarchy
+# Example: Generate only floor sites under one parent hierarchy
 # site_config:
 #   - file_path: "/tmp/site_floor_only.yml"
-#     component_specific_filters:
-#       components_list: ["site"]
-#       site:
-#         - parent_name_hierarchy: "Global/USA/San Jose"
-#           site_type: ["floor"]
+#     config:
+#       component_specific_filters:
+#         components_list: ["site"]
+#         site:
+#           - parent_name_hierarchy: "Global/USA/San Jose"
+#             site_type: ["floor"]
+#
+# Example: Generate only buildings under one parent hierarchy and one specific site name hierarchy
+# site_config:
+#   - file_path: "/tmp/site_area_building.yml"
+#     config:
+#       component_specific_filters:
+#          components_list: ["site"]
+#          site:
+#            - site_name_hierarchy: "Global/USA"
+#            - parent_name_hierarchy: "Global/UK"
+#              site_type:
+#                - "building"
+
+# Example: Generate configurations with site type filter - areas only
+# site_config:
+#   - file_path: "/tmp/site_type_area.yml"
+#     config:
+#       component_specific_filters:
+#          components_list: ["site"]
+#          site:
+#            - site_type:
+#                - "area"
 
 # ============================================================================
 # Notes
