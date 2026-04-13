@@ -22,29 +22,27 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # Events and Notifications Config Generator Entry Schema
 events_and_notifications_config_generator_type:
-  generate_all_configurations: bool(required=False)
+  # Direct module config dict (preferred) - wraps component_specific_filters
+  config: include('events_and_notifications_config_type', required=False)
+
+  # Output file path for generated YAML
   file_path: str(required=False)
+
+  # File write mode: overwrite or append
   file_mode: enum('overwrite', 'append', required=False)
+
+  # Legacy convenience key - component_specific_filters at item level
+  component_specific_filters: include('events_and_notifications_component_filters_type', required=False)
+
+---
+# Module config dict schema (mirrors module's config parameter)
+events_and_notifications_config_type:
   component_specific_filters: include('events_and_notifications_component_filters_type', required=False)
 
 ---
 # Events and Notifications Component Filters Schema
 events_and_notifications_component_filters_type:
-  components_list: list(
-    enum(
-      'webhook_destinations',
-      'email_destinations',
-      'syslog_destinations',
-      'snmp_destinations',
-      'itsm_settings',
-      'webhook_event_notifications',
-      'email_event_notifications',
-      'syslog_event_notifications'
-    ),
-    min=1,
-    max=8,
-    required=False
-  )
+  components_list: list(enum('webhook_destinations', 'email_destinations', 'syslog_destinations', 'snmp_destinations', 'itsm_settings', 'webhook_event_notifications', 'email_event_notifications', 'syslog_event_notifications'), min=1, max=8, required=False)
   destination_filters: include('destination_filters_type', required=False)
   notification_filters: include('notification_filters_type', required=False)
   itsm_filters: include('itsm_filters_type', required=False)
