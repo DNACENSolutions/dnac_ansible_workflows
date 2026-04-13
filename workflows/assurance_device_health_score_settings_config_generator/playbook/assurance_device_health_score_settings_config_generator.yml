@@ -59,7 +59,7 @@
         <<: *catalyst_center_login
         state: "{{ state }}"
         file_path: "{{ item.file_path | default(omit) }}"
-        file_mode: "{{ item.file_mode | default(omit) }}"
+        file_mode: "{{ item.file_mode | default('overwrite') }}"
         config: "{{ item.config | default(omit) }}"
       loop: "{{ assurance_device_health_score_settings_config }}"
       when:
