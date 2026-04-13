@@ -16,12 +16,12 @@ events_and_notifications_config:
   # 1) Generate ALL events and notifications configurations (full discovery)
   #    Omit config entirely → module retrieves all 8 component types
   # --------------------------------------------------------------------------
-  - file_path: "/tmp/events_and_notifications_complete_config.yml"
+  - file_path: "events_and_notifications_config/complete_config.yml"
 
   # --------------------------------------------------------------------------
-  # 2) Using the config: key (preferred) - filter destination components
+  # 2) Filter destination components
   # --------------------------------------------------------------------------
-  - file_path: "/tmp/events_notifications_destinations.yml"
+  - file_path: "events_and_notifications_config/destinations.yml"
     config:
       component_specific_filters:
         components_list:
@@ -37,9 +37,9 @@ events_and_notifications_config:
             - "email"
 
   # --------------------------------------------------------------------------
-  # 3) Using the config: key - filter event notification subscriptions
+  # 3) Filter event notification subscriptions
   # --------------------------------------------------------------------------
-  - file_path: "/tmp/events_notifications_subscriptions.yml"
+  - file_path: "events_and_notifications_config/subscriptions.yml"
     config:
       component_specific_filters:
         components_list:
@@ -53,9 +53,9 @@ events_and_notifications_config:
             - "webhook"
 
   # --------------------------------------------------------------------------
-  # 4) Using the config: key - ITSM settings with append mode
+  # 4) ITSM settings with append mode
   # --------------------------------------------------------------------------
-  - file_path: "/tmp/events_notifications_itsm.yml"
+  - file_path: "events_and_notifications_config/itsm.yml"
     file_mode: "append"
     config:
       component_specific_filters:
@@ -66,9 +66,9 @@ events_and_notifications_config:
             - "BMC-Remedy"
 
   # --------------------------------------------------------------------------
-  # 5) Using the config: key - combined filters (dest + notifications + itsm)
+  # 5) Combined filters (destinations + notifications + ITSM)
   # --------------------------------------------------------------------------
-  - file_path: "/tmp/events_notifications_combined.yml"
+  - file_path: "events_and_notifications_config/combined.yml"
     config:
       component_specific_filters:
         components_list:
@@ -91,23 +91,13 @@ events_and_notifications_config:
           instance_names:
             - "ServiceNow-Prod"
 
-  # --------------------------------------------------------------------------
-  # 6) Legacy convenience key - component_specific_filters at item level
-  #    (equivalent to using config: key; both produce identical module calls)
-  # --------------------------------------------------------------------------
-  - file_path: "/tmp/events_notifications_legacy.yml"
-    component_specific_filters:
-      components_list:
-        - "syslog_destinations"
-        - "snmp_destinations"
-
 # ============================================================================
 # Notes
 # ============================================================================
-# Priority chain for module config parameter:
-#   1. item.config (preferred) - pass config dict directly
-#   2. item.component_specific_filters (legacy convenience) - auto-wrapped
-#   3. neither provided → omit config → module generates all 8 components
-# When filter blocks are provided, the module auto-adds corresponding
-# components to components_list if not already present.
+# Omit config entirely to run in full discovery mode (all 8 component types).
+# When config is provided, component_specific_filters is mandatory.
+# When filter blocks (destination_filters, notification_filters, itsm_filters)
+# are provided, the module auto-adds the corresponding components to
+# components_list if not already present.
+# Generated YAML files contain ***REDACTED*** placeholders for passwords.
 # ============================================================================

@@ -22,22 +22,19 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # Events and Notifications Config Generator Entry Schema
 events_and_notifications_config_generator_type:
-  # Direct module config dict (preferred) - wraps component_specific_filters
-  config: include('events_and_notifications_config_type', required=False)
-
   # Output file path for generated YAML
   file_path: str(required=False)
 
   # File write mode: overwrite or append
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Legacy convenience key - component_specific_filters at item level
-  component_specific_filters: include('events_and_notifications_component_filters_type', required=False)
+  # Module config dict - omit to generate all 8 component types (full discovery)
+  config: include('events_and_notifications_config_type', required=False)
 
 ---
 # Module config dict schema (mirrors module's config parameter)
 events_and_notifications_config_type:
-  component_specific_filters: include('events_and_notifications_component_filters_type', required=False)
+  component_specific_filters: include('events_and_notifications_component_filters_type', required=True)
 
 ---
 # Events and Notifications Component Filters Schema

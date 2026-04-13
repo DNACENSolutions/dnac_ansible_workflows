@@ -30,7 +30,7 @@ The Events and Notifications config generator automates YAML playbook generation
 - **Component Filtering**: Generate specific destination and notification component types.
 - **Name-based Filters**: Filter by destination names, subscription names, and ITSM instance names.
 - **Flexible Output**: Supports custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `config` (or use workflow convenience flag) to generate all supported data.
+- **Brownfield Discovery**: Omit `config` to generate all supported data.
 
 ---
 
@@ -84,10 +84,9 @@ events_and_notifications_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `config` | dict | No | omitted | Module `config` dict. Wraps `component_specific_filters`. When omitted, all 8 component types are generated |
+| `config` | dict | No | omitted | Module `config` dict. Must include `component_specific_filters` when provided. Omit to generate all 8 component types (full discovery) |
 | `file_path` | string | No | auto-generated | Output file path for generated YAML. Format when auto-generated: `events_and_notifications_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml` |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `component_specific_filters` | dict | No | omitted | Legacy convenience key. Equivalent to `config.component_specific_filters` |
 
 ### Supported Components
 
@@ -159,11 +158,7 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/events_and_notif
 
 ### Generate Operations (state: gathered)
 
-The playbook resolves the module `config` parameter using a 3-level priority chain:
-
-> **Priority 1 — `config:` key (preferred):** Pass the module config dict directly.
-> **Priority 2 — `component_specific_filters:` key (legacy):** Convenience shorthand; auto-wrapped into `{component_specific_filters: ...}`.
-> **Priority 3 — neither provided:** `config` is omitted; module retrieves all 8 component types.
+Pass `config` with `component_specific_filters` for targeted export. Omit `config` entirely to trigger full discovery (all 8 component types).
 
 #### 1. Generate all events and notifications data
 
@@ -171,7 +166,7 @@ Omit both `config` and `component_specific_filters` to trigger full discovery:
 
 ```yaml
 events_and_notifications_config:
-  - file_path: "/tmp/events_all_config.yml"
+  - file_path: "events_and_notifications_config/complete_config.yml"
 ```
 
 **Validate:**
@@ -206,18 +201,18 @@ Use `config.component_specific_filters` with `components_list: ["itsm_settings"]
 
 ### Example 1: Generate all events and notifications configurations
 
-Omit `config` and `component_specific_filters` — module retrieves all 8 component types.
+Omit `config` — module retrieves all 8 component types.
 
 ```yaml
 events_and_notifications_config:
-  - file_path: "/tmp/events_and_notifications_complete_config.yml"
+  - file_path: "events_and_notifications_config/complete_config.yml"
 ```
 
-### Example 2: Filter destination components (using `config:` key)
+### Example 2: Filter destination components
 
 ```yaml
 events_and_notifications_config:
-  - file_path: "/tmp/events_notifications_destinations.yml"
+  - file_path: "events_and_notifications_config/destinations.yml"
     config:
       component_specific_filters:
         components_list: ["webhook_destinations", "email_destinations"]
@@ -226,11 +221,11 @@ events_and_notifications_config:
           destination_types: ["webhook", "email"]
 ```
 
-### Example 3: Filter event subscription components (using `config:` key)
+### Example 3: Filter event subscription components
 
 ```yaml
 events_and_notifications_config:
-  - file_path: "/tmp/events_notifications_subscriptions.yml"
+  - file_path: "events_and_notifications_config/subscriptions.yml"
     config:
       component_specific_filters:
         components_list: ["webhook_event_notifications", "email_event_notifications"]
@@ -243,7 +238,7 @@ events_and_notifications_config:
 
 ```yaml
 events_and_notifications_config:
-  - file_path: "/tmp/events_notifications_itsm.yml"
+  - file_path: "events_and_notifications_config/itsm.yml"
     file_mode: append
     config:
       component_specific_filters:
@@ -258,7 +253,7 @@ events_and_notifications_config:
 
 ```yaml
 events_and_notifications_config:
-  - file_path: "/tmp/events_notifications_combined.yml"
+  - file_path: "events_and_notifications_config/combined.yml"
     config:
       component_specific_filters:
         components_list:
@@ -277,22 +272,11 @@ events_and_notifications_config:
           instance_names: ["ServiceNow-Prod"]
 ```
 
-### Example 6: Legacy `component_specific_filters` key (equivalent to Example 2)
-
-```yaml
-events_and_notifications_config:
-  - file_path: "/tmp/events_notifications_legacy.yml"
-    component_specific_filters:
-      components_list: ["syslog_destinations", "snmp_destinations"]
-```
-
 ---
 
 ## Notes
 
-- Module `config` parameter is resolved by this workflow using a 3-level priority chain:
-  1. `item.config` — preferred; pass the module config dict directly
-  2. `item.component_specific_filters` — legacy convenience key; auto-wrapped into `{component_specific_filters: ...}`
-  3. Neither provided — `config` is omitted; module generates all 8 component types
+- Omit `config` entirely to run in full discovery mode (all 8 component types).
+- When `config` is provided, `component_specific_filters` is mandatory.
 - When filter blocks (`destination_filters`, `notification_filters`, `itsm_filters`) are supplied, the module auto-adds the corresponding components to `components_list` if not already present.
 - Generated YAML files contain `***REDACTED***` placeholders for passwords.
