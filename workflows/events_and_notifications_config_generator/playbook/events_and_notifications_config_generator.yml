@@ -60,14 +60,7 @@
         state: "{{ state }}"
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
-        config: >-
-          {{
-            item.config
-            if (item.config is defined and item.config is not none)
-            else {'component_specific_filters': item.component_specific_filters}
-            if (item.component_specific_filters is defined and item.component_specific_filters is not none)
-            else omit
-          }}
+        config: "{{ item.config | default(omit) }}"
       loop: "{{ events_and_notifications_config }}"
       when:
         - events_and_notifications_config is defined
