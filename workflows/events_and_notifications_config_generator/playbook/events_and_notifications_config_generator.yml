@@ -62,12 +62,11 @@
         file_mode: "{{ item.file_mode | default('overwrite') }}"
         config: >-
           {{
-            omit
-            if (
-              item.generate_all_configurations | default(false)
-              or (item.component_specific_filters is not defined)
-            )
+            item.config
+            if (item.config is defined and item.config is not none)
             else {'component_specific_filters': item.component_specific_filters}
+            if (item.component_specific_filters is defined and item.component_specific_filters is not none)
+            else omit
           }}
       loop: "{{ events_and_notifications_config }}"
       when:
