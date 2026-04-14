@@ -1,0 +1,86 @@
+---
+# ============================================================================
+# Cisco Catalyst Center Wired Campus Automation Config Generator Inputs
+# ============================================================================
+#
+# Usage:
+# ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#   workflows/wired_campus_automation_config_generator/playbook/wired_campus_automation_config_generator.yml \
+#   --extra-vars VARS_FILE_PATH=./workflows/wired_campus_automation_config_generator/vars/wired_campus_automation_config_generator_inputs.yml \
+#   -vvvv
+#
+# Notes:
+# - state is fixed as gathered inside the playbook.
+# - Each item below generates one YAML output file that is compatible with:
+#   cisco.dnac.wired_campus_automation_workflow_manager
+# - generate_all_configurations: true  --> exports all layer2 configurations
+#   from all managed devices (full discovery mode).
+# - global_filters identify target devices by IP, hostname, or serial number.
+# - component_specific_filters narrow which layer2 features and details are extracted.
+# ============================================================================
+
+wired_campus_automation_config:
+  # 1) Generate all layer2 configurations from all managed devices
+  - generate_all_configurations: true
+    file_path: "{{ playbook_dir }}/wired_campus_automation_playbook_config_all.yml"
+
+  # 2) Generate layer2 configurations for specific devices by IP address
+  - file_path: "{{ playbook_dir }}/wired_campus_automation_playbook_config_by_ip.yml"
+    global_filters:
+      ip_address_list:
+        - "192.168.1.10"
+        - "192.168.1.11"
+    component_specific_filters:
+      components_list:
+        - layer2_configurations
+
+  # 3) Generate specific layer2 features for devices by hostname
+  - file_path: "{{ playbook_dir }}/wired_campus_automation_playbook_config_by_hostname.yml"
+    global_filters:
+      hostname_list:
+        - "access-switch-floor1.lab.com"
+        - "core-switch-01.lab.com"
+    component_specific_filters:
+      components_list:
+        - layer2_configurations
+      layer2_features:
+        - vlans
+        - stp
+        - cdp
+        - lldp
+
+  # 4) Generate VLAN-specific configurations for devices by serial number
+  - file_path: "{{ playbook_dir }}/wired_campus_automation_playbook_config_by_serial.yml"
+    global_filters:
+      serial_number_list:
+        - "FCW2140L05Y"
+        - "FCW2140L06Z"
+    component_specific_filters:
+      components_list:
+        - layer2_configurations
+      layer2_features:
+        - vlans
+      vlans:
+        vlan_ids_list:
+          - "10"
+          - "20"
+          - "100"
+
+  # 5) Generate port configuration for specific interfaces by IP address
+  - file_path: "{{ playbook_dir }}/wired_campus_automation_playbook_config_ports.yml"
+    global_filters:
+      ip_address_list:
+        - "10.1.1.5"
+    component_specific_filters:
+      components_list:
+        - layer2_configurations
+      layer2_features:
+        - port_configuration
+      port_configuration:
+        interface_names_list:
+          - "GigabitEthernet1/0/1"
+          - "GigabitEthernet1/0/2"
+          - "TenGigabitEthernet1/0/1"
+
+  # 6) Generate with default auto-generated filename (no file_path)
+  - generate_all_configurations: true
