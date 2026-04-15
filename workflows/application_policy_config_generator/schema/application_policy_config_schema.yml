@@ -22,10 +22,19 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # Application Policy Config Generator Entry Schema
 application_policy_config_generator_type:
-  generate_all_configurations: bool(required=False)
+  # Output file path for generated YAML
   file_path: str(required=False)
+
+  # File write mode: overwrite or append
   file_mode: enum('overwrite', 'append', required=False)
-  component_specific_filters: include('application_policy_component_filters_type', required=False)
+
+  # Module config dict - omit to generate all components (full discovery)
+  config: include('application_policy_config_type', required=False)
+
+---
+# Module config dict schema (mirrors module's config parameter)
+application_policy_config_type:
+  component_specific_filters: include('application_policy_component_filters_type', required=True)
 
 ---
 # Application Policy Component Filters Schema
