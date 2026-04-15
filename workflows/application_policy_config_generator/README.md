@@ -28,7 +28,7 @@ The Application Policy config generator automates YAML playbook generation for e
 - **Component Filtering**: Generate `queuing_profile`, `application_policy`, or both.
 - **Name Filtering**: Filter with `profile_names_list` and `policy_names_list`.
 - **Flexible Output**: Supports custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `config` (or use workflow convenience flag) to generate all supported configurations.
+- **Brownfield Discovery**: Omit `config` to generate all supported configurations.
 
 ---
 
@@ -82,18 +82,17 @@ application_policy_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `generate_all_configurations` | boolean | No | false | Workflow convenience flag. When true, playbook omits module `config` |
-| `file_path` | string | No | auto-generated | Output file path for generated YAML |
+| `config` | dict | No | omitted | Module `config` dict. Must include `component_specific_filters` when provided. Omit to generate all components (full discovery) |
+| `file_path` | string | No | auto-generated | Output file path for generated YAML. Format when auto-generated: `application_policy_workflow_manager_playbook_<DD_Mon_YYYY_HH_MM_SS_MS>.yml` |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `component_specific_filters` | dict | No | omitted | Component and filters passed to module `config` |
 
-### Component Filters
+### Component Filters (`config.component_specific_filters`)
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `components_list` | list[string] | No | Supported values: `queuing_profile`, `application_policy` |
-| `queuing_profile` | dict | No | Queuing profile filters (`profile_names_list`) |
-| `application_policy` | dict | No | Application policy filters (`policy_names_list`) |
+| `components_list` | list[string] | No | Supported values: `queuing_profile`, `application_policy`. Auto-populated when filter blocks are provided |
+| `queuing_profile` | dict | No | Queuing profile filter dict (`profile_names_list`) |
+| `application_policy` | dict | No | Application policy filter dict (`policy_names_list`) |
 
 ---
 
@@ -135,7 +134,10 @@ ansible-galaxy collection install cisco.dnac --force
 export HOSTIP=<catalyst-center-ip-or-fqdn>
 export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/application_policy_config_generator/playbook/application_policy_config_generator.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
+  ./workflows/application_policy_config_generator/playbook/application_policy_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=$(pwd)/workflows/application_policy_config_generator/vars/application_policy_config_inputs.yml \
+  -vvvv
 ```
 
 
@@ -143,56 +145,92 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/application_poli
 
 ### Generate Operations (state: gathered)
 
-1. **Generate all application policy data**
-- Set `generate_all_configurations: true`.
+Pass `config` with `component_specific_filters` for targeted export. Omit `config` entirely to trigger full discovery (all components).
 
-2. **Generate queuing profiles only**
-- Use `components_list: ["queuing_profile"]` and optional `profile_names_list`.
+1. **Generate all application policy data** — omit `config`
+2. **Generate queuing profiles only** — use `config.component_specific_filters.components_list: ["queuing_profile"]` with optional `queuing_profile` list filter
+3. **Generate application policies only** — use `config.component_specific_filters.components_list: ["application_policy"]` with optional `application_policy` list filter
+4. **Append generated output** — set `file_mode: append`
 
-3. **Generate application policies only**
-- Use `components_list: ["application_policy"]` and optional `policy_names_list`.
+**Validate and Execute:**
 
-4. **Append generated output**
-- Set `file_mode: append`.
+```bash
+# Validate
+./tools/validate.sh \
+  -s workflows/application_policy_config_generator/schema/application_policy_config_schema.yml \
+  -d workflows/application_policy_config_generator/vars/application_policy_config_inputs.yml
+```
+
+Expected validation output:
+```
+Validating workflows/application_policy_config_generator/vars/application_policy_config_inputs.yml...
+Validation success! 👍
+```
+
+```bash
+# Execute
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/application_policy_config_generator/playbook/application_policy_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=$(pwd)/workflows/application_policy_config_generator/vars/application_policy_config_inputs.yml
+```
 
 ---
 
 ## Examples
 
-### Example 1: Generate all queuing profiles and application policies
+### Example 1: Generate all application policy configurations
+
+Omit `config` — module retrieves all queuing profiles and application policies.
 
 ```yaml
 application_policy_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/application_policy_complete_config.yml"
+  - file_path: "application_policy_config/complete_config.yml"
 ```
 
-### Example 2: Filter queuing profiles by names
+### Example 2: Filter queuing profiles by name
 
 ```yaml
 application_policy_config:
-  - file_path: "/tmp/application_policy_queuing_profiles.yml"
-    component_specific_filters:
-      components_list: ["queuing_profile"]
-      queuing_profile:
-        profile_names_list: ["Enterprise-QoS-Profile", "Wireless-QoS-Profile"]
+  - file_path: "application_policy_config/queuing_profiles.yml"
+    config:
+      component_specific_filters:
+        components_list: ["queuing_profile"]
+        queuing_profile:
+          profile_names_list: ["Enterprise-QoS-Profile", "Wireless-QoS-Profile"]
 ```
 
-### Example 3: Filter application policies by names
+### Example 3: Filter application policies by name
 
 ```yaml
 application_policy_config:
-  - file_path: "/tmp/application_policy_policies.yml"
-    component_specific_filters:
-      components_list: ["application_policy"]
-      application_policy:
-        policy_names_list: ["wired_traffic_policy", "wireless_traffic_policy"]
+  - file_path: "application_policy_config/policies.yml"
+    config:
+      component_specific_filters:
+        components_list: ["application_policy"]
+        application_policy:
+          policy_names_list: ["wired_traffic_policy", "wireless_traffic_policy"]
+```
+
+### Example 4: Combined queuing profiles + policies with append mode
+
+```yaml
+application_policy_config:
+  - file_path: "application_policy_config/combined.yml"
+    file_mode: append
+    config:
+      component_specific_filters:
+        components_list: ["queuing_profile", "application_policy"]
+        queuing_profile:
+          profile_names_list: ["Enterprise-QoS-Profile"]
+        application_policy:
+          policy_names_list: ["wired_traffic_policy", "wireless_traffic_policy"]
 ```
 
 ---
 
 ## Notes
 
-- `application_policy_playbook_config_generator` expects `config` as a dictionary when filters are used.
-- This workflow omits `config` when filters are absent, which triggers full generation mode.
-- If component filters are provided without `components_list`, the module can auto-populate `components_list` internally.
+- Omit `config` entirely to run in full discovery mode (all components).
+- When `config` is provided, `component_specific_filters` is mandatory.
+- `queuing_profile` and `application_policy` under `component_specific_filters` are plain **dicts** (not lists).
+- The module auto-adds the corresponding component to `components_list` when a filter block is provided but `components_list` is omitted.

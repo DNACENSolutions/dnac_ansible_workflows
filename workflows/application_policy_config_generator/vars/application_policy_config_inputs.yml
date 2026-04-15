@@ -12,45 +12,57 @@
 # ============================================================================
 
 application_policy_config:
-  # 1) Generate all queuing profiles and application policies
-  - generate_all_configurations: true
-    file_path: "/tmp/application_policy_complete_config.yml"
+  # --------------------------------------------------------------------------
+  # 1) Generate ALL application policy configurations (full discovery)
+  #    Omit config entirely → module retrieves all components
+  # --------------------------------------------------------------------------
+  - file_path: "application_policy_config/complete_config.yml"
 
-  # 2) Generate only queuing profiles
-  - file_path: "/tmp/application_policy_queuing_profiles.yml"
-    component_specific_filters:
-      components_list: ["queuing_profile"]
-      queuing_profile:
-        profile_names_list:
-          - "Enterprise-QoS-Profile"
-          - "Wireless-QoS-Profile"
+  # --------------------------------------------------------------------------
+  # 2) Filter queuing profiles by name
+  # --------------------------------------------------------------------------
+  - file_path: "application_policy_config/queuing_profiles.yml"
+    config:
+      component_specific_filters:
+        components_list: ["queuing_profile"]
+        queuing_profile:
+          profile_names_list:
+            - "Enterprise-QoS-Profile"
+            - "Wireless-QoS-Profile"
 
-  # 3) Generate only application policies
-  - file_path: "/tmp/application_policy_policies.yml"
-    component_specific_filters:
-      components_list: ["application_policy"]
-      application_policy:
-        policy_names_list:
-          - "wired_traffic_policy"
-          - "wireless_traffic_policy"
+  # --------------------------------------------------------------------------
+  # 3) Filter application policies by name
+  # --------------------------------------------------------------------------
+  - file_path: "application_policy_config/policies.yml"
+    config:
+      component_specific_filters:
+        components_list: ["application_policy"]
+        application_policy:
+          policy_names_list:
+            - "wired_traffic_policy"
+            - "wireless_traffic_policy"
 
-  # 4) Combined append export
-  - file_path: "/tmp/application_policy_aggregate.yml"
+  # --------------------------------------------------------------------------
+  # 4) Combined queuing profiles + application policies with append mode
+  # --------------------------------------------------------------------------
+  - file_path: "application_policy_config/combined.yml"
     file_mode: "append"
-    component_specific_filters:
-      components_list:
-        - "queuing_profile"
-        - "application_policy"
-      queuing_profile:
-        profile_names_list: ["Enterprise-QoS-Profile"]
-      application_policy:
-        policy_names_list: ["wired_traffic_policy"]
+    config:
+      component_specific_filters:
+        components_list:
+          - "queuing_profile"
+          - "application_policy"
+        queuing_profile:
+          profile_names_list: ["Enterprise-QoS-Profile"]
+        application_policy:
+          policy_names_list: ["wired_traffic_policy", "wireless_traffic_policy"]
 
 # ============================================================================
 # Notes
 # ============================================================================
-# - If component_specific_filters is omitted, the workflow omits module config
-#   and runs in full discovery mode.
-# - If component blocks are provided without components_list, the module can
-#   auto-populate components_list internally.
+# Omit config entirely to run in full discovery mode (all components).
+# When config is provided, component_specific_filters is mandatory.
+# queuing_profile and application_policy filters are lists of dicts.
+# The module auto-adds components to components_list when component-specific
+# filter blocks are provided but components_list is omitted.
 # ============================================================================
