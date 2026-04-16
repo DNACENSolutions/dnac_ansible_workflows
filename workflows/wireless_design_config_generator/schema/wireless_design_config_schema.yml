@@ -1,20 +1,23 @@
+# ============================================================================
 # Cisco Catalyst Center Wireless Design Config Generator Schema
-# ======================================================================================
+# ============================================================================
 #
-# This schema defines the configuration structure for generating YAML playbook
-# configurations from existing wireless design settings in Cisco Catalyst Center
-# using the wireless_design_playbook_config_generator module.
+# This schema validates input data for:
+#   cisco.dnac.wireless_design_playbook_config_generator
 #
-# Supported components:
-# - ssids
-# - interfaces
-# - power_profiles
-# - access_point_profiles
-# - radio_frequency_profiles
-# - anchor_groups
-# - feature_template_config
-# - 802_11_be_profiles
-# - flex_connect_configuration
+# Input model:
+#   wireless_design_config:
+#     - file_path: <optional>
+#       file_mode: <optional overwrite|append>
+#       config: <optional>
+#         component_specific_filters:
+#           components_list: <optional>
+#           ssids/interfaces/...: <optional>
+#
+# Notes:
+# - Omit config to gather all wireless design configuration.
+# - If config is provided, use component_specific_filters.
+# ============================================================================
 
 # Schema Definition
 wireless_design_config: list(include('wireless_design_config_generator_type'), min=1, max=100, required=True)
@@ -33,16 +36,13 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # Wireless Design Config Generator Entry Schema
 wireless_design_config_generator_type:
-  # Workflow-level convenience flag. If true, module config is omitted.
-  generate_all_configurations: bool(required=False)
-
-  # Output file path for generated YAML
   file_path: str(required=False)
-
-  # File write mode: overwrite or append
   file_mode: enum('overwrite', 'append', required=False)
+  config: include('wireless_design_config_wrapper_type', required=False)
 
-  # Component-specific filters accepted by wireless_design_playbook_config_generator
+---
+# Wrapper for config block
+wireless_design_config_wrapper_type:
   component_specific_filters: include('wireless_design_component_filters_type', required=False)
 
 ---
