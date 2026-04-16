@@ -1,0 +1,103 @@
+- block:
+    - name: Reset removal workflow context for current device
+      ansible.builtin.set_fact:
+        removal_workflow_device_context: {}
+
+    - name: Look up device in Catalyst Center inventory
+      cisco.dnac.network_device_info:
+        <<: *catalyst_center_login
+        hostname:
+          - "{{ removal_item.device_name }}"
+      register: removal_device_lookup
+
+    - name: Normalize device lookup results
+      ansible.builtin.set_fact:
+        matched_removal_devices: "{{ removal_device_lookup.dnac_response.response | default([]) }}"
+
+    - name: Validate device was found exactly once
+      ansible.builtin.fail:
+        msg: >-
+          Expected exactly one Catalyst Center inventory match for device_name
+          '{{ removal_item.device_name }}', found {{ matched_removal_devices | length }}.
+          Verify that the hostname matches the inventory entry exactly.
+      when: matched_removal_devices | length != 1
+
+    - name: Build removal workflow context for device
+      ansible.builtin.set_fact:
+        removal_workflow_device_context:
+          device_name: "{{ removal_item.device_name }}"
+          fabric_site_name_hierarchy: "{{ removal_item.fabric_site_name_hierarchy }}"
+          management_ip_address: "{{ matched_removal_devices[0].managementIpAddress }}"
+          inventory_location: "{{ matched_removal_devices[0].location | default('unknown') }}"
+          inventory_role: "{{ matched_removal_devices[0].role | default('unknown') }}"
+          inventory_family: "{{ matched_removal_devices[0].family | default('unknown') }}"
+
+    - name: Clear all host onboarding from device
+      cisco.dnac.sda_host_port_onboarding_workflow_manager:
+        <<: *catalyst_center_login
+        state: deleted
+        config:
+          - ip_address: "{{ removal_workflow_device_context.management_ip_address }}"
+            fabric_site_name_hierarchy: "{{ removal_workflow_device_context.fabric_site_name_hierarchy }}"
+            device_collection_status_check: "{{ removal_item.device_collection_status_check | default(omit) }}"
+      register: removal_host_onboarding_result
+
+    - name: Remove device from SDA fabric site
+      cisco.dnac.sda_fabric_devices_workflow_manager:
+        <<: *catalyst_center_login
+        state: deleted
+        config:
+          - fabric_devices:
+              fabric_name: "{{ removal_workflow_device_context.fabric_site_name_hierarchy }}"
+              device_config:
+                - device_ip: "{{ removal_workflow_device_context.management_ip_address }}"
+      register: removal_fabric_role_result
+
+    - name: Unprovision device and remove it from inventory
+      cisco.dnac.provision_workflow_manager:
+        <<: *catalyst_center_login
+        state: deleted
+        config:
+          - management_ip_address: "{{ removal_workflow_device_context.management_ip_address }}"
+      register: removal_unprovision_result
+
+    - name: Record successful device removal result
+      ansible.builtin.set_fact:
+        sda_device_removal_and_unprovision_results: >-
+          {{
+            (sda_device_removal_and_unprovision_results | default([])) + [
+              {
+                'device_name': removal_workflow_device_context.device_name,
+                'fabric_site_name_hierarchy': removal_workflow_device_context.fabric_site_name_hierarchy,
+                'management_ip_address': removal_workflow_device_context.management_ip_address,
+                'inventory_location': removal_workflow_device_context.inventory_location,
+                'inventory_role': removal_workflow_device_context.inventory_role,
+                'inventory_family': removal_workflow_device_context.inventory_family,
+                'host_onboarding_changed': removal_host_onboarding_result.changed | default(false),
+                'fabric_role_changed': removal_fabric_role_result.changed | default(false),
+                'unprovision_changed': removal_unprovision_result.changed | default(false),
+                'status': 'success'
+              }
+            ]
+          }}
+  rescue:
+    - name: Record failed device removal result
+      ansible.builtin.set_fact:
+        sda_device_removal_and_unprovision_results: >-
+          {{
+            (sda_device_removal_and_unprovision_results | default([])) + [
+              {
+                'device_name': removal_item.device_name | default('unknown'),
+                'fabric_site_name_hierarchy': removal_item.fabric_site_name_hierarchy | default('unknown'),
+                'management_ip_address': failed_context.management_ip_address | default('unresolved'),
+                'inventory_location': failed_context.inventory_location | default('unknown'),
+                'inventory_role': failed_context.inventory_role | default('unknown'),
+                'inventory_family': failed_context.inventory_family | default('unknown'),
+                'status': 'failed',
+                'failed_task': ansible_failed_task.name | default('unknown'),
+                'error_message': ansible_failed_result.msg | default(ansible_failed_result | string)
+              }
+            ]
+          }}
+      vars:
+        failed_context: "{{ removal_workflow_device_context | default({}) }}"
