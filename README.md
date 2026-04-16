@@ -99,6 +99,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 
 ## Migration Usecases
 - [SDA Port Assignment Migration](./workflows/sda_port_assignment_migration/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [SDA Device Removal and Unprovision](./workflows/sda_device_removal_and_unprovision/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.6**</span></mark>
 
 
 
