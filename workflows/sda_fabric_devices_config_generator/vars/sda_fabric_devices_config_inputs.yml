@@ -7,46 +7,78 @@
 #     workflows/sda_fabric_devices_config_generator/playbook/sda_fabric_devices_config_generator.yml \
 #     --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
 #
-# Module used:
-#   cisco.dnac.sda_fabric_devices_playbook_config_generator
+# Note:
+# - This workflow input follows module style.
+# - Use "config" exactly as module examples.
+# - Full discovery = omit "config".
 # ============================================================================
 
 sda_fabric_devices_config:
-  # 1) Generate all fabric devices from all fabric sites
-  - generate_all_configurations: true
-    file_path: "/tmp/sda_fabric_devices_complete_config.yml"
+  # Example 1: Generate all fabric device configurations for all fabric sites
+  # No config provided - generates all configurations
+  - file_mode: "overwrite"
 
-  # 2) Generate all fabric devices for a specific fabric site
-  - file_path: "/tmp/sda_fabric_devices_by_fabric.yml"
-    component_specific_filters:
-      components_list: ["fabric_devices"]
-      fabric_devices:
-        fabric_name: "Global/USA/SAN JOSE"
+  # Example 2: Generate all configurations with custom file path
+  # No config provided - generates all configurations
+  - file_path: "/tmp/complete_sda_fabric_devices_config.yaml"
+    file_mode: "overwrite"
 
-  # 3) Generate specific device in a fabric
-  - file_path: "/tmp/sda_fabric_device_by_ip.yml"
-    component_specific_filters:
-      components_list: ["fabric_devices"]
-      fabric_devices:
-        fabric_name: "Global/USA/SAN JOSE"
-        device_ip: "10.10.10.21"
+  # Example 3: Generate fabric device configurations for a specific fabric site
+  - file_path: "/tmp/san_jose_fabric_devices.yaml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        components_list: ["fabric_devices"]
+        fabric_devices:
+          - fabric_name: "Global/USA/SAN-JOSE"
 
-  # 4) Generate devices by roles in a fabric
-  - file_path: "/tmp/sda_fabric_devices_by_role.yml"
+  # Example 4: Generate configuration for devices with specific roles in a fabric site
+  - file_path: "/tmp/border_and_cp_devices.yaml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        components_list: ["fabric_devices"]
+        fabric_devices:
+          - fabric_name: "Global/USA/SAN-JOSE"
+            device_roles: ["BORDER_NODE", "CONTROL_PLANE_NODE"]
+
+  # Example 5: Generate configuration for a specific device in a fabric site
+  - file_path: "/tmp/specific_fabric_device.yaml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        components_list: ["fabric_devices"]
+        fabric_devices:
+          - fabric_name: "Global/USA/SAN-JOSE"
+            device_ip: "10.0.0.1"
+
+  # Example 6: Auto-populate components_list from component filters
+  - file_path: "/tmp/san_jose_fabric.yaml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        # No components_list specified, but fabric_devices filters are provided
+        # The 'fabric_devices' component will be automatically added to components_list
+        fabric_devices:
+          - fabric_name: "Global/USA/SAN-JOSE"
+
+  # Example 7: Generate configuration with append mode
+  - file_path: "/tmp/all_fabric_devices.yaml"
     file_mode: "append"
-    component_specific_filters:
-      components_list: ["fabric_devices"]
-      fabric_devices:
-        fabric_name: "Global/USA/SAN JOSE"
-        device_roles:
-          - "BORDER_NODE"
-          - "EDGE_NODE"
+    config:
+      component_specific_filters:
+        components_list: ["fabric_devices"]
+        fabric_devices:
+          - fabric_name: "Global/India/Bangalore"
+            device_roles: ["BORDER_NODE"]
 
-# ============================================================================
-# Notes
-# ============================================================================
-# - If component_specific_filters is omitted, the workflow omits module config
-#   and runs in full discovery mode.
-# - If fabric_devices filter is provided without components_list, the module
-#   auto-adds fabric_devices to components_list internally.
-# ============================================================================
+  # Example 8: Generate configuration for devices from multiple fabric sites
+  # No file_path: module auto-generates filename
+  - config:
+      component_specific_filters:
+        components_list: ["fabric_devices"]
+        fabric_devices:
+          - fabric_name: "Global/USA/SAN-JOSE"
+            device_roles: ["BORDER_NODE"]
+          - fabric_name: "Global/India/Bangalore"
+            device_roles: ["EDGE_NODE"]
