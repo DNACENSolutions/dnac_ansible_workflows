@@ -22,10 +22,19 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # SDA Extranet Policies Config Generator Entry Schema
 sda_extranet_policies_config_generator_type:
-  generate_all_configurations: bool(required=False)
+  # Output file path for generated YAML
   file_path: str(required=False)
+
+  # File write mode: overwrite or append
   file_mode: enum('overwrite', 'append', required=False)
-  component_specific_filters: include('sda_extranet_policies_component_filters_type', required=False)
+
+  # Module config dictionary. When omitted, all extranet policies are generated.
+  config: include('sda_extranet_policies_module_config_type', required=False)
+
+---
+# SDA Extranet Policies Module Config Schema
+sda_extranet_policies_module_config_type:
+  component_specific_filters: include('sda_extranet_policies_component_filters_type', required=True)
 
 ---
 # SDA Extranet Policies Component Filters Schema
@@ -36,5 +45,5 @@ sda_extranet_policies_component_filters_type:
 ---
 # SDA Extranet Policy filter schema
 sda_extranet_policy_filter_type:
-  # Extranet policy name to filter by exact name
+  # Extranet policy name to filter by exact name match
   extranet_policy_name: str(required=False)
