@@ -1,4 +1,3 @@
----
 # ============================================================================
 # Cisco Catalyst Center Wireless Design Config Generator
 # ============================================================================
@@ -8,77 +7,116 @@
 #     workflows/wireless_design_config_generator/playbook/wireless_design_config_generator.yml \
 #     --extra-vars VARS_FILE_PATH=./workflows/wireless_design_config_generator/vars/wireless_design_config_inputs.yml
 #
-# Module used:
-#   cisco.dnac.wireless_design_playbook_config_generator
 # ============================================================================
 
 wireless_design_config:
-  # 1) Generate all wireless design configurations
-  - generate_all_configurations: true
-    file_path: "/tmp/wireless_design_complete_config.yml"
+  # Generate all wireless design configuration with explicit output path
+  - file_path: "wireless_design/generate_all_config.yml"
+    file_mode: "overwrite"
 
-  # 2) Generate selected wireless network components only
-  - file_path: "/tmp/wireless_design_components.yml"
-    component_specific_filters:
-      components_list: ["interfaces", "anchor_groups", "power_profiles"]
+  # Generate specific components only
+  - file_path: "wireless_design/components_interfaces_anchor_groups.yml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        components_list: ["interfaces", "anchor_groups"]
 
-  # 3) Filter SSIDs by site and SSID type
-  - file_path: "/tmp/wireless_design_ssid_filters.yml"
-    component_specific_filters:
-      components_list: ["ssids"]
-      ssids:
-        - site_name_hierarchy: "Global/USA/San Jose"
-          ssid_type: "Guest"
+  # Generate SSIDs by site filter
+  - file_path: "wireless_design/ssids_by_site.yml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        components_list: ["ssids"]
+        ssids:
+          - site_name_hierarchy: "Global/USA/San Jose"
 
-  # 4) Filter interfaces by interface name and VLAN
-  - file_path: "/tmp/wireless_design_interface_filters.yml"
-    component_specific_filters:
-      components_list: ["interfaces"]
-      interfaces:
-        - interface_name: "Wireless_VLAN_100"
-          vlan_id: 100
+  # Generate SSIDs by name and type
+  - file_path: "wireless_design/ssids_by_name_type.yml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        ssids:
+          - ssid_name: "Corp-WiFi"
+            ssid_type: "Enterprise"
 
-  # 5) Filter feature template config by type and design
-  - file_path: "/tmp/wireless_design_feature_template_filters.yml"
-    component_specific_filters:
-      components_list: ["feature_template_config"]
-      feature_template_config:
-        - feature_template_type: "advanced_ssid"
-          design_name: "Enterprise Wireless Design"
+  # Generate interfaces by interface name and VLAN
+  - file_path: "wireless_design/interfaces_by_name_vlan.yml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        interfaces:
+          - interface_name: "Wireless_VLAN_100"
+            vlan_id: 100
 
-  # 6) Combined filters with append mode
-  - file_path: "/tmp/wireless_design_aggregate.yml"
+  # Generate feature templates by template type and design
+  - file_path: "wireless_design/feature_template_filters.yml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        components_list: ["feature_template_config"]
+        feature_template_config:
+          - feature_template_type: "advanced_ssid"
+            design_name: "Enterprise Wireless Design"
+
+  # Generate 802.11be profiles
+  - file_path: "wireless_design/802_11be_profiles.yml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        components_list: ["802_11_be_profiles"]
+        802_11_be_profiles:
+          - profile_name: "Default-11be-Profile"
+
+  # Generate flex connect configuration by site
+  - file_path: "wireless_design/flex_connect_site_filter.yml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        components_list: ["flex_connect_configuration"]
+        flex_connect_configuration:
+          - site_name_hierarchy: "Global/USA/San Jose/SJ_BLD1/FLOOR1"
+
+  # Append mode example
+  - file_path: "wireless_design/append_mode.yml"
+    file_mode: "overwrite"
+    config:
+      component_specific_filters:
+        components_list: ["ssids"]
+        ssids:
+          - ssid_name: "Corp-WiFi"
+
+  - file_path: "wireless_design/append_mode.yml"
     file_mode: "append"
-    component_specific_filters:
-      components_list: ["ssids", "feature_template_config", "802_11_be_profiles"]
-      ssids:
-        - ssid_name: "Corp-WiFi"
-          ssid_type: "Enterprise"
-      feature_template_config:
-        - feature_template_type: "dot11be_configuration"
-      802_11_be_profiles:
-        - profile_name: "Default-11be-Profile"
+    config:
+      component_specific_filters:
+        components_list: ["feature_template_config"]
+        feature_template_config:
+          - feature_template_type: "dot11be_configuration"
 
 # ============================================================================
-# Additional examples
+# Additional Configuration Examples
 # ============================================================================
-# Example: Flex Connect configuration by site hierarchy
+# Example 1: Auto-generate output file (omit file_path)
 # wireless_design_config:
-#   - file_path: "/tmp/wireless_design_flex_connect.yml"
-#     component_specific_filters:
-#       components_list: ["flex_connect_configuration"]
-#       flex_connect_configuration:
-#         - site_name_hierarchy: "Global/USA/San Jose/SJ_BLD1/FLOOR1"
+#   - {}
 #
-# Example: Auto-generated output file name
+# Example 2: Generate all configuration with default overwrite mode
 # wireless_design_config:
-#   - generate_all_configurations: true
-
+#   - file_path: "/tmp/wireless_design_complete_config.yml"
+#
+# Example 3: Component filters only (components_list auto-populated)
+# wireless_design_config:
+#   - file_path: "/tmp/wireless_design_auto_component_add.yml"
+#     config:
+#       component_specific_filters:
+#         interfaces:
+#           - interface_name: "Wireless_VLAN_200"
+#
 # ============================================================================
 # Notes
 # ============================================================================
-# - If component_specific_filters is omitted, the workflow omits module config
-#   and runs in full discovery mode.
-# - Module auto-populates components_list from provided component filters.
-# - An empty config dictionary is not valid for wireless_design_playbook_config_generator.
+# - Omit `config` to generate all wireless design configuration.
+# - If `config` is provided, it must use `component_specific_filters`.
+# - If component filters are provided without `components_list`, the module auto-populates it.
+# - `config: {}` is invalid for wireless_design_playbook_config_generator.
 # ============================================================================

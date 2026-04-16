@@ -28,7 +28,7 @@ The Wireless Design config generator automates YAML playbook generation for exis
 - **Component Filtering**: Target specific components such as `ssids`, `interfaces`, `power_profiles`, and `feature_template_config`.
 - **Advanced Filtering**: Filter by SSID/site/type, interface/vlan, profile names, feature template type, and more.
 - **Flexible Output**: Supports custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `config` (or use workflow convenience flag) to generate all supported wireless design configurations.
+- **Brownfield Discovery**: Omit `config` to generate all supported wireless design configurations.
 
 ---
 
@@ -82,10 +82,10 @@ wireless_design_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `generate_all_configurations` | boolean | No | false | Workflow convenience flag. When true, playbook omits module `config` |
 | `file_path` | string | No | auto-generated | Output file path for generated YAML |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `component_specific_filters` | dict | No | omitted | Component and filters passed to module `config` |
+| `config` | dict | No | omitted | Module-native config block |
+| `config.component_specific_filters` | dict | No | omitted | Component list and per-component filters |
 
 ### Supported Components
 
@@ -154,6 +154,21 @@ export CATALYST_CENTER_PASSWORD='<password>'
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/wireless_design_config_generator/playbook/wireless_design_config_generator.yml -vvvv
 ```
 
+### Validate and Execute
+
+```bash
+# Validate
+./tools/validate.sh -s workflows/wireless_design_config_generator/schema/wireless_design_config_schema.yml \
+                   -d workflows/wireless_design_config_generator/vars/wireless_design_config_inputs.yml
+```
+
+```bash
+# Execute
+ansible-playbook -i inventory/demo_lab/hosts.yaml \
+  workflows/wireless_design_config_generator/playbook/wireless_design_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=./workflows/wireless_design_config_generator/vars/wireless_design_config_inputs.yml
+```
+
 
 ## Operations
 
@@ -162,13 +177,13 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/wireless_design_
 Use `wireless_design_config_generator.yml` for all generation tasks.
 
 1. **Generate all wireless design configurations**
-- Set `generate_all_configurations: true`.
+- Omit `config`.
 
 2. **Generate selected components only**
-- Use `component_specific_filters.components_list`.
+- Use `config.component_specific_filters.components_list`.
 
 3. **Generate filtered configuration slices**
-- Provide filters under each component (`ssids`, `interfaces`, `feature_template_config`, etc.).
+- Provide filters under `config.component_specific_filters` (`ssids`, `interfaces`, `feature_template_config`, etc.).
 
 4. **Append generated output**
 - Set `file_mode: append` to append into an existing file.
@@ -181,8 +196,7 @@ Use `wireless_design_config_generator.yml` for all generation tasks.
 
 ```yaml
 wireless_design_config:
-  - generate_all_configurations: true
-    file_path: "/tmp/wireless_design_complete_config.yml"
+  - file_path: "/tmp/wireless_design_complete_config.yml"
 ```
 
 ### Example 2: Generate SSIDs for a specific site
@@ -190,11 +204,12 @@ wireless_design_config:
 ```yaml
 wireless_design_config:
   - file_path: "/tmp/wireless_design_ssids.yml"
-    component_specific_filters:
-      components_list: ["ssids"]
-      ssids:
-        - site_name_hierarchy: "Global/USA/San Jose"
-          ssid_type: "Guest"
+    config:
+      component_specific_filters:
+        components_list: ["ssids"]
+        ssids:
+          - site_name_hierarchy: "Global/USA/San Jose"
+            ssid_type: "Guest"
 ```
 
 ### Example 3: Generate feature templates with filter and append
@@ -203,11 +218,12 @@ wireless_design_config:
 wireless_design_config:
   - file_path: "/tmp/wireless_design_aggregate.yml"
     file_mode: "append"
-    component_specific_filters:
-      components_list: ["feature_template_config"]
-      feature_template_config:
-        - feature_template_type: "advanced_ssid"
-          design_name: "Enterprise Wireless Design"
+    config:
+      component_specific_filters:
+        components_list: ["feature_template_config"]
+        feature_template_config:
+          - feature_template_type: "advanced_ssid"
+            design_name: "Enterprise Wireless Design"
 ```
 
 ---
@@ -215,5 +231,6 @@ wireless_design_config:
 ## Notes
 
 - `wireless_design_playbook_config_generator` expects `config` as a dictionary when filters are used.
-- An empty dictionary for `config` is invalid at module level.
-- This workflow omits `config` when filters are absent, which triggers full generation mode.
+- Omit `config` to generate all configurations.
+- An empty dictionary for `config` is invalid.
+- If component filters are provided without `components_list`, the module auto-populates `components_list`.
