@@ -34,19 +34,25 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 # Table of Contents
 - [Enterprise Usecases](#enterprise-usecases)
 - [Cisco Validated Playbooks](#cisco-validated-playbooks)
+- [Configuration Generation Workflows](#configuration-generation-workflows)
 - [Compatibility Matrix](#compatibility-matrix)
 - [Released Versions](#released-versions)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Create your Catalyst Center cluster inventory](#create-your-catalyst-center-cluster-inventory)
-- [Executing playbook (Sample)](#executing-playbook-sample)
+- [Quick Start Guide](#quick-start-guide)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Clone the Repository](#step-1-clone-the-repository)
+  - [Step 2: Create Python Virtual Environment](#step-2-create-python-virtual-environment)
+  - [Step 3: Install Dependencies](#step-3-install-dependencies)
+  - [Step 4: Configure Ansible](#step-4-configure-ansible)
+  - [Step 5: Create Inventory with Ansible Vault](#step-5-create-inventory-with-ansible-vault-recommended)
+  - [Step 6: Run a Workflow Playbook](#step-6-run-a-workflow-playbook)
+  - [Step 7: Run Any Workflow](#step-7-run-any-workflow)
+  - [Common Commands Reference](#common-commands-reference)
+  - [Workflow Structure](#workflow-structure)
+  - [Best Practices](#best-practices)
 - [Attention macOS users](#attention-macos-users)
 - [Update](#update)
 - [Raising an issue or enhancement request](#raising-an-issue-or-enhancement-request)
 - [Contributing](#contributing)
-- [License](#license)
-- [Cisco Validated Playbooks](#cisco-validated-playbooks)
-- [Configuration Generation Workflows](#configuration-generation-workflows)
 
 # Cisco Validated Playbooks
 
@@ -134,8 +140,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - [User Role Config Generator](./workflows/user_role_config_generator/README.md)
 - [Wireless Design Config Generator](./workflows/wireless_design_config_generator/README.md)
 
-## Demo Videos
-[IaC Demo Videos](http://3.136.0.140/index.html)
+
 
 # Compatibility Matrix
 | Deployed Catalyst Center Version   | Catalyst Center Version in Input   | Ansible Galaxy collection (cisco.dnac)Version    | Python SDK (dnacentersdk) Version    |
@@ -147,6 +152,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 | 2.3.7.7 | 2.3.7.6   | latest   | latest |
 | 2.3.7.9 | 2.3.7.9   | latest   | latest |
 | 2.3.7.10 | 2.3.7.9   | latest   | latest |
+| 3.1.6.x | 3.1.6.0   | latest   | latest |
 
 # Released Versions
 v2.3.7.6.1
@@ -179,10 +185,6 @@ source python3env/bin/activate
 
 ```bash
 git clone https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git
-```
-Cloning a released version:
-```bash
-git clone --depth 1 --branch v2.3.7.6.1 https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git
 ```
 
 ## Navigate to the project directory:    
