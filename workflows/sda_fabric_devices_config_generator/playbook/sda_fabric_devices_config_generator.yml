@@ -6,6 +6,12 @@
 
   vars:
     state: gathered
+    vars_file_path_resolved: >-
+      {{
+        VARS_FILE_PATH
+        if (VARS_FILE_PATH is match('^/'))
+        else (lookup('env', 'PWD') ~ '/' ~ (VARS_FILE_PATH | regex_replace('^\\./', '')))
+      }}
     catalyst_center_login: &catalyst_center_login
       dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
       dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
@@ -26,7 +32,7 @@
     # =========================================================================
     - name: Load input variables from vars file when VARS_FILE_PATH is provided
       ansible.builtin.include_vars:
-        file: "{{ VARS_FILE_PATH }}"
+        file: "{{ vars_file_path_resolved }}"
       when:
         - VARS_FILE_PATH is defined
         - VARS_FILE_PATH | length > 0
@@ -60,15 +66,7 @@
         state: "{{ state }}"
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
-        config: >-
-          {{
-            omit
-            if (
-              item.generate_all_configurations | default(false)
-              or (item.component_specific_filters is not defined)
-            )
-            else {'component_specific_filters': item.component_specific_filters}
-          }}
+        config: "{{ item.config | default(omit) }}"
       loop: "{{ sda_fabric_devices_config }}"
       when:
         - sda_fabric_devices_config is defined

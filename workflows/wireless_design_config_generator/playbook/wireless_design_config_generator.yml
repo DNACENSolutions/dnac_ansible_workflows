@@ -24,9 +24,54 @@
     # =========================================================================
     # Input loading: vars file (VARS_FILE_PATH) or inventory variables
     # =========================================================================
+    - name: Build candidate paths for VARS_FILE_PATH resolution
+      ansible.builtin.set_fact:
+        vars_file_candidates:
+          - "{{ VARS_FILE_PATH }}"
+          - "{{ playbook_dir }}/{{ VARS_FILE_PATH }}"
+          - "{{ playbook_dir }}/../../../{{ VARS_FILE_PATH | regex_replace('^\\./', '') }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Check candidate vars file paths
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop: "{{ vars_file_candidates }}"
+      register: vars_file_stats
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Resolve vars file path from candidates
+      ansible.builtin.set_fact:
+        resolved_vars_file_path: >-
+          {{
+            (
+              vars_file_stats.results
+              | selectattr('stat.exists', 'equalto', true)
+              | map(attribute='item')
+              | list
+              | first
+            ) | default('')
+          }}
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Fail when VARS_FILE_PATH is provided but file cannot be found
+      ansible.builtin.fail:
+        msg: >-
+          Could not resolve VARS_FILE_PATH='{{ VARS_FILE_PATH }}'.
+          Checked: {{ vars_file_candidates | join(', ') }}
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+        - resolved_vars_file_path | default('') | length == 0
+
     - name: Load input variables from vars file when VARS_FILE_PATH is provided
       ansible.builtin.include_vars:
-        file: "{{ VARS_FILE_PATH }}"
+        file: "{{ resolved_vars_file_path }}"
       when:
         - VARS_FILE_PATH is defined
         - VARS_FILE_PATH | length > 0
@@ -35,7 +80,7 @@
       ansible.builtin.debug:
         msg: >-
           {{
-            'Input source: vars file ' ~ VARS_FILE_PATH
+            'Input source: vars file ' ~ resolved_vars_file_path
             if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
             else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
           }}
@@ -60,15 +105,7 @@
         state: "{{ state }}"
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
-        config: >-
-          {{
-            omit
-            if (
-              item.generate_all_configurations | default(false)
-              or (item.component_specific_filters is not defined)
-            )
-            else {'component_specific_filters': item.component_specific_filters}
-          }}
+        config: "{{ item.config | default(omit) }}"
       loop: "{{ wireless_design_config }}"
       when:
         - wireless_design_config is defined
