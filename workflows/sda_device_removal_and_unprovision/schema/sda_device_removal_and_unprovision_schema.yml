@@ -1,0 +1,27 @@
+# Schema for SDA device removal and unprovision workflow
+#
+# This workflow:
+# 1. Resolves the target device management IP from Catalyst Center inventory using the device name.
+# 2. Clears all host onboarding configuration for the device from the specified fabric site.
+# 3. Removes the device from the SDA fabric site.
+# 4. Unprovisions the device and removes it from Catalyst Center inventory.
+
+sda_device_removal_and_unprovision: list(include('device_removal_type'), min=1, required=True)
+state: enum('deleted', required=False)
+
+catalyst_center_version: str(required=False)
+catalyst_center_verify: bool(required=False)
+catalyst_center_api_task_timeout: int(required=False, default=1200)
+catalyst_center_debug: bool(required=False, default=False)
+catalyst_center_log: bool(required=False, default=False)
+catalyst_center_log_append: bool(required=False, default=True)
+catalyst_center_log_file_path: str(required=False, default='dnac.log')
+catalyst_center_log_level: enum('CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', required=False)
+catalyst_center_config_verify: bool(required=False, default=False)
+catalyst_center_task_poll_interval: int(required=False)
+
+---
+device_removal_type:
+  device_name: str(required=True)
+  fabric_site_name_hierarchy: str(required=True)
+  device_collection_status_check: bool(required=False)

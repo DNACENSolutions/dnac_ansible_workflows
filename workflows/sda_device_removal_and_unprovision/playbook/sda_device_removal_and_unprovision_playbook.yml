@@ -1,0 +1,112 @@
+---
+- name: Remove SDA fabric device and unprovision it from Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars:
+    catalyst_center_login: &catalyst_center_login
+      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
+      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
+      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
+      dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
+      dnac_port: "{{ catalyst_center_port | default(443) }}"
+      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      config_verify: "{{ catalyst_center_config_verify | default(False) }}"
+      dnac_debug: "{{ catalyst_center_debug | default(False) }}"
+      dnac_log: "{{ catalyst_center_log | default(False) }}"
+      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(omit) }}"
+      dnac_log_append: "{{ catalyst_center_log_append | default(False) }}"
+      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
+
+  tasks:
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            ("Input source: vars file " ~ VARS_FILE_PATH)
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else
+            "Input source: inventory variables (VARS_FILE_PATH not provided)"
+          }}
+
+    - name: Load input variables from vars file when provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Confirm removal entries are loaded
+      ansible.builtin.debug:
+        msg: >-
+          Loaded {{ sda_device_removal_and_unprovision | default([]) | length }}
+          device removal entries
+
+    - name: Validate removal input list
+      ansible.builtin.fail:
+        msg: >-
+          sda_device_removal_and_unprovision must contain at least one device entry.
+          Check your vars file or inventory variables.
+      when: sda_device_removal_and_unprovision is not defined or sda_device_removal_and_unprovision | length == 0
+
+    - name: Device removal and unprovision workflow start time
+      ansible.builtin.set_fact:
+        long_op_start: "{{ now() }}"
+
+    - name: Process each SDA device removal entry
+      ansible.builtin.include_tasks: ./tasks/remove_single_device.yml
+      loop: "{{ sda_device_removal_and_unprovision }}"
+      loop_control:
+        loop_var: removal_item
+        label: "{{ removal_item.device_name }} ({{ removal_item.fabric_site_name_hierarchy }})"
+
+    - name: Print raw workflow results
+      ansible.builtin.debug:
+        var: sda_device_removal_and_unprovision_results
+
+    - name: Build workflow result totals
+      ansible.builtin.set_fact:
+        sda_device_removal_and_unprovision_totals:
+          total_devices: "{{ sda_device_removal_and_unprovision_results | default([]) | length }}"
+          successful_devices: "{{ sda_device_removal_and_unprovision_results | default([]) | selectattr('status', 'equalto', 'success') | list | length }}"
+          failed_devices: "{{ sda_device_removal_and_unprovision_results | default([]) | selectattr('status', 'equalto', 'failed') | list | length }}"
+          host_onboarding_changes: "{{ sda_device_removal_and_unprovision_results | default([]) | selectattr('status', 'equalto', 'success') | map(attribute='host_onboarding_changed') | map('int') | list | sum(start=0) }}"
+          fabric_role_changes: "{{ sda_device_removal_and_unprovision_results | default([]) | selectattr('status', 'equalto', 'success') | map(attribute='fabric_role_changed') | map('int') | list | sum(start=0) }}"
+          unprovision_changes: "{{ sda_device_removal_and_unprovision_results | default([]) | selectattr('status', 'equalto', 'success') | map(attribute='unprovision_changed') | map('int') | list | sum(start=0) }}"
+
+    - name: Print workflow summary
+      ansible.builtin.debug:
+        msg: |
+          SDA Device Removal and Unprovision Summary
+          - Total devices processed: {{ sda_device_removal_and_unprovision_totals.total_devices }}
+          - Successful devices: {{ sda_device_removal_and_unprovision_totals.successful_devices }}
+          - Failed devices: {{ sda_device_removal_and_unprovision_totals.failed_devices }}
+          - Host onboarding stage changes: {{ sda_device_removal_and_unprovision_totals.host_onboarding_changes }}
+          - Fabric role stage changes: {{ sda_device_removal_and_unprovision_totals.fabric_role_changes }}
+          - Unprovision stage changes: {{ sda_device_removal_and_unprovision_totals.unprovision_changes }}
+
+    - name: Fail workflow when one or more devices could not be fully removed
+      ansible.builtin.fail:
+        msg: >-
+          SDA device removal workflow completed with
+          {{ sda_device_removal_and_unprovision_totals.failed_devices }} failed device(s).
+          Review sda_device_removal_and_unprovision_results for details.
+      when: sda_device_removal_and_unprovision_totals.failed_devices | int > 0
+
+    - name: Device removal and unprovision workflow end time
+      ansible.builtin.set_fact:
+        long_op_end: "{{ now() }}"
+
+    - name: Print workflow execution time
+      ansible.builtin.debug:
+        msg: "Start: {{ long_op_start }}, End: {{ long_op_end }}"
+
+  post_tasks:
+    - name: Get python path
+      ansible.builtin.command: which python
+      register: ansible_play_path
+      delegate_to: catalyst_center_hosts
+      connection: local
+      changed_when: false
