@@ -1,0 +1,5 @@
+{
+  "summary": "Generate Wired Campus Automation workflow-manager YAML inputs from existing Catalyst Center layer2 configurations using flexible device and feature filters.",
+  "status": "active",
+  "managed_by": "cisco"
+}
