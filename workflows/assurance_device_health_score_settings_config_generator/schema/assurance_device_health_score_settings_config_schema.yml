@@ -1,9 +1,148 @@
-# Cisco Catalyst Center Assurance Device Health Score Settings Config Generator Schema
-# ======================================================================================
+# Catalyst Center Assurance Device Health Score Settings Config Generator Schema
+# ===================================================================================
 #
 # This schema defines the configuration structure for generating YAML playbook
 # configurations from existing assurance device health score settings in Cisco
 # Catalyst Center using the assurance_device_health_score_settings_playbook_config_generator module.
+#
+# SCHEMA OVERVIEW:
+# ---------------
+# The schema supports configuration generation operations for:
+# 1. Device Health Score Settings - Extract existing KPI threshold settings
+# 2. Component Filtering - Selective extraction of device_health_score_settings component
+# 3. Device Family Filtering - Filter settings by device family type
+# 4. Append Mode - Aggregate multiple exports into a single file
+# 5. Full Discovery - Omit config to retrieve all device health score settings
+#
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating the extraction
+# and generation of device health score KPI threshold configurations from existing
+# Catalyst Center deployments (brownfield scenarios).
+#
+# TOP-LEVEL PARAMETERS:
+# -------------------
+# catalyst_center_version:           Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:            SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout:  API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:             Enable debug mode (optional, default: false)
+# catalyst_center_log:               Enable logging (optional, default: false)
+# catalyst_center_log_append:        Append to log file (optional, default: true)
+# catalyst_center_log_file_path:     Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:         Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+# catalyst_center_config_verify:     Configuration verification (optional, default: false)
+#
+# assurance_device_health_score_settings_config SECTION:
+# ------------------------------------------------
+# Contains configuration for generating YAML configurations from existing infrastructure:
+#
+# 1. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved
+#    - If not provided, auto-generates filename with timestamp
+#    - Format: <module>_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: assurance_device_health_score_settings_playbook_config_2026-04-08_14-30-45.yml
+#    - Supports absolute and relative paths
+#    - Creates directory structure if it doesn't exist
+#
+# 2. FILE_MODE:
+#    - Type: string (optional, default: overwrite)
+#    - Description: Determines how generated YAML is written when file_path is provided
+#    - Supported values: overwrite, append
+#    - overwrite replaces existing file content
+#    - append adds new content to the existing file
+#
+# 3. CONFIG:
+#    - Type: dictionary (optional)
+#    - Description: Optional filter configuration
+#    - If omitted, the module retrieves all device health score settings (full discovery mode)
+#    - If provided, component_specific_filters is mandatory
+#
+# 4. COMPONENT_SPECIFIC_FILTERS:
+#    - Type: dictionary (inside config)
+#    - Description: Component-level filters to specify which settings to include
+#
+#    Sub-options:
+#    - COMPONENTS_LIST:
+#      - Type: list of strings (optional)
+#      - Description: List of component types to generate
+#      - Allowed values: ["device_health_score_settings"]
+#      - Currently supports only one component type
+#      - If device_health_score_settings sub-filter is provided without components_list,
+#        the module can auto-add device_health_score_settings internally
+#
+#    - DEVICE_HEALTH_SCORE_SETTINGS:
+#      - Type: dictionary (optional)
+#      - Description: Sub-filter for device health score settings component
+#
+#      Sub-options:
+#        - DEVICE_FAMILIES:
+#          - Type: list of strings (optional)
+#          - Description: List of device families to filter health score settings
+#          - Allowed values:
+#            - ROUTER              : Router devices
+#            - SWITCH_AND_HUB      : Switches and hubs
+#            - WIRELESS_CONTROLLER : Wireless controllers
+#            - UNIFIED_AP          : Unified access points
+#            - WIRELESS_CLIENT     : Wireless client devices
+#            - WIRED_CLIENT        : Wired client devices
+#          - Case-sensitive and must be exact matches
+#          - Min: 1, Max: 6 entries
+#          - Returns health score settings for only the specified device families
+#
+# GENERATED OUTPUT STRUCTURE:
+# --------------------------
+# The generated YAML file will contain a 'config' section with the following structure:
+#
+# config:
+# - device_health_score:
+#   - device_family: ROUTER
+#     kpi_name: CPU Utilization
+#     include_for_overall_health: true
+#     threshold_value: 95.0
+#     synchronize_to_issue_threshold: false
+#   - device_family: ROUTER
+#     kpi_name: Memory Utilization
+#     include_for_overall_health: true
+#     threshold_value: 95.0
+#     synchronize_to_issue_threshold: false
+#
+# OPERATION WORKFLOWS:
+# -------------------
+# 1. Full Discovery (All Device Health Score Settings):
+#    a. Omit config entirely
+#    b. Optionally specify file_path and file_mode
+#    c. All existing device health score settings will be extracted
+#
+# 2. Component-Based Generation:
+#    a. Use config.component_specific_filters with components_list
+#    b. Specify components_list: ["device_health_score_settings"]
+#    c. All settings for that component type will be extracted
+#
+# 3. Device Family Filtered Generation:
+#    a. Use config.component_specific_filters with device_health_score_settings
+#    b. Specify device_families list
+#    c. Only settings for the specified device families will be extracted
+#
+# 4. Append Mode:
+#    a. Set file_mode to "append"
+#    b. New content will be added to the existing file
+#    c. Useful for aggregating multiple filtered exports into one file
+#
+# 5. Custom Output Path:
+#    a. Specify file_path parameter
+#    b. Can use absolute or relative paths
+#    c. Directory structure will be created if needed
+#
+# 6. Default Behavior:
+#    a. If config is omitted, module retrieves all device health score settings
+#    b. If no file_path specified, auto-generates filename with timestamp
+#    c. Generated in current working directory or specified path
+#
+# EXAMPLES:
+# --------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
 
 # Schema Definition
 assurance_device_health_score_settings_config: list(include('assurance_device_health_score_settings_config_generator_type'), min=1, max=100, required=True)
@@ -22,30 +161,30 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # Assurance Device Health Score Settings Config Generator Entry Schema
 assurance_device_health_score_settings_config_generator_type:
-  generate_all_configurations: bool(required=False)
+  # Output file path
   file_path: str(required=False)
+
+  # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
   file_mode: enum('overwrite', 'append', required=False)
-  component_specific_filters: include('assurance_device_health_score_component_filters_type', required=False)
+
+  # Optional config block. Omit to gather all device health score settings.
+  config: include('assurance_device_health_score_settings_config_wrapper_type', required=False)
+
+---
+# Assurance Device Health Score Settings Config Wrapper Schema
+assurance_device_health_score_settings_config_wrapper_type:
+  component_specific_filters: include('assurance_device_health_score_component_filters_type', required=True)
 
 ---
 # Assurance Device Health Score Settings Component Filters Schema
 assurance_device_health_score_component_filters_type:
+  # Components list - currently supports: device_health_score_settings
   components_list: list(enum('device_health_score_settings'), min=1, max=1, required=False)
+
+  # Device health score settings sub-filter
   device_health_score_settings: include('device_health_score_settings_filter_type', required=False)
 
 ---
 # Device health score settings filter schema
 device_health_score_settings_filter_type:
-  device_families: list(
-    enum(
-      'ROUTER',
-      'SWITCH_AND_HUB',
-      'WIRELESS_CONTROLLER',
-      'UNIFIED_AP',
-      'WIRELESS_CLIENT',
-      'WIRED_CLIENT'
-    ),
-    min=1,
-    max=6,
-    required=False
-  )
+  device_families: list(enum('ROUTER', 'SWITCH_AND_HUB', 'WIRELESS_CONTROLLER', 'UNIFIED_AP', 'WIRELESS_CLIENT', 'WIRED_CLIENT'), min=1, max=6, required=False)
