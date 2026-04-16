@@ -12,53 +12,92 @@
 # ============================================================================
 
 events_and_notifications_config:
-  # 1) Generate all events and notifications configurations
-  - generate_all_configurations: true
-    file_path: "/tmp/events_and_notifications_complete_config.yml"
+  # --------------------------------------------------------------------------
+  # 1) Generate ALL events and notifications configurations (full discovery)
+  #    Omit config entirely → module retrieves all 8 component types
+  # --------------------------------------------------------------------------
+  - file_path: "events_and_notifications_config/complete_config.yml"
 
-  # 2) Generate selected destination components
-  - file_path: "/tmp/events_notifications_destinations.yml"
-    component_specific_filters:
-      components_list:
-        - "webhook_destinations"
-        - "email_destinations"
-        - "syslog_destinations"
-      destination_filters:
-        destination_names:
-          - "my-webhook-1"
-          - "ops-email-destination"
-        destination_types:
-          - "webhook"
-          - "email"
+  # --------------------------------------------------------------------------
+  # 2) Filter destination components
+  # --------------------------------------------------------------------------
+  - file_path: "events_and_notifications_config/destinations.yml"
+    config:
+      component_specific_filters:
+        components_list:
+          - "webhook_destinations"
+          - "email_destinations"
+          - "syslog_destinations"
+        destination_filters:
+          destination_names:
+            - "my-webhook-1"
+            - "ops-email-destination"
+          destination_types:
+            - "webhook"
+            - "email"
 
-  # 3) Generate selected event notification subscriptions
-  - file_path: "/tmp/events_notifications_subscriptions.yml"
-    component_specific_filters:
-      components_list:
-        - "webhook_event_notifications"
-        - "email_event_notifications"
-      notification_filters:
-        subscription_names:
-          - "Critical Alerts"
-          - "Device Down Alerts"
-        notification_types:
-          - "webhook"
+  # --------------------------------------------------------------------------
+  # 3) Filter event notification subscriptions
+  # --------------------------------------------------------------------------
+  - file_path: "events_and_notifications_config/subscriptions.yml"
+    config:
+      component_specific_filters:
+        components_list:
+          - "webhook_event_notifications"
+          - "email_event_notifications"
+        notification_filters:
+          subscription_names:
+            - "Critical Alerts"
+            - "Device Down Alerts"
+          notification_types:
+            - "webhook"
 
-  # 4) Generate ITSM settings with append mode
-  - file_path: "/tmp/events_notifications_itsm.yml"
+  # --------------------------------------------------------------------------
+  # 4) ITSM settings with append mode
+  # --------------------------------------------------------------------------
+  - file_path: "events_and_notifications_config/itsm.yml"
     file_mode: "append"
-    component_specific_filters:
-      components_list: ["itsm_settings"]
-      itsm_filters:
-        instance_names:
-          - "ServiceNow-Prod"
-          - "BMC-Remedy"
+    config:
+      component_specific_filters:
+        components_list: ["itsm_settings"]
+        itsm_filters:
+          instance_names:
+            - "ServiceNow-Prod"
+            - "BMC-Remedy"
+
+  # --------------------------------------------------------------------------
+  # 5) Combined filters (destinations + notifications + ITSM)
+  # --------------------------------------------------------------------------
+  - file_path: "events_and_notifications_config/combined.yml"
+    config:
+      component_specific_filters:
+        components_list:
+          - "webhook_destinations"
+          - "email_destinations"
+          - "webhook_event_notifications"
+          - "email_event_notifications"
+          - "itsm_settings"
+        destination_filters:
+          destination_names:
+            - "prod-webhook"
+          destination_types:
+            - "webhook"
+        notification_filters:
+          subscription_names:
+            - "Critical Alerts"
+          notification_types:
+            - "webhook"
+        itsm_filters:
+          instance_names:
+            - "ServiceNow-Prod"
 
 # ============================================================================
 # Notes
 # ============================================================================
-# - If component_specific_filters is omitted, the workflow omits module config
-#   and runs in full discovery mode.
-# - When filter blocks are provided, the module auto-adds corresponding
-#   components to components_list if needed.
+# Omit config entirely to run in full discovery mode (all 8 component types).
+# When config is provided, component_specific_filters is mandatory.
+# When filter blocks (destination_filters, notification_filters, itsm_filters)
+# are provided, the module auto-adds the corresponding components to
+# components_list if not already present.
+# Generated YAML files contain ***REDACTED*** placeholders for passwords.
 # ============================================================================
