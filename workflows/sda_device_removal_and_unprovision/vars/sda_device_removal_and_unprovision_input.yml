@@ -1,0 +1,11 @@
+---
+catalyst_center_version: 2.3.7.9
+
+sda_device_removal_and_unprovision:
+  - device_name: "SJ-EDGE-9300-1.cisco.local"
+    fabric_site_name_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23"
+
+  # Optional: skip collection-status validation if the device is already in a stale state.
+  # - device_name: "SJ-EDGE-9300-2.cisco.local"
+  #   fabric_site_name_hierarchy: "Global/USA/SAN JOSE/SJ_BLD23"
+  #   device_collection_status_check: false

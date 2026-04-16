@@ -1,0 +1,5 @@
+{
+  "summary": "Remove an SDA fabric device end to end by clearing host onboarding, deleting the device from the fabric site, and unprovisioning it from Catalyst Center inventory.",
+  "status": "active",
+  "managed_by": "cisco"
+}
