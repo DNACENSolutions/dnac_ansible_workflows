@@ -1,14 +1,191 @@
 # Cisco Catalyst Center Inventory Config Generator Schema
-# ======================================================================================
+# ===================================================================
 #
-# This schema defines the configuration structure for generating YAML playbook
-# configurations from existing inventory data in Cisco Catalyst Center using
-# the inventory_playbook_config_generator module.
+# This schema validates input files used by:
+# workflows/inventory_config_generator/playbook/inventory_config_generator.yml
+#
+# The workflow uses cisco.dnac.inventory_playbook_config_generator and supports:
+# - Generate all inventory configurations (omit module config)
+# - Filter by devices list (IP/hostname/serial/mac values)
+# - Filter by device roles
+# - Filter by device types
+# - Select output identifier key using device_identifier
+# - Write output using overwrite/append file modes
+# USAGE:
+# ------
+# This schema validates YAML configuration files for automating the extraction
+# and generation of discovery configurations from existing
+# Catalyst Center deployments (brownfield scenarios).
+#
+#
+# TOP-LEVEL PARAMETERS:
+# ---------------------
+# catalyst_center_version:          Catalyst Center version (optional, overrides host file)
+# catalyst_center_verify:           SSL certificate verification (optional, default: false)
+# catalyst_center_api_task_timeout: API task timeout in seconds (optional, default: 1200)
+# catalyst_center_debug:            Enable debug mode (optional, default: false)
+# catalyst_center_log:              Enable logging (optional, default: false)
+# catalyst_center_log_append:       Append to log file (optional, default: true)
+# catalyst_center_log_file_path:    Log file path (optional, default: 'dnac.log')
+# catalyst_center_log_level:        Log level (CRITICAL, ERROR, WARNING, INFO, DEBUG)
+#
+# INVENTORY_CONFIG_GENERATOR_DETAILS SECTION:
+# -----------------------------------------------------
+# Contains configuration for generating YAML configurations from existing infrastructure:
+#
+# 1. FILE_PATH:
+#    - Type: string (optional)
+#    - Description: Output path where the YAML configuration file will be saved.
+#    - If not provided, auto-generates a timestamped filename in the current directory.
+#    - Auto-generated format: inventory_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml
+#    - Example: inventory_playbook_config_2026-01-24_12-33-20.yml
+#    - Supports absolute and relative paths.
+#    - Creates directory structure if it doesn't exist
+#    - This is a module-level parameter (outside config)
+#
+# 2. FILE_MODE:
+#    - Type: string (optional, default: "overwrite")
+#    - Description: File write mode for the generated YAML configuration file
+#    - Valid values: "overwrite" (replaces existing file), "append" (adds to existing file)
+#    - Only applicable when file_path is provided
+#    - This is a module-level parameter (outside config)
+#
+# 3. CONFIG:
+#    - Type: dictionary (optional)
+#    - Description: Configuration filters for generating YAML configurations compatible with 
+#      the 'inventory_workflow_manager' module
+#    - If not provided or omitted, all configurations are auto-generated
+#
+# 4. GLOBAL_FILTERS:
+#    - Type: dictionary (required when config is provided)
+#    - Description: Global filters to apply when generating the YAML configuration file.
+#    - Used to filter inventory devices included in generated output.
+#    - Mandatory when CONFIG is provided.
+#    - If config is omitted, module runs in internal auto-discovery mode.
+#    - Supported filter keys:
+#      - devices: list of identifier values matched against ip_address, hostname,
+#        serial_number, and mac_address
+#      - device_roles: list of roles (ACCESS, DISTRIBUTION, CORE, BORDER ROUTER, UNKNOWN)
+#      - device_types: list of types (COMPUTE_DEVICE, MERAKI_DASHBOARD,
+#        THIRD_PARTY_DEVICE, NETWORK_DEVICE, ACCESS_POINT)
+#      - device_identifier: output key selector (ip_address, hostname,
+#        serial_number, mac_address)
+#    - When multiple filter groups are provided, they are combined with logical AND.
+#
+#
+# GENERATED OUTPUT STRUCTURE:
+# ---------------------------
+# The generated YAML file will contain a 'config' section with the following structure:
+#
+# config:
+# - ip_address_list:
+#   - 204.1.216.5
+#   role: ACCESS
+#   type: ACCESS_POINT
+#   cli_transport: ssh
+#   http_secure: false
+#   snmp_retry: 0
+#   snmp_timeout: 0
+#   compute_device: false
+# - ip_address_list:
+#   - 204.1.216.3
+#   role: ACCESS
+#   type: ACCESS_POINT
+#   cli_transport: ssh
+#   http_secure: false
+#   snmp_retry: 0
+#   snmp_timeout: 0
+#   compute_device: false
+# - ip_address_list:
+#   - 204.192.106.4
+#   role: ACCESS
+#   type: ACCESS_POINT
+#   cli_transport: ssh
+#   http_secure: false
+#   snmp_retry: 0
+#   snmp_timeout: 0
+#   compute_device: false
+# - ip_address_list:
+#   - 204.192.3.40
+#   role: ACCESS
+#   type: NETWORK_DEVICE
+#   cli_transport: ssh
+#   netconf_port: '830'
+#   username: wlcaccess
+#   password: '{{ ip_204_192_3_40_password }}'
+#   enable_password: '{{ ip_204_192_3_40_enable_password }}'
+#   http_username: wlcaccess
+#   http_password: '{{ ip_204_192_3_40_http_password }}'
+#   http_port: '443'
+#   http_secure: false
+#   snmp_version: v3
+#   snmp_mode: AUTHNOPRIV
+#   snmp_username: v3Public1
+#   snmp_auth_passphrase: '{{ ip_204_192_3_40_snmp_auth_passphrase }}'
+#   snmp_auth_protocol: SHA
+#   snmp_retry: 3
+#   snmp_timeout: 5
+#   compute_device: false
 
-# Schema Definition
+# VALIDATION RULES:
+# ----------------
+# 1. If config is not provided (None), all configurations are auto-generated with default behavior
+# 2. If config is provided as empty dict {}, global_filters is mandatory
+# 3. global_filters is required when config is provided
+# 4. file_path and file_mode can be specified outside of the config
+# 5. Idempotency: In overwrite mode, the full file content is compared (excluding volatile
+#     fields like timestamps and playbook path). In append mode, only the last YAML document 
+#     in the file is compared against the newly generated configuration. If a file contains 
+#     multiple config entries from previous appends, only the most recent entry is used for 
+#     the idempotency check
+#
+# OPERATION WORKFLOWS:
+# --------------------
+# 1. Configuration Generation (All Components):
+#    a. Omit config parameter entirely at module level
+#    b. All existing discoveries are extracted regardless of type or name
+#
+# 2. Filter Types (global_filters):
+#    a. devices:
+#       - Provide a list of identifier values
+#       - Each value is matched against ip_address, hostname, serial_number, and mac_address
+#    b. device_roles:
+#       - Provide one or more roles: ACCESS, DISTRIBUTION, CORE, BORDER ROUTER, UNKNOWN
+#    c. device_types:
+#       - Provide one or more device types: COMPUTE_DEVICE, MERAKI_DASHBOARD,
+#         THIRD_PARTY_DEVICE, NETWORK_DEVICE, ACCESS_POINT
+#    d. device_identifier:
+#       - Selects output list key in generated config:
+#         ip_address_list, hostname_list, serial_number_list, or mac_address_list
+#
+# 4. Custom Output Path:
+#    a. Specify file_path parameter (module-level)
+#    b. Can use absolute or relative paths
+#    c. Directory structure will be created if needed
+#
+# 5. Idempotency Behavior:
+#    a. Overwrite mode: Compares full file content (ignores timestamps/playbook paths)
+#    b. Append mode: Compares only the last YAML document in existing file
+#    c. Multiple appends: Only most recent entry is used for comparison
+#    d. Prevents duplicate content generation when configuration hasn't changed
+#
+# 6. Default Behavior:
+#    a. If no config specified, all components are generated
+#    b. If no file_path specified, auto-generates filename with timestamp
+#    c. Generated in current working directory with default overwrite mode
+
+# EXAMPLES:
+# ---------
+# See the vars/ directory for comprehensive example configuration files demonstrating
+# different usage patterns and scenarios.
+
+# =============================================================================
+# Top-Level Parameters
+# =============================================================================
+
 inventory_config: list(include('inventory_config_generator_type'), min=1, max=100, required=True)
 
-# Optional Catalyst Center connection parameters
+# Optional Catalyst Center connection override parameters
 catalyst_center_version: str(required=False)
 catalyst_center_verify: bool(required=False)
 catalyst_center_api_task_timeout: int(min=60, max=3600, required=False)
@@ -22,46 +199,43 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # Inventory Config Generator Entry Schema
 inventory_config_generator_type:
-  generate_all_configurations: bool(required=False)
-  file_path: str(required=False)
+
+   # Output file path (optional - module level parameter)
+  file_path: str(required=True)
+
+  # File write mode (optional, default: overwrite - module level parameter)
   file_mode: enum('overwrite', 'append', required=False)
-  global_filters: include('inventory_global_filters_type', required=False)
-  component_specific_filters: include('inventory_component_filters_type', required=False)
+
+  # Config parameter containing global filters (optional - module level parameter)
+  config: include('inventory_global_type', required=False)
 
 ---
-# Inventory global filters schema
+# Config Schema - what goes inside the config parameter
+inventory_global_type:
+  # Global filters (required when config is provided)
+  global_filters: include('inventory_global_filters_type', required=True)
+ 
+---
+# Inventory Global Filters Schema
 inventory_global_filters_type:
-  ip_address_list: list(str(), min=1, max=500, required=False)
-  hostname_list: list(str(), min=1, max=500, required=False)
-  serial_number_list: list(str(), min=1, max=500, required=False)
-  mac_address_list: list(str(), min=1, max=500, required=False)
+  # Device identifier values. Each value is matched against:
+  # ip_address, hostname, serial_number, and mac_address.
+  devices: list(str(), min=1, max=500, required=False)
 
----
-# Inventory component filters schema
-inventory_component_filters_type:
-  components_list: list(
-    enum('device_details', 'provision_device', 'interface_details', 'user_defined_fields'),
+  # Inventory device roles to include.
+  device_roles: list(
+    enum('ACCESS', 'DISTRIBUTION', 'CORE', 'BORDER ROUTER', 'UNKNOWN'),
     min=1,
-    max=4,
-    required=False
-  )
-  device_details: any(required=False)
-  provision_device: include('inventory_provision_device_filter_type', required=False)
-  interface_details: include('inventory_interface_details_filter_type', required=False)
-  user_defined_fields: include('inventory_user_defined_fields_filter_type', required=False)
+    max=5,
+    required=False)
 
----
-# Provision device filter schema
-inventory_provision_device_filter_type:
-  site_name: str(required=False)
+  # Inventory device types to include.
+  device_types: list(
+    enum('COMPUTE_DEVICE', 'MERAKI_DASHBOARD', 'THIRD_PARTY_DEVICE', 'NETWORK_DEVICE', 'ACCESS_POINT'),
+    min=1,
+    max=5,
+    required=False)
 
----
-# Interface details filter schema
-inventory_interface_details_filter_type:
-  interface_name: any(str(), list(str()), required=False)
-
----
-# User defined fields filter schema
-inventory_user_defined_fields_filter_type:
-  name: any(str(), list(str()), required=False)
-  value: any(str(), list(str()), required=False)
+  # Output list key selector in generated config: <device_identifier>_list
+  # Allowed values: ip_address, hostname, serial_number, mac_address
+  device_identifier: enum('ip_address', 'hostname', 'serial_number', 'mac_address', required=False)
