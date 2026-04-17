@@ -230,7 +230,8 @@ sda_vn_config_generator_type:
    # File write mode (optional, default: overwrite - module level parameter)
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Config parameter containing component filters (optional - module level parameter)
+  # Config parameter containing component filters (optional - module level parameter).
+  # Omit or leave empty to generate all fabric VLANs, virtual networks, and anycast gateways.
   config: include('vn_component_config_type', required=False)
 
 
@@ -244,16 +245,16 @@ vn_component_config_type:
 # Virtual Networks Component Filters Schema
 vn_component_filters_type:
   # List of components to include
-  components_list: list(str(), min=0, max=10, required=False)
+  components_list: list(str(), min=1, max=10, required=False)
   
   # Fabric VLAN filters
-  fabric_vlan: list(include('fabric_vlan_filter_type'), min=0, max=100, required=False)
+  fabric_vlan: list(include('fabric_vlan_filter_type'), min=1, max=100, required=False)
   
   # Virtual networks filters  
-  virtual_networks: list(include('virtual_network_filter_type'), min=0, max=100, required=False)
+  virtual_networks: list(include('virtual_network_filter_type'), min=1, max=100, required=False)
 
   # Anycast gateways filters
-  anycast_gateways: list(include('anycast_gateway_filter_type'), min=0, max=100, required=False)
+  anycast_gateways: list(include('anycast_gateway_filter_type'), min=1, max=100, required=False)
 
 ---
 # Fabric VLAN Filter Schema

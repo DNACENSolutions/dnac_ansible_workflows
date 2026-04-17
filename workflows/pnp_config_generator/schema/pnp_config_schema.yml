@@ -17,7 +17,7 @@
 # ------
 # Validate variables before execution:
 #
-# ./tools/validate.sh \
+# ./tools/schemavalidation.sh \
 #   -s workflows/pnp_config_generator/schema/pnp_config_schema.yml \
 #   -d workflows/pnp_config_generator/vars/pnp_config_inputs.yml
 #
@@ -48,7 +48,7 @@
 # 3. config:
 #    - Type: dict (optional)
 #    - Mirrors the module's config parameter directly.
-#    - Omit to retrieve all PnP devices (full brownfield discovery mode).
+#    - Omit or leave empty to retrieve all PnP devices (full brownfield discovery mode).
 #
 # 4. component_specific_filters:
 #    - Type: dict (optional, legacy)
@@ -91,7 +91,7 @@ pnp_config_generator_type:
   file_mode: enum('overwrite', 'append', required=False)
 
   # config: mirrors the module's 'config' parameter directly.
-  # Omit this key to retrieve all PnP devices (full discovery).
+  # Omit this key or leave it empty to retrieve all PnP devices (full discovery).
   config: include('pnp_config_filters_type', required=False)
 
   # Legacy alternative: component_specific_filters and global_filters at item level.

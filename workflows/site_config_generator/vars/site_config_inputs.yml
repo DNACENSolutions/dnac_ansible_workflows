@@ -6,7 +6,7 @@
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/site_config_generator/playbook/site_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/site_config_inputs.yml
+#     --extra-vars VARS_FILE_PATH=./workflows/site_config_generator/vars/site_config_inputs.yml
 #
 # Module used:
 #   cisco.dnac.site_playbook_config_generator
@@ -91,8 +91,8 @@ site_config:
 # ============================================================================
 # Notes
 # ============================================================================
-# - If component_specific_filters is omitted, the workflow omits module config
-#   and runs in full discovery mode.
+# - If config is omitted or left empty, the workflow omits module config and
+#   runs in full discovery mode.
 # - In a single site filter item, avoid combining site_name_hierarchy and
 #   parent_name_hierarchy together for unambiguous behavior.
 # ============================================================================

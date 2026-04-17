@@ -43,7 +43,7 @@ sda_extranet_policies_config:
 # ============================================================================
 # Notes
 # ============================================================================
-# - If config is omitted, the module generates all extranet policies.
+# - If config is omitted or empty, the module generates all extranet policies.
 # - If config is provided, component_specific_filters is mandatory.
 # - If extranet_policies filters are provided without components_list, the
 #   module auto-adds extranet_policies to components_list internally.

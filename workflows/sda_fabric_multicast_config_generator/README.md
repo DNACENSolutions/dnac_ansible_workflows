@@ -16,7 +16,7 @@
 - [Using Generated Output with Workflow Manager](#using-generated-output-with-workflow-manager)
 - [Troubleshooting](#troubleshooting)
 - [Best Practices](#best-practices)
-- [References](#references)---
+- [References](#references)
 
 ## Overview
 
@@ -154,7 +154,7 @@ Edit:
 ### 3. Validate input schema
 
 ```bash
-./tools/validate.sh \
+./tools/schemavalidation.sh \
   -s workflows/sda_fabric_multicast_config_generator/schema/sda_fabric_multicast_config_generator_schema.yml \
   -d workflows/sda_fabric_multicast_config_generator/vars/sda_fabric_multicast_config_generator_inputs.yml
 ```
@@ -335,7 +335,7 @@ Use the exported file directly as `vars_files`, then pass `config` to the manage
 | File appears in unexpected directory | `file_path` omitted | Set explicit `file_path` (recommended: `{{ playbook_dir }}/...`) |
 | No data exported | Filters too narrow or site/VN mismatch | Validate `fabric_name` hierarchy and VN naming in Catalyst Center |
 | Filters ignored | `generate_all_configurations: true` | Set to `false` or remove it when selective export is needed |
-| Schema validation fails | Typo or wrong YAML structure | Re-run `./tools/validate.sh` and fix reported field |
+| Schema validation fails | Typo or wrong YAML structure | Re-run `./tools/schemavalidation.sh` and fix reported field |
 | Module fails on version check | Catalyst Center < 2.3.7.9 | Upgrade Catalyst Center or use compatible workflow |
 | `yamale: command not found` | Missing validation dependency | `pip install yamale` in your active environment |
 

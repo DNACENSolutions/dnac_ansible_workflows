@@ -11,7 +11,7 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
 
 ## Overview
 
@@ -29,7 +29,7 @@ The User Role config generator automates YAML playbook generation for existing u
 - **User Filtering**: Filter users by `username`, `email`, and assigned `role_name`.
 - **Role Filtering**: Filter custom roles by `role_name`.
 - **Flexible Output**: Supports custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `config` (or use workflow convenience flag) to generate all supported user/role components.
+- **Brownfield Discovery**: Omit `component_specific_filters` or set `generate_all_configurations: true` to generate all supported user/role components.
 
 ---
 
@@ -86,7 +86,8 @@ user_role_config_generator/
 | `generate_all_configurations` | boolean | No | false | Workflow convenience flag. When true, playbook omits module `config` |
 | `file_path` | string | No | auto-generated | Output file path for generated YAML |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `component_specific_filters` | dict | No | omitted | Component and filters passed to module `config` |
+| `config` | dict | No | omitted | Standard module-shaped config wrapper. If provided, it must contain `component_specific_filters`. |
+| `component_specific_filters` | dict | No | omitted | Workflow convenience input that is wrapped into module `config.component_specific_filters` |
 
 ### Supported Components
 
@@ -206,5 +207,6 @@ user_role_config:
 ## Notes
 
 - `user_role_playbook_config_generator` expects `config` as a dictionary when filters are used.
-- This workflow omits `config` when filters are absent, which triggers full generation mode.
+- This workflow accepts either the standard `config.component_specific_filters` shape or the workflow convenience `component_specific_filters` shape.
+- When filters are absent, the workflow omits `config`, which triggers full generation mode.
 - Role filtering under `role_details` includes only custom roles returned by the module logic.

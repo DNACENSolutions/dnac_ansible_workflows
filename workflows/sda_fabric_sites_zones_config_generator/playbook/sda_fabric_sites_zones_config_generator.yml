@@ -60,7 +60,12 @@
         state: "{{ state }}"
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
-        config: "{{ item.config | default(omit) }}"
+        config: >-
+          {{
+            item.config
+            if ((item.config | default({})) | length > 0)
+            else omit
+          }}
       loop: "{{ sda_fabric_sites_zones_config }}"
       when:
         - sda_fabric_sites_zones_config is defined
@@ -76,9 +81,9 @@
     # Playbook Execution Summary
     # =========================================================================
     - name: Playbook end time
-      set_fact:
+      ansible.builtin.set_fact:
         config_gen_end: "{{ now() }}"
     
     - name: Print playbook execution time
-      debug:
+      ansible.builtin.debug:
         msg: "SDA fabric sites zones configuration generation playbook run time: start: {{ config_gen_start }}, end: {{ config_gen_end }}"

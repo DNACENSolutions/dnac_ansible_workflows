@@ -84,7 +84,7 @@ sda_fabric_transits_config_generator/
 |-----------|------|----------|---------|-------------|-----------|
 | `file_path` | string | No | auto-generated | Output file path for generated YAML. Auto-generates timestamped filename if omitted: `sda_fabric_transits_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml` | `"/tmp/sda_transits_backup.yml"` |
 | `file_mode` | string | No | `"overwrite"` | File write mode. `"overwrite"` replaces file content, `"append"` adds to existing file. | `"append"` |
-| config | dict | No | omitted (all components) | Configuration filters dict. When omitted, all fabric vlans, virtual netwokrs and anycast gateways configurations are retrieved. When provided, `component_specific_filters` is mandatory. |
+| `config` | dict | No | omitted (all components) | Configuration filters dict. When omitted or empty, all SDA fabric transit configurations are retrieved. When provided, `component_specific_filters` is mandatory. |
 | `component_specific_filters` | dict | No | omitted | Component filters passed to module `config` parameter. Required when selective generation needed. | See component filters below |
 
 ### Component specific Filtering (within `config` parameter)
@@ -174,11 +174,11 @@ Use `sda_fabric_transits_config_generator.yml` for all generation tasks.
 ```yaml
 sda_fabric_transits_config:
   - file_path: "/tmp/sda_fabric_transits_by_name.yml"
-      config:
-        component_specific_filters:
-          components_list: ["sda_fabric_transits"]
-          sda_fabric_transits:
-            - name: "ip_transit_2"
+    config:
+      component_specific_filters:
+        components_list: ["sda_fabric_transits"]
+        sda_fabric_transits:
+          - name: "ip_transit_2"
 ```
 
 3. **Generate transits by transit type**
@@ -195,19 +195,19 @@ sda_fabric_transits_config:
 
 **Validate and Execute:**
 Validate Configuration: To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
-Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/validate.sh -s to perform the validation providing the schema path -d and the input path.
+Input Validation: Before executing the playbook, validate the input schema so the workflow shape matches the module contract.
 
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/sda_fabric_transits_config_generator/schema/sda_fabric_transits_config_schema.yml \
- -d workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
+./tools/schemavalidation.sh -s workflows/sda_fabric_transits_config_generator/schema/sda_fabric_transits_config_schema.yml \
+                            -d workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
 
 ```
 
 Return result validate:
 ```bash
-(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/sda_fabric_transits_config_generator/schema/sda_fabric_transits_config_schema.yml  -d workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
+(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/schemavalidation.sh -s workflows/sda_fabric_transits_config_generator/schema/sda_fabric_transits_config_schema.yml  -d workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
 workflows/sda_fabric_transits_config_generator/schema/sda_fabric_transits_config_schema.yml
 workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
 yamale   -s workflows/sda_fabric_transits_config_generator/schema/sda_fabric_transits_config_schema.yml  workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
@@ -220,7 +220,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/sda_fabric_transits_config_generator/playbook/sda_fabric_transits_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/sda_fabric_transits_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
 ```
 
 1.**Generate All Configurations**
@@ -349,10 +349,11 @@ config:
 ```yaml
 sda_fabric_transits_config:
   - file_path: "/tmp/sda_fabric_transits_by_name.yml"
-    component_specific_filters:
-      components_list: ["sda_fabric_transits"]
-      sda_fabric_transits:
-        - name: "ip_transit_2"
+    config:
+      component_specific_filters:
+        components_list: ["sda_fabric_transits"]
+        sda_fabric_transits:
+          - name: "ip_transit_2"
 ```
 After running the playbook, the following YAML configuration is generated:
 

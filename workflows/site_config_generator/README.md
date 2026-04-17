@@ -26,7 +26,7 @@ The Site Config Generator automates YAML configurations generation for existing 
   - Reuse generated files for backup and migration.
 - **Component Filtering**: Filter by `site_name_hierarchy`, `parent_name_hierarchy`, or `site_type`.
 - **Flexible Output**: Supports custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `config` (or use workflow convenience flag) to generate complete site hierarchy.
+- **Brownfield Discovery**: Omit `config` or leave it empty so the workflow generates the complete site hierarchy.
 
 ---
 
@@ -82,7 +82,7 @@ site_config_generator/
 |-----------|------|----------|---------|-------------|
 | `file_path` | string | No | auto-generated | Output file path for generated YAML. Auto-generates timestamped filename if omitted: `site_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml` | 
 | `file_mode` | string | No | `"overwrite"` | File write mode. `"overwrite"` replaces file content, `"append"` adds to existing file. | 
-| `config` | dict | No | omitted (all sites) | Dictionary of filters for generating YAML playbook compatible with `site_workflow_manager`. If not provided or empty, all site configurations will be generated (useful for brownfield discovery). If provided as empty dictionary `{}`, an error will be raised. |
+| `config` | dict | No | omitted (all sites) | Dictionary of filters for generating YAML playbook compatible with `site_workflow_manager`. If not provided, the workflow omits it and all site configurations will be generated. |
 
 ### Component Specific Filtering (within `config` parameter)
 
@@ -206,7 +206,7 @@ site_config:
 
 ```yaml
 site_config:
-   - file_path: "/tmp/site_parent_and_type_filter.yml"
+  - file_path: "/tmp/site_parent_and_type_filter.yml"
     config:
       component_specific_filters:
         components_list: ["site"]
@@ -218,19 +218,19 @@ site_config:
 
 **Validate and Execute:**
 Validate Configuration: To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
-Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/validate.sh -s to perform the validation providing the schema path -d and the input path.
+Input Validation: Before executing the playbook, validate the input schema so the workflow shape matches the module contract. Run `./tools/schemavalidation.sh -s` with the schema path and `-d` with the input file path.
 
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/site_config_generator/schema/site_config_schema.yml \
+./tools/schemavalidation.sh -s workflows/site_config_generator/schema/site_config_schema.yml \
  -d workflows/site_config_generator/vars/site_config_inputs.yml
 
 ```
 
 Return result validate:
 ```bash
-(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/site_config_generator/schema/site_config_schema.yml \
+(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/schemavalidation.sh -s workflows/site_config_generator/schema/site_config_schema.yml \
 >  -d workflows/site_config_generator/vars/site_config_inputs.yml
 workflows/site_config_generator/schema/site_config_schema.yml
 workflows/site_config_generator/vars/site_config_inputs.yml
@@ -244,7 +244,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/site_config_generator/playbook/site_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/site_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/site_config_generator/vars/site_config_inputs.yml
 ```
 
 1.Generate All Configurations

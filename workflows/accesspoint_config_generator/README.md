@@ -3,7 +3,6 @@
 ## Table of Contents
 
 - [User Flow (3 Steps)](#user-flow-3-steps)
-
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -11,7 +10,7 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
 
 ## Overview
 
@@ -82,10 +81,10 @@ accesspoint_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `generate_all_configurations` | boolean | No | false | Workflow convenience flag. When true, playbook omits module `config` |
+| `generate_all_configurations` | boolean | No | false | Workflow convenience flag. When true, the playbook omits module `config` |
 | `file_path` | string | No | auto-generated | Output file path for generated YAML |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `global_filters` | dict | No | omitted | Global filters passed to module `config.global_filters` |
+| `global_filters` | dict | No | omitted | Workflow convenience wrapper mapped to module `config.global_filters` |
 
 ### Global Filters
 
@@ -147,7 +146,7 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/accesspoint_conf
 ### Generate Operations (state: gathered)
 
 1. **Generate all AP configurations**
-- Set `generate_all_configurations: true`.
+- Set `generate_all_configurations: true`, or omit `global_filters` entirely.
 
 2. **Generate by site list**
 - Use `global_filters.site_list`.
@@ -192,5 +191,5 @@ accesspoint_config:
 
 ## Notes
 
-- `accesspoint_playbook_config_generator` expects `config` with `global_filters` when filtering is used.
-- This workflow omits `config` when filters are absent, triggering full generation mode.
+- `accesspoint_playbook_config_generator` expects `config.global_filters` when filtering is used.
+- This workflow omits module `config` when `generate_all_configurations: true` is set or when `global_filters` is omitted or empty.

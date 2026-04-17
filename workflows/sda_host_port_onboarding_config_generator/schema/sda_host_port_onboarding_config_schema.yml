@@ -115,7 +115,7 @@ sda_host_port_onboarding_config_type:
 # Component Specific Filters Schema
 component_specific_filters_type:
   # List of components to include
-  components_list: list(enum('port_assignments', 'port_channels', 'wireless_ssids'), min=0, max=10, required=False)
+  components_list: list(enum('port_assignments', 'port_channels', 'wireless_ssids'), min=1, max=10, required=False)
 
   # Port assignments filters
   port_assignments: include('fabric_site_filter_type', required=False)
@@ -130,4 +130,4 @@ component_specific_filters_type:
 # Fabric Site Filter Schema
 fabric_site_filter_type:
   # Fabric site name hierarchy for filtering
-  fabric_site_name_hierarchy: list(str(), min=0, max=100, required=False)
+  fabric_site_name_hierarchy: list(str(), min=1, max=100, required=False)

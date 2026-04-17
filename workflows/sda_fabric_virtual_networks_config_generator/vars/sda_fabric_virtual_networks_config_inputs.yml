@@ -6,7 +6,7 @@
 # Usage:
 #  ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #    workflows/sda_fabric_virtual_networks_config_generator/playbook/sda_fabric_virtual_networks_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/backup_and_restore_config_inputs.yml
+#     --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_virtual_networks_config_generator/vars/sda_fabric_virtual_networks_config_inputs.yml
 #
 # ============================================================================
 
@@ -103,7 +103,7 @@ sda_fabric_virtual_networks_config:
         components_list: ["fabric_vlan", "virtual_networks", "anycast_gateways"]
 
   # Components list with only fabric_vlan, but virtual networks filter provided
-  # Expected: Auto-population adds backup_storage_configuration to components_list
+  # Expected: Auto-population adds virtual_networks to components_list
   - file_path: "/tmp/auto_population_backup_storage_config12.yml"
     config:
       component_specific_filters:

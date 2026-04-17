@@ -86,7 +86,7 @@ pnp_config_generator/
 |-----------|------|----------|---------|-------------|
 | `file_path` | string | No | auto-generated | Output file path for YAML configuration file |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `config` | dict | No | omitted | Module-level filter dict (see [Config Filters](#config-filters) below). Omit for full discovery |
+| `config` | dict | No | omitted | Module-level filter dict (see [Config Filters](#config-filters) below). Omit or leave empty for full discovery |
 | `component_specific_filters` | dict | No | omitted | **Legacy** — component-level filters at item level (auto-wrapped into `config` by the playbook when `config` is not provided) |
 | `global_filters` | dict | No | omitted | **Legacy** — global filters at item level (auto-wrapped into `config` by the playbook when `config` is not provided) |
 
@@ -160,7 +160,7 @@ export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   workflows/pnp_config_generator/playbook/pnp_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/pnp_config_inputs.yml -vvvv
+  --extra-vars VARS_FILE_PATH=./workflows/pnp_config_generator/vars/pnp_config_inputs.yml -vvvv
 ```
 
 
@@ -172,7 +172,7 @@ Use `pnp_config_generator.yml` for all generation tasks.
 
 #### Generate All Configurations
 
-**Description**: Retrieves all registered PnP devices from Catalyst Center. To generate all configurations, omit `config`.
+**Description**: Retrieves all registered PnP devices from Catalyst Center. To generate all configurations, omit `config` or leave it empty.
 
 ```yaml
 pnp_config:
@@ -214,14 +214,14 @@ pnp_config:
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/pnp_config_generator/schema/pnp_config_schema.yml \
-     -d workflows/pnp_config_generator/vars/pnp_config_inputs.yml
+./tools/schemavalidation.sh -s workflows/pnp_config_generator/schema/pnp_config_schema.yml \
+                            -d workflows/pnp_config_generator/vars/pnp_config_inputs.yml
 ```
 Expected validation output:
 ```
 # Command to run (from dnac_ansible_workflows/ directory):
-# ./tools/validate.sh -s workflows/pnp_config_generator/schema/pnp_config_schema.yml \
-#      -d workflows/pnp_config_generator/vars/pnp_config_inputs.yml
+# ./tools/schemavalidation.sh -s workflows/pnp_config_generator/schema/pnp_config_schema.yml \
+#                             -d workflows/pnp_config_generator/vars/pnp_config_inputs.yml
 
 # --- Output ---
 workflows/pnp_config_generator/schema/pnp_config_schema.yml
@@ -235,7 +235,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/pnp_config_generator/playbook/pnp_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/pnp_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/pnp_config_generator/vars/pnp_config_inputs.yml
 ```
 
 Expected Terminal Output:

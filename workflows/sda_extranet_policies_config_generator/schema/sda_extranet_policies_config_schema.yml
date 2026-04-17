@@ -28,7 +28,8 @@ sda_extranet_policies_config_generator_type:
   # File write mode: overwrite or append
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Module config dictionary. When omitted, all extranet policies are generated.
+  # Module config dictionary. When omitted or empty, all extranet policies
+  # are generated.
   config: include('sda_extranet_policies_module_config_type', required=False)
 
 ---

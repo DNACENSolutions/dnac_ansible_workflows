@@ -54,10 +54,10 @@
 #
 # 3. CONFIG:
 #    - Type: dictionary (optional)
-#    - Description: Configuration filters for generating YAML configurations compatible with 
+#    - Description: Configuration filters for generating YAML configurations compatible with
 #      the 'backup_and_restore_workflow_manager' module
-#    - If not provided or omitted, all configurations are auto-generated
-#    - If provided as empty dict {}, component_specific_filters is mandatory
+#    - If omitted or provided as an empty dictionary, the workflow omits module config
+#      and all configurations are auto-generated
 #    - Contains component_specific_filters for selective component extraction
 #
 # 4. COMPONENT_SPECIFIC_FILTERS:
@@ -126,9 +126,8 @@
 #
 # VALIDATION RULES:
 # ----------------
-# 1. If config is not provided (None), all configurations are auto-generated with default behavior
-# 2. If config is provided as empty dict {}, component_specific_filters is mandatory
-# 3. component_specific_filters is required when config is provided
+# 1. If config is omitted or empty, all configurations are auto-generated
+# 2. component_specific_filters is required when config is provided with filter content
 # 4. Auto-population of components_list: If component-specific filters (such as 'nfs_configuration' 
 #    or 'backup_storage_configuration') are provided without explicitly including them in 
 #    'components_list', those components will be automatically added to 'components_list'

@@ -180,19 +180,21 @@ assurance_issue_config_generator:
   file_mode: enum('overwrite', 'append', required=False)
 
   # Config parameter containing component filters (optional - module level parameter)
-  config: include('assurance_issue_component_filters', required=False)
+  config: include('assurance_issue_config_type', required=False)
 
-  # Component-specific filters
-  component_specific_filters: include('assurance_issue_component_filters', required=False)
+---
+# Assurance Issue Config Wrapper Schema
+assurance_issue_config_type:
+  component_specific_filters: include('assurance_issue_component_filters', required=True)
 
 ---
 # Assurance Issue Component Filters Schema
 assurance_issue_component_filters:
   # List of components to include
-  components_list: list(enum("assurance_user_defined_issue_settings"), min=0, max=10, required=False)
+  components_list: list(enum("assurance_user_defined_issue_settings"), min=1, max=10, required=False)
   
   # Issue configuration filters
-  assurance_user_defined_issue_settings: list(include('issue_filter'), min=0, max=100, required=False)
+  assurance_user_defined_issue_settings: list(include('issue_filter'), min=1, max=100, required=False)
 
 ---
 # Issue Filter Schema

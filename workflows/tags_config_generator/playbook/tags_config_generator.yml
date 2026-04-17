@@ -66,10 +66,10 @@
             if (item.generate_all_configurations | default(false) | bool)
             else (
               item.config
-              if (item.config is defined and item.config is not none)
+              if (((item.config | default({})) | length) > 0)
               else (
                 {'component_specific_filters': item.component_specific_filters}
-                if (item.component_specific_filters is defined and item.component_specific_filters is not none)
+                if (((item.component_specific_filters | default({})) | length) > 0)
                 else omit
               )
             )

@@ -35,8 +35,17 @@ user_role_config_generator_type:
   # File write mode: overwrite or append
   file_mode: enum('overwrite', 'append', required=False)
 
+  # Standard module-shaped config wrapper.
+  config: include('user_role_config_type', required=False)
+
   # Component-specific filters accepted by user_role_playbook_config_generator
+  # as a workflow-level convenience input.
   component_specific_filters: include('user_role_component_filters_type', required=False)
+
+---
+# Standard config wrapper schema
+user_role_config_type:
+  component_specific_filters: include('user_role_component_filters_type', required=True)
 
 ---
 # User Role Component Filters Schema

@@ -11,7 +11,7 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
 
 ## Overview
 
@@ -28,7 +28,7 @@ The Template config generator automates YAML playbook generation for existing te
 - **Component Filtering**: Generate `projects`, `configuration_templates`, or both.
 - **Template Filtering**: Filter templates by `template_name`, `project_name`, and `include_uncommitted`.
 - **Flexible Output**: Configure custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `config` to generate all available template data.
+- **Brownfield Discovery**: Omit `config` to generate all committed template data. Use `include_uncommitted: true` filters when you need uncommitted templates too.
 
 ---
 
@@ -84,7 +84,7 @@ template_config_generator/
 |-----------|------|----------|---------|-------------|
 | `file_path` | string | No | auto-generated | Output file path for YAML configuration file |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `config` | dict | No | omitted | Module config dictionary passed to `template_playbook_config_generator` |
+| `config` | dict | No | omitted | Module config dictionary passed to `template_playbook_config_generator`. If provided, it must contain `component_specific_filters`. |
 
 ### Config Filters (`config.component_specific_filters`)
 
@@ -106,17 +106,17 @@ template_config_generator/
 
 ### Project Filters
 
-| Parameter | Type   | Description
+| Parameter | Type | Description |
 |-----------|--------|-------------|
-| name | string | Filter by Project name |
+| `name` | string | Filter by project name |
 
 ### Configuration Template Filters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| template_name    string | Filter by template name name |
-| project_name    | string | Filter by Project name  |
-| include_uncommitted| string | Un committed template configuration |
+| `template_name` | string | Filter by template name |
+| `project_name` | string | Filter by project name |
+| `include_uncommitted` | bool | Include uncommitted template configurations |
 
 ---
 
@@ -224,14 +224,14 @@ template_config:
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/template_config_generator/schema/template_config_schema.yml \
+./tools/schemavalidation.sh -s workflows/template_config_generator/schema/template_config_schema.yml \
  -d workflows/template_config_generator/vars/template_config_inputs.yml
 
 ```
 
 Return result validate:
 ```bash
-(pyats-mabdulk2) [mabdulk2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/template_config_generator/schema/template_config_schema.yml \
+./tools/schemavalidation.sh -s workflows/template_config_generator/schema/template_config_schema.yml \
 >  -d workflows/template_config_generator/vars/template_config_inputs.yml
 workflows/template_config_generator/schema/template_config_schema.yml
 workflows/template_config_generator/vars/template_config_inputs.yml
@@ -245,7 +245,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/template_config_generator/playbook/template_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/template_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/template_config_generator/vars/template_config_inputs.yml
 ```
 
 1.Generate All Configurations

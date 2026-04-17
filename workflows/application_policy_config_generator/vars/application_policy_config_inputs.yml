@@ -26,9 +26,9 @@ application_policy_config:
       component_specific_filters:
         components_list: ["queuing_profile"]
         queuing_profile:
-          profile_names_list:
-            - "Enterprise-QoS-Profile"
-            - "Wireless-QoS-Profile"
+          - profile_names_list:
+              - "Enterprise-QoS-Profile"
+              - "Wireless-QoS-Profile"
 
   # --------------------------------------------------------------------------
   # 3) Filter application policies by name
@@ -38,9 +38,9 @@ application_policy_config:
       component_specific_filters:
         components_list: ["application_policy"]
         application_policy:
-          policy_names_list:
-            - "wired_traffic_policy"
-            - "wireless_traffic_policy"
+          - policy_names_list:
+              - "wired_traffic_policy"
+              - "wireless_traffic_policy"
 
   # --------------------------------------------------------------------------
   # 4) Combined queuing profiles + application policies with append mode
@@ -53,9 +53,9 @@ application_policy_config:
           - "queuing_profile"
           - "application_policy"
         queuing_profile:
-          profile_names_list: ["Enterprise-QoS-Profile"]
+          - profile_names_list: ["Enterprise-QoS-Profile"]
         application_policy:
-          policy_names_list: ["wired_traffic_policy", "wireless_traffic_policy"]
+          - policy_names_list: ["wired_traffic_policy", "wireless_traffic_policy"]
 
 # ============================================================================
 # Notes

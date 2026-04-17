@@ -201,10 +201,10 @@ assurance_device_health_score_settings_config:
       component_specific_filters:
         components_list: ["device_health_score_settings"]
         device_health_score_settings:
-          device_families:
-            - "UNIFIED_AP"
-            - "ROUTER"
-            - "SWITCH_AND_HUB"
+          - device_families:
+              - "UNIFIED_AP"
+              - "ROUTER"
+              - "SWITCH_AND_HUB"
 ```
 
 #### Append Mode Generation
@@ -219,17 +219,18 @@ assurance_device_health_score_settings_config:
       component_specific_filters:
         components_list: ["device_health_score_settings"]
         device_health_score_settings:
-          device_families:
-            - "WIRELESS_CONTROLLER"
-            - "WIRED_CLIENT"
+          - device_families:
+              - "WIRELESS_CONTROLLER"
+              - "WIRED_CLIENT"
 ```
 
 **Validate and Execute:**
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/assurance_device_health_score_settings_config_generator/schema/assurance_device_health_score_settings_config_schema.yml \
-                   -d workflows/assurance_device_health_score_settings_config_generator/vars/assurance_device_health_score_settings_config_inputs.yml
+./tools/schemavalidation.sh \
+  -s workflows/assurance_device_health_score_settings_config_generator/schema/assurance_device_health_score_settings_config_schema.yml \
+  -v workflows/assurance_device_health_score_settings_config_generator/vars/assurance_device_health_score_settings_config_inputs.yml
 ```
 **Return result validate:**
 ```bash
@@ -986,4 +987,3 @@ assurance_device_health_score_settings_config:
 - [Cisco DNA Center SDK](https://dnacentersdk.readthedocs.io/)
 - [Ansible Documentation](https://docs.ansible.com/)
 - [Assurance Device Health Score Settings Workflow Manager Module](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/)
-

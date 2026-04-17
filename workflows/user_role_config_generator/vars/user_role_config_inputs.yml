@@ -80,8 +80,10 @@ user_role_config:
 # ============================================================================
 # Notes
 # ============================================================================
-# - If component_specific_filters is omitted, the workflow omits module config
-#   and runs in full discovery mode.
+# - Omit component_specific_filters (or set generate_all_configurations: true)
+#   to run in full discovery mode.
+# - The workflow also accepts the standard config.component_specific_filters
+#   shape if you prefer module-aligned inputs.
 # - username/email/role_name filters under user_details are list-of-string values.
 # - role_name under role_details is list-of-string values.
 # ============================================================================

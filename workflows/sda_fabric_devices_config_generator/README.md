@@ -23,7 +23,7 @@ The SDA Fabric Devices config generator automates YAML playbook generation for e
 - **Flexible Device Filters**: Filter by `fabric_name`, `device_ip`, and/or `device_roles`.
 - **Multi-Fabric Selection**: Provide multiple `fabric_devices` entries in one run.
 - **Flexible Output**: Supports custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `component_specific_filters` to export all fabrics/devices.
+- **Brownfield Discovery**: Omit `config` or leave it empty to export all fabrics/devices.
 
 ## Prerequisites
 
@@ -73,7 +73,7 @@ sda_fabric_devices_config_generator/
 |-----------|------|----------|---------|-------------|
 | `file_path` | string | No | auto-generated | Output file path for generated YAML |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `component_specific_filters` | dict | No | omitted | Component filters passed to module `config` |
+| `config` | dict | No | omitted | Module filter wrapper. Omit or leave empty for full discovery |
 
 ### Component Filters
 
@@ -148,7 +148,7 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/sda_fabric_devic
 ### Generate Operations (state: gathered)
 
 1. **Generate all fabric devices**
-- Omit `component_specific_filters`.
+- Omit `config`.
 
 2. **Generate all devices in one fabric**
 - Set one `fabric_devices` entry with `fabric_name`.
@@ -176,10 +176,11 @@ sda_fabric_devices_config:
 ```yaml
 sda_fabric_devices_config:
   - file_path: "/tmp/sda_fabric_devices_by_fabric.yml"
-    component_specific_filters:
-      components_list: ["fabric_devices"]
-      fabric_devices:
-        - fabric_name: "Global/USA/SAN JOSE"
+    config:
+      component_specific_filters:
+        components_list: ["fabric_devices"]
+        fabric_devices:
+          - fabric_name: "Global/USA/SAN JOSE"
 ```
 
 ### Example 3: Generate one specific device
@@ -187,11 +188,12 @@ sda_fabric_devices_config:
 ```yaml
 sda_fabric_devices_config:
   - file_path: "/tmp/sda_fabric_device_by_ip.yml"
-    component_specific_filters:
-      components_list: ["fabric_devices"]
-      fabric_devices:
-        - fabric_name: "Global/USA/SAN JOSE"
-          device_ip: "10.10.10.21"
+    config:
+      component_specific_filters:
+        components_list: ["fabric_devices"]
+        fabric_devices:
+          - fabric_name: "Global/USA/SAN JOSE"
+            device_ip: "10.10.10.21"
 ```
 
 ### Example 4: Generate by roles from multiple fabrics
@@ -199,21 +201,22 @@ sda_fabric_devices_config:
 ```yaml
 sda_fabric_devices_config:
   - file_path: "/tmp/sda_fabric_devices_multi_fabric.yml"
-    component_specific_filters:
-      components_list: ["fabric_devices"]
-      fabric_devices:
-        - fabric_name: "Global/USA/SAN JOSE"
-          device_roles: ["BORDER_NODE", "CONTROL_PLANE_NODE"]
-        - fabric_name: "Global/India/Bangalore"
-          device_roles: ["EDGE_NODE"]
+    config:
+      component_specific_filters:
+        components_list: ["fabric_devices"]
+        fabric_devices:
+          - fabric_name: "Global/USA/SAN JOSE"
+            device_roles: ["BORDER_NODE", "CONTROL_PLANE_NODE"]
+          - fabric_name: "Global/India/Bangalore"
+            device_roles: ["EDGE_NODE"]
 ```
 
 ### Validate and Execute
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/sda_fabric_devices_config_generator/schema/sda_fabric_devices_config_schema.yml \
-                   -d workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
+./tools/schemavalidation.sh -s workflows/sda_fabric_devices_config_generator/schema/sda_fabric_devices_config_schema.yml \
+                            -d workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
 ```
 
 ```bash
@@ -226,20 +229,20 @@ ansible-playbook -i inventory/demo_lab/hosts.yaml \
 ## Notes
 
 - `sda_fabric_devices_playbook_config_generator` expects `config` as a dictionary when filters are used.
-- This workflow omits `config` when filters are absent.
+- This workflow omits `config` when it is absent or empty.
 - If `fabric_devices` is provided without `components_list`, the module auto-populates `components_list` internally.
 
 ## Validate and Execute
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/sda_fabric_devices_config_generator/schema/sda_fabric_devices_config_schema.yml \
-                   -d workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
+./tools/schemavalidation.sh -s workflows/sda_fabric_devices_config_generator/schema/sda_fabric_devices_config_schema.yml \
+                            -d workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
 ```
 
 ```bash
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/sda_fabric_devices_config_generator/playbook/sda_fabric_devices_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
 ```
