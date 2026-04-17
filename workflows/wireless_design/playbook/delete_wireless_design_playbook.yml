@@ -63,6 +63,7 @@
         state: "{{ state }}"
         config: "{{wireless_design_details}}"
       register: wireless_design_output
+      when: wireless_design_details is defined and wireless_design_details is iterable and wireless_design_details is not string and wireless_design_details | length > 0
     - name: Print the output of the Wireless SSID, Interfaces, Custom RF Profiles, etc.
       debug:
         msg: "{{wireless_design_output}}"
