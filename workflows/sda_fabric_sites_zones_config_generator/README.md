@@ -229,14 +229,14 @@ Input Validation: Before executing the playbook, it is essential to validate the
 ```bash
 # Validate
 
-./tools/validate.sh -s workflows/sda_fabric_sites_zones_config_generator/schema/sda_fabric_sites_zones_config_schema.yml \
-      -d workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
+./tools/schemavalidation.sh -s workflows/sda_fabric_sites_zones_config_generator/schema/sda_fabric_sites_zones_config_schema.yml \
+                            -d workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
 ```
 
 Return result validate:
 
 ```bash
- (pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/sda_fabric_sites_zones_config_generator/schema/sda_fabric_sites_zones_config_schema.yml \
+./tools/schemavalidation.sh -s workflows/sda_fabric_sites_zones_config_generator/schema/sda_fabric_sites_zones_config_schema.yml \
 >       -d workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
 workflows/sda_fabric_sites_zones_config_generator/schema/sda_fabric_sites_zones_config_schema.yml
 workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
@@ -250,7 +250,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
  workflows/sda_fabric_sites_zones_config_generator/playbook/sda_fabric_sites_zones_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/sda_fabric_sites_zones_config_input.yml
+  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
 ```
 
 1.Generate All SDA Components
@@ -430,9 +430,9 @@ config:
 ---
 # Generate with auto-generated filename
 sda_fabric_sites_zones_config:
-  config:
-    component_specific_filters:
-      components_list: ["fabric_sites", "fabric_zones"]
+  - config:
+      component_specific_filters:
+        components_list: ["fabric_sites", "fabric_zones"]
 ```
 
 
@@ -446,10 +446,11 @@ sda_fabric_sites_zones_config:
 # Generate fabric sites configuration for specific site
 sda_fabric_sites_zones_config: 
   - file_path: "/tmp/specific_fabric_site_config.yaml"
-    component_specific_filters:
-      components_list: ["fabric_sites"]
-      fabric_sites:
-        - site_name_hierarchy: "Global/Test_Fabric"
+    config:
+      component_specific_filters:
+        components_list: ["fabric_sites"]
+        fabric_sites:
+          - site_name_hierarchy: "Global/Test_Fabric"
 ```
 
 
@@ -496,4 +497,3 @@ sda_fabric_sites_zones_config:
 - [Cisco Catalyst Center Documentation](https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/series.html)
 - [Cisco DNA Center SDK](https://dnacentersdk.readthedocs.io/)
 - [Ansible Documentation](https://docs.ansible.com/)
-

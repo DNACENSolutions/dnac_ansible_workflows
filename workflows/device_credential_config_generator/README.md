@@ -3,7 +3,6 @@
 ## Table of Contents
 
 - [User Flow (3 Steps)](#user-flow-3-steps)
-
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -207,6 +206,6 @@ device_credential_config:
 
 ## Notes
 
-- `device_credential_playbook_config_generator` expects `config` as a dictionary when filters are used.
-- This workflow omits `config` when filters are absent, which triggers full generation mode.
+- `device_credential_playbook_config_generator` expects `config.component_specific_filters` when filters are used.
+- This workflow omits module `config` when `generate_all_configurations: true` is set or when `component_specific_filters` is omitted or empty.
 - If component filters are provided without `components_list`, the module auto-populates `components_list` internally.

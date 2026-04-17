@@ -17,7 +17,7 @@ The playbook supports two input methods:
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/sda_host_port_onboarding_config_generator/playbook/sda_host_port_onboarding_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=/absolute/path/to/dnac_ansible_workflows/workflows/sda_host_port_onboarding_config_generator/vars/sda_host_port_onboarding_config_input.yml \
+  --extra-vars VARS_FILE_PATH=./workflows/sda_host_port_onboarding_config_generator/vars/sda_host_port_onboarding_config_input.yml \
   -vvvv
 ```
 
@@ -81,5 +81,8 @@ ansible-galaxy collection install cisco.dnac --force
 export HOSTIP=<catalyst-center-ip-or-fqdn>
 export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/sda_host_port_onboarding_config_generator/playbook/sda_host_port_onboarding_config_generator.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
+  ./workflows/sda_host_port_onboarding_config_generator/playbook/sda_host_port_onboarding_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=./workflows/sda_host_port_onboarding_config_generator/vars/sda_host_port_onboarding_config_input.yml \
+  -vvvv
 ```

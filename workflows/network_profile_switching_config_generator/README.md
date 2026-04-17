@@ -11,7 +11,7 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
 
 ## Overview
 
@@ -86,7 +86,7 @@ network_profile_switching_config_generator/
 |-----------|------|----------|---------|-------------|
 | file_path | string | No | auto-generated | Output file path for YAML configuration file |
 | file_mode | string | No | overwrite | File write mode — `overwrite` replaces the file, `append` adds to it |
-| config | dict | No | omitted | Optional filter wrapper. Omit `config` to generate all switch profiles |
+| config | dict | No | omitted | Optional filter wrapper. Omit or leave `config` empty to generate all switch profiles |
 | global_filters | dict | Yes if `config` is provided | none | Filters to specify which switch profiles to include |
 
 ### Global Filtering (Combined Filter Behavior)
@@ -254,13 +254,13 @@ network_profile_switch_config:
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/network_profile_switching_config_generator/schema/network_profile_switching_config_schema.yml \
-                   -d workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
+./tools/schemavalidation.sh -s workflows/network_profile_switching_config_generator/schema/network_profile_switching_config_schema.yml \
+                            -d workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
 ```
 **Return result validate:**
 ```bash
-(pyats-priya) [pbalaku2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/network_profile_switching_config_generator/schema/network_profile_switching_config_schema.yml \
->                    -d workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
+ ./tools/schemavalidation.sh -s workflows/network_profile_switching_config_generator/schema/network_profile_switching_config_schema.yml \
+>                            -d workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
 workflows/network_profile_switching_config_generator/schema/network_profile_switching_config_schema.yml
 workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
 yamale   -s workflows/network_profile_switching_config_generator/schema/network_profile_switching_config_schema.yml  workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
@@ -272,7 +272,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/network_profile_switching_config_generator/playbook/network_profile_switching_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/network_profile_switching_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
 ```
 
 **Expected Terminal Output:**

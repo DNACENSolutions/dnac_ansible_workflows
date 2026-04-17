@@ -47,7 +47,6 @@ It is designed for brownfield operations where layer2 configurations already exi
 ```text
 wired_campus_automation_config_generator/
 ├── README.md
-├── description.json
 ├── playbook/
 │   └── wired_campus_automation_config_generator.yml
 ├── schema/
@@ -171,7 +170,7 @@ Edit:
 ### 3. Validate input schema
 
 ```bash
-./tools/validate.sh \
+./tools/schemavalidation.sh \
   -s workflows/wired_campus_automation_config_generator/schema/wired_campus_automation_config_generator_schema.yml \
   -d workflows/wired_campus_automation_config_generator/vars/wired_campus_automation_config_generator_inputs.yml
 ```

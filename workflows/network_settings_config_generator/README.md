@@ -11,7 +11,7 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
 
 ## Overview
 
@@ -28,7 +28,7 @@ The Network Settings Config Generator automates YAML playbook generation for exi
 - **Component Filtering**: Generate selected components only.
 - **Granular Filters**: Filter global pools, reserve pools, and network management by documented attributes.
 - **Flexible Output**: Supports custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `component_specific_filters` entirely to export all supported network settings in full auto-discovery mode.
+- **Brownfield Discovery**: Omit `component_specific_filters`, leave it empty, or set `generate_all_configurations: true` to export all supported network settings in full auto-discovery mode.
 
 ---
 
@@ -82,9 +82,10 @@ network_settings_config_generator/
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
+| `generate_all_configurations` | bool | No | `false` | Workflow convenience flag. When `true`, the playbook omits module `config` and runs full auto-discovery. |
 | `file_path` | string | No | auto-generated | Output file path for generated YAML. If omitted, module writes `network_settings_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml` in the current working directory. |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` replaces existing file; `append` adds to existing file. Relevant only when `file_path` is provided. |
-| `component_specific_filters` | dict | No | omitted | Filters passed to module `config`. When omitted, module runs auto-discovery for all supported components. |
+| `component_specific_filters` | dict | No | omitted | Workflow convenience wrapper mapped to module `config.component_specific_filters`. When omitted or empty, module runs auto-discovery for all supported components. |
 
 ### Supported Components
 
@@ -164,7 +165,7 @@ catalyst_center_hosts:
 3. Validate input schema.
 
 ```bash
-./tools/validate.sh \
+./tools/schemavalidation.sh \
   -s workflows/network_settings_config_generator/schema/network_settings_config_schema.yml \
   -d workflows/network_settings_config_generator/vars/network_settings_config_inputs.yml
 ```
@@ -228,7 +229,7 @@ The playbook auto-detects the input source and prints it at the start:
 ### Generate Operations (state: gathered)
 
 1. **Generate all network settings**
-- Omit `component_specific_filters` to trigger full auto-discovery mode (module runs without `config`).
+- Omit `component_specific_filters`, leave it empty, or set `generate_all_configurations: true` to trigger full auto-discovery mode (module runs without `config`).
 
 2. **Generate selected component types**
 - Set `component_specific_filters.components_list`.
@@ -280,6 +281,6 @@ network_settings_config:
 ## Notes
 
 - `network_settings_playbook_config_generator` expects `config` as a dictionary containing `component_specific_filters` when selective export is needed.
-- This workflow omits `config` when `component_specific_filters` is absent, which triggers full auto-discovery mode.
+- This workflow omits `config` when `generate_all_configurations: true` or `component_specific_filters` is absent or empty, which triggers full auto-discovery mode.
 - If component filter blocks are provided without `components_list`, the module infers and auto-adds the relevant components internally.
 - `network_management_details` defaults to the `Global` (root) site if `site_name_list` is omitted.

@@ -3,7 +3,6 @@
 ## Table of Contents
 
 - [User Flow (3 Steps)](#user-flow-3-steps)
-
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -11,7 +10,7 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
 
 ## Overview
 
@@ -169,10 +168,8 @@ Use `assurance_issue_config_generator.yml` for generating YAML playbook configur
 ```yaml
 # No config at all - only Catelyst Center connection details
 # Expected: defaults to generates all configs
- - name: No config provided
-   cisco.dnac.assurance_issue_playbook_config_generator:
-    <<: *common_config
-    file_path: "generated_file/complete_assurance_issue_config.yml"
+assurance_issue_config:
+  - file_path: "generated_file/complete_assurance_issue_config.yml"
 ```
 
 #### 2.Component-Specific Generation
@@ -182,14 +179,13 @@ Use `assurance_issue_config_generator.yml` for generating YAML playbook configur
 **Extract Assurance User Defined Issue Settings only**
 
 ```yaml
- - name: No config provided
-   cisco.dnac.assurance_issue_playbook_config_generator:
-    <<: *common_config
-    file_path: "generated_file/assurance_issues_config.yml"
-    component_specific_filters:
-      components_list: ["assurance_user_defined_issue_settings"]
-      assurance_user_defined_issue_settings:
-        - name: FANFAIL
+assurance_issue_config:
+  - file_path: "generated_file/assurance_issues_config.yml"
+    config:
+      component_specific_filters:
+        components_list: ["assurance_user_defined_issue_settings"]
+        assurance_user_defined_issue_settings:
+          - name: "FANFAIL"
 ```
 
 
@@ -197,8 +193,9 @@ Use `assurance_issue_config_generator.yml` for generating YAML playbook configur
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/assurance_issue_config_generator/schema/assurance_issue_config_schema.yml \
-  -d workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
+./tools/schemavalidation.sh \
+  -s workflows/assurance_issue_config_generator/schema/assurance_issue_config_schema.yml \
+  -v workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
 ```
 
 Return result validate:

@@ -226,19 +226,19 @@ sda_fabric_virtual_networks_config:
 
 **Validate and Execute:**
 Validate Configuration: To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
-Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/validate.sh -s to perform the validation providing the schema path -d and the input path.
+Input Validation: Before executing the playbook, validate the input schema so the workflow shape matches the module contract.
 
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/sda_fabric_virtual_networks_config_generator/schema/sda_fabric_virtual_networks_config_schema.yml \
- -d workflows/sda_fabric_virtual_networks_config_generator/vars/sda_fabric_virtual_networks_config_inputs.yml
+./tools/schemavalidation.sh -s workflows/sda_fabric_virtual_networks_config_generator/schema/sda_fabric_virtual_networks_config_schema.yml \
+                            -d workflows/sda_fabric_virtual_networks_config_generator/vars/sda_fabric_virtual_networks_config_inputs.yml
 
 ```
 
 Return result validate:
 ```bash
-(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/sda_fabric_virtual_networks_config_generator/schema/sda_fabric_virtual_networks_config_schema.yml \
+(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/schemavalidation.sh -s workflows/sda_fabric_virtual_networks_config_generator/schema/sda_fabric_virtual_networks_config_schema.yml \
 >  -d workflows/sda_fabric_virtual_networks_config_generator/vars/sda_fabric_virtual_networks_config_inputs.yml
 workflows/sda_fabric_virtual_networks_config_generator/schema/sda_fabric_virtual_networks_config_schema.yml
 workflows/sda_fabric_virtual_networks_config_generator/vars/sda_fabric_virtual_networks_config_inputs.yml
@@ -252,7 +252,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/sda_fabric_virtual_networks_config_generator/playbook/sda_fabric_virtual_networks_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/sda_fabric_virtual_networks_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_virtual_networks_config_generator/vars/sda_fabric_virtual_networks_config_inputs.yml
 ```
 
 1.Generate All Configurations

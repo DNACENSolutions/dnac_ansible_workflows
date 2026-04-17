@@ -40,8 +40,8 @@ application_policy_config_type:
 # Application Policy Component Filters Schema
 application_policy_component_filters_type:
   components_list: list(enum('queuing_profile', 'application_policy'), min=1, max=2, required=False)
-  queuing_profile: include('queuing_profile_filter_type', required=False)
-  application_policy: include('application_policy_filter_type', required=False)
+  queuing_profile: list(include('queuing_profile_filter_type'), min=1, max=100, required=False)
+  application_policy: list(include('application_policy_filter_type'), min=1, max=100, required=False)
 
 ---
 # Queuing profile filter schema

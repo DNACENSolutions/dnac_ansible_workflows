@@ -96,7 +96,8 @@ sda_fabric_transits_config_generator_type:
   # 'append': Adds generated content to existing file
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Config parameter containing component filters (optional - module level parameter)
+  # Config parameter containing component filters (optional - module level parameter).
+  # Omit or leave empty to generate all transit configurations.
   config: include('sda_fabric_transits_component_filters_type', required=False)
   
   

@@ -11,7 +11,7 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
 
 ## Overview
 
@@ -158,7 +158,7 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/wireless_design_
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/wireless_design_config_generator/schema/wireless_design_config_schema.yml \
+./tools/schemavalidation.sh -s workflows/wireless_design_config_generator/schema/wireless_design_config_schema.yml \
                    -d workflows/wireless_design_config_generator/vars/wireless_design_config_inputs.yml
 ```
 

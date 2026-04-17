@@ -88,7 +88,7 @@ sda_fabric_devices_config_generator_type:
   # File write mode: overwrite (default) or append
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Config passed to module
+  # Config passed to module. Omit or leave empty to export all fabric devices.
   config: include('sda_fabric_devices_module_config_type', required=False)
 
 ---

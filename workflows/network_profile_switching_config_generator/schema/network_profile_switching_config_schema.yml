@@ -55,7 +55,7 @@
 # 3. CONFIG:
 #    - Type: dictionary (optional)
 #    - Description: Optional filter configuration
-#    - If omitted, the module retrieves all switch profiles
+#    - If omitted or empty, the module retrieves all switch profiles
 #    - If provided, global_filters is mandatory
 #
 # 4. GLOBAL_FILTERS:
@@ -183,7 +183,7 @@ network_profile_switch_config_type:
   # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Optional config block. Omit to gather all switch profiles.
+  # Optional config block. Omit or leave empty to gather all switch profiles.
   config: include('network_profile_switch_config_wrapper_type', required=False)
 
 ---

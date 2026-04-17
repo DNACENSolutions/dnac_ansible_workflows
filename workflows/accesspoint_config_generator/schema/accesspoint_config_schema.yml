@@ -22,9 +22,13 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # Access Point Config Generator Entry Schema
 accesspoint_config_generator_type:
+  # Workflow-level convenience flag. If true, the playbook omits module config
+  # and the module runs in full-discovery mode.
   generate_all_configurations: bool(required=False)
   file_path: str(required=False)
   file_mode: enum('overwrite', 'append', required=False)
+  # Workflow-level convenience wrapper. The playbook maps this to
+  # module config.global_filters when at least one filter is present.
   global_filters: include('accesspoint_global_filters_type', required=False)
 
 ---

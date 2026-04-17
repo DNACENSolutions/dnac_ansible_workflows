@@ -3,7 +3,6 @@
 ## Table of Contents
 
 - [User Flow (3 Steps)](#user-flow-3-steps)
-
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -213,17 +212,19 @@ backup_and_restore_config:
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml \
-     -d workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
+./tools/schemavalidation.sh \
+  -s workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml \
+  -v workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
 ```
 Return result validate:
 ```bash
 
-(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml \
->      -d workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
+ ./tools/schemavalidation.sh \
+>   -s workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml \
+>   -v workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
 workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml
 workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
-yamale   -s workflows/backup_and_restore_config_generator/schema/backup_and_restore_config_schema.yml  workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
+python -c <yamale validation wrapper>
 Validating workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml...
 Validation success! 👍
 
@@ -233,7 +234,7 @@ Validation success! 👍
 # Execute (run from project root directory)
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/backup_and_restore_config_generator/playbook/backup_and_restore_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/backup_and_restore_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/backup_and_restore_config_generator/vars/backup_and_restore_config_inputs.yml
 ```
 
 Expected Terminal Output:

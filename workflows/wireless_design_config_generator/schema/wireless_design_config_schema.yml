@@ -43,7 +43,7 @@ wireless_design_config_generator_type:
 ---
 # Wrapper for config block
 wireless_design_config_wrapper_type:
-  component_specific_filters: include('wireless_design_component_filters_type', required=False)
+  component_specific_filters: include('wireless_design_component_filters_type', required=True)
 
 ---
 # Wireless Design Component Filters Schema

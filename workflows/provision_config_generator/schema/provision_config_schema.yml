@@ -55,7 +55,7 @@
 # 3. CONFIG:
 #    - Type: dictionary (optional)
 #    - Description: When present, only component_specific_filters is supported
-#    - To generate all configurations, omit config entirely
+#    - To generate all configurations, omit config entirely or leave it empty
 #
 # 4. COMPONENT_SPECIFIC_FILTERS:
 #    - Type: dictionary (required when config is present)
@@ -151,7 +151,8 @@ provision_config_generator_type:
   # File write mode
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Config dictionary for component-specific filters
+  # Config dictionary for component-specific filters. Omit or leave empty
+  # to gather all provisioned devices.
   config: include('provision_generator_config_type', required=False)
 
 ---

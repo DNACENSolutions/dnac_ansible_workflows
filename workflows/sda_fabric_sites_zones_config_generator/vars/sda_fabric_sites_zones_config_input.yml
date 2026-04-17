@@ -6,7 +6,7 @@
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/sda_fabric_sites_zones_config_generator/playbook/sda_fabric_sites_zones_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/sda_fabric_sites_zones_config_input.yml
+#     --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
 #
 # ============================================================================
 

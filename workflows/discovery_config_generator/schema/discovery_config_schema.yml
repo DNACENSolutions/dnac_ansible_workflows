@@ -56,9 +56,10 @@
 #
 # 3. CONFIG:
 #    - Type: dictionary (optional)
-#    - Description: Configuration filters for generating YAML configurations compatible with 
+#    - Description: Configuration filters for generating YAML configurations compatible with
 #      the 'discovery_workflow_manager' module
-#    - If not provided or omitted, all configurations are auto-generated
+#    - If omitted or provided as an empty dictionary, the workflow omits module config
+#      and all configurations are auto-generated
 #
 # 4. GLOBAL_FILTERS:
 #    - Type: dictionary (required when config is provided)
@@ -127,9 +128,8 @@
 #
 # VALIDATION RULES:
 # ----------------
-# 1. If config is not provided (None), all configurations are auto-generated with default behavior
-# 2. If config is provided as empty dict {}, global_filters is mandatory
-# 3. global_filters is required when config is provided
+# 1. If config is omitted or empty, all configurations are auto-generated
+# 2. global_filters is required when config is provided with filter content
 # 4. file_path and file_mode can be specified outside of the config
 # 5. Idempotency: In overwrite mode, the full file content is compared (excluding volatile
 #     fields like timestamps and playbook path). In append mode, only the last YAML document 

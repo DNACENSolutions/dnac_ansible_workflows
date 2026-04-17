@@ -4,9 +4,9 @@
 # ============================================================================
 #
 # Usage:
-  # ansible-playbook -i inventory/demo_lab/hosts.yaml \
-  #   workflows/provision_config_generator/playbook/provision_config_generator.yml \
-  #   --extra-vars VARS_FILE_PATH=../vars/provision_config_vars.yml
+#   ansible-playbook -i inventory/demo_lab/hosts.yaml \
+#     workflows/provision_config_generator/playbook/provision_config_generator.yml \
+#     --extra-vars VARS_FILE_PATH=./workflows/provision_config_generator/vars/provision_config_vars.yml
 #
 # ============================================================================
 

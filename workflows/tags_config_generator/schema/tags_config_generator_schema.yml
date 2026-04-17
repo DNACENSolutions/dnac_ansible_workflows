@@ -65,7 +65,7 @@
 #        * "tag" - Include only tag configurations in the generated configuration
 #        * "tag_memberships" - Include only tag membership configurations in the generated configuration
 #        * ["tag", "tag_memberships"] - Include both components
-#      - If empty list provided, defaults to all supported components
+#      - If provided, it must contain at least one supported component
 #      - Invalid components will result in error
 #
 #    - TAG:
@@ -182,13 +182,13 @@ tags_config_generator:
 # Tags Config Schema (mirrors module 'config' parameter)
 tags_config_filters:
   # Component-specific filters inside config
-  component_specific_filters: include('tags_component_filters', required=False)
+  component_specific_filters: include('tags_component_filters', required=True)
 
 ---
 # Tags Component Filters Schema
 tags_component_filters:
   # List of components to include
-  components_list: list(enum("tag", "tag_memberships"), min=0, max=10, required=False)
+  components_list: list(enum("tag", "tag_memberships"), min=1, max=10, required=False)
   
   # Tag configuration filters
   tag: list(include('tag_filter_type'), min=0, max=100, required=False)

@@ -205,7 +205,8 @@ sda_config_generator_type:
   # File write mode (optional, default: overwrite - module level parameter)
   file_mode: enum('overwrite', 'append', required=False)
   
-  # Config parameter containing component filters (optional - module level parameter)
+  # Config parameter containing component filters (optional - module level parameter).
+  # Omit or leave empty to generate all sites and zones.
   config: include('sda_fabric_sites_zones_config_type', required=False)
 
 ---
@@ -218,13 +219,13 @@ sda_fabric_sites_zones_config_type:
 # sda fabric sites zones Component Filters Schema
 sda_fabric_sites_zones_component_filters_type:
   # List of components to include
-  components_list: list(enum("fabric_sites", "fabric_zones"), min=0, max=10, required=False)
+  components_list: list(enum("fabric_sites", "fabric_zones"), min=1, max=10, required=False)
   
   # fabric sites filters
-  fabric_sites: list(include('fabric_site_filter_type'), min=0, max=100, required=False)
+  fabric_sites: list(include('fabric_site_filter_type'), min=1, max=100, required=False)
 
   # fabric zones filters
-  fabric_zones: list(include('fabric_zone_filter_type'), min=0, max=100, required=False)
+  fabric_zones: list(include('fabric_zone_filter_type'), min=1, max=100, required=False)
 
 ---
 # Fabric Site Filter Schema

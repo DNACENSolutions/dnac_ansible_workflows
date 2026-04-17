@@ -22,8 +22,13 @@ catalyst_center_config_verify: bool(required=False)
 ---
 # Network Settings Config Generator Entry Schema
 network_settings_config_generator_type:
+  # Workflow-level convenience flag. If true, the playbook omits module config
+  # and the module runs in full-discovery mode.
+  generate_all_configurations: bool(required=False)
   file_path: str(required=False)
   file_mode: enum('overwrite', 'append', required=False)
+  # Workflow-level convenience wrapper. The playbook maps this to
+  # module config.component_specific_filters when filters are present.
   component_specific_filters: include('network_settings_component_filters_type', required=False)
 
 ---

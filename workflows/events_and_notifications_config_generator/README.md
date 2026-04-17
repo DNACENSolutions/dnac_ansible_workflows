@@ -3,7 +3,6 @@
 ## Table of Contents
 
 - [User Flow (3 Steps)](#user-flow-3-steps)
-
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -171,16 +170,16 @@ events_and_notifications_config:
 
 **Validate:**
 ```bash
-./tools/validate.sh \
+./tools/schemavalidation.sh \
   -s workflows/events_and_notifications_config_generator/schema/events_and_notifications_config_schema.yml \
-  -d workflows/events_and_notifications_config_generator/vars/events_and_notifications_config_inputs.yml
+  -v workflows/events_and_notifications_config_generator/vars/events_and_notifications_config_inputs.yml
 ```
 
 **Execute:**
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/events_and_notifications_config_generator/playbook/events_and_notifications_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/events_and_notifications_config_generator/vars/events_and_notifications_config_inputs.yml
 ```
 
 #### 2. Generate selected destination component types

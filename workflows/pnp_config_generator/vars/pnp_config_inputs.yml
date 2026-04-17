@@ -6,13 +6,13 @@
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/pnp_config_generator/playbook/pnp_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/pnp_config_inputs.yml
+#     --extra-vars VARS_FILE_PATH=./workflows/pnp_config_generator/vars/pnp_config_inputs.yml
 #
 # Module used:
 #   cisco.dnac.pnp_playbook_config_generator
 #
 # Notes:
-# - Omit 'config' key entirely to retrieve all PnP devices (full brownfield discovery mode).
+# - Omit 'config' key entirely, or leave it empty, to retrieve all PnP devices (full brownfield discovery mode).
 # - Use 'config:' key with component_specific_filters / global_filters
 #   for selective generation.
 # ============================================================================
