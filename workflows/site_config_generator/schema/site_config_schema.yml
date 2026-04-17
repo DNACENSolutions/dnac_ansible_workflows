@@ -113,7 +113,7 @@ site_component_filters_type:
 site_component_list_filters_type:
   
   # List of components to include in generated configuration
-  components_list: list(str(), min=0, max=10, required=False)
+  components_list: list(str(), min=1, max=10, required=False)
   
   # Site hierarchy filters for selective generation
   # Each entry can specify site_name_hierarchy, parent_name_hierarchy, and/or site_type

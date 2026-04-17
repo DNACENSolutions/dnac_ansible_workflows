@@ -11,7 +11,7 @@
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/provision_config_generator/playbook/provision_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/provision_config_vars.yml
+#     --extra-vars VARS_FILE_PATH=./workflows/provision_config_generator/vars/provision_config_vars.yml
 #
 # ============================================================================
 
@@ -19,9 +19,6 @@
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
-
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
   
   vars:
     state: gathered
@@ -40,12 +37,34 @@
       dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
 
   tasks:
-    - name: Print VARS_FILE_PATH
-      debug:
-        msg: "Input file selected: {{ VARS_FILE_PATH }}"
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that provision_playbook_config is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'provision_playbook_config' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: provision_playbook_config is not defined
     
     - name: Playbook start time for provision playbook configuration generation
-      set_fact:
+      ansible.builtin.set_fact:
         config_gen_start: "{{ now() }}"
 
     - name: Generate YAML configuration for provisioned devices
@@ -54,7 +73,12 @@
         state: "{{ state }}"
         file_path: "{{ provision_playbook_config.file_path | default(omit) }}"
         file_mode: "{{ provision_playbook_config.file_mode | default('overwrite') }}"
-        config: "{{ provision_playbook_config.config | default(omit) }}"
+        config: >-
+          {{
+            provision_playbook_config.config
+            if ((provision_playbook_config.config | default({})) | length > 0)
+            else omit
+          }}
       when:
         - provision_playbook_config is defined
       register: config_generation_result_0
@@ -128,9 +152,9 @@
     # Playbook Execution Summary
     # =========================================================================
     - name: Playbook end time
-      set_fact:
+      ansible.builtin.set_fact:
         config_gen_end: "{{ now() }}"
     
     - name: Print playbook execution time
-      debug:
+      ansible.builtin.debug:
         msg: "Provision configuration generation playbook run time: start: {{ config_gen_start }}, end: {{ config_gen_end }}"

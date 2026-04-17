@@ -3,7 +3,6 @@
 ## Table of Contents
 
 - [User Flow (3 Steps)](#user-flow-3-steps)
-
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -11,7 +10,7 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
 
 ## Overview
 
@@ -84,7 +83,7 @@ accesspoint_location_config_generator/
 |-----------|------|----------|---------|-------------|
 | `file_path` | string | No | auto-generated | Output file path for generated YAML configuration file. Default filename: `accesspoint_location_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml`|
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `config` | dict | No | omitted (all components) | Configuration filters dict. When omitted, all accesspoint location configurations are retrieved. When provided, `global_filters` is mandatory. |
+| `config` | dict | No | omitted (all components) | Configuration filters dict. When omitted or empty, all access point location configurations are retrieved. When provided with content, `global_filters` is mandatory. |
 
 ### Global Filters (within config parameter)
 
@@ -212,14 +211,18 @@ response:
 
 ```bash
 # Validate
-./tools/validate.sh   -s workflows/accesspoint_location_config_generator/schema/accesspoint_location_config_schema.yml   -d workflows/accesspoint_location_config_generator/vars/accesspoint_location_config_inputs.yml
+./tools/schemavalidation.sh \
+  -s workflows/accesspoint_location_config_generator/schema/accesspoint_location_config_schema.yml \
+  -v workflows/accesspoint_location_config_generator/vars/accesspoint_location_config_inputs.yml
 ```
 
 ```bash
-(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh   -s workflows/accesspoint_location_config_generator/schema/accesspoint_location_config_schema.yml   -d workflows/accesspoint_location_config_generator/vars/accesspoint_location_config_inputs.yml
+./tools/schemavalidation.sh \
+  -s workflows/accesspoint_location_config_generator/schema/accesspoint_location_config_schema.yml \
+  -v workflows/accesspoint_location_config_generator/vars/accesspoint_location_config_inputs.yml
 workflows/accesspoint_location_config_generator/schema/accesspoint_location_config_schema.yml
 workflows/accesspoint_location_config_generator/vars/accesspoint_location_config_inputs.yml
-yamale   -s workflows/accesspoint_location_config_generator/schema/accesspoint_location_config_schema.yml  workflows/accesspoint_location_config_generator/vars/accesspoint_location_config_inputs.yml
+python -c <yamale validation wrapper>
 Validating workflows/accesspoint_location_config_generator/vars/accesspoint_location_config_inputs.yml...
 Validation success! 👍
 ```
@@ -228,7 +231,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/accesspoint_location_config_generator/playbook/accesspoint_location_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/accesspoint_location_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/accesspoint_location_config_generator/vars/accesspoint_location_config_inputs.yml
 ```
 
 ---

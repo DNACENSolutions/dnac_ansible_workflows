@@ -59,7 +59,7 @@
 #    - Type: dictionary (optional)
 #    - Description: Configuration filters for generating YAML playbook compatible with
 #      the 'template_workflow_manager' module
-#    - If not provided or omitted, all configurations are auto-generated
+#    - If not provided or omitted, all committed configurations are auto-generated
 #    - If provided as empty dict {}, component_specific_filters is mandatory
 #    - Contains component_specific_filters for selective component extraction
 #
@@ -211,7 +211,7 @@ template_config_generator_type:
 ---
 # Template config wrapper
 template_config_type:
-  component_specific_filters: include('template_component_filters_type', required=False)
+  component_specific_filters: include('template_component_filters_type', required=True)
 
 ---
 # Template Component Filters Schema

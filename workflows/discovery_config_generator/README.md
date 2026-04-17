@@ -3,7 +3,6 @@
 ## Table of Contents
 
 - [User Flow (3 Steps)](#user-flow-3-steps)
-
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)

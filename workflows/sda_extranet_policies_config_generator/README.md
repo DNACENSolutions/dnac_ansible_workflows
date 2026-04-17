@@ -31,7 +31,7 @@ The SDA Extranet Policies config generator automates YAML playbook generation fo
 - **Component Filtering**: Generate `extranet_policies` selectively.
 - **Policy Filtering**: Filter by exact `extranet_policy_name`.
 - **Flexible Output**: Supports custom `file_path` and `file_mode` (`overwrite` / `append`).
-- **Brownfield Discovery**: Omit `config` to generate all extranet policy configurations.
+- **Brownfield Discovery**: Omit `config` or leave it empty to generate all extranet policy configurations.
 - **Site Path Resolution**: Fabric site UUIDs are resolved to human-readable site hierarchy paths in generated playbooks.
 
 ---
@@ -89,7 +89,7 @@ sda_extranet_policies_config_generator/
 |-----------|------|----------|---------|-------------|
 | `file_path` | string | No | auto-generated | Output file path for generated YAML. If omitted, the module creates `sda_extranet_policies_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml` in the current working directory |
 | `file_mode` | string | No | `overwrite` | File write mode: `overwrite` or `append` |
-| `config` | dict | No | omitted | Filter dictionary passed to the module. If omitted, all extranet policy configurations are generated |
+| `config` | dict | No | omitted | Filter dictionary passed to the module. If omitted or empty, all extranet policy configurations are generated |
 
 ### Component Filters
 
@@ -166,7 +166,7 @@ Use `sda_extranet_policies_config_generator.yml` for generating YAML playbook co
 
 #### Generate All SDA Extranet Policies
 
-**Description**: Retrieves all SDA extranet policy configurations from Catalyst Center. Omit `config` to trigger full generation mode.
+**Description**: Retrieves all SDA extranet policy configurations from Catalyst Center. Omit `config` or leave it empty to trigger full generation mode.
 
 ```yaml
 sda_extranet_policies_config:
@@ -222,15 +222,15 @@ sda_extranet_policies_config:
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/sda_extranet_policies_config_generator/schema/sda_extranet_policies_config_schema.yml \
-                   -d workflows/sda_extranet_policies_config_generator/vars/sda_extranet_policies_config_inputs.yml
+./tools/schemavalidation.sh -s workflows/sda_extranet_policies_config_generator/schema/sda_extranet_policies_config_schema.yml \
+                            -d workflows/sda_extranet_policies_config_generator/vars/sda_extranet_policies_config_inputs.yml
 ```
 
 **Return result validate:**
 
 ```bash
-(pyats-priya) [pbalaku2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/sda_extranet_policies_config_generator/schema/sda_extranet_policies_config_schema.yml \
->                    -d workflows/sda_extranet_policies_config_generator/vars/sda_extranet_policies_config_inputs.yml
+(pyats-priya) [pbalaku2@st-ds-4 dnac_ansible_workflows]$ ./tools/schemavalidation.sh -s workflows/sda_extranet_policies_config_generator/schema/sda_extranet_policies_config_schema.yml \
+>                            -d workflows/sda_extranet_policies_config_generator/vars/sda_extranet_policies_config_inputs.yml
 workflows/sda_extranet_policies_config_generator/schema/sda_extranet_policies_config_schema.yml
 workflows/sda_extranet_policies_config_generator/vars/sda_extranet_policies_config_inputs.yml
 yamale   -s workflows/sda_extranet_policies_config_generator/schema/sda_extranet_policies_config_schema.yml  workflows/sda_extranet_policies_config_generator/vars/sda_extranet_policies_config_inputs.yml
@@ -242,7 +242,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/sda_extranet_policies_config_generator/playbook/sda_extranet_policies_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/sda_extranet_policies_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=./workflows/sda_extranet_policies_config_generator/vars/sda_extranet_policies_config_inputs.yml
 ```
 
 **Expected Terminal Output:**

@@ -85,7 +85,7 @@ network_profile_wireless_config_generator/
 |-----------|------|----------|---------|-------------|
 | file_path | string | No | auto-generated | Output file path for generated YAML |
 | file_mode | string | No | overwrite | File write mode: `overwrite` replaces, `append` adds |
-| config | dict | No | omitted | Optional filter wrapper. Omit to gather all wireless profiles |
+| config | dict | No | omitted | Optional filter wrapper. Omit or leave `config` empty to gather all wireless profiles |
 | global_filters | dict | Yes if `config` is provided | none | Filters for wireless profile selection |
 
 ### Global Filters (Priority-Based Behavior)
@@ -102,7 +102,7 @@ network_profile_wireless_config_generator/
 
 ### Filter Behavior Notes
 
-- If `config` is omitted, module gathers all wireless profiles.
+- If `config` is omitted or empty, module gathers all wireless profiles.
 - If `config` is provided, `global_filters` is required.
 - All filter values are case-sensitive and must match exactly.
 - Only one filter type is applied per item: the highest-priority filter with valid data.
@@ -278,8 +278,8 @@ network_profile_wireless_config:
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/network_profile_wireless_config_generator/schema/network_profile_wireless_config_generator_schema.yml \
-                   -d workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
+./tools/schemavalidation.sh -s workflows/network_profile_wireless_config_generator/schema/network_profile_wireless_config_generator_schema.yml \
+                            -d workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
 ```
 
 ```bash

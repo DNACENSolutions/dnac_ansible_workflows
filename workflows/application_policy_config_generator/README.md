@@ -3,7 +3,6 @@
 ## Table of Contents
 
 - [User Flow (3 Steps)](#user-flow-3-steps)
-
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -11,7 +10,7 @@
 - [Schema Parameters](#schema-parameters)
 - [Getting Started](#getting-started)
 - [Operations](#operations)
-- [Examples](#examples)---
+- [Examples](#examples)
 
 ## Overview
 
@@ -91,8 +90,8 @@ application_policy_config_generator/
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `components_list` | list[string] | No | Supported values: `queuing_profile`, `application_policy`. Auto-populated when filter blocks are provided |
-| `queuing_profile` | dict | No | Queuing profile filter dict (`profile_names_list`) |
-| `application_policy` | dict | No | Application policy filter dict (`policy_names_list`) |
+| `queuing_profile` | list[dict] | No | Queuing profile filter entries (`profile_names_list`) |
+| `application_policy` | list[dict] | No | Application policy filter entries (`policy_names_list`) |
 
 ---
 
@@ -156,9 +155,9 @@ Pass `config` with `component_specific_filters` for targeted export. Omit `confi
 
 ```bash
 # Validate
-./tools/validate.sh \
+./tools/schemavalidation.sh \
   -s workflows/application_policy_config_generator/schema/application_policy_config_schema.yml \
-  -d workflows/application_policy_config_generator/vars/application_policy_config_inputs.yml
+  -v workflows/application_policy_config_generator/vars/application_policy_config_inputs.yml
 ```
 
 Expected validation output:
@@ -196,7 +195,7 @@ application_policy_config:
       component_specific_filters:
         components_list: ["queuing_profile"]
         queuing_profile:
-          profile_names_list: ["Enterprise-QoS-Profile", "Wireless-QoS-Profile"]
+          - profile_names_list: ["Enterprise-QoS-Profile", "Wireless-QoS-Profile"]
 ```
 
 ### Example 3: Filter application policies by name
@@ -208,7 +207,7 @@ application_policy_config:
       component_specific_filters:
         components_list: ["application_policy"]
         application_policy:
-          policy_names_list: ["wired_traffic_policy", "wireless_traffic_policy"]
+          - policy_names_list: ["wired_traffic_policy", "wireless_traffic_policy"]
 ```
 
 ### Example 4: Combined queuing profiles + policies with append mode
@@ -221,9 +220,9 @@ application_policy_config:
       component_specific_filters:
         components_list: ["queuing_profile", "application_policy"]
         queuing_profile:
-          profile_names_list: ["Enterprise-QoS-Profile"]
+          - profile_names_list: ["Enterprise-QoS-Profile"]
         application_policy:
-          policy_names_list: ["wired_traffic_policy", "wireless_traffic_policy"]
+          - policy_names_list: ["wired_traffic_policy", "wireless_traffic_policy"]
 ```
 
 ---
@@ -232,5 +231,5 @@ application_policy_config:
 
 - Omit `config` entirely to run in full discovery mode (all components).
 - When `config` is provided, `component_specific_filters` is mandatory.
-- `queuing_profile` and `application_policy` under `component_specific_filters` are plain **dicts** (not lists).
+- `queuing_profile` and `application_policy` under `component_specific_filters` are **lists of dicts**.
 - The module auto-adds the corresponding component to `components_list` when a filter block is provided but `components_list` is omitted.

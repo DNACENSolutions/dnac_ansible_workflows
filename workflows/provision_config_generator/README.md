@@ -82,7 +82,7 @@ provision_config_generator/
 | state | string | No | gathered | Desired state of Cisco Catalyst Center after module execution |
 | file_path | string | No | auto-generated | Output file path for YAML configuration file |
 | file_mode | string | No | overwrite | File write mode (`overwrite` or `append`) |
-| config | dict | No | omitted | Configuration dictionary controlling component filters |
+| config | dict | No | omitted | Configuration dictionary controlling component filters. Omit or leave empty to gather all provisioned devices |
 
 ### Component Specific Filtering
 
@@ -145,7 +145,10 @@ ansible-galaxy collection install cisco.dnac --force
 export HOSTIP=<catalyst-center-ip-or-fqdn>
 export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/provision_config_generator/playbook/provision_config_generator.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
+  ./workflows/provision_config_generator/playbook/provision_config_generator.yml \
+  --extra-vars VARS_FILE_PATH=./workflows/provision_config_generator/vars/provision_config_vars.yml \
+  -vvvv
 ```
 
 
@@ -157,7 +160,7 @@ Use `provision_config_generator.yml` for generating YAML playbook configuration 
 
 #### Generate All Configurations
 
-**Description**: Retrieves all provisioned wired and wireless devices from Catalyst Center. To generate all configurations, omit `config`.
+**Description**: Retrieves all provisioned wired and wireless devices from Catalyst Center. To generate all configurations, omit `config` or leave it empty.
 
 ```yaml
 provision_playbook_config:
@@ -195,12 +198,12 @@ provision_playbook_config:
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/provision_config_generator/schema/provision_config_schema.yml \
-     -d workflows/provision_config_generator/vars/provision_config_vars.yml
+./tools/schemavalidation.sh -s workflows/provision_config_generator/schema/provision_config_schema.yml \
+                            -d workflows/provision_config_generator/vars/provision_config_vars.yml
 ```
 Return result validate:
 ```bash
-(pyats-priya) [pbalaku2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/provision_config_generator/schema/provision_config_schema.yml      -d workflows/provision_config_generator/vars/provision_config_vars.yml
+(pyats-priya) [pbalaku2@st-ds-4 dnac_ansible_workflows]$ ./tools/schemavalidation.sh -s workflows/provision_config_generator/schema/provision_config_schema.yml      -d workflows/provision_config_generator/vars/provision_config_vars.yml
 workflows/provision_config_generator/schema/provision_config_schema.yml
 workflows/provision_config_generator/vars/provision_config_vars.yml
 yamale   -s workflows/provision_config_generator/schema/provision_config_schema.yml  workflows/provision_config_generator/vars/provision_config_vars.yml
@@ -212,7 +215,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/provision_config_generator/playbook/provision_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=../vars/provision_config_vars.yml
+  --extra-vars VARS_FILE_PATH=./workflows/provision_config_generator/vars/provision_config_vars.yml
 ```
 
 Expected Terminal Output:

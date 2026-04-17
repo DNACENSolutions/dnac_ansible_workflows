@@ -50,7 +50,7 @@
 #
 # 3. CONFIG:
 #    - Type: dictionary (optional)
-#    - Omit config to retrieve all wireless profiles
+#    - Omit config or leave it empty to retrieve all wireless profiles
 #    - If provided, global_filters is mandatory
 #
 # 4. GLOBAL_FILTERS:
@@ -124,7 +124,7 @@ network_profile_wireless_config_type:
   # File write mode: "overwrite" (default) replaces the file; "append" adds to it.
   file_mode: enum('overwrite', 'append', required=False)
 
-  # Optional config block. Omit to gather all wireless profiles.
+  # Optional config block. Omit or leave empty to gather all wireless profiles.
   config: include('network_profile_wireless_config_wrapper_type', required=False)
 
 ---

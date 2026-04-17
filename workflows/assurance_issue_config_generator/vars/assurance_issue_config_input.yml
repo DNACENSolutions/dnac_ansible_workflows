@@ -27,9 +27,10 @@ assurance_issue_config:
   # Issue Configurations with issue name Filter:
   - file_path: "generated_file/issue_name_filter_config2.yml"
     config:
-      components_list: ["assurance_user_defined_issue_settings"]
-      assurance_user_defined_issue_settings:
-        - name: "FAN_MISSING"
+      component_specific_filters:
+        components_list: ["assurance_user_defined_issue_settings"]
+        assurance_user_defined_issue_settings:
+          - name: "FAN_MISSING"
 
   # Issue Configurations with Multiple issue name Filters:
   - file_path: "generated_file/multiple_issue_name_filter_config3.yml"
@@ -61,9 +62,9 @@ assurance_issue_config:
     config:
       component_specific_filters:
         components_list: ["assurance_user_defined_issue_settings"]
-      assurance_user_defined_issue_settings:
-        - priority: "P1"
-          is_enabled: true
+        assurance_user_defined_issue_settings:
+          - priority: "P1"
+            is_enabled: true
 
   # All Issue Components with No Sub-Filters
   - file_path: "generated_file/all_components_no_subfilters_config7.yml"

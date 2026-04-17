@@ -60,7 +60,12 @@
         state: "{{ state }}"
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
-        config: "{{ item.config | default(omit) }}"
+        config: >-
+          {{
+            item.config
+            if ((item.config | default({})) | length > 0)
+            else omit
+          }}
       loop: "{{ events_and_notifications_config }}"
       when:
         - events_and_notifications_config is defined

@@ -31,7 +31,7 @@ ise_radius_integration_config:
       component_specific_filters:
         components_list: ["authentication_policy_server"]
         authentication_policy_server:
-          server_type: "ISE"
+          - server_type: "ISE"
 
   # 4) Filter by server type and specific IP
   - file_path: "/tmp/ise_radius_server_specific.yml"
@@ -40,8 +40,8 @@ ise_radius_integration_config:
       component_specific_filters:
         components_list: ["authentication_policy_server"]
         authentication_policy_server:
-          server_type: "AAA"
-          server_ip_address: "10.100.10.50"
+          - server_type: "AAA"
+            server_ip_address: "10.100.10.50"
 
 # ============================================================================
 # Notes

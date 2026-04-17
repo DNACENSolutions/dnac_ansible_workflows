@@ -3,7 +3,6 @@
 ## Table of Contents
 
 - [User Flow (3 Steps)](#user-flow-3-steps)
-
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -92,7 +91,7 @@ ise_radius_integration_config_generator/
 |-----------|------|----------|-------------|
 | `component_specific_filters` | dict | Yes (when `config` provided) | N/A | Required when `config` is provided. Filters to specify which components to include. |
 | `components_list` | list[string] | No | Supported value: `authentication_policy_server` |
-| `authentication_policy_server` | dict | No | Server filters (`server_type`, `server_ip_address`) |
+| `authentication_policy_server` | list[dict] | No | Server filter entries (`server_type`, `server_ip_address`) |
 
 **Component Logic Rules:**
 - **No `config`**: All components are retrieved (equivalent to authentication_policy_server)
@@ -168,12 +167,8 @@ Use `ise_radius_integration_config_generator.yml` for generating YAML playbook c
 **Description**: Retrieves all policy servers config from Catalyst Center regardless of any filters.
 
 ```yaml
-# No config at all - only Catalyst Center connection details
-# Expected: defaults to generates all configs
- - name: No config provided
-   cisco.dnac.ise_radius_integration_playbook_config_generator:
-    <<: *common_config
-    file_path: "generated_file/complete_policy_servers_config.yml"
+ise_radius_integration_config:
+  - file_path: "generated_file/complete_policy_servers_config.yml"
 ```
 
 #### 2.Component-Specific Generation
@@ -183,10 +178,8 @@ Use `ise_radius_integration_config_generator.yml` for generating YAML playbook c
 **Extract Authentication policy server**
 
 ```yaml
- - name: No config provided
-   cisco.dnac.ise_radius_integration_playbook_config_generator:
-    <<: *common_config
-    file_path: "generated_file/policy_server_config.yml"
+ise_radius_integration_config:
+  - file_path: "generated_file/policy_server_config.yml"
     config:
       component_specific_filters:
         components_list: ["authentication_policy_server"]
@@ -198,8 +191,9 @@ Use `ise_radius_integration_config_generator.yml` for generating YAML playbook c
 
 ```bash
 # Validate
-./tools/validate.sh -s workflows/ise_radius_integration_config_generator/schema/ise_radius_integration_config_schema.yml \
-  -d workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
+./tools/schemavalidation.sh \
+  -s workflows/ise_radius_integration_config_generator/schema/ise_radius_integration_config_schema.yml \
+  -v workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
 ```
 
 Return result validate:

@@ -72,8 +72,8 @@
 #        the module can auto-add device_health_score_settings internally
 #
 #    - DEVICE_HEALTH_SCORE_SETTINGS:
-#      - Type: dictionary (optional)
-#      - Description: Sub-filter for device health score settings component
+#      - Type: list of dictionaries (optional)
+#      - Description: Sub-filter entries for device health score settings component
 #
 #      Sub-options:
 #        - DEVICE_FAMILIES:
@@ -181,8 +181,8 @@ assurance_device_health_score_component_filters_type:
   # Components list - currently supports: device_health_score_settings
   components_list: list(enum('device_health_score_settings'), min=1, max=1, required=False)
 
-  # Device health score settings sub-filter
-  device_health_score_settings: include('device_health_score_settings_filter_type', required=False)
+  # Device health score settings sub-filter entries
+  device_health_score_settings: list(include('device_health_score_settings_filter_type'), min=1, max=100, required=False)
 
 ---
 # Device health score settings filter schema

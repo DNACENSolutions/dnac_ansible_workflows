@@ -5,7 +5,7 @@
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/sda_fabric_transits_config_generator/playbook/sda_fabric_transits_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=../vars/sda_fabric_transits_config_inputs.yml
+#     --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
 #
 # Module used:
 #   cisco.dnac.sda_fabric_transits_playbook_config_generator
@@ -62,7 +62,7 @@ sda_fabric_transits_config:
 # ============================================================================
 # Notes
 # ============================================================================
-# - If component_specific_filters is omitted, the workflow omits module config
+# - If config is omitted or empty, the workflow omits module config
 #   and runs in full discovery mode.
 # - If you provide sda_fabric_transits filters without components_list, the
 #   module auto-adds sda_fabric_transits internally.
