@@ -13,13 +13,13 @@
     network_devices: []
     dnac_login: &dnac_login
 
-      dnac_host: "{{ dnac_host }}"
-      dnac_username: "{{ dnac_username }}"
-      dnac_password: "{{ dnac_password }}"
-      dnac_verify: "{{ dnac_verify }}"
-      dnac_port: "{{ dnac_port }}"
-      dnac_version: "{{ dnac_version }}"
-      dnac_debug: "{{ dnac_debug }}"
+      catalystcenter_host: "{{ catalystcenter_host }}"
+      catalystcenter_username: "{{ catalystcenter_username }}"
+      catalystcenter_password: "{{ catalystcenter_password }}"
+      catalystcenter_verify: "{{ catalystcenter_verify }}"
+      catalystcenter_port: "{{ catalystcenter_port }}"
+      catalystcenter_version: "{{ catalystcenter_version }}"
+      catalystcenter_debug: "{{ catalystcenter_debug }}"
 
   tasks:
     - name: Record Start Time
@@ -63,9 +63,9 @@
 
     - name: Combine all inventory to have a full inventory.
       set_fact:
-        dnac_inv:  "{{ {'catalyst_cennter_hosts':{ 'hosts': {inventory_hostname: {'dnac_host': dnac_host, 'dnac_username': dnac_username,\
-                   'dnac_password': dnac_password, 'dnac_verify': dnac_verify, 'dnac_port': dnac_port,\
-                   'dnac_version':dnac_version, 'dnac_debug':dnac_debug }}}} }} "
+        dnac_inv:  "{{ {'catalyst_cennter_hosts':{ 'hosts': {inventory_hostname: {'catalystcenter_host': catalystcenter_host, 'catalystcenter_username': catalystcenter_username,\
+                   'catalystcenter_password': catalystcenter_password, 'catalystcenter_verify': catalystcenter_verify, 'catalystcenter_port': catalystcenter_port,\
+                   'catalystcenter_version':catalystcenter_version, 'catalystcenter_debug':catalystcenter_debug }}}} }} "
     - name: Combine all inventory to have a full inventory.
       set_fact:
         host_vars:  "{{ {'network_devices':network_devices,\

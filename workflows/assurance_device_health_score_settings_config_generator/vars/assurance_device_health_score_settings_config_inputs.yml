@@ -8,7 +8,7 @@
   #   --extra-vars VARS_FILE_PATH=../vars/assurance_device_health_score_settings_config_inputs.yml
 #
 # Module used:
-#   cisco.dnac.assurance_device_health_score_settings_playbook_config_generator
+#   cisco.catalystcenter.assurance_device_health_score_settings_playbook_config_generator
 # ============================================================================
 
 assurance_device_health_score_settings_config:

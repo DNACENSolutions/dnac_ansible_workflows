@@ -11,14 +11,14 @@
   vars:
     STATE: "present"
     dnac_login: &dnac_login
-      dnac_host: "{{ dnac_host }}"
-      dnac_username: "{{ dnac_username }}"
-      dnac_password: "{{ dnac_password }}"
-      dnac_verify: "{{ dnac_verify }}"
-      dnac_port: "{{ dnac_port }}"
-      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
-      dnac_debug: "{{ dnac_debug }}"
-      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
+      catalystcenter_host: "{{ catalystcenter_host }}"
+      catalystcenter_username: "{{ catalystcenter_username }}"
+      catalystcenter_password: "{{ catalystcenter_password }}"
+      catalystcenter_verify: "{{ catalystcenter_verify }}"
+      catalystcenter_port: "{{ catalystcenter_port }}"
+      catalystcenter_version: "{{ catalyst_center_version  | default(catalystcenter_version) }}"
+      catalystcenter_debug: "{{ catalystcenter_debug }}"
+      catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
 
   tasks:
     - name: print global_ippools
@@ -26,7 +26,7 @@
         msg: "{{ global_ippools }}"
 
     - name: Create Global IP Pools from the list provided in file path "{{ VARS_FILE_PATH }}"
-      cisco.dnac.global_pool:
+      cisco.catalystcenter.global_pool:
         <<: *dnac_login
         state: "{{ STATE }}"
         settings:

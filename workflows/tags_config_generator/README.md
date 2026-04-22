@@ -2,7 +2,7 @@
 
 ## Overview
 
-This workflow exports existing Catalyst Center tags and tag memberships into YAML compatible with `cisco.dnac.tags_workflow_manager`, using the upstream `cisco.dnac.tags_playbook_config_generator` module.
+This workflow exports existing Catalyst Center tags and tag memberships into YAML compatible with `cisco.catalystcenter.tags_workflow_manager`, using the upstream `cisco.catalystcenter.tags_playbook_config_generator` module.
 
 ## Workflow Structure
 

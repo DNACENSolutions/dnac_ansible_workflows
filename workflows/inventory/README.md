@@ -45,7 +45,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -64,7 +64,7 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
 1.  **Install Ansible:** Follow the official Ansible documentation for installation instructions.
 2.  **Install Cisco Catalyst Center Collection:**
     ```bash
-    ansible-galaxy collection install cisco.dnac
+    ansible-galaxy collection install cisco.catalystcenter
     ```
 3.  **Generate Inventory:** Create an Ansible inventory file (e.g., `inventory.yml`) that includes your Cisco Catalyst Center appliance details. You will need to define variables such as the host, username, and password (or other authentication methods).
 
@@ -379,7 +379,7 @@ catalyst_center_version: 2.3.7.6
   ansible: 9.9.0
   ansible-core: 2.16.10
   ansible-runner: 2.4.0
-  dnacentersdk: 2.8.3
-  cisco.dnac: 6.36.0
+  catalystcentersdk: 2.8.3
+  cisco.catalystcenter: 6.36.0
   ansible.utils: 5.1.2
 ```

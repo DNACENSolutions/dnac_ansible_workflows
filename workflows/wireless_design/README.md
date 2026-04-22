@@ -46,7 +46,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -65,7 +65,7 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/wireless_design/
 1. **Install Ansible**: Follow the [official Ansible documentation](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) for installation.
 2. **Install Cisco Catalyst Center Collection**:
    ```bash
-   ansible-galaxy collection install cisco.dnac
+   ansible-galaxy collection install cisco.catalystcenter
    ```
 3. **Generate Inventory**: Create an Ansible inventory file (e.g., `inventory.yml`) with your Cisco Catalyst Center details.
    ```yaml
@@ -1595,8 +1595,8 @@ The Jinja Template allows you to create bulk configurations for wireless design,
 
 ```yaml
 python: 3.12.0
-dnac_version: 2.3.7.9
+catalystcenter_version: 2.3.7.9
 ansible: 9.9.0
-dnacentersdk: 2.8.14
-cisco.dnac: 6.33.2
+catalystcentersdk: 2.8.14
+cisco.catalystcenter: 6.33.2
 ```

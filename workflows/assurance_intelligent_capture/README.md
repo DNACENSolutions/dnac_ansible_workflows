@@ -45,7 +45,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -70,7 +70,7 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
 
 2. **Install Cisco Catalyst Center Collection:**
    ```bash
-   ansible-galaxy collection install cisco.dnac
+   ansible-galaxy collection install cisco.catalystcenter
    ```
 
 ### Configure Host Inventory
@@ -288,10 +288,10 @@ Run the following command to validate your input file against the schema:
 
 ```yaml
 python: 3.12.0
-dnac_version: 2.3.7.9
+catalystcenter_version: 2.3.7.9
 ansible: 9.9.0
-cisco.dnac: 6.32.0
-dnacentersdk: 2.8.8
+cisco.catalystcenter: 6.32.0
+catalystcentersdk: 2.8.8
 ```
 
 For detailed information on the assurance ICAP workflow, refer to the following documentation:  

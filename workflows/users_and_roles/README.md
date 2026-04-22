@@ -27,13 +27,13 @@ Users with the SUPER-ADMIN-ROLE can create custom roles to fine-tune access perm
 * **Access to Cisco Catalyst Center:** Ensure that User and Role is enabled.
 * **Ansible Installation:** Ansible must be installed on the machine managing the automation process.
 * **Yamale Python Library:** `yamale` Python library installed (`pip install yamale`)
-* **Cisco DNA Ansible Collection:** The cisco.dnac.user_role_workflow_manager module must be available from the Cisco DNA Ansible Collection.
-* **dnacentersdk Python SDK:** This SDK is required to interact with Cisco Catalyst Center.
+* **Cisco DNA Ansible Collection:** The cisco.catalystcenter.user_role_workflow_manager module must be available from the Cisco DNA Ansible Collection.
+* **catalystcentersdk Python SDK:** This SDK is required to interact with Cisco Catalyst Center.
 
 2. ## Configure Host Inventory:
 
 The host_inventory_dnac1/hosts.yml file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
-Make sure the dnac_version in this file matches your actual Catalyst Center version.
+Make sure the catalystcenter_version in this file matches your actual Catalyst Center version.
 ##The Sample host_inventory_dnac1/hosts.yml
 
 ```bash
@@ -409,10 +409,10 @@ Figure 7: Role deleted using Jinja template.
 
 ```yaml
 python: 3.12.0
-dnac_version: 2.3.7.6
+catalystcenter_version: 2.3.7.6
 ansible: 9.9.0
-dnacentersdk: 2.8.6
-cisco.dnac: 6.30.2
+catalystcentersdk: 2.8.6
+cisco.catalystcenter: 6.30.2
 ```
 ## Workflow Steps
 ## User Flow (3 Steps)
@@ -439,7 +439,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

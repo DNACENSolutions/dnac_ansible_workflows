@@ -8,7 +8,7 @@
 #     --extra-vars VARS_FILE_PATH=./workflows/events_and_notifications_config_generator/vars/events_and_notifications_config_inputs.yml
 #
 # Module used:
-#   cisco.dnac.events_and_notifications_playbook_config_generator
+#   cisco.catalystcenter.events_and_notifications_playbook_config_generator
 # ============================================================================
 
 events_and_notifications_config:

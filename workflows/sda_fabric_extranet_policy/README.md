@@ -251,13 +251,13 @@ Note: The environment is used for the references in the above instructions.
   ansible: 9.9.0
   ansible-core: 2.16.10
   ansible-runner: 2.4.0
-  dnacentersdk: 2.8.3
-  cisco.dnac: 6.30.0
+  catalystcentersdk: 2.8.3
+  cisco.catalystcenter: 6.30.0
   ansible.utils: 5.1.2
 ```
-Cisco Catalyst Center Ansible Module Documentation: [sda_extranet_policies_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/sda_extranet_policies_module)
+Cisco Catalyst Center Ansible Module Documentation: [sda_extranet_policies_workflow_manager](https://cisco-en-programmability.github.io/catalystcenter-ansible/main/plugins/sda_extranet_policies_module)
 
-GitHub Source Code: [sda_extranet_policies_workflow_manager.py](https://github.com/cisco-en-programmability/dnacenter-ansible/blob/main/plugins/modules/sda_extranet_policies_workflow_manager.py)
+GitHub Source Code: [sda_extranet_policies_workflow_manager.py](https://github.com/cisco-en-programmability/catalystcenter-ansible/blob/main/plugins/modules/sda_extranet_policies_workflow_manager.py)
 ## Workflow Steps
 ## User Flow (3 Steps)
 
@@ -283,7 +283,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

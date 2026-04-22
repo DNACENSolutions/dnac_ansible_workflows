@@ -6,19 +6,19 @@
 
   vars:
     catalyst_center_login: &catalyst_center_login
-      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
-      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
-      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
-      dnac_version: "{{ catalyst_center_version | default(dnac_version) }}"
-      dnac_port: "{{ catalyst_center_port | default(443) }}"
-      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      catalystcenter_host: "{{ catalyst_center_host | default(catalystcenter_host) }}"
+      catalystcenter_username: "{{ catalyst_center_username | default(catalystcenter_username) }}"
+      catalystcenter_password: "{{ catalyst_center_password | default(catalystcenter_password) }}"
+      catalystcenter_version: "{{ catalyst_center_version | default(catalystcenter_version) }}"
+      catalystcenter_port: "{{ catalyst_center_port | default(443) }}"
+      catalystcenter_verify: "{{ catalyst_center_verify | default(catalystcenter_verify) }}"
       config_verify: "{{ catalyst_center_config_verify | default(False) }}"
-      dnac_debug: "{{ catalyst_center_debug | default(False) }}"
-      dnac_log: "{{ catalyst_center_log | default(False) }}"
-      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
-      dnac_log_file_path: "{{ catalyst_center_log_file_path | default(omit) }}"
-      dnac_log_append: "{{ catalyst_center_log_append | default(False) }}"
-      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
+      catalystcenter_debug: "{{ catalyst_center_debug | default(False) }}"
+      catalystcenter_log: "{{ catalyst_center_log | default(False) }}"
+      catalystcenter_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      catalystcenter_log_file_path: "{{ catalyst_center_log_file_path | default(omit) }}"
+      catalystcenter_log_append: "{{ catalyst_center_log_append | default(False) }}"
+      catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
 
   tasks:
     - name: Print input source
@@ -135,7 +135,7 @@
         - always
 
     - name: Stage 1 - Discover devices using discovery tool
-      cisco.dnac.discovery_workflow_manager:
+      cisco.catalystcenter.discovery_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ item.1.state | default(state | default('merged')) }}"
         config:
@@ -216,7 +216,7 @@
         - stage_1
 
     - name: Stage 2 - LAN automate devices and discover into inventory
-      cisco.dnac.lan_automation_workflow_manager:
+      cisco.catalystcenter.lan_automation_workflow_manager:
         <<: *catalyst_center_login
         config:
           - "{{ item.1.config }}"
@@ -296,7 +296,7 @@
         - stage_2
 
     - name: Stage 3 - Fix device roles in inventory
-      cisco.dnac.inventory_workflow_manager:
+      cisco.catalystcenter.inventory_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ item.1.state | default(state | default('merged')) }}"
         config:
@@ -376,7 +376,7 @@
         - stage_3
 
     - name: Stage 4 - Provision devices to sites
-      cisco.dnac.provision_workflow_manager:
+      cisco.catalystcenter.provision_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ item.1.state | default(state | default('merged')) }}"
         config:
@@ -456,7 +456,7 @@
         - stage_4
 
     - name: Stage 5 - Add devices into SDA fabric sites
-      cisco.dnac.sda_fabric_devices_workflow_manager:
+      cisco.catalystcenter.sda_fabric_devices_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ item.1.state | default(state | default('merged')) }}"
         config:
@@ -536,7 +536,7 @@
         - stage_5
 
     - name: Stage 6 - Onboard SDA host ports on fabric devices
-      cisco.dnac.sda_host_port_onboarding_workflow_manager:
+      cisco.catalystcenter.sda_host_port_onboarding_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ item.1.state | default(state | default('merged')) }}"
         config:
