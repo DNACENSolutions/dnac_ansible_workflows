@@ -47,6 +47,18 @@
           Provide it via VARS_FILE_PATH or as an inventory/host variable.
       when: inventory_config is not defined
 
+    - name: Validate that file_path is provided for each inventory_config entry
+      ansible.builtin.assert:
+        that:
+          - item.file_path is defined
+          - item.file_path | string | length > 0
+        fail_msg: >-
+          Each inventory_config list entry must include a non-empty file_path for output validation.
+      loop: "{{ inventory_config }}"
+      when:
+        - inventory_config is defined
+        - inventory_config | length > 0
+
     # =========================================================================
     # Playbook execution
     # =========================================================================
@@ -60,30 +72,7 @@
         state: "{{ state }}"
         file_path: "{{ item.file_path | default(omit) }}"
         file_mode: "{{ item.file_mode | default('overwrite') }}"
-        config: >-
-          {{
-            omit
-            if (
-              item.generate_all_configurations | default(false)
-              or (
-                item.global_filters is not defined
-                and item.component_specific_filters is not defined
-              )
-            )
-            else (
-              {}
-              | combine(
-                  {'global_filters': item.global_filters}
-                  if item.global_filters is defined
-                  else {}
-                )
-              | combine(
-                  {'component_specific_filters': item.component_specific_filters}
-                  if item.component_specific_filters is defined
-                  else {}
-                )
-            )
-          }}
+        config: "{{ item.config | default(omit) }}"
       loop: "{{ inventory_config }}"
       when:
         - inventory_config is defined
@@ -94,6 +83,38 @@
       ansible.builtin.debug:
         var: config_generation_result
       when: config_generation_result is defined
+
+    - name: Check generated inventory files exist and are non-empty
+      ansible.builtin.stat:
+        path: "{{ item.file_path }}"
+      loop: "{{ inventory_config }}"
+      register: inventory_output_file_stats
+      when:
+        - inventory_config is defined
+        - inventory_config | length > 0
+
+    - name: Validate generated inventory files exist and are non-empty
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.isreg
+          - item.stat.size > 0
+        fail_msg: >-
+          Generated inventory output file check failed for {{ item.item.file_path }}.
+          File must exist and contain data.
+      loop: "{{ inventory_output_file_stats.results | default([]) }}"
+
+    - name: Validate generated inventory files contain expected config structure
+      ansible.builtin.assert:
+        that:
+          - parsed_output is mapping
+          - "'config' in parsed_output"
+          - parsed_output.config is sequence
+        fail_msg: >-
+          Generated inventory output file {{ item.item.file_path }} does not contain expected YAML structure with top-level 'config' list.
+      vars:
+        parsed_output: "{{ lookup('ansible.builtin.file', item.item.file_path) | from_yaml }}"
+      loop: "{{ inventory_output_file_stats.results | default([]) }}"
 
     # =========================================================================
     # Playbook Execution Summary
