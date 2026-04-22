@@ -38,93 +38,115 @@ def parse_yamale_schema(schema_file_path):
                 first_section_lines = section_lines
                 break
         
-        # First pass: Find the main detail field (e.g., pathtrace_details, inventory_details, accesspoint_location_details)
-        i = 0
-        while i < len(first_section_lines):
-            line = first_section_lines[i]
-            stripped = line.strip()
-            
-            if not stripped or stripped.startswith('#'):
-                i += 1
-                continue
-            
-            # Look for fields containing 'details' (but not catalyst_center or other config fields)
-            if ':' in stripped:
-                parts = stripped.split(':', 1)
-                field_name = parts[0].strip()
-                field_def = parts[1].strip() if len(parts) > 1 else ''
-                
-                # Identify detail fields (ignore catalyst_center_*, jinjatemplate*, passwords_file, config_verify)
-                if ('details' in field_name) and \
-                   not field_name.startswith('catalyst_center') and \
-                   not field_name.startswith('jinjatemplate') and \
-                   not field_name.startswith('passwords_file') and \
-                   field_name != 'config_verify':
-                    detail_field_name = field_name
-                    
-                    # Check if this is a direct list definition or nested structure
-                    if field_def:
-                        # Direct definition: pathtrace_details: list(include('pathtrace_details_type'))
+        # System fields to ignore when searching for main detail field
+        _SYSTEM_FIELD_PREFIXES = ('catalyst_center', 'jinjatemplate', 'passwords_file')
+        _SYSTEM_FIELD_NAMES = ('config_verify',)
+
+        def _is_system_field(name):
+            return (name.startswith(_SYSTEM_FIELD_PREFIXES) or name in _SYSTEM_FIELD_NAMES)
+
+        def _try_extract_detail_field(lines):
+            """Return (detail_field_name, detail_type_name) or (None, None)."""
+            i = 0
+            fallback_field = None
+            fallback_type = None
+            while i < len(lines):
+                line = lines[i]
+                stripped = line.strip()
+                if not stripped or stripped.startswith('#'):
+                    i += 1
+                    continue
+                if ':' in stripped:
+                    parts = stripped.split(':', 1)
+                    field_name = parts[0].strip()
+                    field_def = parts[1].strip() if len(parts) > 1 else ''
+                    if not _is_system_field(field_name):
                         include_match = re.search(r'include\s*\(\s*["\']([^"\']+)["\']', field_def)
                         if include_match:
-                            detail_type_name = include_match.group(1)
-                            break
-                    else:
-                        # Nested structure: inventory_details: \n  network_devices: list(...)
-                        # Look at next line(s) for nested fields
-                        i += 1
-                        if i < len(first_section_lines):
-                            next_line = first_section_lines[i]
-                            # Check if next line is indented (nested field)
-                            if next_line.startswith('  ') or next_line.startswith('\t'):
-                                next_stripped = next_line.strip()
-                                if ':' in next_stripped:
-                                    next_parts = next_stripped.split(':', 1)
-                                    next_field_def = next_parts[1].strip() if len(next_parts) > 1 else ''
-                                    include_match = re.search(r'include\s*\(\s*["\']([^"\']+)["\']', next_field_def)
-                                    if include_match:
-                                        detail_type_name = include_match.group(1)
-                                        break
-            i += 1
+                            type_name = include_match.group(1)
+                            # Prefer _details fields; otherwise keep first match as fallback
+                            if 'details' in field_name:
+                                return field_name, type_name
+                            elif fallback_field is None:
+                                fallback_field = field_name
+                                fallback_type = type_name
+                        elif not field_def:
+                            # Nested structure: field_name: \n  sub_field: list(include(...))
+                            i += 1
+                            if i < len(lines):
+                                next_line = lines[i]
+                                if next_line.startswith('  ') or next_line.startswith('\t'):
+                                    next_stripped = next_line.strip()
+                                    if ':' in next_stripped:
+                                        next_parts = next_stripped.split(':', 1)
+                                        next_field_def = next_parts[1].strip() if len(next_parts) > 1 else ''
+                                        include_match = re.search(r'include\s*\(\s*["\']([^"\']+)["\']', next_field_def)
+                                        if include_match:
+                                            type_name = include_match.group(1)
+                                            if 'details' in field_name:
+                                                return field_name, type_name
+                                            elif fallback_field is None:
+                                                fallback_field = field_name
+                                                fallback_type = type_name
+                i += 1
+            return fallback_field, fallback_type
+
+        # First pass: Find the main detail field
+        # Prefers fields with '_details' in the name; falls back to first list(include(...)) field
+        detail_field_name, detail_type_name = _try_extract_detail_field(first_section_lines)
         
         if not detail_field_name or not detail_type_name:
             return {"error": f"Could not find main detail field in schema. Searched in {len(first_section_lines)} lines."}
         
-        # Second pass: Extract the type definition for the detail field
-        # Handle chained includes (e.g., network_devices_type -> network_devices_type_type)
-        for section in sections[1:]:  # Skip first section, look in type definitions
+        # Build a lookup: type_name -> list of (field_name, field_def) from all sections
+        type_definitions = {}
+        for section in sections[1:]:
             lines = section.strip().split('\n')
             current_type = None
-            
             for line in lines:
                 stripped = line.strip()
                 if not stripped or stripped.startswith('#'):
                     continue
-                
-                # Check if this is the type definition we're looking for
-                if ':' in stripped and not stripped.startswith(' ') and not stripped.startswith('\t'):
+                if ':' in stripped and not line.startswith(' ') and not line.startswith('\t'):
                     parts = stripped.split(':', 1)
                     type_name = parts[0].strip()
-                    if type_name == detail_type_name:
-                        current_type = type_name
-                        # Check if this is a chained include
-                        if len(parts) > 1 and parts[1].strip():
-                            field_def = parts[1].strip()
-                            chained_include = re.search(r'include\s*\(\s*["\']([^"\']+)["\']', field_def)
-                            if chained_include:
-                                # Follow the chain
-                                detail_type_name = chained_include.group(1)
-                                current_type = None
-                        continue
-                
-                # If we're inside the correct type definition, parse its fields
-                if current_type == detail_type_name and ':' in stripped:
-                    # This is a field within the type definition
-                    parts = stripped.split(':', 1)
-                    field_name = parts[0].strip()
                     field_def = parts[1].strip() if len(parts) > 1 else ''
-                    schema_fields[field_name] = parse_field_definition(field_def)
-        
+                    # Check for chained include at type level
+                    chained = re.search(r'include\s*\(\s*["\']([^"\']+)["\']', field_def)
+                    if chained:
+                        # Alias: this type redirects to another
+                        type_definitions.setdefault(type_name, [])
+                        type_definitions[type_name].append(('__chain__', chained.group(1)))
+                    else:
+                        type_definitions.setdefault(type_name, [])
+                        current_type = type_name
+                elif current_type and ':' in stripped:
+                    parts = stripped.split(':', 1)
+                    f_name = parts[0].strip()
+                    f_def = parts[1].strip() if len(parts) > 1 else ''
+                    type_definitions[current_type].append((f_name, f_def))
+
+        # Recursively collect all fields from a type and its nested includes
+        def collect_fields(type_name, visited=None):
+            if visited is None:
+                visited = set()
+            if type_name in visited:
+                return {}
+            visited.add(type_name)
+            fields = {}
+            for f_name, f_def in type_definitions.get(type_name, []):
+                if f_name == '__chain__':
+                    # Follow chain/alias
+                    fields.update(collect_fields(f_def, visited))
+                else:
+                    fields[f_name] = parse_field_definition(f_def)
+                    # Follow include references recursively
+                    nested_include = re.search(r'include\s*\(\s*["\']([^"\']+)["\']', f_def)
+                    if nested_include:
+                        fields.update(collect_fields(nested_include.group(1), visited))
+            return fields
+
+        schema_fields = collect_fields(detail_type_name)
         return schema_fields
     
     except FileNotFoundError:
@@ -321,7 +343,48 @@ def get_doc_config_fields(documentation):
     return doc_fields
 
 
-def compare_schema_with_documentation(schema_fields, doc_fields, verbose=False):
+def _build_top_level_options(full_documentation):
+    """
+    Extract non-system top-level options from DOCUMENTATION as a fallback lookup.
+
+    Schema detail types may contain fields (e.g. file_path, file_mode, config)
+    that are documented as top-level module options rather than config suboptions.
+    This helper builds a dict of those options so the comparison can fall back to
+    them when a schema field is not found in config.suboptions.
+
+    Args:
+        full_documentation (dict): The full parsed DOCUMENTATION dictionary.
+
+    Returns:
+        dict: Mapping of option name to parsed field info.
+    """
+    _SYSTEM_PREFIXES = ('dnac_', 'catalyst_center_')
+    _SYSTEM_NAMES = ('state', 'validate_response_schema', 'config_verify')
+
+    top_level = {}
+    if not full_documentation or not isinstance(full_documentation, dict):
+        return top_level
+
+    for opt_name, opt_spec in full_documentation.get('options', {}).items():
+        if any(opt_name.startswith(p) for p in _SYSTEM_PREFIXES):
+            continue
+        if opt_name in _SYSTEM_NAMES:
+            continue
+        if not isinstance(opt_spec, dict):
+            continue
+        top_level[opt_name] = {
+            'type': opt_spec.get('type'),
+            'required': opt_spec.get('required', False),
+            'default': opt_spec.get('default'),
+            'choices': opt_spec.get('choices', []),
+            'elements': opt_spec.get('elements'),
+            'description': opt_spec.get('description', ''),
+            'suboptions': {}
+        }
+    return top_level
+
+
+def compare_schema_with_documentation(schema_fields, doc_fields, verbose=False, full_documentation=None):
     """
     Compare yamale schema fields with documentation fields and identify mismatches.
     
@@ -329,6 +392,8 @@ def compare_schema_with_documentation(schema_fields, doc_fields, verbose=False):
         schema_fields (dict): Parsed yamale schema fields.
         doc_fields (dict): Parsed documentation fields.
         verbose (bool): Enable verbose output.
+        full_documentation (dict): Full parsed DOCUMENTATION dict used as
+            fallback for top-level options not inside config.suboptions.
     
     Returns:
         list: List of mismatch descriptions.
@@ -341,6 +406,11 @@ def compare_schema_with_documentation(schema_fields, doc_fields, verbose=False):
     if 'error' in doc_fields:
         return [f"Documentation Error: {doc_fields.get('error', 'Unknown error')}"]
     
+    # Build fallback lookup from top-level DOCUMENTATION options so that
+    # schema fields mapped to top-level module params (e.g. file_path,
+    # file_mode, config) are not falsely reported as missing.
+    top_level_options = _build_top_level_options(full_documentation)
+    
     # Check for fields in schema but not in documentation
     for schema_field, schema_info in schema_fields.items():
         if schema_field.startswith('#') or not schema_field:
@@ -350,13 +420,15 @@ def compare_schema_with_documentation(schema_fields, doc_fields, verbose=False):
         if schema_field.endswith('_type'):
             continue
         
-        if schema_field not in doc_fields:
+        if schema_field in doc_fields:
+            doc_info = doc_fields[schema_field]
+        elif schema_field in top_level_options:
+            doc_info = top_level_options[schema_field]
+        else:
             mismatches.append(
                 f"Field '{schema_field}' exists in schema but missing in DOCUMENTATION"
             )
             continue
-        
-        doc_info = doc_fields[schema_field]
         
         # Compare types
         schema_type = schema_info.get('type')
@@ -476,8 +548,8 @@ def compare_module_with_schema(module_file_path, schema_file_path, verbose=False
     # Get documentation fields
     doc_fields = get_doc_config_fields(documentation)
     
-    # Compare
-    mismatches = compare_schema_with_documentation(schema_fields, doc_fields, verbose)
+    # Compare (pass full documentation for top-level option fallback)
+    mismatches = compare_schema_with_documentation(schema_fields, doc_fields, verbose, documentation)
     
     return (module_filename, schema_filename, mismatches)
 
