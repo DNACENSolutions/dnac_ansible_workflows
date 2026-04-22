@@ -69,9 +69,9 @@ Key features include:
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.dnac
+ansible-galaxy collection install cisco.catalystcenter
 ansible-galaxy collection install ansible.utils
-pip install dnacentersdk
+pip install catalystcentersdk
 pip install yamale
 ```
 
@@ -189,7 +189,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -681,8 +681,8 @@ The following environment was used for testing:
 | Python                | `3.10.10`   |
 | Cisco Catalyst Center | `3.1.5.0`   |
 | Ansible               | `2.17.13`   |
-| cisco.dnac Collection | `6.40.0`    |
-| dnacentersdk          | `2.10.4`    |
+| cisco.catalystcenter Collection | `6.40.0`    |
+| catalystcentersdk          | `2.10.4`    |
 
 For detailed documentation, refer to:  
 - [Ansible Galaxy: Cisco Catalyst Center Collection](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/accesspoint_location_workflow_manager/)  

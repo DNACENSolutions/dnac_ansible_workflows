@@ -3,7 +3,7 @@
 # ============================================================================
 #
 # This schema validates input data for:
-#   cisco.dnac.wireless_design_playbook_config_generator
+#   cisco.catalystcenter.wireless_design_playbook_config_generator
 #
 # Input model:
 #   wireless_design_config:

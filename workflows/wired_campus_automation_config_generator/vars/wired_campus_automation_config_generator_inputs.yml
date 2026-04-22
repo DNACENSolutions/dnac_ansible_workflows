@@ -12,7 +12,7 @@
 # Notes:
 # - state is fixed as gathered inside the playbook.
 # - Each item below generates one YAML output file that is compatible with:
-#   cisco.dnac.wired_campus_automation_workflow_manager
+#   cisco.catalystcenter.wired_campus_automation_workflow_manager
 # - generate_all_configurations: true  --> exports all layer2 configurations
 #   from all managed devices (full discovery mode).
 # - global_filters identify target devices by IP, hostname, or serial number.

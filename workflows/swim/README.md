@@ -456,10 +456,10 @@ The software image (SWIM) can be updated on the device in a single run by combin
 
 ```yaml
 python: 3.12.0
-dnac_version: 3.1.5
+catalystcenter_version: 3.1.5
 ansible: 9.9.0
-dnacentersdk: 2.10.4
-cisco.dnac: 6.42.0
+catalystcentersdk: 2.10.4
+cisco.catalystcenter: 6.42.0
 ```
 ## Workflow Steps
 ## User Flow (3 Steps)
@@ -486,7 +486,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

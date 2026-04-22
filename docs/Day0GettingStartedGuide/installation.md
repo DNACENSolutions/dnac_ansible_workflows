@@ -10,7 +10,7 @@ This repository provides Cisco-validated Ansible playbooks to automate Catalyst 
 - [Update](#update)
 
 # CompatibilityMatrix
-| Deployed Catalyst Center Version   | Catalyst Center Version in Input   | Ansible Galaxy collection (cisco.dnac)Version    | Python SDK (dnacentersdk) Version    |
+| Deployed Catalyst Center Version   | Catalyst Center Version in Input   | Ansible Galaxy collection (cisco.catalystcenter)Version    | Python SDK (catalystcentersdk) Version    |
 | :--------------------------------: | :--------------------------------: | :-----------------------: | :-------------------: |
 | 2.3.5.3 | 2.3.5.3   | latest   | latest |
 | 2.3.5.5 | 2.3.5.3   | latest   | latest |
@@ -33,7 +33,7 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 # Installation of Cisco Validated Playbooks, Schema and Sample Inputs Vars
 
 - Install Python 3.9 or later
-- Install  cisco.dnac collection including Python requirements.
+- Install  cisco.catalystcenter collection including Python requirements.
 - Modify ansible.cfg file to support additional jinja2 extensions
 
 ## Python
@@ -66,28 +66,28 @@ cd dnac_ansible_workflows
 pip install -r requirements.txt
 ```
 ## Install the collection (Galaxy link):
-For installing or upgrading the cisco.dnac ansible collection follow steps:
+For installing or upgrading the cisco.catalystcenter ansible collection follow steps:
     Install Collection from Ansible Galaxy
     These instructions are for regular users to install via Ansible Galaxy. The instructions also include installation of all Python requirements for a given version. 
-    The cisco.dnac collection is available on the Ansible Galaxy server and can be automatically installed on your system using following command
+    The cisco.catalystcenter collection is available on the Ansible Galaxy server and can be automatically installed on your system using following command
 
 ### Latest version
-Clone the dnacenter-ansible repository.
+Clone the catalystcenter-ansible repository.
 ```bash
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 ### Sppecific version
 ```bash
-ansible-galaxy collection install cisco.dnac:==6.29.0 --force
+ansible-galaxy collection install cisco.catalystcenter:==6.29.0 --force
 ```
 
 ### Install latest devel version from  GitHub abd build
 ```bash
-git clone https://github.com/cisco-en-programmability/dnacenter-ansible.git
+git clone https://github.com/cisco-en-programmability/catalystcenter-ansible.git
 ```
-Go to the dnacenter-ansible directory
+Go to the catalystcenter-ansible directory
 ```bash
-cd dnacenter-ansible
+cd catalystcenter-ansible
 ```
 Pull the latest master from the repo
 ```bash
@@ -99,25 +99,25 @@ ansible-galaxy collection build --force
 ansible-galaxy collection install cisco-dnac-* --force
 ```
 
-## Install or Update the dnacentersdk:
-For installing or upgrading the dnacentersdk follow steps:
+## Install or Update the catalystcentersdk:
+For installing or upgrading the catalystcentersdk follow steps:
 
 ### Install via pip or pip3
 To get the Python Catalyst Center SDK latest in a fresh development environment:
 
 ```bash
-pip install dnacentersdk
+pip install catalystcentersdk
 ```
 
 ### Upgrading to the latest Version
 Use --upgrade opton to upgrde to latest version available.
 ```bash
-pip install dnacentersdk --upgrade
+pip install catalystcentersdk --upgrade
 ```
 ### Install a specific version
 To install a specific version like 2.8.3
 ```bash
-pip install dnacentersdk:2.8.3
+pip install catalystcentersdk:2.8.3
 ```
 
 ## Ansible configuration file
@@ -169,13 +169,13 @@ vars/
 catalyst_center_hosts:
     hosts:
     <dnac hostname >:
-    dnac_debug: false
-    dnac_host: <Cisco Catalyst Center IP Address> #(Mandatory) Cisco Catalyst Center Ip address
-    dnac_password: <Cisco Catalyst Center UI admin Password> #(Mandatory) 
-    dnac_port: 443 #(Mandatory) 
-    dnac_username: <Cisco Catalyst Center UI admin username> #(Mandatory) 
-    dnac_verify: false #(Mandatory) 
-    dnac_version: <Cisco Catalyst Center Release version> #(Mandatory)  Example: 2.3.5.3
+    catalystcenter_debug: false
+    catalystcenter_host: <Cisco Catalyst Center IP Address> #(Mandatory) Cisco Catalyst Center Ip address
+    catalystcenter_password: <Cisco Catalyst Center UI admin Password> #(Mandatory) 
+    catalystcenter_port: 443 #(Mandatory) 
+    catalystcenter_username: <Cisco Catalyst Center UI admin username> #(Mandatory) 
+    catalystcenter_verify: false #(Mandatory) 
+    catalystcenter_version: <Cisco Catalyst Center Release version> #(Mandatory)  Example: 2.3.5.3
 ```
 
 Here are a few examples of Cisco Validated Playbooks in the repo. For details documentation of the playbook usage refer the guide inside the corresponding module.

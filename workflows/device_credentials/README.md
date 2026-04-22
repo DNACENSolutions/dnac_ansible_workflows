@@ -84,16 +84,16 @@ The workflow leverages the **device_credential_workflow_manager**  module to int
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
+            catalystcenter_host: xx.xx.xx.xx.
+            catalystcenter_password: XXXXXXXX
+            catalystcenter_port: 443
             dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
+            catalystcenter_username: admin
+            catalystcenter_verify: false
+            catalystcenter_version: 2.3.7.6
+            catalystcenter_debug: true
+            catalystcenter_log_level: INFO
+            catalystcenter_log: true
 ```
 	
 ### Generate your Input
@@ -443,19 +443,19 @@ changed: [catalyst_center220] => {
                 }
             ],
             "config_verify": false,
-            "dnac_api_task_timeout": 1200,
-            "dnac_debug": true,
-            "dnac_host": "10.22.40.214",
-            "dnac_log": true,
-            "dnac_log_append": true,
-            "dnac_log_file_path": "dnac.log",
-            "dnac_log_level": "debug",
-            "dnac_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
-            "dnac_port": "443",
+            "catalystcenter_api_task_timeout": 1200,
+            "catalystcenter_debug": true,
+            "catalystcenter_host": "10.22.40.214",
+            "catalystcenter_log": true,
+            "catalystcenter_log_append": true,
+            "catalystcenter_log_file_path": "dnac.log",
+            "catalystcenter_log_level": "debug",
+            "catalystcenter_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
+            "catalystcenter_port": "443",
             "dnac_task_poll_interval": 2,
-            "dnac_username": "thanduon",
-            "dnac_verify": false,
-            "dnac_version": "2.3.7.6",
+            "catalystcenter_username": "thanduon",
+            "catalystcenter_verify": false,
+            "catalystcenter_version": "2.3.7.6",
             "state": "merged",
             "validate_response_schema": true
         }
@@ -564,19 +564,19 @@ changed: [catalyst_center220] => {
                 }
             ],
             "config_verify": false,
-            "dnac_api_task_timeout": 1200,
-            "dnac_debug": true,
-            "dnac_host": "10.22.40.214",
-            "dnac_log": true,
-            "dnac_log_append": true,
-            "dnac_log_file_path": "dnac.log",
-            "dnac_log_level": "debug",
-            "dnac_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
-            "dnac_port": "443",
+            "catalystcenter_api_task_timeout": 1200,
+            "catalystcenter_debug": true,
+            "catalystcenter_host": "10.22.40.214",
+            "catalystcenter_log": true,
+            "catalystcenter_log_append": true,
+            "catalystcenter_log_file_path": "dnac.log",
+            "catalystcenter_log_level": "debug",
+            "catalystcenter_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
+            "catalystcenter_port": "443",
             "dnac_task_poll_interval": 2,
-            "dnac_username": "thanduon",
-            "dnac_verify": false,
-            "dnac_version": "2.3.7.6",
+            "catalystcenter_username": "thanduon",
+            "catalystcenter_verify": false,
+            "catalystcenter_version": "2.3.7.6",
             "state": "merged",
             "validate_response_schema": true
         }
@@ -703,19 +703,19 @@ changed: [catalyst_center220] => (item={'global_credential_details': {'cli_crede
                 }
             ],
             "config_verify": false,
-            "dnac_api_task_timeout": 1200,
-            "dnac_debug": true,
-            "dnac_host": "10.22.40.214",
-            "dnac_log": true,
-            "dnac_log_append": true,
-            "dnac_log_file_path": "dnac.log",
-            "dnac_log_level": "debug",
-            "dnac_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
-            "dnac_port": "443",
+            "catalystcenter_api_task_timeout": 1200,
+            "catalystcenter_debug": true,
+            "catalystcenter_host": "10.22.40.214",
+            "catalystcenter_log": true,
+            "catalystcenter_log_append": true,
+            "catalystcenter_log_file_path": "dnac.log",
+            "catalystcenter_log_level": "debug",
+            "catalystcenter_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
+            "catalystcenter_port": "443",
             "dnac_task_poll_interval": 2,
-            "dnac_username": "thanduon",
-            "dnac_verify": false,
-            "dnac_version": "2.3.7.6",
+            "catalystcenter_username": "thanduon",
+            "catalystcenter_verify": false,
+            "catalystcenter_version": "2.3.7.6",
             "state": "deleted",
             "validate_response_schema": true
         }
@@ -895,8 +895,8 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_credentials/
 * Note: The environment is used for the references in the above instructions.
 ```
   ansible: 9.9.0
-  dnacentersdk: 2.8.3
-  cisco.dnac: 6.30.0
+  catalystcentersdk: 2.8.3
+  cisco.catalystcenter: 6.30.0
 ```
 ## Workflow Steps
 ## User Flow (3 Steps)
@@ -923,7 +923,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

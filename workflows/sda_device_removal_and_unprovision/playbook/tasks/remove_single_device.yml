@@ -4,7 +4,7 @@
         removal_workflow_device_context: {}
 
     - name: Look up device in Catalyst Center inventory
-      cisco.dnac.network_device_info:
+      cisco.catalystcenter.network_device_info:
         <<: *catalyst_center_login
         hostname:
           - "{{ removal_item.device_name }}"
@@ -33,7 +33,7 @@
           inventory_family: "{{ matched_removal_devices[0].family | default('unknown') }}"
 
     - name: Clear all host onboarding from device
-      cisco.dnac.sda_host_port_onboarding_workflow_manager:
+      cisco.catalystcenter.sda_host_port_onboarding_workflow_manager:
         <<: *catalyst_center_login
         state: deleted
         config:
@@ -43,7 +43,7 @@
       register: removal_host_onboarding_result
 
     - name: Remove device from SDA fabric site
-      cisco.dnac.sda_fabric_devices_workflow_manager:
+      cisco.catalystcenter.sda_fabric_devices_workflow_manager:
         <<: *catalyst_center_login
         state: deleted
         config:
@@ -54,7 +54,7 @@
       register: removal_fabric_role_result
 
     - name: Unprovision device and remove it from inventory
-      cisco.dnac.provision_workflow_manager:
+      cisco.catalystcenter.provision_workflow_manager:
         <<: *catalyst_center_login
         state: deleted
         config:

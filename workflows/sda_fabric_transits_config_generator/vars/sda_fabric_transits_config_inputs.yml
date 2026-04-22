@@ -8,7 +8,7 @@
 #     --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_transits_config_generator/vars/sda_fabric_transits_config_inputs.yml
 #
 # Module used:
-#   cisco.dnac.sda_fabric_transits_playbook_config_generator
+#   cisco.catalystcenter.sda_fabric_transits_playbook_config_generator
 # ============================================================================
 
 sda_fabric_transits_config:

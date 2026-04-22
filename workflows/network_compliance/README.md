@@ -36,7 +36,7 @@ For comprehensive details on input options and structure, refer to the full work
 ### Configure Host Inventory
 
 - The **host_inventory_dnac1/hosts.yml** file contains connection details (IP, credentials) for your Catalyst Center instance.
-- Ensure the **dnac_version** matches your Catalyst Center version.
+- Ensure the **catalystcenter_version** matches your Catalyst Center version.
 
 ### Configure Host Inventory
 - **host_inventory_dnac1/hosts.yml**
@@ -45,16 +45,16 @@ For comprehensive details on input options and structure, refer to the full work
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
+            catalystcenter_host: xx.xx.xx.xx.
+            catalystcenter_password: XXXXXXXX
+            catalystcenter_port: 443
             dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
+            catalystcenter_username: admin
+            catalystcenter_verify: false
+            catalystcenter_version: 2.3.7.6
+            catalystcenter_debug: true
+            catalystcenter_log_level: INFO
+            catalystcenter_log: true
 ```
 
 - User Inputs for Users and roles are stored in **workflows/network compliance/vars/network_compliance_workflow_inputs.yml**
@@ -109,7 +109,7 @@ Loading collection ansible.builtin from
 host_list declined parsing /Users/pawansi/dnac_ansible_workflows/host_inventory_dnac1/hosts.yml as it did not pass its verify_file() method
 script declined parsing /Users/pawansi/dnac_ansible_workflows/host_inventory_dnac1/hosts.yml as it did not pass its verify_file() method
 Parsed /Users/pawansi/dnac_ansible_workflows/host_inventory_dnac1/hosts.yml inventory source with yaml plugin
-Loading collection cisco.dnac from /Users/pawansi/.ansible/collections/ansible_collections/cisco/dnac
+Loading collection cisco.catalystcenter from /Users/pawansi/.ansible/collections/ansible_collections/cisco/dnac
 Loading callback plugin default of type stdout, v2.0 from /Users/pawansi/workspace/dnac_auto/pyats/lib/python3.11/site-packages/ansible/plugins/callback/default.py
 Skipping callback 'default', as we already have a stdout callback.
 Skipping callback 'minimal', as we already have a stdout callback.
@@ -412,19 +412,19 @@ changed: [catalyst_center220] => {
                 }
             ],
             "config_verify": false,
-            "dnac_api_task_timeout": 1200,
-            "dnac_debug": true,
-            "dnac_host": "10.195.227.14",
-            "dnac_log": true,
-            "dnac_log_append": true,
-            "dnac_log_file_path": "dnac.log",
-            "dnac_log_level": "INFO",
-            "dnac_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
-            "dnac_port": "443",
+            "catalystcenter_api_task_timeout": 1200,
+            "catalystcenter_debug": true,
+            "catalystcenter_host": "10.195.227.14",
+            "catalystcenter_log": true,
+            "catalystcenter_log_append": true,
+            "catalystcenter_log_file_path": "dnac.log",
+            "catalystcenter_log_level": "INFO",
+            "catalystcenter_password": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER",
+            "catalystcenter_port": "443",
             "dnac_task_poll_interval": 2,
-            "dnac_username": "admin",
-            "dnac_verify": false,
-            "dnac_version": "2.3.7.6",
+            "catalystcenter_username": "admin",
+            "catalystcenter_verify": false,
+            "catalystcenter_version": "2.3.7.6",
             "state": "merged",
             "validate_response_schema": true
         }
@@ -779,7 +779,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

@@ -19,7 +19,7 @@ Checkout the project and playbooks: git@github.com:cisco-en-programmability/cata
 2. ## Configure Host Inventory:
 
 The host_inventory_dnac1/hosts.yml file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
-Make sure the dnac_version in this file matches your actual Catalyst Center version.
+Make sure the catalystcenter_version in this file matches your actual Catalyst Center version.
 ##The Sample host_inventory_dnac1/hosts.yml
 
 ```bash
@@ -194,7 +194,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

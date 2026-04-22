@@ -48,8 +48,8 @@ network_devices_info/
 
 - Ansible 2.9 or higher
 - Python 3.9.19 or higher
-- dnacentersdk 2.9.3 or higher
-- cisco.dnac Ansible collection 6.42.0 or higher
+- catalystcentersdk 2.9.3 or higher
+- cisco.catalystcenter Ansible collection 6.42.0 or higher
 - Access to Cisco Catalyst Center with appropriate permissions
 - Network connectivity to Catalyst Center
 
@@ -155,7 +155,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -405,7 +405,7 @@ Playbook Return:
       ...
     - device_ip: 204.1.2.7
       interface_details:
-      - !!python/object/new:dnacentersdk.models.mydict.MyDict
+      - !!python/object/new:catalystcentersdk.models.mydict.MyDict
         dictitems:
 ```
 

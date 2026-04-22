@@ -9,7 +9,7 @@
 #     --extra-vars VARS_FILE_PATH=./workflows/site_config_generator/vars/site_config_inputs.yml
 #
 # Module used:
-#   cisco.dnac.site_playbook_config_generator
+#   cisco.catalystcenter.site_playbook_config_generator
 # ============================================================================
 
 site_config:

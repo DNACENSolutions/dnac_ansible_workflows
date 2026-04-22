@@ -737,8 +737,8 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml \
 ## IV. References
 Environment used:
 ```
-dnacentersdk: 2.8.3 (recommend ≥2.9.2)
-cisco.dnac collection: 6.42.0
+catalystcentersdk: 2.8.3 (recommend ≥2.9.2)
+cisco.catalystcenter collection: 6.42.0
 ```
 
 ### Advanced Notes & Best Practices
@@ -774,7 +774,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

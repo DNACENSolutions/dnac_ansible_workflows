@@ -4,7 +4,7 @@
 # This schema validates input files used by:
 # workflows/inventory_config_generator/playbook/inventory_config_generator.yml
 #
-# The workflow uses cisco.dnac.inventory_playbook_config_generator and supports:
+# The workflow uses cisco.catalystcenter.inventory_playbook_config_generator and supports:
 # - Generate all inventory configurations (omit module config)
 # - Filter by devices list (IP/hostname/serial/mac values)
 # - Filter by device roles

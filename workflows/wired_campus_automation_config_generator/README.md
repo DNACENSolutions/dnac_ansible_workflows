@@ -24,7 +24,7 @@
 
 This workflow exports existing wired campus automation (layer2) configurations from Cisco Catalyst Center and generates YAML files compatible with:
 
-- `cisco.dnac.wired_campus_automation_workflow_manager`
+- `cisco.catalystcenter.wired_campus_automation_workflow_manager`
 
 It is designed for brownfield operations where layer2 configurations already exist and you need reusable, versionable infrastructure-as-code artifacts.
 
@@ -66,14 +66,14 @@ wired_campus_automation_config_generator/
 | Cisco Catalyst Center | 2.3.7.9+ |
 | Python | 3.9+ |
 | Ansible | 2.13+ |
-| dnacentersdk | 2.10.10+ |
+| catalystcentersdk | 2.10.10+ |
 
 ### Required packages
 
 ```bash
-ansible-galaxy collection install cisco.dnac    # >= 6.40.0
+ansible-galaxy collection install cisco.catalystcenter    # >= 6.40.0
 ansible-galaxy collection install ansible.utils
-pip install dnacentersdk
+pip install catalystcentersdk
 pip install yamale
 ```
 
@@ -364,13 +364,13 @@ Use the exported file directly as `vars_files`, then pass `config` to the manage
 
   tasks:
     - name: Apply layer2 configuration
-      cisco.dnac.wired_campus_automation_workflow_manager:
-        dnac_host: "{{ catalyst_center_host }}"
-        dnac_username: "{{ catalyst_center_username }}"
-        dnac_password: "{{ catalyst_center_password }}"
-        dnac_verify: "{{ catalyst_center_verify }}"
-        dnac_port: "{{ catalyst_center_port }}"
-        dnac_version: "{{ catalyst_center_version }}"
+      cisco.catalystcenter.wired_campus_automation_workflow_manager:
+        catalystcenter_host: "{{ catalyst_center_host }}"
+        catalystcenter_username: "{{ catalyst_center_username }}"
+        catalystcenter_password: "{{ catalyst_center_password }}"
+        catalystcenter_verify: "{{ catalyst_center_verify }}"
+        catalystcenter_port: "{{ catalyst_center_port }}"
+        catalystcenter_version: "{{ catalyst_center_version }}"
         state: merged
         config: "{{ config }}"
 ```
@@ -413,9 +413,9 @@ Use the exported file directly as `vars_files`, then pass `config` to the manage
 - Schema:
   `workflows/wired_campus_automation_config_generator/schema/wired_campus_automation_config_generator_schema.yml`
 - Target module:
-  `cisco.dnac.wired_campus_automation_playbook_config_generator`
+  `cisco.catalystcenter.wired_campus_automation_playbook_config_generator`
 - Consumer module:
-  `cisco.dnac.wired_campus_automation_workflow_manager`
+  `cisco.catalystcenter.wired_campus_automation_workflow_manager`
 
 ## Workflow Steps
 ## User Flow (3 Steps)
@@ -442,7 +442,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

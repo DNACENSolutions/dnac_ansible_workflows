@@ -70,7 +70,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -95,7 +95,7 @@ This section provides detailed information about all configuration parameters av
 |---------------------------------|------------|--------------|-------------------|---------------------------------------------------------------------------|
 | `catalyst_center_version`       | String     | No           | From hosts.yml    | Catalyst Center software version. Overrides host file version.            |
 | `catalyst_center_verify`        | Boolean    | No           | `false`           | SSL certificate verification (true/false).                                |
-| `dnac_api_task_timeout`         | Integer    | No           | `604800`          | Maximum time (seconds) to wait for LAN Automation task completion.        |
+| `catalystcenter_api_task_timeout`         | Integer    | No           | `604800`          | Maximum time (seconds) to wait for LAN Automation task completion.        |
 | `dnac_task_poll_interval`       | Integer    | No           | `30`              | Interval (seconds) to poll for task completion status.                    |
 | `config_verify`                 | Boolean    | No           | `false`           | Verify LAN Automation config after applying playbook configuration.       |
 | `state`                         | String     | No           | `merged`          | Desired state after module completion. Choices: `merged`, `deleted`.      |
@@ -905,7 +905,7 @@ For comprehensive instructions on LAN Automation configuration and the complete 
 | Python                | `3.10.0`    |
 | Cisco Catalyst Center | `3.1.3.0`   |
 | Ansible               | `9.9.0`     |
-| cisco.dnac Collection | `6.32.0`    |
-| dnacentersdk          | `2.8.8`     |
+| cisco.catalystcenter Collection | `6.32.0`    |
+| catalystcentersdk          | `2.8.8`     |
 
 ---

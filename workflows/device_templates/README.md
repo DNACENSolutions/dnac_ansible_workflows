@@ -37,7 +37,7 @@ Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/modul
 
 ### 2. Configure Host Inventory.
 - The host_inventory_dnac1/hosts.yml file specifies the connection details (IP address, credentials, etc.) for your Catalyst Center instance.
-- Make sure the dnac_version in this file matches your actual Catalyst Center version.
+- Make sure the catalystcenter_version in this file matches your actual Catalyst Center version.
 - The Sample host_inventory_dnac1/hosts.yml
 
 ```bash
@@ -293,13 +293,13 @@ Note: The environment is used for the references in the above instructions.
 
 ```
 
-  dnacentersdk: 2.8.3
-  cisco.dnac: 6.30.0
+  catalystcentersdk: 2.8.3
+  cisco.catalystcenter: 6.30.0
 
 ```
-Cisco Catalyst Center Ansible Module Documentation: [template_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/template_workflow_manager_module.html)
+Cisco Catalyst Center Ansible Module Documentation: [template_workflow_manager](https://cisco-en-programmability.github.io/catalystcenter-ansible/main/plugins/template_workflow_manager_module.html)
 
-GitHub Source Code: [template_workflow_manager.py](https://github.com/cisco-en-programmability/dnacenter-ansible/blob/main/plugins/modules/template_workflow_manager.py)
+GitHub Source Code: [template_workflow_manager.py](https://github.com/cisco-en-programmability/catalystcenter-ansible/blob/main/plugins/modules/template_workflow_manager.py)
 ## Workflow Steps
 ## User Flow (3 Steps)
 
@@ -325,7 +325,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

@@ -31,16 +31,16 @@ Before running the Discovery feature, ensure you have:
 catalyst_center_hosts:
     hosts:
         catalyst_center220:
-            dnac_host: xx.xx.xx.xx.
-            dnac_password: XXXXXXXX
-            dnac_port: 443
+            catalystcenter_host: xx.xx.xx.xx.
+            catalystcenter_password: XXXXXXXX
+            catalystcenter_port: 443
             dnac_timeout: 60
-            dnac_username: admin
-            dnac_verify: false
-            dnac_version: 2.3.7.6
-            dnac_debug: true
-            dnac_log_level: INFO
-            dnac_log: true
+            catalystcenter_username: admin
+            catalystcenter_verify: false
+            catalystcenter_version: 2.3.7.6
+            catalystcenter_debug: true
+            catalystcenter_log_level: INFO
+            catalystcenter_log: true
 ```
 
 ### Full Workflow Specification: 
@@ -198,8 +198,8 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_discovery/pl
   ansible-core: 2.16.10
   ansible-runner: 2.4.0
 
-  dnacentersdk: 2.8.3
-  cisco.dnac: 6.29.0
+  catalystcentersdk: 2.8.3
+  cisco.catalystcenter: 6.29.0
   ansible.utils: 5.1.2
 ```
 
@@ -232,7 +232,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

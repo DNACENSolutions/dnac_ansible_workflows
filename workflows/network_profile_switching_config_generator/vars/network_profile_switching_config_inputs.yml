@@ -228,5 +228,5 @@ network_profile_switch_config:
 # 6. Configuration Scope: Only retrieves existing switch profile configurations
 # 7. Authentication: Uses Catalyst Center credentials from inventory configuration
 # 8. API Limits: Large result sets may impact performance
-# 9. Output Format: Generated files are compatible with cisco.dnac.playbooks module
+# 9. Output Format: Generated files are compatible with cisco.catalystcenter.playbooks module
 # ============================================================================

@@ -38,17 +38,17 @@ The Access Point Location config generator automates YAML configuration generati
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.dnac collection | 6.49.0+ |
+| cisco.catalystcenter collection | 6.49.0+ |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 3.1.3.0+ |
-| dnacentersdk | 2.10.10+ |
+| catalystcentersdk | 2.10.10+ |
 
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.dnac
+ansible-galaxy collection install cisco.catalystcenter
 ansible-galaxy collection install ansible.utils
-pip install dnacentersdk
+pip install catalystcentersdk
 pip install yamale
 ```
 
@@ -134,7 +134,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -474,5 +474,5 @@ accesspoint_location_config:
 ## Additional Resources
 
 - [Cisco Catalyst Center Documentation](https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/series.html)
-- [Cisco DNA Center SDK](https://dnacentersdk.readthedocs.io/)
+- [Cisco DNA Center SDK](https://catalystcentersdk.readthedocs.io/)
 - [Ansible Documentation](https://docs.ansible.com/)

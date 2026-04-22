@@ -9,7 +9,7 @@
 #     --extra-vars VARS_FILE_PATH=./workflows/pnp_config_generator/vars/pnp_config_inputs.yml
 #
 # Module used:
-#   cisco.dnac.pnp_playbook_config_generator
+#   cisco.catalystcenter.pnp_playbook_config_generator
 #
 # Notes:
 # - Omit 'config' key entirely, or leave it empty, to retrieve all PnP devices (full brownfield discovery mode).

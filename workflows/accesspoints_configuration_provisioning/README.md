@@ -53,9 +53,9 @@ Detailed Input Specification
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.dnac
+ansible-galaxy collection install cisco.catalystcenter
 ansible-galaxy collection install ansible.utils
-pip install dnacentersdk
+pip install catalystcentersdk
 pip install yamale
 ```
 
@@ -277,7 +277,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -621,6 +621,6 @@ accesspoints_details:
 
 ## IV. References
 
-Cisco Catalyst Center Ansible Module Documentation: [accesspoint_workflow_manager](https://cisco-en-programmability.github.io/dnacenter-ansible/main/plugins/accesspoint_workflow_manager_module.html)
+Cisco Catalyst Center Ansible Module Documentation: [accesspoint_workflow_manager](https://cisco-en-programmability.github.io/catalystcenter-ansible/main/plugins/accesspoint_workflow_manager_module.html)
 
-GitHub Source Code: [accesspoint_workflow_manager.py](https://github.com/cisco-en-programmability/dnacenter-ansible/blob/main/plugins/modules/accesspoint_workflow_manager.py)
+GitHub Source Code: [accesspoint_workflow_manager.py](https://github.com/cisco-en-programmability/catalystcenter-ansible/blob/main/plugins/modules/accesspoint_workflow_manager.py)

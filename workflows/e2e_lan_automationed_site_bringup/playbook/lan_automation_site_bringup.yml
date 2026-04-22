@@ -12,19 +12,19 @@
     - "{{ VARS_FILE_PATH }}"
   vars:
     dnac_login: &dnac_login
-      dnac_host: "{{ dnac_host }}"
-      dnac_username: "{{ dnac_username }}"
-      dnac_password: "{{ dnac_password }}"
-      dnac_verify: "{{ dnac_verify }}"
-      dnac_port: "{{ dnac_port }}"
-      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
-      dnac_debug: "{{ dnac_debug }}"
-      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
+      catalystcenter_host: "{{ catalystcenter_host }}"
+      catalystcenter_username: "{{ catalystcenter_username }}"
+      catalystcenter_password: "{{ catalystcenter_password }}"
+      catalystcenter_verify: "{{ catalystcenter_verify }}"
+      catalystcenter_port: "{{ catalystcenter_port }}"
+      catalystcenter_version: "{{ catalyst_center_version  | default(catalystcenter_version) }}"
+      catalystcenter_debug: "{{ catalystcenter_debug }}"
+      catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
       
     # For using APIs directly in the playbook
     state: merged
-    dnac_url: "https://{{ dnac_host }}:443"
-    credentials: "{{ dnac_username}}:{{dnac_password }}"
+    dnac_url: "https://{{ catalystcenter_host }}:443"
+    credentials: "{{ catalystcenter_username}}:{{catalystcenter_password }}"
     authentication: "Basic {{ credentials | b64encode }}"
   tasks:
     - name: LAN Automation Script start time
@@ -32,7 +32,7 @@
         long_op_start: "{{ now() }}"
     #Create sites required to onboard your devices using LAN Automation
     - name: Create sites from design_sites config
-      cisco.dnac.site_workflow_manager:
+      cisco.catalystcenter.site_workflow_manager:
         <<: *dnac_login
         state: "{{state}}"
         config:
@@ -41,10 +41,10 @@
       tags: site
     # Create or Update existing Credentials with provided details in 
     - name: Create or Update existing Credentials with provided details in "{{ VARS_FILE_PATH }}"
-      cisco.dnac.device_credential_workflow_manager:
+      cisco.catalystcenter.device_credential_workflow_manager:
         <<: *dnac_login
-        dnac_log_level: INFO
-        dnac_log: true
+        catalystcenter_log_level: INFO
+        catalystcenter_log: true
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -53,10 +53,10 @@
       tags: credential
     # Assign Credentials to sites if defined in 
     - name: Assign Credentials to sites for credentials and sites maps in variables file "{{ VARS_FILE_PATH }}"
-      cisco.dnac.device_credential_workflow_manager:
+      cisco.catalystcenter.device_credential_workflow_manager:
         <<: *dnac_login
-        dnac_log_level: INFO
-        dnac_log: true
+        catalystcenter_log_level: INFO
+        catalystcenter_log: true
         state: "{{ state }}"
         config:
         - "{{ item }}"
@@ -65,7 +65,7 @@
       tags: credential
     #Create Global Pools 
     - name: Create Global IP Pools
-      cisco.dnac.network_settings_workflow_manager:
+      cisco.catalystcenter.network_settings_workflow_manager:
         <<: *dnac_login
         state: "{{state}}"
         config: "{{ network_settings.global_ip_pools }}"
@@ -74,7 +74,7 @@
 
     #Create reserv subpools
     - name: Reserve Subpools on sites
-      cisco.dnac.network_settings_workflow_manager:
+      cisco.catalystcenter.network_settings_workflow_manager:
         <<: *dnac_login
         state: "{{state}}"
         config: 
@@ -84,7 +84,7 @@
 
     #Update Network Settings for the sites
     - name: Creating networksettings for sites
-      cisco.dnac.network_settings_workflow_manager:
+      cisco.catalystcenter.network_settings_workflow_manager:
         <<: *dnac_login
         state: "{{state}}"
         config: "{{ network_settings.network_servers }}"
@@ -93,7 +93,7 @@
 
     # Discovery Seed devices
     - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH }}"
-      cisco.dnac.discovery_workflow_manager:
+      cisco.catalystcenter.discovery_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
         config:
@@ -113,7 +113,7 @@
         headers:
           Content-Type: "application/json"
           Authorization: "{{authentication}}"
-        validate_certs: "{{ dnac_verify}}"
+        validate_certs: "{{ catalystcenter_verify}}"
         status_code: 200
       register: auth_response
       tags: mgmtIpUpdate , start
@@ -131,7 +131,7 @@
           X-Auth-Token: "{{ dnac_auth_token }}"
         body_format: json
         body: "{{ lan_automation }}"
-        validate_certs: "{{ dnac_verify}}"
+        validate_certs: "{{ catalystcenter_verify}}"
         status_code: 202
       register: lan_automation_response
       tags: start
@@ -141,7 +141,7 @@
       tags: start
     #Check till task is complete with wait time 10 seconds
     - name: Get all Task Tree
-      cisco.dnac.task_tree_info:
+      cisco.catalystcenter.task_tree_info:
         <<: *dnac_login
         taskId: "{{ lan_automation_response.json.response.taskId }}"
       register: task_tree_info
@@ -157,7 +157,7 @@
           Content-Type: "application/json"
           X-Auth-Token: "{{ dnac_auth_token }}"
         body_format: json
-        validate_certs: "{{ dnac_verify}}"
+        validate_certs: "{{ catalystcenter_verify}}"
         status_code: 200
       register: lan_automation_active_sessions
     - name: Print LAN Automation Active Sessions
@@ -175,7 +175,7 @@
         body:
           offset: 1
           limit: 1
-        validate_certs: "{{ dnac_verify}}"
+        validate_certs: "{{ catalystcenter_verify}}"
         status_code: 200
       register: lan_automation_status
       until: lan_automation_status.json.response[0].status | regex_search("^Completed") is match
@@ -199,7 +199,7 @@
           X-Auth-Token: "{{ dnac_auth_token }}"
         body_format: json
         body: "{{ seed_mgmt_ip_update }}"
-        validate_certs: "{{ dnac_verify}}"
+        validate_certs: "{{ catalystcenter_verify}}"
         status_code: 202
       register: mgmt_update_response
       tags: mgmtIpUpdate
@@ -210,7 +210,7 @@
       tags: mgmtIpUpdate
     #Check till task is complete with wait time 10 seconds
     - name: Get all Task Tree
-      cisco.dnac.task_tree_info:
+      cisco.catalystcenter.task_tree_info:
         <<: *dnac_login
         taskId: "{{ mgmt_update_response.json.response.taskId }}"
       register: task_tree_info
@@ -230,7 +230,7 @@
       tags: mgmtIpUpdate
 
     - name: Update device roles to ACCESS
-      cisco.dnac.inventory_workflow_manager:
+      cisco.catalystcenter.inventory_workflow_manager:
         <<: *dnac_login
         state: merged
         config:
@@ -240,7 +240,7 @@
       tags: provision
 
     - name: Assign devices to sites and Provision devices
-      cisco.dnac.inventory_workflow_manager:
+      cisco.catalystcenter.inventory_workflow_manager:
         <<: *dnac_login
         state: merged
         config:

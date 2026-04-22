@@ -4,12 +4,12 @@ Automates end-to-end onboarding of devices into an SDA fabric through 6 sequenti
 
 | Stage | What It Does | Ansible Module |
 |-------|-------------|----------------|
-| 1 | Discover devices using discovery tool | `cisco.dnac.discovery_workflow_manager` |
-| 2 | LAN automate & discover devices into inventory | `cisco.dnac.lan_automation_workflow_manager` |
-| 3 | Fix device roles in inventory | `cisco.dnac.inventory_workflow_manager` |
-| 4 | Provision devices to sites | `cisco.dnac.provision_workflow_manager` |
-| 5 | Add devices to SDA fabric | `cisco.dnac.sda_fabric_devices_workflow_manager` |
-| 6 | Configure host port onboarding | `cisco.dnac.sda_host_port_onboarding_workflow_manager` |
+| 1 | Discover devices using discovery tool | `cisco.catalystcenter.discovery_workflow_manager` |
+| 2 | LAN automate & discover devices into inventory | `cisco.catalystcenter.lan_automation_workflow_manager` |
+| 3 | Fix device roles in inventory | `cisco.catalystcenter.inventory_workflow_manager` |
+| 4 | Provision devices to sites | `cisco.catalystcenter.provision_workflow_manager` |
+| 5 | Add devices to SDA fabric | `cisco.catalystcenter.sda_fabric_devices_workflow_manager` |
+| 6 | Configure host port onboarding | `cisco.catalystcenter.sda_host_port_onboarding_workflow_manager` |
 
 > **Note:** Stages 1 (Discovery) and 2 (LAN Automation) are both optional device discovery methods. You can use either one, both, or neither depending on your needs.
 
@@ -34,7 +34,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 ## Step 2: Define Your Onboarding Jobs
@@ -815,7 +815,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

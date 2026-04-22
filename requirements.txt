@@ -1,6 +1,6 @@
 ansible
 ansible-runner
-dnacentersdk
+catalystcentersdk
 requests
 jinja2
 yamale
