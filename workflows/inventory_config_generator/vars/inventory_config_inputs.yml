@@ -1,59 +1,79 @@
 # ============================================================================
-# Cisco Catalyst Center Inventory Config Generator
+# Cisco Catalyst Center - Inventory Config Generator
 # ============================================================================
 #
 # Usage:
 #   ansible-playbook -i inventory/demo_lab/hosts.yaml \
 #     workflows/inventory_config_generator/playbook/inventory_config_generator.yml \
-#     --extra-vars VARS_FILE_PATH=./workflows/inventory_config_generator/vars/inventory_config_inputs.yml
-#
-# Module used:
-#   cisco.dnac.inventory_playbook_config_generator
+#     --extra-vars VARS_FILE_PATH=../vars/inventory_config_inputs.yml
 # ============================================================================
 
 inventory_config:
-  # 1) Generate all inventory components without filters
-  - generate_all_configurations: true
-    file_path: "/tmp/inventory_complete_config.yml"
+  # --------------------------------------------------------------------------
+  # Use Case 1: Generate ALL inventory configurations
+  # Description: Workflow omits module config and exports all inventory data.
+  # --------------------------------------------------------------------------
+  - file_path: "/tmp/inventory_complete_config.yml"
 
-  # 2) Generate device details with global device filters
-  - file_path: "/tmp/inventory_device_details_filtered.yml"
-    global_filters:
-      ip_address_list: ["10.1.1.1", "10.1.1.2"]
-      hostname_list: ["dist-sw-1", "access-sw-1"]
-    component_specific_filters:
-      components_list: ["device_details"]
-      device_details:
-        - type: "NETWORK_DEVICE"
-          role: ["ACCESS", "CORE"]
-          snmp_version: "v2c"
-          cli_transport: "ssh"
+  # --------------------------------------------------------------------------
+  # Use Case 2: Filter by devices values (IP/hostname/serial/mac)
+  # --------------------------------------------------------------------------
+  - file_path: "/tmp/inventory_devices_filter.yml"
+    config:
+      global_filters: 
+        devices:
+          - 204.1.216.3
 
-  # 3) Generate provision device and interface details
-  - file_path: "/tmp/inventory_provision_interface.yml"
-    component_specific_filters:
-      components_list:
-        - "provision_device"
-        - "interface_details"
-      provision_device:
-        site_name: "Global/USA/SAN JOSE"
-      interface_details:
-        interface_name: ["GigabitEthernet1/0/1", "GigabitEthernet1/0/2"]
+  # --------------------------------------------------------------------------
+  # Use Case 3: Filter by device roles
+  # --------------------------------------------------------------------------
+  - file_path: "/tmp/inventory_roles.yml"
+    config:
+      global_filters:
+        device_roles: 
+          - "DISTRIBUTION"
+          - "BORDER ROUTER"
+  # --------------------------------------------------------------------------
+  # Use Case 4: Filter by device types
+  # --------------------------------------------------------------------------
+  - file_path: "/tmp/inventory_types.yml"
+    config:
+      global_filters:
+        device_types: 
+          - "NETWORK_DEVICE"
+          - "ACCESS_POINT"
 
-  # 4) Generate user-defined fields with append mode
-  - file_path: "/tmp/inventory_udf.yml"
-    file_mode: "append"
-    component_specific_filters:
-      components_list: ["user_defined_fields"]
-      user_defined_fields:
-        name: ["AssetOwner", "DeviceRole"]
-        value: ["NetOps", "Distribution"]
+  # --------------------------------------------------------------------------
+  # Use Case 5: Filter by device roles and types
+  # --------------------------------------------------------------------------
+  - file_path: "/tmp/inventory_roles_types.yml"
+    config:
+      global_filters:
+        device_roles: ["ACCESS", "CORE"]
+        device_types: ["NETWORK_DEVICE", "ACCESS_POINT"]
 
-# ============================================================================
-# Notes
-# ============================================================================
-# - If both global_filters and component_specific_filters are omitted, the
-#   workflow omits module config and runs in full discovery mode.
-# - This workflow supports passing one or both of global_filters and
-#   component_specific_filters into module config.
-# ============================================================================
+  # --------------------------------------------------------------------------
+  # Use Case 6: Use hostname as output identifier key
+  # Description: Generated payload uses hostname_list in output config.
+  # --------------------------------------------------------------------------
+  - file_path: "/tmp/inventory_hostname_identifier.yml"
+    config:
+      global_filters:
+        device_types:
+          - "NETWORK_DEVICE"
+        device_identifier: "hostname"
+
+  # --------------------------------------------------------------------------
+  # Use Case 7: Filter by all global filters together (devices, roles, types) with mac add as identifier
+  # --------------------------------------------------------------------------
+  - file_path: "/tmp/inventory_all_filters.yml"
+    config:
+      global_filters:
+        devices:
+          - "68:7d:b4:06:b0:a0"
+        device_roles:
+          - "ACCESS"
+        device_types:
+          - "ACCESS_POINT"
+        device_identifier: "mac_address"
+
