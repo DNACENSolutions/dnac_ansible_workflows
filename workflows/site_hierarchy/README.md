@@ -41,7 +41,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -66,7 +66,7 @@ Before running the playbooks, ensure you have Ansible installed and the necessar
 
 2. **Install Cisco Catalyst Center Collection:**  
    ```bash
-   ansible-galaxy collection install cisco.dnac
+   ansible-galaxy collection install cisco.catalystcenter
    ```
 
 3. **Generate Inventory:**  
@@ -338,10 +338,10 @@ After executing the playbook, check the Catalyst Center UI to verify the site hi
 
 ```yaml
 python: 3.12.0
-dnac_version: 2.3.7.6
+catalystcenter_version: 2.3.7.6
 ansible: 9.9.0
-dnacentersdk: 2.8.6
-cisco.dnac: 6.30.2
+catalystcentersdk: 2.8.6
+cisco.catalystcenter: 6.30.2
 ```
 
 For more details, see the [Site Workflow Manager Module Documentation](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/site_workflow_manager/).

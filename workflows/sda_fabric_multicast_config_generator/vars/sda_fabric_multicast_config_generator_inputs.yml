@@ -12,7 +12,7 @@
 # Notes:
 # - state is fixed as gathered inside the playbook.
 # - Each item below generates one YAML output file that is compatible with:
-#   cisco.dnac.sda_fabric_multicast_workflow_manager
+#   cisco.catalystcenter.sda_fabric_multicast_workflow_manager
 # - generate_all_configurations: true  --> omits config so the module
 #   exports all multicast data (full discovery mode).
 # - file_mode defaults to "overwrite"; set "append" to add to an existing file.

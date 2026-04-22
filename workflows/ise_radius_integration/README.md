@@ -313,14 +313,14 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integrat
 ```yaml
   python: 3.12.0
 
-  dnac_version: 2.3.7.6
+  catalystcenter_version: 2.3.7.6
 
   ansible: 9.9.0
   ansible-core: 2.16.10
   ansible-runner: 2.4.0
 
-  dnacentersdk: 2.8.4
-  cisco.dnac: 6.30.0
+  catalystcentersdk: 2.8.4
+  cisco.catalystcenter: 6.30.0
 ```
 ## Workflow Steps
 ## User Flow (3 Steps)
@@ -347,7 +347,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.

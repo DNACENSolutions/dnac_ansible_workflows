@@ -11,17 +11,17 @@
     network_devices: []
     dnac_login: &dnac_login
                 
-      dnac_host: "{{ dnac_host }}"
-      dnac_username: "{{ dnac_username }}"
-      dnac_password: "{{ dnac_password }}"
-      dnac_verify: "{{ dnac_verify }}"
-      dnac_port: "{{ dnac_port }}"
-      dnac_version: "{{ dnac_version }}"
-      dnac_debug: "{{ dnac_debug }}"
+      catalystcenter_host: "{{ catalystcenter_host }}"
+      catalystcenter_username: "{{ catalystcenter_username }}"
+      catalystcenter_password: "{{ catalystcenter_password }}"
+      catalystcenter_verify: "{{ catalystcenter_verify }}"
+      catalystcenter_port: "{{ catalystcenter_port }}"
+      catalystcenter_version: "{{ catalystcenter_version }}"
+      catalystcenter_debug: "{{ catalystcenter_debug }}"
 
   tasks:
     - name: Get all Network Device info
-      cisco.dnac.network_device_info:
+      cisco.catalystcenter.network_device_info:
         <<: *dnac_login
         offset: "{{ item }}"
         limit: 500
@@ -40,7 +40,7 @@
       when: item.dnac_response is defined  and item.dnac_response.response
 
     - name: Get all Network Devices details
-      cisco.dnac.device_details_info:
+      cisco.catalystcenter.device_details_info:
         <<: *dnac_login
         searchBy: "{{ item.id }}"
         identifier: uuid
@@ -65,7 +65,7 @@
       when: item.dnac_response is defined  and item.dnac_response.response
 
     - name: Get all Network Device info
-      cisco.dnac.network_device_info:
+      cisco.catalystcenter.network_device_info:
         <<: *dnac_login
         offset: "{{ item }}"
         limit: 500
@@ -92,7 +92,7 @@
       when: all_devices_uap is defined
 
     - name: Get all Network Device info for Wireless Sensors
-      cisco.dnac.network_device_info:
+      cisco.catalystcenter.network_device_info:
         <<: *dnac_login
         offset: "{{ item }}"
         limit: 500
@@ -120,9 +120,9 @@
 
     - name: Combine all inventory to have a full inventory.
       set_fact:
-        dnac_inv:  "{{ {'catalyst_cennter_hosts':{ 'hosts': {inventory_hostname: {'dnac_host': dnac_host, 'dnac_username': dnac_username,\
-                   'dnac_password': dnac_password, 'dnac_verify': dnac_verify, 'dnac_port': dnac_port,\
-                   'dnac_version':dnac_version, 'dnac_debug':dnac_debug }}}} }} "
+        dnac_inv:  "{{ {'catalyst_cennter_hosts':{ 'hosts': {inventory_hostname: {'catalystcenter_host': catalystcenter_host, 'catalystcenter_username': catalystcenter_username,\
+                   'catalystcenter_password': catalystcenter_password, 'catalystcenter_verify': catalystcenter_verify, 'catalystcenter_port': catalystcenter_port,\
+                   'catalystcenter_version':catalystcenter_version, 'catalystcenter_debug':catalystcenter_debug }}}} }} "
 
     - name: Create Hosts list.
       set_fact:
@@ -134,25 +134,25 @@
                    'unified_access_points':unified_aps,  'wireless_sensors':wireless_sensors} }} "
     - name: Creates directory
       file:
-        path: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}"
+        path: "../../../host_inventory_{{inventory_hostname}}_{{catalystcenter_host}}"
         state: directory
     - name: Creates directory
       file:
-        path: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}/group_vars"
+        path: "../../../host_inventory_{{inventory_hostname}}_{{catalystcenter_host}}/group_vars"
         state: directory
     - name: Creates directory
       file:
-        path: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}/host_vars"
+        path: "../../../host_inventory_{{inventory_hostname}}_{{catalystcenter_host}}/host_vars"
         state: directory
     - name: Yaml dump hosts data to yaml file hosts.yaml
       copy:
         content: "{{ dnac_inv | to_nice_yaml }}"
-        dest: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}/hosts.yml"
+        dest: "../../../host_inventory_{{inventory_hostname}}_{{catalystcenter_host}}/hosts.yml"
         force: yes
     - name: Yaml dump network devices vars to host var file with hostname
       copy:
         content: "{{ host_vars | to_nice_yaml }}"
-        dest: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}/host_vars/{{inventory_hostname}}_{{dnac_host}}.yml"
+        dest: "../../../host_inventory_{{inventory_hostname}}_{{catalystcenter_host}}/host_vars/{{inventory_hostname}}_{{catalystcenter_host}}.yml"
         force: yes
     - name: set fact to set group vars
       set_fact:
@@ -160,7 +160,7 @@
     - name: Yaml dump network device data with formatted output to file  inv_network_devices.yml
       copy:
         content: "{{ group_vars | to_nice_yaml }}"
-        dest: "../../../host_inventory_{{inventory_hostname}}_{{dnac_host}}/group_vars/all.yml"
+        dest: "../../../host_inventory_{{inventory_hostname}}_{{catalystcenter_host}}/group_vars/all.yml"
         force: yes
 
     - debug:

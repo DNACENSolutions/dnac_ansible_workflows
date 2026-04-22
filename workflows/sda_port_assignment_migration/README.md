@@ -3,8 +3,8 @@
 This workflow migrates SDA host port assignments from a source device IP to a destination device IP.
 
 It uses:
-- `cisco.dnac.sda_host_port_onboarding_playbook_config_generator` to export source port assignments.
-- `cisco.dnac.sda_host_port_onboarding_workflow_manager` to apply those assignments to destination devices.
+- `cisco.catalystcenter.sda_host_port_onboarding_playbook_config_generator` to export source port assignments.
+- `cisco.catalystcenter.sda_host_port_onboarding_workflow_manager` to apply those assignments to destination devices.
 
 ## Workflow Representation
 
@@ -89,11 +89,11 @@ source .venv/bin/activate
 # Upgrade pip tooling
 python -m pip install --upgrade pip setuptools wheel
 
-# Install Python dependencies (includes ansible and dnacentersdk)
+# Install Python dependencies (includes ansible and catalystcentersdk)
 pip install -r requirements.txt
 
 # Install/upgrade Cisco DNAC Ansible collection
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 ## Step 2: Create Inputs
@@ -313,8 +313,8 @@ TASK [Initialize source export mode] *******************************************
 ok: [catalyst_center220]
 
 TASK [Export source port assignments using source device IP filter] ********************************************************
-[DEPRECATION WARNING]: The cisco.dnac collection is deprecated. Please migrate to cisco.catalystcenter. This feature will 
-be removed from cisco.dnac in version 7.0.0. Deprecation warnings can be disabled by setting deprecation_warnings=False in 
+[DEPRECATION WARNING]: The cisco.catalystcenter collection is deprecated. Please migrate to cisco.catalystcenter. This feature will 
+be removed from cisco.catalystcenter in version 7.0.0. Deprecation warnings can be disabled by setting deprecation_warnings=False in 
 ansible.cfg.
 ok: [catalyst_center220]
 

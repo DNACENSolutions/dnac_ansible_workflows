@@ -3,7 +3,7 @@
 # API to update transit networks.
 # module: sda_fabric_transits_workflow_manager
 # requirements:
-#   - cisco.dnac >= 6.29.0
+#   - cisco.catalystcenter >= 6.29.0
 ---
 - name: Playbook to manage fabric site(s)/zone(s) and update the authentication profile template in Cisco Catalyst Center
   hosts: catalyst_center_hosts
@@ -16,19 +16,19 @@
   vars:
     state: merged
     catalyst_center_login: &catalyst_center_login
-      dnac_host: "{{ catalyst_center_host | default(dnac_host) }}"
-      dnac_username: "{{ catalyst_center_username | default(dnac_username) }}"
-      dnac_password: "{{ catalyst_center_password | default(dnac_password) }}"
-      dnac_version: "{{ catalyst_center_version  | default(dnac_version) }}"
-      dnac_port: "{{ catalyst_center_port | default(443) }}"
-      dnac_verify: "{{ catalyst_center_verify | default(dnac_verify) }}"
+      catalystcenter_host: "{{ catalyst_center_host | default(catalystcenter_host) }}"
+      catalystcenter_username: "{{ catalyst_center_username | default(catalystcenter_username) }}"
+      catalystcenter_password: "{{ catalyst_center_password | default(catalystcenter_password) }}"
+      catalystcenter_version: "{{ catalyst_center_version  | default(catalystcenter_version) }}"
+      catalystcenter_port: "{{ catalyst_center_port | default(443) }}"
+      catalystcenter_verify: "{{ catalyst_center_verify | default(catalystcenter_verify) }}"
       config_verify: "{{ catalyst_center_config_verify | default(False) }}"
-      dnac_debug: "{{ catalyst_center_debug | default(False) }}"
-      dnac_log: "{{ catalyst_center_log | default(False) }}"
-      dnac_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
-      dnac_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
-      dnac_log_append: "{{ catalyst_center_log_append |  default(False) }}"
-      dnac_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
+      catalystcenter_debug: "{{ catalyst_center_debug | default(False) }}"
+      catalystcenter_log: "{{ catalyst_center_log | default(False) }}"
+      catalystcenter_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+      catalystcenter_log_file_path: "{{ catalyst_center_log_file_path |  default(omit) }}"
+      catalystcenter_log_append: "{{ catalyst_center_log_append |  default(False) }}"
+      catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
 
   tasks:
   #write tasks for fabric site(s)/zone(s) creations
@@ -36,7 +36,7 @@
       set_fact:
         long_op_start: "{{ now() }}"
     - name: Add/Update fabric transits for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
-      cisco.dnac.sda_fabric_transits_workflow_manager:
+      cisco.catalystcenter.sda_fabric_transits_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
         config: "{{ fabric_transits }}" 

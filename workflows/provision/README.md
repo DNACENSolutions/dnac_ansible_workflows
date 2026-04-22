@@ -34,7 +34,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -55,7 +55,7 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/provision/playbo
 1.  **Install Ansible:** Follow the official Ansible documentation for installation instructions.
 2.  **Install Cisco Catalyst Center Collection:**
     ```bash
-    ansible-galaxy collection install cisco.dnac
+    ansible-galaxy collection install cisco.catalystcenter
     ```
 3.  **Generate Inventory:** Create an Ansible inventory file (e.g., `inventory.yml`) that includes your Cisco Catalyst Center appliance details. You will need to define variables such as the host, username, and password (or other authentication methods).
     ```yaml
@@ -672,7 +672,7 @@ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/prov
 ```
 
 c. **Verify Deployment:** 
-After the playbook execution, you can verify the results in the Cisco Catalyst Center UI under the Assurance section. If dnac_debug is enabled in your inventory, you can also review the Ansible logs for detailed information on the API calls and responses.
+After the playbook execution, you can verify the results in the Cisco Catalyst Center UI under the Assurance section. If catalystcenter_debug is enabled in your inventory, you can also review the Ansible logs for detailed information on the API calls and responses.
 
 ## Run line parameters description:
 
@@ -690,8 +690,8 @@ The following environment was used for testing:
 | Python                | `3.10.10`   |
 | Cisco Catalyst Center | `2.3.7.9`   |
 | Ansible               | `9.9.0`     |
-| cisco.dnac Collection | `6.35.0`    |
-| dnacentersdk          | `2.10.14`   |
+| cisco.catalystcenter Collection | `6.35.0`    |
+| catalystcentersdk          | `2.10.14`   |
 
 For detailed documentation, refer to:  
 - [Ansible Galaxy: Cisco Catalyst Center Collection](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/provision_workflow_manager/)  

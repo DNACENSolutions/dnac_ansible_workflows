@@ -29,7 +29,7 @@ The Network Profile Wireless Config Generator automates YAML playbook configurat
 - **Filter-based Extraction**: Target output using profile names, Day-N templates, sites, SSIDs, AP zones, feature templates, or additional interfaces
 - **Priority-based Filter Processing**: Uses the highest-priority populated filter per request item
 - **Flexible Output**: Supports custom `file_path`, auto-generated timestamped filenames, and `overwrite`/`append` modes
-- **API-driven Collection**: Uses Catalyst Center APIs via `cisco.dnac` and `dnacentersdk`
+- **API-driven Collection**: Uses Catalyst Center APIs via `cisco.catalystcenter` and `catalystcentersdk`
 
 ---
 
@@ -40,17 +40,17 @@ The Network Profile Wireless Config Generator automates YAML playbook configurat
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.dnac collection | 6.49.0+ |
+| cisco.catalystcenter collection | 6.49.0+ |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 2.3.7.9+ |
-| dnacentersdk | 2.10.10+ |
+| catalystcentersdk | 2.10.10+ |
 
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.dnac    # >= 6.49.0
+ansible-galaxy collection install cisco.catalystcenter    # >= 6.49.0
 ansible-galaxy collection install ansible.utils
-pip install dnacentersdk
+pip install catalystcentersdk
 pip install yamale
 ```
 
@@ -137,7 +137,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or vars file (`workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml`).
@@ -433,6 +433,6 @@ catalyst_center_api_task_timeout: 3600
 ## Additional Resources
 
 - [Cisco Catalyst Center Documentation](https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/series.html)
-- [Cisco DNA Center SDK](https://dnacentersdk.readthedocs.io/)
+- [Cisco DNA Center SDK](https://catalystcentersdk.readthedocs.io/)
 - [Ansible Documentation](https://docs.ansible.com/)
 - [Network Profile Wireless Workflow Manager Module](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/)

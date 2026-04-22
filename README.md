@@ -143,7 +143,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 
 
 # Compatibility Matrix
-| Deployed Catalyst Center Version   | Catalyst Center Version in Input   | Ansible Galaxy collection (cisco.dnac)Version    | Python SDK (dnacentersdk) Version    |
+| Deployed Catalyst Center Version   | Catalyst Center Version in Input   | Ansible Galaxy collection (cisco.catalystcenter)Version    | Python SDK (catalystcentersdk) Version    |
 | :--------------------------------: | :--------------------------------: | :-----------------------: | :-------------------: |
 | 2.3.5.3 | 2.3.5.3   | latest   | latest |
 | 2.3.5.5 | 2.3.5.3   | latest   | latest |
@@ -168,7 +168,7 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 Follow these steps to install the Cisco Validated Playbooks, Schema, and Sample Input Variables:
 
 - Install Python 3.9 or later
-- Install  cisco.dnac collection including Python requirements.
+- Install  cisco.catalystcenter collection including Python requirements.
 - Modify ansible.cfg file to support additional jinja2 extensions
 
 ## Python
@@ -197,25 +197,25 @@ cd catalyst-center-ansible-iac
 pip install -r requirements.txt
 ```
 ## Install the collection (Galaxy link):
-For installing or upgrading the cisco.dnac Ansible collection, follow these steps: Install Collection from Ansible Galaxy These instructions are for regular users to install via Ansible Galaxy. The instructions also include installation of all Python requirements for a given version. The cisco.dnac collection is available on the Ansible Galaxy server and can be automatically installed on your system using the following command:
+For installing or upgrading the cisco.catalystcenter Ansible collection, follow these steps: Install Collection from Ansible Galaxy These instructions are for regular users to install via Ansible Galaxy. The instructions also include installation of all Python requirements for a given version. The cisco.catalystcenter collection is available on the Ansible Galaxy server and can be automatically installed on your system using the following command:
 
 ### Latest version
-Clone the dnacenter-ansible repository.
+Clone the catalystcenter-ansible repository.
 ```bash
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 ### Specific version
 ```bash
-ansible-galaxy collection install cisco.dnac:==6.29.0 --force
+ansible-galaxy collection install cisco.catalystcenter:==6.29.0 --force
 ```
 
 ### Install latest devel version from  GitHub and build
 ```bash
-git clone https://github.com/cisco-en-programmability/dnacenter-ansible.git
+git clone https://github.com/cisco-en-programmability/catalystcenter-ansible.git
 ```
-Go to the dnacenter-ansible directory
+Go to the catalystcenter-ansible directory
 ```bash
-cd dnacenter-ansible
+cd catalystcenter-ansible
 ```
 Pull the latest master from the repo
 ```bash
@@ -224,28 +224,28 @@ git pull origin master
 Build and install a collection from source
 ```bash
 ansible-galaxy collection build --force
-ansible-galaxy collection install cisco-dnac-* --force
+ansible-galaxy collection install cisco-catalystcenter-* --force
 ```
 
-## Install or Update the dnacentersdk:
-For installing or upgrading the dnacentersdk follow steps:
+## Install or Update the catalystcentersdk:
+For installing or upgrading the catalystcentersdk follow steps:
 
 ### Install via pip or pip3
 To get the Python Catalyst Center SDK latest in a fresh development environment:
 
 ```bash
-pip install dnacentersdk
+pip install catalystcentersdk
 ```
 
 ### Upgrading to the latest Version
 Use --upgrade option to upgrade to latest version available.
 ```bash
-pip install dnacentersdk --upgrade
+pip install catalystcentersdk --upgrade
 ```
 ### Install a specific version
 To install a specific version like 2.8.3
 ```bash
-pip install dnacentersdk==2.9.1
+pip install catalystcentersdk==2.9.1
 ```
 
 ## Ansible configuration file

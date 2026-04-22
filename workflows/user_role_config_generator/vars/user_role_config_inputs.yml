@@ -9,7 +9,7 @@
 #     --extra-vars VARS_FILE_PATH=./workflows/user_role_config_generator/vars/user_role_config_inputs.yml
 #
 # Module used:
-#   cisco.dnac.user_role_playbook_config_generator
+#   cisco.catalystcenter.user_role_playbook_config_generator
 # ============================================================================
 
 user_role_config:

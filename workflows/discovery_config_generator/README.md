@@ -42,17 +42,17 @@ The Discovery Config Generator automates the creation of YAML configurations for
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.dnac collection | 6.49.0+ |
+| cisco.catalystcenter collection | 6.49.0+ |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 2.3.7.9+ |
-| dnacentersdk | 2.6.10+ |
+| catalystcentersdk | 2.6.10+ |
 
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.dnac   
+ansible-galaxy collection install cisco.catalystcenter   
 ansible-galaxy collection install ansible.utils
-pip install dnacentersdk
+pip install catalystcentersdk
 pip install yamale
 ```
 
@@ -136,7 +136,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -524,6 +524,6 @@ discovery_config_details:
 ## Additional Resources
 
 - [Cisco Catalyst Center Documentation](https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/series.html)
-- [Cisco DNA Center SDK](https://dnacentersdk.readthedocs.io/)
+- [Cisco DNA Center SDK](https://catalystcentersdk.readthedocs.io/)
 - [Ansible Documentation](https://docs.ansible.com/)
-- [discovery_workflow_manager module](https://github.com/cisco-en-programmability/dnacenter-ansible)
+- [discovery_workflow_manager module](https://github.com/cisco-en-programmability/catalystcenter-ansible)

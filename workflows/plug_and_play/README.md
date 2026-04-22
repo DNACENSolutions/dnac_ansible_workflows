@@ -22,7 +22,7 @@ Before starting, ensure the following requirements are met:
 - **Access to Cisco Catalyst Center**: Ensure that PnP (Plug-and-Play) is enabled. 
 - **Devices that Support PnP**: Confirm that the devices you intend to onboard are PnP-capable.
 - **Ansible Installation**: Ansible must be installed on the machine managing the automation process.
-- **dnacentersdk Python SDK**: This SDK is required to interact with Cisco Catalyst Center.
+- **catalystcentersdk Python SDK**: This SDK is required to interact with Cisco Catalyst Center.
 - **Ansible installation**: Ensure that Ansible is installed.
 - **Yamale Python Library**: The `yamale` Python library installed (`pip install yamale`)
 - **Cisco DNA Center or Plug and Play Connect Access**: Ensure access is configured
@@ -53,7 +53,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -72,7 +72,7 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/plug_and_play/pl
 1. **Install Ansible**: Follow the [official Ansible documentation](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) for installation.
 2. **Install Cisco Catalyst Center Collection**:
    ```bash
-   ansible-galaxy collection install cisco.dnac
+   ansible-galaxy collection install cisco.catalystcenter
    ```
 3. **Generate Inventory**: Create an Ansible inventory file (e.g., `inventory.yml`) with your Cisco Catalyst Center details.
    ```yaml
@@ -842,8 +842,8 @@ The following environment was used for testing:
 |-----------------------|-------------|
 | Python                | `3.12.0`    |
 | Ansible               | `9.9.0`     |
-| cisco.dnac Collection | `6.42.0`    |
-| dnacentersdk          | `2.10.4`     |
+| cisco.catalystcenter Collection | `6.42.0`    |
+| catalystcentersdk          | `2.10.4`     |
 
 For detailed information on Plug and Play workflow, refer to the official documentation:  Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/pnp_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/pnp_workflow_manager/)
 

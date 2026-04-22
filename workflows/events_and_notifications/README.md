@@ -17,8 +17,8 @@ Catalyst Center platform supports the ability to send custom notifications when 
 
 Before starting, ensure the following requirements are met:
 - **Ansible Installation**: Ansible must be installed on the machine managing the automation process.
-- **Cisco DNA Ansible Collection**: The `cisco.dnac.eventes_and_notifications_workflow_manager` module must be available from the Cisco DNA Ansible Collection.
-- **dnacentersdk Python SDK**: This SDK is required to interact with Cisco Catalyst Center.
+- **Cisco DNA Ansible Collection**: The `cisco.catalystcenter.eventes_and_notifications_workflow_manager` module must be available from the Cisco DNA Ansible Collection.
+- **catalystcentersdk Python SDK**: This SDK is required to interact with Cisco Catalyst Center.
 - **Yamale Python Library**: The `yamale` Python library installed (`pip install yamale`)
 - **Cisco DNA Center or Events and Notifications Connect Access**: Ensure access is configured
 
@@ -96,7 +96,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -947,7 +947,7 @@ yamale -s workflows/events_and_notifications/schema/events_and_notifications_sch
 ## References
 
 ```yaml
-  dnacentersdk: 2.8.3
-  cisco.dnac: 6.29.0
+  catalystcentersdk: 2.8.3
+  cisco.catalystcenter: 6.29.0
   dnac version: 2.3.7.6
 ```

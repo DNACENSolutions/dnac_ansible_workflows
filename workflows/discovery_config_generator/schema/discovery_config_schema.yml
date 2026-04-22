@@ -3,7 +3,7 @@
 #
 # This schema defines the configuration structure for generating YAML
 # configurations from existing discovery tasks in Cisco Catalyst Center using
-# the cisco.dnac.discovery_playbook_config_generator module.
+# the cisco.catalystcenter.discovery_playbook_config_generator module.
 #
 # SCHEMA OVERVIEW:
 # ----------------

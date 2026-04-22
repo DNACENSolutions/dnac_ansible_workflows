@@ -8,7 +8,7 @@
 #     --extra-vars VARS_FILE_PATH=./workflows/network_settings_config_generator/vars/network_settings_config_inputs.yml
 #
 # Module used:
-#   cisco.dnac.network_settings_playbook_config_generator
+#   cisco.catalystcenter.network_settings_playbook_config_generator
 # ============================================================================
 
 network_settings_config:

@@ -8,7 +8,7 @@
 #     --extra-vars VARS_FILE_PATH=./workflows/accesspoint_config_generator/vars/accesspoint_config_inputs.yml
 #
 # Module used:
-#   cisco.dnac.accesspoint_playbook_config_generator
+#   cisco.catalystcenter.accesspoint_playbook_config_generator
 # ============================================================================
 
 accesspoint_config:

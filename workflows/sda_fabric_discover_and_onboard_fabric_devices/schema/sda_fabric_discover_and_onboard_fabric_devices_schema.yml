@@ -38,7 +38,7 @@ workflow_job:
   host_port_onboarding: list(include('host_port_onboarding_stage'), min=0, max=2000, required=False)
 
 # ==============================================================================
-# Stage 1: Device Discovery (cisco.dnac.discovery_workflow_manager)
+# Stage 1: Device Discovery (cisco.catalystcenter.discovery_workflow_manager)
 # ==============================================================================
 
 discovery_stage:
@@ -127,7 +127,7 @@ disc_gl_net_conf_port_type:
   net_conf_port: str(required=False)
 
 # ==============================================================================
-# Stage 2: LAN Automation (cisco.dnac.lan_automation_workflow_manager)
+# Stage 2: LAN Automation (cisco.catalystcenter.lan_automation_workflow_manager)
 # ==============================================================================
 
 lan_automation_stage:
@@ -164,7 +164,7 @@ lan_auto_discovery_device_type:
   device_management_ip_address: str(required=False)
 
 # ==============================================================================
-# Stage 3: Inventory Role Updates (cisco.dnac.inventory_workflow_manager)
+# Stage 3: Inventory Role Updates (cisco.catalystcenter.inventory_workflow_manager)
 # ==============================================================================
 
 inventory_roles_stage:
@@ -180,7 +180,7 @@ inventory_roles_config_type:
   role: enum('ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER_ROUTER', 'UNKNOWN', required=False)
 
 # ==============================================================================
-# Stage 4: Provision Devices to Sites (cisco.dnac.provision_workflow_manager)
+# Stage 4: Provision Devices to Sites (cisco.catalystcenter.provision_workflow_manager)
 # ==============================================================================
 
 provision_stage:
@@ -213,7 +213,7 @@ provision_rolling_ap_upgrade_type:
   ap_reboot_percentage: int(required=False)
 
 # ==============================================================================
-# Stage 5: Add Devices to SDA Fabric (cisco.dnac.sda_fabric_devices_workflow_manager)
+# Stage 5: Add Devices to SDA Fabric (cisco.catalystcenter.sda_fabric_devices_workflow_manager)
 # ==============================================================================
 
 fabric_devices_stage:
@@ -271,7 +271,7 @@ fabric_l3_sda_transit_type:
   is_multicast_over_transit_enabled: bool(required=False)
 
 # ==============================================================================
-# Stage 6: Host Port Onboarding (cisco.dnac.sda_host_port_onboarding_workflow_manager)
+# Stage 6: Host Port Onboarding (cisco.catalystcenter.sda_host_port_onboarding_workflow_manager)
 # ==============================================================================
 
 host_port_onboarding_stage:

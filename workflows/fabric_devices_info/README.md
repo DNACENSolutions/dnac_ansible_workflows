@@ -19,8 +19,8 @@ The Fabric Devices Info workflow retrieves comprehensive fabric device informati
 - Cisco Catalyst Center 2.3.7.9 or later
 - Ansible 2.9 or higher
 - Python 3.9 or higher
-- dnacentersdk 2.9.3 or higher
-- cisco.dnac collection 6.42.0 or higher
+- catalystcentersdk 2.9.3 or higher
+- cisco.catalystcenter collection 6.42.0 or higher
 - SDA fabric site(s) configured in Catalyst Center
 - Fabric devices provisioned and operational
 
@@ -120,7 +120,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -451,15 +451,15 @@ fabric_device_info_details:
 ## References
 
 - [Cisco Catalyst Center Documentation](https://www.cisco.com/c/en/us/support/cloud-systems-management/dna-center/series.html)
-- [cisco.dnac Collection](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/)
+- [cisco.catalystcenter Collection](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/)
 - [Module Documentation](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/fabric_devices_info_workflow_manager/)
 
 *Note: The environment used for the references in the above instructions is as follows:*
 
 ```yaml
 python: 3.12.0
-dnac_version: 3.1.5
+catalystcenter_version: 3.1.5
 ansible: 9.9.0
-dnacentersdk: 2.10.4
-cisco.dnac: 6.42.0
+catalystcentersdk: 2.10.4
+cisco.catalystcenter: 6.42.0
 ```

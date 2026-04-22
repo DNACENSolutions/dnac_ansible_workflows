@@ -43,17 +43,17 @@ The SDA Extranet Policies config generator automates YAML playbook generation fo
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.dnac collection | 6.45.0+ |
+| cisco.catalystcenter collection | 6.45.0+ |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 2.3.7.9+ |
-| dnacentersdk | 2.10.10+ |
+| catalystcentersdk | 2.10.10+ |
 
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.dnac
+ansible-galaxy collection install cisco.catalystcenter
 ansible-galaxy collection install ansible.utils
-pip install dnacentersdk
+pip install catalystcentersdk
 pip install yamale
 ```
 
@@ -143,7 +143,7 @@ flowchart TD
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ansible-galaxy collection install cisco.dnac --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
@@ -448,6 +448,6 @@ sda_extranet_policies_config:
 - This workflow omits `config` when filters are absent, which triggers full generation mode.
 - Inside `config`, `component_specific_filters` is mandatory when filters are provided.
 - If `extranet_policies` filters are provided without `components_list`, the module auto-populates `components_list` internally.
-- The generated playbook is compatible with `cisco.dnac.sda_extranet_policies_workflow_manager`.
+- The generated playbook is compatible with `cisco.catalystcenter.sda_extranet_policies_workflow_manager`.
 - Fabric site UUIDs returned by Catalyst Center are resolved into human-readable site hierarchy paths.
 - The workflow operates in gathered mode only and does not make changes to Cisco Catalyst Center.

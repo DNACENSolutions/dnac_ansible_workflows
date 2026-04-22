@@ -5,8 +5,8 @@
   gather_facts: no
 
   vars:
-    dnac_url: "https://{{ dnac_host }}"
-    credentials: "{{ dnac_username}}:{{dnac_password }}"
+    dnac_url: "https://{{ catalystcenter_host }}"
+    credentials: "{{ catalystcenter_username}}:{{catalystcenter_password }}"
     authentication: "Basic {{ credentials | b64encode }}"
     limit: 25
     ip_pools : []
