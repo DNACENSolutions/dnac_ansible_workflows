@@ -18,6 +18,7 @@ WORKFLOWS_DIR="workflows"
 MODULE_DIR=""
 OUTPUT_DIR="schema_validation_reports"
 MAPPING_FILE=""
+EXCLUDE_FIELDS=""
 VERBOSE=false
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
@@ -39,6 +40,7 @@ Optional Arguments:
     -w, --workflows-dir DIR Directory containing workflow schemas (default: workflows)
     -o, --output-dir DIR    Directory for output reports (default: schema_validation_reports)
     -f, --mapping-file FILE Path to workflow-module mapping file (optional)
+    -e, --exclude-fields F  Comma-separated schema field names to skip (playbook-only fields)
     -v, --verbose           Enable verbose output
     -h, --help              Show this help message
 
@@ -87,6 +89,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -f|--mapping-file)
             MAPPING_FILE="$2"
+            shift 2
+            ;;
+        -e|--exclude-fields)
+            EXCLUDE_FIELDS="$2"
             shift 2
             ;;
         -v|--verbose)
@@ -363,12 +369,17 @@ for workflow_name in $workflows_to_process; do
         if [ "$VERBOSE" = true ]; then
             verbose_flag="--verbose"
         fi
+
+        exclude_flag=""
+        if [ -n "$EXCLUDE_FIELDS" ]; then
+            exclude_flag="--exclude-fields $EXCLUDE_FIELDS"
+        fi
         
         # Create a temporary file for error output
         error_file=$(mktemp)
         
         # Run validation and capture output
-        if python3 "$VALIDATOR_SCRIPT" "$module_file" "$schema_file" --output "$output_file" $verbose_flag 2>"$error_file"; then
+        if python3 "$VALIDATOR_SCRIPT" "$module_file" "$schema_file" --output "$output_file" $verbose_flag $exclude_flag 2>"$error_file"; then
             # Check if output file was created
             if [ -f "$output_file" ]; then
                 # Count actual field-level mismatches by counting table data rows
