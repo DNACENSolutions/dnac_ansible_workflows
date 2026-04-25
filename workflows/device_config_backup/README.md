@@ -311,7 +311,7 @@ Note: The environment is used for the references in the above instructions.
   ansible-runner: 2.4.0
 
   catalystcentersdk: 2.8.3
-  cisco.catalystcenter: 6.29.0
+  cisco.catalystcenter: 2.6.0
   ansible.utils: 5.1.2
 ```
 ## Workflow Steps

@@ -948,6 +948,6 @@ yamale -s workflows/events_and_notifications/schema/events_and_notifications_sch
 
 ```yaml
   catalystcentersdk: 2.8.3
-  cisco.catalystcenter: 6.29.0
+  cisco.catalystcenter: 2.6.0
   dnac version: 2.3.7.6
 ```

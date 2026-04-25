@@ -1585,7 +1585,7 @@ The following environment was used for testing:
 | Python                | `3.12.0`    |
 | Cisco Catalyst Center | `3.1.3`     |
 | Ansible               | `9.9.0`     |
-| cisco.catalystcenter Collection | `6.43.0`    |
+| cisco.catalystcenter Collection | 2.6.0    |
 | catalystcentersdk          | `2.8.8`     |
 
 For detailed documentation, refer to:  

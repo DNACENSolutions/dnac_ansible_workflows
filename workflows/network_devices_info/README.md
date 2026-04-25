@@ -49,7 +49,7 @@ network_devices_info/
 - Ansible 2.9 or higher
 - Python 3.9.19 or higher
 - catalystcentersdk 2.9.3 or higher
-- cisco.catalystcenter Ansible collection 6.42.0 or higher
+- cisco.catalystcenter Ansible collection 2.6.0
 - Access to Cisco Catalyst Center with appropriate permissions
 - Network connectivity to Catalyst Center
 

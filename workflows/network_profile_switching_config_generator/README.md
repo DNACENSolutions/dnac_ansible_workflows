@@ -40,7 +40,7 @@ Generate files that are ready to use with Ansible automation.
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.catalystcenter collection | 6.49.0+ |
+| cisco.catalystcenter collection | 2.6.0 |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 2.3.7.9+ |
 | catalystcentersdk | 2.10.10+ |
@@ -48,7 +48,7 @@ Generate files that are ready to use with Ansible automation.
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.catalystcenter    # >= 6.49.0
+ansible-galaxy collection install cisco.catalystcenter
 ansible-galaxy collection install ansible.utils
 pip install catalystcentersdk
 pip install yamale

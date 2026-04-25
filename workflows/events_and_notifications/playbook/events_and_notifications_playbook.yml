@@ -1,7 +1,7 @@
 #module: events_and_notifications_workflow_manager
 #Configure various types of destinations to deliver event notifications from Cisco Catalyst Center Platform.
 #requirements:
-#  - cisco.catalystcenter >= 6.19.0
+#  - cisco.catalystcenter == 2.6.0
 ---
 - name: Playbook to manage Cisco Catalyst Center events and notifications configurations and Subscription
   hosts: catalyst_center_hosts

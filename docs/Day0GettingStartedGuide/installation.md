@@ -74,11 +74,11 @@ For installing or upgrading the cisco.catalystcenter ansible collection follow s
 ### Latest version
 Clone the catalystcenter-ansible repository.
 ```bash
-ansible-galaxy collection install cisco.catalystcenter --force
+ansible-galaxy collection install cisco.catalystcenter:==2.6.0 --force
 ```
 ### Sppecific version
 ```bash
-ansible-galaxy collection install cisco.catalystcenter:==6.29.0 --force
+ansible-galaxy collection install cisco.catalystcenter:==2.6.0 --force
 ```
 
 ### Install latest devel version from  GitHub abd build
@@ -208,6 +208,4 @@ If that's the case try setting this environment variable:
 ```bash
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 ```
-
-
 

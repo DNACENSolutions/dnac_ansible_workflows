@@ -1598,5 +1598,5 @@ python: 3.12.0
 catalystcenter_version: 2.3.7.9
 ansible: 9.9.0
 catalystcentersdk: 2.8.14
-cisco.catalystcenter: 6.33.2
+cisco.catalystcenter: 2.6.0
 ```

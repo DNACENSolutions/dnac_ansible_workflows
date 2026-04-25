@@ -889,7 +889,7 @@ ansible-core: 2.16.10
 ansible-runner: 2.4.0
 
 catalystcentersdk: 2.8.6
-cisco.catalystcenter: 6.30.2
+cisco.catalystcenter: 2.6.0
 ```
 ## Workflow Steps
 ## User Flow (3 Steps)

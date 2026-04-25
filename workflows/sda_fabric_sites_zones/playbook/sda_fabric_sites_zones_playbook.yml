@@ -5,7 +5,7 @@
 # Updating fabric zone(s) for the SDA operation in Cisco Catalyst Center.
 # module: fabric_sites_zones_workflow_manager
 # requirements:
-#   - cisco.catalystcenter >= 6.21.0
+#   - cisco.catalystcenter >= 2.6.0
 #   - Catalyst Center >= 2.3.7.6
 ---
 - name: Playbook to manage fabric site(s)/zone(s) and update the authentication profile template in Cisco Catalyst Center

@@ -341,7 +341,7 @@ python: 3.12.0
 catalystcenter_version: 2.3.7.6
 ansible: 9.9.0
 catalystcentersdk: 2.8.6
-cisco.catalystcenter: 6.30.2
+cisco.catalystcenter: 2.6.0
 ```
 
 For more details, see the [Site Workflow Manager Module Documentation](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/site_workflow_manager/).

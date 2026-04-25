@@ -38,7 +38,7 @@ The Access Point Location config generator automates YAML configuration generati
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.catalystcenter collection | 6.49.0+ |
+| cisco.catalystcenter collection | 2.6.0 |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 3.1.3.0+ |
 | catalystcentersdk | 2.10.10+ |

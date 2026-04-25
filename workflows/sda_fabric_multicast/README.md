@@ -344,7 +344,7 @@ The following environment was used for testing:
 | Python                | `3.12.0`    |
 | Cisco Catalyst Center | `2.3.7.9`   |
 | Ansible               | `9.9.0`     |
-| cisco.catalystcenter Collection | `6.36.0`    |
+| cisco.catalystcenter Collection | 2.6.0    |
 | catalystcentersdk          | `2.8.8`     |
 
 For detailed information on SDA fabric multicast workflow, refer to the official documentation:  Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_fabric_multicast_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_fabric_multicast_workflow_manager/)

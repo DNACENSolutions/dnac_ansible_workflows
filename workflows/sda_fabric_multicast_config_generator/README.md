@@ -67,7 +67,7 @@ sda_fabric_multicast_config_generator/
 ### Required packages
 
 ```bash
-ansible-galaxy collection install cisco.catalystcenter    # >= 6.44.0
+ansible-galaxy collection install cisco.catalystcenter
 ansible-galaxy collection install ansible.utils
 pip install catalystcentersdk
 pip install yamale

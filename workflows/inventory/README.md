@@ -380,6 +380,6 @@ catalyst_center_version: 2.3.7.6
   ansible-core: 2.16.10
   ansible-runner: 2.4.0
   catalystcentersdk: 2.8.3
-  cisco.catalystcenter: 6.36.0
+  cisco.catalystcenter: 2.6.0
   ansible.utils: 5.1.2
 ```

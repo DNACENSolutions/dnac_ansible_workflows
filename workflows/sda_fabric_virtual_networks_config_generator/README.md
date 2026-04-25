@@ -37,7 +37,7 @@ Generate files that are ready to use with Ansible automation.
 
 | Component | Version |
 |-----------|---------|
-| cisco.catalystcenter collection | 6.49.0+ |
+| cisco.catalystcenter collection | 2.6.0 |
 | Python | 3.9+ |
 | Cisco Catalyst Center SDK | 2.3.7.9+ |
 

@@ -320,7 +320,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/ise_radius_integrat
   ansible-runner: 2.4.0
 
   catalystcentersdk: 2.8.4
-  cisco.catalystcenter: 6.30.0
+  cisco.catalystcenter: 2.6.0
 ```
 ## Workflow Steps
 ## User Flow (3 Steps)

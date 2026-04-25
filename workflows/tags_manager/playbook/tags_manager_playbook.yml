@@ -3,7 +3,7 @@
 # Updating tags for the SDA operation in Cisco Catalyst Center.
 # module: tags_workflow_manager
 # requirements:
-#   - cisco.catalystcenter >= 6.32.0
+#   - cisco.catalystcenter == 2.6.0
 #   - Catalyst Center >=2.3.7.9
 ---
 - name: Playbook to manage tags and update the tags in Cisco Catalyst Center

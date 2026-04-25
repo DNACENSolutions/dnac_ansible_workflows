@@ -470,7 +470,7 @@ After executing the playbook, check the Catalyst Center UI to verify Assurance H
 python: 3.12.0
 catalystcenter_version: 2.3.7.9
 ansible: 9.9.0
-cisco.catalystcenter: 6.32.0
+cisco.catalystcenter: 2.6.0
 catalystcentersdk: 2.8.8
 ```
 For detailed information on Assurance Health Score Settings refer to the following documentation:https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/assurance_device_health_score_settings_workflow_manager/

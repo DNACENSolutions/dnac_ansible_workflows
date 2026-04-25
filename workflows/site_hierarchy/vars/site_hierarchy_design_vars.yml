@@ -1,7 +1,7 @@
 ---
 #Select Catalyst Center version, this will overwrite the default version from host file
 catalyst_center_version: 2.3.7.9
-catalyst_center_verify: false
+catalyst_center_config_verify: true
 design_sites:
   - site:
       area:
@@ -28,7 +28,7 @@ design_sites:
   - site:
       floor:
         name: Floor 1
-        parent_name: Global/USA/SAN JOSE
+        parent_name: Global/USA/SAN JOSE/Building 12
         rf_model: Cubes And Walled Offices
         width: 100.00
         length: 100.00
