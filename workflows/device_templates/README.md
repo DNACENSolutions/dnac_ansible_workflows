@@ -294,7 +294,7 @@ Note: The environment is used for the references in the above instructions.
 ```
 
   catalystcentersdk: 2.8.3
-  cisco.catalystcenter: 6.30.0
+  cisco.catalystcenter: 2.6.0
 
 ```
 Cisco Catalyst Center Ansible Module Documentation: [template_workflow_manager](https://cisco-en-programmability.github.io/catalystcenter-ansible/main/plugins/template_workflow_manager_module.html)

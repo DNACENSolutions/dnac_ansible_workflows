@@ -1,9 +1,9 @@
 #sda_extranet_policies_workflow_manager
 # Manage extranet policy operations such as delete existing policies.
 # API for deletion of an existing extranet policy using the policy name.
-#Requirements: cisco.catalystcenter > 6.19.0
+#Requirements: cisco.catalystcenter == 2.6.0
 #  requirements:
-#    - cisco.catalystcenter >= 6.19.0
+#    - cisco.catalystcenter == 2.6.0
 ---
 - name: Playbook to delete Cisco Catalyst Center extranet policies
   hosts: catalyst_center_hosts

@@ -690,7 +690,7 @@ The following environment was used for testing:
 | Python                | `3.10.10`   |
 | Cisco Catalyst Center | `2.3.7.9`   |
 | Ansible               | `9.9.0`     |
-| cisco.catalystcenter Collection | `6.35.0`    |
+| cisco.catalystcenter Collection | 2.6.0    |
 | catalystcentersdk          | `2.10.14`   |
 
 For detailed documentation, refer to:  

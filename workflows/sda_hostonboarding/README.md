@@ -738,7 +738,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml \
 Environment used:
 ```
 catalystcentersdk: 2.8.3 (recommend ≥2.9.2)
-cisco.catalystcenter collection: 6.42.0
+cisco.catalystcenter collection: 2.6.0
 ```
 
 ### Advanced Notes & Best Practices

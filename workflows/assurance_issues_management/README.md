@@ -638,6 +638,6 @@ Refer to the workflow's schema file (workflows/assurance_issues_management/schem
 python: 3.10.10
 catalystcenter_version: 2.3.7.9
 ansible: 9.9.0
-cisco.catalystcenter: 6.32.0
+cisco.catalystcenter: 2.6.0
 catalystcentersdk: 2.10.14
 ```

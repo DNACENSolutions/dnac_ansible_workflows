@@ -32,7 +32,7 @@ The SDA Fabric Devices config generator automates YAML playbook generation for e
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.catalystcenter collection | 6.49.0+ |
+| cisco.catalystcenter collection | 2.6.0 |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 2.3.7.6+ |
 | catalystcentersdk | 2.4.5+ |

@@ -20,7 +20,7 @@ The Fabric Devices Info workflow retrieves comprehensive fabric device informati
 - Ansible 2.9 or higher
 - Python 3.9 or higher
 - catalystcentersdk 2.9.3 or higher
-- cisco.catalystcenter collection 6.42.0 or higher
+- cisco.catalystcenter collection 2.6.0 or higher
 - SDA fabric site(s) configured in Catalyst Center
 - Fabric devices provisioned and operational
 
@@ -461,5 +461,5 @@ python: 3.12.0
 catalystcenter_version: 3.1.5
 ansible: 9.9.0
 catalystcentersdk: 2.10.4
-cisco.catalystcenter: 6.42.0
+cisco.catalystcenter: 2.6.0
 ```

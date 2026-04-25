@@ -896,7 +896,7 @@ ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/device_credentials/
 ```
   ansible: 9.9.0
   catalystcentersdk: 2.8.3
-  cisco.catalystcenter: 6.30.0
+  cisco.catalystcenter: 2.6.0
 ```
 ## Workflow Steps
 ## User Flow (3 Steps)

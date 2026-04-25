@@ -272,7 +272,7 @@ After executing the playbook, check the Catalyst Center UI to verify path trace.
 python: 3.12.0
 catalystcenter_version: 2.3.7.9
 ansible: 9.9.0
-cisco.catalystcenter: 6.32.0
+cisco.catalystcenter: 2.6.0
 catalystcentersdk: 2.8.8
 ```
 

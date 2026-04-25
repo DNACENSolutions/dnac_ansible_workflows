@@ -40,7 +40,7 @@ The Events and Notifications config generator automates YAML playbook generation
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.catalystcenter collection | 6.44.0+ |
+| cisco.catalystcenter collection | 2.6.0 |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 2.3.5.3+ |
 | catalystcentersdk | 2.7.2+ |
