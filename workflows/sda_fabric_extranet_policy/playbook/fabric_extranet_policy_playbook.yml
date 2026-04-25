@@ -2,9 +2,9 @@
 # Manage extranet policy operations such as add/update.
 # API to create a new extranet policy.
 # API to update an existing or edit an existing extranet policy.
-#Requirements: cisco.catalystcenter > 6.19.0
+#Requirements: cisco.catalystcenter == 2.6.0
 #  requirements:
-#    - cisco.catalystcenter >= 6.19.0
+#    - cisco.catalystcenter == 2.6.0
 ---
 - name: Playbook to manage Cisco Catalyst Center Device Inventory
   hosts: catalyst_center_hosts

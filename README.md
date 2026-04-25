@@ -206,7 +206,7 @@ ansible-galaxy collection install cisco.catalystcenter --force
 ```
 ### Specific version
 ```bash
-ansible-galaxy collection install cisco.catalystcenter:==6.29.0 --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 ### Install latest devel version from  GitHub and build

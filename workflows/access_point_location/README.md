@@ -681,7 +681,7 @@ The following environment was used for testing:
 | Python                | `3.10.10`   |
 | Cisco Catalyst Center | `3.1.5.0`   |
 | Ansible               | `2.17.13`   |
-| cisco.catalystcenter Collection | `6.40.0`    |
+| cisco.catalystcenter Collection | `2.6.0`    |
 | catalystcentersdk          | `2.10.4`    |
 
 For detailed documentation, refer to:  

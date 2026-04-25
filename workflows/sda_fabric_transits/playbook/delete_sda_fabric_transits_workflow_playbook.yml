@@ -2,7 +2,7 @@
 # API to delete transit networks.
 # module: fabric_transits_workflow_manager
 # requirements:
-#   - cisco.catalystcenter >= 6.19.0
+#   - cisco.catalystcenter == 2.6.0
 ---
 - name: Playbook to manage fabric site(s)/zone(s) and update the authentication profile template in Cisco Catalyst Center
   hosts: catalyst_center_hosts

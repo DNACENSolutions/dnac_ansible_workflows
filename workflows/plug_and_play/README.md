@@ -842,7 +842,7 @@ The following environment was used for testing:
 |-----------------------|-------------|
 | Python                | `3.12.0`    |
 | Ansible               | `9.9.0`     |
-| cisco.catalystcenter Collection | `6.42.0`    |
+| cisco.catalystcenter Collection | `2.6.0`    |
 | catalystcentersdk          | `2.10.4`     |
 
 For detailed information on Plug and Play workflow, refer to the official documentation:  Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/pnp_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/pnp_workflow_manager/)

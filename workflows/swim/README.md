@@ -459,7 +459,7 @@ python: 3.12.0
 catalystcenter_version: 3.1.5
 ansible: 9.9.0
 catalystcentersdk: 2.10.4
-cisco.catalystcenter: 6.42.0
+cisco.catalystcenter: 2.6.0
 ```
 ## Workflow Steps
 ## User Flow (3 Steps)

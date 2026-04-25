@@ -905,7 +905,7 @@ For comprehensive instructions on LAN Automation configuration and the complete 
 | Python                | `3.10.0`    |
 | Cisco Catalyst Center | `3.1.3.0`   |
 | Ansible               | `9.9.0`     |
-| cisco.catalystcenter Collection | `6.32.0`    |
+| cisco.catalystcenter Collection | `2.6.0`    |
 | catalystcentersdk          | `2.8.8`     |
 
 ---

@@ -43,7 +43,7 @@ The SDA Extranet Policies config generator automates YAML playbook generation fo
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.catalystcenter collection | 6.45.0+ |
+| cisco.catalystcenter collection | 2.6.0 |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 2.3.7.9+ |
 | catalystcentersdk | 2.10.10+ |

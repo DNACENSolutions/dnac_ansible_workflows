@@ -1,7 +1,7 @@
 #module: events_and_notifications_workflow_manager
 #This playbook is use to delete Webhook, Email and Syslog subscription from Cisco Catalyst Center
 #requirements:
-#  - cisco.catalystcenter >= 6.19.0
+#  - cisco.catalystcenter == 2.6.0
 ---
 - name: Playbook to delete various events subscription from Cisco Catalyst Center
   hosts: catalyst_center_hosts

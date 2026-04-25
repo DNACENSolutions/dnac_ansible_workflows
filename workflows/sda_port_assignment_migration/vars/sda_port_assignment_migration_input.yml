@@ -7,11 +7,11 @@ cleanup_generated_files: true
 # Required data model:
 port_assignment_migration:
   - fabric_site: "Global/California/23"
-    source_device_ip: "10.195.120.173"
-    destination_device_ip: "10.195.120.219"
+    source_device_ip: "10.195.120.219"
+    destination_device_ip: "10.195.120.173"
     # Optional interface remap (partial or full). If omitted, interfaces are migrated 1:1.
     interface_mappings:
-      - source_interface_name: "GigabitEthernet1/0/1"
-        destination_interface_name: "FortyGigabitEthernet1/1/1"
-      - source_interface_name: "GigabitEthernet1/0/2"
-        destination_interface_name: "FortyGigabitEthernet1/1/2"
+      - source_interface_name: "TenGigabitEthernet1/1/1"
+        destination_interface_name: "TwentyFiveGigE1/1/5"
+      - source_interface_name: "TenGigabitEthernet1/1/2"
+        destination_interface_name: "TwentyFiveGigE1/1/6"

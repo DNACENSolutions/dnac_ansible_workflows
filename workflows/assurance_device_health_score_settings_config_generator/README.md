@@ -39,7 +39,7 @@ The Assurance Device Health Score Settings config generator automates YAML playb
 | Component | Version |
 |-----------|---------|
 | Ansible | 2.13+ |
-| cisco.catalystcenter collection | 6.44.0+ |
+| cisco.catalystcenter collection | 2.6.0 |
 | Python | 3.9+ |
 | Cisco Catalyst Center | 2.3.7.9+ |
 | catalystcentersdk | 2.7.2+ |
@@ -47,7 +47,7 @@ The Assurance Device Health Score Settings config generator automates YAML playb
 ### Required Collections
 
 ```bash
-ansible-galaxy collection install cisco.catalystcenter    # >= 6.44.0
+ansible-galaxy collection install cisco.catalystcenter
 ansible-galaxy collection install ansible.utils
 pip install catalystcentersdk
 pip install yamale
