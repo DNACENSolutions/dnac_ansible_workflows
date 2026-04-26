@@ -51,10 +51,7 @@ Before using these Ansible workflows, ensure that you have the following prerequ
 ```bash
 git clone https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git
 ```
-Cloning a released version:
-```bash
-git clone --depth 1 --branch v2.3.7.6.1 https://github.com/cisco-en-programmability/catalyst-center-ansible-iac.git
-```
+
 
 ## Navigate to the project directory:    
 ```bash
@@ -74,11 +71,11 @@ For installing or upgrading the cisco.catalystcenter ansible collection follow s
 ### Latest version
 Clone the catalystcenter-ansible repository.
 ```bash
-ansible-galaxy collection install cisco.catalystcenter:==2.6.0 --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 ### Sppecific version
 ```bash
-ansible-galaxy collection install cisco.catalystcenter:==2.6.0 --force
+ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
 ### Install latest devel version from  GitHub abd build
