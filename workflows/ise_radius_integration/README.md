@@ -360,3 +360,17 @@ export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml -vvvv
 ```
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/ise_radius_integration/vars/ise_radius_integration_workflow_input.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `ise_radius_integration_details`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml -vvvv
+```
+

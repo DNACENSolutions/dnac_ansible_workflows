@@ -234,3 +234,17 @@ wireless_design_config:
 - Omit `config` to generate all configurations.
 - An empty dictionary for `config` is invalid.
 - If component filters are provided without `components_list`, the module auto-populates `components_list`.
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/wireless_design_config_generator/vars/wireless_design_config_inputs.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `wireless_design_config`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/wireless_design_config_generator/playbook/wireless_design_config_generator.yml -vvvv
+```
+

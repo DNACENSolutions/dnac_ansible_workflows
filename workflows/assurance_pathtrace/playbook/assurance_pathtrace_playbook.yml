@@ -3,8 +3,6 @@
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
   vars:
     state: merged
     catalyst_center_login: &catalyst_center_login
@@ -23,6 +21,32 @@
       catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
       
   tasks:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that pathtrace_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'pathtrace_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: pathtrace_details is not defined
+
     # Include the variables file {{ VARS_FILE_PATH }} for the playbook
     - name: Assurance Path Trace Playbook start time
       set_fact:
@@ -46,7 +70,7 @@
       when: jinjatemplate is defined
 
     # Create or Update existing Path Trace with provided details in "{{ VARS_FILES_PATH }}"
-    - name: Create or Update existing Path Trace with provided details in "{{ VARS_FILE_PATH }}"
+    - name: Create or Update existing Path Trace with provided details in "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.path_trace_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"

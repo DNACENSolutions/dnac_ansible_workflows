@@ -451,3 +451,17 @@ sda_extranet_policies_config:
 - The generated playbook is compatible with `cisco.catalystcenter.sda_extranet_policies_workflow_manager`.
 - Fabric site UUIDs returned by Catalyst Center are resolved into human-readable site hierarchy paths.
 - The workflow operates in gathered mode only and does not make changes to Cisco Catalyst Center.
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/sda_extranet_policies_config_generator/vars/sda_extranet_policies_config_inputs.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `sda_extranet_policies_config`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/sda_extranet_policies_config_generator/playbook/sda_extranet_policies_config_generator.yml -vvvv
+```
+

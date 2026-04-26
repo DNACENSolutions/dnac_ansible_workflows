@@ -8,8 +8,6 @@
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
   vars:
     dnac_login: &dnac_login
       catalystcenter_host: "{{ catalystcenter_host }}"
@@ -27,6 +25,39 @@
     credentials: "{{ catalystcenter_username}}:{{catalystcenter_password }}"
     authentication: "Basic {{ credentials | b64encode }}"
   tasks:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that at least one workflow input variable is defined
+      ansible.builtin.fail:
+        msg: >-
+          None of the expected workflow input variables are defined (design_sites, device_credentials, network_settings, discovery_details, lan_automation, update_devices_role, provision_devices).
+          Provide them via VARS_FILE_PATH or as inventory/host variables.
+      when:
+        - design_sites is not defined
+        - device_credentials is not defined
+        - network_settings is not defined
+        - discovery_details is not defined
+        - lan_automation is not defined
+        - update_devices_role is not defined
+        - provision_devices is not defined
+
     - name: LAN Automation Script start time
       set_fact:
         long_op_start: "{{ now() }}"
@@ -40,7 +71,7 @@
       loop: "{{ design_sites }}"
       tags: site
     # Create or Update existing Credentials with provided details in 
-    - name: Create or Update existing Credentials with provided details in "{{ VARS_FILE_PATH }}"
+    - name: Create or Update existing Credentials with provided details in "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.device_credential_workflow_manager:
         <<: *dnac_login
         catalystcenter_log_level: INFO
@@ -52,7 +83,7 @@
       when: device_credentials.credentials_details is defined
       tags: credential
     # Assign Credentials to sites if defined in 
-    - name: Assign Credentials to sites for credentials and sites maps in variables file "{{ VARS_FILE_PATH }}"
+    - name: Assign Credentials to sites for credentials and sites maps in variables file "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.device_credential_workflow_manager:
         <<: *dnac_login
         catalystcenter_log_level: INFO
@@ -92,7 +123,7 @@
       tags: servers, networksettings
 
     # Discovery Seed devices
-    - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH }}"
+    - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.discovery_workflow_manager:
         <<: *dnac_login
         state: "{{ state }}"
