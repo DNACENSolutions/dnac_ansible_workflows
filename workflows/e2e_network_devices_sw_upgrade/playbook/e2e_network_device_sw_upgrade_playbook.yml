@@ -4,8 +4,6 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-    - "{{ SWIM_VARS_FILE_PATH }}"
 
   vars:
     catalyst_center_login: &catalyst_center_login
@@ -24,11 +22,37 @@
       catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
       
   tasks:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that swim_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'swim_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: swim_details is not defined
+
     - name: Swim Playbook start time
       set_fact:
         long_op_start: "{{ now() }}"
     #Import an image from a URL
-    - name: Import an image from an URL or from Local disc provided in import_images in file {{ SWIM_VARS_FILE_PATH }}
+    - name: Import an image from an URL or from Local disc provided in import_images in file {{ VARS_FILE_PATH | default('inventory / host variables') }}
       cisco.catalystcenter.swim_intent:
         <<: *catalyst_center_login
         config:
@@ -37,7 +61,7 @@
       when: swim_details.import_images is defined
       tags: import
     #Golden tag images on Catalyst Center sites
-    - name: Golden tag images on Catalyst Center sites input provided in golden_tag_images in file {{ SWIM_VARS_FILE_PATH }}
+    - name: Golden tag images on Catalyst Center sites input provided in golden_tag_images in file {{ VARS_FILE_PATH | default('inventory / host variables') }}
       cisco.catalystcenter.swim_intent:
         <<: *catalyst_center_login
         config:
@@ -46,7 +70,7 @@
       when: swim_details.golden_tag_images is defined
       tags: goldentag
     #Distribution of images on Catalyst Center sites
-    - name: Distribution of images on Catalyst Center sites input provided in distribute_images in file {{ SWIM_VARS_FILE_PATH }}
+    - name: Distribution of images on Catalyst Center sites input provided in distribute_images in file {{ VARS_FILE_PATH | default('inventory / host variables') }}
       cisco.catalystcenter.swim_intent:
         <<: *catalyst_center_login
         config:
@@ -55,7 +79,7 @@
       when: swim_details.distribute_images is defined
       tags: distribute
     #Activate an image on Catalyst Center sites
-    - name: Activate an image on Catalyst Center sites input provided in activate_images in file {{ SWIM_VARS_FILE_PATH }}
+    - name: Activate an image on Catalyst Center sites input provided in activate_images in file {{ VARS_FILE_PATH | default('inventory / host variables') }}
       cisco.catalystcenter.swim_intent:
         <<: *catalyst_center_login
         config:
@@ -64,7 +88,7 @@
       when: swim_details.activate_images is defined
       tags: activate
     #SWIM Full workflow Import an image from a URL, tag it as golden and load it on device
-    - name: Import an image from a URL, tag it as golden and load it on device for details provided in {{ SWIM_VARS_FILE_PATH }}
+    - name: Import an image from a URL, tag it as golden and load it on device for details provided in {{ VARS_FILE_PATH | default('inventory / host variables') }}
       cisco.catalystcenter.swim_intent:
         <<: *catalyst_center_login
         config:

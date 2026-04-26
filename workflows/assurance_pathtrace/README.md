@@ -343,3 +343,17 @@ All the below listed Catalyst Center Path trace limitation apply to workflow/pla
         For a path trace request, Catalyst Center does not have the right egress virtual interface highlighted on any foreign wireless controller.
 
         The path trace request does not highlight any ACLs applied on the foreign wireless controller.
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/assurance_pathtrace/vars/assurance_pathtrace_inputs.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `pathtrace_details`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/assurance_pathtrace/playbook/assurance_pathtrace_playbook.yml -vvvv
+```
+

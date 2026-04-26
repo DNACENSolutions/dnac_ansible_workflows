@@ -348,3 +348,17 @@ The following environment was used for testing:
 | catalystcentersdk          | `2.8.8`     |
 
 For detailed information on SDA fabric multicast workflow, refer to the official documentation:  Refer to: [https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_fabric_multicast_workflow_manager/](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/sda_fabric_multicast_workflow_manager/)
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/sda_fabric_multicast/vars/sda_fabric_multicast_inputs.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `fabric_multicast_details`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/sda_fabric_multicast/playbook/sda_fabric_multicast_playbook.yml -vvvv
+```
+

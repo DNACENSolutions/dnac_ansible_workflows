@@ -13,8 +13,6 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
 
   vars:
     state: merged
@@ -34,6 +32,32 @@
       catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
 
   tasks:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that fabric_sites_and_zones is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'fabric_sites_and_zones' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: fabric_sites_and_zones is not defined
+
   #write tasks for fabric site(s)/zone(s) creations
     - name: Playbook start time for the fabric site(s)/zone(s) playbook
       set_fact:
@@ -50,7 +74,7 @@
         file: ../tmp/template_generated_file.yaml
       when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
 
-    - name: Add/Update fabric site(s) and zone(s) for pub sub configs "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+    - name: Add/Update fabric site(s) and zone(s) for pub sub configs "{{ VARS_FILE_PATH | default('inventory / host variables') }}" and state "{{ state }}"
       cisco.catalystcenter.sda_fabric_sites_zones_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"

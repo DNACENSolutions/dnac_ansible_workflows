@@ -909,3 +909,17 @@ For comprehensive instructions on LAN Automation configuration and the complete 
 | catalystcentersdk          | `2.8.8`     |
 
 ---
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/lan_automation/vars/lan_automation_workflow_inputs.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `lan_automation_details`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml -vvvv
+```
+

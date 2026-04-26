@@ -4,8 +4,6 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
   vars:
     state: merged
     catalyst_center_login: &catalyst_center_login
@@ -24,9 +22,32 @@
       catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
       
   tasks:
-    - name: print VARS_FILE_PATH
-      debug:
-        msg: "Input file selected {{ VARS_FILE_PATH }}"
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that inventory_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'inventory_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: inventory_details is not defined
+
     - name: Playbook start time for the inventory playbook
       set_fact:
         long_op_start: "{{ now() }}"
@@ -43,7 +64,7 @@
       loop: "{{ (inventory_details.network_devices if (inventory_details is defined and inventory_details.network_devices is defined) else []) }}"
       loop_control:
         label: "{{ item.ip_address_list | default(item.hostname_list | default(item.serial_number_list | default(item.mac_address_list | default('maintenance-only')))) }}"
-    - name: Add/Update/assig to site/Provision in file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+    - name: Add/Update/assig to site/Provision in file "{{ VARS_FILE_PATH | default('inventory / host variables') }}" and state "{{ state }}"
       cisco.catalystcenter.inventory_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
@@ -56,7 +77,7 @@
       debug:
         msg: "{{ inventory_output }}"
       when: inventory_output is defined
-    - name: Schedule maintenance windows defined in file "{{ VARS_FILE_PATH }}"
+    - name: Schedule maintenance windows defined in file "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.inventory_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ maintenance_state | default(state) }}"

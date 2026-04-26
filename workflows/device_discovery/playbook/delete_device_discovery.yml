@@ -4,8 +4,6 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
   vars:
     state: deleted
     catalyst_center_login: &catalyst_center_login
@@ -24,14 +22,37 @@
       catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
       
   tasks:
-    - name: print VARS_FILE_PATH
-      debug:
-        msg: "Input file selected {{ VARS_FILE_PATH }}"
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that discovery_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'discovery_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: discovery_details is not defined
+
     - name: Playbook start time for the discoveries
       set_fact:
         long_op_start: "{{ now() }}"
 
-    - name: Discover a singe device IP Address for a list of discoveries from "{{ VARS_FILE_PATH }}"
+    - name: Discover a singe device IP Address for a list of discoveries from "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.discovery_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
@@ -40,7 +61,7 @@
       loop: "{{ discovery_details.single }}"
       when: discovery_details.single is defined
 
-    - name: Discover devices for an IP Address Range if defined in file "{{ VARS_FILE_PATH }}"
+    - name: Discover devices for an IP Address Range if defined in file "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.discovery_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
@@ -49,7 +70,7 @@
       loop: "{{ discovery_details.range }}"
       when: discovery_details.range is defined
 
-    - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH }}"
+    - name: Discover Multi IP Address Ranges if defined in the file "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.discovery_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
@@ -58,7 +79,7 @@
       loop: "{{ discovery_details.multi_range }}"
       when: discovery_details.multi_range is defined
 
-    - name: Discover devices from a CDP seed if defined in the file "{{ VARS_FILE_PATH }}"
+    - name: Discover devices from a CDP seed if defined in the file "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.discovery_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
@@ -67,7 +88,7 @@
       loop: "{{ discovery_details.cdp }}"
       when: discovery_details.cdp is defined
 
-    - name: Discover devices from an LLDP seed if defined in the file "{{ VARS_FILE_PATH }}"
+    - name: Discover devices from an LLDP seed if defined in the file "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.discovery_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
@@ -76,7 +97,7 @@
       loop: "{{ discovery_details.lldp }}"
       when: discovery_details.lldp is defined
 
-    - name: Configure and run an CIDR Discovery if defined in the file "{{ VARS_FILE_PATH }}"
+    - name: Configure and run an CIDR Discovery if defined in the file "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.discovery_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"

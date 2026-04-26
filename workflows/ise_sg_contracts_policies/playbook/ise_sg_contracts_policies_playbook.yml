@@ -4,18 +4,43 @@
   gather_facts: false
   connection: local
 
-vars:
-  ise_login: &ise_login
-    ise_hostname: "{{ise_hostname}}"
-    ise_username: "{{ise_username}}"
-    ise_password: "{{ise_password}}"
-    ise_verify: "{{ise_verify}}"
-    state: present
+  vars:
+    ise_login: &ise_login
+      ise_hostname: "{{ise_hostname}}"
+      ise_username: "{{ise_username}}"
+      ise_password: "{{ise_password}}"
+      ise_verify: "{{ise_verify}}"
+      state: present
 
   tasks:
-    - name: Include vars from YAML file
-      include_vars:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
         file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that at least one workflow input variable is defined
+      ansible.builtin.fail:
+        msg: >-
+          None of the expected workflow input variables are defined (security_groups, access_contracts, access_policies).
+          Provide them via VARS_FILE_PATH or as inventory/host variables.
+      when:
+        - security_groups is not defined
+        - access_contracts is not defined
+        - access_policies is not defined
 
     - name: Get all SGt
       cisco.ise.sgt_info:
@@ -40,6 +65,7 @@ vars:
         sg_name: "{{ item.name }}"
         sg_description: "{{ item.description }}"
       loop: "{{ security_groups }}"
+      when: security_groups is defined
 
     - name: Create Access Contracts
       cisco.ise.ise_sg_contract:
@@ -49,6 +75,7 @@ vars:
         sg_source_name: "{{ item.source_group }}"
         sg_destination_name: "{{ item.destination_group }}"
       loop: "{{ access_contracts }}"
+      when: access_contracts is defined
 
     - name: Create Access Policies
       cisco.ise.ise_sg_acl:
@@ -57,4 +84,4 @@ vars:
         sg_acl_description: "{{ item.description }}"
         sg_contract_name: "{{ item.contract }}"
       loop: "{{ access_policies }}"
-
+      when: access_policies is defined
