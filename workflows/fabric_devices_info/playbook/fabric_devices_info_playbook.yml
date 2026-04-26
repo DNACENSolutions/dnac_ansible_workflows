@@ -3,8 +3,6 @@
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: false
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
   vars:
     dnac_login: &dnac_login
       catalystcenter_host: "{{ catalyst_center_host }}"
@@ -18,6 +16,32 @@
       catalystcenter_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
 
   tasks:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that fabric_device_info_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'fabric_device_info_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: fabric_device_info_details is not defined
+
     - name: Gather fabric device information from Cisco Catalyst Center
       cisco.catalystcenter.fabric_devices_info_workflow_manager:
         <<: *dnac_login

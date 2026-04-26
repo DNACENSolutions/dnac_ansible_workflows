@@ -233,3 +233,17 @@ application_policy_config:
 - When `config` is provided, `component_specific_filters` is mandatory.
 - `queuing_profile` and `application_policy` under `component_specific_filters` are **lists of dicts**.
 - The module auto-adds the corresponding component to `components_list` when a filter block is provided but `components_list` is omitted.
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/application_policy_config_generator/vars/application_policy_config_inputs.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `application_policy_config`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/application_policy_config_generator/playbook/application_policy_config_generator.yml -vvvv
+```
+

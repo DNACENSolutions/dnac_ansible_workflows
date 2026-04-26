@@ -8,8 +8,6 @@
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
   vars:
     catalyst_center_login: &catalyst_center_login
       catalystcenter_host: "{{ catalyst_center_host | default(catalystcenter_host) }}"
@@ -27,6 +25,32 @@
       catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
       
   tasks:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that network_settings_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'network_settings_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: network_settings_details is not defined
+
     - name: Start timer for calculating the total run time of the playbook
       set_fact:
         long_op_start: "{{ now() }}"

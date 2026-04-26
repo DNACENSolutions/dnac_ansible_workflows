@@ -10,8 +10,6 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
 
   vars:
     state: merged
@@ -32,6 +30,32 @@
       
   # Tasks including jinja templates to create the ise_radius_integration_details
   tasks:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that ise_radius_integration_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'ise_radius_integration_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: ise_radius_integration_details is not defined
+
     - name: Playbook start time for Authentication and Policy Servers configuration on Cisco Catalyst Center
       set_fact:
         long_op_start: "{{ now() }}"

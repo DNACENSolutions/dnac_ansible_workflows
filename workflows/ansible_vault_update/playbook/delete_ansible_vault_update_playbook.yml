@@ -10,10 +10,31 @@
     state: absent
 
   tasks:
-    - name: Read the data from the file, encrypt it and write it to destination file
-      include_vars:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
         file: "{{ VARS_FILE_PATH }}"
-      when: VARS_FILE_PATH is defined
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that passwords_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'passwords_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: passwords_details is not defined
   
     - name: Create output file
       copy:
@@ -31,7 +52,6 @@
       include_vars:
         file: ../../../ansible_vault_encrypted_inputs/tmp_mypasswordfile.yaml
         name: dst_data_content
-      when: VARS_FILE_PATH is defined
     # Check if the vault file exist
     - name: Check if the file exists
       stat:
@@ -61,7 +81,6 @@
       include_vars:
         file: ../../../ansible_vault_encrypted_inputs/tmp_orig_mypasswordfile.yaml
         name: orig_data_content
-      when: VARS_FILE_PATH is defined
     - debug:
         var: dst_data_content
     - name: Determine keys to remove
@@ -100,5 +119,4 @@
       register: ansible_play_path
       delegate_to: catalyst_center_hosts
       connection: local
-
 

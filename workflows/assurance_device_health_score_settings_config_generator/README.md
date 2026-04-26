@@ -987,3 +987,17 @@ assurance_device_health_score_settings_config:
 - [Cisco DNA Center SDK](https://catalystcentersdk.readthedocs.io/)
 - [Ansible Documentation](https://docs.ansible.com/)
 - [Assurance Device Health Score Settings Workflow Manager Module](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/)
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/assurance_device_health_score_settings_config_generator/vars/assurance_device_health_score_settings_config_inputs.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `assurance_device_health_score_settings_config`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/assurance_device_health_score_settings_config_generator/playbook/assurance_device_health_score_settings_config_generator.yml -vvvv
+```
+

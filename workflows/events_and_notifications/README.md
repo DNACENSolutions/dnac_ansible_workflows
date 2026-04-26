@@ -951,3 +951,17 @@ yamale -s workflows/events_and_notifications/schema/events_and_notifications_sch
   cisco.catalystcenter: 2.6.0
   dnac version: 2.3.7.6
 ```
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/events_and_notifications/vars/events_and_notifications_destinations_inputs.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `events_notifications_destination_and_subscription_details`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml -vvvv
+```
+

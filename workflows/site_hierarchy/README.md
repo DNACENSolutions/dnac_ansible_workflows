@@ -345,3 +345,17 @@ cisco.catalystcenter: 2.6.0
 ```
 
 For more details, see the [Site Workflow Manager Module Documentation](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/site_workflow_manager/).
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `design_sites`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/site_hierarchy/playbook/site_hierarchy_playbook.yml -vvvv
+```
+

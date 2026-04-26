@@ -633,3 +633,17 @@ catalystcentersdk: 2.8.14
 ```
 
 For detailed information on network wireless profile workflow refer to the following documentation: https://galaxy.ansible.com/ui/repo/published/cisco/dnac/content/module/application_policy_workflow_manager/
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/application_policy/vars/application_policy_inputs.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `application_policy_details`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/application_policy/playbook/application_policy_playbook.yml -vvvv
+```
+

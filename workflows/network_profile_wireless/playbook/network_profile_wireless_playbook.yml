@@ -3,8 +3,6 @@
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
   vars:
     state: merged
     catalyst_center_login: &catalyst_center_login
@@ -23,11 +21,32 @@
       catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
       
   tasks:
-    # Include the variables file {{ VARS_FILE_PATH }} for the playbook
-    - name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
-      include_vars:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
         file: "{{ VARS_FILE_PATH }}"
-    # set the password file path
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that wireless_nw_profiles_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'wireless_nw_profiles_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: wireless_nw_profiles_details is not defined
+
     - name: set the password file path
       set_fact:
         passwords_file: "{{ passwords_file  | default('../../../ansible_vault_encrypted_inputs/mypasswordfile.yaml') }}"
@@ -44,16 +63,10 @@
         dest: ../tmp/template_generated_file.yaml
       when:  jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
 
-    # Include the variables file {{ VARS_FILE_PATH }} for the playbook
-    - name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
+    - name: Include the variables file {{ VARS_FILE_PATH | default('inventory / host variables') }} for the playbook
       include_vars:
         file: ../tmp/template_generated_file.yaml
       when: jinjatemplate is defined
-    # Include the variables file {{ VARS_FILE_PATH }} for the playbook
-    - name: Include the variables file {{ VARS_FILE_PATH }} for the playbook
-      include_vars:
-        file: "{{ VARS_FILE_PATH }}"
-      when: jinjatemplate is not defined or jinjatemplate is false
     - name: Start time for the playbook
       set_fact:
         long_op_start: "{{ now() }}"

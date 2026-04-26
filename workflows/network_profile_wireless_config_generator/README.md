@@ -436,3 +436,17 @@ catalyst_center_api_task_timeout: 3600
 - [Cisco DNA Center SDK](https://catalystcentersdk.readthedocs.io/)
 - [Ansible Documentation](https://docs.ansible.com/)
 - [Network Profile Wireless Workflow Manager Module](https://galaxy.ansible.com/ui/repo/published/cisco/dnac/)
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `network_profile_wireless_config`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/network_profile_wireless_config_generator/playbook/network_profile_wireless_config_generator.yml -vvvv
+```
+

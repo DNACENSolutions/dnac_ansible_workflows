@@ -4,8 +4,6 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
 
   vars:
     state: deleted
@@ -27,15 +25,37 @@
       catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
       
   tasks:
-    - name: Print input file path
-      debug:
-        msg: "Input file selected: {{ VARS_FILE_PATH }}"
-    
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that reports_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'reports_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: reports_details is not defined
+
     - name: Reports playbook start time
       set_fact:
         long_op_start: "{{ now() }}"
 
-    - name: Create or schedule reports provided in reports_details in file {{ VARS_FILE_PATH }}
+    - name: Create or schedule reports provided in reports_details in file {{ VARS_FILE_PATH | default('inventory / host variables') }}
       cisco.catalystcenter.reports_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"

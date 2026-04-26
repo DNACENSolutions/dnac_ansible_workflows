@@ -4,8 +4,6 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
   vars:
     state: merged
     catalyst_center_login: &catalyst_center_login
@@ -24,9 +22,31 @@
       catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
 
   tasks:
-    - name: print VARS_FILE_PATH
-      debug:
-        msg: "Input file selected {{ VARS_FILE_PATH }}"
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that assurance_health_score_settings is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'assurance_health_score_settings' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: assurance_health_score_settings is not defined
 
     - name: Playbook start time for the assurance health score settings playbook
       set_fact:
@@ -43,7 +63,7 @@
       include_vars:
         file: ../tmp/template_generated_file.yaml
       when: jinjatemplate is defined and jinjatemplate is true and jinjatemplate_file is defined
-    - name: Configure assurance health score settings from file "{{ VARS_FILE_PATH }}" and state "{{ state }}"
+    - name: Configure assurance health score settings from file "{{ VARS_FILE_PATH | default('inventory / host variables') }}" and state "{{ state }}"
       # Replace with the actual Cisco DNAC module for health score settings
       # Example placeholder module name: cisco.catalystcenter.assurance_health_score_settings
       cisco.catalystcenter.assurance_device_health_score_settings_workflow_manager:

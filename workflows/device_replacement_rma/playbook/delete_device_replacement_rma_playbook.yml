@@ -5,8 +5,6 @@
   connection: local
   gather_facts: no
 
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
   vars:
     state: deleted
     catalyst_center_login: &catalyst_center_login

@@ -442,3 +442,17 @@ For detailed information on network wireless profile workflow refer to the follo
 - Refer to the Catalyst Center documentation for detailed instructions on configuring fabric sites and fabric zones and using the Ansible playbooks.
 - Consider backing up your configuration before running the playbooks, especially the delete playbook.
 - If you encounter any issues, review the Ansible playbook output for error messages and consult the Catalyst Center documentation or support resources.
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/sda_fabric_sites_zones/vars/sda_fabric_sites_zones_inputs.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `fabric_sites_and_zones`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/sda_fabric_sites_zones/playbook/sda_fabric_sites_zones_playbook.yml -vvvv
+```
+

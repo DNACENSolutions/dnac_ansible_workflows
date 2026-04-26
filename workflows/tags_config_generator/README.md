@@ -84,3 +84,17 @@ tags_config:
           - tag_name: "Core-Routers"
             device_identifier: "hostname"
 ```
+
+## Inventory / group_vars Example
+
+You can also run this workflow without `VARS_FILE_PATH` by moving the sample workflow data into inventory, `host_vars`, or `group_vars`.
+
+1. Create an inventory vars file such as `inventory/group_vars/all.yml` or `inventory/host_vars/<host>.yml`.
+2. Copy the sample workflow data from `workflows/tags_config_generator/vars/tags_config_generator_input.yml` into that inventory vars file.
+3. Keep the same top-level variable name in inventory: `tags_config`.
+4. Run the playbook without `VARS_FILE_PATH`:
+
+```bash
+ansible-playbook -i <inventory-file> workflows/tags_config_generator/playbook/tags_config_generator.yml -vvvv
+```
+

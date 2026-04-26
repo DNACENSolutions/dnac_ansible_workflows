@@ -5,8 +5,6 @@
   gather_facts: no
   no_log: false
   
-  vars_files:
-    - "{{ VARS_FILE_PATH }}"
 
   vars:
     STATE: "present"
@@ -21,11 +19,37 @@
       catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout |  default(1200) }}"
 
   tasks:
+    # =========================================================================
+    # Input loading: vars file (VARS_FILE_PATH) or inventory variables
+    # =========================================================================
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that global_ippools is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'global_ippools' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: global_ippools is not defined
+
     - name: print global_ippools
       debug:
         msg: "{{ global_ippools }}"
 
-    - name: Create Global IP Pools from the list provided in file path "{{ VARS_FILE_PATH }}"
+    - name: Create Global IP Pools from the list provided in file path "{{ VARS_FILE_PATH | default('inventory / host variables') }}"
       cisco.catalystcenter.global_pool:
         <<: *dnac_login
         state: "{{ STATE }}"
