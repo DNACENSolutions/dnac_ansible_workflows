@@ -188,12 +188,12 @@ To ensure a successful execution of the playbooks with your specified inputs, fo
 
 ##### Input Validation:
 
-Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
+Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command `./tools/schemavalidation.sh` to validate the schema using `-s` for the schema path and `-v` (`--vars`) for the vars file path.
 
 ```bash
-  ./tools/validate.sh \
+  ./tools/schemavalidation.sh \
   -s workflows/sda_fabric_device_roles/schema/sda_fabric_device_roles_schema.yml \
-  -d workflows/sda_fabric_device_roles/vars/sda_fabric_device_roles_input.yml
+  -v workflows/sda_fabric_device_roles/vars/sda_fabric_device_roles_input.yml
 ```
 
 ##### Running the Playbook:
@@ -279,7 +279,7 @@ Use the input var file: workflows/sda_fabric_device_roles/vars/jinja_template_sd
 ##### Execute the Jinja Template
 
 ```bash
-    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_device_roles/playbook/sda_fabric_device_roles_playbook_jinja.yml --e VARS_FILE_PATH=workflows/sda_fabric_device_roles/vars/jinja_template_sda_fabric_device_roles.yml -vvv
+    ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/sda_fabric_device_roles/playbook/sda_fabric_device_roles_playbook_jinja.yml --e VARS_FILE_PATH=${PWD}/workflows/sda_fabric_device_roles/vars/jinja_template_sda_fabric_device_roles.yml -vvv
 ```
 
 
@@ -379,4 +379,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/sda_fabric_device_roles/playbook/sda_fabric_device_roles_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/sda_fabric_device_roles_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/sda_fabric_device_roles/vars/sda_fabric_device_roles_input.yml`
 

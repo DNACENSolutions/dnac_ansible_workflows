@@ -1514,7 +1514,7 @@ reports_details:
 > **Important**: Validate your input schema before executing the playbook to ensure all parameters are correctly formatted.  
 Run the following command to validate your input file against the schema:  
 ```bash
-./tools/validate.sh -s ./workflows/reports/schema/reports_schema.yml -d ./workflows/reports/vars/reports_input.yml
+./tools/schemavalidation.sh -s ./workflows/reports/schema/reports_schema.yml -v ./workflows/reports/vars/reports_input.yml
 ```
 ---
 
@@ -1523,13 +1523,13 @@ Run the following command to validate your input file against the schema:
 **Deploy** your configuration to *Cisco Catalyst Center* and **verify** the changes.
 
 1. **Deploy Configuration**:  
-   Run the playbook to apply the reports configuration. Ensure the input file is validated before execution. Specify the input file path using the `--e` variable (`VARS_FILE_PATH`).
+   Run the playbook to apply the reports configuration. Ensure the input file is validated before execution. Specify the input file path using `VARS_FILE_PATH`. Because Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, use `../vars/<file>.yml` or `${PWD}/workflows/.../vars/<file>.yml`.
 
    ### a. Create or Update Reports (state = 'merged')
    ```bash
    ansible-playbook -i inventory/demo_lab/hosts.yaml \
    workflows/reports/playbook/reports_playbook.yml \
-   --e VARS_FILE_PATH=./../vars/reports_input.yml \
+   --e VARS_FILE_PATH=../vars/reports_input.yml \
    -vvv
    ```
 
@@ -1537,7 +1537,7 @@ Run the following command to validate your input file against the schema:
    ```bash
    ansible-playbook -i inventory/demo_lab/hosts.yaml \
    workflows/reports/playbook/delete_reports_playbook.yml \
-   --e VARS_FILE_PATH=./../vars/delete_reports_input.yml \
+   --e VARS_FILE_PATH=../vars/delete_reports_input.yml \
    -vvv
    ```
 
@@ -1605,4 +1605,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/reports/playbook/reports_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/reports_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/reports/vars/reports_input.yml`
 

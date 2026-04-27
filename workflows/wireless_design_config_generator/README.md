@@ -159,14 +159,14 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/wireless_design_
 ```bash
 # Validate
 ./tools/schemavalidation.sh -s workflows/wireless_design_config_generator/schema/wireless_design_config_schema.yml \
-                   -d workflows/wireless_design_config_generator/vars/wireless_design_config_inputs.yml
+  -v workflows/wireless_design_config_generator/vars/wireless_design_config_inputs.yml
 ```
 
 ```bash
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/wireless_design_config_generator/playbook/wireless_design_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/wireless_design_config_generator/vars/wireless_design_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/wireless_design_config_generator/vars/wireless_design_config_inputs.yml
 ```
 
 
@@ -247,4 +247,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/wireless_design_config_generator/playbook/wireless_design_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/wireless_design_config_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/wireless_design_config_generator/vars/wireless_design_config_inputs.yml`
 

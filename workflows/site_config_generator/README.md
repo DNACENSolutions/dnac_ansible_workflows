@@ -218,20 +218,20 @@ site_config:
 
 **Validate and Execute:**
 Validate Configuration: To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
-Input Validation: Before executing the playbook, validate the input schema so the workflow shape matches the module contract. Run `./tools/schemavalidation.sh -s` with the schema path and `-d` with the input file path.
+Input Validation: Before executing the playbook, validate the input schema so the workflow shape matches the module contract. Run `./tools/schemavalidation.sh` with the schema path via `-s` and the vars file path via `-v` (`--vars`).
 
 
 ```bash
 # Validate
 ./tools/schemavalidation.sh -s workflows/site_config_generator/schema/site_config_schema.yml \
- -d workflows/site_config_generator/vars/site_config_inputs.yml
+  -v workflows/site_config_generator/vars/site_config_inputs.yml
 
 ```
 
 Return result validate:
 ```bash
 (pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/schemavalidation.sh -s workflows/site_config_generator/schema/site_config_schema.yml \
->  -d workflows/site_config_generator/vars/site_config_inputs.yml
+>  -v workflows/site_config_generator/vars/site_config_inputs.yml
 workflows/site_config_generator/schema/site_config_schema.yml
 workflows/site_config_generator/vars/site_config_inputs.yml
 yamale   -s workflows/site_config_generator/schema/site_config_schema.yml  workflows/site_config_generator/vars/site_config_inputs.yml
@@ -244,7 +244,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/site_config_generator/playbook/site_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/site_config_generator/vars/site_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/site_config_generator/vars/site_config_inputs.yml
 ```
 
 1.Generate All Configurations
@@ -462,4 +462,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/site_config_generator/playbook/site_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/site_config_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/site_config_generator/vars/site_config_inputs.yml`
 

@@ -264,7 +264,7 @@ Important: Validate your input schema before executing the playbook to ensure al
 Run the following command to validate your input file against the schema:
 
 ```bash
-./tools/validate.sh -s ./workflows/assurance_intelligent_capture/schema/assurance_intelligent_capture_schema.yml -d ./workflows/assurance_intelligent_capture/vars/assurance_intelligent_capture_inputs.yml
+./tools/schemavalidation.sh -s ./workflows/assurance_intelligent_capture/schema/assurance_intelligent_capture_schema.yml -v ./workflows/assurance_intelligent_capture/vars/assurance_intelligent_capture_inputs.yml
 ```
 ---
 
@@ -309,4 +309,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/assurance_intelligent_capture/playbook/assurance_intelligent_capture_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/assurance_intelligent_capture_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/assurance_intelligent_capture/vars/assurance_intelligent_capture_inputs.yml`
 

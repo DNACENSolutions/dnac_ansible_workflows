@@ -431,12 +431,12 @@ accesspoint_location_details:
 
 **Validate**
 Validate Configuration: To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
-Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/validate.sh -s to perform the validation providing the schema path -d and the input path.
+Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/schemavalidation.sh -s to perform the validation providing the schema path with `-s` and the vars file path with `-v` (`--vars`).
 
 
 ```bash
 # Validate
-./tools/validate.sh -s ./workflows/access_point_location/schema/access_point_location_schema.yml -d ./workflows/access_point_location/vars/access_point_location_inputs.yml
+./tools/schemavalidation.sh -s ./workflows/access_point_location/schema/access_point_location_schema.yml -v ./workflows/access_point_location/vars/access_point_location_inputs.yml
 ```
 
 Return result validate:
@@ -580,7 +580,7 @@ response:
 
 ```bash
 # Validate
-./tools/validate.sh -s ./workflows/access_point_location/schema/delete_access_point_location_schema.yml -d ./workflows/access_point_location/vars/delete_access_point_location_inputs.yml
+./tools/schemavalidation.sh -s ./workflows/access_point_location/schema/delete_access_point_location_schema.yml -v ./workflows/access_point_location/vars/delete_access_point_location_inputs.yml
 ```
 
 Return result validate:
@@ -701,4 +701,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/access_point_location/playbook/access_point_location_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/access_point_location_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/access_point_location/vars/access_point_location_inputs.yml`
 

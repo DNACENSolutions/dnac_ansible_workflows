@@ -230,10 +230,10 @@ Note: There is no UI flow for retrieve and delete path trace.
 To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
 
   **Input Validation**:
-  Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
+  Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command `./tools/schemavalidation.sh` to validate the schema using `-s` for the schema path and `-v` (`--vars`) for the vars file path.
 
 ```bash
-./tools/validate.sh -s ./workflows/assurance_pathtrace/schema/assurance_pathtrace_schema.yml -d ./workflows/assurance_pathtrace/vars/assurance_pathtrace_inputs.yml
+./tools/schemavalidation.sh -s ./workflows/assurance_pathtrace/schema/assurance_pathtrace_schema.yml -v ./workflows/assurance_pathtrace/vars/assurance_pathtrace_inputs.yml
 ```
 
 ### run Schema Validation:
@@ -248,12 +248,12 @@ This is the final step where you deploy the configuration to Cisco Catalyst Cent
 1.  **Deploy Configuration:** 
 
 Run the playbook to seamlessly apply the assurance path trace configuration defined in your input variables to Cisco Catalyst Center. 
-Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the --e variable as VARS_FILE_PATH. The VARS_FILE_PATH must be provided as a full path to the input file.
+Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the `--extra-vars` variable as `VARS_FILE_PATH`. `VARS_FILE_PATH` is resolved relative to the playbook directory, so use `../vars/<file>.yml` or the full `${PWD}/workflows/.../vars/<file>.yml` path.
 This ensures that the configuration is accurately deployed to Cisco Catalyst Center, automating the setup process and reducing the risk of manual errors.
 
 ```bash
 
-ansible-playbook -i ./inventory/iac2/hosts.yml /workflows/assurance_pathtrace/playbook/assurance_pathtrace_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/assurance_pathtrace_inputs.yml > logs/path_trace.log -vvvvvv    
+ansible-playbook -i ./inventory/iac2/hosts.yml /workflows/assurance_pathtrace/playbook/assurance_pathtrace_playbook.yml --extra-vars VARS_FILE_PATH=../vars/assurance_pathtrace_inputs.yml > logs/path_trace.log -vvvvvv    
 ```
 
 If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
@@ -356,4 +356,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/assurance_pathtrace/playbook/assurance_pathtrace_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/assurance_pathtrace_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/assurance_pathtrace/vars/assurance_pathtrace_inputs.yml`
 

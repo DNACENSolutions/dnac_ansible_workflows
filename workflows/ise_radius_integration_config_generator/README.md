@@ -198,8 +198,8 @@ ise_radius_integration_config:
 
 Return result validate:
 ```bash
-(pyats-rafeek) [mabdulk2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/ise_radius_integration_config_generator/schema/ise_radius_integration_config_schema.yml \
-> -d workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
+(pyats-rafeek) [mabdulk2@st-ds-4 dnac_ansible_workflows]$ ./tools/schemavalidation.sh -s workflows/ise_radius_integration_config_generator/schema/ise_radius_integration_config_schema.yml \
+> -v workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
 workflows/ise_radius_integration_config_generator/schema/assurance_issue_config_schema.yml
 workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
 yamale -s workflows/ise_radius_integration_config_generator/schema/assurance_issue_config_schema.yml workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
@@ -211,7 +211,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/ise_radius_integration_config_generator/playbook/ise_radius_integration_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml
 ```
 
 Expected Terminal Output:
@@ -335,4 +335,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/ise_radius_integration_config_generator/playbook/ise_radius_integration_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/ise_radius_integration_config_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/ise_radius_integration_config_generator/vars/ise_radius_integration_config_inputs.yml`
 

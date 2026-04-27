@@ -156,7 +156,7 @@ Edit:
 ```bash
 ./tools/schemavalidation.sh \
   -s workflows/sda_fabric_multicast_config_generator/schema/sda_fabric_multicast_config_generator_schema.yml \
-  -d workflows/sda_fabric_multicast_config_generator/vars/sda_fabric_multicast_config_generator_inputs.yml
+  -v workflows/sda_fabric_multicast_config_generator/vars/sda_fabric_multicast_config_generator_inputs.yml
 ```
 
 ### 4. Execute workflow
@@ -168,7 +168,7 @@ The playbook supports two input methods:
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/sda_fabric_multicast_config_generator/playbook/sda_fabric_multicast_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_multicast_config_generator/vars/sda_fabric_multicast_config_generator_inputs.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_fabric_multicast_config_generator/vars/sda_fabric_multicast_config_generator_inputs.yml \
   -vvvv
 ```
 
@@ -402,3 +402,12 @@ export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/sda_fabric_multicast_config_generator/playbook/sda_fabric_multicast_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/sda_fabric_multicast_config_generator_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/sda_fabric_multicast_config_generator/vars/sda_fabric_multicast_config_generator_inputs.yml`
+

@@ -258,4 +258,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/device_discovery/playbook/device_discovery_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/device_discovery_vars.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/device_discovery/vars/device_discovery_vars.yml`
 

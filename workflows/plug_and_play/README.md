@@ -345,12 +345,12 @@ pnp_details:
 To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
 
 Input Validation:
-Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
+Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command `./tools/schemavalidation.sh` to validate the schema using `-s` for the schema path and `-v` (`--vars`) for the vars file path.
 
 ```bash
-  ./tools/validate.sh \
+  ./tools/schemavalidation.sh \
   -s workflows/plug_and_play/schema/plug_and_play_schema.yml \
-  -d workflows/plug_and_play/vars/catalyst_center_pnp_vars.yml
+  -v workflows/plug_and_play/vars/catalyst_center_pnp_vars.yml
 ```
 
 **Return result validate**
@@ -366,7 +366,7 @@ Validation success! 👍
 Run the following command to onboard bulk the device:
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/catalyst_center_pnp_vars.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml --extra-vars VARS_FILE_PATH=../vars/catalyst_center_pnp_vars.yml -vvvv
 ```
 
 #### a. Bulk Device Onboarding (state = 'merged')
@@ -861,4 +861,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/plug_and_play/playbook/catalyst_center_pnp_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/catalyst_center_pnp_vars.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/plug_and_play/vars/catalyst_center_pnp_vars.yml`
 

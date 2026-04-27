@@ -179,7 +179,7 @@ events_and_notifications_config:
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/events_and_notifications_config_generator/playbook/events_and_notifications_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/events_and_notifications_config_generator/vars/events_and_notifications_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/events_and_notifications_config_generator/vars/events_and_notifications_config_inputs.yml
 ```
 
 #### 2. Generate selected destination component types
@@ -292,4 +292,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/events_and_notifications_config_generator/playbook/events_and_notifications_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/events_and_notifications_config_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/events_and_notifications_config_generator/vars/events_and_notifications_config_inputs.yml`
 

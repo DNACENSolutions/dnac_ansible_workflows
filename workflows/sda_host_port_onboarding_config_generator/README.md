@@ -17,7 +17,7 @@ The playbook supports two input methods:
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/sda_host_port_onboarding_config_generator/playbook/sda_host_port_onboarding_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_host_port_onboarding_config_generator/vars/sda_host_port_onboarding_config_input.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_host_port_onboarding_config_generator/vars/sda_host_port_onboarding_config_input.yml \
   -vvvv
 ```
 
@@ -83,6 +83,15 @@ export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/sda_host_port_onboarding_config_generator/playbook/sda_host_port_onboarding_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_host_port_onboarding_config_generator/vars/sda_host_port_onboarding_config_input.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_host_port_onboarding_config_generator/vars/sda_host_port_onboarding_config_input.yml \
   -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/sda_host_port_onboarding_config_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/sda_host_port_onboarding_config_generator/vars/sda_host_port_onboarding_config_input.yml`
+

@@ -358,7 +358,7 @@ ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/accesspoints_con
 
 **Validate**
 Validate Configuration: To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
-Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/validate.sh -s or yamale -s to perform the validation providing the schema path and the input path.
+Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run `./tools/schemavalidation.sh` to validate the schema using `-s` for the schema path and `-v` (`--vars`) for the vars file path.
 
 ```bash
 # Validate
@@ -637,4 +637,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/accesspoints_configuration_provisioning/playbook/accesspoints_config_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/accesspoints_configuration_vars.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/accesspoints_configuration_provisioning/vars/accesspoints_configuration_vars.yml`
 

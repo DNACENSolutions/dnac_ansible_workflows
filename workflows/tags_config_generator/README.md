@@ -42,7 +42,7 @@ Supported membership identifiers:
 
 ```bash
 ./tools/schemavalidation.sh -s workflows/tags_config_generator/schema/tags_config_generator_schema.yml \
-  -d workflows/tags_config_generator/vars/tags_config_generator_input.yml
+  -v workflows/tags_config_generator/vars/tags_config_generator_input.yml
 ```
 
 ## Execute
@@ -50,7 +50,7 @@ Supported membership identifiers:
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/tags_config_generator/playbook/tags_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/tags_config_generator/vars/tags_config_generator_input.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/tags_config_generator/vars/tags_config_generator_input.yml
 ```
 
 ## Examples
@@ -97,4 +97,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/tags_config_generator/playbook/tags_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/tags_config_generator_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/tags_config_generator/vars/tags_config_generator_input.yml`
 

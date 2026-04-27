@@ -307,7 +307,7 @@ yamale -s workflows/sda_fabric_transits/schema/sda_fabric_transits_workflow_sche
 **Deploy** your configuration to *Cisco Catalyst Center* and **verify** the changes.
 
 1. **Deploy Configuration (Create/Update)**:  
-   Run the playbook to apply the fabric transit configuration. Ensure the input file is validated before execution. Specify the input file path using the `--e` variable (`VARS_FILE_PATH`).  
+   Run the playbook to apply the fabric transit configuration. Ensure the input file is validated before execution. Specify the input file path using `VARS_FILE_PATH`. Because Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, use `../vars/<file>.yml` or `${PWD}/workflows/.../vars/<file>.yml`.  
    ```bash
    ansible-playbook -i inventory/demo_lab/hosts.yaml workflows/sda_fabric_transits/playbook/sda_fabric_transits_workflow_playbook.yml --e VARS_FILE_PATH=../vars/sda_fabric_transits_workflow_inputs.yml > logs/transits.log -vvvvvv
    ```
@@ -396,4 +396,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/sda_fabric_transits/playbook/sda_fabric_transits_workflow_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/sda_fabric_transits_workflow_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/sda_fabric_transits/vars/sda_fabric_transits_workflow_inputs.yml`
 

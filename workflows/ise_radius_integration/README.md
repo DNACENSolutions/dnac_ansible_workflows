@@ -33,7 +33,7 @@ User Inputs for Users and roles are stored in  workflows/network compliance/vars
 
 ## Validate user input before running though ansible
 ```bash
-(pyats) pawansi@PAWANSI-M-81A3 dnac_ansible_workflows % ./tools/validate.sh -s workflows/ise_radius_integration/schema/ise_radius_integration_workflow_schema.yml -d workflows/ise_radius_integration/vars/ise_radius_integration_workflow_input.yml 
+(pyats) pawansi@PAWANSI-M-81A3 dnac_ansible_workflows % ./tools/schemavalidation.sh -s workflows/ise_radius_integration/schema/ise_radius_integration_workflow_schema.yml -v workflows/ise_radius_integration/vars/ise_radius_integration_workflow_input.yml 
 workflows/ise_radius_integration/schema/ise_radius_integration_workflow_schema.yml
 workflows/ise_radius_integration/vars/ise_radius_integration_workflow_input.yml
 yamale   -s workflows/ise_radius_integration/schema/ise_radius_integration_workflow_schema.yml  workflows/ise_radius_integration/vars/ise_radius_integration_workflow_input.yml
@@ -373,4 +373,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/ise_radius_integration/playbook/ise_radius_integration_workflow_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/ise_radius_integration_workflow_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/ise_radius_integration/vars/ise_radius_integration_workflow_input.yml`
 

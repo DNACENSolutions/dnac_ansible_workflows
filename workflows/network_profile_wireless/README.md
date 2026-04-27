@@ -378,7 +378,7 @@ wireless_nw_profiles_details:
 > **Important**: Validate your input schema before executing the playbook to ensure all parameters are correctly formatted.  
 Run the following command to validate your input file against the schema:  
 ```bash
-./tools/validate.sh -s ./workflows/network_profile_wireless/schema/network_profile_wireless_schema.yml -d ./workflows/network_profile_wireless/vars/network_profile_wireless_inputs.yml
+./tools/schemavalidation.sh -s ./workflows/network_profile_wireless/schema/network_profile_wireless_schema.yml -v ./workflows/network_profile_wireless/vars/network_profile_wireless_inputs.yml
 ```
 ---
 
@@ -387,13 +387,13 @@ Run the following command to validate your input file against the schema:
 **Deploy** your configuration to *Cisco Catalyst Center* and **verify** the changes.
 
 1. **Deploy Configuration**:  
-   Run the playbook to apply the wireless network profile configuration. Ensure the input file is validated before execution. Specify the input file path using the `--e` variable (`VARS_FILE_PATH`).
+   Run the playbook to apply the wireless network profile configuration. Ensure the input file is validated before execution. Specify the input file path using `VARS_FILE_PATH`. Because Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, use `../vars/<file>.yml` or `${PWD}/workflows/.../vars/<file>.yml`.
 
   ### a. Include create/update network profile (state = 'merged')
    ```bash
   ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/network_profile_wireless/playbook/network_profile_wireless_playbook.yml \
-  --e VARS_FILE_PATH=./../vars/network_profile_wireless_inputs.yml \
+  --e VARS_FILE_PATH=../vars/network_profile_wireless_inputs.yml \
   -vvv
    ```
 
@@ -402,7 +402,7 @@ Run the following command to validate your input file against the schema:
   ansible-playbook 
     -i inventory/demo_lab/hosts.yml # refer to Catalyst Center to run
     workflows/network_profile_wireless/playbook/delete_network_profile_wireless_playbook.yml # playbook will run this
-    --extra-vars VARS_FILE_PATH=./../vars/delete_network_profile_wireless_inputs.yml # location of the input file for the playbook to execute
+    --extra-vars VARS_FILE_PATH=../vars/delete_network_profile_wireless_inputs.yml # location of the input file for the playbook to execute
     -vvv # return detailed information about the message; the more 'v', more detailed
    ```  
    > **Note**: If an error occurs (e.g., invalid input or API failure), the playbook will halt and display details. Check the `logs/wireless_profile.log` for troubleshooting.
@@ -444,4 +444,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/network_profile_wireless/playbook/network_profile_wireless_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/network_profile_wireless_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/network_profile_wireless/vars/network_profile_wireless_inputs.yml`
 

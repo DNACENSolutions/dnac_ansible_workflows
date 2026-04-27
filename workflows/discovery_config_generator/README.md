@@ -309,11 +309,11 @@ response:
 
 ```bash
 # Validate
-./tools/validate.sh   -s workflows/discovery_config_generator/schema/discovery_config_schema.yml   -d workflows/discovery_config_generator/vars/discovery_config_inputs.yml
+./tools/schemavalidation.sh   -s workflows/discovery_config_generator/schema/discovery_config_schema.yml -v workflows/discovery_config_generator/vars/discovery_config_inputs.yml
 ```
 
 ```bash
-(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh   -s workflows/discovery_config_generator/schema/discovery_config_schema.yml   -d workflows/discovery_config_generator/vars/discovery_config_inputs.yml
+(pyats-nalakkam) [nalakkam@st-ds-4 dnac_ansible_workflows]$ ./tools/schemavalidation.sh   -s workflows/discovery_config_generator/schema/discovery_config_schema.yml -v workflows/discovery_config_generator/vars/discovery_config_inputs.yml
 workflows/discovery_config_generator/schema/discovery_config_schema.yml
 workflows/discovery_config_generator/vars/discovery_config_inputs.yml
 yamale   -s workflows/discovery_config_generator/schema/discovery_config_schema.yml  workflows/discovery_config_generator/vars/discovery_config_inputs.yml
@@ -540,4 +540,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/discovery_config_generator/playbook/discovery_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/discovery_config_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/discovery_config_generator/vars/discovery_config_inputs.yml`
 

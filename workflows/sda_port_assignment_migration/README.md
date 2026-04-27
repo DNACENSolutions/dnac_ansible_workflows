@@ -206,7 +206,7 @@ Run (vars file mode, optional):
 ```bash
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/sda_port_assignment_migration/playbook/sda_port_assignment_migration_playbook.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_port_assignment_migration/vars/sda_port_assignment_migration_input.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_port_assignment_migration/vars/sda_port_assignment_migration_input.yml \
   -vvvv
 ```
 
@@ -544,4 +544,13 @@ https://docs.ansible.com/ansible-core/2.16/reference_appendices/interpreter_disc
 ok: [catalyst_center220 -> catalyst_center_hosts]
 
 PLAY RECAP *****************************************************************************************************************
-catalyst_center220         : ok=37   changed=1    unreachable=0    failed=0    skipped=14   rescued=0    ignored=0  
+catalyst_center220         : ok=37   changed=1    unreachable=0    failed=0    skipped=14   rescued=0    ignored=0
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/sda_port_assignment_migration_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/sda_port_assignment_migration/vars/sda_port_assignment_migration_input.yml`
+
