@@ -154,9 +154,6 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 | 2.3.7.10 | 2.3.7.9   | latest   | latest |
 | 3.1.6.x | 3.1.6.0   | latest   | latest |
 
-# Released Versions
-v2.3.7.6.1
-
 # Prerequisites
 Before using these Ansible workflows, ensure that you have the following prerequisites:
 
