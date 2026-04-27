@@ -165,7 +165,7 @@ design_sites:
 ```
 You can organize all the sites together, for example, grouping all floors under a single building and placing the building within the appropriate hierarchy.
 
-4. Execute: Execute the playbook with your inputs and inventory. Specify your input file using the --e variable VARS_FILE_PATH.
+4. Execute: Execute the playbook with your inputs and inventory. Specify your input file using `VARS_FILE_PATH`. Because Ansible resolves it relative to the playbook directory, use `../vars/<file>.yml` or `${PWD}/workflows/.../vars/<file>.yml`.
 ```bash
     ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/site_hierarchy/playbook/site_hierarchy_playbook.yml --e VARS_FILE_PATH=/Users/pawansi/dnac_ansible_workflows/workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml -vvv
 ```
@@ -299,7 +299,7 @@ Sites will be deleted from the Catalyst Center.
 To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
 
   **Input Validation:**  
-  Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command to perform the validation, providing the schema path with `-s` and the input path with `-d`.
+  Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command to perform the validation, using `-s` for the schema path and `-v` (`--vars`) for the vars file path.
 
 
 ### Run Schema Validation
@@ -318,11 +318,11 @@ This is the final step where you deploy the configuration to Cisco Catalyst Cent
 1. **Deploy Configuration:**  
 
 Run the playbook to seamlessly apply the site hierarchy configuration defined in your input variables to Cisco Catalyst Center.  
-Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the `--extra-vars` variable as `VARS_FILE_PATH`. The `VARS_FILE_PATH` must be provided as a full path to the input file.  
+Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the `--extra-vars` variable as `VARS_FILE_PATH`. `VARS_FILE_PATH` is resolved relative to the playbook directory, so use `../vars/<file>.yml` or the full `${PWD}/workflows/.../vars/<file>.yml` path.  
 This ensures that the configuration is accurately deployed to Cisco Catalyst Center, automating the setup process and reducing the risk of manual errors.
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/site_hierarchy/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/site_hierarchy_design_vars.yml -vvvvvv
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/site_hierarchy/playbook/site_hierarchy_playbook.yml --extra-vars VARS_FILE_PATH=../vars/site_hierarchy_design_vars.yml -vvvvvv
 ```
 
 If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
@@ -358,4 +358,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/site_hierarchy/playbook/site_hierarchy_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/site_hierarchy_design_vars.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/site_hierarchy/vars/site_hierarchy_design_vars.yml`
 

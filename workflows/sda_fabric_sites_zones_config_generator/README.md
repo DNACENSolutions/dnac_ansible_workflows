@@ -223,21 +223,21 @@ sda_fabric_sites_zones_config:
 
 **Validate**
 Validate Configuration: To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
-Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/validate.sh -s to perform the validation providing the schema path -d and the input path.
+Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/schemavalidation.sh -s to perform the validation providing the schema path with `-s` and the vars file path with `-v` (`--vars`).
 
 
 ```bash
 # Validate
 
 ./tools/schemavalidation.sh -s workflows/sda_fabric_sites_zones_config_generator/schema/sda_fabric_sites_zones_config_schema.yml \
-                            -d workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
+  -v workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
 ```
 
 Return result validate:
 
 ```bash
 ./tools/schemavalidation.sh -s workflows/sda_fabric_sites_zones_config_generator/schema/sda_fabric_sites_zones_config_schema.yml \
->       -d workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
+>       -v workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
 workflows/sda_fabric_sites_zones_config_generator/schema/sda_fabric_sites_zones_config_schema.yml
 workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
 yamale   -s workflows/sda_fabric_sites_zones_config_generator/schema/sda_fabric_sites_zones_config_schema.yml  workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
@@ -250,7 +250,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
  workflows/sda_fabric_sites_zones_config_generator/playbook/sda_fabric_sites_zones_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml
 ```
 
 1.Generate All SDA Components
@@ -510,4 +510,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/sda_fabric_sites_zones_config_generator/playbook/sda_fabric_sites_zones_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/sda_fabric_sites_zones_config_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/sda_fabric_sites_zones_config_generator/vars/sda_fabric_sites_zones_config_input.yml`
 

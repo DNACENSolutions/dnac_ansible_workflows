@@ -225,14 +225,14 @@ template_config:
 ```bash
 # Validate
 ./tools/schemavalidation.sh -s workflows/template_config_generator/schema/template_config_schema.yml \
- -d workflows/template_config_generator/vars/template_config_inputs.yml
+  -v workflows/template_config_generator/vars/template_config_inputs.yml
 
 ```
 
 Return result validate:
 ```bash
 ./tools/schemavalidation.sh -s workflows/template_config_generator/schema/template_config_schema.yml \
->  -d workflows/template_config_generator/vars/template_config_inputs.yml
+>  -v workflows/template_config_generator/vars/template_config_inputs.yml
 workflows/template_config_generator/schema/template_config_schema.yml
 workflows/template_config_generator/vars/template_config_inputs.yml
 yamale   -s workflows/template_config_generator/schema/template_config_schema.yml  workflows/template_config_generator/vars/template_config_inputs.yml
@@ -245,7 +245,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/template_config_generator/playbook/template_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/template_config_generator/vars/template_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/template_config_generator/vars/template_config_inputs.yml
 ```
 
 1.Generate All Configurations
@@ -413,4 +413,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/template_config_generator/playbook/template_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/template_config_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/template_config_generator/vars/template_config_inputs.yml`
 

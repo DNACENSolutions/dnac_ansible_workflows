@@ -420,7 +420,7 @@ The software image (SWIM) can be updated on the device in a single run by combin
   ansible-playbook 
     -i ./inventory/demo_lab/hosts.yml # refer to Catalyst Center to run
     ./workflows/swim/playbook/swim_workflow_playbook.yml # playbook will run this
-    --extra-vars VARS_FILE_PATH=./../vars/swim_vars.yml # location of the input file for the playbook to execute
+    --extra-vars VARS_FILE_PATH=../vars/swim_vars.yml # location of the input file for the playbook to execute
     -vvv # return detailed information about the message; the more 'v', more detailed
   ```
   
@@ -430,23 +430,23 @@ The software image (SWIM) can be updated on the device in a single run by combin
   ansible-playbook 
     -i ./inventory/demo_lab/hosts.yml # refer to Catalyst Center to run
     ./workflows/swim/playbook/delete_swim_workflow_playbook.yml # playbook will run this
-    --extra-vars VARS_FILE_PATH=./../vars/delete_swim_vars.yml # location of the input file for the playbook to execute
+    --extra-vars VARS_FILE_PATH=../vars/delete_swim_vars.yml # location of the input file for the playbook to execute
     -vvv # return detailed information about the message; the more 'v', more detailed
   ```
 
   2. ## Validate the schema input
   ### a. Include import/tag_untag/distribute/activate images (state = 'merged')
   ```bash
-    ./tools/validate.sh \
+    ./tools/schemavalidation.sh \
     -s workflows/swim/schema/swim_schema.yml \
-    -d workflows/swim/vars/swim_import_tag_distribute_activate_image_vars.yml
+    -v workflows/swim/vars/swim_import_tag_distribute_activate_image_vars.yml
   ```
 
   ### b. Include delete images (state = 'deleted')
   ```bash
-    ./tools/validate.sh \
+    ./tools/schemavalidation.sh \
     -s workflows/swim/schema/delete_swim_schema.yml \
-    -d workflows/swim/vars/delete_swim_vars.yml
+    -v workflows/swim/vars/delete_swim_vars.yml
   ```
 
 
@@ -512,4 +512,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/swim/playbook/swim_workflow_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/swim_import_tag_distribute_activate_image_vars.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/swim/vars/swim_import_tag_distribute_activate_image_vars.yml`
 

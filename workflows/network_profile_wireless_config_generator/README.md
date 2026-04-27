@@ -279,14 +279,14 @@ network_profile_wireless_config:
 ```bash
 # Validate
 ./tools/schemavalidation.sh -s workflows/network_profile_wireless_config_generator/schema/network_profile_wireless_config_generator_schema.yml \
-                            -d workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
+  -v workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
 ```
 
 ```bash
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/network_profile_wireless_config_generator/playbook/network_profile_wireless_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml
 ```
 
 ---
@@ -449,4 +449,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/network_profile_wireless_config_generator/playbook/network_profile_wireless_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/network_profile_wireless_config_generator_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/network_profile_wireless_config_generator/vars/network_profile_wireless_config_generator_inputs.yml`
 

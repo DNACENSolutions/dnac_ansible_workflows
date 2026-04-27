@@ -109,7 +109,7 @@ user_details:
 ## Validate Your Input:
 ##Validate user input before running though ansible
 ```bash
-    (pyats)  dnac_ansible_workflows % ./tools/validate.sh -s workflows/users_and_roles/schema/users_and_roles_workflow_schema.yml -d workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml                             
+    (pyats)  dnac_ansible_workflows % ./tools/schemavalidation.sh -s workflows/users_and_roles/schema/users_and_roles_workflow_schema.yml -v workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml                             
     workflows/users_and_roles/schema/users_and_roles_workflow_schema.yml
     workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml
     yamale   -s workflows/users_and_roles/schema/users_and_roles_workflow_schema.yml  workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml
@@ -465,4 +465,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/users_and_roles/playbook/users_and_roles_workflow_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/users_and_roles_workflow_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/users_and_roles/vars/users_and_roles_workflow_inputs.yml`
 

@@ -1110,17 +1110,17 @@ wireless_design_details:
 To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
 
 Input Validation:
-Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
+Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command `./tools/schemavalidation.sh` to validate the schema using `-s` for the schema path and `-v` (`--vars`) for the vars file path.
 
 ```bash
-  ./tools/validate.sh \
+  ./tools/schemavalidation.sh \
   -s workflows/wireless_design/schema/wireless_design_schema.yml \
-  -d workflows/wireless_design/vars/wireless_design_inputs.yml
+  -v workflows/wireless_design/vars/wireless_design_inputs.yml
 ```
 
 Return result validate:
 ```code
-  (pyats-ansible-phamdat) bash-4.4$ ./tools/validate.sh -s workflows/wireless_design/schema/wireless_design_schema.yml -d workflows/wireless_design/vars/wireless_design_inputs.yml 
+  (pyats-ansible-phamdat) bash-4.4$ ./tools/schemavalidation.sh -s workflows/wireless_design/schema/wireless_design_schema.yml -v workflows/wireless_design/vars/wireless_design_inputs.yml 
   workflows/wireless_design/schema/wireless_design_schema.yml
   workflows/wireless_design/vars/wireless_design_inputs.yml
   yamale   -s workflows/wireless_design/schema/wireless_design_schema.yml  workflows/wireless_design/vars/wireless_design_inputs.yml
@@ -1137,7 +1137,7 @@ This is the final step where you deploy the configuration to Cisco Catalyst Cent
 1. **Run the Playbook**
 
 Run the playbook to seamlessly apply the wireless design configuration defined in your input variables to Cisco Catalyst Center. 
-Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the --e variable as VARS_FILE_PATH. The VARS_FILE_PATH must be provided as a full path to the input file.
+Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the `--extra-vars` variable as `VARS_FILE_PATH`. `VARS_FILE_PATH` is resolved relative to the playbook directory, so use `../vars/<file>.yml` or the full `${PWD}/workflows/.../vars/<file>.yml` path.
 This ensures that the configuration is accurately deployed to Cisco Catalyst Center, automating the setup process and reducing the risk of manual errors.
 
 #### a. Include add/update (state = 'merged') 
@@ -1145,7 +1145,7 @@ This ensures that the configuration is accurately deployed to Cisco Catalyst Cen
   ansible-playbook \
     -i inventory/demo_lab/hosts.yaml \
     workflows/wireless_design/playbook/wireless_design_playbook.yml \
-    --e VARS_FILE_PATH=./../vars/wireless_design_inputs.yml \
+    --e VARS_FILE_PATH=../vars/wireless_design_inputs.yml \
     -vvv
 ``` 
 
@@ -1154,7 +1154,7 @@ This ensures that the configuration is accurately deployed to Cisco Catalyst Cen
   ansible-playbook \
     -i inventory/demo_lab/hosts.yaml \
     workflows/wireless_design/playbook/delete_wireless_design_playbook.yml \
-    --e VARS_FILE_PATH=./../vars/wireless_design_inputs.yml \
+    --e VARS_FILE_PATH=../vars/wireless_design_inputs.yml \
     -vvv
 ``` 
 
@@ -1586,7 +1586,7 @@ The Jinja template example for dynamically generating bulk configurations for wi
 The Jinja Template allows you to create bulk configurations for wireless design, simplifying the process of generating multiple configurations. To use the Jinja Template, modify and run the playbook with the following command:
 
 ```bash
-  ansible-playbook -i inventory/demo_lab/hosts.yaml workflows/wireless_design/playbook/wireless_design_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/jinja_wireless_design_inputs.yml -vvvv
+  ansible-playbook -i inventory/demo_lab/hosts.yaml workflows/wireless_design/playbook/wireless_design_playbook.yml --extra-vars VARS_FILE_PATH=../vars/jinja_wireless_design_inputs.yml -vvvv
 ```
 
 ## References
@@ -1613,4 +1613,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/wireless_design/playbook/wireless_design_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/wireless_design_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/wireless_design/vars/wireless_design_inputs.yml`
 

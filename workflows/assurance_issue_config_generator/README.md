@@ -200,8 +200,8 @@ assurance_issue_config:
 
 Return result validate:
 ```bash
-(pyats-rafeek) [mabdulk2@st-ds-4 dnac_ansible_workflows]$ ./tools/validate.sh -s workflows/assurance_issue_config_generator/schema/assurance_issue_config_schema.yml \
-> -d workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
+(pyats-rafeek) [mabdulk2@st-ds-4 dnac_ansible_workflows]$ ./tools/schemavalidation.sh -s workflows/assurance_issue_config_generator/schema/assurance_issue_config_schema.yml \
+> -v workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
 workflows/assurance_issue_config_generator/schema/assurance_issue_config_schema.yml
 workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
 yamale -s workflows/assurance_issue_config_generator/schema/assurance_issue_config_schema.yml workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
@@ -213,7 +213,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/assurance_issue_config_generator/playbook/assurance_issue_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml
 ```
 
 Expected Terminal Output:
@@ -354,4 +354,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/assurance_issue_config_generator/playbook/assurance_issue_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/assurance_issue_config_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/assurance_issue_config_generator/vars/assurance_issue_config_input.yml`
 

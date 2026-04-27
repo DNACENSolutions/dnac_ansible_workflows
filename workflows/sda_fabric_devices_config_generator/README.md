@@ -216,14 +216,14 @@ sda_fabric_devices_config:
 ```bash
 # Validate
 ./tools/schemavalidation.sh -s workflows/sda_fabric_devices_config_generator/schema/sda_fabric_devices_config_schema.yml \
-                            -d workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
+  -v workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
 ```
 
 ```bash
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/sda_fabric_devices_config_generator/playbook/sda_fabric_devices_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
 ```
 
 ## Notes
@@ -237,14 +237,14 @@ ansible-playbook -i inventory/demo_lab/hosts.yaml \
 ```bash
 # Validate
 ./tools/schemavalidation.sh -s workflows/sda_fabric_devices_config_generator/schema/sda_fabric_devices_config_schema.yml \
-                            -d workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
+  -v workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
 ```
 
 ```bash
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/sda_fabric_devices_config_generator/playbook/sda_fabric_devices_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml
 ```
 
 ## Inventory / group_vars Example
@@ -259,4 +259,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/sda_fabric_devices_config_generator/playbook/sda_fabric_devices_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/sda_fabric_devices_config_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/sda_fabric_devices_config_generator/vars/sda_fabric_devices_config_inputs.yml`
 

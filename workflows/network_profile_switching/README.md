@@ -154,14 +154,14 @@ This is the final step where you deploy the configuration to Cisco Catalyst Cent
     Use yamale to validate the user created configurations against the playbooks required spfcification or using below command
 
     ``` bash
-    ./tools/validate.sh -s ./workflows/network_profile_switching/schema/network_profile_switching_schema.yml -d ./workflows/network_profile_switching/vars/network_profile_switching_inputs.yml
+    ./tools/schemavalidation.sh -s ./workflows/network_profile_switching/schema/network_profile_switching_schema.yml -v ./workflows/network_profile_switching/vars/network_profile_switching_inputs.yml
     ```
 
 2.  **Deploy Configuration:** 
 
     Run the playbook to seamlessly apply the switch network profile configuration defined in your input variables to Cisco Catalyst Center. 
 
-    Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the --e variable as VARS_FILE_PATH. The VARS_FILE_PATH must be provided as a full path to the input file.
+    Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the `--extra-vars` variable as `VARS_FILE_PATH`. `VARS_FILE_PATH` is resolved relative to the playbook directory, so use `../vars/<file>.yml` or the full `${PWD}/workflows/.../vars/<file>.yml` path.
 
     This ensures that the configuration is accurately deployed to Cisco Catalyst Center, automating the setup process and reducing the risk of manual errors.
 
@@ -204,4 +204,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/network_profile_switching/playbook/network_profile_switching_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/network_profile_switching_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/network_profile_switching/vars/network_profile_switching_inputs.yml`
 

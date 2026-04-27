@@ -134,7 +134,7 @@ events_notifications_destination_and_subscription_details:
 Run the following command to create/update the Syslog destination
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
 #### Expected Outcome:
@@ -222,7 +222,7 @@ events_notifications_destination_and_subscription_details:
 Run the following command to create/update the Webhook destination
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
 #### Expected Outcome:
@@ -307,7 +307,7 @@ events_notifications_destination_and_subscription_details:
 Run the following command to create/update the SNMP destination
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
 #### Expected Outcome:
@@ -379,7 +379,7 @@ events_notifications_destination_and_subscription_details:
 Run the following command to create/update the ITSM destination
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
 #### Expected Outcome:
@@ -464,7 +464,7 @@ events_notifications_destination_and_subscription_details:
 Run the following command to create/update the Email Event Subscription
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
 #### Expected Outcome:
@@ -531,7 +531,7 @@ events_notifications_destination_and_subscription_details:
 Run the following command to create/update the Syslog Event Notification Subscription
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
 #### Expected Outcome:
@@ -595,7 +595,7 @@ events_notifications_destination_and_subscription_details:
 Run the following command to create/update the Webhook Event Notification Subscription
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
 #### Expected Outcome:
@@ -668,7 +668,7 @@ events_notifications_destination_and_subscription_details:
 Run the following command to delete the Email Event Notification Subscription
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
 #### Expected Outcome:
@@ -747,7 +747,7 @@ events_notifications_destination_and_subscription_details:
 Run the following command to delete the Syslog Event Notification Subscription
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
 #### Expected Outcome:
@@ -824,7 +824,7 @@ events_notifications_destination_and_subscription_details:
 Run the following command to delete the Webhook Event Notification Subscription
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
 #### Expected Outcome:
@@ -891,7 +891,7 @@ events_notifications_destination_and_subscription_details:
 Run the following command to delete the ITSM Event Destination 
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/events_and_notifications_destinations_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/events_and_notifications/playbook/delete_events_and_notifications_playbook.yml --extra-vars VARS_FILE_PATH=../vars/events_and_notifications_destinations_inputs.yml -vvvv
 ```
 
 #### Expected Outcome:
@@ -964,4 +964,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/events_and_notifications/playbook/events_and_notifications_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/events_and_notifications_destinations_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/events_and_notifications/vars/events_and_notifications_destinations_inputs.yml`
 

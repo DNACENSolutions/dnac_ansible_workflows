@@ -172,7 +172,7 @@ Edit:
 ```bash
 ./tools/schemavalidation.sh \
   -s workflows/wired_campus_automation_config_generator/schema/wired_campus_automation_config_generator_schema.yml \
-  -d workflows/wired_campus_automation_config_generator/vars/wired_campus_automation_config_generator_inputs.yml
+  -v workflows/wired_campus_automation_config_generator/vars/wired_campus_automation_config_generator_inputs.yml
 ```
 
 ### 4. Execute workflow
@@ -184,7 +184,7 @@ The playbook supports two input methods:
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/wired_campus_automation_config_generator/playbook/wired_campus_automation_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/wired_campus_automation_config_generator/vars/wired_campus_automation_config_generator_inputs.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/wired_campus_automation_config_generator/vars/wired_campus_automation_config_generator_inputs.yml \
   -vvvv
 ```
 
@@ -385,7 +385,7 @@ Use the exported file directly as `vars_files`, then pass `config` to the manage
 | No data exported | Filters too narrow or device not found | Validate IP/hostname/serial against Catalyst Center inventory |
 | API errors for some devices | Device does not support layer2 features | Use `global_filters` to target only Catalyst 9000 or IE series switches |
 | Empty configuration for a feature | Feature not configured on target device | Verify the feature is configured on the device in Catalyst Center |
-| Schema validation fails | Typo or wrong YAML structure | Re-run `./tools/validate.sh` and fix reported field |
+| Schema validation fails | Typo or wrong YAML structure | Re-run `./tools/schemavalidation.sh` and fix reported field |
 | Module fails on version check | Catalyst Center < 2.3.7.9 | Upgrade Catalyst Center or use compatible workflow |
 | `yamale: command not found` | Missing validation dependency | `pip install yamale` in your active environment |
 | `generate_all_configurations` with API errors | Non-layer2 devices discovered | Use specific device filters to target only layer2-capable devices |
@@ -455,3 +455,12 @@ export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/wired_campus_automation_config_generator/playbook/wired_campus_automation_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/wired_campus_automation_config_generator_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/wired_campus_automation_config_generator/vars/wired_campus_automation_config_generator_inputs.yml`
+

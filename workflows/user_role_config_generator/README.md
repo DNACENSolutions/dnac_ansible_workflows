@@ -208,7 +208,7 @@ Validate the vars file against the workflow schema:
 ```bash
 ./tools/schemavalidation.sh \
   -s workflows/user_role_config_generator/schema/user_role_config_schema.yml \
-  -d workflows/user_role_config_generator/vars/user_role_config_inputs.yml
+  -v workflows/user_role_config_generator/vars/user_role_config_inputs.yml
 ```
 
 Option A: vars file input (recommended)
@@ -216,7 +216,7 @@ Option A: vars file input (recommended)
 ```bash
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/user_role_config_generator/playbook/user_role_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/user_role_config_generator/vars/user_role_config_inputs.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/user_role_config_generator/vars/user_role_config_inputs.yml \
   -vvvv
 ```
 
@@ -346,3 +346,12 @@ user_role_config:
 - `user_details` filter matching is case-insensitive. `role_details` `role_name` matching is case-sensitive.
 - Check mode is supported but does not generate files (dry-run).
 - APIs used: `GET /dna/system/api/v1/user`, `GET /dna/system/api/v1/role`.
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/user_role_config_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/user_role_config_generator/vars/user_role_config_inputs.yml`
+
