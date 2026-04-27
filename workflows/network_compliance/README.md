@@ -67,7 +67,7 @@ catalyst_center_hosts:
 
 command to validate:
 ```bash
-./tools/validate.sh -s workflows/network_compliance/schema/network_compliance_workflow_schema.yml -d workflows/network_compliance/vars/network_compliance_workflow_input.yml 
+./tools/schemavalidation.sh -s workflows/network_compliance/schema/network_compliance_workflow_schema.yml -v workflows/network_compliance/vars/network_compliance_workflow_input.yml 
 ```
 result:
 ```bash
@@ -805,4 +805,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/network_compliance/playbook/network_compliance_workflow_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/network_compliance_workflow_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/network_compliance/vars/network_compliance_workflow_input.yml`
 

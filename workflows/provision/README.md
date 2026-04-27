@@ -647,28 +647,28 @@ a.  **Validate Configuration:**
 To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
 
 **Input Validation Against Schema**:
-Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command *./tools/validate.sh -s* to perform the validation providing the schema path -d and the input path.
+Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command `./tools/schemavalidation.sh` to validate the schema using `-s` for the schema path and `-v` (`--vars`) for the vars file path.
 
 ```bash
 #validates input file against the schema
-./tools/validate.sh -s workflows/provision/schema/provision_workflow_schema.yml -d workflows/provision/vars/provision_workflow_inputs.yml 
+./tools/schemavalidation.sh -s workflows/provision/schema/provision_workflow_schema.yml -v workflows/provision/vars/provision_workflow_inputs.yml 
 ```
 
 b.  **Run the Playbook:**
 
 Run the playbook to seamlessly apply the provision configuration defined in your input variables to Cisco Catalyst Center. 
 
-Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the --e variable as VARS_FILE_PATH. The VARS_FILE_PATH must be provided as a full path to the input file.
+Before proceeding, ensure that the input validation step has been completed successfully, with no errors detected in the provided variables. Once validated, execute the playbook by specifying the input file path using the `--extra-vars` variable as `VARS_FILE_PATH`. `VARS_FILE_PATH` is resolved relative to the playbook directory, so use `../vars/<file>.yml` or the full `${PWD}/workflows/.../vars/<file>.yml` path.
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/provision/playbook/provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/provision_workflow_inputs.yml -vvvv  
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/provision/playbook/provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=../vars/provision_workflow_inputs.yml -vvvv  
 ```
 
 #### Command to unprovision a device
 To unprovision a device, you can use the following command. Ensure that the input file `un_provision_workflow_inputs.yml` is correctly defined with the management IP address of the device you wish to unprovision.
 
 ```bash
-ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/delete_provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/un_provision_workflow_inputs.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/provision/playbook/delete_provision_workflow_playbook.yml --extra-vars VARS_FILE_PATH=../vars/un_provision_workflow_inputs.yml -vvvv
 ```
 
 c. **Verify Deployment:** 
@@ -710,4 +710,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/provision/playbook/provision_workflow_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/provision_workflow_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/provision/vars/provision_workflow_inputs.yml`
 

@@ -631,7 +631,7 @@ Pass the input vars file via `VARS_FILE_PATH`:
 ```bash
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/sda_fabric_discover_and_onboard_fabric_devices/playbook/sda_fabric_discover_and_onboard_fabric_devices_playbook.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml \
   -vvvv
 ```
 
@@ -714,19 +714,19 @@ The playbook auto-detects the input source and prints it at the start:
 # Run only discovery
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/sda_fabric_discover_and_onboard_fabric_devices/playbook/sda_fabric_discover_and_onboard_fabric_devices_playbook.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml \
   --tags discovery -vvvv
 
 # Run LAN automation and all later stages
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/sda_fabric_discover_and_onboard_fabric_devices/playbook/sda_fabric_discover_and_onboard_fabric_devices_playbook.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml \
   --tags lan_automation,inventory_roles,provision,fabric_devices,host_port_onboarding -vvvv
 
 # Run any single stage (replace TAG with one from the table below)
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/sda_fabric_discover_and_onboard_fabric_devices/playbook/sda_fabric_discover_and_onboard_fabric_devices_playbook.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml \
   --tags TAG -vvvv
 ```
 
@@ -748,7 +748,7 @@ Run with `--check` to validate inputs and preview what would be configured **wit
 ```bash
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/sda_fabric_discover_and_onboard_fabric_devices/playbook/sda_fabric_discover_and_onboard_fabric_devices_playbook.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml \
   --check -vvvv
 ```
 
@@ -828,3 +828,12 @@ export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/sda_fabric_discover_and_onboard_fabric_devices/playbook/sda_fabric_discover_and_onboard_fabric_devices_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml`
+

@@ -308,7 +308,7 @@ The *SDA Fabric Multicast* feature relies on these components that must be prede
 > **Important**: Validate your input schema before executing the playbook to ensure all parameters are correctly formatted.  
 Run the following command to validate your input file against the schema:  
 ```bash
-./tools/validate.sh -s ./workflows/sda_fabric_multicast/schema/sda_fabric_multicast_schema.yml -d ./workflows/sda_fabric_multicast/vars/sda_fabric_multicast_inputs.yml
+./tools/schemavalidation.sh -s ./workflows/sda_fabric_multicast/schema/sda_fabric_multicast_schema.yml -v ./workflows/sda_fabric_multicast/vars/sda_fabric_multicast_inputs.yml
 ```
 
 ##### ![Validate parameters Multicast Configuration Example](./images/validate_parameters_multicast.png)  
@@ -361,4 +361,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/sda_fabric_multicast/playbook/sda_fabric_multicast_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/sda_fabric_multicast_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/sda_fabric_multicast/vars/sda_fabric_multicast_inputs.yml`
 

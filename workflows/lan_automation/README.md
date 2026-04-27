@@ -304,7 +304,7 @@ To ensure a successful execution of the playbooks with your specified inputs and
 Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command to perform the validation:
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automation_workflow_inputs.yml
+./tools/schemavalidation.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -v workflows/lan_automation/vars/lan_automation_workflow_inputs.yml
 ```
 
 **Validation Output:**
@@ -316,7 +316,7 @@ Before executing the playbook, it is essential to validate the input schema. Thi
 Once the input validation is complete and no errors are found, you can run the playbook. Provide your input file path using the `--e` variable as `VARS_FILE_PATH`:
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automation_workflow_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=${PWD}/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml -vvv
 ```
 ---
 
@@ -367,7 +367,7 @@ To stop the LAN Automation session, run the stop playbook with your specified in
 #### Running the Stop Playbook
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/stop_lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/delete_lan_automation_workflow_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/stop_lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=${PWD}/workflows/lan_automation/vars/delete_lan_automation_workflow_inputs.yml -vvv
 ```
 ---
 
@@ -415,7 +415,7 @@ lan_automation_details:
 Before executing the playbook, validate the input schema:
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
+./tools/schemavalidation.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -v workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
 ```
 
 ##### Running the Playbook
@@ -423,7 +423,7 @@ Before executing the playbook, validate the input schema:
 Once validation is complete, run the playbook:
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=${PWD}/workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
 ---
@@ -463,13 +463,13 @@ lan_automation_details:
 ##### Input Validation
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
+./tools/schemavalidation.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -v workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
 ```
 
 ##### Running the Playbook
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=${PWD}/workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
 ---
@@ -532,13 +532,13 @@ lan_automation_details:
 ##### Input Validation
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
+./tools/schemavalidation.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -v workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
 ```
 
 ##### Running the Playbook
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=${PWD}/workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
 ---
@@ -685,7 +685,7 @@ To create Port Channels, follow these steps:
 Before executing the playbook, validate the input schema to ensure all required parameters are included and correctly formatted:
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
+./tools/schemavalidation.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -v workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
 ```
 
 ##### Running the Playbook
@@ -693,7 +693,7 @@ Before executing the playbook, validate the input schema to ensure all required 
 Once validation is complete, run the playbook with your input file:
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=${PWD}/workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
 > **Note**: If there is an error in the input or an issue with the API call during execution, the playbook will halt and display the relevant error details.
@@ -761,13 +761,13 @@ lan_automation_details:
 ##### Input Validation
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
+./tools/schemavalidation.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -v workflows/lan_automation/vars/lan_automated_device_update_inputs.yml
 ```
 
 ##### Running the Playbook
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH= workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=${PWD}/workflows/lan_automation/vars/lan_automated_device_update_inputs.yml -vvv
 ```
 
 ---
@@ -879,7 +879,7 @@ lan_automation_details:
 ##### Input Validation
 
 ```bash
-./tools/validate.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -d workflows/lan_automation/vars/delete_lan_automation_workflow_inputs.yml
+./tools/schemavalidation.sh -s workflows/lan_automation/schema/lan_automation_workflow_schema.yml -v workflows/lan_automation/vars/delete_lan_automation_workflow_inputs.yml
 ```
 
 ##### Running the Playbook with Delete State
@@ -887,7 +887,7 @@ lan_automation_details:
 **Important**: Port Channel deletion requires using the `deleted` state in the playbook execution.
 
 ```bash
-ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=workflows/lan_automation/vars/delete_lan_automation_workflow_inputs.yml --e state=deleted -vvv
+ansible-playbook -i host_inventory_dnac1/hosts.yml workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml --e VARS_FILE_PATH=${PWD}/workflows/lan_automation/vars/delete_lan_automation_workflow_inputs.yml --e state=deleted -vvv
 ```
 
 ---
@@ -922,4 +922,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/lan_automation/playbook/lan_automation_workflow_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/lan_automation_workflow_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/lan_automation/vars/lan_automation_workflow_inputs.yml`
 

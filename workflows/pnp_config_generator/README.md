@@ -160,7 +160,7 @@ export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   workflows/pnp_config_generator/playbook/pnp_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/pnp_config_generator/vars/pnp_config_inputs.yml -vvvv
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/pnp_config_generator/vars/pnp_config_inputs.yml -vvvv
 ```
 
 
@@ -215,13 +215,13 @@ pnp_config:
 ```bash
 # Validate
 ./tools/schemavalidation.sh -s workflows/pnp_config_generator/schema/pnp_config_schema.yml \
-                            -d workflows/pnp_config_generator/vars/pnp_config_inputs.yml
+  -v workflows/pnp_config_generator/vars/pnp_config_inputs.yml
 ```
 Expected validation output:
 ```
 # Command to run (from dnac_ansible_workflows/ directory):
 # ./tools/schemavalidation.sh -s workflows/pnp_config_generator/schema/pnp_config_schema.yml \
-#                             -d workflows/pnp_config_generator/vars/pnp_config_inputs.yml
+#                             -v workflows/pnp_config_generator/vars/pnp_config_inputs.yml
 
 # --- Output ---
 workflows/pnp_config_generator/schema/pnp_config_schema.yml
@@ -235,7 +235,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/pnp_config_generator/playbook/pnp_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/pnp_config_generator/vars/pnp_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/pnp_config_generator/vars/pnp_config_inputs.yml
 ```
 
 Expected Terminal Output:
@@ -553,4 +553,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/pnp_config_generator/playbook/pnp_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/pnp_config_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/pnp_config_generator/vars/pnp_config_inputs.yml`
 

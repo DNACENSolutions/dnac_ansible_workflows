@@ -553,7 +553,7 @@ In the context of SDA Fabric Virtual Networks, there are three main components: 
   ansible-playbook 
     -i ./inventory/demo_lab/inventory_demo_lab.yml # Reference to DNAC to run
     ./workflows/sda_virtual_networks_l2l3_gateways/playbook/sda_virtual_networks_l2_l3_gateways_playbook.yml # Playbook that will execute
-    --extra-vars VARS_FILE_PATH=./../vars/sda_virtual_networks_l2_l3_gateways_input.yml # Location of the input file for playbook execution
+    --extra-vars VARS_FILE_PATH=../vars/sda_virtual_networks_l2_l3_gateways_input.yml # Location of the input file for playbook execution
     -vvv # Returns detailed information about the message; the more 'v', the more detail
   ```
 
@@ -722,11 +722,11 @@ This example can be reused and customized to your requirement and increase the r
 
   #### c. Execute with Jinja template
   **cmd to run:**
-  ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/sda_virtual_networks_l2l3_gateways/playbook/sda_virtual_networks_l2_l3_gateways_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/sda_virtual_networks_l2_l3_gateways_jinja_input.yml
+  ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/sda_virtual_networks_l2l3_gateways/playbook/sda_virtual_networks_l2_l3_gateways_playbook.yml --extra-vars VARS_FILE_PATH=../vars/sda_virtual_networks_l2_l3_gateways_jinja_input.yml
 
 
   ```bash
-    (pyats-ansible-phamdat) bash-4.4$ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/sda_virtual_networks_l2l3_gateways/playbook/sda_virtual_networks_l2_l3_gateways_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/sda_virtual_networks_l2_l3_gateways_jinja_input.yml
+    (pyats-ansible-phamdat) bash-4.4$ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/sda_virtual_networks_l2l3_gateways/playbook/sda_virtual_networks_l2_l3_gateways_playbook.yml --extra-vars VARS_FILE_PATH=../vars/sda_virtual_networks_l2_l3_gateways_jinja_input.yml
 
     PLAY [Playbook to manage Cisco Catalyst Center Fabric Virtual Networks and layer2 and L3 Gateways] ***************************************************************************************************
 
@@ -803,7 +803,7 @@ This example can be reused and customized to your requirement and increase the r
 ### 3. Delete a Scale layer3 and Scale layer2
   Similar to Create, change the destination playbook to: `./workflows/network_settings/playbook/delete_network_settings_playbook.yml`
   ```bash
-    (pyats-ansible-phamdat) bash-4.4$ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/sda_virtual_networks_l2l3_gateways/playbook/delete_sda_virtual_networks_l2_l3_gateways_playbook.yml --extra-vars VARS_FILE_PATH=./../vars/s
+    (pyats-ansible-phamdat) bash-4.4$ ansible-playbook -i ./inventory/demo_lab/inventory_demo_lab.yml ./workflows/sda_virtual_networks_l2l3_gateways/playbook/delete_sda_virtual_networks_l2_l3_gateways_playbook.yml --extra-vars VARS_FILE_PATH=../vars/s
     da_virtual_networks_l2_l3_gateways_jinja_input.yml
 
     PLAY [Playbook to manage Cisco Catalyst Center Fabric Virtual Networks and layer2 and L3 Gateways] ************************************************
@@ -942,4 +942,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/sda_virtual_networks_l2l3_gateways/playbook/sda_virtual_networks_l2_l3_gateways_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/sda_virtual_networks_l2_l3_gateways_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/sda_virtual_networks_l2l3_gateways/vars/sda_virtual_networks_l2_l3_gateways_input.yml`
 

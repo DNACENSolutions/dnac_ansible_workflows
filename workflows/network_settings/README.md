@@ -45,7 +45,7 @@ User Inputs for Users and roles are stored in  workflows/users_and_roles/vars/us
 
 ##Validate user input before running through Ansible
 ```bash
-(pyats) pawansi@PAWANSI-M-81A3 dnac_ansible_workflows % ./tools/validate.sh -s workflows/network_settings/schema/nw_settings_schema.yml -d workflows/network_settings/vars/network_settings_vars.yml
+(pyats) pawansi@PAWANSI-M-81A3 dnac_ansible_workflows % ./tools/schemavalidation.sh -s workflows/network_settings/schema/nw_settings_schema.yml -v workflows/network_settings/vars/network_settings_vars.yml
 workflows/network_settings/schema/nw_settings_schema.yml
 workflows/network_settings/vars/network_settings_vars.yml
 yamale   -s workflows/network_settings/schema/nw_settings_schema.yml  workflows/network_settings/vars/network_settings_vars.yml
@@ -465,7 +465,7 @@ network_settings_details:
   ansible-playbook \
     -i ./inventory/demo_lab/inventory_demo_lab.yml \ # refer to DNAC to run
     ./workflows/network_settings/playbook/network_settings_playbook.yml \ # playbook will run this
-    --extra-vars VARS_FILE_PATH=./../vars/network_settings_vars.yml \ # location of the input file for the playbook to execute
+    --extra-vars VARS_FILE_PATH=../vars/network_settings_vars.yml \ # location of the input file for the playbook to execute
     -vvv # return detailed information about the message; the more 'v', the more detailed
   ```
 
@@ -1062,7 +1062,7 @@ This task reserves sub-pools from a global IP address pool for specific sites in
   ansible-playbook 
     -i ./inventory/demo_lab/inventory_demo_lab.yml # Reference to DNAC to run
     ./workflows/network_settings/playbook/network_settings_playbook.yml # Playbook that will execute
-    --extra-vars VARS_FILE_PATH=./../vars/global_pool_and_reserve_pools_on_sites.yml # Location of the input file for playbook execution
+    --extra-vars VARS_FILE_PATH=../vars/global_pool_and_reserve_pools_on_sites.yml # Location of the input file for playbook execution
     -vvv # Returns detailed information about the message; the more 'v', the more detail
   ```
 
@@ -1135,4 +1135,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/network_settings/playbook/network_settings_playbook.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/aaa_servers_vars.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/network_settings/vars/aaa_servers_vars.yml`
 

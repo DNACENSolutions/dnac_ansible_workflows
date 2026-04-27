@@ -255,12 +255,12 @@ network_profile_switch_config:
 ```bash
 # Validate
 ./tools/schemavalidation.sh -s workflows/network_profile_switching_config_generator/schema/network_profile_switching_config_schema.yml \
-                            -d workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
+  -v workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
 ```
 **Return result validate:**
 ```bash
  ./tools/schemavalidation.sh -s workflows/network_profile_switching_config_generator/schema/network_profile_switching_config_schema.yml \
->                            -d workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
+>                            -v workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
 workflows/network_profile_switching_config_generator/schema/network_profile_switching_config_schema.yml
 workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
 yamale   -s workflows/network_profile_switching_config_generator/schema/network_profile_switching_config_schema.yml  workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
@@ -272,7 +272,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/network_profile_switching_config_generator/playbook/network_profile_switching_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml
 ```
 
 **Expected Terminal Output:**
@@ -618,4 +618,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/network_profile_switching_config_generator/playbook/network_profile_switching_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/network_profile_switching_config_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/network_profile_switching_config_generator/vars/network_profile_switching_config_inputs.yml`
 

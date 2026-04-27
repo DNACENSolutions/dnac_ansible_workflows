@@ -167,7 +167,7 @@ catalyst_center_hosts:
 ```bash
 ./tools/schemavalidation.sh \
   -s workflows/network_settings_config_generator/schema/network_settings_config_schema.yml \
-  -d workflows/network_settings_config_generator/vars/network_settings_config_inputs.yml
+  -v workflows/network_settings_config_generator/vars/network_settings_config_inputs.yml
 ```
 
 4. Export Catalyst Center environment variables and run the playbook.
@@ -182,7 +182,7 @@ export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/network_settings_config_generator/playbook/network_settings_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/network_settings_config_generator/vars/network_settings_config_inputs.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/network_settings_config_generator/vars/network_settings_config_inputs.yml \
   -vvvv
 ```
 
@@ -284,3 +284,12 @@ network_settings_config:
 - This workflow omits `config` when `generate_all_configurations: true` or `component_specific_filters` is absent or empty, which triggers full auto-discovery mode.
 - If component filter blocks are provided without `components_list`, the module infers and auto-adds the relevant components internally.
 - `network_management_details` defaults to the `Global` (root) site if `site_name_list` is omitted.
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/network_settings_config_inputs.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/network_settings_config_generator/vars/network_settings_config_inputs.yml`
+

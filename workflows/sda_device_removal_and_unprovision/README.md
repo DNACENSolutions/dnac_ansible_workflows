@@ -103,7 +103,7 @@ Run using the workflow vars file:
 ```bash
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/sda_device_removal_and_unprovision/playbook/sda_device_removal_and_unprovision_playbook.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/sda_device_removal_and_unprovision/vars/sda_device_removal_and_unprovision_input.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/sda_device_removal_and_unprovision/vars/sda_device_removal_and_unprovision_input.yml \
   -vvvv
 ```
 
@@ -130,8 +130,8 @@ The workflow uses the provision workflow manager in `deleted` state to unprovisi
 Validate the input file against the workflow schema before execution:
 
 ```bash
-./tools/validate.sh -s workflows/sda_device_removal_and_unprovision/schema/sda_device_removal_and_unprovision_schema.yml \
-  -d workflows/sda_device_removal_and_unprovision/vars/sda_device_removal_and_unprovision_input.yml
+./tools/schemavalidation.sh -s workflows/sda_device_removal_and_unprovision/schema/sda_device_removal_and_unprovision_schema.yml \
+  -v workflows/sda_device_removal_and_unprovision/vars/sda_device_removal_and_unprovision_input.yml
 ```
 
 ## References
@@ -139,3 +139,12 @@ Validate the input file against the workflow schema before execution:
 - [SDA Host Onboarding Workflow](../sda_hostonboarding/README.md)
 - [SDA Fabric Device Roles Workflow](../sda_fabric_device_roles/README.md)
 - [Provision Workflow](../provision/README.md)
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/sda_device_removal_and_unprovision_input.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/sda_device_removal_and_unprovision/vars/sda_device_removal_and_unprovision_input.yml`
+

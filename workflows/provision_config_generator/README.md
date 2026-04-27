@@ -147,7 +147,7 @@ export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/provision_config_generator/playbook/provision_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/provision_config_generator/vars/provision_config_vars.yml \
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/provision_config_generator/vars/provision_config_vars.yml \
   -vvvv
 ```
 
@@ -199,11 +199,11 @@ provision_playbook_config:
 ```bash
 # Validate
 ./tools/schemavalidation.sh -s workflows/provision_config_generator/schema/provision_config_schema.yml \
-                            -d workflows/provision_config_generator/vars/provision_config_vars.yml
+  -v workflows/provision_config_generator/vars/provision_config_vars.yml
 ```
 Return result validate:
 ```bash
-(pyats-priya) [pbalaku2@st-ds-4 dnac_ansible_workflows]$ ./tools/schemavalidation.sh -s workflows/provision_config_generator/schema/provision_config_schema.yml      -d workflows/provision_config_generator/vars/provision_config_vars.yml
+(pyats-priya) [pbalaku2@st-ds-4 dnac_ansible_workflows]$ ./tools/schemavalidation.sh -s workflows/provision_config_generator/schema/provision_config_schema.yml -v workflows/provision_config_generator/vars/provision_config_vars.yml
 workflows/provision_config_generator/schema/provision_config_schema.yml
 workflows/provision_config_generator/vars/provision_config_vars.yml
 yamale   -s workflows/provision_config_generator/schema/provision_config_schema.yml  workflows/provision_config_generator/vars/provision_config_vars.yml
@@ -215,7 +215,7 @@ Validation success! 👍
 # Execute
 ansible-playbook -i inventory/demo_lab/hosts.yaml \
   workflows/provision_config_generator/playbook/provision_config_generator.yml \
-  --extra-vars VARS_FILE_PATH=./workflows/provision_config_generator/vars/provision_config_vars.yml
+  --extra-vars VARS_FILE_PATH=${PWD}/workflows/provision_config_generator/vars/provision_config_vars.yml
 ```
 
 Expected Terminal Output:
@@ -714,4 +714,12 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 ```bash
 ansible-playbook -i <inventory-file> workflows/provision_config_generator/playbook/provision_config_generator.yml -vvvv
 ```
+## VARS_FILE_PATH Path Resolution
+
+Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the current working directory.
+
+Use either of these forms:
+
+- Relative to the playbook: `../vars/provision_config_vars.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/provision_config_generator/vars/provision_config_vars.yml`
 
