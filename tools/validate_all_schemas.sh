@@ -18,6 +18,7 @@ WORKFLOWS_DIR="workflows"
 MODULE_DIR=""
 OUTPUT_DIR="schema_validation_reports"
 MAPPING_FILE=""
+EXCLUDE_FIELDS=""
 VERBOSE=false
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
@@ -39,6 +40,7 @@ Optional Arguments:
     -w, --workflows-dir DIR Directory containing workflow schemas (default: workflows)
     -o, --output-dir DIR    Directory for output reports (default: schema_validation_reports)
     -f, --mapping-file FILE Path to workflow-module mapping file (optional)
+    -e, --exclude-fields F  Comma-separated schema field names to skip (playbook-only fields)
     -v, --verbose           Enable verbose output
     -h, --help              Show this help message
 
@@ -87,6 +89,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -f|--mapping-file)
             MAPPING_FILE="$2"
+            shift 2
+            ;;
+        -e|--exclude-fields)
+            EXCLUDE_FIELDS="$2"
             shift 2
             ;;
         -v|--verbose)
@@ -319,7 +325,7 @@ for workflow_name in $workflows_to_process; do
         
         # Find corresponding module file
         # First check if there's a mapping in the mapping file
-        mapped_module=$(get_mapped_module "$workflow_name" "$MAPPING_FILE")
+        mapped_module=$(get_mapped_module "$workflow_name" "$MAPPING_FILE" || true)
         
         if [ -n "$mapped_module" ]; then
             # Check if it's an absolute path or just a filename
@@ -342,7 +348,7 @@ for workflow_name in $workflows_to_process; do
             fi
         else
             # Use automatic pattern matching
-            module_file=$(find_module_file "$workflow_name" "$MODULE_DIR")
+            module_file=$(find_module_file "$workflow_name" "$MODULE_DIR" || true)
         fi
         
         if [ -z "$module_file" ]; then
@@ -363,18 +369,26 @@ for workflow_name in $workflows_to_process; do
         if [ "$VERBOSE" = true ]; then
             verbose_flag="--verbose"
         fi
+
+        exclude_flag=""
+        if [ -n "$EXCLUDE_FIELDS" ]; then
+            exclude_flag="--exclude-fields $EXCLUDE_FIELDS"
+        fi
         
         # Create a temporary file for error output
         error_file=$(mktemp)
         
         # Run validation and capture output
-        if python3 "$VALIDATOR_SCRIPT" "$module_file" "$schema_file" --output "$output_file" $verbose_flag 2>"$error_file"; then
+        if python3 "$VALIDATOR_SCRIPT" "$module_file" "$schema_file" --output "$output_file" $verbose_flag $exclude_flag 2>"$error_file"; then
             # Check if output file was created
             if [ -f "$output_file" ]; then
-                # Try to extract mismatch count from the HTML file
-                mismatch_count=$(grep -o "Found [0-9]* mismatch" "$output_file" 2>/dev/null | grep -o "[0-9]*" || echo "0")
+                # Count actual field-level mismatches by counting table data rows
+                # in the HTML report (each <tr><td> is one mismatch entry).
+                mismatch_count=$(grep -c '<tr><td>' "$output_file" 2>/dev/null || true)
+                # Sanitize to a single integer (grep -c can return odd values on some platforms)
+                mismatch_count=$(printf '%d' "${mismatch_count:-0}" 2>/dev/null || echo 0)
                 
-                if [ "$mismatch_count" -eq 0 ] || [ -z "$mismatch_count" ]; then
+                if [ "$mismatch_count" -eq 0 ]; then
                     echo -e "  ${GREEN}✓ Success: No mismatches found${NC}"
                     echo "SUCCESS: $workflow_name / $schema_basename - No mismatches" >> "$SUMMARY_FILE"
                 else
