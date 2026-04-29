@@ -384,7 +384,7 @@ def _build_top_level_options(full_documentation):
     return top_level
 
 
-def compare_schema_with_documentation(schema_fields, doc_fields, verbose=False, full_documentation=None):
+def compare_schema_with_documentation(schema_fields, doc_fields, verbose=False, full_documentation=None, exclude_fields=None):
     """
     Compare yamale schema fields with documentation fields and identify mismatches.
     
@@ -394,6 +394,8 @@ def compare_schema_with_documentation(schema_fields, doc_fields, verbose=False, 
         verbose (bool): Enable verbose output.
         full_documentation (dict): Full parsed DOCUMENTATION dict used as
             fallback for top-level options not inside config.suboptions.
+        exclude_fields (set): Field names to skip during comparison
+            (e.g. playbook-only convenience parameters).
     
     Returns:
         list: List of mismatch descriptions.
@@ -411,6 +413,9 @@ def compare_schema_with_documentation(schema_fields, doc_fields, verbose=False, 
     # file_mode, config) are not falsely reported as missing.
     top_level_options = _build_top_level_options(full_documentation)
     
+    if exclude_fields is None:
+        exclude_fields = set()
+
     # Check for fields in schema but not in documentation
     for schema_field, schema_info in schema_fields.items():
         if schema_field.startswith('#') or not schema_field:
@@ -418,6 +423,10 @@ def compare_schema_with_documentation(schema_fields, doc_fields, verbose=False, 
         
         # Skip internal schema definitions (those ending with _type)
         if schema_field.endswith('_type'):
+            continue
+
+        # Skip playbook-only / workflow-level convenience fields
+        if schema_field in exclude_fields:
             continue
         
         if schema_field in doc_fields:
@@ -517,7 +526,7 @@ def compare_schema_with_documentation(schema_fields, doc_fields, verbose=False, 
     return mismatches
 
 
-def compare_module_with_schema(module_file_path, schema_file_path, verbose=False):
+def compare_module_with_schema(module_file_path, schema_file_path, verbose=False, exclude_fields=None):
     """
     Compare a module's documentation with its corresponding yamale schema file.
     
@@ -525,6 +534,7 @@ def compare_module_with_schema(module_file_path, schema_file_path, verbose=False
         module_file_path (str): Path to the Ansible module file.
         schema_file_path (str): Path to the yamale schema file.
         verbose (bool): Enable verbose output.
+        exclude_fields (set): Field names to skip during comparison.
     
     Returns:
         tuple: (module_filename, schema_filename, list of mismatches)
@@ -549,7 +559,7 @@ def compare_module_with_schema(module_file_path, schema_file_path, verbose=False
     doc_fields = get_doc_config_fields(documentation)
     
     # Compare (pass full documentation for top-level option fallback)
-    mismatches = compare_schema_with_documentation(schema_fields, doc_fields, verbose, documentation)
+    mismatches = compare_schema_with_documentation(schema_fields, doc_fields, verbose, documentation, exclude_fields)
     
     return (module_filename, schema_filename, mismatches)
 
@@ -637,6 +647,7 @@ Arguments:
 Options:
     --verbose       Enable verbose output
     --output FILE   Specify output HTML report filename (default: schema_doc_validation_report.html)
+    --exclude-fields FIELDS  Comma-separated schema field names to skip (playbook-only fields)
     --help          Show this help message
 
 Examples:
@@ -646,6 +657,10 @@ Examples:
 
     # With verbose output
     python schema_doc_validator.py module.py schema.yml --verbose
+
+    # Exclude playbook-only fields
+    python schema_doc_validator.py module.py schema.yml \\
+        --exclude-fields generate_all_configurations
 
     # Custom output file
     python schema_doc_validator.py module.py schema.yml --output my_report.html
@@ -663,6 +678,8 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     parser.add_argument("--output", default="schema_doc_validation_report.html", 
                        help="Output HTML report filename")
+    parser.add_argument("--exclude-fields", default="",
+                       help="Comma-separated list of schema field names to skip (playbook-only fields)")
     parser.add_argument("--help", action="store_true", help="Show help message")
     
     args = parser.parse_args()
@@ -675,6 +692,7 @@ if __name__ == "__main__":
     schema_path = args.schema_path
     verbose = args.verbose
     output_file = args.output
+    exclude_fields = set(f.strip() for f in args.exclude_fields.split(',') if f.strip())
     
     # Validate paths
     if not os.path.isfile(module_path):
@@ -689,8 +707,11 @@ if __name__ == "__main__":
     print(f"Module: {module_path}")
     print(f"Schema: {schema_path}")
     
+    if exclude_fields and verbose:
+        print(f"Excluding fields: {exclude_fields}")
+
     # Perform comparison
-    result = compare_module_with_schema(module_path, schema_path, verbose)
+    result = compare_module_with_schema(module_path, schema_path, verbose, exclude_fields)
     
     # Generate report
     html_report = generate_html_report([result])
