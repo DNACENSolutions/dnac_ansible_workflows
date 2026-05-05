@@ -25,7 +25,8 @@ def parse_yamale_schema(schema_file_path):
             content = f.read()
             
         # Split by --- to handle multiple schema sections
-        sections = content.split('---')
+        # Only split on standalone '---' lines (not '---' inside comments like '# ------')
+        sections = re.split(r'^---\s*$', content, flags=re.MULTILINE)
         
         # Find the section with the main detail field
         # Some schemas start with ---, so the first section might be empty
