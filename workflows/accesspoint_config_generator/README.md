@@ -133,7 +133,7 @@ pip install -r requirements.txt
 ansible-galaxy collection install cisco.catalystcenter --force
 ```
 
-2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file.
+2. Provide workflow inputs in either inventory (`inventory/demo_lab/hosts.yaml`) or the workflow `vars/` file. Filter values are Catalyst Center specific, so update the sample vars file to match the APs, sites, and MAC addresses in your target Catalyst Center.
 
 3. Export Catalyst Center environment variables and run the playbook.
 
@@ -141,7 +141,10 @@ ansible-galaxy collection install cisco.catalystcenter --force
 export HOSTIP=<catalyst-center-ip-or-fqdn>
 export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/accesspoint_config_generator/playbook/accesspoint_config_generator.yml -vvvv
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
+  ./workflows/accesspoint_config_generator/playbook/accesspoint_config_generator.yml \
+  --extra-vars "VARS_FILE_PATH=$(pwd)/workflows/accesspoint_config_generator/vars/accesspoint_config_inputs.yml" \
+  -vvvv
 ```
 
 
