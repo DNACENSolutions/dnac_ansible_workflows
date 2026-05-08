@@ -371,8 +371,22 @@ for workflow_name in $workflows_to_process; do
         fi
 
         exclude_flag=""
-        if [ -n "$EXCLUDE_FIELDS" ]; then
-            exclude_flag="--exclude-fields $EXCLUDE_FIELDS"
+        # Auto-exclude 'generate_all_configurations' for brownfield/generator modules
+        # This field is a playbook-level convenience parameter not present in module DOCUMENTATION
+        effective_exclude="$EXCLUDE_FIELDS"
+        if [[ "$workflow_name" == *"_config_generator"* ]] || [[ "$(basename "$module_file")" == *"_config_generator"* ]] || \
+           [[ "$(basename "$module_file")" == *"brownfield"* ]]; then
+            if [ -n "$effective_exclude" ]; then
+                effective_exclude="${effective_exclude},generate_all_configurations"
+            else
+                effective_exclude="generate_all_configurations"
+            fi
+            if [ "$VERBOSE" = true ]; then
+                echo -e "  ${BLUE}Auto-excluding 'generate_all_configurations' for generator/brownfield module${NC}"
+            fi
+        fi
+        if [ -n "$effective_exclude" ]; then
+            exclude_flag="--exclude-fields $effective_exclude"
         fi
         
         # Create a temporary file for error output
