@@ -76,17 +76,13 @@ sda_host_port_onboarding_config:
 # ============================================================================
 # Additional Configuration Examples
 # ============================================================================
-# Example 1: Generate all components with auto-generated filename
-# sda_host_port_onboarding_config:
-#   - generate_all_configurations: true
-
-# Example 2: Custom file path with specific components
+# Example 1: Custom file path with specific components
 # sda_host_port_onboarding_config:
 #   - file_path: "/home/ansible/sda_configs/production_port_assignments.yml"
 #     component_specific_filters:
 #       components_list: ["port_assignments"]
 
-# Example 3: Multiple component filters with specific criteria
+# Example 2: Multiple component filters with specific criteria
 # sda_host_port_onboarding_config:
 #   - file_path: "/tmp/filtered_sda_config.yml"
 #     component_specific_filters:
@@ -97,27 +93,6 @@ sda_host_port_onboarding_config:
 #       wireless_ssids:
 #         fabric_site_name_hierarchy:
 #           - "Global/USA/SAN JOSE"
-
-# ============================================================================
-# GENERATE_ALL_CONFIGURATIONS Parameter Documentation
-# ============================================================================
-#
-# The 'generate_all_configurations' parameter controls whether the tool retrieves
-# all available SDA host port onboarding configurations from Catalyst Center
-# or applies component-specific filters.
-
-# BEHAVIOR WHEN TRUE:
-# - Retrieves ALL port assignments, port channels, and wireless SSIDs from Catalyst Center
-# - IGNORES any component_specific_filters settings
-# - Overrides components_list filters
-# - Extracts complete SDA host port onboarding infrastructure configuration
-#
-# BEHAVIOR WHEN FALSE (or not specified):
-# - Respects component_specific_filters settings
-# - Only retrieves specified components from components_list
-# - Applies component sub-filters if specified
-# - Allows selective configuration generation
-# - Useful for targeted configuration extraction
 
 # ============================================================================
 # Component Filter Details
@@ -160,7 +135,7 @@ sda_host_port_onboarding_config:
 #
 # If file_path is NOT specified:
 # - Auto-generates filename in current working directory
-# - Format: sda_host_port_onboarding_workflow_manager_playbook_<timestamp>.yml
+# - Format: sda_host_port_onboarding_config_generator_<YYYY-MM-DD_HH-MM-SS>.yml
 
 # ============================================================================
 # Notes and Limitations
