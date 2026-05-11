@@ -11,6 +11,8 @@
 - [Getting Started](#getting-started)
 - [Operations](#operations)
 - [Examples](#examples)
+- [Generated Output](#generated-output)
+- [Notes](#notes)
 
 ## Overview
 
@@ -143,7 +145,7 @@ ansible-galaxy collection install cisco.catalystcenter --force
 export HOSTIP=<catalyst-center-ip-or-fqdn>
 export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/device_credential_config_generator/playbook/device_credential_config_generator.yml --extra-vars "VARS_FILE_PATH=$(pwd)/workflows/device_credential_config_generator/vars/device_credential_config_generator.yml" -vvvv
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/device_credential_config_generator/playbook/device_credential_config_generator.yml --extra-vars "VARS_FILE_PATH=$(pwd)/workflows/device_credential_config_generator/vars/device_credential_config_inputs.yml" -vvvv
 ```
 
 > **`VARS_FILE_PATH` Path Resolution**
@@ -220,6 +222,67 @@ device_credential_config:
         - "Global/India/Assam"
         - "Global/India/Haryana"
 ```
+
+---
+
+## Generated Output
+
+Each generated file contains a top-level `credentials_details` and/or `credentials_site_assignment` key, ready for direct consumption by `device_credential_workflow_manager`. Example structure:
+
+```yaml
+---
+device_credentials:
+  credentials_details:
+    - global_credential_details:
+        cli_credential:
+          - description: "WLC_CLI"
+            username: "admin"
+            password: "********"
+            enable_password: "********"
+          - description: "Router_CLI"
+            username: "netadmin"
+            password: "********"
+            enable_password: "********"
+        https_read:
+          - description: "HTTPS_Read_Admin"
+            username: "admin"
+            password: "********"
+            port: 443
+        https_write:
+          - description: "HTTPS_Write_Admin"
+            username: "admin"
+            password: "********"
+            port: 443
+        snmp_v2c_read:
+          - description: "SNMP_RO_Community"
+            read_community: "********"
+        snmp_v2c_write:
+          - description: "SNMP_RW_Community"
+            write_community: "********"
+        snmp_v3:
+          - description: "SNMPv3_Admin"
+            username: "snmpv3user"
+            auth_type: SHA
+            auth_password: "********"
+            privacy_type: AES128
+            privacy_password: "********"
+            snmp_mode: AUTHPRIV
+  credentials_site_assignment:
+    - assign_credentials_to_site:
+        cli_credential:
+          description: "WLC_CLI"
+          username: "admin"
+        snmp_v2c_read:
+          description: "SNMP_RO_Community"
+        snmp_v3:
+          description: "SNMPv3_Admin"
+          username: "snmpv3user"
+        site_name:
+          - "Global/India/Assam"
+          - "Global/India/Haryana"
+```
+
+> **Note:** Sensitive credential values (passwords, community strings) are exported as-is from Catalyst Center. Treat generated files as secrets and avoid committing them to version control unencrypted.
 
 ---
 
