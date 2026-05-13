@@ -76,41 +76,20 @@
 #
 # config:
 #   - ip_address_list:
-#       - 204.1.2.7
+#       - 204.1.216.5
 #     role: BORDER ROUTER
 #   - ip_address_list:
-#     - 204.1.2.9
+#     - 204.1.216.3
 #     role: BORDER ROUTER
 #   - ip_address_list:
-#     - 204.1.2.3
+#     - 204.1.216.4
 #     role: ACCESS
 #   - ip_address_list:
-#     - 204.1.2.70
+#     - 204.192.106.4
 #     role: ACCESS
 #   - ip_address_list:
-#     - 204.1.1.2
+#     - 204.192.3.40
 #     role: DISTRIBUTION
-#   - ip_address_list:
-#     - 204.192.4.200
-#     role: ACCESS
-#   - ip_address_list:
-#     - 204.192.6.202
-#     role: ACCESS
-#   - ip_address_list:
-#     - 204.1.2.69
-#     role: ACCESS
-#   - ip_address_list:
-#     - 204.1.2.8
-#     role: ACCESS
-#   - ip_address_list:
-#     - 204.1.216.2
-#     role: ACCESS
-#   - ip_address_list:
-#     - 33.1.1.2
-#     role: UNKNOWN
-#   - ip_address_list:
-#     - 1.1.1.1
-#     role: UNKNOWN
 
 # VALIDATION RULES:
 # ----------------
