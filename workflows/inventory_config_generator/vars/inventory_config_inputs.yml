@@ -33,38 +33,29 @@ inventory_config:
         device_roles: 
           - "DISTRIBUTION"
           - "BORDER ROUTER"
-  # --------------------------------------------------------------------------
-  # Use Case 4: Filter by device types
-  # --------------------------------------------------------------------------
-  - file_path: "/tmp/inventory_types.yml"
-    config:
-      global_filters:
-        device_types: 
-          - "NETWORK_DEVICE"
-          - "ACCESS_POINT"
 
   # --------------------------------------------------------------------------
-  # Use Case 5: Filter by device roles and types
+  # Use Case 4: Filter by device roles and device identifier
   # --------------------------------------------------------------------------
-  - file_path: "/tmp/inventory_roles_types.yml"
+  - file_path: "/tmp/inventory_roles_identifier.yml"
     config:
       global_filters:
         device_roles: ["ACCESS", "CORE"]
-        device_types: ["NETWORK_DEVICE", "ACCESS_POINT"]
+        device_identifier: "serial_number"
 
   # --------------------------------------------------------------------------
-  # Use Case 6: Use hostname as output identifier key
+  # Use Case 5: Use hostname as output identifier key
   # Description: Generated payload uses hostname_list in output config.
   # --------------------------------------------------------------------------
   - file_path: "/tmp/inventory_hostname_identifier.yml"
     config:
       global_filters:
-        device_types:
-          - "NETWORK_DEVICE"
+        device_roles:
+          - "BORDER ROUTER"
         device_identifier: "hostname"
 
   # --------------------------------------------------------------------------
-  # Use Case 7: Filter by all global filters together (devices, roles, types) with mac add as identifier
+  # Use Case 6: Filter by all global filters together (devices, roles,) with mac add as identifier
   # --------------------------------------------------------------------------
   - file_path: "/tmp/inventory_all_filters.yml"
     config:
@@ -73,7 +64,5 @@ inventory_config:
           - "68:7d:b4:06:b0:a0"
         device_roles:
           - "ACCESS"
-        device_types:
-          - "ACCESS_POINT"
         device_identifier: "mac_address"
 
