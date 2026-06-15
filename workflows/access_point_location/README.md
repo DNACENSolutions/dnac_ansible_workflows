@@ -431,12 +431,12 @@ accesspoint_location_details:
 
 **Validate**
 Validate Configuration: To ensure a successful execution of the playbooks with your specified inputs, follow these steps:
-Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/schemavalidation.sh -s to perform the validation providing the schema path with `-s` and the vars file path with `-v` (`--vars`).
+Input Validation: Before executing the playbook, it is essential to validate the input schema. This step ensures that all required parameters are included and correctly formatted. Run the following command ./tools/validate.sh -s to perform the validation providing the schema path -d and the input path.
 
 
 ```bash
 # Validate
-./tools/schemavalidation.sh -s ./workflows/access_point_location/schema/access_point_location_schema.yml -v ./workflows/access_point_location/vars/access_point_location_inputs.yml
+./tools/validate.sh -s ./workflows/access_point_location/schema/access_point_location_schema.yml -d ./workflows/access_point_location/vars/access_point_location_inputs.yml
 ```
 
 Return result validate:
@@ -580,7 +580,7 @@ response:
 
 ```bash
 # Validate
-./tools/schemavalidation.sh -s ./workflows/access_point_location/schema/delete_access_point_location_schema.yml -v ./workflows/access_point_location/vars/delete_access_point_location_inputs.yml
+./tools/validate.sh -s ./workflows/access_point_location/schema/delete_access_point_location_schema.yml -d ./workflows/access_point_location/vars/delete_access_point_location_inputs.yml
 ```
 
 Return result validate:

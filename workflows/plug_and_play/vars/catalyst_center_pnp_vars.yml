@@ -43,8 +43,6 @@ pnp_details:
           hostname: DC-FR-9300.cisco.local
           state: Unclaimed
           pid: C9300-48T
-          authorize: true
-      pnp_type: Default
 
     - site_name: Global/USA/SAN JOSE/BLD23
       project_name: Onboarding Configuration
@@ -68,18 +66,16 @@ pnp_details:
     - site_name: Global/USA/SAN JOSE/SJ_BLD23
       project_name: Onboarding Configuration
       image_name: C9800-40-universalk9_wlc.17.12.02.SPA.bin
-      golden_image: true
       template_name: PnP-Devices_SJ-EWLC
       template_params:
         MGMT_IP: 10.22.40.244
         MGMT_SUBNET: 255.255.255.0
         NTP_SERVER_IP: 171.68.38.66
       device_info:
-        - serial_number: FOX2639PAY7
+        - serial_number: FOX2639PAYD
           hostname: SJ-EWLC-1
           state: Unclaimed
           pid: C9800-40-K9
-          authorize: true
       pnp_type: CatalystWLC
       static_ip: 204.192.50.200
       subnet_mask: 255.255.255.0
@@ -87,13 +83,45 @@ pnp_details:
       ip_interface_name: TenGigabitEthernet0/0/2
       vlan_id: 2050
 
+  claim_wireless_controllers:
+    - site_name: Global/USA/New York/NY_BLD2
+      project_name: Onboarding Configuration
+      image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+      template_name: PnP-Devices_NY-EWLC_No-Vars
+      device_info:
+        - serial_number: TTM2737020R
+          hostname: NY-EWLC-1
+          state: Unclaimed
+          pid: C9800-40-K9
+      pnp_type: CatalystWLC
+      static_ip: 10.4.218.230
+      subnet_mask: 255.255.255.240
+      gateway: 10.4.218.225
+      ip_interface_name: TenGigabitEthernet0/0/1
+      vlan_id: 2014
+    - site_name: Global/USA/New York/NY_BLD2
+      project_name: Onboarding Configuration
+      image_name: C9800-40-universalk9_wlc.17.13.01.SPA.bin
+      template_name: PnP-Devices_NY-EWLC_No-Vars
+      device_info:
+        - serial_number: TTM2737021L
+          hostname: NY-EWLC-2
+          state: Unclaimed
+          pid: C9800-40-K9
+      pnp_type: CatalystWLC
+      static_ip: 10.4.218.232
+      subnet_mask: 255.255.255.240
+      gateway: 10.4.218.225
+      ip_interface_name: TenGigabitEthernet0/0/1
+      vlan_id: 2014
+
   claim_router_devices:
     - site_name: Global/USA/SAN-FRANCISCO/BLD_SF1
       project_name: Onboarding Configuration
       template_name: PnP-Devices_SF-ISR_No-Vars
       image_name: isr4400-universalk9.17.12.02.SPA.bin
       device_info:
-        - serial_number: FXS2502Q2HD
+        - serial_number: FXS2502Q2HC
           hostname: SF-BN-2-ASR.cisco.local
           state: Unclaimed
           pid: ASR1001-X

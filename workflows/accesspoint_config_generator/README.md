@@ -15,7 +15,7 @@
 
 ## Overview
 
-The Access Point config generator is a **brownfield discovery** workflow that connects to Cisco Catalyst Center, collects existing access point configurations (provisioning and radio settings), and generates YAML output files compatible with the `accesspoint_workflow_manager` module. This enables backup, migration, and programmatic modification of AP configurations without manual playbook authoring.
+The Access Point config generator automates YAML playbook generation for existing access point configurations in Cisco Catalyst Center. It generates output compatible with `accesspoint_workflow_manager`.
 
 ---
 
