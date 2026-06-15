@@ -48,29 +48,6 @@
           Provide it via VARS_FILE_PATH or as an inventory/host variable.
       when: pnp_details is not defined
 
-    - name: Normalize PnP delete workflow inputs
-      ansible.builtin.set_fact:
-        pnp_workflow_inputs:
-          network_devices: "{{ pnp_details.network_devices | default([]) }}"
-          claim_router_devices: "{{ pnp_details.claim_router_devices | default([]) }}"
-          claim_switching_devices: "{{ pnp_details.claim_switching_devices | default([]) }}"
-          claim_wireless_controllers: "{{ pnp_details.claim_wireless_controllers | default([]) }}"
-          claim_access_points: "{{ pnp_details.claim_access_points | default([]) }}"
-
-    - name: Validate that at least one supported PnP delete input bucket is provided
-      ansible.builtin.fail:
-        msg: >-
-          Variable 'pnp_details' does not contain any supported delete input
-          buckets. Provide one or more of: network_devices,
-          claim_router_devices, claim_switching_devices,
-          claim_wireless_controllers, claim_access_points.
-      when:
-        - pnp_workflow_inputs.network_devices | length == 0
-        - pnp_workflow_inputs.claim_router_devices | length == 0
-        - pnp_workflow_inputs.claim_switching_devices | length == 0
-        - pnp_workflow_inputs.claim_wireless_controllers | length == 0
-        - pnp_workflow_inputs.claim_access_points | length == 0
-
     - name: Network Plug and Play devices on Cisco Catalyst Center
       set_fact:
         long_op_start: "{{ now() }}"
@@ -80,9 +57,9 @@
       cisco.catalystcenter.pnp_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ pnp_workflow_inputs.network_devices }}"
+        config: "{{ pnp_details.network_devices }}"
       register: network_devices_output
-      when: pnp_workflow_inputs.network_devices | length > 0
+      when: pnp_details.network_devices is defined
     - name: Print the network devices output
       debug:
         msg: "{{network_devices_output}}"
@@ -93,9 +70,9 @@
       cisco.catalystcenter.pnp_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ pnp_workflow_inputs.claim_router_devices }}"
+        config: "{{ pnp_details.claim_router_devices }}"
       register: router_devices_output
-      when: pnp_workflow_inputs.claim_router_devices | length > 0
+      when: pnp_details.claim_router_devices is defined
     - name: Print the router devices output
       debug:
         msg: "{{router_devices_output}}"
@@ -106,9 +83,9 @@
       cisco.catalystcenter.pnp_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ pnp_workflow_inputs.claim_switching_devices }}"
+        config: "{{ pnp_details.claim_switching_devices }}"
       register: switching_devices_output
-      when: pnp_workflow_inputs.claim_switching_devices | length > 0
+      when: pnp_details.claim_switching_devices is defined
     - name: Print the switching devices output
       debug:
         msg: "{{switching_devices_output}}"
@@ -119,9 +96,9 @@
       cisco.catalystcenter.pnp_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ pnp_workflow_inputs.claim_wireless_controllers }}"
+        config: "{{ pnp_details.claim_wireless_controllers }}"
       register: wireless_controllers_output
-      when: pnp_workflow_inputs.claim_wireless_controllers | length > 0
+      when: pnp_details.claim_wireless_controllers is defined
     - name: Print the wireless controllers output
       debug:
         msg: "{{wireless_controllers_output}}"
@@ -131,9 +108,9 @@
       cisco.catalystcenter.pnp_workflow_manager:
         <<: *catalyst_center_login
         state: "{{ state }}"
-        config: "{{ pnp_workflow_inputs.claim_access_points }}"
+        config: "{{ pnp_details.claim_access_points }}"
       register: access_points_output
-      when: pnp_workflow_inputs.claim_access_points | length > 0
+      when: pnp_details.claim_access_points is defined
     - name: Print the access points output
       debug:
         msg: "{{access_points_output}}"

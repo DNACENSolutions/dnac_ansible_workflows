@@ -204,12 +204,6 @@ Define `user_role_config` in one of these locations:
 ### 3. Validate and Execute
 
 Validate the vars file against the workflow schema:
-```bash
-export HOSTIP=<catalyst-center-ip-or-fqdn>
-export CATALYST_CENTER_USERNAME=<username>
-export CATALYST_CENTER_PASSWORD='<password>'
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/user_role_config_generator/playbook/user_role_config_generator.yml -vvvv
-```
 
 ```bash
 ./tools/schemavalidation.sh \
