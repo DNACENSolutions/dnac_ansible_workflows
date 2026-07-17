@@ -24,7 +24,7 @@ The Inventory config generator automates YAML configurations for inventory compo
 ## Features
 
 - **Configuration Generation**: Generate YAML configurations compatible with inventory_workflow_manager module. Extract existing inventory configurations from your Cisco Catalyst Center. Convert them into properly formatted YAML files. Generate files that are ready to use with Ansible automation.
-- **Component Filtering**: Selective generation using devices,device_roles,device_types and device_identifier.
+- **Component Filtering**: Selective generation using devices,device_roles and device_identifier.
 - **Flexible Output**: Configurable file paths, auto-generated timestamped filenames, and `overwrite`/`append` file modes.
 - **Brownfield Support**: Extract configurations from existing Catalyst Center deployments.
 - **API Integration**: Leverages native Catalyst Center discovery APIs for data retrieval.
@@ -87,7 +87,6 @@ inventory_config_generator/
 | `global_filters` | dict | Required when `config` is provided. Filters to specify which components to include. |
 | `devices` | list[string] | Matches each value against device `ip_address`, `hostname`, `serial_number`, `mac_address` |
 | `device_roles` | list[string] | Allowed: `ACCESS`, `DISTRIBUTION`, `CORE`, `BORDER ROUTER`, `UNKNOWN` |
-| `device_types` | list[string] | Allowed: `COMPUTE_DEVICE`, `MERAKI_DASHBOARD`, `THIRD_PARTY_DEVICE`, `NETWORK_DEVICE`, `ACCESS_POINT` |
 | `device_identifier` | string | Output key selector: `ip_address`, `hostname`, `serial_number`, `mac_address` |
 
 ---
@@ -203,29 +202,6 @@ response:
       status: success
 ```
 
-### Filter by device types
-
- ```yaml
-inventory_config:
-  - file_path: "/tmp/inventory_types.yml"
-    config:
-      global_filters:
-        device_types: 
-          - "NETWORK_DEVICE"
-          - "ACCESS_POINT"
-```
-**Terminal Return:**
-
-```
- response:
-        configurations_count: 21
-        file_mode: overwrite
-        file_path: /tmp/inventory_types.yml
-        message: YAML configuration file generated successfully for module 'inventory_workflow_manager'
-        status: success
-      status: success
-```
-
 **Validate and Execute:**
 
 ```bash
@@ -236,14 +212,15 @@ inventory_config:
 ```
 
 ```bash
- ./tools/schemavalidation.sh \
->   -s workflows/inventory_config_generator/schema/inventory_config_schema.yml \
->   -v workflows/inventory_config_generator/vars/inventory_config_inputs.yml
-workflows/inventory_config_generator/schema/inventory_config_schema.yml
-workflows/inventory_config_generator/vars/inventory_config_inputs.yml
-yamale   -s workflows/inventory_config_generator/schema/inventory_config_schema.yml  workflows/inventory_config_generator/vars/inventory_config_inputs.yml
-Validating workflows/inventory_config_generator/vars/inventory_config_inputs.yml...
-Validation success! 👍
+./tools/schemavalidation.sh \
+  -s workflows/inventory_config_generator/schema/inventory_config_schema.yml \
+  -v workflows/inventory_config_generator/vars/inventory_config_inputs.yml
+Validating:
+  Schema: workflows/inventory_config_generator/schema/inventory_config_schema.yml
+  Vars:   workflows/inventory_config_generator/vars/inventory_config_inputs.yml
+
+✓ Validation successful
+✓ Validation successful
 ```
 
 ```bash
@@ -271,16 +248,9 @@ After running the playbook, the following YAML configuration is generated.
 
 ```yaml
 config:
-  - ip_address_list:
-    - 204.1.216.3
-    role: ACCESS
-    type: ACCESS_POINT
-    cli_transport: ssh
-    http_secure: false
-    snmp_retry: 0
-    snmp_timeout: 0
-    compute_device: false
-
+- ip_address_list:
+  - 204.1.216.3
+  role: ACCESS
 ```
 ### Example 2: Filter by roles and types
 
@@ -288,57 +258,31 @@ config:
 inventory_config:
   - file_path: "/tmp/inventory_roles_types.yml"
     global_filters:
-      device_roles: ["ACCESS", "CORE"]
-      device_types: ["NETWORK_DEVICE", "ACCESS_POINT"]
+      device_roles: ["ACCESS", "BORDER ROUTER"]
+      device_identifier: "serial_number"
 ```
 After running the playbook, the following YAML configuration is generated.
 
 ```yaml
 config:
-  - ip_address_list:
-    - 204.192.106.3
-    role: ACCESS
-    type: ACCESS_POINT
-    cli_transport: ssh
-    http_secure: false
-    snmp_retry: 0
-    snmp_timeout: 0
-    compute_device: false
-  - ip_address_list:
-    - 204.192.3.40
-    role: ACCESS
-    type: NETWORK_DEVICE
-    cli_transport: ssh
-    netconf_port: '830'
-    username: wlcaccess
-    password: '{{ ip_204_192_3_40_password }}'
-    enable_password: '{{ ip_204_192_3_40_enable_password }}'
-    http_username: wlcaccess
-    http_password: '{{ ip_204_192_3_40_http_password }}'
-    http_port: '443'
-    http_secure: false
-    snmp_version: v3
-    snmp_mode: AUTHNOPRIV
-    snmp_username: v3Public1
-    snmp_auth_passphrase: '{{ ip_204_192_3_40_snmp_auth_passphrase }}'
-    snmp_auth_protocol: SHA
-    snmp_retry: 3
-    snmp_timeout: 5
-    compute_device: false
-  - ip_address_list:
-    - 172.27.248.223
-    role: ACCESS
-    type: NETWORK_DEVICE
-    cli_transport: ssh
-    username: admin
-    password: '{{ ip_172_27_248_223_password }}'
-    enable_password: '{{ ip_172_27_248_223_enable_password }}'
-    http_secure: false
-    snmp_version: v2
-    snmp_ro_community: '{{ ip_172_27_248_223_snmp_ro_community }}'
-    snmp_retry: 3
-    snmp_timeout: 5
-    compute_device: false
+- serial_number_list:
+  - KWC24160JLL
+  role: ACCESS
+- serial_number_list:
+  - 91GRFWNYCL6
+  role: ACCESS
+- serial_number_list:
+  - 9TRQFABSFR2
+  role: BORDER ROUTER
+- serial_number_list:
+  - FXS2424Q4PA
+  role: ACCESS
+- serial_number_list:
+  - FJC2402A0TX
+  role: BORDER ROUTER
+- serial_number_list:
+  - FXS2502Q2HC
+  role: BORDER ROUTER
 ```
 
 ### Example 3: Filter by all global filters together (devices, roles, types) with mac add as identifier
@@ -352,23 +296,15 @@ inventory_config:
           - "68:7d:b4:06:b0:a0"
         device_roles:
           - "ACCESS"
-        device_types:
-          - "ACCESS_POINT"
         device_identifier: "mac_address"
 ```
 After running the playbook, the following YAML configuration is generated.
 
 ```yaml
 config:
-  - mac_address_list:
-    - 68:7d:b4:06:b0:a0
-    role: ACCESS
-    type: ACCESS_POINT
-    cli_transport: ssh
-    http_secure: false
-    snmp_retry: 0
-    snmp_timeout: 0
-    compute_device: false
+- mac_address_list:
+  - 68:7d:b4:06:b0:a0
+  role: ACCESS
 ```
 ---
 
