@@ -8,7 +8,6 @@
 # - Generate all inventory configurations (omit module config)
 # - Filter by devices list (IP/hostname/serial/mac values)
 # - Filter by device roles
-# - Filter by device types
 # - Select output identifier key using device_identifier
 # - Write output using overwrite/append file modes
 # USAGE:
@@ -66,8 +65,6 @@
 #      - devices: list of identifier values matched against ip_address, hostname,
 #        serial_number, and mac_address
 #      - device_roles: list of roles (ACCESS, DISTRIBUTION, CORE, BORDER ROUTER, UNKNOWN)
-#      - device_types: list of types (COMPUTE_DEVICE, MERAKI_DASHBOARD,
-#        THIRD_PARTY_DEVICE, NETWORK_DEVICE, ACCESS_POINT)
 #      - device_identifier: output key selector (ip_address, hostname,
 #        serial_number, mac_address)
 #    - When multiple filter groups are provided, they are combined with logical AND.
@@ -78,54 +75,21 @@
 # The generated YAML file will contain a 'config' section with the following structure:
 #
 # config:
-# - ip_address_list:
-#   - 204.1.216.5
-#   role: ACCESS
-#   type: ACCESS_POINT
-#   cli_transport: ssh
-#   http_secure: false
-#   snmp_retry: 0
-#   snmp_timeout: 0
-#   compute_device: false
-# - ip_address_list:
-#   - 204.1.216.3
-#   role: ACCESS
-#   type: ACCESS_POINT
-#   cli_transport: ssh
-#   http_secure: false
-#   snmp_retry: 0
-#   snmp_timeout: 0
-#   compute_device: false
-# - ip_address_list:
-#   - 204.192.106.4
-#   role: ACCESS
-#   type: ACCESS_POINT
-#   cli_transport: ssh
-#   http_secure: false
-#   snmp_retry: 0
-#   snmp_timeout: 0
-#   compute_device: false
-# - ip_address_list:
-#   - 204.192.3.40
-#   role: ACCESS
-#   type: NETWORK_DEVICE
-#   cli_transport: ssh
-#   netconf_port: '830'
-#   username: wlcaccess
-#   password: '{{ ip_204_192_3_40_password }}'
-#   enable_password: '{{ ip_204_192_3_40_enable_password }}'
-#   http_username: wlcaccess
-#   http_password: '{{ ip_204_192_3_40_http_password }}'
-#   http_port: '443'
-#   http_secure: false
-#   snmp_version: v3
-#   snmp_mode: AUTHNOPRIV
-#   snmp_username: v3Public1
-#   snmp_auth_passphrase: '{{ ip_204_192_3_40_snmp_auth_passphrase }}'
-#   snmp_auth_protocol: SHA
-#   snmp_retry: 3
-#   snmp_timeout: 5
-#   compute_device: false
+#   - ip_address_list:
+#       - 204.1.216.5
+#     role: BORDER ROUTER
+#   - ip_address_list:
+#     - 204.1.216.3
+#     role: BORDER ROUTER
+#   - ip_address_list:
+#     - 204.1.216.4
+#     role: ACCESS
+#   - ip_address_list:
+#     - 204.192.106.4
+#     role: ACCESS
+#   - ip_address_list:
+#     - 204.192.3.40
+#     role: DISTRIBUTION
 
 # VALIDATION RULES:
 # ----------------
@@ -151,10 +115,7 @@
 #       - Each value is matched against ip_address, hostname, serial_number, and mac_address
 #    b. device_roles:
 #       - Provide one or more roles: ACCESS, DISTRIBUTION, CORE, BORDER ROUTER, UNKNOWN
-#    c. device_types:
-#       - Provide one or more device types: COMPUTE_DEVICE, MERAKI_DASHBOARD,
-#         THIRD_PARTY_DEVICE, NETWORK_DEVICE, ACCESS_POINT
-#    d. device_identifier:
+#    c. device_identifier:
 #       - Selects output list key in generated config:
 #         ip_address_list, hostname_list, serial_number_list, or mac_address_list
 #
@@ -225,13 +186,6 @@ inventory_global_filters_type:
   # Inventory device roles to include.
   device_roles: list(
     enum('ACCESS', 'DISTRIBUTION', 'CORE', 'BORDER ROUTER', 'UNKNOWN'),
-    min=1,
-    max=5,
-    required=False)
-
-  # Inventory device types to include.
-  device_types: list(
-    enum('COMPUTE_DEVICE', 'MERAKI_DASHBOARD', 'THIRD_PARTY_DEVICE', 'NETWORK_DEVICE', 'ACCESS_POINT'),
     min=1,
     max=5,
     required=False)
