@@ -114,12 +114,12 @@ Each item is a direct site path value such as `Global/India/Assam`; there is no 
 
 ```mermaid
 flowchart TD
-  A[Start] --> B["Step 1: Create virtual env and install dependencies"]
-  B --> C["Step 2: Provide workflow inputs"]
+  A[Start] --> B[Step 1: Create virtual env and install dependencies]
+  B --> C[Step 2: Provide workflow inputs]
   C --> D{Choose input location}
   D -->|Option A| E[Update inventory hosts.yaml]
   D -->|Option B| F[Update vars input file]
-  E --> G["Step 3: Export env vars"]
+  E --> G[Step 3: Export env vars]
   F --> G
   G --> H[Run ansible-playbook]
   H --> I[Review playbook summary output]
@@ -182,7 +182,18 @@ device_credential_config:
   - file_path: "/tmp/device_credential_complete_config.yml"
 ```
 
-### Example 2: Filter global credential descriptions
+### Example 2: Generate all device credential configurations without specifying file_path
+
+Omitting `file_path` causes the module to auto-generate a timestamped output filename
+(`device_credential_playbook_config_<YYYY-MM-DD_HH-MM-SS>.yml`) in the current working
+directory. Useful for quick one-off exports where the exact filename does not matter.
+
+```yaml
+device_credential_config:
+  - file_mode: "overwrite"
+```
+
+### Example 3: Filter global credential descriptions
 
 ```yaml
 device_credential_config:
@@ -211,7 +222,7 @@ device_credential_config:
             - "SNMPv3_Admin"
 ```
 
-### Example 3: Filter site assignment by site hierarchy
+### Example 4: Filter site assignment by site hierarchy
 
 ```yaml
 device_credential_config:
@@ -227,62 +238,72 @@ device_credential_config:
 
 ## Generated Output
 
-Each generated file contains a top-level `credentials_details` and/or `credentials_site_assignment` key, ready for direct consumption by `device_credential_workflow_manager`. Example structure:
+The generated file uses `config` as the top-level key, with one list entry per component processed. This structure is directly compatible with `device_credential_workflow_manager`.
+
+Sensitive fields (passwords, SNMPv2c read community, SNMPv3 auth password) are **masked with Jinja2 variable placeholders** — raw credential values are never written to the output file. Before running the generated playbook with `device_credential_workflow_manager`, supply the real values via Ansible Vault or `--extra-vars`.
+
+Example structure:
 
 ```yaml
----
-device_credentials:
-  credentials_details:
-    - global_credential_details:
-        cli_credential:
-          - description: "WLC_CLI"
-            username: "admin"
-            password: "********"
-            enable_password: "********"
-          - description: "Router_CLI"
-            username: "netadmin"
-            password: "********"
-            enable_password: "********"
-        https_read:
-          - description: "HTTPS_Read_Admin"
-            username: "admin"
-            password: "********"
-            port: 443
-        https_write:
-          - description: "HTTPS_Write_Admin"
-            username: "admin"
-            password: "********"
-            port: 443
-        snmp_v2c_read:
-          - description: "SNMP_RO_Community"
-            read_community: "********"
-        snmp_v2c_write:
-          - description: "SNMP_RW_Community"
-            write_community: "********"
-        snmp_v3:
-          - description: "SNMPv3_Admin"
-            username: "snmpv3user"
-            auth_type: SHA
-            auth_password: "********"
-            privacy_type: AES128
-            privacy_password: "********"
-            snmp_mode: AUTHPRIV
-  credentials_site_assignment:
-    - assign_credentials_to_site:
-        cli_credential:
-          description: "WLC_CLI"
+config:
+  - global_credential_details:
+      cli_credential:
+        - description: "WLC_CLI"
           username: "admin"
-        snmp_v2c_read:
+          password: "{{ cli_credential_wlc_cli_password }}"
+          enable_password: "{{ cli_credential_wlc_cli_enable_password }}"
+          id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        - description: "Router_CLI"
+          username: "netadmin"
+          password: "{{ cli_credential_router_cli_password }}"
+          enable_password: "{{ cli_credential_router_cli_enable_password }}"
+          id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      https_read:
+        - description: "HTTPS_Read_Admin"
+          username: "admin"
+          password: "{{ https_read_https_read_admin_password }}"
+          port: 443
+          id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      https_write:
+        - description: "HTTPS_Write_Admin"
+          username: "admin"
+          password: "{{ https_write_https_write_admin_password }}"
+          port: 443
+          id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      snmp_v2c_read:
+        - id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
           description: "SNMP_RO_Community"
-        snmp_v3:
-          description: "SNMPv3_Admin"
+          read_community: "{{ snmp_v2c_read_snmp_ro_community_read_community }}"
+      snmp_v2c_write:
+        - id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          description: "SNMP_RW_Community"
+          write_community: "<value-from-catalyst-center>"
+      snmp_v3:
+        - id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          auth_type: "SHA"
+          snmp_mode: "AUTHPRIV"
+          privacy_type: "AES128"
+          privacy_password: "<value-from-catalyst-center>"
           username: "snmpv3user"
-        site_name:
-          - "Global/India/Assam"
-          - "Global/India/Haryana"
+          description: "SNMPv3_Admin"
+          auth_password: "{{ snmp_v3_snmpv3_admin_auth_password }}"
+  - assign_credentials_to_site:
+      cli_credential:
+        description: "WLC_CLI"
+        username: "admin"
+        id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      snmp_v2c_read:
+        description: "SNMP_RO_Community"
+        id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      snmp_v3:
+        description: "SNMPv3_Admin"
+        id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      site_name:
+        - "Global/India/Assam"
+        - "Global/India/Haryana"
 ```
 
-> **Note:** Sensitive credential values (passwords, community strings) are exported as-is from Catalyst Center. Treat generated files as secrets and avoid committing them to version control unencrypted.
+> **Note:** Jinja2 placeholders (e.g., `{{ cli_credential_wlc_cli_password }}`) are generated from the credential's description field. Define these variables in an Ansible Vault file or pass them as `--extra-vars` before running the generated playbook with `device_credential_workflow_manager`. `snmp_v2c_write.write_community` and `snmp_v3.privacy_password` are written as plaintext values returned by the Catalyst Center API — treat the generated file as a secret and avoid committing it to version control unencrypted.
 
 ---
 
