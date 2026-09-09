@@ -18,6 +18,11 @@ jinjatemplate: bool(required=False)
 passwords_file: str(required=False)
 jinjatemplate_file: str(required=False)
 catalyst_center_task_poll_interval: int(required=False)
+inventory_device_ready_retry_time: int(required=False, default=400)
+inventory_device_ready_retry_interval: int(required=False, default=10)
+fabric_device_ready_timeout: int(required=False, default=400)
+fabric_device_ready_retries: int(required=False, default=40)
+fabric_device_ready_interval: int(required=False, default=10)
 
 ---
 
