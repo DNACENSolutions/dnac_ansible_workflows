@@ -62,6 +62,26 @@ sda_fabric_discover_and_onboard_fabric_devices:
 
 Each stage entry has a `config` dict (required) and an optional `state` (`merged` or `deleted`, default `merged`).
 
+Optional top-level readiness controls:
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `inventory_device_ready_retry_time` | int | `400` | Total wait time in seconds for Stage 3 inventory readiness checks. |
+| `inventory_device_ready_retry_interval` | int | `10` | Poll interval in seconds for Stage 3 inventory readiness checks. |
+| `fabric_device_ready_timeout` | int | `400` | Total wait time in seconds for Stage 6 fabric readiness checks. |
+| `fabric_device_ready_retries` | int | `40` | Retry count passed to the Stage 6 fabric device info workflow manager. |
+| `fabric_device_ready_interval` | int | `10` | Poll interval in seconds for Stage 6 fabric readiness checks. |
+
+Example:
+
+```yaml
+inventory_device_ready_retry_time: 400
+inventory_device_ready_retry_interval: 10
+fabric_device_ready_timeout: 400
+fabric_device_ready_retries: 40
+fabric_device_ready_interval: 10
+```
+
 ---
 
 ### Stage 1: Device Discovery
@@ -114,11 +134,29 @@ Discovers devices using the Catalyst Center discovery tool. Supports multiple di
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `config.management_ip_address` | string | Yes* | Device management IP |
-| `config.ip_address_list` | list[string] | Yes* | List of device IPs (alternative to `management_ip_address`) |
+| `config.management_ip_address` | string | Yes* | Single device management IP |
+| `config.ip_address_list` | list[string] | Yes* | List of device IPs |
+| `config.hostname_list` | list[string] | Yes* | List of device hostnames |
+| `config.serial_number_list` | list[string] | Yes* | List of device serial numbers |
+| `config.mac_address_list` | list[string] | Yes* | List of device MAC addresses |
 | `config.role` | enum | No | `ACCESS`, `CORE`, `DISTRIBUTION`, `BORDER_ROUTER`, `UNKNOWN` |
 
-\* Provide either `management_ip_address` or `ip_address_list` to identify the device(s).
+\* Provide at least one identifier set. Before the role update runs, the workflow waits for all matching devices to be present in inventory and in managed state using `network_devices_info_workflow_manager`.
+
+Examples:
+
+```yaml
+inventory_roles:
+  - config:
+      hostname_list:
+        - "SR-LAN-9300-IM1"
+        - "SR-LAN-9300-IM2"
+      role: "ACCESS"
+  - config:
+      serial_number_list:
+        - "FJC27172JDX"
+      role: "BORDER_ROUTER"
+```
 
 ---
 
@@ -166,7 +204,20 @@ Discovers devices using the Catalyst Center discovery tool. Supports multiple di
 | `config.port_channels` | list | No | See port channel fields below |
 | `config.wireless_ssids` | list | No | See wireless SSID fields below |
 
-\* Provide either `ip_address` or `hostname` to identify the device.
+\* Provide either `ip_address` or `hostname` to identify the device. Before host onboarding runs, the workflow resolves the device in inventory, validates that it is present in the same job's Stage 5 `fabric_devices` list, and waits for the device to appear in the fabric with a supported host-onboarding role.
+
+Example:
+
+```yaml
+host_port_onboarding:
+  - config:
+      hostname: "SR-LAN-9300-IM1"
+      fabric_site_name_hierarchy: "Global/USA/SAN JOSE/BLD23"
+      port_assignments:
+        - interface_name: "GigabitEthernet1/0/10"
+          connected_device_type: "USER_DEVICE"
+          data_vlan_name: "EMPLOYEEPOOL_Employee_VN"
+```
 
 **Port assignment fields:** `interface_name` (required), `connected_device_type` (`USER_DEVICE`/`ACCESS_POINT`/`TRUNKING_DEVICE`, required), `data_vlan_name`, `voice_vlan_name`, `security_group_name`, `authentication_template_name`, `interface_description`
 
@@ -192,6 +243,12 @@ Discovers devices using the Catalyst Center discovery tool. Supports multiple di
 Use this when devices are already cabled and reachable via known IP addresses. The discovery tool scans the network, adds devices to Catalyst Center inventory, then the remaining stages provision and onboard them into the SDA fabric.
 
 ```yaml
+inventory_device_ready_retry_time: 400
+inventory_device_ready_retry_interval: 10
+fabric_device_ready_timeout: 400
+fabric_device_ready_retries: 40
+fabric_device_ready_interval: 10
+
 sda_fabric_discover_and_onboard_fabric_devices:
   jobs:
     - job_name: "sanjose_bld23_discovery_onboarding"
@@ -836,4 +893,3 @@ Use either of these forms:
 
 - Relative to the playbook: `../vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml`
 - Fully resolved from the repo root: `${PWD}/workflows/sda_fabric_discover_and_onboard_fabric_devices/vars/sda_fabric_discover_and_onboard_fabric_devices_input.yml`
-

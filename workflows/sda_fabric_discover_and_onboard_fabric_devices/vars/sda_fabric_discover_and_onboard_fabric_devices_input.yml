@@ -5,6 +5,15 @@ state: merged
 # Optional Catalyst Center version override
 catalyst_center_version: 2.3.7.9
 
+# Optional Stage 3 readiness wait controls before inventory role updates
+inventory_device_ready_retry_time: 400
+inventory_device_ready_retry_interval: 10
+
+# Optional Stage 6 fabric readiness wait controls before host onboarding
+fabric_device_ready_timeout: 400
+fabric_device_ready_retries: 40
+fabric_device_ready_interval: 10
+
 # End-to-end SDA fabric discover and onboarding workflow data model
 #
 # This file contains two example jobs:

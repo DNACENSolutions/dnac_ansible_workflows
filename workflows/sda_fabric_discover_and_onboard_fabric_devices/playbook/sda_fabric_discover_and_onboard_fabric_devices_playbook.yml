@@ -176,7 +176,7 @@
         stage_discovery_summary:
           stage: "discovery"
           configured: "{{ stage_configured_counts.discovery | int }}"
-          attempted: "{{ discovery_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          attempted: "{{ discovery_stage_output.results | default([]) | length }}"
           changed: "{{ discovery_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
           failed: "{{ discovery_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
           status: >-
@@ -190,7 +190,7 @@
                 else
                 (
                   'success'
-                  if ((discovery_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  if ((discovery_stage_output.results | default([]) | length) > 0)
                   else 'not_run'
                 )
               )
@@ -256,7 +256,7 @@
         stage_lan_automation_summary:
           stage: "lan_automation"
           configured: "{{ stage_configured_counts.lan_automation | int }}"
-          attempted: "{{ lan_automation_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          attempted: "{{ lan_automation_stage_output.results | default([]) | length }}"
           changed: "{{ lan_automation_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
           failed: "{{ lan_automation_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
           status: >-
@@ -270,7 +270,7 @@
                 else
                 (
                   'success'
-                  if ((lan_automation_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  if ((lan_automation_stage_output.results | default([]) | length) > 0)
                   else 'not_run'
                 )
               )
@@ -294,6 +294,117 @@
       tags:
         - lan_automation
         - stage_2
+
+    - name: Build Stage 3 inventory readiness queries
+      set_fact:
+        stage3_inventory_ready_queries: >-
+          {{
+            (stage3_inventory_ready_queries | default([]))
+            + ([stage3_ready_query] if (stage3_ready_identifier | length) > 0 else [])
+          }}
+        stage3_inventory_ready_invalid_targets: >-
+          {{
+            (stage3_inventory_ready_invalid_targets | default([]))
+            + ([stage3_ready_target] if (stage3_ready_identifier | length) == 0 else [])
+          }}
+      vars:
+        stage3_ready_identifier: >-
+          {{
+            {}
+            | combine({'ip_address': item.1.config.ip_address_list} if (item.1.config.ip_address_list | default([]) | length) > 0 else {})
+            | combine({'ip_address': [item.1.config.management_ip_address]} if ((item.1.config.ip_address_list | default([]) | length) == 0 and (item.1.config.management_ip_address | default('') | length) > 0) else {})
+            | combine({'hostname': item.1.config.hostname_list} if (item.1.config.hostname_list | default([]) | length) > 0 else {})
+            | combine({'serial_number': item.1.config.serial_number_list} if (item.1.config.serial_number_list | default([]) | length) > 0 else {})
+            | combine({'mac_address': item.1.config.mac_address_list} if (item.1.config.mac_address_list | default([]) | length) > 0 else {})
+          }}
+        stage3_ready_query:
+          device_identifier: "{{ [stage3_ready_identifier] }}"
+          requested_info:
+            - device_info
+          timeout: "{{ inventory_device_ready_retry_time | default(400) | int }}"
+          retries: >-
+            {{
+              [
+                (
+                  (inventory_device_ready_retry_time | default(400) | int)
+                  / (inventory_device_ready_retry_interval | default(10) | int)
+                ) | round(0, 'ceil') | int,
+                1
+              ] | max
+            }}
+          interval: "{{ inventory_device_ready_retry_interval | default(10) | int }}"
+        stage3_ready_target: "{{ item.0.job_name | default('unnamed-job') }}"
+      loop: "{{ query('subelements', onboarding_jobs, 'inventory_roles', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      when:
+        - item.1.config is defined
+      tags:
+        - inventory_roles
+        - stage_3
+
+    - name: Validate Stage 3 inventory readiness query inputs
+      fail:
+        msg: >-
+          Stage 3 inventory_roles entries are missing inventory identifiers:
+          {{ stage3_inventory_ready_invalid_targets | join(', ') }}.
+          Provide one of management_ip_address, ip_address_list, hostname_list,
+          serial_number_list, or mac_address_list.
+      when:
+        - (stage3_inventory_ready_invalid_targets | default([]) | length) > 0
+      tags:
+        - inventory_roles
+        - stage_3
+
+    - name: Stage 3 prerequisite - Validate devices are managed in inventory
+      cisco.catalystcenter.network_devices_info_workflow_manager:
+        <<: *catalyst_center_login
+        state: gathered
+        config:
+          - network_devices: "{{ stage3_inventory_ready_queries }}"
+      register: inventory_roles_device_ready_output
+      when:
+        - not ansible_check_mode
+        - (stage3_inventory_ready_queries | default([]) | length) > 0
+      tags:
+        - inventory_roles
+        - stage_3
+
+    - name: Validate Stage 3 inventory readiness results
+      fail:
+        msg: >-
+          Stage 3 prerequisite failed. The following devices were not ready in
+          inventory after workflow-manager retries:
+          {{ stage3_inventory_ready_errors | join(' | ') }}
+      vars:
+        stage3_inventory_ready_errors: >-
+          {{
+            inventory_roles_device_ready_output.response | default([])
+            | select('string')
+            | select('match', '^No (devices|network devices) ')
+            | list
+          }}
+      when:
+        - not ansible_check_mode
+        - inventory_roles_device_ready_output is defined
+        - (stage3_inventory_ready_errors | length) > 0
+      tags:
+        - inventory_roles
+        - stage_3
+
+    - name: "Check mode: Stage 3 prerequisite - Inventory readiness dry run"
+      debug:
+        msg: >-
+          [CHECK MODE] Would validate {{ stage3_inventory_ready_queries | default([]) | length }}
+          Stage 3 inventory target set(s) with network_devices_info_workflow_manager
+          using timeout={{ inventory_device_ready_retry_time | default(400) | int }}s
+          and interval={{ inventory_device_ready_retry_interval | default(10) | int }}s.
+      when:
+        - ansible_check_mode
+        - (stage_configured_counts.inventory_roles | int) > 0
+      tags:
+        - inventory_roles
+        - stage_3
 
     - name: Stage 3 - Fix device roles in inventory
       cisco.catalystcenter.inventory_workflow_manager:
@@ -336,7 +447,7 @@
         stage_inventory_roles_summary:
           stage: "inventory_roles"
           configured: "{{ stage_configured_counts.inventory_roles | int }}"
-          attempted: "{{ inventory_roles_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          attempted: "{{ inventory_roles_stage_output.results | default([]) | length }}"
           changed: "{{ inventory_roles_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
           failed: "{{ inventory_roles_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
           status: >-
@@ -350,7 +461,7 @@
                 else
                 (
                   'success'
-                  if ((inventory_roles_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  if ((inventory_roles_stage_output.results | default([]) | length) > 0)
                   else 'not_run'
                 )
               )
@@ -416,7 +527,7 @@
         stage_provision_summary:
           stage: "provision"
           configured: "{{ stage_configured_counts.provision | int }}"
-          attempted: "{{ provision_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          attempted: "{{ provision_stage_output.results | default([]) | length }}"
           changed: "{{ provision_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
           failed: "{{ provision_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
           status: >-
@@ -430,7 +541,7 @@
                 else
                 (
                   'success'
-                  if ((provision_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  if ((provision_stage_output.results | default([]) | length) > 0)
                   else 'not_run'
                 )
               )
@@ -496,7 +607,7 @@
         stage_fabric_devices_summary:
           stage: "fabric_devices"
           configured: "{{ stage_configured_counts.fabric_devices | int }}"
-          attempted: "{{ fabric_devices_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          attempted: "{{ fabric_devices_stage_output.results | default([]) | length }}"
           changed: "{{ fabric_devices_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
           failed: "{{ fabric_devices_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
           status: >-
@@ -510,7 +621,7 @@
                 else
                 (
                   'success'
-                  if ((fabric_devices_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  if ((fabric_devices_stage_output.results | default([]) | length) > 0)
                   else 'not_run'
                 )
               )
@@ -534,6 +645,260 @@
       tags:
         - fabric_devices
         - stage_5
+
+    - name: Build Stage 6 inventory resolution queries
+      set_fact:
+        stage6_inventory_lookup_queries: >-
+          {{
+            (stage6_inventory_lookup_queries | default([]))
+            + ([stage6_lookup_query] if (stage6_lookup_identifier | length) > 0 else [])
+          }}
+        stage6_inventory_lookup_invalid_targets: >-
+          {{
+            (stage6_inventory_lookup_invalid_targets | default([]))
+            + ([stage6_target_identifier] if (stage6_lookup_identifier | length) == 0 else [])
+          }}
+      vars:
+        stage6_lookup_identifier: >-
+          {{
+            {}
+            | combine({'ip_address': [item.1.config.ip_address]} if (item.1.config.ip_address | default('') | length) > 0 else {})
+            | combine({'hostname': [item.1.config.hostname]} if (item.1.config.hostname | default('') | length) > 0 else {})
+          }}
+        stage6_lookup_query:
+          device_identifier: "{{ [stage6_lookup_identifier] }}"
+          requested_info:
+            - device_info
+          timeout: "{{ inventory_device_ready_retry_time | default(400) | int }}"
+          retries: >-
+            {{
+              [
+                (
+                  (inventory_device_ready_retry_time | default(400) | int)
+                  / (inventory_device_ready_retry_interval | default(10) | int)
+                ) | round(0, 'ceil') | int,
+                1
+              ] | max
+            }}
+          interval: "{{ inventory_device_ready_retry_interval | default(10) | int }}"
+        stage6_target_identifier: "{{ item.1.config.ip_address | default(item.1.config.hostname | default(item.0.job_name | default('unnamed-job'))) }}"
+      loop: "{{ query('subelements', onboarding_jobs, 'host_port_onboarding', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      when:
+        - item.1.config is defined
+      tags:
+        - host_port_onboarding
+        - stage_6
+
+    - name: Validate Stage 6 inventory resolution query inputs
+      fail:
+        msg: >-
+          Stage 6 host_port_onboarding entries are missing device identifiers:
+          {{ stage6_inventory_lookup_invalid_targets | join(', ') }}.
+          Provide either ip_address or hostname.
+      when:
+        - (stage6_inventory_lookup_invalid_targets | default([]) | length) > 0
+      tags:
+        - host_port_onboarding
+        - stage_6
+
+    - name: Stage 6 prerequisite - Resolve host onboarding devices in inventory
+      cisco.catalystcenter.network_devices_info_workflow_manager:
+        <<: *catalyst_center_login
+        state: gathered
+        config:
+          - network_devices: "{{ stage6_inventory_lookup_queries }}"
+      register: host_port_onboarding_device_lookup_output
+      when:
+        - not ansible_check_mode
+        - (stage6_inventory_lookup_queries | default([]) | length) > 0
+      tags:
+        - host_port_onboarding
+        - stage_6
+
+    - name: Build Stage 6 fabric readiness queries
+      set_fact:
+        stage6_fabric_ready_queries: >-
+          {{
+            (stage6_fabric_ready_queries | default([]))
+            + ([stage6_fabric_ready_query] if (stage6_resolved_device != {} and stage6_expected_fabric != {} and (stage6_role_filter | length) > 0) else [])
+          }}
+        stage6_fabric_ready_invalid_targets: >-
+          {{
+            (stage6_fabric_ready_invalid_targets | default([]))
+            + (
+              [stage6_invalid_reason]
+              if (stage6_resolved_device == {} or stage6_expected_fabric == {} or (stage6_role_filter | length) == 0)
+              else []
+            )
+          }}
+      vars:
+        stage6_resolved_device: >-
+          {{
+            (
+              stage6_resolved_devices
+              | selectattr('managementIpAddress', 'equalto', item.1.config.ip_address | default(''))
+              | list
+              | first
+              | default({})
+            )
+            if (item.1.config.ip_address | default('') | length) > 0
+            else
+            (
+              stage6_resolved_devices
+              | selectattr('hostname', 'equalto', item.1.config.hostname | default(''))
+              | list
+              | first
+              | default({})
+            )
+          }}
+        stage6_resolved_devices: >-
+          {{
+            host_port_onboarding_device_lookup_output.response | default([])
+            | select('sequence')
+            | reject('string')
+            | list
+            | flatten
+            | selectattr('device_info', 'defined')
+            | map(attribute='device_info')
+            | list
+            | flatten
+          }}
+        stage6_expected_fabric: >-
+          {%- set ns = namespace(match={}) -%}
+          {%- for fabric_stage in item.0.fabric_devices | default([]) -%}
+          {%- for fabric_device in fabric_stage.config.fabric_devices.device_config | default([]) -%}
+          {%- if fabric_device.device_ip == stage6_resolved_device.managementIpAddress | default('') -%}
+          {%- set ns.match = {
+            'fabric_name': fabric_stage.config.fabric_devices.fabric_name,
+            'device_roles': fabric_device.device_roles | default([]),
+            'device_ip': fabric_device.device_ip
+          } -%}
+          {%- endif -%}
+          {%- endfor -%}
+          {%- endfor -%}
+          {{ ns.match }}
+        stage6_role_filter: >-
+          {{
+            'WIRELESS_CONTROLLER_NODE'
+            if 'WIRELESS_CONTROLLER_NODE' in (stage6_expected_fabric.device_roles | default([]))
+            else (
+              'EDGE_NODE'
+              if 'EDGE_NODE' in (stage6_expected_fabric.device_roles | default([]))
+              else (
+                'EXTENDED_NODE'
+                if 'EXTENDED_NODE' in (stage6_expected_fabric.device_roles | default([]))
+                else ''
+              )
+            )
+          }}
+        stage6_fabric_ready_query:
+          fabric_site_hierarchy: "{{ stage6_expected_fabric.fabric_name }}"
+          fabric_device_role: "{{ stage6_role_filter }}"
+          device_identifier:
+            - ip_address:
+                - "{{ stage6_resolved_device.managementIpAddress }}"
+          requested_info:
+            - fabric_info
+          timeout: "{{ fabric_device_ready_timeout | default(400) | int }}"
+          retries: "{{ fabric_device_ready_retries | default(40) | int }}"
+          interval: "{{ fabric_device_ready_interval | default(10) | int }}"
+        stage6_invalid_reason: >-
+          {{
+            (
+              "Stage 6 host onboarding target '"
+              ~ (item.1.config.ip_address | default(item.1.config.hostname | default('N/A')))
+              ~ "' was not resolved to a managed inventory device after workflow-manager retries."
+            )
+            if (stage6_resolved_device == {})
+            else (
+              "Stage 6 host onboarding target '"
+              ~ (stage6_resolved_device.managementIpAddress | default(item.1.config.ip_address | default(item.1.config.hostname | default('N/A'))))
+              ~ "' does not have a matching Stage 5 fabric_devices entry in job '"
+              ~ (item.0.job_name | default('unnamed-job'))
+              ~ "'."
+            )
+            if (stage6_expected_fabric == {})
+            else (
+              "Stage 6 host onboarding target '"
+              ~ (stage6_resolved_device.managementIpAddress | default(item.1.config.ip_address | default(item.1.config.hostname | default('N/A'))))
+              ~ "' does not have a supported Stage 5 role for host onboarding fabric validation."
+            )
+          }}
+      loop: "{{ query('subelements', onboarding_jobs, 'host_port_onboarding', {'skip_missing': True}) }}"
+      loop_control:
+        label: "{{ item.0.job_name | default('unnamed-job') }}"
+      when:
+        - not ansible_check_mode
+        - item.1.config is defined
+        - host_port_onboarding_device_lookup_output is defined
+      tags:
+        - host_port_onboarding
+        - stage_6
+
+    - name: Validate Stage 6 pre-fabric readiness results
+      fail:
+        msg: >-
+          Stage 6 prerequisite failed:
+          {{ stage6_fabric_ready_invalid_targets | join(' | ') }}
+      when:
+        - not ansible_check_mode
+        - (stage6_fabric_ready_invalid_targets | default([]) | length) > 0
+      tags:
+        - host_port_onboarding
+        - stage_6
+
+    - name: Stage 6 prerequisite - Validate host onboarding devices are in fabric with expected role
+      cisco.catalystcenter.fabric_devices_info_workflow_manager:
+        <<: *catalyst_center_login
+        state: gathered
+        config:
+          - fabric_devices: "{{ stage6_fabric_ready_queries }}"
+      register: host_port_onboarding_fabric_ready_output
+      when:
+        - not ansible_check_mode
+        - (stage6_fabric_ready_queries | default([]) | length) > 0
+      tags:
+        - host_port_onboarding
+        - stage_6
+
+    - name: Validate Stage 6 fabric readiness results
+      fail:
+        msg: >-
+          Stage 6 prerequisite failed. The following devices were not present
+          in fabric with the expected role after workflow-manager retries:
+          {{ stage6_fabric_ready_errors | join(' | ') }}
+      vars:
+        stage6_fabric_ready_errors: >-
+          {{
+            host_port_onboarding_fabric_ready_output.response | default([])
+            | select('string')
+            | select('match', '^No fabric devices found')
+            | list
+          }}
+      when:
+        - not ansible_check_mode
+        - host_port_onboarding_fabric_ready_output is defined
+        - (stage6_fabric_ready_errors | length) > 0
+      tags:
+        - host_port_onboarding
+        - stage_6
+
+    - name: "Check mode: Stage 6 prerequisite - Fabric readiness dry run"
+      debug:
+        msg: >-
+          [CHECK MODE] Would validate {{ stage_configured_counts.host_port_onboarding | int }}
+          Stage 6 host onboarding target set(s) in fabric with
+          fabric_devices_info_workflow_manager using timeout={{ fabric_device_ready_timeout | default(400) | int }}s,
+          retries={{ fabric_device_ready_retries | default(40) | int }},
+          interval={{ fabric_device_ready_interval | default(10) | int }}s.
+      when:
+        - ansible_check_mode
+        - (stage_configured_counts.host_port_onboarding | int) > 0
+      tags:
+        - host_port_onboarding
+        - stage_6
 
     - name: Stage 6 - Onboard SDA host ports on fabric devices
       cisco.catalystcenter.sda_host_port_onboarding_workflow_manager:
@@ -579,7 +944,7 @@
         stage_host_port_onboarding_summary:
           stage: "host_port_onboarding"
           configured: "{{ stage_configured_counts.host_port_onboarding | int }}"
-          attempted: "{{ host_port_onboarding_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length }}"
+          attempted: "{{ host_port_onboarding_stage_output.results | default([]) | length }}"
           changed: "{{ host_port_onboarding_stage_output.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}"
           failed: "{{ host_port_onboarding_stage_output.results | default([]) | selectattr('failed', 'equalto', true) | list | length }}"
           status: >-
@@ -593,7 +958,7 @@
                 else
                 (
                   'success'
-                  if ((host_port_onboarding_stage_output.results | default([]) | rejectattr('skipped', 'equalto', true) | list | length) > 0)
+                  if ((host_port_onboarding_stage_output.results | default([]) | length) > 0)
                   else 'not_run'
                 )
               )
