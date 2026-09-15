@@ -1,14 +1,4 @@
 ---
-catalystcenter_host: "10.22.45.187"
-catalystcenter_port: 443
-catalystcenter_username: "admin"
-catalystcenter_password: "mAGLEV123"
-catalystcenter_version: "2.3.7.9"
-catalystcenter_verify: false
-catalystcenter_debug: true
-catalystcenter_log: true
-catalystcenter_log_level: DEBUG
-
 swim_details:
   distribution_batch_size: 2
   activation_batch_size: 2
