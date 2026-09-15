@@ -789,9 +789,9 @@ Before running the workflow, export the environment variables used by the
 inventory:
 
 ```bash
-export CATALYST_CENTER_HOST="10.22.45.187"
-export CATALYST_CENTER_USERNAME="admin"
-export CATALYST_CENTER_PASSWORD="<password>"
+export CATALYST_CENTER_HOST="<catalyst-center-host>"
+export CATALYST_CENTER_USERNAME="<catalyst-center-username>"
+export CATALYST_CENTER_PASSWORD="<catalyst-center-password>"
 ```
 
 The workflow supports both inventory naming formats. The existing IAC-style
@@ -1090,10 +1090,10 @@ combined import, tag, distribute, and activate workflow is used.
 Run the workflow from the repository root:
 
 ```bash
-$PWD/.venv312/bin/ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/swim/playbook/swim_workflow_playbook.yml \
   --extra-vars "VARS_FILE_PATH=../vars/swim_bundle_to_install_enl2.yml" \
-  -e ansible_python_interpreter=$PWD/.venv312/bin/python \
+  -e ansible_python_interpreter="$(which python)" \
   -vvvv
 ```
 
@@ -1231,10 +1231,10 @@ The run confirmed:
   ### a. Include import/tag_untag/distribute/activate images (state = 'merged')
   Example command to run the swim playbook:
   ```bash
-  $PWD/.venv312/bin/ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
+  ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
     ./workflows/swim/playbook/swim_workflow_playbook.yml \
     --extra-vars "VARS_FILE_PATH=../vars/swim_bundle_to_install_enl2.yml" \
-    -e ansible_python_interpreter=$PWD/.venv312/bin/python \
+    -e ansible_python_interpreter="$(which python)" \
     -vvvv
   ```
   
@@ -1308,13 +1308,13 @@ ansible-galaxy collection install cisco.catalystcenter --force
 3. Export Catalyst Center environment variables and run the playbook.
 
 ```bash
-export HOSTIP=<catalyst-center-ip-or-fqdn>
+export CATALYST_CENTER_HOST=<catalyst-center-ip-or-fqdn>
 export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
-$PWD/.venv312/bin/ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
+ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
   ./workflows/swim/playbook/swim_workflow_playbook.yml \
   --extra-vars "VARS_FILE_PATH=../vars/swim_bundle_to_install_enl2.yml" \
-  -e ansible_python_interpreter=$PWD/.venv312/bin/python \
+  -e ansible_python_interpreter="$(which python)" \
   -vvvv
 ```
 
@@ -1328,8 +1328,8 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 4. Run the playbook without `VARS_FILE_PATH`:
 
 ```bash
-$PWD/.venv312/bin/ansible-playbook -i <inventory-file> workflows/swim/playbook/swim_workflow_playbook.yml \
-  -e ansible_python_interpreter=$PWD/.venv312/bin/python \
+ansible-playbook -i <inventory-file> workflows/swim/playbook/swim_workflow_playbook.yml \
+  -e ansible_python_interpreter="$(which python)" \
   -vvvv
 ```
 ## VARS_FILE_PATH Path Resolution
