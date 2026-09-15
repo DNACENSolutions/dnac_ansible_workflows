@@ -747,34 +747,100 @@ workflow playbook, and schema with the latest SWIM enhancements.
 
 Review or update the following files as needed:
 
-1. `workflows/swim/vars/swim_bundle_to_install_enl2.yml`, or another vars file
+1. `inventory/demo_lab/hosts.yaml`, or the inventory file used for the target
+   environment
+2. `workflows/swim/vars/swim_bundle_to_install_enl2.yml`, or another vars file
    supplied through `VARS_FILE_PATH`
-2. `workflows/swim/playbook/swim_workflow_playbook.yml`
-3. `workflows/swim/schema/swim_schema.yml`
+3. `workflows/swim/playbook/swim_workflow_playbook.yml`
+4. `workflows/swim/schema/swim_schema.yml`
 
 The sample configuration assumes the software image is already imported into
 Catalyst Center, then performs golden tagging, image distribution, and image
-activation for C9350 devices. Replace the Catalyst Center connection details,
-image name, site hierarchy, device family, and target devices with values from
-the deployment environment.
+activation for Catalyst 9300 devices. Replace the image name, site hierarchy,
+device family, and target devices with values from the deployment environment.
 
-### 1. Input Variables File
+### 1. Inventory Host Variables
+
+Catalyst Center connection details should be provided from inventory host
+variables, not from the SWIM vars file. Sensitive values such as username and
+password should be sourced from environment variables or Ansible Vault.
+
+The following inventory format uses environment variables for the cluster host,
+username, and password:
+
+```yaml
+---
+catalyst_center_hosts:
+  hosts:
+    catalyst_center220:
+      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_HOST') }}"
+      catalyst_center_password: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_PASSWORD') }}"
+      catalyst_center_port: 443
+      catalyst_center_timeout: 60
+      catalyst_center_username: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_USERNAME') }}"
+      catalyst_center_verify: false
+      catalyst_center_version: "2.3.7.9"
+      catalyst_center_debug: true
+      catalyst_center_log_level: DEBUG
+      catalyst_center_log: true
+```
+
+Before running the workflow, export the environment variables used by the
+inventory:
+
+```bash
+export CATALYST_CENTER_HOST="10.22.45.187"
+export CATALYST_CENTER_USERNAME="admin"
+export CATALYST_CENTER_PASSWORD="<password>"
+```
+
+The workflow supports both inventory naming formats. The existing IAC-style
+format is:
+
+```yaml
+catalyst_center_host
+catalyst_center_username
+catalyst_center_password
+catalyst_center_version
+catalyst_center_port
+catalyst_center_verify
+catalyst_center_config_verify
+catalyst_center_debug
+catalyst_center_log
+catalyst_center_log_level
+catalyst_center_log_file_path
+catalyst_center_log_append
+catalyst_center_api_task_timeout
+```
+
+The Catalyst Center collection-style format is also supported:
+
+```yaml
+catalystcenter_host
+catalystcenter_username
+catalystcenter_password
+catalystcenter_version
+catalystcenter_port
+catalystcenter_verify
+catalystcenter_config_verify
+catalystcenter_debug
+catalystcenter_log
+catalystcenter_log_level
+catalystcenter_log_file_path
+catalystcenter_log_append
+catalystcenter_api_task_timeout
+```
+
+### 2. Input Variables File
 
 Create or update a vars file such as
 `workflows/swim/vars/swim_bundle_to_install_enl2.yml`.
 
+The SWIM vars file should contain only SWIM workflow inputs, such as image
+details, device targets, batch size, and poll interval settings.
+
 ```yaml
 ---
-catalystcenter_host: "10.22.45.187"
-catalystcenter_port: 443
-catalystcenter_username: "admin"
-catalystcenter_password: "mAGLEV123"
-catalystcenter_version: "2.3.7.9"
-catalystcenter_verify: false
-catalystcenter_debug: true
-catalystcenter_log: true
-catalystcenter_log_level: DEBUG
-
 swim_details:
   distribution_batch_size: 2
   activation_batch_size: 2
@@ -816,12 +882,13 @@ Use `device_ip_addresses`, `device_serial_numbers`, `device_hostnames`, or
 `device_mac_addresses` when you want to target an explicit device list. Use
 `device_tag` when you want Catalyst Center to resolve devices from a tag.
 
-### 2. Workflow Playbook
+### 3. Workflow Playbook
 
 The workflow playbook loads `swim_details` from `VARS_FILE_PATH` or from
 inventory/host variables, then calls `cisco.catalystcenter.swim_workflow_manager`
-for each requested operation. Each SWIM task must pass both the Catalyst Center
-connection fields and the SWIM runtime controls into the module.
+for each requested operation. Catalyst Center connection inputs are read from
+inventory, while SWIM image, distribution, activation, batch, and poll interval
+settings are read from `swim_details`.
 
 Use the following structure for `workflows/swim/playbook/swim_workflow_playbook.yml`.
 
@@ -831,6 +898,23 @@ Use the following structure for `workflows/swim/playbook/swim_workflow_playbook.
   hosts: catalyst_center_hosts
   connection: local
   gather_facts: no
+
+  vars:
+    # Define the default values for the Catalyst Center login in inventory or vars file.
+    catalyst_center_login: &catalyst_center_login
+        catalystcenter_host: "{{ catalyst_center_host | default(catalystcenter_host) }}"
+        catalystcenter_username: "{{ catalyst_center_username | default(catalystcenter_username) }}"
+        catalystcenter_password: "{{ catalyst_center_password | default(catalystcenter_password) }}"
+        catalystcenter_version: "{{ catalyst_center_version | default(catalystcenter_version | default(omit)) }}"
+        catalystcenter_port: "{{ catalyst_center_port | default(catalystcenter_port | default(443)) }}"
+        catalystcenter_verify: "{{ catalyst_center_verify | default(catalystcenter_verify | default(false)) }}"
+        config_verify: "{{ catalyst_center_config_verify | default(catalystcenter_config_verify | default(false)) }}"
+        catalystcenter_debug: "{{ catalyst_center_debug | default(catalystcenter_debug | default(false)) }}"
+        catalystcenter_log: "{{ catalyst_center_log | default(catalystcenter_log | default(false)) }}"
+        catalystcenter_log_level: "{{ catalyst_center_log_level | default(catalystcenter_log_level | default('INFO')) }}"
+        catalystcenter_log_file_path: "{{ catalyst_center_log_file_path | default(catalystcenter_log_file_path | default(omit)) }}"
+        catalystcenter_log_append: "{{ catalyst_center_log_append | default(catalystcenter_log_append | default(false)) }}"
+        catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(catalystcenter_api_task_timeout | default(1200)) }}"
 
   tasks:
     - name: Load input variables from vars file when VARS_FILE_PATH is provided
@@ -858,19 +942,7 @@ Use the following structure for `workflows/swim/playbook/swim_workflow_playbook.
 
     - name: Import images from URL, local disk, CCO, or sync CCO catalog
       cisco.catalystcenter.swim_workflow_manager:
-        catalystcenter_host: "{{ catalystcenter_host }}"
-        catalystcenter_username: "{{ catalystcenter_username }}"
-        catalystcenter_password: "{{ catalystcenter_password }}"
-        catalystcenter_version: "{{ catalystcenter_version }}"
-        catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
-        catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
-        config_verify: "{{ catalystcenter_config_verify | default(false) }}"
-        catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
-        catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
-        catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
-        catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
-        catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
-        catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+        <<: *catalyst_center_login
         distribution_batch_size: "{{ swim_details.distribution_batch_size | default(50) }}"
         activation_batch_size: "{{ swim_details.activation_batch_size | default(50) }}"
         distribution_poll_interval: "{{ swim_details.distribution_poll_interval | default(30) }}"
@@ -882,19 +954,7 @@ Use the following structure for `workflows/swim/playbook/swim_workflow_playbook.
 
     - name: Golden tag images on Catalyst Center sites
       cisco.catalystcenter.swim_workflow_manager:
-        catalystcenter_host: "{{ catalystcenter_host }}"
-        catalystcenter_username: "{{ catalystcenter_username }}"
-        catalystcenter_password: "{{ catalystcenter_password }}"
-        catalystcenter_version: "{{ catalystcenter_version }}"
-        catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
-        catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
-        config_verify: "{{ catalystcenter_config_verify | default(false) }}"
-        catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
-        catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
-        catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
-        catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
-        catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
-        catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+        <<: *catalyst_center_login
         distribution_batch_size: "{{ swim_details.distribution_batch_size | default(50) }}"
         activation_batch_size: "{{ swim_details.activation_batch_size | default(50) }}"
         distribution_poll_interval: "{{ swim_details.distribution_poll_interval | default(30) }}"
@@ -906,19 +966,7 @@ Use the following structure for `workflows/swim/playbook/swim_workflow_playbook.
 
     - name: Distribute images to Catalyst Center devices
       cisco.catalystcenter.swim_workflow_manager:
-        catalystcenter_host: "{{ catalystcenter_host }}"
-        catalystcenter_username: "{{ catalystcenter_username }}"
-        catalystcenter_password: "{{ catalystcenter_password }}"
-        catalystcenter_version: "{{ catalystcenter_version }}"
-        catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
-        catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
-        config_verify: "{{ catalystcenter_config_verify | default(false) }}"
-        catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
-        catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
-        catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
-        catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
-        catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
-        catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+        <<: *catalyst_center_login
         distribution_batch_size: "{{ swim_details.distribution_batch_size | default(50) }}"
         activation_batch_size: "{{ swim_details.activation_batch_size | default(50) }}"
         distribution_poll_interval: "{{ swim_details.distribution_poll_interval | default(30) }}"
@@ -930,19 +978,7 @@ Use the following structure for `workflows/swim/playbook/swim_workflow_playbook.
 
     - name: Activate images on Catalyst Center devices
       cisco.catalystcenter.swim_workflow_manager:
-        catalystcenter_host: "{{ catalystcenter_host }}"
-        catalystcenter_username: "{{ catalystcenter_username }}"
-        catalystcenter_password: "{{ catalystcenter_password }}"
-        catalystcenter_version: "{{ catalystcenter_version }}"
-        catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
-        catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
-        config_verify: "{{ catalystcenter_config_verify | default(false) }}"
-        catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
-        catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
-        catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
-        catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
-        catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
-        catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+        <<: *catalyst_center_login
         distribution_batch_size: "{{ swim_details.distribution_batch_size | default(50) }}"
         activation_batch_size: "{{ swim_details.activation_batch_size | default(50) }}"
         distribution_poll_interval: "{{ swim_details.distribution_poll_interval | default(30) }}"
@@ -954,19 +990,7 @@ Use the following structure for `workflows/swim/playbook/swim_workflow_playbook.
 
     - name: Import, tag, distribute, and activate images in one combined workflow
       cisco.catalystcenter.swim_workflow_manager:
-        catalystcenter_host: "{{ catalystcenter_host }}"
-        catalystcenter_username: "{{ catalystcenter_username }}"
-        catalystcenter_password: "{{ catalystcenter_password }}"
-        catalystcenter_version: "{{ catalystcenter_version }}"
-        catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
-        catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
-        config_verify: "{{ catalystcenter_config_verify | default(false) }}"
-        catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
-        catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
-        catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
-        catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
-        catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
-        catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+        <<: *catalyst_center_login
         distribution_batch_size: "{{ swim_details.distribution_batch_size | default(50) }}"
         activation_batch_size: "{{ swim_details.activation_batch_size | default(50) }}"
         distribution_poll_interval: "{{ swim_details.distribution_poll_interval | default(30) }}"
@@ -977,7 +1001,12 @@ Use the following structure for `workflows/swim/playbook/swim_workflow_playbook.
       when: swim_details.upload_tag_dis_activate_images is defined
 ```
 
-### 3. Schema Updates
+The same Catalyst Center login block and SWIM runtime options are reused for
+import, golden tagging, distribution, activation, and the combined workflow.
+This keeps the playbook consistent while allowing the vars file to focus only on
+SWIM workflow inputs.
+
+### 4. Schema Updates
 
 Update `workflows/swim/schema/swim_schema.yml` so validation accepts the latest
 runtime controls, explicit multi-device targeting fields, force options, and
@@ -1056,7 +1085,7 @@ image_activation_details:
 Apply the same distribution and activation fields under `full_upload_type` if the
 combined import, tag, distribute, and activate workflow is used.
 
-### 4. Execution Command
+### 5. Execution Command
 
 Run the workflow from the repository root:
 
@@ -1077,22 +1106,31 @@ $PWD/.venv312/bin/ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
 The workflow playbook passes Catalyst Center connection values and SWIM runtime
 controls into each `cisco.catalystcenter.swim_workflow_manager` task.
 
-Each SWIM task must pass Catalyst Center connection details directly:
+The playbook defines a shared Catalyst Center login block and reuses it in each
+SWIM task. The login block supports both `catalyst_center_*` and
+`catalystcenter_*` inventory variable formats:
 
 ```yaml
-catalystcenter_host: "{{ catalystcenter_host }}"
-catalystcenter_username: "{{ catalystcenter_username }}"
-catalystcenter_password: "{{ catalystcenter_password }}"
-catalystcenter_version: "{{ catalystcenter_version }}"
-catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
-catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
-config_verify: "{{ catalystcenter_config_verify | default(false) }}"
-catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
-catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
-catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
-catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
-catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
-catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+catalyst_center_login: &catalyst_center_login
+    catalystcenter_host: "{{ catalyst_center_host | default(catalystcenter_host) }}"
+    catalystcenter_username: "{{ catalyst_center_username | default(catalystcenter_username) }}"
+    catalystcenter_password: "{{ catalyst_center_password | default(catalystcenter_password) }}"
+    catalystcenter_version: "{{ catalyst_center_version | default(catalystcenter_version | default(omit)) }}"
+    catalystcenter_port: "{{ catalyst_center_port | default(catalystcenter_port | default(443)) }}"
+    catalystcenter_verify: "{{ catalyst_center_verify | default(catalystcenter_verify | default(false)) }}"
+    config_verify: "{{ catalyst_center_config_verify | default(catalystcenter_config_verify | default(false)) }}"
+    catalystcenter_debug: "{{ catalyst_center_debug | default(catalystcenter_debug | default(false)) }}"
+    catalystcenter_log: "{{ catalyst_center_log | default(catalystcenter_log | default(false)) }}"
+    catalystcenter_log_level: "{{ catalyst_center_log_level | default(catalystcenter_log_level | default('INFO')) }}"
+    catalystcenter_log_file_path: "{{ catalyst_center_log_file_path | default(catalystcenter_log_file_path | default(omit)) }}"
+    catalystcenter_log_append: "{{ catalyst_center_log_append | default(catalystcenter_log_append | default(false)) }}"
+    catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(catalystcenter_api_task_timeout | default(1200)) }}"
+```
+
+Each SWIM task then includes the shared login block:
+
+```yaml
+<<: *catalyst_center_login
 ```
 
 The workflow playbook also passes runtime controls from `swim_details` into each SWIM task:
