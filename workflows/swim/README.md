@@ -414,10 +414,11 @@ The software image (SWIM) can be updated on the device in a single run by combin
 
 # New SWIM Enhancements
 
-This section explains the capabilities present in the pinned development revision
-[`7c739438`](https://github.com/cisco-en-programmability/catalystcenter-ansible-dev/blob/7c739438d533c028a9fe67f2f22272270081ddf4/plugins/modules/swim_workflow_manager.py).
-It also explains whether each capability can be used through the existing SWIM
-workflow or requires a small workflow update first.
+This section explains the latest SWIM automation enhancements available through the
+workflow and the `cisco.catalystcenter.swim_workflow_manager` module. The workflow
+now exposes batch controls, polling controls, explicit multi-device targeting,
+force options, device-tag targeting, compliance-aware behavior, and structured
+per-device results.
 
 ## Read this first
 
@@ -428,40 +429,32 @@ There are two layers involved:
 2. **SWIM module**: `cisco.catalystcenter.swim_workflow_manager` performs the actual
    Catalyst Center operations.
 
-The newer module supports more parameters than the current workflow playbook and
-schema. This means a parameter may be valid for the module but still be rejected by
-the workflow schema or never passed by the workflow playbook.
-
-Use the following rule:
-
-* **Works through the existing workflow**: use the parameter in `swim_details`.
-* **Workflow update required**: update the playbook and schema first, or call the
-  module directly.
+The workflow wrapper reads customer input under `swim_details` and passes the
+relevant values into `cisco.catalystcenter.swim_workflow_manager`. Runtime controls
+such as batch size and poll interval are supplied at the module level, while device
+selection and operation-specific options are supplied inside the distribution or
+activation detail blocks.
 
 ## What can be used now?
 
-| Capability | Existing workflow status |
+| Capability | Workflow status |
 |---|---|
-| `sync_cco` | Available now |
-| `device_tag` | Available now |
-| `image_distribution_timeout` | Available now; workflow default should be aligned with the module |
-| `image_activation_timeout` | Available now; workflow default should be aligned with the module |
-| `convert_to_wlc` | Available now |
-| `compatible_features` | Available now |
-| `distribution_poll_interval` | Workflow update required |
-| `activation_poll_interval` | Workflow update required |
-| `distribution_batch_size` | Workflow update required |
-| `activation_batch_size` | Workflow update required |
-| `catalystcenter_task_poll_interval` | Workflow update required |
-| `device_serial_numbers` | Workflow schema update required |
-| `device_ip_addresses` | Workflow schema update required |
-| `device_hostnames` | Workflow schema update required |
-| `device_mac_addresses` | Workflow schema update required |
-| `force_distribution` | Workflow schema update required |
-| `force_activation` | Workflow schema update required |
-
-If the workflow has not been updated, use the direct-module example at the end of
-this section for parameters marked **Workflow update required**.
+| `sync_cco` | Available through `swim_details.import_images` |
+| `device_tag` | Available in distribution and activation details |
+| `image_distribution_timeout` | Available in distribution details; default `3600` seconds |
+| `image_activation_timeout` | Available in activation details; default `3600` seconds |
+| `convert_to_wlc` | Available for supported WLC conversion flows |
+| `compatible_features` | Available in activation details |
+| `distribution_poll_interval` | Available under top-level `swim_details` |
+| `activation_poll_interval` | Available under top-level `swim_details` |
+| `distribution_batch_size` | Available under top-level `swim_details` |
+| `activation_batch_size` | Available under top-level `swim_details` |
+| `device_serial_numbers` | Available in distribution and activation details |
+| `device_ip_addresses` | Available in distribution and activation details |
+| `device_hostnames` | Available in distribution and activation details |
+| `device_mac_addresses` | Available in distribution and activation details |
+| `force_distribution` | Available in distribution details |
+| `force_activation` | Available in activation details |
 
 ## Enhancement summary
 
@@ -746,56 +739,124 @@ swim_details:
 To move a role to another golden image, untag the current assignment for that role
 and then tag the replacement image.
 
-## Changes required in the workflow
+## Workflow Configuration Reference
 
-Complete these changes before using every new parameter through
-`workflows/swim/playbook/swim_workflow_playbook.yml`.
+This section provides complete reference examples for the files involved in the
+SWIM workflow configuration. Use these examples to align the input variables,
+workflow playbook, and schema with the latest SWIM enhancements.
 
-1. Add these module-level variables to the playbook's `catalyst_center_login` anchor
-   and to `workflows/swim/schema/swim_schema.yml`:
+Review or update the following files as needed:
 
-   ```yaml
-   distribution_poll_interval: "{{ distribution_poll_interval | default(30) }}"
-   activation_poll_interval: "{{ activation_poll_interval | default(30) }}"
-   distribution_batch_size: "{{ distribution_batch_size | default(50) }}"
-   activation_batch_size: "{{ activation_batch_size | default(50) }}"
-   catalystcenter_task_poll_interval: "{{ catalyst_center_task_poll_interval | default(2) }}"
-   ```
+1. `workflows/swim/vars/swim_bundle_to_install_enl2.yml`, or another vars file
+   supplied through `VARS_FILE_PATH`
+2. `workflows/swim/playbook/swim_workflow_playbook.yml`
+3. `workflows/swim/schema/swim_schema.yml`
 
-2. Add these fields to both the individual-operation and full-workflow schema types:
+The sample configuration assumes the software image is already imported into
+Catalyst Center, then performs golden tagging, image distribution, and image
+activation for C9350 devices. Replace the Catalyst Center connection details,
+image name, site hierarchy, device family, and target devices with values from
+the deployment environment.
 
-   * Distribution: `device_serial_numbers`, `device_ip_addresses`,
-     `device_hostnames`, `device_mac_addresses`, and `force_distribution`.
-   * Activation: `device_serial_numbers`, `device_ip_addresses`,
-     `device_hostnames`, `device_mac_addresses`, and `force_activation`.
-   * Keep `device_tag`, `image_distribution_timeout`, `image_activation_timeout`,
-     `convert_to_wlc`, and `compatible_features`; they already exist in the checked
-     workflow schema.
-   * Keep `sync_cco`; it already exists under `import_image_details_type`.
+### 1. Input Variables File
 
-3. Align the workflow schema defaults for `image_distribution_timeout` and
-   `image_activation_timeout` with the module default of `3600` seconds. The checked
-   workflow schema currently declares `1800`, while the pinned module uses `3600`.
-
-Until these changes are merged, the existing workflow remains valid for the
-parameters marked **Available now**. Call the module directly for parameters marked
-**Workflow update required**.
-
-## Complete enhanced example
-
-The following direct module call demonstrates bulk targeting, batching, polling,
-timeouts, and compatible activation features without relying on workflow-wrapper
-changes:
+Create or update a vars file such as
+`workflows/swim/vars/swim_bundle_to_install_enl2.yml`.
 
 ```yaml
 ---
-- name: Enhanced SWIM activation
+catalystcenter_host: "10.22.45.187"
+catalystcenter_port: 443
+catalystcenter_username: "admin"
+catalystcenter_password: "mAGLEV123"
+catalystcenter_version: "2.3.7.9"
+catalystcenter_verify: false
+catalystcenter_debug: true
+catalystcenter_log: true
+catalystcenter_log_level: DEBUG
+
+swim_details:
+  distribution_batch_size: 2
+  activation_batch_size: 2
+  distribution_poll_interval: 30
+  activation_poll_interval: 30
+
+  golden_tag_images:
+    - tagging_details:
+        image_name: "cat9k_iosxe.17.15.03.SPA.bin"
+        device_role: ALL
+        device_image_family_name: "Cisco Catalyst 9300 Switch"
+        site_name: "Global/USA/SAN-JOSE/BLD23"
+        tagging: true
+
+  distribute_images:
+    - image_distribution_details:
+        image_name: "cat9k_iosxe.17.15.03.SPA.bin"
+        device_ip_addresses:
+          - "204.1.2.5"
+          - "204.1.2.6"
+          - "204.1.1.10"
+          - "204.1.1.11"
+
+  activate_images:
+    - image_activation_details:
+        image_name: "cat9k_iosxe.17.15.03.SPA.bin"
+        device_ip_addresses:
+          - "204.1.2.5"
+          - "204.1.2.6"
+          - "204.1.1.10"
+          - "204.1.1.11"
+        device_upgrade_mode: install
+        schedule_validate: false
+        activate_lower_image_version: true
+        distribute_if_needed: true
+```
+
+Use `device_ip_addresses`, `device_serial_numbers`, `device_hostnames`, or
+`device_mac_addresses` when you want to target an explicit device list. Use
+`device_tag` when you want Catalyst Center to resolve devices from a tag.
+
+### 2. Workflow Playbook
+
+The workflow playbook loads `swim_details` from `VARS_FILE_PATH` or from
+inventory/host variables, then calls `cisco.catalystcenter.swim_workflow_manager`
+for each requested operation. Each SWIM task must pass both the Catalyst Center
+connection fields and the SWIM runtime controls into the module.
+
+Use the following structure for `workflows/swim/playbook/swim_workflow_playbook.yml`.
+
+```yaml
+---
+- name: This playbook manages uploading of device software images, golden tags, image distribution, and activation
   hosts: catalyst_center_hosts
   connection: local
-  gather_facts: false
+  gather_facts: no
 
   tasks:
-    - name: Distribute and activate an image on an explicit device set
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that swim_details is defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'swim_details' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: swim_details is not defined
+
+    - name: Import images from URL, local disk, CCO, or sync CCO catalog
       cisco.catalystcenter.swim_workflow_manager:
         catalystcenter_host: "{{ catalystcenter_host }}"
         catalystcenter_username: "{{ catalystcenter_username }}"
@@ -803,51 +864,340 @@ changes:
         catalystcenter_version: "{{ catalystcenter_version }}"
         catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
         catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
-        catalystcenter_log: true
-        catalystcenter_log_level: DEBUG
-        catalystcenter_log_file_path: catalystcenter.log
-        catalystcenter_api_task_timeout: 1800
-        catalystcenter_task_poll_interval: 5
-        distribution_poll_interval: 60
-        activation_poll_interval: 60
-        distribution_batch_size: 25
-        activation_batch_size: 10
-        config_verify: true
-        state: merged
+        config_verify: "{{ catalystcenter_config_verify | default(false) }}"
+        catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
+        catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
+        catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
+        catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
+        catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
+        catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+        distribution_batch_size: "{{ swim_details.distribution_batch_size | default(50) }}"
+        activation_batch_size: "{{ swim_details.activation_batch_size | default(50) }}"
+        distribution_poll_interval: "{{ swim_details.distribution_poll_interval | default(30) }}"
+        activation_poll_interval: "{{ swim_details.activation_poll_interval | default(30) }}"
         config:
-          - image_distribution_details:
-              image_name: cat9k_iosxe.17.12.04.SPA.bin
-              device_ip_addresses:
-                - 10.10.10.11
-                - 10.10.10.12
-              image_distribution_timeout: 7200
-          - image_activation_details:
-              image_name: cat9k_iosxe.17.12.04.SPA.bin
-              device_ip_addresses:
-                - 10.10.10.11
-                - 10.10.10.12
-              distribute_if_needed: true
-              activate_lower_image_version: false
-              device_upgrade_mode: install
-              schedule_validate: true
-              compatible_features:
-                - key: ISSU
-                  value: Enable
-                - key: Rommon update
-                  value: Disable
-              image_activation_timeout: 10800
+          - "{{ item }}"
+      loop: "{{ swim_details.import_images }}"
+      when: swim_details.import_images is defined
+
+    - name: Golden tag images on Catalyst Center sites
+      cisco.catalystcenter.swim_workflow_manager:
+        catalystcenter_host: "{{ catalystcenter_host }}"
+        catalystcenter_username: "{{ catalystcenter_username }}"
+        catalystcenter_password: "{{ catalystcenter_password }}"
+        catalystcenter_version: "{{ catalystcenter_version }}"
+        catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
+        catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
+        config_verify: "{{ catalystcenter_config_verify | default(false) }}"
+        catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
+        catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
+        catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
+        catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
+        catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
+        catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+        distribution_batch_size: "{{ swim_details.distribution_batch_size | default(50) }}"
+        activation_batch_size: "{{ swim_details.activation_batch_size | default(50) }}"
+        distribution_poll_interval: "{{ swim_details.distribution_poll_interval | default(30) }}"
+        activation_poll_interval: "{{ swim_details.activation_poll_interval | default(30) }}"
+        config:
+          - "{{ item }}"
+      loop: "{{ swim_details.golden_tag_images }}"
+      when: swim_details.golden_tag_images is defined
+
+    - name: Distribute images to Catalyst Center devices
+      cisco.catalystcenter.swim_workflow_manager:
+        catalystcenter_host: "{{ catalystcenter_host }}"
+        catalystcenter_username: "{{ catalystcenter_username }}"
+        catalystcenter_password: "{{ catalystcenter_password }}"
+        catalystcenter_version: "{{ catalystcenter_version }}"
+        catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
+        catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
+        config_verify: "{{ catalystcenter_config_verify | default(false) }}"
+        catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
+        catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
+        catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
+        catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
+        catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
+        catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+        distribution_batch_size: "{{ swim_details.distribution_batch_size | default(50) }}"
+        activation_batch_size: "{{ swim_details.activation_batch_size | default(50) }}"
+        distribution_poll_interval: "{{ swim_details.distribution_poll_interval | default(30) }}"
+        activation_poll_interval: "{{ swim_details.activation_poll_interval | default(30) }}"
+        config:
+          - "{{ item }}"
+      loop: "{{ swim_details.distribute_images }}"
+      when: swim_details.distribute_images is defined
+
+    - name: Activate images on Catalyst Center devices
+      cisco.catalystcenter.swim_workflow_manager:
+        catalystcenter_host: "{{ catalystcenter_host }}"
+        catalystcenter_username: "{{ catalystcenter_username }}"
+        catalystcenter_password: "{{ catalystcenter_password }}"
+        catalystcenter_version: "{{ catalystcenter_version }}"
+        catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
+        catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
+        config_verify: "{{ catalystcenter_config_verify | default(false) }}"
+        catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
+        catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
+        catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
+        catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
+        catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
+        catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+        distribution_batch_size: "{{ swim_details.distribution_batch_size | default(50) }}"
+        activation_batch_size: "{{ swim_details.activation_batch_size | default(50) }}"
+        distribution_poll_interval: "{{ swim_details.distribution_poll_interval | default(30) }}"
+        activation_poll_interval: "{{ swim_details.activation_poll_interval | default(30) }}"
+        config:
+          - "{{ item }}"
+      loop: "{{ swim_details.activate_images }}"
+      when: swim_details.activate_images is defined
+
+    - name: Import, tag, distribute, and activate images in one combined workflow
+      cisco.catalystcenter.swim_workflow_manager:
+        catalystcenter_host: "{{ catalystcenter_host }}"
+        catalystcenter_username: "{{ catalystcenter_username }}"
+        catalystcenter_password: "{{ catalystcenter_password }}"
+        catalystcenter_version: "{{ catalystcenter_version }}"
+        catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
+        catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
+        config_verify: "{{ catalystcenter_config_verify | default(false) }}"
+        catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
+        catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
+        catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
+        catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
+        catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
+        catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+        distribution_batch_size: "{{ swim_details.distribution_batch_size | default(50) }}"
+        activation_batch_size: "{{ swim_details.activation_batch_size | default(50) }}"
+        distribution_poll_interval: "{{ swim_details.distribution_poll_interval | default(30) }}"
+        activation_poll_interval: "{{ swim_details.activation_poll_interval | default(30) }}"
+        config:
+          - "{{ item }}"
+      loop: "{{ swim_details.upload_tag_dis_activate_images }}"
+      when: swim_details.upload_tag_dis_activate_images is defined
 ```
+
+### 3. Schema Updates
+
+Update `workflows/swim/schema/swim_schema.yml` so validation accepts the latest
+runtime controls, explicit multi-device targeting fields, force options, and
+updated timeout defaults.
+
+At the top-level `swim_details`, include these optional runtime controls:
+
+```yaml
+swim_details:
+  distribution_batch_size: int(required=False, default=50)
+  activation_batch_size: int(required=False, default=50)
+  distribution_poll_interval: int(required=False, default=30)
+  activation_poll_interval: int(required=False, default=30)
+  import_images: list(include('import_image_details_type'), min=0, max=100, required=False)
+  golden_tag_images: list(include('tagging_details_type'), min=0, max=100, required=False)
+  distribute_images: list(include('distribute_images_type'), min=0, max=100, required=False)
+  activate_images: list(include('activate_images_type'), min=0, max=100, required=False)
+  upload_tag_dis_activate_images: list(include('full_upload_type'), min=0, max=100, required=False)
+```
+
+In every `image_distribution_details` block, include the plural identifiers,
+force flag, and the updated timeout default:
+
+```yaml
+image_distribution_details:
+  image_name: str(required=False)
+  device_hostname: str(required=False)
+  device_hostnames: list(str(), required=False)
+  device_mac_address: str(required=False)
+  device_mac_addresses: list(str(), required=False)
+  device_ip_address: str(required=False)
+  device_ip_addresses: list(str(), required=False)
+  device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN', required=False)
+  site_name: str(required=False)
+  device_family_name: str(required=False)
+  device_serial_number: str(required=False)
+  device_serial_numbers: list(str(), required=False)
+  device_series_name: str(required=False)
+  device_tag: str(required=False)
+  sub_package_images: list(str(), required=False)
+  image_distribution_timeout: int(required=False, default=3600)
+  convert_to_wlc: bool(required=False, default=False)
+  force_distribution: bool(required=False, default=False)
+```
+
+In every `image_activation_details` block, include the plural identifiers, force
+flag, compatible features, and the updated timeout default:
+
+```yaml
+image_activation_details:
+  activate_lower_image_version: bool(required=False)
+  device_family_name: str(required=False)
+  device_hostname: str(required=False)
+  device_hostnames: list(str(), required=False)
+  device_ip_address: str(required=False)
+  device_ip_addresses: list(str(), required=False)
+  device_mac_address: str(required=False)
+  device_mac_addresses: list(str(), required=False)
+  device_role: enum('ALL', 'ACCESS', 'CORE', 'DISTRIBUTION', 'BORDER ROUTER', 'UNKNOWN', required=False)
+  device_serial_number: str(required=False)
+  device_serial_numbers: list(str(), required=False)
+  device_series_name: str(required=False)
+  device_tag: str(required=False)
+  device_upgrade_mode: enum('install', 'bundle', 'currentlyExists', required=False)
+  distribute_if_needed: bool(required=False)
+  image_name: str(required=False)
+  schedule_validate: bool(required=False)
+  site_name: str(required=False)
+  sub_package_images: list(str(), required=False)
+  image_activation_timeout: int(required=False, default=3600)
+  convert_to_wlc: bool(required=False, default=False)
+  compatible_features: list(include('compatible_features_type'), required=False)
+  force_activation: bool(required=False, default=False)
+```
+
+Apply the same distribution and activation fields under `full_upload_type` if the
+combined import, tag, distribute, and activate workflow is used.
+
+### 4. Execution Command
+
+Run the workflow from the repository root:
+
+```bash
+$PWD/.venv312/bin/ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
+  ./workflows/swim/playbook/swim_workflow_playbook.yml \
+  --extra-vars "VARS_FILE_PATH=../vars/swim_bundle_to_install_enl2.yml" \
+  -e ansible_python_interpreter=$PWD/.venv312/bin/python \
+  -vvvv
+```
+
+`VARS_FILE_PATH` is resolved relative to the playbook directory, so
+`../vars/swim_bundle_to_install_enl2.yml` points to
+`workflows/swim/vars/swim_bundle_to_install_enl2.yml`.
+
+## Workflow Integration Summary
+
+The workflow playbook passes Catalyst Center connection values and SWIM runtime
+controls into each `cisco.catalystcenter.swim_workflow_manager` task.
+
+Each SWIM task must pass Catalyst Center connection details directly:
+
+```yaml
+catalystcenter_host: "{{ catalystcenter_host }}"
+catalystcenter_username: "{{ catalystcenter_username }}"
+catalystcenter_password: "{{ catalystcenter_password }}"
+catalystcenter_version: "{{ catalystcenter_version }}"
+catalystcenter_port: "{{ catalystcenter_port | default(443) }}"
+catalystcenter_verify: "{{ catalystcenter_verify | default(false) }}"
+config_verify: "{{ catalystcenter_config_verify | default(false) }}"
+catalystcenter_debug: "{{ catalystcenter_debug | default(false) }}"
+catalystcenter_log: "{{ catalystcenter_log | default(false) }}"
+catalystcenter_log_level: "{{ catalystcenter_log_level | default('INFO') }}"
+catalystcenter_log_file_path: "{{ catalystcenter_log_file_path | default(omit) }}"
+catalystcenter_log_append: "{{ catalystcenter_log_append | default(false) }}"
+catalystcenter_api_task_timeout: "{{ catalystcenter_api_task_timeout | default(1200) }}"
+```
+
+The workflow playbook also passes runtime controls from `swim_details` into each SWIM task:
+
+```yaml
+distribution_batch_size: "{{ swim_details.distribution_batch_size | default(50) }}"
+activation_batch_size: "{{ swim_details.activation_batch_size | default(50) }}"
+distribution_poll_interval: "{{ swim_details.distribution_poll_interval | default(30) }}"
+activation_poll_interval: "{{ swim_details.activation_poll_interval | default(30) }}"
+```
+
+These values are applied to:
+
+```yaml
+swim_details.import_images
+swim_details.golden_tag_images
+swim_details.distribute_images
+swim_details.activate_images
+swim_details.upload_tag_dis_activate_images
+```
+
+The workflow schema supports the latest SWIM fields:
+
+- Top-level `swim_details`: `distribution_batch_size`, `activation_batch_size`, `distribution_poll_interval`, and `activation_poll_interval`
+- Distribution details: `device_serial_numbers`, `device_ip_addresses`, `device_hostnames`, `device_mac_addresses`, and `force_distribution`
+- Activation details: `device_serial_numbers`, `device_ip_addresses`, `device_hostnames`, `device_mac_addresses`, and `force_activation`
+- Timeout defaults: `image_distribution_timeout: 3600` and `image_activation_timeout: 3600`
+
+With these changes, batching and polling are applied consistently across import,
+golden tagging, distribution, activation, and combined workflow tasks.
+
+## Validated Example
+
+The following two-device workflow was validated successfully:
+
+```yaml
+swim_details:
+  distribution_batch_size: 2
+  activation_batch_size: 2
+  distribution_poll_interval: 30
+  activation_poll_interval: 30
+
+  golden_tag_images:
+    - tagging_details:
+        image_name: "cisco9k_iosxe.17.18.04.SPA.bin"
+        device_role: ALL
+        device_image_family_name: "Cisco C9350 Smart Switch"
+        site_name: "Global/USA/San Jose/BLDG23"
+        tagging: true
+
+  distribute_images:
+    - image_distribution_details:
+        image_name: "cisco9k_iosxe.17.18.04.SPA.bin"
+        device_ip_addresses:
+          - "204.1.3.248"
+          - "204.1.3.249"
+
+  activate_images:
+    - image_activation_details:
+        image_name: "cisco9k_iosxe.17.18.04.SPA.bin"
+        device_ip_addresses:
+          - "204.1.3.248"
+          - "204.1.3.249"
+        device_upgrade_mode: install
+        schedule_validate: false
+        activate_lower_image_version: true
+        distribute_if_needed: true
+```
+
+Validated result:
+
+```text
+Successfully distributed: cisco9k_iosxe.17.18.04.SPA.bin to 204.1.3.248, 204.1.3.249
+Successfully activated: cisco9k_iosxe.17.18.04.SPA.bin to 204.1.3.248, 204.1.3.249
+```
+
+Structured result:
+
+```yaml
+counts:
+  succeeded: 2
+  failed: 0
+  timed_out: 0
+  skipped: 0
+  ineligible: 0
+```
+
+The run confirmed:
+
+- `distribution_batch_size: 2` was honored
+- `activation_batch_size: 2` was honored
+- `activation_poll_interval: 30` was honored
+- Both devices were processed in one batch
+- Distribution and activation completed successfully
 
 # How to run
   1. ## Command to run
   ### a. Include import/tag_untag/distribute/activate images (state = 'merged')
   Example command to run the swim playbook:
   ```bash
-  ansible-playbook 
-    -i ./inventory/demo_lab/hosts.yml # refer to Catalyst Center to run
-    ./workflows/swim/playbook/swim_workflow_playbook.yml # playbook will run this
-    --extra-vars VARS_FILE_PATH=../vars/swim_vars.yml # location of the input file for the playbook to execute
-    -vvv # return detailed information about the message; the more 'v', more detailed
+  $PWD/.venv312/bin/ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
+    ./workflows/swim/playbook/swim_workflow_playbook.yml \
+    --extra-vars "VARS_FILE_PATH=../vars/swim_bundle_to_install_enl2.yml" \
+    -e ansible_python_interpreter=$PWD/.venv312/bin/python \
+    -vvvv
   ```
   
   ### b. Include delete images (state = 'deleted')
@@ -923,7 +1273,11 @@ ansible-galaxy collection install cisco.catalystcenter --force
 export HOSTIP=<catalyst-center-ip-or-fqdn>
 export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
-ansible-playbook -i ./inventory/demo_lab/hosts.yaml ./workflows/swim/playbook/swim_workflow_playbook.yml -vvvv
+$PWD/.venv312/bin/ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
+  ./workflows/swim/playbook/swim_workflow_playbook.yml \
+  --extra-vars "VARS_FILE_PATH=../vars/swim_bundle_to_install_enl2.yml" \
+  -e ansible_python_interpreter=$PWD/.venv312/bin/python \
+  -vvvv
 ```
 
 ## Inventory / group_vars Example
@@ -936,7 +1290,9 @@ You can also run this workflow without `VARS_FILE_PATH` by moving the sample wor
 4. Run the playbook without `VARS_FILE_PATH`:
 
 ```bash
-ansible-playbook -i <inventory-file> workflows/swim/playbook/swim_workflow_playbook.yml -vvvv
+$PWD/.venv312/bin/ansible-playbook -i <inventory-file> workflows/swim/playbook/swim_workflow_playbook.yml \
+  -e ansible_python_interpreter=$PWD/.venv312/bin/python \
+  -vvvv
 ```
 ## VARS_FILE_PATH Path Resolution
 
@@ -944,5 +1300,5 @@ Ansible resolves `VARS_FILE_PATH` relative to the playbook directory, not the cu
 
 Use either of these forms:
 
-- Relative to the playbook: `../vars/swim_import_tag_distribute_activate_image_vars.yml`
-- Fully resolved from the repo root: `${PWD}/workflows/swim/vars/swim_import_tag_distribute_activate_image_vars.yml`
+- Relative to the playbook: `../vars/swim_bundle_to_install_enl2.yml`
+- Fully resolved from the repo root: `${PWD}/workflows/swim/vars/swim_bundle_to_install_enl2.yml`
