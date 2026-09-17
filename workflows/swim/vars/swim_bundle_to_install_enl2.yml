@@ -1,0 +1,36 @@
+---
+swim_details:
+  distribution_batch_size: 2
+  activation_batch_size: 2
+  distribution_poll_interval: 30
+  activation_poll_interval: 30
+
+  golden_tag_images:
+    - tagging_details:
+        image_name: "cat9k_iosxe.17.15.03.SPA.bin"
+        device_role: ALL
+        device_image_family_name: "Cisco Catalyst 9300 Switch"
+        site_name: "Global/USA/SAN-JOSE/BLD23"
+        tagging: true
+
+  distribute_images:
+    - image_distribution_details:
+        image_name: "cat9k_iosxe.17.15.03.SPA.bin"
+        device_ip_addresses:
+          - "204.1.2.5"
+          - "204.1.2.6"
+          - "204.1.1.10"
+          - "204.1.1.11"
+
+  activate_images:
+    - image_activation_details:
+        image_name: "cat9k_iosxe.17.15.03.SPA.bin"
+        device_ip_addresses:
+          - "204.1.2.5"
+          - "204.1.2.6"
+          - "204.1.1.10"
+          - "204.1.1.11"
+        device_upgrade_mode: install
+        schedule_validate: false
+        activate_lower_image_version: true
+        distribute_if_needed: true
