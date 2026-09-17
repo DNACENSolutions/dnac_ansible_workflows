@@ -2,7 +2,7 @@
 catalyst_center_hosts:
   hosts:
     catalyst_center220:
-      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_HOST') }}"
+      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'HOSTIP') }}"
       catalyst_center_password: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_PASSWORD') }}"
       catalyst_center_port: 443
       catalyst_center_timeout: 60
