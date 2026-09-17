@@ -10,5 +10,5 @@ catalyst_center_hosts:
       catalyst_center_verify: false
       catalyst_center_version: "2.3.7.9"
       catalyst_center_debug: true
-      catalyst_center_log_level: DEBUG
+      catalyst_center_log_level: INFO
       catalyst_center_log: true
