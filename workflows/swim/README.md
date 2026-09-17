@@ -773,7 +773,7 @@ username, and password:
 catalyst_center_hosts:
   hosts:
     catalyst_center220:
-      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_HOST') }}"
+      catalyst_center_host: "{{ lookup('ansible.builtin.env', 'HOSTIP') }}"
       catalyst_center_password: "{{ lookup('ansible.builtin.env', 'CATALYST_CENTER_PASSWORD') }}"
       catalyst_center_port: 443
       catalyst_center_timeout: 60
@@ -789,7 +789,7 @@ Before running the workflow, export the environment variables used by the
 inventory:
 
 ```bash
-export CATALYST_CENTER_HOST="<catalyst-center-host>"
+export HOSTIP="<catalyst-center-host>"
 export CATALYST_CENTER_USERNAME="<catalyst-center-username>"
 export CATALYST_CENTER_PASSWORD="<catalyst-center-password>"
 ```
@@ -1308,7 +1308,7 @@ ansible-galaxy collection install cisco.catalystcenter --force
 3. Export Catalyst Center environment variables and run the playbook.
 
 ```bash
-export CATALYST_CENTER_HOST=<catalyst-center-ip-or-fqdn>
+export HOSTIP=<catalyst-center-ip-or-fqdn>
 export CATALYST_CENTER_USERNAME=<username>
 export CATALYST_CENTER_PASSWORD='<password>'
 ansible-playbook -i ./inventory/demo_lab/hosts.yaml \
