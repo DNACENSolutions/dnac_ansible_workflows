@@ -29,6 +29,7 @@ A lightweight web UI for browsing, editing, and executing Ansible playbooks from
 - **📊 Job History** — View past executions with status, duration, timestamps, and clickable detailed log links
 - **📄 Job Detail Pages** — Open a shareable page for a single job with full Ansible output and raw log access
 - **🛑 Cancel Support** — Stop running playbooks or entire workflows mid-execution
+- **🔁 SDA port migration guided input** — Enter port migration values in the UI, validate them before execution, and generate the vars YAML without manually editing the file
 
 ---
 
@@ -36,43 +37,57 @@ A lightweight web UI for browsing, editing, and executing Ansible playbooks from
 
 Before running the Ansible Workflow Runner, ensure you have:
 
-- **Python 3.9+** installed
-- **Ansible** installed and `ansible-playbook` in your PATH
-- **Flask** and **Yamale** Python packages (installed via requirements.txt)
-- A configured **inventory file** (e.g., `inventory/demo_lab/hosts.yaml`)
-- Access to the **dnac_ansible_workflows** repository
+- **Python 3.10+** installed
+- **Ansible** installed and `ansible-playbook` in your PATH, or set `ANSIBLE_PLAYBOOK_BIN` to the full binary path
+- **Flask** and **Yamale** Python packages installed from `tools/ansible_runner/requirements.txt`
+- A configured **inventory file** such as `inventory/demo_lab/hosts.yaml`
+- Catalyst Center reachability from the machine running the UI
+- For SDA port assignment migration, access to the source and destination devices in Catalyst Center and this repository's `workflows/sda_port_assignment_migration` workflow
 
 ---
 
 ## Quick Start
 
 ```bash
-# Navigate to the repository root
-cd /path/to/dnac_ansible_workflows
+# Clone and enter the repository
+git clone <repository-url>
+cd <repository-directory>
 
 # Create a virtual environment (recommended)
 python3 -m venv tools/ansible_runner/.venv
 
-# Activate the virtual environment
-source tools/ansible_runner/.venv/bin/activate  # On macOS/Linux
-# OR
-tools\ansible_runner\.venv\Scripts\activate     # On Windows
-
 # Install dependencies
-pip install -r tools/ansible_runner/requirements.txt
+tools/ansible_runner/.venv/bin/python -m pip install --upgrade pip
+tools/ansible_runner/.venv/bin/python -m pip install -r tools/ansible_runner/requirements.txt
 
-# Start the server
-python tools/ansible_runner/app.py
+# Optional: override Ansible/runtime paths if they are not already on PATH
+export ANSIBLE_PLAYBOOK_BIN="$(command -v ansible-playbook)"
+export ANSIBLE_COLLECTIONS_PATH="$PWD/collections:$PWD/.ansible/collections:$PWD:$HOME/.ansible/collections"
+
+# Required for live SDA port migration runs and dropdown lookups; the launcher also prompts when these are not set
+export HOSTIP="<catalyst-center-host-or-ip>"
+export CATALYST_CENTER_USERNAME="<catalyst-center-username>"
+export SWITCH_CLI_USERNAME="<switch-cli-username>"
+
+# Optional when SNMPv3 credentials are needed by the generated inventory configuration
+export SNMPV3_USERNAME="<snmpv3-username>"
+export SNMPV3_AUTH_PROTOCOL="SHA"
+export SNMPV3_PRIV_PROTOCOL="AES128"
+
+# Start the server with Catalyst Center and switch credentials
+tools/ansible_runner/start_switch_refresh_runner.sh
 
 # Open in browser
-open http://127.0.0.1:5005
+http://127.0.0.1:5006
 ```
 
-**Alternative Quick Start (using existing Python):**
+The startup banner prints the exact URL. By default, `start_switch_refresh_runner.sh` binds to `0.0.0.0:5006`, so local users open `http://127.0.0.1:5006`; remote users open `http://<runner-hostname-or-ip>:5006`. Override this with `RUNNER_HOST` and `RUNNER_PORT` before starting the script.
+
+**Alternative Quick Start (using an existing Python environment):**
 ```bash
-cd /path/to/dnac_ansible_workflows
-pip install flask yamale
-python tools/ansible_runner/app.py
+cd <repository-directory>
+python3 -m pip install -r tools/ansible_runner/requirements.txt
+RUNNER_PORT=5006 python3 tools/ansible_runner/app.py
 ```
 
 ---
@@ -85,7 +100,7 @@ python tools/ansible_runner/app.py
 
 ```mermaid
 flowchart TD
-    A[Start: Open Browser] --> B[Navigate to http://127.0.0.1:5005]
+   A[Start: Open Browser] --> B[Navigate to http://127.0.0.1:5006]
     B --> C[Click 'Run Playbook' Tab]
     C --> D[Search/Select Workflow]
     D --> E[Select Playbook from Dropdown]
@@ -113,7 +128,7 @@ flowchart TD
 **Step-by-Step Instructions:**
 
 1. **Open the Application**
-   - Navigate to `http://127.0.0.1:5005` in your browser
+   - Navigate to `http://127.0.0.1:5006` in your browser
    - You'll see the main dashboard with workflow statistics
 
 2. **Select Workflow**
@@ -207,6 +222,31 @@ flowchart TD
    - Proceed to launch as in Flow 1
 
 ---
+
+### SDA Port Assignment Migration: Guided Input
+
+Select the `sda_port_assignment_migration` workflow and `sda_port_assignment_migration_playbook.yml`. The guided form accepts the fabric site, source and destination management IPs, generated config directory, cleanup setting, and interface mappings. It validates IPv4 values, required fields, absolute generated config path, and port mapping syntax before enabling YAML generation.
+
+Use **Load ports** after entering the source and destination IPs. The Source Device dropdown is populated from SDA host-port assignments on the source device through `/api/host-port-assignments?ip=<source-ip>`. The Destination Device dropdown is populated from Catalyst Center inventory interfaces through `/api/device-interfaces?ip=<destination-ip>`. If the destination device is not in inventory yet, the UI offers expected `GigabitEthernet1/0/1` through `GigabitEthernet1/0/48` choices so the migration plan can still be generated before the device is onboarded.
+
+Click **Add mapping** for each source-to-destination pair. The UI writes mappings as `source_interface=destination_interface` lines and generates `interface_mappings` in the selected vars file. Click **Generate vars YAML** after entering or changing workflow values. The generated file is saved to the selected workflow vars path, usually `workflows/sda_port_assignment_migration/vars/sda_port_assignment_migration_input.yml`, and is the file used by the next run.
+
+For a live run from the UI, select the inventory file, usually `inventory/demo_lab/hosts.yaml` or your environment-specific inventory, then click **Launch playbook**. The same run can be submitted with the API:
+
+```bash
+curl -X POST http://127.0.0.1:5006/api/run \
+   -H 'Content-Type: application/json' \
+   --data '{
+      "playbook": "workflows/sda_port_assignment_migration/playbook/sda_port_assignment_migration_playbook.yml",
+      "inventory": "inventory/demo_lab/hosts.yaml",
+      "vars_file": "workflows/sda_port_assignment_migration/vars/sda_port_assignment_migration_input.yml",
+      "verbosity": "",
+      "extra_args": "",
+      "label": "sda_port_assignment_migration"
+   }'
+```
+
+The Run Options panel shows runner readiness without displaying secret values. Dropdown lookup requires `HOSTIP`, `CATALYST_CENTER_USERNAME`, and `CATALYST_CENTER_PASSWORD`. Live migration runs also use the selected inventory and any workflow-specific credentials it references. If `SNMPV3_USERNAME` is set, the launcher prompts for SNMPv3 auth and privacy passwords; otherwise SNMPv3 password prompts are skipped. Syntax-check jobs remain available for validating generated input without changing devices.
 
 ### Flow 3: Build and Execute a Multi-Step Workflow
 
