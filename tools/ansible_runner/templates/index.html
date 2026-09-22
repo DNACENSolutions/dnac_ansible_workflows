@@ -8,9 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script async src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = {
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
@@ -26,8 +27,8 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/yaml/yaml.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/yaml/yaml.min.js"></script>
   <style>
     body {
       font-family: 'Manrope', sans-serif;
@@ -138,7 +139,7 @@
                 <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow</label>
                 <select id="sel-workflow"
                   class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                  onchange="onWorkflowChange('sel-workflow','sel-playbook','sel-vars'); refreshRunSummary();">
+                  onchange="onWorkflowChange('sel-workflow','sel-playbook','sel-vars'); refreshRunSummary(); renderConfigForm();">
                   <option value="">Select a workflow...</option>
                 </select>
               </div>
@@ -147,10 +148,34 @@
                 <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Playbook</label>
                 <select id="sel-playbook"
                   class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                  onchange="refreshRunSummary()">
+                  onchange="refreshRunSummary(); renderConfigForm();">
                   <option value="">Select playbook...</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          <div id="config-form-card" class="hidden rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Configuration Form</p>
+                <h3 class="mt-2 text-lg font-bold text-slate-900">Generate vars from fields</h3>
+              </div>
+              <span id="config-form-badge" class="rounded-2xl bg-cyan-100 px-3 py-2 text-xs font-semibold text-cyan-900">Validated YAML</span>
+            </div>
+
+            <p id="config-form-description" class="mt-4 text-sm text-slate-600"></p>
+            <div id="config-form-fields" class="mt-5 space-y-4"></div>
+            <div id="config-form-errors" class="mt-4 hidden rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"></div>
+            <div class="mt-5 flex flex-wrap gap-2">
+              <button id="btn-generate-vars" type="button" onclick="generateVarsFromForm()"
+                class="rounded-2xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-cyan-500 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500">
+                Generate vars YAML
+              </button>
+              <button type="button" onclick="loadGeneratedVarsPreview()"
+                class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                Preview in editor
+              </button>
             </div>
           </div>
 
@@ -171,7 +196,7 @@
                 <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow vars file</label>
                 <select id="sel-vars"
                   class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                  onchange="updateSourceHint('run','vars'); refreshRunSummary()">
+                  onchange="updateSourceHint('run','vars'); refreshRunSummary(); renderConfigForm();">
                   <option value="">Select vars file...</option>
                 </select>
               </div>
@@ -278,6 +303,9 @@
                 <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Extra arguments</label>
                 <input id="extra-args" type="text" placeholder="Example: --check --diff"
                   class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+              </div>
+              <div id="runner-readiness" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+                Checking runner credentials and Ansible paths…
               </div>
             </div>
 
@@ -615,6 +643,7 @@
   </div>
 
   <script>
+    {% raw %}
     let workflows = [];
     let inventories = [];
     let editor = null;
@@ -624,6 +653,10 @@
     let wfSteps = [];
     let wfRunning = false;
     let stepId = 0;
+    let configFormDirty = false;
+    let runnerRuntime = null;
+    let loadedSourceHostPortAssignments = [];
+    let generatedVarsValidation = { path: '', schema: '', ok: false };
     let filePickerState = {
       targetInputId: '',
       root: 'repo',
@@ -747,6 +780,773 @@
       $('summary-inventory').textContent = describePath(getSelectedInventoryPath('run'), 'Not selected');
     }
 
+    function formField(id, label, value, help, attrs) {
+      return ''
+        + '<div>'
+        +   '<label for="' + id + '" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">' + htmlEscape(label) + '</label>'
+        +   '<input id="' + id + '" value="' + htmlEscape(value || '') + '" ' + (attrs || '')
+        +     ' class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100" oninput="markConfigFormDirty(); validateConfigForm()">'
+        +   (help ? '<p class="mt-1.5 text-xs text-slate-500">' + htmlEscape(help) + '</p>' : '')
+        + '</div>';
+    }
+
+    function formSelect(id, label, options, selected) {
+      return ''
+        + '<div>'
+        +   '<label for="' + id + '" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">' + htmlEscape(label) + '</label>'
+        +   '<select id="' + id + '" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100" onchange="markConfigFormDirty(); validateConfigForm()">'
+        +     options.map(function(option) {
+                return '<option value="' + htmlEscape(option) + '"' + (option === selected ? ' selected' : '') + '>' + htmlEscape(option) + '</option>';
+              }).join('')
+        +   '</select>'
+        + '</div>';
+    }
+
+    function formCheckbox(id, label, checked, help) {
+      return ''
+        + '<label class="flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">'
+        +   '<input id="' + id + '" type="checkbox"' + (checked ? ' checked' : '') + ' class="mt-1 h-4 w-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500" onchange="markConfigFormDirty(); validateConfigForm()">'
+        +   '<span><span class="font-semibold text-slate-900">' + htmlEscape(label) + '</span>' + (help ? '<span class="mt-1 block text-xs text-slate-500">' + htmlEscape(help) + '</span>' : '') + '</span>'
+        + '</label>';
+    }
+
+    function renderConfigForm() {
+      const workflowName = $('sel-workflow').value;
+      const playbookName = basename($('sel-playbook').value);
+      const card = $('config-form-card');
+      const fields = $('config-form-fields');
+      const description = $('config-form-description');
+      configFormDirty = false;
+
+      if (workflowName === 'discovery_onboard_en1_en2') {
+        show('config-form-card');
+        description.textContent = 'Create Discovery vars for one or more management IPs. Retry must be 1-10 and timeout must be 1-120 minutes.';
+        fields.innerHTML = ''
+          + formField('cfg-discovery-name', 'Discovery name', defaultDiscoveryName(), 'Unique Catalyst Center Discovery job name.', 'type="text"')
+          + formField('cfg-discovery-ips', 'Device IPs', '204.1.2.5, 204.1.2.6', 'Comma or newline separated IPv4 addresses.', 'type="text"')
+          + '<div class="grid gap-4 md:grid-cols-2">'
+          +   formSelect('cfg-discovery-type', 'Discovery type', ['MULTI RANGE', 'SINGLE'], 'MULTI RANGE')
+          +   formSelect('cfg-protocol-order', 'Protocol order', ['ssh', 'telnet'], 'ssh')
+          + '</div>'
+          + '<div class="grid gap-4 md:grid-cols-2">'
+          +   formField('cfg-discovery-retry', 'Retry', '2', 'Allowed range: 1-10.', 'type="number" min="1" max="10" step="1"')
+          +   formField('cfg-discovery-timeout', 'Timeout', '10', 'Allowed range: 1-120.', 'type="number" min="1" max="120" step="1"')
+          + '</div>'
+          + formCheckbox('cfg-use-global-creds', 'Use global credentials', true, 'When enabled, the YAML does not include per-device secrets.');
+      } else if (workflowName === 'sda_port_assignment_migration' && playbookName === 'sda_port_assignment_migration_playbook.yml') {
+        show('config-form-card');
+        description.textContent = 'Create SDA port assignment migration vars. Load source assignments from Catalyst Center and map them to destination interfaces with dropdowns.';
+        fields.innerHTML = ''
+          + formField('cfg-site', 'Fabric site', 'Global/USA/San Jose/BLDG23', '', 'type="text"')
+          + '<div class="grid gap-4 md:grid-cols-2">'
+          +   formField('cfg-source-ip', 'Source device IP', '', 'Device that currently owns the SDA host-port assignments.', 'type="text"')
+          +   formField('cfg-replacement-ip', 'Destination device IP', '', 'Device that will receive the migrated assignments.', 'type="text"')
+          + '</div>'
+          + formField('cfg-work-dir', 'Generated config directory', '/tmp/sda_port_assignment_migration', 'Must be an absolute path.', 'type="text"')
+          + '<div>'
+          +   '<label for="cfg-port-mappings" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Interface mappings</label>'
+          +   '<div class="mb-3 rounded-2xl border border-cyan-100 bg-cyan-50 p-3">'
+          +     '<div class="flex flex-wrap items-end gap-3">'
+          +       '<div class="min-w-[220px] flex-1">'
+          +         '<label for="cfg-source-port" class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-800">Source device port</label>'
+          +         '<select id="cfg-source-port" class="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"><option value="">Load ports first</option></select>'
+          +       '</div>'
+          +       '<div class="min-w-[220px] flex-1">'
+          +         '<label for="cfg-destination-port" class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-800">Destination device port</label>'
+          +         '<select id="cfg-destination-port" class="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"><option value="">Load ports first</option></select>'
+          +       '</div>'
+          +       '<button type="button" class="rounded-xl bg-cyan-700 px-3 py-2 text-xs font-semibold text-white hover:bg-cyan-800" onclick="loadPortChoices()">Load ports</button>'
+          +       '<button type="button" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800" onclick="addSelectedPortMapping()">Add mapping</button>'
+          +     '</div>'
+          +     '<p id="cfg-port-picker-status" class="mt-2 text-xs text-cyan-900">Select one source assignment and one destination port, then add the mapping. Repeat for additional ports.</p>'
+          +   '</div>'
+          +   '<textarea id="cfg-port-mappings" rows="5" placeholder="Mappings added from the Source Device and Destination Device dropdowns appear here." class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100" oninput="markConfigFormDirty(); validateConfigForm()"></textarea>'
+          +   '<p class="mt-1.5 text-xs text-slate-500">Use source=destination format for manual edits. Leave empty only when the workflow should migrate interfaces 1:1.</p>'
+          + '</div>'
+          + formCheckbox('cfg-allow-empty-ports', 'Allow 1:1 migration without explicit mappings', false, 'When enabled, the generated vars omit interface_mappings and the workflow migrates matching interface names.')
+          + formCheckbox('cfg-cleanup-generated-files', 'Cleanup generated files', true, 'Remove temporary exported config files after the workflow completes.');
+      } else if (workflowName === 'switch_refresh' && ['switch_refresh_prepare.yml', 'switch_refresh_full_flow.yml'].includes(playbookName)) {
+        show('config-form-card');
+        description.textContent = 'Create switch-refresh prepare vars for Discovery-based migration. Port mappings are optional only when Allow empty host-port config is enabled.';
+        fields.innerHTML = ''
+          + formField('cfg-site', 'Fabric site', 'Global/USA/San Jose/BLDG23', '', 'type="text"')
+          + '<div class="grid gap-4 md:grid-cols-2">'
+          +   formField('cfg-source-ip', 'Old/source device IP', '204.1.2.6', '', 'type="text"')
+          +   formField('cfg-replacement-ip', 'Replacement device IP', '204.1.2.5', '', 'type="text"')
+          + '</div>'
+          + formField('cfg-batch-name', 'Batch name', 'pr-direct-discovery-en2-to-en1-loopback', '', 'type="text"')
+          + formField('cfg-work-dir', 'Work directory', '/tmp/catalystcenter_switch_refresh_pr_direct_20260821_025256', 'Must be an absolute path.', 'type="text"')
+          + '<div class="grid gap-4 md:grid-cols-2">'
+          +   formField('cfg-migration-retry', 'Discovery retry', '2', 'Allowed range: 1-10.', 'type="number" min="1" max="10" step="1"')
+          +   formSelect('cfg-migration-protocol', 'Protocol order', ['ssh', 'telnet'], 'ssh')
+          + '</div>'
+          + '<div>'
+          +   '<label for="cfg-port-mappings" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Port mappings</label>'
+          +   '<div class="mb-3 rounded-2xl border border-cyan-100 bg-cyan-50 p-3">'
+          +     '<div class="flex flex-wrap items-end gap-3">'
+          +       '<div class="min-w-[220px] flex-1">'
+          +         '<label for="cfg-source-port" class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-800">Old Device port</label>'
+          +         '<select id="cfg-source-port" class="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"><option value="">Load ports first</option></select>'
+          +       '</div>'
+          +       '<div class="min-w-[220px] flex-1">'
+          +         '<label for="cfg-destination-port" class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-800">New Device port</label>'
+          +         '<select id="cfg-destination-port" class="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"><option value="">Load ports first</option></select>'
+          +       '</div>'
+          +       '<button type="button" class="rounded-xl bg-cyan-700 px-3 py-2 text-xs font-semibold text-white hover:bg-cyan-800" onclick="loadPortChoices()">Load ports</button>'
+          +       '<button type="button" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800" onclick="addSelectedPortMapping()">Add mapping</button>'
+          +     '</div>'
+          +     '<p id="cfg-port-picker-status" class="mt-2 text-xs text-cyan-900">Select one old-device assigned port and one new-device target port, then add the mapping. Repeat for additional ports.</p>'
+          +   '</div>'
+          +   '<textarea id="cfg-port-mappings" rows="5" placeholder="Mappings added from the Old Device and New Device dropdowns appear here." class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100" oninput="markConfigFormDirty(); validateConfigForm()"></textarea>'
+          +   '<p class="mt-1.5 text-xs text-slate-500">Use the dropdowns above to add mappings. Manual edits remain supported for advanced corrections.</p>'
+          + '</div>'
+          + formCheckbox('cfg-allow-empty-ports', 'Allow empty host-port config', playbookName !== 'switch_refresh_full_flow.yml', 'Allows prepare to finish without creating host-port assignments. Disable this when port mappings are required.')
+          + formCheckbox('cfg-run-discovery', 'Run Discovery for both devices', true, 'Discovers the old/source and replacement IPs using Catalyst Center global credentials.')
+          + formCheckbox('cfg-run-inventory', 'Run replacement inventory again', playbookName === 'switch_refresh_full_flow.yml', 'Enable when this run should add or update replacement device credentials in Catalyst Center.')
+          + formCheckbox('cfg-run-provision', 'Run replacement provisioning', playbookName === 'switch_refresh_full_flow.yml', 'Enable only when Catalyst Center is ready to provision the replacement to the selected site.')
+          + formCheckbox('cfg-run-fabric-add', 'Add replacement to fabric', playbookName === 'switch_refresh_full_flow.yml', 'Enable only after Catalyst Center shows the replacement is provisioned to the selected site.')
+          + formCheckbox('cfg-run-fabric-validation', 'Validate fabric membership', false, 'Enable only after both devices are expected to be present in fabric.')
+          + formCheckbox('cfg-run-host-onboarding', 'Run host-port migration', true, 'Generates and applies host-port migration payloads when mappings are provided.')
+          + formCheckbox('cfg-run-cleanup', 'Run cleanup after migration', false, 'Use only after migration is verified; cleanup can remove old-device host-port, fabric, provisioning, or inventory state.');
+      } else {
+        hide('config-form-card');
+        fields.innerHTML = '';
+        description.textContent = '';
+        return;
+      }
+
+      validateConfigForm();
+    }
+
+    function markConfigFormDirty() {
+      configFormDirty = true;
+    }
+
+    function getFormValue(id) {
+      const element = $(id);
+      return element ? element.value.trim() : '';
+    }
+
+    function isChecked(id) {
+      const element = $(id);
+      return !!(element && element.checked);
+    }
+
+    function defaultDiscoveryName() {
+      const now = new Date();
+      const stamp = now.getFullYear().toString()
+        + String(now.getMonth() + 1).padStart(2, '0')
+        + String(now.getDate()).padStart(2, '0')
+        + '_'
+        + String(now.getHours()).padStart(2, '0')
+        + String(now.getMinutes()).padStart(2, '0');
+      return 'EN1_EN2_Discovery_UI_' + stamp;
+    }
+
+    function clearFormValidation() {
+      document.querySelectorAll('#config-form-fields input, #config-form-fields textarea, #config-form-fields select').forEach(function(element) {
+        element.setCustomValidity('');
+        element.classList.remove('border-rose-300', 'focus:border-rose-400', 'focus:ring-rose-100');
+      });
+    }
+
+    function markFieldInvalid(id, message) {
+      const element = $(id);
+      if (!element) return;
+      element.setCustomValidity(message);
+      element.classList.add('border-rose-300', 'focus:border-rose-400', 'focus:ring-rose-100');
+    }
+
+    function parseIntegerField(id, label, min, max, errors) {
+      const raw = getFormValue(id);
+      const value = Number(raw);
+      if (!/^\d+$/.test(raw) || value < min || value > max) {
+        const message = label + ' must be a whole number from ' + min + ' to ' + max + '.';
+        errors.push(message);
+        markFieldInvalid(id, message);
+      }
+      return value;
+    }
+
+    function isIpv4(value) {
+      const parts = value.split('.');
+      return parts.length === 4 && parts.every(function(part) {
+        return /^\d+$/.test(part) && Number(part) >= 0 && Number(part) <= 255;
+      });
+    }
+
+    function parseIpList(raw, label, errors, fieldId) {
+      const ips = raw.split(/[\s,]+/).map(function(item) { return item.trim(); }).filter(Boolean);
+      if (!ips.length) {
+        const message = label + ' must include at least one IP address.';
+        errors.push(message);
+        markFieldInvalid(fieldId, message);
+      }
+      ips.forEach(function(ip) {
+        if (!isIpv4(ip)) {
+          const message = label + ' contains an invalid IPv4 address: ' + ip + '.';
+          errors.push(message);
+          markFieldInvalid(fieldId, message);
+        }
+      });
+      if (Array.from(new Set(ips)).length !== ips.length) {
+        const message = label + ' must not contain duplicate IP addresses.';
+        errors.push(message);
+        markFieldInvalid(fieldId, message);
+      }
+      return ips;
+    }
+
+    function parsePortMappings(raw, errors, fieldId) {
+      const mappings = [];
+      raw.split(/\n+/).map(function(line) { return line.trim(); }).filter(Boolean).forEach(function(line) {
+        const parts = line.split('=').map(function(part) { return part.trim(); });
+        if (parts.length !== 2 || !parts[0] || !parts[1]) {
+          const message = 'Port mapping must use source=destination format: ' + line + '.';
+          errors.push(message);
+          markFieldInvalid(fieldId, message);
+          return;
+        }
+        if (/\s/.test(parts[0]) || /\s/.test(parts[1])) {
+          const message = 'Interface names must not contain spaces: ' + line + '.';
+          errors.push(message);
+          markFieldInvalid(fieldId, message);
+          return;
+        }
+        mappings.push({ source: parts[0], destination: parts[1] });
+      });
+      return mappings;
+    }
+
+    function interfaceOptionText(item) {
+      const details = [item.operStatus, item.adminStatus, item.vlanId ? 'VLAN ' + item.vlanId : '', item.description].filter(Boolean);
+      return item.name + (details.length ? ' - ' + details.join(' / ') : '');
+    }
+
+    function assignmentOptionText(item) {
+      const details = [item.connectedDeviceType, item.dataVlanName, item.voiceVlanName, item.authenticationTemplateName, item.description].filter(Boolean);
+      return item.name + (details.length ? ' - ' + details.join(' / ') : '');
+    }
+
+    function setPortPickerStatus(message, isError) {
+      const element = $('cfg-port-picker-status');
+      if (!element) return;
+      element.textContent = message;
+      element.className = 'mt-2 text-xs ' + (isError ? 'text-rose-700' : 'text-cyan-900');
+    }
+
+    function replacementFallbackInterfaces() {
+      const interfaces = [];
+      for (let index = 1; index <= 48; index += 1) {
+        interfaces.push({ name: 'GigabitEthernet1/0/' + index, fallback: true });
+      }
+      return interfaces;
+    }
+
+    function populateInterfaceSelect(id, payload) {
+      const select = $(id);
+      select.innerHTML = '';
+      const interfaces = payload.device && payload.interfaces.length ? payload.interfaces : replacementFallbackInterfaces();
+      select.appendChild(new Option(payload.device ? 'Select a port...' : 'Select expected new-device port...', ''));
+      interfaces.forEach(function(item) {
+        select.appendChild(new Option(interfaceOptionText(item), item.name));
+      });
+      return interfaces.length;
+    }
+
+    function populateAssignmentSelect(id, payload) {
+      const select = $(id);
+      select.innerHTML = '';
+      loadedSourceHostPortAssignments = payload.assignments || [];
+      if (!payload.device) {
+        select.appendChild(new Option('Device not in inventory', ''));
+        return 0;
+      }
+      if (!loadedSourceHostPortAssignments.length) {
+        select.appendChild(new Option('No SDA host-port assignments found', ''));
+        return 0;
+      }
+      select.appendChild(new Option('Select a source assignment...', ''));
+      loadedSourceHostPortAssignments.forEach(function(item) {
+        select.appendChild(new Option(assignmentOptionText(item), item.name));
+      });
+      return loadedSourceHostPortAssignments.length;
+    }
+
+    async function loadPortChoices() {
+      const sourceIp = getFormValue('cfg-source-ip');
+      const replacementIp = getFormValue('cfg-replacement-ip');
+      if (!isIpv4(sourceIp) || !isIpv4(replacementIp)) {
+        setPortPickerStatus('Enter valid source and replacement IPs before loading ports.', true);
+        return;
+      }
+      loadedSourceHostPortAssignments = [];
+      setPortPickerStatus('Loading source host-port assignments and replacement interfaces from Catalyst Center...', false);
+      try {
+        const results = await Promise.all([
+          fetchJson('/api/host-port-assignments?ip=' + encodeURIComponent(sourceIp)),
+          fetchJson('/api/device-interfaces?ip=' + encodeURIComponent(replacementIp)),
+        ]);
+        const sourceCount = populateAssignmentSelect('cfg-source-port', results[0]);
+        const destinationCount = populateInterfaceSelect('cfg-destination-port', results[1]);
+        if (!sourceCount) {
+          setPortPickerStatus('No SDA host-port assignments exist on the source device. The source must be provisioned to the fabric site before assignments can be seeded or migrated. Enable Allow empty host-port config only for a non-migration pass.', true);
+          return;
+        }
+        const destinationMessage = results[1].device
+          ? destinationCount + ' destination ports'
+          : destinationCount + ' expected new-device ports because the replacement is not in inventory yet';
+        setPortPickerStatus('Loaded ' + sourceCount + ' source host-port assignments and ' + destinationMessage + '.', false);
+      } catch (error) {
+        setPortPickerStatus(error.message, true);
+      }
+    }
+
+    function addSelectedPortMapping() {
+      const source = getFormValue('cfg-source-port');
+      const destination = getFormValue('cfg-destination-port');
+      if (!source || !destination) {
+        setPortPickerStatus('Select both old-device and new-device ports before adding a mapping.', true);
+        return;
+      }
+      const textarea = $('cfg-port-mappings');
+      const line = source + '=' + destination;
+      const existing = textarea.value.split(/\n+/).map(function(item) { return item.trim(); }).filter(Boolean);
+      if (existing.indexOf(line) === -1) existing.push(line);
+      textarea.value = existing.join('\n');
+      markConfigFormDirty();
+      validateConfigForm();
+      setPortPickerStatus('Added mapping: ' + line, false);
+    }
+
+    function yamlList(items, indent) {
+      const pad = ' '.repeat(indent);
+      return items.map(function(item) { return pad + '- "' + item + '"'; }).join('\n');
+    }
+
+    function buildDiscoveryYaml(errors) {
+      const name = getFormValue('cfg-discovery-name');
+      if (!name) {
+        const message = 'Discovery name is required.';
+        errors.push(message);
+        markFieldInvalid('cfg-discovery-name', message);
+      }
+      const ips = parseIpList(getFormValue('cfg-discovery-ips'), 'Device IPs', errors, 'cfg-discovery-ips');
+      const retry = parseIntegerField('cfg-discovery-retry', 'Retry', 1, 10, errors);
+      const timeout = parseIntegerField('cfg-discovery-timeout', 'Timeout', 1, 120, errors);
+      const discoveryType = getFormValue('cfg-discovery-type') || 'MULTI RANGE';
+      if (discoveryType === 'SINGLE' && ips.length !== 1) errors.push('SINGLE discovery requires exactly one IP address.');
+      return [
+        '---',
+        'discovery_regression_scenario_id: "ui-generated-discovery"',
+        'discovery_regression_scenario_description: "Discovery onboarding generated from the runner form"',
+        'discovery_regression_expected_result: "Discovery onboarding succeeds"',
+        'discovery_config_verify: false',
+        'discovery_config:',
+        '  - discovery_name: "' + name + '"',
+        '    discovery_type: "' + discoveryType + '"',
+        '    ip_address_list:',
+        yamlList(ips, 6),
+        '    protocol_order: ' + (getFormValue('cfg-protocol-order') || 'ssh'),
+        '    retry: ' + retry,
+        '    timeout: ' + timeout,
+        '    use_global_credentials: ' + (isChecked('cfg-use-global-creds') ? 'true' : 'false'),
+        '',
+      ].join('\n');
+    }
+
+    function buildPortAssignmentMigrationYaml(errors) {
+      const site = getFormValue('cfg-site');
+      const sourceIp = getFormValue('cfg-source-ip');
+      const destinationIp = getFormValue('cfg-replacement-ip');
+      const generatedConfigDir = getFormValue('cfg-work-dir');
+      if (!site) {
+        const message = 'Fabric site is required.';
+        errors.push(message);
+        markFieldInvalid('cfg-site', message);
+      }
+      if (site.length > 255) {
+        const message = 'Fabric site must be at most 255 characters.';
+        errors.push(message);
+        markFieldInvalid('cfg-site', message);
+      }
+      if (!generatedConfigDir || !generatedConfigDir.startsWith('/')) {
+        const message = 'Generated config directory must be an absolute path.';
+        errors.push(message);
+        markFieldInvalid('cfg-work-dir', message);
+      }
+      if (!isIpv4(sourceIp)) {
+        const message = 'Source device IP must be a valid IPv4 address.';
+        errors.push(message);
+        markFieldInvalid('cfg-source-ip', message);
+      }
+      if (!isIpv4(destinationIp)) {
+        const message = 'Destination device IP must be a valid IPv4 address.';
+        errors.push(message);
+        markFieldInvalid('cfg-replacement-ip', message);
+      }
+      if (sourceIp && destinationIp && sourceIp === destinationIp) {
+        const message = 'Source and destination device IPs must be different.';
+        errors.push(message);
+        markFieldInvalid('cfg-source-ip', message);
+        markFieldInvalid('cfg-replacement-ip', message);
+      }
+      const mappings = parsePortMappings(getFormValue('cfg-port-mappings'), errors, 'cfg-port-mappings');
+      const allowEmpty = isChecked('cfg-allow-empty-ports');
+      if (!mappings.length && !allowEmpty) {
+        const message = 'Add at least one interface mapping or enable 1:1 migration without explicit mappings.';
+        errors.push(message);
+        markFieldInvalid('cfg-port-mappings', message);
+      }
+      if (!allowEmpty && mappings.length) {
+        const allowedSources = loadedSourceHostPortAssignments.map(function(item) { return item.name; });
+        const invalidSources = mappings.map(function(mapping) { return mapping.source; }).filter(function(source) { return allowedSources.indexOf(source) === -1; });
+        if (!allowedSources.length) {
+          const message = 'Load source host-port assignments before generating migration vars.';
+          errors.push(message);
+          markFieldInvalid('cfg-port-mappings', message);
+        } else if (invalidSources.length) {
+          const message = 'Source ports must come from SDA host-port assignments: ' + invalidSources.join(', ') + '.';
+          errors.push(message);
+          markFieldInvalid('cfg-port-mappings', message);
+        }
+      }
+      const lines = [
+        '---',
+        'state: merged',
+        'generated_config_dir: "' + generatedConfigDir + '"',
+        'cleanup_generated_files: ' + (isChecked('cfg-cleanup-generated-files') ? 'true' : 'false'),
+        '',
+        'port_assignment_migration:',
+        '  - fabric_site: ' + site,
+        '    source_device_ip: "' + sourceIp + '"',
+        '    destination_device_ip: "' + destinationIp + '"',
+      ];
+      if (mappings.length) {
+        lines.push('    interface_mappings:');
+        mappings.forEach(function(mapping) {
+          lines.push('      - source_interface_name: "' + mapping.source + '"');
+          lines.push('        destination_interface_name: "' + mapping.destination + '"');
+        });
+      }
+      lines.push('');
+      return lines.join('\n');
+    }
+
+    function buildSwitchRefreshYaml(errors) {
+      const site = getFormValue('cfg-site');
+      const batchName = getFormValue('cfg-batch-name');
+      const workDir = getFormValue('cfg-work-dir');
+      const sourceIp = getFormValue('cfg-source-ip');
+      const replacementIp = getFormValue('cfg-replacement-ip');
+      if (!site) {
+        const message = 'Fabric site is required.';
+        errors.push(message);
+        markFieldInvalid('cfg-site', message);
+      }
+      if (!batchName) {
+        const message = 'Batch name is required.';
+        errors.push(message);
+        markFieldInvalid('cfg-batch-name', message);
+      } else if (!/^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$/.test(batchName)) {
+        const message = 'Batch name must start with a letter or number and contain only letters, numbers, ., _, or - (max 80 characters).';
+        errors.push(message);
+        markFieldInvalid('cfg-batch-name', message);
+      }
+      if (site.length > 255) {
+        const message = 'Fabric site must be at most 255 characters.';
+        errors.push(message);
+        markFieldInvalid('cfg-site', message);
+      }
+      if (!workDir || !workDir.startsWith('/')) {
+        const message = 'Work directory must be an absolute path.';
+        errors.push(message);
+        markFieldInvalid('cfg-work-dir', message);
+      }
+      if (!isIpv4(sourceIp)) {
+        const message = 'Old/source device IP must be a valid IPv4 address.';
+        errors.push(message);
+        markFieldInvalid('cfg-source-ip', message);
+      }
+      if (!isIpv4(replacementIp)) {
+        const message = 'Replacement device IP must be a valid IPv4 address.';
+        errors.push(message);
+        markFieldInvalid('cfg-replacement-ip', message);
+      }
+      if (sourceIp && replacementIp && sourceIp === replacementIp) {
+        const message = 'Old/source and replacement IPs must be different.';
+        errors.push(message);
+        markFieldInvalid('cfg-source-ip', message);
+        markFieldInvalid('cfg-replacement-ip', message);
+      }
+      const retry = parseIntegerField('cfg-migration-retry', 'Discovery retry', 1, 10, errors);
+      const discoveryName = defaultDiscoveryName() + '_switch_refresh';
+      const mappings = parsePortMappings(getFormValue('cfg-port-mappings'), errors, 'cfg-port-mappings');
+      const allowEmpty = isChecked('cfg-allow-empty-ports');
+      if (!mappings.length && !allowEmpty) {
+        const message = 'Add at least one port mapping or enable Allow empty host-port config.';
+        errors.push(message);
+        markFieldInvalid('cfg-port-mappings', message);
+      }
+      if (isChecked('cfg-run-host-onboarding') && !allowEmpty && mappings.length) {
+        const allowedSources = loadedSourceHostPortAssignments.map(function(item) { return item.name; });
+        const invalidSources = mappings.map(function(mapping) { return mapping.source; }).filter(function(source) { return allowedSources.indexOf(source) === -1; });
+        if (!allowedSources.length) {
+          const message = 'Load source host-port assignments before generating migration vars.';
+          errors.push(message);
+          markFieldInvalid('cfg-port-mappings', message);
+        } else if (invalidSources.length) {
+          const message = 'Source ports must come from SDA host-port assignments: ' + invalidSources.join(', ') + '.';
+          errors.push(message);
+          markFieldInvalid('cfg-port-mappings', message);
+        }
+      }
+      const mappingYaml = mappings.length
+        ? mappings.map(function(mapping) {
+            return '          - source_interface_name: ' + mapping.source + '\n            destination_interface_name: ' + mapping.destination;
+          }).join('\n')
+        : '          []';
+      return [
+        '---',
+        'catalystcenter_host: "{{ lookup(\'ansible.builtin.env\', \'HOSTIP\') }}"',
+        'catalystcenter_port: 443',
+        'catalystcenter_username: "{{ lookup(\'ansible.builtin.env\', \'CATALYST_CENTER_USERNAME\') }}"',
+        'catalystcenter_password: "{{ lookup(\'ansible.builtin.env\', \'CATALYST_CENTER_PASSWORD\') }}"',
+        'catalystcenter_version: "3.1.3.0"',
+        'catalystcenter_verify: false',
+        'catalystcenter_debug: false',
+        'catalystcenter_log: true',
+        'catalystcenter_log_level: DEBUG',
+        'catalystcenter_log_file_path: "logs/switch_refresh_runner_catc.log"',
+        'catalystcenter_log_append: true',
+        '',
+        'switch_refresh_phase: prepare',
+        'switch_refresh_cleanup_old: false',
+        'switch_refresh_work_dir: ' + workDir,
+        'switch_refresh_onboarding_method: discovery',
+        'switch_refresh_hostname_transfer_enabled: false',
+        'switch_refresh_hostname_transfer_resume_from_manifest: false',
+        '',
+        'switch_refresh_discovery_enabled: ' + (isChecked('cfg-run-discovery') ? 'true' : 'false'),
+        'switch_refresh_lan_automation_enabled: false',
+        'switch_refresh_inventory_enabled: ' + (isChecked('cfg-run-inventory') ? 'true' : 'false'),
+        'switch_refresh_inventory_role_update_enabled: ' + (isChecked('cfg-run-inventory') ? 'true' : 'false'),
+        'switch_refresh_provision_enabled: ' + (isChecked('cfg-run-provision') ? 'true' : 'false'),
+        'switch_refresh_fabric_add_enabled: ' + (isChecked('cfg-run-fabric-add') ? 'true' : 'false'),
+        'switch_refresh_fabric_validation_enabled: ' + (isChecked('cfg-run-fabric-validation') ? 'true' : 'false'),
+        'switch_refresh_host_onboarding_enabled: ' + (isChecked('cfg-run-host-onboarding') ? 'true' : 'false'),
+        'switch_refresh_cleanup_host_onboarding_enabled: true',
+        'switch_refresh_cleanup_fabric_enabled: true',
+        'switch_refresh_cleanup_unprovision_enabled: true',
+        'switch_refresh_cleanup_inventory_enabled: true',
+        'switch_refresh_full_flow_cleanup_enabled: ' + (isChecked('cfg-run-cleanup') ? 'true' : 'false'),
+        'switch_refresh_device_info_lookup_enabled: false',
+        '',
+        'switch_refresh_discovery_config_verify: false',
+        'switch_refresh_inventory_config_verify: true',
+        'switch_refresh_provision_config_verify: true',
+        'switch_refresh_sda_fabric_devices_config_verify: true',
+        'switch_refresh_sda_host_port_onboarding_config_verify: true',
+        'switch_refresh_allow_empty_host_port_config: ' + (allowEmpty ? 'true' : 'false'),
+        'switch_refresh_fabric_validation_timeout: 120',
+        'switch_refresh_fabric_validation_retries: 6',
+        'switch_refresh_fabric_validation_interval: 20',
+        'switch_refresh_sda_fabric_port_channel_limit: 20',
+        '',
+        'switch_refresh_inventory_credentials: >-',
+        '  {{',
+        '    {',
+        "      'username': lookup('ansible.builtin.env', 'SWITCH_CLI_USERNAME'),",
+        "      'password': lookup('ansible.builtin.env', 'SWITCH_CLI_PASSWORD'),",
+        "      'enable_password': lookup('ansible.builtin.env', 'SWITCH_ENABLE_PASSWORD'),",
+        "      'cli_transport': 'ssh',",
+        "      'type': 'NETWORK_DEVICE'",
+        '    } |',
+        '    combine(',
+        '      {',
+        "        'snmp_version': 'v3',",
+        "        'snmp_mode': 'AUTHPRIV',",
+        "        'snmp_username': lookup('ansible.builtin.env', 'SNMPV3_USERNAME'),",
+        "        'snmp_auth_protocol': lookup('ansible.builtin.env', 'SNMPV3_AUTH_PROTOCOL') | default('SHA', true),",
+        "        'snmp_auth_passphrase': lookup('ansible.builtin.env', 'SNMPV3_AUTH_PASSWORD'),",
+        "        'snmp_priv_protocol': lookup('ansible.builtin.env', 'SNMPV3_PRIV_PROTOCOL') | default('AES128', true),",
+        "        'snmp_priv_passphrase': lookup('ansible.builtin.env', 'SNMPV3_PRIV_PASSWORD')",
+        '      }',
+        "      if (lookup('ansible.builtin.env', 'SNMPV3_USERNAME') | length > 0)",
+        '      else {}',
+        '    )',
+        '  }}',
+        '',
+        'switch_refresh_batches:',
+        '  - name: ' + batchName,
+        '    fabric_site_name_hierarchy: ' + site,
+        '    onboarding_method: discovery',
+        '    new_devices:',
+        '      device_ips:',
+        '        - "' + replacementIp + '"',
+        '      discovery_config:',
+        '        - discovery_name: ' + discoveryName,
+        '          discovery_type: "MULTI RANGE"',
+        '          ip_address_list:',
+        '            - "' + replacementIp + '"',
+        '            - "' + sourceIp + '"',
+        '          protocol_order: ' + (getFormValue('cfg-migration-protocol') || 'ssh'),
+        '          retry: ' + retry,
+        '          use_global_credentials: true',
+        '      provision_config:',
+        '        - site_name_hierarchy: ' + site,
+        '          management_ip_address: "' + replacementIp + '"',
+        '          provisioning: true',
+        '          force_provisioning: true',
+        '      fabric_devices_config:',
+        '        - fabric_devices:',
+        '            fabric_name: ' + site,
+        '            device_config:',
+        '              - device_ip: "' + replacementIp + '"',
+        '                device_roles:',
+        '                  - EDGE_NODE',
+        '    device_mapping:',
+        '      - old:',
+        '          management_ip: "' + sourceIp + '"',
+        '        new_device_management_ip: "' + replacementIp + '"',
+        '        port_assignment_interface_mappings:',
+        mappingYaml,
+        '        port_channel_interface_mappings: []',
+        '',
+      ].join('\n');
+    }
+
+    function buildConfigYaml() {
+      const errors = [];
+      const workflowName = $('sel-workflow').value;
+      const playbookName = basename($('sel-playbook').value);
+      clearFormValidation();
+      let yaml = '';
+      if (workflowName === 'discovery_onboard_en1_en2') {
+        yaml = buildDiscoveryYaml(errors);
+      } else if (workflowName === 'sda_port_assignment_migration' && playbookName === 'sda_port_assignment_migration_playbook.yml') {
+        yaml = buildPortAssignmentMigrationYaml(errors);
+      } else if (workflowName === 'switch_refresh' && ['switch_refresh_prepare.yml', 'switch_refresh_full_flow.yml'].includes(playbookName)) {
+        yaml = buildSwitchRefreshYaml(errors);
+      } else {
+        errors.push('Select a supported workflow before generating YAML.');
+      }
+      return { yaml: yaml, errors: errors };
+    }
+
+    function validateConfigForm() {
+      if ($('config-form-card').classList.contains('hidden')) return true;
+      const result = buildConfigYaml();
+      const errorEl = $('config-form-errors');
+      const button = $('btn-generate-vars');
+      const valid = result.errors.length === 0;
+      button.disabled = !valid;
+      if (valid) {
+        hide('config-form-errors');
+        errorEl.innerHTML = '';
+      } else {
+        show('config-form-errors');
+        errorEl.innerHTML = '<p class="font-semibold">Fix these values before generating YAML:</p><ul class="mt-2 list-disc space-y-1 pl-5">' + result.errors.map(function(error) { return '<li>' + htmlEscape(error) + '</li>'; }).join('') + '</ul>';
+      }
+      return valid;
+    }
+
+    function selectedWorkflowSchema() {
+      const workflowName = $('sel-workflow').value;
+      const workflow = workflows.find(function(item) { return item.name === workflowName; });
+      if (!workflow || !workflow.schemas || !workflow.schemas.length) return '';
+      return 'workflows/' + workflowName + '/schema/' + workflow.schemas[0];
+    }
+
+    function resetGeneratedVarsValidation() {
+      generatedVarsValidation = { path: '', schema: '', ok: false };
+    }
+
+    async function validateSelectedVarsFile(options) {
+      options = options || {};
+      const varsPath = getSelectedVarsPath('run');
+      const schema = selectedWorkflowSchema();
+      const resultEl = $('validate-result');
+      if (!varsPath) {
+        if (options.showErrors) alert('Select a vars file first');
+        return false;
+      }
+      if (!schema) {
+        if (options.showErrors) alert('No schema found for this workflow');
+        return false;
+      }
+      try {
+        const result = await fetchJson('/api/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ schema: schema, data: varsPath }),
+        });
+        show('validate-result');
+        resultEl.className = 'rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap ' + (result.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700');
+        resultEl.textContent = result.ok ? 'Validation passed. You can launch the playbook.\n' + result.out : 'Validation failed. Launch is blocked until this passes.\n' + result.out;
+        generatedVarsValidation = { path: varsPath, schema: schema, ok: !!result.ok };
+        return !!result.ok;
+      } catch (error) {
+        show('validate-result');
+        resultEl.className = 'rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700 whitespace-pre-wrap';
+        resultEl.textContent = error.message;
+        resetGeneratedVarsValidation();
+        return false;
+      }
+    }
+
+    async function generateVarsFromForm() {
+      const result = buildConfigYaml();
+      if (result.errors.length) {
+        validateConfigForm();
+        return;
+      }
+      const path = getSelectedVarsPath('run');
+      if (!path) {
+        alert('Select a vars file to save the generated YAML');
+        return;
+      }
+      try {
+        await fetchJson('/api/file', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: path, content: result.yaml }),
+        });
+        if (editor && $('editor-path').textContent === path) {
+          editor.setValue(result.yaml);
+          hide('btn-save');
+          fileDirty = false;
+        }
+        updateSourceHint('run', 'vars');
+        refreshRunSummary();
+        const validationOk = await validateSelectedVarsFile({ showErrors: true });
+        if (!validationOk) {
+          configFormDirty = true;
+          alert('Generated YAML was saved, but schema validation failed. Fix the YAML before running.');
+          return;
+        }
+        showToast('Generated vars YAML saved and validated');
+        configFormDirty = false;
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    function loadGeneratedVarsPreview() {
+      const result = buildConfigYaml();
+      if (result.errors.length) {
+        validateConfigForm();
+        return;
+      }
+      editor.setValue(result.yaml);
+      $('editor-path').textContent = getSelectedVarsPath('run') || 'Generated preview';
+      show('editor-section');
+      hide('editor-hint');
+      show('btn-save');
+      fileDirty = true;
+      setTimeout(function() { editor.refresh(); }, 20);
+    }
+
     function refreshDashboardCards() {
       $('card-workflow-count').textContent = String(workflows.length);
       $('card-inventory-count').textContent = String(inventories.length);
@@ -761,27 +1561,63 @@
       return data;
     }
 
+    function renderRunnerReadiness() {
+      const element = $('runner-readiness');
+      if (!element || !runnerRuntime) return;
+      const catc = runnerRuntime.readiness.catalyst_center || {};
+      const missingCatc = Object.keys(catc).filter(function(name) { return !catc[name]; });
+      const switchCreds = runnerRuntime.readiness.switch_credentials || {};
+      const missingSwitch = Object.keys(switchCreds).filter(function(name) { return !switchCreds[name]; });
+      if (missingCatc.length || missingSwitch.length) {
+        const missing = missingCatc.concat(missingSwitch);
+        element.className = 'rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800';
+        element.innerHTML = '<span class="font-semibold">Runner is not ready for a live Switch Refresh.</span> Missing: '
+          + htmlEscape(missing.join(', '))
+          + '. Start it with <span class="font-mono">start_switch_refresh_runner.sh</span>.';
+      } else {
+        element.className = 'rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-800';
+        element.innerHTML = '<span class="font-semibold">Runner ready.</span> Catalyst Center, switch credentials, and Ansible execution paths are configured.';
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', async function() {
       try {
         const data = await Promise.all([
           fetchJson('/api/workflows'),
           fetchJson('/api/inventories'),
+          fetchJson('/api/runtime'),
         ]);
         workflows = data[0];
         inventories = data[1];
+        runnerRuntime = data[2];
       } catch (error) {
         document.body.innerHTML = '<div class="mx-auto mt-24 max-w-xl rounded-3xl border border-rose-200 bg-white p-8 text-center shadow-soft"><h1 class="text-2xl font-bold text-rose-700">Failed to connect to the runner</h1><p class="mt-3 text-sm text-slate-600">' + htmlEscape(error.message) + '</p></div>';
         return;
       }
 
-      editor = CodeMirror($('editor-container'), {
-        mode: 'yaml',
-        theme: 'material-darker',
-        lineNumbers: true,
-        tabSize: 2,
-        indentWithTabs: false,
-        lineWrapping: true,
-      });
+      if (window.CodeMirror) {
+        editor = CodeMirror($('editor-container'), {
+          mode: 'yaml',
+          theme: 'material-darker',
+          lineNumbers: true,
+          tabSize: 2,
+          indentWithTabs: false,
+          lineWrapping: true,
+        });
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.className = 'h-full min-h-[520px] w-full rounded-2xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm text-slate-100 outline-none';
+        textarea.spellcheck = false;
+        $('editor-container').appendChild(textarea);
+        editor = {
+          getValue: function() { return textarea.value; },
+          setValue: function(value) { textarea.value = value; },
+          on: function(eventName, callback) {
+            if (eventName === 'change') textarea.addEventListener('input', callback);
+          },
+          refresh: function() {}
+        };
+      }
       editor.on('change', function() {
         if (!fileDirty && $('editor-path').textContent) {
           fileDirty = true;
@@ -802,6 +1638,8 @@
       setSourceMode('modal-inventory', 'default');
       refreshDashboardCards();
       refreshRunSummary();
+      renderConfigForm();
+      renderRunnerReadiness();
       switchTab('run');
     });
 
@@ -849,6 +1687,7 @@
       if (workflow.vars.length === 1) $(varsId).selectedIndex = 1;
 
       if (workflowId === 'sel-workflow') {
+        resetGeneratedVarsValidation();
         updateSourceHint('run', 'vars');
         refreshRunSummary();
       }
@@ -912,28 +1751,13 @@
         return;
       }
 
-      const workflow = workflows.find(function(item) { return item.name === workflowName; });
-      if (!workflow || !workflow.schemas || !workflow.schemas.length) {
+      const schema = selectedWorkflowSchema();
+      if (!schema) {
         alert('No schema found for this workflow');
         return;
       }
 
-      const schema = 'workflows/' + workflowName + '/schema/' + workflow.schemas[0];
-      const resultEl = $('validate-result');
-      try {
-        const result = await fetchJson('/api/validate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ schema: schema, data: varsPath }),
-        });
-        show('validate-result');
-        resultEl.className = 'rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap ' + (result.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700');
-        resultEl.textContent = result.ok ? 'Validation passed.\n' + result.out : 'Validation failed.\n' + result.out;
-      } catch (error) {
-        show('validate-result');
-        resultEl.className = 'rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700 whitespace-pre-wrap';
-        resultEl.textContent = error.message;
-      }
+      await validateSelectedVarsFile({ showErrors: true });
     }
 
     function ansiToHtml(text) {
@@ -1017,6 +1841,16 @@
     }
 
     async function runPlaybook() {
+      if (!$('config-form-card').classList.contains('hidden')) {
+        if (!validateConfigForm()) {
+          alert('Fix the configuration form errors before running.');
+          return;
+        }
+        if (configFormDirty) {
+          alert('The form changed. Click Generate vars YAML before running.');
+          return;
+        }
+      }
       const playbook = $('sel-playbook').value;
       const inventory = getSelectedInventoryPath('run');
       if (!playbook) {
@@ -1025,6 +1859,12 @@
       }
       if (!inventory) {
         alert('Select an inventory file');
+        return;
+      }
+      const schema = selectedWorkflowSchema();
+      const varsPath = getSelectedVarsPath('run');
+      if (schema && (!generatedVarsValidation.ok || generatedVarsValidation.path !== varsPath || generatedVarsValidation.schema !== schema)) {
+        alert('Validate the selected vars file against the workflow schema before running.');
         return;
       }
 
@@ -1447,6 +2287,7 @@
         if (!$('step-modal').classList.contains('hidden')) closeModal();
       }
     });
+    {% endraw %}
   </script>
 </body>
 </html>

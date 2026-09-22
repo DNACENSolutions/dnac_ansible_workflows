@@ -5,23 +5,38 @@ import json
 import os
 import shlex
 import signal
+import ssl
 import subprocess
+import sys
 import threading
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
 import uuid
 from pathlib import Path
 
 from flask import Flask, Response, jsonify, render_template, request
 
-app = Flask(__name__)
+APP_DIR = Path(__file__).resolve().parent
+app = Flask(__name__, template_folder=str(APP_DIR / "templates"))
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Project root is two levels up: tools/ansible_runner/app.py -> repo root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = APP_DIR.parent.parent
 WORKFLOWS_DIR = PROJECT_ROOT / "workflows"
 INVENTORY_DIR = PROJECT_ROOT / "inventory"
 HOME_DIR = Path.home().resolve()
 YAML_SUFFIXES = {".yml", ".yaml"}
 VERBOSITY_FLAGS = {"", "-v", "-vv", "-vvv", "-vvvv"}
+ANSIBLE_PLAYBOOK_BIN = os.environ.get(
+    "ANSIBLE_PLAYBOOK_BIN",
+    "ansible-playbook",
+)
+ANSIBLE_PYTHON = os.environ.get(
+    "ANSIBLE_PYTHON_INTERPRETER",
+    sys.executable,
+)
 BROWSE_ROOTS = {
     "repo": ("Repository", PROJECT_ROOT.resolve()),
     "home": ("Home", HOME_DIR),
@@ -81,9 +96,7 @@ def _exec(job: Job):
     """Execute ansible-playbook in a background thread."""
     job.status = "running"
     job.t0 = time.time()
-    env = os.environ.copy()
-    env["ANSIBLE_FORCE_COLOR"] = "true"
-    env["PYTHONUNBUFFERED"] = "1"
+    env = _runtime_env()
     try:
         job.proc = subprocess.Popen(
             job.argv,
@@ -222,6 +235,117 @@ def _json_error(message: str, status: int = 400):
     return jsonify(error=message), status
 
 
+def _runtime_env() -> dict[str, str]:
+    """Build the environment used by every UI-launched Ansible job."""
+    env = os.environ.copy()
+    env["ANSIBLE_FORCE_COLOR"] = "true"
+    env["PYTHONUNBUFFERED"] = "1"
+    runner_tmp = Path(
+        env.get("RUNNER_TMPDIR", "/tmp/catalystcenter-ansible-runner")
+    ).resolve()
+    runner_tmp.mkdir(parents=True, exist_ok=True)
+    env.setdefault("ANSIBLE_LOCAL_TEMP", str(runner_tmp))
+    env.setdefault("ANSIBLE_REMOTE_TEMP", str(runner_tmp / "remote"))
+    env.setdefault("ANSIBLE_ROLES_PATH", str(PROJECT_ROOT / "roles"))
+    env.setdefault("ANSIBLE_PYTHON_INTERPRETER", ANSIBLE_PYTHON)
+    env["PWD"] = str(PROJECT_ROOT)
+
+    collection_paths = [
+        PROJECT_ROOT / "collections",
+        PROJECT_ROOT / ".ansible" / "collections",
+        PROJECT_ROOT,
+        HOME_DIR / ".ansible" / "collections",
+    ]
+    configured = [
+        item for item in env.get("ANSIBLE_COLLECTIONS_PATH", "").split(os.pathsep)
+        if item
+    ]
+    configured.extend(str(path) for path in collection_paths if path.exists())
+    env["ANSIBLE_COLLECTIONS_PATH"] = os.pathsep.join(dict.fromkeys(configured))
+    return env
+
+
+def _runtime_readiness() -> dict[str, dict[str, bool]]:
+    """Return safe boolean status without exposing credential values."""
+    groups = {
+        "catalyst_center": (
+            "HOSTIP",
+            "CATALYST_CENTER_USERNAME",
+            "CATALYST_CENTER_PASSWORD",
+        ),
+        "switch_credentials": (
+            "SWITCH_CLI_USERNAME",
+            "SWITCH_CLI_PASSWORD",
+            "SWITCH_ENABLE_PASSWORD",
+        ),
+        "snmpv3_credentials": (
+            "SNMPV3_USERNAME",
+            "SNMPV3_AUTH_PASSWORD",
+            "SNMPV3_PRIV_PASSWORD",
+        ),
+    }
+    return {
+        group: {name: bool(os.environ.get(name, "").strip()) for name in names}
+        for group, names in groups.items()
+    }
+
+
+def _catc_token() -> str:
+    """Return a Catalyst Center auth token without logging credentials."""
+    host = os.environ.get("HOSTIP", "").strip()
+    username = os.environ.get("CATALYST_CENTER_USERNAME", "").strip()
+    password = os.environ.get("CATALYST_CENTER_PASSWORD", "")
+    if not host or not username or not password:
+        raise RuntimeError("Catalyst Center credentials are not configured in the runner")
+
+    url = f"https://{host}/dna/system/api/v1/auth/token"
+    request = urllib.request.Request(url, method="POST")
+    credentials = f"{username}:{password}".encode("utf-8")
+    import base64
+    request.add_header("Authorization", "Basic " + base64.b64encode(credentials).decode("ascii"))
+    request.add_header("Content-Type", "application/json")
+    with urllib.request.urlopen(request, context=ssl._create_unverified_context(), timeout=30) as response:
+        data = json.loads(response.read().decode("utf-8"))
+    token = data.get("Token") or data.get("token")
+    if not token:
+        raise RuntimeError("Catalyst Center did not return an auth token")
+    return token
+
+
+def _catc_get(path: str, params: dict[str, str] | None = None) -> dict:
+    host = os.environ.get("HOSTIP", "").strip()
+    if not host:
+        raise RuntimeError("HOSTIP is not configured in the runner")
+    query = ""
+    if params:
+        query = "?" + urllib.parse.urlencode(params)
+    request = urllib.request.Request(f"https://{host}{path}{query}")
+    request.add_header("X-Auth-Token", _catc_token())
+    request.add_header("Content-Type", "application/json")
+    with urllib.request.urlopen(request, context=ssl._create_unverified_context(), timeout=30) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def _interface_name(record: dict) -> str:
+    for key in ("portName", "interfaceName", "name", "ifName"):
+        value = record.get(key)
+        if value:
+            return str(value)
+    return ""
+
+
+def _device_by_management_ip(ip_address: str) -> tuple[dict | None, str | None]:
+    device_payload = _catc_get(
+        "/dna/intent/api/v1/network-device",
+        {"managementIpAddress": ip_address},
+    )
+    devices = device_payload.get("response") or []
+    if not devices:
+        return None, None
+    device = devices[0]
+    return device, device.get("id")
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -261,6 +385,16 @@ def api_workflows():
     return jsonify(out)
 
 
+@app.route("/api/runtime")
+def api_runtime():
+    """Expose non-secret runner readiness details to the guided UI."""
+    return jsonify(
+        ansible_playbook=ANSIBLE_PLAYBOOK_BIN,
+        project_root=str(PROJECT_ROOT),
+        readiness=_runtime_readiness(),
+    )
+
+
 @app.route("/api/inventories")
 def api_inventories():
     out = []
@@ -272,6 +406,116 @@ def api_inventories():
             if filename.endswith((".yml", ".yaml")):
                 out.append(os.path.relpath(os.path.join(root, filename), PROJECT_ROOT))
     return jsonify(sorted(out))
+
+
+@app.route("/api/device-interfaces")
+def api_device_interfaces():
+    ip_address = (request.args.get("ip") or "").strip()
+    if not ip_address:
+        return _json_error("Device IP is required")
+
+    try:
+        device, device_id = _device_by_management_ip(ip_address)
+        if not device:
+            return jsonify(ip=ip_address, device=None, interfaces=[])
+        if not device_id:
+            return _json_error("Catalyst Center device record has no id", 502)
+
+        interface_payload = _catc_get(
+            f"/dna/intent/api/v1/interface/network-device/{device_id}"
+        )
+        interfaces = []
+        seen_names = set()
+        for record in interface_payload.get("response") or []:
+            name = _interface_name(record)
+            if not name or name in seen_names:
+                continue
+            seen_names.add(name)
+            interfaces.append(
+                {
+                    "name": name,
+                    "adminStatus": record.get("adminStatus"),
+                    "operStatus": record.get("status") or record.get("operStatus"),
+                    "description": record.get("description"),
+                    "vlanId": record.get("vlanId"),
+                    "portMode": record.get("portMode"),
+                    "interfaceType": record.get("interfaceType") or record.get("type"),
+                }
+            )
+        interfaces.sort(key=lambda item: item["name"])
+        return jsonify(
+            ip=ip_address,
+            device={
+                "id": device_id,
+                "hostname": device.get("hostname"),
+                "managementIpAddress": device.get("managementIpAddress"),
+                "collectionStatus": device.get("collectionStatus"),
+                "reachabilityStatus": device.get("reachabilityStatus"),
+            },
+            interfaces=interfaces,
+        )
+    except urllib.error.HTTPError as exc:
+        return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
+    except urllib.error.URLError as exc:
+        return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
+    except Exception as exc:
+        return _json_error(str(exc), 500)
+
+
+@app.route("/api/host-port-assignments")
+def api_host_port_assignments():
+    ip_address = (request.args.get("ip") or "").strip()
+    if not ip_address:
+        return _json_error("Device IP is required")
+
+    try:
+        device, device_id = _device_by_management_ip(ip_address)
+        if not device:
+            return jsonify(ip=ip_address, device=None, assignments=[])
+        if not device_id:
+            return _json_error("Catalyst Center device record has no id", 502)
+
+        assignment_payload = _catc_get(
+            "/dna/intent/api/v1/sda/portAssignments",
+            {"networkDeviceId": device_id, "limit": "500"},
+        )
+        assignments = []
+        seen_names = set()
+        for record in assignment_payload.get("response") or []:
+            name = _interface_name(record)
+            if not name or name in seen_names:
+                continue
+            seen_names.add(name)
+            assignments.append(
+                {
+                    "name": name,
+                    "id": record.get("id"),
+                    "connectedDeviceType": record.get("connectedDeviceType"),
+                    "dataVlanName": record.get("dataVlanName"),
+                    "voiceVlanName": record.get("voiceVlanName"),
+                    "securityGroupName": record.get("securityGroupName"),
+                    "authenticationTemplateName": record.get("authenticationTemplateName"),
+                    "description": record.get("interfaceDescription") or record.get("description"),
+                }
+            )
+        assignments.sort(key=lambda item: item["name"])
+        return jsonify(
+            ip=ip_address,
+            device={
+                "id": device_id,
+                "hostname": device.get("hostname"),
+                "managementIpAddress": device.get("managementIpAddress"),
+                "collectionStatus": device.get("collectionStatus"),
+                "reachabilityStatus": device.get("reachabilityStatus"),
+            },
+            assignments=assignments,
+        )
+    except urllib.error.HTTPError as exc:
+        return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
+    except urllib.error.URLError as exc:
+        return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
+    except Exception as exc:
+        return _json_error(str(exc), 500)
 
 
 @app.route("/api/fs")
@@ -389,7 +633,37 @@ def api_run():
     except ValueError as exc:
         return _json_error(f"Invalid extra arguments: {exc}")
 
-    argv = ["ansible-playbook", "-i", str(inventory_path), str(playbook_path)]
+    is_switch_refresh = playbook_path.parent.parent.name == "switch_refresh"
+    is_syntax_check = "--syntax-check" in extra_args
+    if is_switch_refresh and vars_path is None:
+        return _json_error(
+            "Select a switch-refresh vars file before launching this playbook. "
+            "Use workflows/switch_refresh/vars/switch_refresh_usecase.yml for "
+            "full flow and cleanup runs."
+        )
+    if is_switch_refresh and not is_syntax_check:
+        readiness = _runtime_readiness()
+        missing = [
+            name
+            for name, present in readiness["catalyst_center"].items()
+            if not present
+        ]
+        if playbook_path.name in {"switch_refresh_prepare.yml", "switch_refresh_full_flow.yml"}:
+            missing.extend(
+                name
+                for name, present in readiness["switch_credentials"].items()
+                if not present
+            )
+        if missing:
+            return _json_error(
+                "Runner is missing required Catalyst Center settings: "
+                + ", ".join(missing)
+                + ". Restart it with start_switch_refresh_runner.sh so it "
+                "loads the target and prompts for credentials.",
+                503,
+            )
+
+    argv = [ANSIBLE_PLAYBOOK_BIN, "-i", str(inventory_path), str(playbook_path)]
     if vars_path is not None:
         argv += ["--extra-vars", f"VARS_FILE_PATH={vars_path}"]
     if verbosity:
@@ -487,10 +761,12 @@ def api_job_log(jid):
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
     host = os.environ.get("RUNNER_HOST", "127.0.0.1")
-    port = int(os.environ.get("RUNNER_PORT", "5005"))
+    port = int(os.environ.get("RUNNER_PORT", "5006"))
+    debug = os.environ.get("RUNNER_DEBUG", "false").lower() in {"1", "true", "yes", "on"}
     print("\n  Ansible Workflow Runner")
     print(f"  Project root : {PROJECT_ROOT}")
     print(f"  Workflows    : {WORKFLOWS_DIR}")
     print(f"  Inventory    : {INVENTORY_DIR}")
+    print(f"  Ansible      : {ANSIBLE_PLAYBOOK_BIN}")
     print(f"  URL          : http://{host}:{port}\n")
-    app.run(host=host, port=port, debug=True, threaded=True)
+    app.run(host=host, port=port, debug=debug, threaded=True)
