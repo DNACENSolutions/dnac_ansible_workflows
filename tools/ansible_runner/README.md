@@ -40,6 +40,7 @@ Before running the Ansible Workflow Runner, ensure you have:
 - **Python 3.10+** installed
 - **Ansible** installed and `ansible-playbook` in your PATH, or set `ANSIBLE_PLAYBOOK_BIN` to the full binary path
 - **Flask** and **Yamale** Python packages installed from `tools/ansible_runner/requirements.txt`
+- **cisco.catalystcenter** Ansible collection and `catalystcentersdk` installed for live workflow runs
 - A configured **inventory file** such as `inventory/demo_lab/hosts.yaml`
 - Catalyst Center reachability from the machine running the UI
 - For SDA port assignment migration, access to the source and destination devices in Catalyst Center and this repository's `workflows/sda_port_assignment_migration` workflow
@@ -59,6 +60,10 @@ python3 -m venv tools/ansible_runner/.venv
 # Install dependencies
 tools/ansible_runner/.venv/bin/python -m pip install --upgrade pip
 tools/ansible_runner/.venv/bin/python -m pip install -r tools/ansible_runner/requirements.txt
+tools/ansible_runner/.venv/bin/python -m pip install catalystcentersdk
+
+# Install the Catalyst Center Ansible collection used by the SDA migration workflow
+ansible-galaxy collection install cisco.catalystcenter --collections-path "$PWD/collections" --force
 
 # Optional: override Ansible/runtime paths if they are not already on PATH
 export ANSIBLE_PLAYBOOK_BIN="$(command -v ansible-playbook)"
@@ -87,6 +92,8 @@ The startup banner prints the exact URL. By default, `start_switch_refresh_runne
 ```bash
 cd <repository-directory>
 python3 -m pip install -r tools/ansible_runner/requirements.txt
+python3 -m pip install catalystcentersdk
+ansible-galaxy collection install cisco.catalystcenter --collections-path "$PWD/collections" --force
 RUNNER_PORT=5006 python3 tools/ansible_runner/app.py
 ```
 
