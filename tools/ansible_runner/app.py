@@ -22,6 +22,8 @@ INVENTORY_DIR = PROJECT_ROOT / "inventory"
 HOME_DIR = Path.home().resolve()
 YAML_SUFFIXES = {".yml", ".yaml"}
 VERBOSITY_FLAGS = {"", "-v", "-vv", "-vvv", "-vvvv"}
+DEFAULT_VENV = PROJECT_ROOT / ".venv312"
+DEPENDENCY_REQUIREMENTS = PROJECT_ROOT / "requirements.txt"
 BROWSE_ROOTS = {
     "repo": ("Repository", PROJECT_ROOT.resolve()),
     "home": ("Home", HOME_DIR),
@@ -38,12 +40,22 @@ _jobs_lock = threading.Lock()
 class Job:
     """Represents a single ansible-playbook execution."""
 
-    def __init__(self, jid: str, argv: list[str], cwd: str, label: str = ""):
+    def __init__(
+        self,
+        jid: str,
+        argv: list[str],
+        cwd: str,
+        label: str = "",
+        env_overrides: dict[str, str] | None = None,
+        metadata: dict | None = None,
+    ):
         self.id = jid
         self.argv = argv
         self.cmd = shlex.join(argv)
         self.cwd = cwd
         self.label = label
+        self.env_overrides = env_overrides or {}
+        self.metadata = metadata or {}
         self.status = "queued"
         self.lines: list[str] = []
         self.proc: subprocess.Popen | None = None
@@ -67,6 +79,7 @@ class Job:
             t0=self.t0,
             t1=self.t1,
             n=len(self.lines),
+            metadata=self.metadata,
         )
 
     def details(self):
@@ -84,6 +97,7 @@ def _exec(job: Job):
     env = os.environ.copy()
     env["ANSIBLE_FORCE_COLOR"] = "true"
     env["PYTHONUNBUFFERED"] = "1"
+    env.update(job.env_overrides)
     try:
         job.proc = subprocess.Popen(
             job.argv,
@@ -220,6 +234,87 @@ def _directories(path: Path) -> list[Path]:
 
 def _json_error(message: str, status: int = 400):
     return jsonify(error=message), status
+
+
+def _venv_python(venv_path: Path) -> Path:
+    return venv_path / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+
+
+def _venv_ansible_playbook(venv_path: Path) -> Path:
+    return venv_path / ("Scripts/ansible-playbook.exe" if os.name == "nt" else "bin/ansible-playbook")
+
+
+def _resolve_venv(raw_path: str | None, *, must_exist: bool = False) -> Path | None:
+    return _resolve_local_path(
+        raw_path or str(DEFAULT_VENV),
+        roots=(PROJECT_ROOT.resolve(), HOME_DIR),
+        must_exist=must_exist,
+    )
+
+
+def _venv_status(venv_path: Path) -> dict:
+    python_path = _venv_python(venv_path)
+    ansible_path = _venv_ansible_playbook(venv_path)
+    status = {
+        "path": _display_path(venv_path),
+        "absolute_path": str(venv_path),
+        "python": str(python_path),
+        "ansible_playbook": str(ansible_path),
+        "requirements": _display_path(DEPENDENCY_REQUIREMENTS) if DEPENDENCY_REQUIREMENTS.exists() else "",
+        "exists": venv_path.exists(),
+        "python_exists": python_path.exists(),
+        "ansible_playbook_exists": ansible_path.exists(),
+        "ready": False,
+        "missing": [],
+    }
+    if not python_path.exists():
+        status["missing"].append("venv python")
+    if not ansible_path.exists():
+        status["missing"].append("ansible-playbook")
+
+    if python_path.exists():
+        for module in ("ansible", "catalystcentersdk", "yamale"):
+            result = subprocess.run(
+                [str(python_path), "-c", f"import {module}"],
+                cwd=str(PROJECT_ROOT),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+            if result.returncode != 0:
+                status["missing"].append(module)
+
+    status["ready"] = not status["missing"]
+    return status
+
+
+def _candidate_venv_creators() -> list[str]:
+    configured = os.environ.get("RUNNER_VENV_PYTHON")
+    candidates = [configured] if configured else []
+    candidates.extend(["python3.12", "python3", "python"])
+    seen = set()
+    return [item for item in candidates if item and not (item in seen or seen.add(item))]
+
+
+def _create_venv(venv_path: Path) -> tuple[int, str, str]:
+    if venv_path.exists() and _venv_python(venv_path).exists():
+        return 0, "", "Venv already exists."
+
+    attempts = []
+    for executable in _candidate_venv_creators():
+        cmd = [executable, "-m", "venv", str(venv_path)]
+        result = subprocess.run(
+            cmd,
+            cwd=str(PROJECT_ROOT),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        attempts.append("$ " + shlex.join(cmd) + "\n" + result.stdout)
+        if result.returncode == 0 and _venv_python(venv_path).exists():
+            return 0, shlex.join(cmd), "\n".join(attempts)
+
+    return 1, "", "\n".join(attempts)
 
 
 # ---------------------------------------------------------------------------
@@ -366,6 +461,65 @@ def api_validate():
         return _json_error(str(exc), 500)
 
 
+@app.route("/api/environment")
+def api_environment():
+    venv_path = _resolve_venv(request.args.get("venv_path"), must_exist=False)
+    if venv_path is None:
+        return _json_error("Venv path must be inside the repository or your home directory")
+    return jsonify(_venv_status(venv_path))
+
+
+@app.route("/api/environment/create", methods=["POST"])
+def api_environment_create():
+    data = request.json or {}
+    venv_path = _resolve_venv(data.get("venv_path"), must_exist=False)
+    if venv_path is None:
+        return _json_error("Venv path must be inside the repository or your home directory")
+
+    rc, command, output = _create_venv(venv_path)
+    status = _venv_status(venv_path)
+    return jsonify(
+        ok=rc == 0 and status["python_exists"],
+        command=command,
+        rc=rc,
+        output=output,
+        status=status,
+    )
+
+
+@app.route("/api/environment/setup", methods=["POST"])
+def api_environment_setup():
+    data = request.json or {}
+    venv_path = _resolve_venv(data.get("venv_path"), must_exist=False)
+    if venv_path is None:
+        return _json_error("Venv path must be inside the repository or your home directory")
+
+    python_path = _venv_python(venv_path)
+    if not python_path.exists():
+        rc, _, output = _create_venv(venv_path)
+        if rc != 0 or not python_path.exists():
+            return _json_error(f"Could not create venv at {venv_path}.\n{output}", 500)
+    if not DEPENDENCY_REQUIREMENTS.exists():
+        return _json_error("requirements.txt not found")
+
+    cmd = [str(python_path), "-m", "pip", "install", "-r", str(DEPENDENCY_REQUIREMENTS)]
+    result = subprocess.run(
+        cmd,
+        cwd=str(PROJECT_ROOT),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    status = _venv_status(venv_path)
+    return jsonify(
+        ok=result.returncode == 0 and status["ready"],
+        command=shlex.join(cmd),
+        rc=result.returncode,
+        output=result.stdout,
+        status=status,
+    )
+
+
 @app.route("/api/run", methods=["POST"])
 def api_run():
     data = request.json or {}
@@ -389,16 +543,62 @@ def api_run():
     except ValueError as exc:
         return _json_error(f"Invalid extra arguments: {exc}")
 
-    argv = ["ansible-playbook", "-i", str(inventory_path), str(playbook_path)]
+    use_managed_venv = data.get("managed_venv", True)
+    venv_path = _resolve_venv(data.get("venv_path"), must_exist=False)
+    python_path = _venv_python(venv_path) if venv_path else None
+    ansible_playbook = _venv_ansible_playbook(venv_path) if venv_path else None
+
+    if use_managed_venv:
+        if venv_path is None:
+            return _json_error("Venv path must be inside the repository or your home directory")
+        if not python_path or not python_path.exists():
+            return _json_error(f"Managed venv Python not found: {python_path}")
+        if not ansible_playbook or not ansible_playbook.exists():
+            return _json_error(f"Managed venv ansible-playbook not found: {ansible_playbook}. Install dependencies first.")
+
+    executable = str(ansible_playbook) if use_managed_venv and ansible_playbook and ansible_playbook.exists() else "ansible-playbook"
+    argv = [executable, "-i", str(inventory_path), str(playbook_path)]
     if vars_path is not None:
         argv += ["--extra-vars", f"VARS_FILE_PATH={vars_path}"]
+    if use_managed_venv and python_path and "ansible_python_interpreter" not in " ".join(extra_args):
+        argv += ["--extra-vars", f"ansible_python_interpreter={python_path}"]
     if verbosity:
         argv.append(verbosity)
     argv.extend(extra_args)
 
+    env_overrides = {}
+    connection = data.get("catalyst_connection") or {}
+    if connection.get("enabled"):
+        if connection.get("host"):
+            env_overrides["HOSTIP"] = str(connection["host"])
+            env_overrides["CATALYST_CENTER_HOST"] = str(connection["host"])
+        if connection.get("username"):
+            env_overrides["CATALYST_CENTER_USERNAME"] = str(connection["username"])
+        if connection.get("password"):
+            env_overrides["CATALYST_CENTER_PASSWORD"] = str(connection["password"])
+        if connection.get("verify"):
+            env_overrides["CATALYST_CENTER_VERIFY"] = str(connection["verify"])
+
     jid = uuid.uuid4().hex[:8]
     label = data.get("label") or playbook_path.stem
-    job = Job(jid, argv, str(PROJECT_ROOT), label)
+    metadata = {
+        "kind": data.get("kind") or "single",
+        "label": label,
+        "workflow": data.get("workflow") or "",
+        "playbook": _display_path(playbook_path),
+        "inventory": _display_path(inventory_path),
+        "vars_file": _display_path(vars_path) if vars_path is not None else "",
+        "verbosity": verbosity,
+        "extra_args": data.get("extra_args", ""),
+        "managed_venv": use_managed_venv,
+        "venv_path": data.get("venv_path") or "",
+        "catalyst_connection_enabled": bool(connection.get("enabled")),
+        "catalyst_connection_host": str(connection.get("host") or ""),
+        "catalyst_connection_username": str(connection.get("username") or ""),
+        "catalyst_connection_verify": str(connection.get("verify") or ""),
+        "catalyst_connection_password_set": bool(connection.get("password")),
+    }
+    job = Job(jid, argv, str(PROJECT_ROOT), label, env_overrides, metadata)
     with _jobs_lock:
         _jobs[jid] = job
     threading.Thread(target=_exec, args=(job,), daemon=True).start()

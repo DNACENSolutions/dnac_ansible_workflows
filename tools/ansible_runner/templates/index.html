@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ansible Workflow Runner</title>
+  <title>Cisco Validated Playbook Dashboard</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230f172a'/%3E%3Cpath d='M18 46V18h7l7 11 7-11h7v28h-7V30l-7 11-7-11v16z' fill='%23f8fafc'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,10 +31,7 @@
   <style>
     body {
       font-family: 'Manrope', sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(15, 23, 42, 0.16), transparent 30%),
-        radial-gradient(circle at top right, rgba(8, 145, 178, 0.18), transparent 26%),
-        linear-gradient(180deg, #dbe4f0 0%, #cfdcf0 100%);
+      background: #f7f8fa;
     }
     .terminal {
       font-family: 'JetBrains Mono', monospace;
@@ -46,9 +43,8 @@
       font-size: 13px;
     }
     .tab-active {
-      background: #0f172a;
-      color: #f8fafc;
-      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+      background: #e3f0f8;
+      color: #0076a8;
     }
     .source-btn-active {
       background: #0f172a;
@@ -75,280 +71,479 @@
 <body class="min-h-full text-slate-900">
   <div id="toast" class="hidden fixed bottom-6 right-6 z-50 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-medium text-white shadow-soft transition-opacity duration-300"></div>
 
-  <header class="border-b border-slate-300 bg-slate-50/95 backdrop-blur">
-    <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6">
-      <div>
-        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-cyan-700">Cisco Automation</p>
-        <h1 class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">Ansible Workflow Runner</h1>
-        <p class="mt-2 max-w-2xl text-sm text-slate-700">
-          Launch workflow playbooks, edit vars, validate inputs, and switch to custom inventory or vars files when the defaults are not enough.
-        </p>
-      </div>
-      <div class="hidden rounded-3xl border border-slate-800 bg-slate-900 px-5 py-4 text-right text-white shadow-soft lg:block">
-        <p class="text-xs uppercase tracking-[0.28em] text-slate-300">Runner Scope</p>
-        <p class="mt-2 text-sm font-semibold text-white">Repository defaults + custom file browse</p>
-        <p class="mt-1 text-xs text-slate-300">Browse YAML files from the repo or your home directory.</p>
+  <header class="h-[70px] border-b border-slate-200 bg-[#123456] text-white">
+    <div class="flex h-full items-center px-8">
+      <div class="flex items-center gap-5">
+        <img src="{{ url_for('static', filename='cisco-logo-white.svg') }}" alt="Cisco" class="h-8 w-auto object-contain">
+        <h1 class="text-xl font-medium tracking-tight text-white">Cisco Validated Playbook Dashboard</h1>
       </div>
     </div>
   </header>
 
-  <main class="mx-auto max-w-7xl px-6 pb-10 pt-6">
-    <section class="grid gap-4 md:grid-cols-2">
-      <div class="rounded-3xl border border-slate-300 bg-white p-5 shadow-soft">
-        <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Available Workflows</p>
-        <p id="card-workflow-count" class="mt-3 text-3xl font-extrabold text-slate-900">0</p>
-        <p class="mt-2 text-sm text-slate-700">Discovered directly from the repository structure.</p>
-      </div>
-      <div class="rounded-3xl border border-slate-300 bg-white p-5 shadow-soft">
-        <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Default Inventories</p>
-        <p id="card-inventory-count" class="mt-3 text-3xl font-extrabold text-slate-900">0</p>
-        <p class="mt-2 text-sm text-slate-700">Use the repo inventory list or browse to a different YAML inventory file.</p>
-      </div>
-    </section>
+  <main class="grid min-h-[calc(100vh-70px)] lg:grid-cols-[250px_minmax(0,1fr)]">
+    <aside class="border-r border-slate-200 bg-slate-50">
+      <nav class="sticky top-0 p-6">
+        <p class="mb-5 px-4 text-xs font-bold uppercase tracking-[0.28em] text-slate-500">Navigation</p>
+        <div class="space-y-3">
+          <button class="tab-btn flex w-full items-center gap-4 rounded-xl px-4 py-4 text-left text-base font-bold text-slate-700 transition hover:bg-slate-100" data-tab="dashboard" onclick="switchTab('dashboard')">
+            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>Dashboard</span>
+          </button>
+          <button class="tab-btn flex w-full items-center gap-4 rounded-xl px-4 py-4 text-left text-base font-bold text-slate-700 transition hover:bg-slate-100" data-tab="run" onclick="switchTab('run')">
+            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <path d="M5 4h14v16H5z"></path>
+              <path d="M8 8h8M8 12h8M8 16h5"></path>
+            </svg>
+            <span>Run Playbook</span>
+          </button>
+          <button class="tab-btn flex w-full items-center gap-4 rounded-xl px-4 py-4 text-left text-base font-bold text-slate-700 transition hover:bg-slate-100" data-tab="workflow" onclick="switchTab('workflow')">
+            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <path d="M6 7h5"></path>
+              <path d="M13 7h5"></path>
+              <path d="M6 17h5"></path>
+              <path d="M13 17h5"></path>
+              <path d="M11 7c2.5 0 2.5 10 5 10"></path>
+            </svg>
+            <span>Workflow Builder</span>
+          </button>
+          <button class="tab-btn flex w-full items-center gap-4 rounded-xl px-4 py-4 text-left text-base font-bold text-slate-700 transition hover:bg-slate-100" data-tab="history" onclick="switchTab('history')">
+            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <path d="M4 5h16v14H4z"></path>
+              <path d="M8 9h8M8 13h8M8 17h5"></path>
+            </svg>
+            <span>Job History</span>
+          </button>
+        </div>
+      </nav>
+    </aside>
 
-    <nav class="sticky top-0 z-20 mt-6 rounded-3xl border border-slate-300 bg-slate-50/95 p-2 shadow-soft backdrop-blur">
-      <div class="flex flex-wrap gap-2">
-        <button class="tab-btn tab-active rounded-2xl px-4 py-2.5 text-sm font-semibold transition" data-tab="run" onclick="switchTab('run')">Run Playbook</button>
-        <button class="tab-btn rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-200" data-tab="workflow" onclick="switchTab('workflow')">Workflow Builder</button>
-        <button class="tab-btn rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-200" data-tab="history" onclick="switchTab('history')">Job History</button>
-      </div>
-    </nav>
+    <div class="min-w-0 px-8 py-8">
+      <section id="tab-dashboard" class="tab-content hidden">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Validated Playbook Activity</h2>
+          <p class="mt-3 max-w-3xl text-sm text-slate-600">
+            Monitor Catalyst Center workflow runs, completion results, and the latest job state.
+          </p>
+        </div>
 
-    <section id="tab-run" class="tab-content pt-6">
-      <div class="grid gap-6 xl:grid-cols-[430px_minmax(0,1fr)]">
-        <div class="space-y-6">
-          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
-            <div class="flex items-start justify-between gap-4">
-              <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700">Run Setup</p>
-                <h2 class="mt-2 text-xl font-bold text-slate-900">Prepare a single playbook run</h2>
-              </div>
-              <div class="rounded-2xl bg-cyan-100 px-3 py-2 text-xs font-semibold text-cyan-900">Guided flow</div>
+        <section class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Total Runs</p>
+            <p id="card-total-runs" class="mt-3 text-3xl font-extrabold text-slate-900">0</p>
+            <p class="mt-2 text-sm text-slate-700">Playbook executions started in this session.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Succeeded</p>
+            <p id="card-successful-runs" class="mt-3 text-3xl font-extrabold text-emerald-700">0</p>
+            <p class="mt-2 text-sm text-slate-700">Runs completed without errors.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Failed</p>
+            <p id="card-failed-runs" class="mt-3 text-3xl font-extrabold text-rose-700">0</p>
+            <p class="mt-2 text-sm text-slate-700">Runs requiring attention.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+            <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Current Status</p>
+            <p id="card-current-status" class="mt-3 text-2xl font-bold text-slate-900">Idle</p>
+            <p id="card-current-status-detail" class="mt-2 text-sm text-slate-700">Latest playbook execution state.</p>
+          </div>
+        </section>
+
+        <section id="dashboard-active-runs-section" class="mt-8 hidden">
+          <div class="flex items-center justify-between gap-4">
+            <h2 id="dashboard-active-runs-title" class="text-xl font-bold text-slate-900">Runs</h2>
+            <button type="button" onclick="refreshDashboardCards()" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50">Refresh</button>
+          </div>
+          <div id="dashboard-active-runs" class="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3"></div>
+        </section>
+
+        <section class="mt-8">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <h2 class="text-xl font-bold text-slate-900">Workflows</h2>
+            <input id="dashboard-workflow-search" type="text" placeholder="Search workflows" autocomplete="off"
+              class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 lg:w-80"
+              oninput="renderDashboardWorkflows()">
+          </div>
+          <div id="dashboard-workflows" class="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"></div>
+        </section>
+      </section>
+
+      <section id="tab-run" class="tab-content hidden">
+      <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+          <div class="flex flex-col gap-3 border-b border-slate-200 pb-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700">Guided Run</p>
+              <h2 class="mt-2 text-2xl font-bold text-slate-900">Prepare playbook run</h2>
+              <p class="mt-2 max-w-2xl text-sm text-slate-600">
+                Choose the playbook, confirm inputs, validate the setup, and review everything before execution.
+              </p>
             </div>
-
-            <div class="mt-6 space-y-4">
-              <div>
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Search workflows</label>
-                <input id="search-wf" type="text" placeholder="Filter workflow names"
-                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                  oninput="filterWorkflows('search-wf','sel-workflow')">
-              </div>
-
-              <div>
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow</label>
-                <select id="sel-workflow"
-                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                  onchange="onWorkflowChange('sel-workflow','sel-playbook','sel-vars'); refreshRunSummary();">
-                  <option value="">Select a workflow...</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Playbook</label>
-                <select id="sel-playbook"
-                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                  onchange="refreshRunSummary()">
-                  <option value="">Select playbook...</option>
-                </select>
-              </div>
-            </div>
+            <div class="rounded-2xl bg-cyan-100 px-3 py-2 text-xs font-semibold text-cyan-900">Single playbook</div>
           </div>
 
-          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
-            <div class="flex items-start justify-between gap-4">
-              <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Vars Input</p>
-                <h3 class="mt-2 text-lg font-bold text-slate-900">Choose the vars source</h3>
-              </div>
-              <div id="run-vars-source" data-mode="workflow" class="rounded-2xl bg-slate-200 p-1">
-                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-vars" data-source-mode="workflow" onclick="setSourceMode('run-vars','workflow')">Workflow vars</button>
-                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-vars" data-source-mode="custom" onclick="setSourceMode('run-vars','custom')">Browse another file</button>
-              </div>
-            </div>
-
-            <div class="mt-5 space-y-4">
-              <div data-source-panel="run-vars" data-source-mode="workflow">
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow vars file</label>
-                <select id="sel-vars"
-                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                  onchange="updateSourceHint('run','vars'); refreshRunSummary()">
-                  <option value="">Select vars file...</option>
-                </select>
-              </div>
-
-              <div data-source-panel="run-vars" data-source-mode="custom" class="hidden space-y-3">
-                <div>
-                  <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Custom vars path</label>
-                  <div class="flex gap-2">
-                    <input id="run-vars-custom-path" type="text" placeholder="Choose or paste a YAML file path"
-                      class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                      oninput="updateSourceHint('run','vars'); refreshRunSummary()">
-                    <button type="button" onclick="browseForField('run','vars')"
-                      class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-200">
-                      Browse
-                    </button>
+          <div class="mt-5 space-y-3">
+            <details name="run-step" class="rounded-3xl border border-slate-300 bg-slate-50">
+              <summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">1</span>
+                <span class="min-w-0 flex-1">
+                  <span class="block text-base font-bold text-slate-900">Run setup</span>
+                  <span id="run-setup-step-subtitle" class="block text-sm text-slate-600">Select workflow and playbook</span>
+                </span>
+                <span class="text-sm font-semibold text-slate-500">Expand</span>
+              </summary>
+              <div class="border-t border-slate-200 bg-white px-5 py-5">
+                <div class="grid gap-4 lg:grid-cols-2">
+                  <div id="run-workflow-picker" class="relative lg:col-span-2">
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow</label>
+                    <input id="workflow-combo" type="text" placeholder="Search or select a workflow..." autocomplete="off" name="workflow_search_no_autofill"
+                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+                      onfocus="renderWorkflowSuggestions('workflow-combo','sel-workflow','sel-playbook','sel-vars')"
+                      onclick="renderWorkflowSuggestions('workflow-combo','sel-workflow','sel-playbook','sel-vars')"
+                      oninput="setWorkflowFromCombo('workflow-combo','sel-workflow','sel-playbook','sel-vars')">
+                    <div id="workflow-combo-menu" class="hidden absolute left-0 right-0 z-30 mt-2 max-h-56 overflow-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_12px_26px_rgba(15,23,42,0.08)]"></div>
+                    <select id="sel-workflow" class="hidden">
+                      <option value="">Select a workflow...</option>
+                    </select>
+                    <p id="workflow-combo-result" class="mt-1.5 text-xs font-medium text-slate-500"></p>
                   </div>
-                </div>
-                <p class="rounded-2xl border border-dashed border-slate-300 bg-slate-100 px-4 py-3 text-xs text-slate-600">
-                  Browse YAML files in the repository or your home directory, or paste a relative or absolute path manually.
-                </p>
-              </div>
 
-              <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current vars selection</p>
-                <p id="run-vars-selection" class="mt-2 text-sm font-medium text-slate-700">Using workflow vars by default.</p>
-              </div>
+                  <div id="run-workflow-locked" class="hidden lg:col-span-2 rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-800">Workflow</p>
+                    <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p id="run-workflow-locked-name" class="text-sm font-bold text-slate-900"></p>
+                      <button type="button" onclick="unlockRunWorkflow()" class="self-start rounded-xl border border-cyan-200 bg-white px-3 py-2 text-xs font-semibold text-cyan-800 transition hover:bg-cyan-50 sm:self-auto">
+                        Change workflow
+                      </button>
+                    </div>
+                  </div>
 
-              <div class="flex flex-wrap gap-2">
-                <button type="button" onclick="loadActiveVarsFile()"
-                  class="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
-                  Open in editor
-                </button>
-                <button type="button" onclick="validateSchema()"
-                  class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
-                  Validate against schema
-                </button>
-              </div>
-
-              <div id="validate-result" class="hidden rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap"></div>
-            </div>
-          </div>
-
-          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
-            <div class="flex items-start justify-between gap-4">
-              <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Inventory Input</p>
-                <h3 class="mt-2 text-lg font-bold text-slate-900">Choose the inventory source</h3>
-              </div>
-              <div id="run-inventory-source" data-mode="default" class="rounded-2xl bg-slate-200 p-1">
-                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-inventory" data-source-mode="default" onclick="setSourceMode('run-inventory','default')">Repo inventory</button>
-                <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-inventory" data-source-mode="custom" onclick="setSourceMode('run-inventory','custom')">Browse another file</button>
-              </div>
-            </div>
-
-            <div class="mt-5 space-y-4">
-              <div data-source-panel="run-inventory" data-source-mode="default">
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Repository inventory</label>
-                <select id="sel-inventory"
-                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                  onchange="updateSourceHint('run','inventory'); refreshRunSummary()">
-                  <option value="">Select inventory...</option>
-                </select>
-              </div>
-
-              <div data-source-panel="run-inventory" data-source-mode="custom" class="hidden space-y-3">
-                <div>
-                  <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Custom inventory path</label>
-                  <div class="flex gap-2">
-                    <input id="run-inventory-custom-path" type="text" placeholder="Choose or paste a YAML inventory path"
-                      class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                      oninput="updateSourceHint('run','inventory'); refreshRunSummary()">
-                    <button type="button" onclick="browseForField('run','inventory')"
-                      class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-200">
-                      Browse
-                    </button>
+                  <div>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Playbook</label>
+                    <select id="sel-playbook"
+                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                      onchange="refreshRunSummary()">
+                      <option value="">Select playbook...</option>
+                    </select>
                   </div>
                 </div>
               </div>
+            </details>
 
-              <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current inventory selection</p>
-                <p id="run-inventory-selection" class="mt-2 text-sm font-medium text-slate-700">Using the repository inventory list by default.</p>
+            <details name="run-step" class="rounded-3xl border border-slate-300 bg-slate-50">
+              <summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">2</span>
+                <span class="min-w-0 flex-1">
+                  <span class="block text-base font-bold text-slate-900">Vars input</span>
+                  <span class="block text-sm text-slate-600">Choose vars file and validate schema</span>
+                </span>
+                <span class="text-sm font-semibold text-slate-500">Expand</span>
+              </summary>
+              <div class="border-t border-slate-200 bg-white px-5 py-5">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Vars Input</p>
+                    <h3 class="mt-2 text-lg font-bold text-slate-900">Choose the vars source</h3>
+                  </div>
+                  <div id="run-vars-source" data-mode="workflow" class="rounded-2xl bg-slate-200 p-1">
+                    <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-vars" data-source-mode="workflow" onclick="setSourceMode('run-vars','workflow')">Workflow vars</button>
+                    <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-vars" data-source-mode="custom" onclick="setSourceMode('run-vars','custom')">Browse another file</button>
+                  </div>
+                </div>
+
+                <div class="mt-5 space-y-4">
+                  <div data-source-panel="run-vars" data-source-mode="workflow">
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow vars file</label>
+                    <select id="sel-vars"
+                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                      onchange="onRunVarsChanged()">
+                      <option value="">Select vars file...</option>
+                    </select>
+                  </div>
+
+                  <div data-source-panel="run-vars" data-source-mode="custom" class="hidden space-y-3">
+                    <div>
+                      <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Custom vars path</label>
+                      <div class="flex gap-2">
+                        <input id="run-vars-custom-path" type="text" placeholder="Choose or paste a YAML file path"
+                          class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                          oninput="onRunVarsChanged()">
+                        <button type="button" onclick="browseForField('run','vars')"
+                          class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-200">
+                          Browse
+                        </button>
+                      </div>
+                    </div>
+                    <p class="rounded-2xl border border-dashed border-slate-300 bg-slate-100 px-4 py-3 text-xs text-slate-600">
+                      Browse YAML files in the repository or your home directory, or paste a relative or absolute path manually.
+                    </p>
+                  </div>
+
+                  <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current vars selection</p>
+                    <p id="run-vars-selection" class="mt-2 text-sm font-medium text-slate-700">Using workflow vars by default.</p>
+                  </div>
+
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="loadActiveVarsFile()"
+                      class="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                      Open in editor
+                    </button>
+                    <button type="button" onclick="validateSchema()"
+                      class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                      Validate against schema
+                    </button>
+                  </div>
+
+                  <div id="validate-result" class="hidden rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap"></div>
+
+                  <div id="editor-section" class="hidden overflow-hidden rounded-[24px] border border-slate-300 bg-white shadow-soft">
+                    <div class="flex items-center justify-between gap-3 border-b border-slate-300 bg-slate-100 px-5 py-4">
+                      <div class="min-w-0">
+                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">YAML Editor</p>
+                        <p id="editor-path" class="mt-1 truncate text-sm font-medium text-slate-700"></p>
+                      </div>
+                      <button id="btn-save" onclick="saveFile()"
+                        class="hidden rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                        Save file
+                      </button>
+                    </div>
+                    <div id="editor-container" class="h-[460px]"></div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </details>
 
-          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
-            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Run Options</p>
-            <h3 class="mt-2 text-lg font-bold text-slate-900">Adjust the execution</h3>
+            <details id="run-inventory-step" name="run-step" class="rounded-3xl border border-slate-300 bg-slate-50">
+              <summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4">
+                <span id="run-inventory-step-number" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">3</span>
+                <span class="min-w-0 flex-1">
+                  <span id="run-inventory-step-title" class="block text-base font-bold text-slate-900">Inventory input</span>
+                  <span id="run-inventory-step-subtitle" class="block text-sm text-slate-600">Use repo inventory or browse another file</span>
+                </span>
+                <span id="run-inventory-step-action" class="text-sm font-semibold text-slate-500">Expand</span>
+              </summary>
+              <div class="border-t border-slate-200 bg-white px-5 py-5">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Inventory Input</p>
+                    <h3 class="mt-2 text-lg font-bold text-slate-900">Choose the inventory source</h3>
+                  </div>
+                  <div id="run-inventory-source" data-mode="default" class="rounded-2xl bg-slate-200 p-1">
+                    <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-inventory" data-source-mode="default" onclick="setSourceMode('run-inventory','default')">Repo inventory</button>
+                    <button type="button" class="source-toggle rounded-xl border px-3 py-2 text-xs font-semibold transition" data-source-target="run-inventory" data-source-mode="custom" onclick="setSourceMode('run-inventory','custom')">Browse another file</button>
+                  </div>
+                </div>
 
-            <div class="mt-5 grid gap-4">
-              <div>
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Verbosity</label>
-                <select id="sel-verbosity"
-                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
-                  <option value="">Default</option>
-                  <option value="-v">-v</option>
-                  <option value="-vv">-vv</option>
-                  <option value="-vvv">-vvv</option>
-                  <option value="-vvvv">-vvvv</option>
-                </select>
+                <div class="mt-5 space-y-4">
+                  <div data-source-panel="run-inventory" data-source-mode="default">
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Repository inventory</label>
+                    <select id="sel-inventory"
+                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                      onchange="updateSourceHint('run','inventory'); refreshRunSummary()">
+                      <option value="">Select inventory...</option>
+                    </select>
+                  </div>
+
+                  <div data-source-panel="run-inventory" data-source-mode="custom" class="hidden space-y-3">
+                    <div>
+                      <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Custom inventory path</label>
+                      <div class="flex gap-2">
+                        <input id="run-inventory-custom-path" type="text" placeholder="Choose or paste a YAML inventory path"
+                          class="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                          oninput="updateSourceHint('run','inventory'); refreshRunSummary()">
+                        <button type="button" onclick="browseForField('run','inventory')"
+                          class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-200">
+                          Browse
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current inventory selection</p>
+                    <p id="run-inventory-selection" class="mt-2 text-sm font-medium text-slate-700">Using the repository inventory list by default.</p>
+                  </div>
+
+                  <div class="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                    <label class="flex items-start gap-3 text-sm font-semibold text-slate-800">
+                      <input id="catalyst-connection-enabled" type="checkbox"
+                        class="mt-0.5 h-4 w-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                        onchange="toggleCatalystConnection()">
+                      <span>
+                        Add Catalyst Center connection for this run
+                        <span class="mt-1 block text-xs font-medium text-slate-500">
+                          Optional. Leave unchecked to use inventory or shell environment values.
+                        </span>
+                      </span>
+                    </label>
+
+                    <div id="catalyst-connection-fields" class="hidden mt-4 grid gap-4 lg:grid-cols-2" autocomplete="off">
+                      <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Host</label>
+                        <input id="catalyst-connection-host" type="text" placeholder="Catalyst Center host" autocomplete="off" autocapitalize="none" spellcheck="false" name="cc_run_host_once" oninput="validateCatalystConnection('run', false)"
+                          class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                      </div>
+                      <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Username</label>
+                        <input id="catalyst-connection-username" type="text" placeholder="Catalyst Center username" autocomplete="off" autocapitalize="none" spellcheck="false" name="cc_run_user_once" oninput="validateCatalystConnection('run', false)"
+                          class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                      </div>
+                      <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Password</label>
+                        <input id="catalyst-connection-password" type="password" placeholder="Catalyst Center password" autocomplete="new-password" autocapitalize="none" spellcheck="false" name="cc_run_secret_once" oninput="validateCatalystConnection('run', false)"
+                          class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                      </div>
+                      <div>
+                        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Verify TLS</label>
+                        <select id="catalyst-connection-verify"
+                          class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                          <option value="">Use inventory default</option>
+                          <option value="false">false</option>
+                          <option value="true">true</option>
+                        </select>
+                      </div>
+                      <p class="lg:col-span-2 rounded-2xl border border-cyan-100 bg-cyan-50 px-4 py-3 text-xs leading-5 text-cyan-900">
+                        Password is passed as a runtime environment variable for this run only and is not added to the command preview or job history.
+                      </p>
+                      <p id="catalyst-connection-warning" class="hidden lg:col-span-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold leading-5 text-rose-700"></p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Extra arguments</label>
-                <input id="extra-args" type="text" placeholder="Example: --check --diff"
-                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
-              </div>
-            </div>
+            </details>
 
-            <div class="mt-6 space-y-3">
-              <button id="btn-run" onclick="runPlaybook()"
-                class="w-full rounded-2xl bg-cyan-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500">
-                Launch playbook
-              </button>
-              <button id="btn-cancel" onclick="cancelJob()"
-                class="hidden w-full rounded-2xl bg-rose-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-rose-500">
-                Cancel running playbook
-              </button>
-            </div>
+            <details name="run-step" class="rounded-3xl border border-slate-300 bg-slate-50">
+              <summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">4</span>
+                <span class="min-w-0 flex-1">
+                  <span class="block text-base font-bold text-slate-900">Run options</span>
+                  <span class="block text-sm text-slate-600">Set execution options and launch the playbook</span>
+                </span>
+                <span class="text-sm font-semibold text-slate-500">Expand</span>
+              </summary>
+              <div class="border-t border-slate-200 bg-white px-5 py-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Run Options</p>
+                <h3 class="mt-2 text-lg font-bold text-slate-900">Adjust the execution</h3>
+
+                <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Runtime environment</p>
+                      <label class="mt-3 flex items-center gap-3 text-sm font-semibold text-slate-800">
+                        <input id="managed-venv-enabled" type="checkbox" checked
+                          class="h-4 w-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+                        Use managed venv
+                      </label>
+                      <p class="mt-2 text-xs text-slate-600">
+                        Uses the selected venv for ansible-playbook and module execution.
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" onclick="checkEnvironment()"
+                        class="rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+                        Check environment
+                      </button>
+                      <button type="button" onclick="createManagedVenv()"
+                        class="rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+                        Create venv
+                      </button>
+                      <button type="button" onclick="installEnvironmentDependencies()"
+                        class="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                        Install dependencies
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Venv path</label>
+                    <input id="managed-venv-path" type="text" value=".venv312"
+                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  </div>
+                  <div id="environment-status" class="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+                    Managed venv status not checked yet.
+                  </div>
+                </div>
+
+                <div class="mt-5">
+                  <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Run name</label>
+                  <input id="run-name" type="text" placeholder="Optional name for this run" autocomplete="off"
+                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                </div>
+
+                <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                  <div>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Verbosity</label>
+                    <select id="sel-verbosity"
+                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                      <option value="">Default</option>
+                      <option value="-v">-v</option>
+                      <option value="-vv">-vv</option>
+                      <option value="-vvv">-vvv</option>
+                      <option value="-vvvv">-vvvv</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Extra arguments</label>
+                    <input id="extra-args" type="text" placeholder="Example: --check --diff"
+                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  </div>
+                </div>
+
+                <div class="mt-6 flex flex-wrap gap-3">
+                  <button id="btn-run" onclick="runPlaybook()"
+                    class="rounded-2xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500">
+                    Launch playbook
+                  </button>
+                  <button id="btn-cancel" onclick="cancelJob()"
+                    class="hidden rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-500">
+                    Cancel running playbook
+                  </button>
+                </div>
+              </div>
+            </details>
           </div>
         </div>
 
-        <div class="space-y-6">
+        <div class="space-y-6 xl:sticky xl:top-24">
           <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
             <div class="flex items-start justify-between gap-4">
               <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Selection Summary</p>
-                <h2 class="mt-2 text-xl font-bold text-slate-900">Review before running</h2>
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Review Before Running</p>
+                <h2 class="mt-2 text-xl font-bold text-slate-900">Current selection</h2>
               </div>
               <span id="run-status" class="hidden rounded-full px-3 py-1 text-xs font-semibold"></span>
             </div>
 
-            <div class="mt-5 grid gap-4 md:grid-cols-2">
-              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div class="mt-5 space-y-0 divide-y divide-slate-200">
+              <div class="py-3">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow</p>
                 <p id="summary-workflow" class="mt-2 text-sm font-semibold text-slate-900">Not selected</p>
               </div>
-              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div class="py-3">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Playbook</p>
                 <p id="summary-playbook" class="mt-2 text-sm font-semibold text-slate-900">Not selected</p>
               </div>
-              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div class="py-3">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Vars file</p>
-                <p id="summary-vars" class="mt-2 text-sm font-semibold text-slate-900">Not selected</p>
+                <p id="summary-vars" class="mt-2 break-words text-sm font-semibold leading-6 text-slate-900 [overflow-wrap:anywhere]">Not selected</p>
               </div>
-              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div class="py-3">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Inventory</p>
-                <p id="summary-inventory" class="mt-2 text-sm font-semibold text-slate-900">Not selected</p>
+                <p id="summary-inventory" class="mt-2 break-words text-sm font-semibold leading-6 text-slate-900 [overflow-wrap:anywhere]">Not selected</p>
+              </div>
+              <div class="py-3">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Schema validation</p>
+                <p id="summary-validation" class="mt-2 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">Not validated</p>
               </div>
             </div>
 
-            <p class="mt-5 rounded-2xl border border-dashed border-cyan-300 bg-cyan-100 px-4 py-3 text-sm text-cyan-950">
-              Workflow vars and inventory stay as the default path. Switch to custom mode only when you want alternate YAML input.
-            </p>
           </div>
 
-          <div id="editor-section" class="hidden overflow-hidden rounded-[28px] border border-slate-300 bg-white shadow-soft">
-            <div class="flex items-center justify-between gap-3 border-b border-slate-300 bg-slate-100 px-5 py-4">
-              <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">YAML Editor</p>
-                <p id="editor-path" class="mt-1 text-sm font-medium text-slate-700"></p>
-              </div>
-              <button id="btn-save" onclick="saveFile()"
-                class="hidden rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
-                Save file
-              </button>
-            </div>
-            <div id="editor-container" class="h-[560px]"></div>
-          </div>
-
-          <div id="editor-hint" class="rounded-[28px] border border-dashed border-slate-400 bg-slate-100 px-8 py-20 text-center shadow-soft">
-            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900 text-2xl text-white">Y</div>
-            <h3 class="mt-5 text-xl font-bold text-slate-900">Vars editor ready</h3>
-            <p class="mx-auto mt-3 max-w-md text-sm text-slate-600">
-              Open the currently selected vars file to inspect or edit YAML before you launch the playbook.
-            </p>
-          </div>
         </div>
       </div>
 
@@ -363,7 +558,7 @@
       </div>
     </section>
 
-    <section id="tab-workflow" class="tab-content hidden pt-6">
+      <section id="tab-workflow" class="tab-content hidden">
       <div class="space-y-6">
         <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -377,6 +572,9 @@
             <div class="flex flex-wrap gap-3">
               <button onclick="addStep()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
                 Add step
+              </button>
+              <button onclick="openWorkflowOptions()" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                Run options
               </button>
               <button id="btn-run-wf" onclick="runWorkflow()" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500">
                 Run workflow
@@ -411,9 +609,9 @@
           <pre id="wf-output" class="terminal h-[500px] overflow-auto px-5 py-5 text-slate-100 whitespace-pre-wrap leading-6"></pre>
         </div>
       </div>
-    </section>
+      </section>
 
-    <section id="tab-history" class="tab-content hidden pt-6">
+      <section id="tab-history" class="tab-content hidden">
       <div class="overflow-hidden rounded-[28px] border border-slate-300 bg-white shadow-soft">
         <div class="flex items-center justify-between gap-4 border-b border-slate-300 bg-slate-100 px-6 py-5">
           <div>
@@ -443,7 +641,8 @@
           </table>
         </div>
       </div>
-    </section>
+      </section>
+    </div>
   </main>
 
   <div id="step-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-slate-950/55 px-4 backdrop-blur-sm">
@@ -455,21 +654,19 @@
 
       <div class="max-h-[78vh] overflow-auto px-6 py-6">
         <div class="space-y-5">
-          <div>
-            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Search workflows</label>
-            <input id="modal-search-wf" type="text" placeholder="Filter workflow names"
-              class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-              oninput="filterWorkflows('modal-search-wf','modal-workflow')">
-          </div>
-
           <div class="grid gap-4 md:grid-cols-2">
-            <div>
+            <div class="relative">
               <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow</label>
-              <select id="modal-workflow"
-                class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                onchange="onWorkflowChange('modal-workflow','modal-playbook','modal-vars')">
+              <input id="modal-workflow-combo" type="text" placeholder="Search or select a workflow..." autocomplete="off" name="modal_workflow_search_no_autofill"
+                class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+                onfocus="renderWorkflowSuggestions('modal-workflow-combo','modal-workflow','modal-playbook','modal-vars')"
+                onclick="renderWorkflowSuggestions('modal-workflow-combo','modal-workflow','modal-playbook','modal-vars')"
+                oninput="setWorkflowFromCombo('modal-workflow-combo','modal-workflow','modal-playbook','modal-vars')">
+              <div id="modal-workflow-combo-menu" class="hidden absolute left-0 right-0 z-50 mt-2 max-h-56 overflow-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_12px_26px_rgba(15,23,42,0.08)]"></div>
+              <select id="modal-workflow" class="hidden">
                 <option value="">Select...</option>
               </select>
+              <p id="modal-workflow-combo-result" class="mt-1.5 text-xs font-medium text-slate-500"></p>
             </div>
             <div>
               <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Playbook</label>
@@ -555,6 +752,102 @@
     </div>
   </div>
 
+  <div id="workflow-options-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-slate-950/55 px-4 backdrop-blur-sm">
+    <div class="w-full max-w-2xl overflow-hidden rounded-[28px] border border-white/20 bg-white shadow-soft">
+      <div class="border-b border-slate-300 bg-slate-100 px-6 py-5">
+        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Run Options</p>
+        <h3 class="mt-2 text-xl font-bold text-slate-900">Workflow runtime settings</h3>
+        <p class="mt-2 text-sm text-slate-600">These options apply to every step in this workflow run.</p>
+      </div>
+
+      <div class="max-h-[78vh] overflow-auto px-6 py-6">
+        <div class="space-y-5">
+          <div class="rounded-3xl border border-slate-300 bg-slate-50 p-5">
+            <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow run name</label>
+            <input id="workflow-run-name" type="text" placeholder="Optional name for this workflow run" autocomplete="off"
+              class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+          </div>
+
+          <div class="rounded-3xl border border-slate-300 bg-slate-50 p-5">
+            <label class="flex cursor-pointer items-start gap-3">
+              <input id="workflow-managed-venv-enabled" type="checkbox" checked
+                class="mt-1 h-4 w-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">
+              <span>
+                <span class="block text-sm font-bold text-slate-900">Use managed venv</span>
+                <span class="mt-1 block text-xs font-medium text-slate-500">Uses the selected venv for ansible-playbook and module execution across all workflow steps.</span>
+              </span>
+            </label>
+            <div class="mt-4">
+              <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Venv path</label>
+              <input id="workflow-managed-venv-path" type="text" value=".venv312"
+                class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+            </div>
+            <div class="mt-4 flex flex-wrap gap-3">
+              <button type="button" onclick="checkEnvironment('workflow')"
+                class="rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+                Check environment
+              </button>
+              <button type="button" onclick="installEnvironmentDependencies('workflow')"
+                class="rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                Install dependencies
+              </button>
+            </div>
+            <div id="workflow-environment-status" class="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+              Managed venv status not checked yet.
+            </div>
+          </div>
+
+          <div class="rounded-3xl border border-slate-300 bg-slate-50 p-5">
+            <label class="flex cursor-pointer items-start gap-3">
+              <input id="workflow-catalyst-connection-enabled" type="checkbox"
+                class="mt-1 h-4 w-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                onchange="toggleWorkflowCatalystConnection()">
+              <span>
+                <span class="block text-sm font-bold text-slate-900">Add Catalyst Center connection for this workflow run</span>
+                <span class="mt-1 block text-xs font-medium text-slate-500">Optional. Leave unchecked to use inventory or shell environment values.</span>
+              </span>
+            </label>
+
+            <div id="workflow-catalyst-connection-fields" class="hidden mt-4 grid gap-4 lg:grid-cols-2" autocomplete="off">
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Host</label>
+                <input id="workflow-catalyst-connection-host" type="text" placeholder="Catalyst Center host" autocomplete="off" autocapitalize="none" spellcheck="false" name="workflow_cc_host_once" oninput="validateCatalystConnection('workflow', false)"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Username</label>
+                <input id="workflow-catalyst-connection-username" type="text" placeholder="Catalyst Center username" autocomplete="off" autocapitalize="none" spellcheck="false" name="workflow_cc_user_once" oninput="validateCatalystConnection('workflow', false)"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Password</label>
+                <input id="workflow-catalyst-connection-password" type="password" placeholder="Catalyst Center password" autocomplete="new-password" autocapitalize="none" spellcheck="false" name="workflow_cc_secret_once" oninput="validateCatalystConnection('workflow', false)"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Verify TLS</label>
+                <select id="workflow-catalyst-connection-verify"
+                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  <option value="">Use inventory default</option>
+                  <option value="false">false</option>
+                  <option value="true">true</option>
+                </select>
+              </div>
+            </div>
+            <div class="mt-4 rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm leading-6 text-cyan-900">
+              Password is passed as a runtime environment variable for this workflow run only and is not added to the command preview or job history.
+            </div>
+            <div id="workflow-catalyst-connection-warning" class="hidden mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold leading-6 text-rose-700"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 border-t border-slate-300 bg-slate-100 px-6 py-5">
+        <button onclick="closeWorkflowOptions()" class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Done</button>
+      </div>
+    </div>
+  </div>
+
   <div id="file-picker-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm">
     <div class="w-full max-w-4xl overflow-hidden rounded-[28px] border border-white/15 bg-white shadow-soft">
       <div class="flex flex-col gap-4 border-b border-slate-300 bg-slate-100 px-6 py-5 lg:flex-row lg:items-start lg:justify-between">
@@ -621,9 +914,15 @@
     let fileDirty = false;
     let currentJobId = null;
     let currentES = null;
+    let currentOutputLineCount = 0;
+    let restoringRunJob = false;
+    let runWorkflowLocked = false;
+    const ACTIVE_TAB_STORAGE_KEY = 'validated-playbook-active-tab';
     let wfSteps = [];
     let wfRunning = false;
     let stepId = 0;
+    let schemaValidationState = 'not_validated';
+    let lastValidatedKey = '';
     let filePickerState = {
       targetInputId: '',
       root: 'repo',
@@ -686,6 +985,141 @@
       });
     }
 
+    function schemaLabel(workflow) {
+      return workflow && workflow.schemas && workflow.schemas.length ? 'Schema' : 'No schema';
+    }
+
+    function elapsedLabel(job) {
+      if (!job || !job.t0) return 'Waiting to start';
+      const end = job.t1 || Date.now() / 1000;
+      const seconds = Math.max(0, end - job.t0);
+      if (seconds < 60) return seconds.toFixed(1) + 's';
+      const minutes = Math.floor(seconds / 60);
+      const remaining = Math.floor(seconds % 60);
+      return minutes + 'm ' + remaining + 's';
+    }
+
+    function activeRunProgress(job) {
+      if (!job) return 10;
+      if (job.status === 'queued') return 18;
+      if (job.status === 'running') return 55;
+      if (job.status === 'completed') return 100;
+      if (['failed', 'cancelled', 'error'].indexOf(job.status) !== -1) return 100;
+      return 100;
+    }
+
+    function renderDashboardActiveRuns(jobs) {
+      const section = $('dashboard-active-runs-section');
+      const container = $('dashboard-active-runs');
+      const title = $('dashboard-active-runs-title');
+      if (!section || !container || !title) return;
+      const active = (jobs || []).filter(function(job) {
+        return ['queued', 'running'].indexOf(job.status) !== -1;
+      });
+      const visibleJobs = active.length ? active : (jobs || []).slice(0, 3);
+      section.classList.toggle('hidden', visibleJobs.length === 0);
+      if (!visibleJobs.length) {
+        container.innerHTML = '';
+        return;
+      }
+      title.textContent = active.length ? 'In progress (' + active.length + ')' : 'Recent runs';
+      container.innerHTML = visibleJobs.map(function(job, index) {
+        const metadata = job.metadata || {};
+        const kind = metadata.kind === 'workflow' ? 'Workflow run' : 'Playbook run';
+        const workflowName = metadata.workflow || '';
+        const playbookName = metadata.playbook ? basename(metadata.playbook) : '';
+        const label = job.label || workflowName || playbookName || 'Playbook run';
+        const progress = activeRunProgress(job);
+        const barClass = ['bg-cyan-600', 'bg-indigo-600', 'bg-teal-500'][index % 3];
+        const statusClass = job.status === 'completed' ? 'bg-emerald-100 text-emerald-700'
+          : ['failed', 'cancelled', 'error'].indexOf(job.status) !== -1 ? 'bg-rose-100 text-rose-700'
+          : job.status === 'running' ? 'bg-cyan-100 text-cyan-800'
+          : 'bg-slate-100 text-slate-700';
+        const detail = [workflowName, playbookName].filter(Boolean).join(' • ');
+        return ''
+          + '<article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.04)]">'
+          +   '<div class="h-1.5 ' + barClass + '"></div>'
+          +   '<div class="p-5">'
+          +     '<div class="flex items-start justify-between gap-3">'
+          +       '<div class="min-w-0">'
+          +         '<p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">' + htmlEscape(kind) + '</p>'
+          +         '<h3 class="mt-2 break-words text-base font-extrabold leading-6 text-slate-900">' + htmlEscape(label) + '</h3>'
+          +       '</div>'
+          +       '<span class="shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ' + statusClass + '">' + htmlEscape(job.status) + '</span>'
+          +     '</div>'
+          +     '<div class="mt-5 flex items-center gap-4">'
+          +       '<div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">'
+          +         '<div class="h-full rounded-full ' + barClass + '" style="width:' + progress + '%"></div>'
+          +       '</div>'
+          +       '<span class="text-sm font-bold text-slate-600">' + progress + '%</span>'
+          +     '</div>'
+          +     '<p class="mt-3 min-h-[1.25rem] truncate text-sm text-slate-600">' + htmlEscape(detail || 'Execution output is streaming') + '</p>'
+          +     '<div class="mt-5 flex items-center justify-between gap-3">'
+          +       '<span class="text-sm font-semibold text-slate-500">' + htmlEscape(elapsedLabel(job)) + '</span>'
+          +       '<a href="' + jobDetailHref(job.id) + '" class="rounded-xl border border-cyan-600 bg-white px-4 py-2 text-sm font-bold text-cyan-700 transition hover:bg-cyan-50">Open output</a>'
+          +     '</div>'
+          +   '</div>'
+          + '</article>';
+      }).join('');
+    }
+
+    function renderDashboardWorkflows() {
+      const container = $('dashboard-workflows');
+      if (!container) return;
+      const query = ($('dashboard-workflow-search') ? $('dashboard-workflow-search').value.trim().toLowerCase() : '');
+      const matches = workflows.filter(function(workflow) {
+        return !query || workflow.name.toLowerCase().indexOf(query) !== -1;
+      });
+      if (!matches.length) {
+        container.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-8 text-center text-sm text-slate-500 md:col-span-2 xl:col-span-3 2xl:col-span-4">No workflows found.</div>';
+        return;
+      }
+      container.innerHTML = matches.map(function(workflow, index) {
+        const barClass = ['bg-cyan-600', 'bg-indigo-600', 'bg-teal-500', 'bg-sky-600'][index % 4];
+        const schemaClass = workflow.schemas && workflow.schemas.length ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600';
+        return ''
+          + '<article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.04)]">'
+          +   '<div class="h-1.5 ' + barClass + '"></div>'
+          +   '<div class="flex min-h-[190px] flex-col p-5">'
+          +     '<h3 class="break-words text-base font-bold leading-6 text-slate-900">' + htmlEscape(workflow.name) + '</h3>'
+          +     '<div class="mt-4 flex flex-wrap gap-2">'
+          +       '<span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">' + workflow.playbooks.length + ' playbook' + (workflow.playbooks.length === 1 ? '' : 's') + '</span>'
+          +       '<span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">' + workflow.vars.length + ' vars</span>'
+          +       '<span class="rounded-full px-2.5 py-1 text-xs font-bold ' + schemaClass + '">' + schemaLabel(workflow) + '</span>'
+          +     '</div>'
+          +     '<p class="mt-4 flex-1 text-sm leading-6 text-slate-600">Run this workflow with guided playbook, vars, inventory, and run options.</p>'
+          +     '<button type="button" onclick="startRunFromDashboard(decodeURIComponent(\'' + encodeURIComponent(workflow.name) + '\'))" class="mt-5 self-start rounded-xl border border-cyan-600 bg-white px-4 py-2 text-sm font-bold text-cyan-700 transition hover:bg-cyan-50">Run</button>'
+          +   '</div>'
+          + '</article>';
+      }).join('');
+    }
+
+    function startRunFromDashboard(workflowName) {
+      $('workflow-combo').value = workflowName;
+      $('sel-workflow').value = workflowName;
+      runWorkflowLocked = true;
+      onWorkflowChange('sel-workflow', 'sel-playbook', 'sel-vars');
+      updateRunWorkflowLock();
+      document.querySelectorAll('#tab-run details[name="run-step"]').forEach(function(step, index) {
+        step.open = index === 0;
+      });
+      switchTab('run');
+    }
+
+    function updateRunWorkflowLock() {
+      const workflowName = $('sel-workflow').value;
+      $('run-workflow-picker').classList.toggle('hidden', runWorkflowLocked);
+      $('run-workflow-locked').classList.toggle('hidden', !runWorkflowLocked);
+      $('run-workflow-locked-name').textContent = workflowName || '';
+      $('run-setup-step-subtitle').textContent = runWorkflowLocked ? 'Select playbook' : 'Select workflow and playbook';
+    }
+
+    function unlockRunWorkflow() {
+      runWorkflowLocked = false;
+      updateRunWorkflowLock();
+      $('workflow-combo').focus();
+    }
+
     function setSourceMode(sectionKey, mode) {
       const container = $(sectionKey + '-source');
       if (!container) return;
@@ -699,7 +1133,10 @@
         panel.classList.toggle('hidden', panel.dataset.sourceMode !== mode);
       });
 
-      if (sectionKey === 'run-vars') updateSourceHint('run', 'vars');
+      if (sectionKey === 'run-vars') {
+        onRunVarsChanged();
+        return;
+      }
       if (sectionKey === 'run-inventory') updateSourceHint('run', 'inventory');
       if (sectionKey.startsWith('run-')) refreshRunSummary();
     }
@@ -745,11 +1182,302 @@
       $('summary-playbook').textContent = basename($('sel-playbook').value) || 'Not selected';
       $('summary-vars').textContent = describePath(getSelectedVarsPath('run'), 'Not selected');
       $('summary-inventory').textContent = describePath(getSelectedInventoryPath('run'), 'Not selected');
+      if (schemaValidationState !== 'not_validated' && lastValidatedKey !== currentValidationKey()) {
+        setSchemaValidationStatus('not_validated');
+      }
     }
 
-    function refreshDashboardCards() {
-      $('card-workflow-count').textContent = String(workflows.length);
-      $('card-inventory-count').textContent = String(inventories.length);
+    function setSelectValueIfPresent(selectId, value) {
+      const select = $(selectId);
+      if (!select) return false;
+      const found = Array.from(select.options).some(function(option) { return option.value === value; });
+      if (found) select.value = value;
+      return found;
+    }
+
+    function restoreRunSelections(metadata) {
+      metadata = metadata || {};
+      if (metadata.workflow) {
+        $('workflow-combo').value = metadata.workflow;
+        $('sel-workflow').value = metadata.workflow;
+        onWorkflowChange('sel-workflow', 'sel-playbook', 'sel-vars');
+      }
+      if (metadata.playbook) setSelectValueIfPresent('sel-playbook', metadata.playbook);
+      if (metadata.vars_file) {
+        if (setSelectValueIfPresent('sel-vars', metadata.vars_file)) {
+          setSourceMode('run-vars', 'workflow');
+        } else {
+          $('run-vars-custom-path').value = metadata.vars_file;
+          setSourceMode('run-vars', 'custom');
+        }
+      }
+      if (metadata.inventory) {
+        if (setSelectValueIfPresent('sel-inventory', metadata.inventory)) {
+          setSourceMode('run-inventory', 'default');
+        } else {
+          $('run-inventory-custom-path').value = metadata.inventory;
+          setSourceMode('run-inventory', 'custom');
+        }
+      }
+      $('sel-verbosity').value = metadata.verbosity || '';
+      $('extra-args').value = metadata.extra_args || '';
+      $('run-name').value = metadata.label || '';
+      $('managed-venv-enabled').checked = metadata.managed_venv !== false;
+      if (metadata.venv_path) $('managed-venv-path').value = metadata.venv_path;
+      $('catalyst-connection-enabled').checked = !!metadata.catalyst_connection_enabled;
+      toggleCatalystConnection();
+      $('catalyst-connection-host').value = '';
+      $('catalyst-connection-username').value = '';
+      $('catalyst-connection-password').value = '';
+      $('catalyst-connection-verify').value = metadata.catalyst_connection_verify || '';
+      updateSourceHint('run', 'vars');
+      updateSourceHint('run', 'inventory');
+      refreshRunSummary();
+    }
+
+    async function onRunVarsChanged() {
+      updateSourceHint('run', 'vars');
+      refreshRunSummary();
+
+      if ($('editor-section').classList.contains('hidden')) return;
+
+      if (fileDirty && !confirm('Discard unsaved editor changes and load the selected vars file?')) {
+        return;
+      }
+
+      await loadActiveVarsFile();
+    }
+
+    function currentValidationKey() {
+      return [
+        $('sel-workflow').value,
+        $('sel-playbook').value,
+        getSelectedVarsPath('run')
+      ].join('|');
+    }
+
+    function setSchemaValidationStatus(status) {
+      schemaValidationState = status;
+      const label = $('summary-validation');
+      if (!label) return;
+      const config = {
+        not_validated: ['Not validated', 'bg-slate-100 text-slate-700'],
+        passed: ['Schema passed', 'bg-emerald-100 text-emerald-700'],
+        failed: ['Schema failed', 'bg-rose-100 text-rose-700'],
+      }[status] || ['Not validated', 'bg-slate-100 text-slate-700'];
+      label.textContent = config[0];
+      label.className = 'mt-2 inline-flex rounded-full px-3 py-1 text-xs font-bold ' + config[1];
+    }
+
+    function setDashboardCards(jobs, overrideStatus) {
+      jobs = jobs || [];
+      const successful = jobs.filter(function(job) { return job.status === 'completed'; }).length;
+      const failed = jobs.filter(function(job) {
+        return ['failed', 'cancelled', 'error'].indexOf(job.status) !== -1;
+      }).length;
+      const active = jobs.find(function(job) {
+        return ['queued', 'running'].indexOf(job.status) !== -1;
+      });
+      const latest = active || jobs[0];
+      const status = overrideStatus || (latest ? latest.status : 'Idle');
+      const displayStatus = status.charAt(0).toUpperCase() + status.slice(1);
+
+      $('card-total-runs').textContent = String(jobs.length);
+      $('card-successful-runs').textContent = String(successful);
+      $('card-failed-runs').textContent = String(failed);
+      $('card-current-status').textContent = displayStatus;
+      $('card-current-status').className = 'mt-3 text-2xl font-bold ' + (
+        status === 'completed' ? 'text-emerald-700' :
+        status === 'failed' || status === 'cancelled' || status === 'error' ? 'text-rose-700' :
+        status === 'running' || status === 'queued' ? 'text-cyan-700' :
+        'text-slate-900'
+      );
+      $('card-current-status-detail').textContent = latest && latest.label
+        ? 'Latest run: ' + latest.label
+        : 'Latest playbook execution state.';
+      renderDashboardActiveRuns(jobs);
+    }
+
+    async function refreshDashboardCards(overrideStatus) {
+      try {
+        const jobs = await fetchJson('/api/jobs');
+        setDashboardCards(jobs, overrideStatus);
+      } catch (error) {
+        setDashboardCards([], 'error');
+        renderDashboardActiveRuns([]);
+        $('card-current-status-detail').textContent = error.message;
+      }
+    }
+
+    function runtimePayload(scope) {
+      const prefix = scope === 'workflow' ? 'workflow-' : '';
+      return {
+        managed_venv: $(prefix + 'managed-venv-enabled').checked,
+        venv_path: $(prefix + 'managed-venv-path').value.trim() || '.venv312',
+      };
+    }
+
+    function toggleCatalystConnection() {
+      $('catalyst-connection-fields').classList.toggle('hidden', !$('catalyst-connection-enabled').checked);
+      setCatalystConnectionWarning('', 'run');
+      if (!$('catalyst-connection-enabled').checked) setRunInventoryStepError('');
+    }
+
+    function setCatalystConnectionWarning(message, scope) {
+      const id = scope === 'workflow' ? 'workflow-catalyst-connection-warning' : 'catalyst-connection-warning';
+      const warning = $(id);
+      if (!warning) return;
+      warning.textContent = message || '';
+      warning.classList.toggle('hidden', !message);
+    }
+
+    function setRunInventoryStepError(message) {
+      const step = $('run-inventory-step');
+      if (!step) return;
+      const hasError = !!message;
+      step.classList.toggle('border-rose-300', hasError);
+      step.classList.toggle('bg-rose-50', hasError);
+      step.classList.toggle('border-slate-300', !hasError);
+      step.classList.toggle('bg-slate-50', !hasError);
+      $('run-inventory-step-number').className = 'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ' + (hasError ? 'bg-rose-700' : 'bg-slate-900');
+      $('run-inventory-step-title').className = 'block text-base font-bold ' + (hasError ? 'text-rose-700' : 'text-slate-900');
+      $('run-inventory-step-subtitle').textContent = message || 'Use repo inventory or browse another file';
+      $('run-inventory-step-subtitle').className = 'block text-sm ' + (hasError ? 'font-semibold text-rose-700' : 'text-slate-600');
+      $('run-inventory-step-action').className = 'text-sm font-semibold ' + (hasError ? 'text-rose-700' : 'text-slate-500');
+    }
+
+    function validateCatalystConnection(scope, shouldFocus) {
+      const prefix = scope === 'workflow' ? 'workflow-' : '';
+      const enabled = $(prefix + 'catalyst-connection-enabled').checked;
+      if (!enabled) {
+        setCatalystConnectionWarning('', scope);
+        if (scope === 'run') setRunInventoryStepError('');
+        return true;
+      }
+      const missing = [];
+      if (!$(prefix + 'catalyst-connection-host').value.trim()) missing.push('host');
+      if (!$(prefix + 'catalyst-connection-username').value.trim()) missing.push('username');
+      if (!$(prefix + 'catalyst-connection-password').value) missing.push('password');
+      if (!missing.length) {
+        setCatalystConnectionWarning('', scope);
+        if (scope === 'run') setRunInventoryStepError('');
+        return true;
+      }
+      const message = 'Enter Catalyst Center ' + missing.join(', ') + ' or uncheck this option to use inventory or shell environment values.';
+      setCatalystConnectionWarning(message, scope);
+      if (scope === 'run') setRunInventoryStepError('Missing Catalyst Center ' + missing.join(', '));
+      if (shouldFocus) {
+        if (scope === 'run') {
+          $('run-inventory-step').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          openWorkflowOptions();
+          showToast(message);
+          setTimeout(function() {
+            $(prefix + 'catalyst-connection-' + missing[0]).focus();
+          }, 120);
+        }
+      }
+      return false;
+    }
+
+    function catalystConnectionPayload() {
+      if (!$('catalyst-connection-enabled').checked) {
+        return { enabled: false };
+      }
+      return {
+        enabled: true,
+        host: $('catalyst-connection-host').value.trim(),
+        username: $('catalyst-connection-username').value.trim(),
+        password: $('catalyst-connection-password').value,
+        verify: $('catalyst-connection-verify').value,
+      };
+    }
+
+    function workflowCatalystConnectionPayload() {
+      if (!$('workflow-catalyst-connection-enabled').checked) {
+        return { enabled: false };
+      }
+      return {
+        enabled: true,
+        host: $('workflow-catalyst-connection-host').value.trim(),
+        username: $('workflow-catalyst-connection-username').value.trim(),
+        password: $('workflow-catalyst-connection-password').value,
+        verify: $('workflow-catalyst-connection-verify').value,
+      };
+    }
+
+    function openWorkflowOptions() {
+      show('workflow-options-modal');
+    }
+
+    function closeWorkflowOptions() {
+      hide('workflow-options-modal');
+    }
+
+    function toggleWorkflowCatalystConnection() {
+      $('workflow-catalyst-connection-fields').classList.toggle('hidden', !$('workflow-catalyst-connection-enabled').checked);
+      setCatalystConnectionWarning('', 'workflow');
+    }
+
+    function renderEnvironmentStatus(status, message, isError, scope) {
+      const el = $(scope === 'workflow' ? 'workflow-environment-status' : 'environment-status');
+      const baseClass = 'mt-4 rounded-2xl border px-4 py-3 text-sm ';
+      if (isError) {
+        el.className = baseClass + 'border-rose-200 bg-rose-50 text-rose-700';
+        el.textContent = message;
+        return;
+      }
+      if (!status) {
+        el.className = baseClass + 'border-slate-200 bg-white text-slate-600';
+        el.textContent = message || 'Managed venv status not checked yet.';
+        return;
+      }
+      el.className = baseClass + (status.ready
+        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+        : 'border-amber-200 bg-amber-50 text-amber-800');
+      el.textContent = status.ready
+        ? 'Ready: ' + status.path
+        : 'Needs setup: ' + status.path + ' missing ' + status.missing.join(', ');
+    }
+
+    async function checkEnvironment(scope) {
+      try {
+        const params = new URLSearchParams({ venv_path: runtimePayload(scope).venv_path });
+        const status = await fetchJson('/api/environment?' + params.toString());
+        renderEnvironmentStatus(status, null, false, scope);
+      } catch (error) {
+        renderEnvironmentStatus(null, error.message, true, scope);
+      }
+    }
+
+    async function createManagedVenv() {
+      renderEnvironmentStatus(null, 'Creating venv. This can take a minute...');
+      try {
+        const data = await fetchJson('/api/environment/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ venv_path: runtimePayload().venv_path }),
+        });
+        renderEnvironmentStatus(data.status, data.ok ? 'Venv created.' : 'Venv creation completed with issues.', !data.ok);
+        if (!data.ok && data.output) console.warn(data.output);
+      } catch (error) {
+        renderEnvironmentStatus(null, error.message, true);
+      }
+    }
+
+    async function installEnvironmentDependencies(scope) {
+      renderEnvironmentStatus(null, 'Preparing venv and installing dependencies. This can take a minute...', false, scope);
+      try {
+        const data = await fetchJson('/api/environment/setup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ venv_path: runtimePayload(scope).venv_path }),
+        });
+        renderEnvironmentStatus(data.status, data.ok ? 'Dependencies installed.' : 'Dependency install completed with issues.', !data.ok, scope);
+        if (!data.ok && data.output) console.warn(data.output);
+      } catch (error) {
+        renderEnvironmentStatus(null, error.message, true, scope);
+      }
     }
 
     async function fetchJson(url, options) {
@@ -802,10 +1530,24 @@
       setSourceMode('modal-inventory', 'default');
       refreshDashboardCards();
       refreshRunSummary();
-      switchTab('run');
+      renderDashboardWorkflows();
+      checkEnvironment();
+      const savedTab = localStorage.getItem(ACTIVE_TAB_STORAGE_KEY);
+      switchTab(['dashboard', 'run', 'workflow', 'history'].indexOf(savedTab) !== -1 ? savedTab : 'dashboard');
+    });
+
+    document.addEventListener('click', function(event) {
+      ['workflow-combo', 'modal-workflow-combo'].forEach(function(inputId) {
+        const input = $(inputId);
+        const menu = $(inputId + '-menu');
+        if (!input || !menu) return;
+        if (input.contains(event.target) || menu.contains(event.target)) return;
+        menu.classList.add('hidden');
+      });
     });
 
     function switchTab(tab) {
+      localStorage.setItem(ACTIVE_TAB_STORAGE_KEY, tab);
       document.querySelectorAll('.tab-content').forEach(function(element) {
         element.classList.add('hidden');
       });
@@ -813,12 +1555,12 @@
       document.querySelectorAll('.tab-btn').forEach(function(button) {
         const active = button.dataset.tab === tab;
         button.classList.toggle('tab-active', active);
-        button.classList.toggle('text-slate-500', !active);
-        button.classList.toggle('text-slate-600', !active);
-        button.classList.toggle('hover:bg-slate-200', !active);
+        button.classList.toggle('text-slate-700', !active);
+        button.classList.toggle('hover:bg-slate-100', !active);
       });
 
       if (tab === 'run') {
+        restoreActiveRunJob();
         setTimeout(function() {
           if (editor) editor.refresh();
         }, 20);
@@ -854,16 +1596,74 @@
       }
     }
 
-    function filterWorkflows(inputId, selectId) {
-      const query = $(inputId).value.toLowerCase();
-      populateSelect(selectId,
-        workflows.filter(function(workflow) {
-          return workflow.name.toLowerCase().indexOf(query) !== -1;
-        }).map(function(workflow) {
-          return { v: workflow.name, t: workflow.name };
-        }),
-        'Select a workflow...'
-      );
+    function hideWorkflowSuggestions(inputId) {
+      const menu = $(inputId + '-menu');
+      if (menu) menu.classList.add('hidden');
+    }
+
+    function renderWorkflowSuggestions(inputId, selectId, playbookId, varsId) {
+      const input = $(inputId);
+      const menu = $(inputId + '-menu');
+      if (!menu) return;
+      const query = input.value.trim().toLowerCase();
+      const matches = workflows
+        .filter(function(workflow) {
+          return !query || workflow.name.toLowerCase().indexOf(query) !== -1;
+        });
+
+      menu.innerHTML = '';
+      if (!matches.length) {
+        const empty = document.createElement('div');
+        empty.className = 'px-3 py-2 text-sm text-slate-500';
+        empty.textContent = 'No workflows found.';
+        menu.appendChild(empty);
+      } else {
+        matches.forEach(function(workflow) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-cyan-50 hover:text-cyan-700';
+          button.textContent = workflow.name;
+          button.onclick = function() {
+            input.value = workflow.name;
+            $(selectId).value = workflow.name;
+            hideWorkflowSuggestions(inputId);
+            const resultEl = $(inputId + '-result');
+            if (resultEl) resultEl.textContent = '';
+            onWorkflowChange(selectId, playbookId, varsId);
+          };
+          menu.appendChild(button);
+        });
+      }
+      menu.classList.remove('hidden');
+    }
+
+    function setWorkflowFromCombo(inputId, selectId, playbookId, varsId) {
+      const value = $(inputId).value.trim();
+      const match = workflows.find(function(workflow) {
+        return workflow.name === value;
+      });
+      const possibleMatches = workflows.filter(function(workflow) {
+        return workflow.name.toLowerCase().indexOf(value.toLowerCase()) !== -1;
+      });
+      const resultEl = $(inputId + '-result');
+      const select = $(selectId);
+
+      select.value = match ? match.name : '';
+      onWorkflowChange(selectId, playbookId, varsId);
+      renderWorkflowSuggestions(inputId, selectId, playbookId, varsId);
+
+      if (resultEl) {
+        if (!value || match) {
+          resultEl.textContent = '';
+          resultEl.className = 'mt-1.5 text-xs font-medium text-slate-500';
+        } else if (!possibleMatches.length) {
+          resultEl.textContent = 'No workflows found.';
+          resultEl.className = 'mt-1.5 text-xs font-medium text-rose-600';
+        } else {
+          resultEl.textContent = 'Choose a workflow from the suggestions.';
+          resultEl.className = 'mt-1.5 text-xs font-medium text-slate-500';
+        }
+      }
     }
 
     async function loadActiveVarsFile() {
@@ -878,7 +1678,6 @@
         editor.setValue(data.content);
         $('editor-path').textContent = data.path;
         show('editor-section');
-        hide('editor-hint');
         hide('btn-save');
         fileDirty = false;
         setTimeout(function() { editor.refresh(); }, 20);
@@ -918,7 +1717,18 @@
         return;
       }
 
-      const schema = 'workflows/' + workflowName + '/schema/' + workflow.schemas[0];
+      const playbookName = $('sel-playbook').value.split('/').pop();
+      const playbookBase = playbookName
+        .replace(/_workflow_playbook\.ya?ml$/i, '')
+        .replace(/_playbook\.ya?ml$/i, '')
+        .replace(/\.ya?ml$/i, '');
+      const schemaFileName = workflow.schemas.find(function(schemaName) {
+        const schemaBase = schemaName
+          .replace(/_schema\.ya?ml$/i, '')
+          .replace(/\.ya?ml$/i, '');
+        return schemaBase === playbookBase;
+      }) || workflow.schemas[0];
+      const schema = 'workflows/' + workflowName + '/schema/' + schemaFileName;
       const resultEl = $('validate-result');
       try {
         const result = await fetchJson('/api/validate', {
@@ -929,10 +1739,14 @@
         show('validate-result');
         resultEl.className = 'rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap ' + (result.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700');
         resultEl.textContent = result.ok ? 'Validation passed.\n' + result.out : 'Validation failed.\n' + result.out;
+        lastValidatedKey = currentValidationKey();
+        setSchemaValidationStatus(result.ok ? 'passed' : 'failed');
       } catch (error) {
         show('validate-result');
         resultEl.className = 'rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700 whitespace-pre-wrap';
         resultEl.textContent = error.message;
+        lastValidatedKey = currentValidationKey();
+        setSchemaValidationStatus('failed');
       }
     }
 
@@ -996,13 +1810,15 @@
       show('run-status');
     }
 
-    function streamJob(jobId, outputEl, onDone) {
+    function streamJob(jobId, outputEl, onDone, startOffset) {
       if (currentES) currentES.close();
-      currentES = new EventSource('/api/run/' + jobId + '/stream');
+      const offset = startOffset || 0;
+      currentES = new EventSource('/api/run/' + jobId + '/stream?start=' + encodeURIComponent(offset));
       currentES.onmessage = function(event) {
         const msg = JSON.parse(event.data);
         if (msg.t === 'o') {
           appendLine(outputEl, msg.l);
+          if (outputEl.id === 'output') currentOutputLineCount += 1;
         } else if (msg.t === 'd') {
           currentES.close();
           currentES = null;
@@ -1016,6 +1832,46 @@
       };
     }
 
+    async function restoreActiveRunJob() {
+      if (restoringRunJob) return;
+      restoringRunJob = true;
+      try {
+        const jobs = await fetchJson('/api/jobs');
+        const active = jobs.find(function(job) {
+          const metadata = job.metadata || {};
+          return metadata.kind === 'single' && ['queued', 'running'].indexOf(job.status) !== -1;
+        });
+        if (!active) return;
+        if (currentJobId === active.id && currentES) return;
+
+        const detail = await fetchJson('/api/jobs/' + encodeURIComponent(active.id));
+        const metadata = detail.metadata || {};
+        restoreRunSelections(metadata);
+        currentJobId = detail.id;
+        show('output-section');
+        show('btn-cancel');
+        hide('btn-run');
+        updateRunStatus(detail.status);
+        $('output').innerHTML = '';
+        appendLine($('output'), '$ ' + detail.cmd + '\n', 'text-cyan-300');
+        (detail.lines || []).forEach(function(line) {
+          appendLine($('output'), line);
+        });
+        currentOutputLineCount = (detail.lines || []).length;
+        streamJob(detail.id, $('output'), function(status) {
+          show('btn-run');
+          hide('btn-cancel');
+          updateRunStatus(status);
+          refreshDashboardCards(status);
+          refreshHistory();
+        }, currentOutputLineCount);
+      } catch (error) {
+        console.warn('Could not restore active run', error);
+      } finally {
+        restoringRunJob = false;
+      }
+    }
+
     async function runPlaybook() {
       const playbook = $('sel-playbook').value;
       const inventory = getSelectedInventoryPath('run');
@@ -1027,12 +1883,16 @@
         alert('Select an inventory file');
         return;
       }
+      if (!validateCatalystConnection('run', true)) {
+        return;
+      }
 
       show('output-section');
       hide('run-status');
       $('output').innerHTML = '';
 
       try {
+        const runName = $('run-name').value.trim();
         const data = await fetchJson('/api/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1040,20 +1900,28 @@
             inventory: inventory,
             playbook: playbook,
             vars_file: getSelectedVarsPath('run'),
+            workflow: $('sel-workflow').value,
+            kind: 'single',
+            label: runName || undefined,
             verbosity: $('sel-verbosity').value,
             extra_args: $('extra-args').value,
+            ...runtimePayload(),
+            catalyst_connection: catalystConnectionPayload(),
           }),
         });
 
         currentJobId = data.job_id;
+        currentOutputLineCount = 0;
         appendLine($('output'), '$ ' + data.command + '\n', 'text-cyan-300');
         show('btn-cancel');
         hide('btn-run');
+        refreshDashboardCards('running');
 
         streamJob(data.job_id, $('output'), function(status) {
           show('btn-run');
           hide('btn-cancel');
           updateRunStatus(status);
+          refreshDashboardCards(status);
           refreshHistory();
         });
       } catch (error) {
@@ -1072,7 +1940,8 @@
 
     function addStep() {
       show('step-modal');
-      $('modal-search-wf').value = '';
+      $('modal-workflow-combo').value = '';
+      $('modal-workflow-combo-result').textContent = '';
       populateSelect('modal-workflow', workflowOptions(), 'Select...');
       populateSelect('modal-playbook', [], 'Select...');
       populateSelect('modal-vars', [], 'Select vars file...');
@@ -1176,8 +2045,12 @@
         alert('Add at least one step');
         return;
       }
+      if (!validateCatalystConnection('workflow', true)) {
+        return;
+      }
 
       wfRunning = true;
+      const workflowRunName = $('workflow-run-name').value.trim();
       $('wf-output').innerHTML = '';
       show('wf-output-section');
       hide('btn-run-wf');
@@ -1202,15 +2075,21 @@
               inventory: step.inventory,
               playbook: step.playbook,
               vars_file: step.varsFile,
-              label: 'Step ' + (index + 1) + ': ' + step.workflow,
+              label: (workflowRunName ? workflowRunName + ' · ' : '') + 'Step ' + (index + 1) + ': ' + step.workflow,
+              workflow: step.workflow,
+              kind: 'workflow',
+              ...runtimePayload('workflow'),
+              catalyst_connection: workflowCatalystConnectionPayload(),
             }),
           });
           step.jobId = data.job_id;
           appendLine($('wf-output'), '$ ' + data.command + '\n', 'text-slate-400');
+          refreshDashboardCards('running');
         } catch (error) {
           step.status = 'failed';
           renderSteps();
           appendLine($('wf-output'), 'Failed to start step: ' + error.message + '\n', 'text-rose-300 font-bold');
+          refreshDashboardCards('failed');
           break;
         }
 
@@ -1218,6 +2097,7 @@
           streamJob(step.jobId, $('wf-output'), resolve);
         });
         step.status = result === 'completed' ? 'completed' : result === 'cancelled' ? 'cancelled' : 'failed';
+        refreshDashboardCards(result);
         renderSteps();
 
         if (result !== 'completed') {
