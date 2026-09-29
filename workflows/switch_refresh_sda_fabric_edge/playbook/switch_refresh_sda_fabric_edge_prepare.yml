@@ -1,0 +1,67 @@
+---
+- name: Prepare replacement switch batches in Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: no
+
+  vars:
+    switch_refresh_catalystcenter_host: "{{ catalyst_center_host | default(catalystcenter_host | default('')) }}"
+    switch_refresh_catalystcenter_username: "{{ catalyst_center_username | default(catalystcenter_username | default('')) }}"
+    switch_refresh_catalystcenter_password: "{{ catalyst_center_password | default(catalystcenter_password | default('')) }}"
+    switch_refresh_catalystcenter_version: "{{ catalyst_center_version | default(catalystcenter_version | default(omit)) }}"
+    switch_refresh_catalystcenter_port: "{{ catalyst_center_port | default(catalystcenter_port | default(443)) }}"
+    switch_refresh_catalystcenter_verify: "{{ catalyst_center_verify | default(catalystcenter_verify | default(false)) }}"
+    switch_refresh_catalystcenter_debug: "{{ catalyst_center_debug | default(false) }}"
+    switch_refresh_catalystcenter_log: "{{ catalyst_center_log | default(false) }}"
+    switch_refresh_catalystcenter_log_level: "{{ catalyst_center_log_level | default('INFO') }}"
+    switch_refresh_catalystcenter_log_file_path: "{{ catalyst_center_log_file_path | default(omit) }}"
+    switch_refresh_catalystcenter_log_append: "{{ catalyst_center_log_append | default(false) }}"
+    switch_refresh_catalystcenter_api_task_timeout: "{{ catalyst_center_api_task_timeout | default(1200) }}"
+    switch_refresh_sda_fabric_edge_phase: prepare
+    switch_refresh_sda_fabric_edge_cleanup_old: false
+
+  tasks:
+    - name: Load input variables from vars file when VARS_FILE_PATH is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when:
+        - VARS_FILE_PATH is defined
+        - VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: >-
+          {{
+            'Input source: vars file ' ~ VARS_FILE_PATH
+            if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0)
+            else 'Input source: inventory / host variables (VARS_FILE_PATH not provided)'
+          }}
+
+    - name: Validate that switch refresh batches are defined
+      ansible.builtin.fail:
+        msg: >-
+          Variable 'switch_refresh_sda_fabric_edge_batches' is not defined.
+          Provide it via VARS_FILE_PATH or as an inventory/host variable.
+      when: switch_refresh_sda_fabric_edge_batches is not defined
+
+    - name: Run switch refresh prepare workflow
+      ansible.builtin.include_role:
+        name: cisco.catalystcenter.switch_refresh_sda_fabric_edge
+        apply:
+          tags:
+            - switch_refresh_sda_fabric_edge_prepare
+      vars:
+        catalystcenter_host: "{{ switch_refresh_catalystcenter_host }}"
+        catalystcenter_username: "{{ switch_refresh_catalystcenter_username }}"
+        catalystcenter_password: "{{ switch_refresh_catalystcenter_password }}"
+        catalystcenter_version: "{{ switch_refresh_catalystcenter_version }}"
+        catalystcenter_port: "{{ switch_refresh_catalystcenter_port }}"
+        catalystcenter_verify: "{{ switch_refresh_catalystcenter_verify }}"
+        catalystcenter_debug: "{{ switch_refresh_catalystcenter_debug }}"
+        catalystcenter_log: "{{ switch_refresh_catalystcenter_log }}"
+        catalystcenter_log_level: "{{ switch_refresh_catalystcenter_log_level }}"
+        catalystcenter_log_file_path: "{{ switch_refresh_catalystcenter_log_file_path }}"
+        catalystcenter_log_append: "{{ switch_refresh_catalystcenter_log_append }}"
+        catalystcenter_api_task_timeout: "{{ switch_refresh_catalystcenter_api_task_timeout }}"
+      tags:
+        - switch_refresh_sda_fabric_edge_prepare
