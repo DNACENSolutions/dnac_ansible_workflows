@@ -1,0 +1,5 @@
+{
+  "summary": "Prepare and clean up SDA fabric edge switch refresh batches using Discovery or LAN Automation onboarding.",
+  "status": "active",
+  "managed_by": "cisco"
+}
