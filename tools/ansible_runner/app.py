@@ -2,14 +2,18 @@
 """Ansible Workflow Runner backend."""
 
 import json
+import hashlib
 import os
+import re
 import shlex
+import shutil
 import signal
 import subprocess
 import threading
 import time
 import uuid
 from pathlib import Path
+from urllib.parse import urlparse
 
 from flask import Flask, Response, jsonify, render_template, request
 
@@ -19,9 +23,16 @@ app = Flask(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 WORKFLOWS_DIR = PROJECT_ROOT / "workflows"
 INVENTORY_DIR = PROJECT_ROOT / "inventory"
+GIT_REPOS_DIR = PROJECT_ROOT / ".runner_repos"
+GIT_ACTIVE_REPO_DIR = GIT_REPOS_DIR / "active"
 HOME_DIR = Path.home().resolve()
 YAML_SUFFIXES = {".yml", ".yaml"}
 VERBOSITY_FLAGS = {"", "-v", "-vv", "-vvv", "-vvvv"}
+DEFAULT_VENV = PROJECT_ROOT / ".venv312"
+DEPENDENCY_REQUIREMENTS = PROJECT_ROOT / "requirements.txt"
+GITHUB_REPO_URL_RE = re.compile(r"^/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:\.git)?/?$")
+GIT_REF_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$")
+SAFE_RELATIVE_PATH_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,500}$")
 BROWSE_ROOTS = {
     "repo": ("Repository", PROJECT_ROOT.resolve()),
     "home": ("Home", HOME_DIR),
@@ -38,12 +49,22 @@ _jobs_lock = threading.Lock()
 class Job:
     """Represents a single ansible-playbook execution."""
 
-    def __init__(self, jid: str, argv: list[str], cwd: str, label: str = ""):
+    def __init__(
+        self,
+        jid: str,
+        argv: list[str],
+        cwd: str,
+        label: str = "",
+        env_overrides: dict[str, str] | None = None,
+        metadata: dict | None = None,
+    ):
         self.id = jid
         self.argv = argv
         self.cmd = shlex.join(argv)
         self.cwd = cwd
         self.label = label
+        self.env_overrides = env_overrides or {}
+        self.metadata = metadata or {}
         self.status = "queued"
         self.lines: list[str] = []
         self.proc: subprocess.Popen | None = None
@@ -67,6 +88,7 @@ class Job:
             t0=self.t0,
             t1=self.t1,
             n=len(self.lines),
+            metadata=self.metadata,
         )
 
     def details(self):
@@ -84,6 +106,7 @@ def _exec(job: Job):
     env = os.environ.copy()
     env["ANSIBLE_FORCE_COLOR"] = "true"
     env["PYTHONUNBUFFERED"] = "1"
+    env.update(job.env_overrides)
     try:
         job.proc = subprocess.Popen(
             job.argv,
@@ -124,6 +147,17 @@ def _display_path(path: Path | None) -> str:
         return str(path)
 
 
+def _display_source_path(path: Path | None, source_root: Path | None = None) -> str:
+    if path is None:
+        return ""
+    if source_root is not None:
+        try:
+            return str(path.relative_to(source_root))
+        except ValueError:
+            pass
+    return _display_path(path)
+
+
 def _resolve_local_path(
     raw_path: str | None,
     *,
@@ -157,6 +191,304 @@ def _resolve_user_file(raw_path: str | None, *, must_exist: bool = True) -> Path
         roots=(PROJECT_ROOT.resolve(), HOME_DIR),
         must_exist=must_exist,
     )
+
+
+def _git_source_id(repo_url: str, ref: str) -> str:
+    name = repo_url.rstrip("/").removesuffix(".git").split("/")[-1] or "repo"
+    name = re.sub(r"[^A-Za-z0-9_.-]+", "_", name).strip("._") or "repo"
+    digest = hashlib.sha256(f"{repo_url}|{ref}".encode("utf-8")).hexdigest()[:12]
+    return f"{name}_{digest}"
+
+
+def _normalize_git_input(repo_url: str, ref: str) -> tuple[str, str]:
+    """Accept common GitHub browser URLs and convert them to clone URLs."""
+    cleaned_url = repo_url.strip()
+    cleaned_ref = ref.strip() or "main"
+    match = re.match(r"^(https://github\.com/[^/]+/[^/]+?)(?:\.git)?/tree/([^/?#]+)", cleaned_url)
+    if match:
+        cleaned_url = match.group(1) + ".git"
+        cleaned_ref = match.group(2)
+    elif cleaned_url.startswith("https://github.com/") and not cleaned_url.endswith(".git"):
+        cleaned_url = cleaned_url.rstrip("/") + ".git"
+    return cleaned_url, cleaned_ref
+
+
+def _validate_git_input(repo_url: str, ref: str) -> str | None:
+    parsed = urlparse(repo_url)
+    if parsed.scheme != "https" or parsed.netloc.lower() != "github.com":
+        return "Only https://github.com repositories are supported"
+    if parsed.params or parsed.query or parsed.fragment or not GITHUB_REPO_URL_RE.fullmatch(parsed.path):
+        return "Git repository URL must be in owner/repo format"
+    if not GIT_REF_RE.fullmatch(ref) or ".." in ref or "@{" in ref or "\\" in ref or ref.endswith(("/", ".")):
+        return "Git ref must be a branch, tag, or commit-like value"
+    return None
+
+
+def _resolve_git_source(source: dict | None) -> Path | None:
+    if not source or source.get("kind") != "git":
+        return PROJECT_ROOT.resolve()
+    source_id = str(source.get("id") or "")
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", source_id):
+        return None
+    source_root = GIT_ACTIVE_REPO_DIR.resolve()
+    if not _is_within(source_root, GIT_REPOS_DIR.resolve()) or not source_root.exists():
+        return None
+    return source_root
+
+
+def _safe_relative_parts(raw_path: str) -> tuple[str, ...] | None:
+    if not SAFE_RELATIVE_PATH_RE.fullmatch(raw_path) or "\\" in raw_path:
+        return None
+    parts = tuple(part for part in raw_path.split("/") if part)
+    if not parts or any(part in {".", ".."} or part.startswith(".") for part in parts):
+        return None
+    return parts
+
+
+def _find_existing_relative_yaml(root: Path, raw_path: str) -> Path | None:
+    parts = _safe_relative_parts(raw_path)
+    if not parts:
+        return None
+    expected = "/".join(parts)
+    ignored_parts = {".git", ".venv", ".venv312", "venv", "__pycache__", ".runner_repos"}
+    for candidate in root.rglob("*"):
+        if not candidate.is_file() or candidate.suffix.lower() not in YAML_SUFFIXES:
+            continue
+        rel_path = candidate.relative_to(root)
+        if ignored_parts.intersection(rel_path.parts):
+            continue
+        if rel_path.as_posix() == expected:
+            return candidate.resolve()
+    return None
+
+
+def _resolve_source_file(
+    raw_path: str | None,
+    source_root: Path,
+    *,
+    must_exist: bool = True,
+    allow_user_file: bool = True,
+    allow_project_fallback: bool = True,
+) -> Path | None:
+    if not raw_path:
+        return None
+
+    raw_path = raw_path.strip()
+    if os.path.isabs(raw_path):
+        if allow_user_file:
+            return _resolve_user_file(raw_path, must_exist=must_exist)
+        return None
+
+    source_candidate = _find_existing_relative_yaml(source_root, raw_path)
+    if source_candidate and _is_within(source_candidate, source_root):
+        return source_candidate
+    if not must_exist:
+        return None
+
+    if allow_project_fallback and source_root != PROJECT_ROOT.resolve():
+        project_candidate = _find_existing_relative_yaml(PROJECT_ROOT, raw_path)
+        if project_candidate and _is_within(project_candidate, PROJECT_ROOT.resolve()):
+            return project_candidate
+
+    return None
+
+
+def _discover_inventories(root: Path) -> list[str]:
+    inventory_dir = root / "inventory"
+    out = []
+    if not inventory_dir.is_dir():
+        return out
+    for current_root, _dirs, files in os.walk(inventory_dir):
+        for filename in files:
+            if filename.endswith((".yml", ".yaml")):
+                out.append(os.path.relpath(os.path.join(current_root, filename), root))
+    return sorted(out)
+
+
+def _looks_like_playbook(path: Path) -> bool:
+    try:
+        text = path.read_text(errors="ignore")[:200000]
+    except OSError:
+        return False
+    return bool(re.search(r"(?m)^\s*-\s+(?:name:\s*.*\n\s*)?hosts\s*:", text) or re.search(r"(?m)^\s*hosts\s*:", text))
+
+
+def _discover_repo_vars(root: Path) -> list[str]:
+    ignored_parts = {".git", ".venv", ".venv312", "venv", "__pycache__", ".runner_repos"}
+    out = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file() or path.suffix.lower() not in YAML_SUFFIXES:
+            continue
+        rel_path = path.relative_to(root)
+        parts = rel_path.parts
+        if ignored_parts.intersection(parts):
+            continue
+        lower_parts = [part.lower() for part in parts]
+        lower_name = path.name.lower()
+        if "inventory" in lower_parts or lower_name.startswith("hosts."):
+            continue
+        if "schema" in lower_parts or "playbook" in lower_parts:
+            continue
+        if not ("vars" in lower_parts or "var" in lower_name or "input" in lower_name):
+            continue
+        if _looks_like_playbook(path):
+            continue
+        out.append(str(rel_path))
+    return sorted(dict.fromkeys(out))
+
+
+def _discover_standalone_playbooks(root: Path) -> list[dict]:
+    ignored_parts = {".git", ".venv", ".venv312", "venv", "__pycache__", ".runner_repos"}
+    repo_vars = _discover_repo_vars(root)
+    records = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file() or path.suffix.lower() not in YAML_SUFFIXES:
+            continue
+        if ignored_parts.intersection(path.relative_to(root).parts):
+            continue
+        if "/vars/" in str(path.relative_to(root)) or "/schema/" in str(path.relative_to(root)):
+            continue
+        if not _looks_like_playbook(path):
+            continue
+        rel = str(path.relative_to(root))
+        records.append(
+            {
+                "name": path.stem,
+                "playbooks": [rel],
+                "vars": repo_vars,
+                "schemas": [],
+                "has_readme": False,
+                "standalone": True,
+            }
+        )
+    return records
+
+
+def _discover_workflows(root: Path) -> list[dict]:
+    workflows_dir = root / "workflows"
+    out = []
+    if workflows_dir.is_dir():
+        for directory in sorted(workflows_dir.iterdir()):
+            if not directory.is_dir() or directory.name.startswith("."):
+                continue
+
+            record = dict(name=directory.name, playbooks=[], vars=[], schemas=[], has_readme=False)
+            for subdir, key in [("playbook", "playbooks"), ("vars", "vars"), ("schema", "schemas")]:
+                path = directory / subdir
+                if path.is_dir():
+                    record[key] = sorted(
+                        file.name
+                        for file in path.iterdir()
+                        if file.is_file() and file.suffix.lower() in YAML_SUFFIXES
+                    )
+            record["has_readme"] = (directory / "README.md").is_file()
+            if record["playbooks"]:
+                out.append(record)
+    return out or _discover_standalone_playbooks(root)
+
+
+def _git_lock_error(output: str) -> bool:
+    return "File exists" in output and ".lock" in output
+
+
+def _run_git_clone_branch(repo_url: str, ref: str, target: Path) -> subprocess.CompletedProcess:
+    # codeql[py/command-line-injection] repo_url/ref/target are validated before this fixed-argv git call.
+    return subprocess.run(
+        ["git", "clone", "--filter=blob:none", "--depth", "1", "--branch", ref, repo_url, str(target)],
+        cwd=str(PROJECT_ROOT),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=600,
+    )
+
+
+def _run_git_clone_default(repo_url: str, target: Path) -> subprocess.CompletedProcess:
+    # codeql[py/command-line-injection] repo_url/target are validated before this fixed-argv git call.
+    return subprocess.run(
+        ["git", "clone", "--filter=blob:none", "--depth", "1", repo_url, str(target)],
+        cwd=str(PROJECT_ROOT),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=600,
+    )
+
+
+def _run_git_checkout(ref: str, cwd: Path) -> subprocess.CompletedProcess:
+    # codeql[py/command-line-injection] ref/cwd are validated before this fixed-argv git call.
+    return subprocess.run(
+        ["git", "checkout", ref],
+        cwd=str(cwd),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=600,
+    )
+
+
+def _run_git_fetch_ref(ref: str, cwd: Path) -> subprocess.CompletedProcess:
+    # codeql[py/command-line-injection] ref/cwd are validated before this fixed-argv git call.
+    return subprocess.run(
+        ["git", "fetch", "origin", ref, "--depth", "1"],
+        cwd=str(cwd),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=600,
+    )
+
+
+def _run_git_fetch_all(cwd: Path) -> subprocess.CompletedProcess:
+    # codeql[py/command-line-injection] cwd is resolved inside the managed repo cache before this fixed-argv git call.
+    return subprocess.run(
+        ["git", "fetch", "--all", "--tags", "--prune"],
+        cwd=str(cwd),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=600,
+    )
+
+
+def _run_git_pull(cwd: Path) -> subprocess.CompletedProcess:
+    # codeql[py/command-line-injection] cwd is resolved inside the managed repo cache before this fixed-argv git call.
+    return subprocess.run(
+        ["git", "pull", "--ff-only"],
+        cwd=str(cwd),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=600,
+    )
+
+
+def _run_git_head(cwd: Path) -> subprocess.CompletedProcess:
+    # codeql[py/command-line-injection] cwd is resolved inside the managed repo cache before this fixed-argv git call.
+    return subprocess.run(
+        ["git", "rev-parse", "--short", "HEAD"],
+        cwd=str(cwd),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=600,
+    )
+
+
+def _clone_git_repo(repo_url: str, ref: str, target: Path) -> subprocess.CompletedProcess:
+    if target.exists():
+        shutil.rmtree(target)
+    clone = _run_git_clone_branch(repo_url, ref, target)
+    if clone.returncode == 0:
+        return clone
+
+    if target.exists():
+        shutil.rmtree(target)
+    clone = _run_git_clone_default(repo_url, target)
+    if clone.returncode != 0:
+        return clone
+
+    return _run_git_checkout(ref, target)
 
 
 def _browse_root(name: str | None) -> tuple[str, Path] | None:
@@ -222,6 +554,87 @@ def _json_error(message: str, status: int = 400):
     return jsonify(error=message), status
 
 
+def _venv_python(venv_path: Path) -> Path:
+    return venv_path / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+
+
+def _venv_ansible_playbook(venv_path: Path) -> Path:
+    return venv_path / ("Scripts/ansible-playbook.exe" if os.name == "nt" else "bin/ansible-playbook")
+
+
+def _resolve_venv(raw_path: str | None, *, must_exist: bool = False) -> Path | None:
+    return _resolve_local_path(
+        raw_path or str(DEFAULT_VENV),
+        roots=(PROJECT_ROOT.resolve(), HOME_DIR),
+        must_exist=must_exist,
+    )
+
+
+def _venv_status(venv_path: Path) -> dict:
+    python_path = _venv_python(venv_path)
+    ansible_path = _venv_ansible_playbook(venv_path)
+    status = {
+        "path": _display_path(venv_path),
+        "absolute_path": str(venv_path),
+        "python": str(python_path),
+        "ansible_playbook": str(ansible_path),
+        "requirements": _display_path(DEPENDENCY_REQUIREMENTS) if DEPENDENCY_REQUIREMENTS.exists() else "",
+        "exists": venv_path.exists(),
+        "python_exists": python_path.exists(),
+        "ansible_playbook_exists": ansible_path.exists(),
+        "ready": False,
+        "missing": [],
+    }
+    if not python_path.exists():
+        status["missing"].append("venv python")
+    if not ansible_path.exists():
+        status["missing"].append("ansible-playbook")
+
+    if python_path.exists():
+        for module in ("ansible", "catalystcentersdk", "yamale"):
+            result = subprocess.run(
+                [str(python_path), "-c", f"import {module}"],
+                cwd=str(PROJECT_ROOT),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+            if result.returncode != 0:
+                status["missing"].append(module)
+
+    status["ready"] = not status["missing"]
+    return status
+
+
+def _candidate_venv_creators() -> list[str]:
+    configured = os.environ.get("RUNNER_VENV_PYTHON")
+    candidates = [configured] if configured else []
+    candidates.extend(["python3.12", "python3", "python"])
+    seen = set()
+    return [item for item in candidates if item and not (item in seen or seen.add(item))]
+
+
+def _create_venv(venv_path: Path) -> tuple[int, str, str]:
+    if venv_path.exists() and _venv_python(venv_path).exists():
+        return 0, "", "Venv already exists."
+
+    attempts = []
+    for executable in _candidate_venv_creators():
+        cmd = [executable, "-m", "venv", str(venv_path)]
+        result = subprocess.run(
+            cmd,
+            cwd=str(PROJECT_ROOT),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        attempts.append("$ " + shlex.join(cmd) + "\n" + result.stdout)
+        if result.returncode == 0 and _venv_python(venv_path).exists():
+            return 0, shlex.join(cmd), "\n".join(attempts)
+
+    return 1, "", "\n".join(attempts)
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -237,41 +650,86 @@ def job_detail(jid):
 
 @app.route("/api/workflows")
 def api_workflows():
-    out = []
-    if not WORKFLOWS_DIR.is_dir():
-        return jsonify(out)
-
-    for directory in sorted(WORKFLOWS_DIR.iterdir()):
-        if not directory.is_dir() or directory.name.startswith("."):
-            continue
-
-        record = dict(name=directory.name, playbooks=[], vars=[], schemas=[], has_readme=False)
-        for subdir, key in [("playbook", "playbooks"), ("vars", "vars"), ("schema", "schemas")]:
-            path = directory / subdir
-            if path.is_dir():
-                record[key] = sorted(
-                    file.name
-                    for file in path.iterdir()
-                    if file.is_file() and file.suffix.lower() in YAML_SUFFIXES
-                )
-        record["has_readme"] = (directory / "README.md").is_file()
-        if record["playbooks"]:
-            out.append(record)
-
-    return jsonify(out)
+    return jsonify(_discover_workflows(PROJECT_ROOT))
 
 
 @app.route("/api/inventories")
 def api_inventories():
-    out = []
-    if not INVENTORY_DIR.is_dir():
-        return jsonify(out)
+    return jsonify(_discover_inventories(PROJECT_ROOT))
 
-    for root, _dirs, files in os.walk(INVENTORY_DIR):
-        for filename in files:
-            if filename.endswith((".yml", ".yaml")):
-                out.append(os.path.relpath(os.path.join(root, filename), PROJECT_ROOT))
-    return jsonify(sorted(out))
+
+@app.route("/api/git/fetch", methods=["POST"])
+def api_git_fetch():
+    data = request.json or {}
+    repo_url = str(data.get("repo_url") or "").strip()
+    ref = str(data.get("ref") or "main").strip() or "main"
+    if not repo_url:
+        return _json_error("Git repository URL is required")
+    repo_url, ref = _normalize_git_input(repo_url, ref)
+    validation_error = _validate_git_input(repo_url, ref)
+    if validation_error:
+        return _json_error(validation_error)
+
+    source_id = _git_source_id(repo_url, ref)
+    target = GIT_ACTIVE_REPO_DIR.resolve()
+    if not _is_within(target, GIT_REPOS_DIR.resolve()):
+        return _json_error("Invalid repository target")
+
+    GIT_REPOS_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        if target.exists() and (target / ".git").is_dir():
+            checkout = _run_git_checkout(ref, target)
+            if _git_lock_error(checkout.stdout):
+                checkout = _clone_git_repo(repo_url, ref, target)
+                if checkout.returncode != 0:
+                    return _json_error(checkout.stdout, 500)
+            else:
+                if checkout.returncode != 0:
+                    fetch = _run_git_fetch_ref(ref, target)
+                    if _git_lock_error(fetch.stdout):
+                        checkout = _clone_git_repo(repo_url, ref, target)
+                        if checkout.returncode != 0:
+                            return _json_error(checkout.stdout, 500)
+                    elif fetch.returncode != 0:
+                        return _json_error(fetch.stdout or checkout.stdout, 500)
+                    else:
+                        checkout = _run_git_checkout("FETCH_HEAD", target)
+                        if checkout.returncode != 0:
+                            return _json_error(checkout.stdout, 500)
+                pull = _run_git_pull(target)
+                if _git_lock_error(pull.stdout):
+                    checkout = _clone_git_repo(repo_url, ref, target)
+                    if checkout.returncode != 0:
+                        return _json_error(checkout.stdout, 500)
+                elif pull.returncode != 0:
+                    fetch = _run_git_fetch_all(target)
+                    if _git_lock_error(fetch.stdout):
+                        checkout = _clone_git_repo(repo_url, ref, target)
+                        if checkout.returncode != 0:
+                            return _json_error(checkout.stdout, 500)
+                    elif fetch.returncode != 0:
+                        return _json_error(fetch.stdout or pull.stdout, 500)
+        else:
+            clone = _clone_git_repo(repo_url, ref, target)
+            if clone.returncode != 0:
+                return _json_error(clone.stdout, 500)
+
+        commit = _run_git_head(target)
+        source = {
+            "kind": "git",
+            "id": source_id,
+            "repo_url": repo_url,
+            "ref": ref,
+            "commit": commit.stdout.strip() if commit.returncode == 0 else "",
+        }
+        return jsonify(
+            ok=True,
+            source=source,
+            vars=_discover_repo_vars(target),
+            inventories=_discover_inventories(target),
+        )
+    except subprocess.TimeoutExpired:
+        return _json_error("Git operation timed out", 500)
 
 
 @app.route("/api/fs")
@@ -316,30 +774,50 @@ def api_fs():
 
 @app.route("/api/file")
 def api_read_file():
-    path = _resolve_user_file(request.args.get("path"), must_exist=True)
+    source = None
+    if request.args.get("source_kind") == "git":
+        source = {"kind": "git", "id": request.args.get("source_id")}
+    source_root = _resolve_git_source(source)
+    if source_root is None:
+        return _json_error("Git source not found")
+    path = _resolve_source_file(request.args.get("path"), source_root, must_exist=True, allow_user_file=True)
     if path is None:
         return _json_error("Access denied or file not found", 403)
     if not path.is_file():
         return _json_error("Not found", 404)
-    return jsonify(path=_display_path(path), content=path.read_text(errors="replace"))
+    # codeql[py/path-injection] path is resolved through _resolve_source_file and must remain inside an allowed root.
+    return jsonify(path=_display_source_path(path, source_root), content=path.read_text(errors="replace"))
 
 
 @app.route("/api/file", methods=["PUT"])
 def api_write_file():
     data = request.json or {}
-    path = _resolve_user_file(data.get("path"), must_exist=False)
+    source_root = _resolve_git_source(data.get("source"))
+    if source_root is None:
+        return _json_error("Git source not found")
+    path = _resolve_source_file(data.get("path"), source_root, must_exist=False, allow_user_file=True)
     if path is None:
         return _json_error("Access denied")
+    # codeql[py/path-injection] path is resolved through _resolve_source_file and must remain inside an allowed root.
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(data.get("content", ""))
-    return jsonify(status="saved", path=_display_path(path))
+    return jsonify(status="saved", path=_display_source_path(path, source_root))
 
 
 @app.route("/api/validate", methods=["POST"])
 def api_validate():
     data = request.json or {}
-    schema_path = _resolve_repo_path(data.get("schema"), must_exist=True)
-    vars_path = _resolve_user_file(data.get("data"), must_exist=True)
+    vars_source_root = _resolve_git_source(data.get("vars_source") or data.get("input_source") or data.get("source"))
+    if vars_source_root is None:
+        return _json_error("Git source not found")
+    schema_path = _resolve_source_file(data.get("schema"), PROJECT_ROOT, must_exist=True, allow_user_file=False)
+    vars_path = _resolve_source_file(
+        data.get("data"),
+        vars_source_root,
+        must_exist=True,
+        allow_user_file=True,
+        allow_project_fallback=vars_source_root == PROJECT_ROOT.resolve(),
+    )
     if schema_path is None:
         return _json_error("Schema file not found")
     if vars_path is None:
@@ -366,13 +844,94 @@ def api_validate():
         return _json_error(str(exc), 500)
 
 
+@app.route("/api/environment")
+def api_environment():
+    venv_path = _resolve_venv(request.args.get("venv_path"), must_exist=False)
+    if venv_path is None:
+        return _json_error("Venv path must be inside the repository or your home directory")
+    return jsonify(_venv_status(venv_path))
+
+
+@app.route("/api/environment/create", methods=["POST"])
+def api_environment_create():
+    data = request.json or {}
+    venv_path = _resolve_venv(data.get("venv_path"), must_exist=False)
+    if venv_path is None:
+        return _json_error("Venv path must be inside the repository or your home directory")
+
+    rc, command, output = _create_venv(venv_path)
+    status = _venv_status(venv_path)
+    return jsonify(
+        ok=rc == 0 and status["python_exists"],
+        command=command,
+        rc=rc,
+        output=output,
+        status=status,
+    )
+
+
+@app.route("/api/environment/setup", methods=["POST"])
+def api_environment_setup():
+    data = request.json or {}
+    venv_path = _resolve_venv(data.get("venv_path"), must_exist=False)
+    if venv_path is None:
+        return _json_error("Venv path must be inside the repository or your home directory")
+
+    python_path = _venv_python(venv_path)
+    if not python_path.exists():
+        rc, _, output = _create_venv(venv_path)
+        if rc != 0 or not python_path.exists():
+            return _json_error(f"Could not create venv at {venv_path}.\n{output}", 500)
+    if not DEPENDENCY_REQUIREMENTS.exists():
+        return _json_error("requirements.txt not found")
+
+    cmd = [str(python_path), "-m", "pip", "install", "-r", str(DEPENDENCY_REQUIREMENTS)]
+    result = subprocess.run(
+        cmd,
+        cwd=str(PROJECT_ROOT),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    status = _venv_status(venv_path)
+    return jsonify(
+        ok=result.returncode == 0 and status["ready"],
+        command=shlex.join(cmd),
+        rc=result.returncode,
+        output=result.stdout,
+        status=status,
+    )
+
+
 @app.route("/api/run", methods=["POST"])
 def api_run():
     data = request.json or {}
 
-    playbook_path = _resolve_repo_path(data.get("playbook"), must_exist=True)
-    inventory_path = _resolve_user_file(data.get("inventory"), must_exist=True)
-    vars_path = _resolve_user_file(data.get("vars_file"), must_exist=True) if data.get("vars_file") else None
+    vars_source = data.get("vars_source") or data.get("input_source") or data.get("source") or {"kind": "local"}
+    inventory_source = data.get("inventory_source") or data.get("input_source") or data.get("source") or {"kind": "local"}
+    vars_source_root = _resolve_git_source(vars_source)
+    inventory_source_root = _resolve_git_source(inventory_source)
+    if vars_source_root is None or inventory_source_root is None:
+        return _json_error("Git source not found")
+
+    playbook_path = _resolve_source_file(data.get("playbook"), PROJECT_ROOT, must_exist=True, allow_user_file=False)
+    inventory_path = _resolve_source_file(
+        data.get("inventory"),
+        inventory_source_root,
+        must_exist=True,
+        allow_user_file=True,
+        allow_project_fallback=inventory_source_root == PROJECT_ROOT.resolve(),
+    )
+    vars_path = (
+        _resolve_source_file(
+            data.get("vars_file"),
+            vars_source_root,
+            must_exist=True,
+            allow_project_fallback=vars_source_root == PROJECT_ROOT.resolve(),
+        )
+        if data.get("vars_file")
+        else None
+    )
     verbosity = data.get("verbosity", "")
 
     if playbook_path is None:
@@ -389,16 +948,65 @@ def api_run():
     except ValueError as exc:
         return _json_error(f"Invalid extra arguments: {exc}")
 
-    argv = ["ansible-playbook", "-i", str(inventory_path), str(playbook_path)]
+    use_managed_venv = data.get("managed_venv", True)
+    venv_path = _resolve_venv(data.get("venv_path"), must_exist=False)
+    python_path = _venv_python(venv_path) if venv_path else None
+    ansible_playbook = _venv_ansible_playbook(venv_path) if venv_path else None
+
+    if use_managed_venv:
+        if venv_path is None:
+            return _json_error("Venv path must be inside the repository or your home directory")
+        if not python_path or not python_path.exists():
+            return _json_error(f"Managed venv Python not found: {python_path}")
+        if not ansible_playbook or not ansible_playbook.exists():
+            return _json_error(f"Managed venv ansible-playbook not found: {ansible_playbook}. Install dependencies first.")
+
+    executable = str(ansible_playbook) if use_managed_venv and ansible_playbook and ansible_playbook.exists() else "ansible-playbook"
+    argv = [executable, "-i", str(inventory_path), str(playbook_path)]
     if vars_path is not None:
         argv += ["--extra-vars", f"VARS_FILE_PATH={vars_path}"]
+    if use_managed_venv and python_path and "ansible_python_interpreter" not in " ".join(extra_args):
+        argv += ["--extra-vars", f"ansible_python_interpreter={python_path}"]
     if verbosity:
         argv.append(verbosity)
     argv.extend(extra_args)
 
+    env_overrides = {}
+    connection = data.get("catalyst_connection") or {}
+    if connection.get("enabled"):
+        if connection.get("host"):
+            env_overrides["HOSTIP"] = str(connection["host"])
+            env_overrides["CATALYST_CENTER_HOST"] = str(connection["host"])
+        if connection.get("username"):
+            env_overrides["CATALYST_CENTER_USERNAME"] = str(connection["username"])
+        if connection.get("password"):
+            env_overrides["CATALYST_CENTER_PASSWORD"] = str(connection["password"])
+        if connection.get("verify"):
+            env_overrides["CATALYST_CENTER_VERIFY"] = str(connection["verify"])
+
     jid = uuid.uuid4().hex[:8]
     label = data.get("label") or playbook_path.stem
-    job = Job(jid, argv, str(PROJECT_ROOT), label)
+    metadata = {
+        "kind": data.get("kind") or "single",
+        "label": label,
+        "workflow": data.get("workflow") or "",
+        "playbook": _display_source_path(playbook_path, PROJECT_ROOT),
+        "inventory": _display_source_path(inventory_path, inventory_source_root),
+        "vars_file": _display_source_path(vars_path, vars_source_root) if vars_path is not None else "",
+        "source": {"kind": "local"},
+        "vars_source": vars_source,
+        "inventory_source": inventory_source,
+        "verbosity": verbosity,
+        "extra_args": data.get("extra_args", ""),
+        "managed_venv": use_managed_venv,
+        "venv_path": data.get("venv_path") or "",
+        "catalyst_connection_enabled": bool(connection.get("enabled")),
+        "catalyst_connection_host": str(connection.get("host") or ""),
+        "catalyst_connection_username": str(connection.get("username") or ""),
+        "catalyst_connection_verify": str(connection.get("verify") or ""),
+        "catalyst_connection_password_set": bool(connection.get("password")),
+    }
+    job = Job(jid, argv, str(PROJECT_ROOT), label, env_overrides, metadata)
     with _jobs_lock:
         _jobs[jid] = job
     threading.Thread(target=_exec, args=(job,), daemon=True).start()

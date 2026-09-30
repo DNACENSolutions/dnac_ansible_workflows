@@ -30,3 +30,4 @@ schema_validation_reports
 .env
 .playwright-cli/
 inventory/mylab/
+.runner_repos/
