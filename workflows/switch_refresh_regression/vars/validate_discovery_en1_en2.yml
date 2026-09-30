@@ -1,0 +1,48 @@
+---
+catalyst_center_version: 2.3.7.9
+
+switch_refresh_validation:
+  source_name: "IAC-TB4-SJ-EN1-9300"
+  source_ip: "204.1.2.5"
+  replacement_name: "IAC-TB4-SJ-EN2-9300"
+  replacement_ip: "204.1.2.6"
+
+network_devices_info_details:
+  - network_devices:
+      - site_hierarchy: "Global/USA/San Jose/BLDG23"
+        device_family: "Switches and Hubs"
+        device_identifier:
+          - ip_address:
+              - "204.1.2.5"
+              - "204.1.2.6"
+        timeout: 120
+        retries: 3
+        interval: 10
+        requested_info:
+          - device_info
+          - interface_info
+        output_file_info:
+          file_path: "/tmp/switch_refresh_regression/discovery_network_devices"
+          file_format: "json"
+          file_mode: "w"
+          timestamp: true
+
+fabric_device_info_details:
+  - fabric_devices:
+      - fabric_site_hierarchy: "Global/USA/San Jose/BLDG23"
+        fabric_device_role: "EDGE_NODE"
+        device_identifier:
+          - ip_address:
+              - "204.1.2.6"
+        timeout: 120
+        retries: 3
+        interval: 10
+        requested_info:
+          - fabric_info
+          - onboarding_info
+          - connected_devices_info
+        output_file_info:
+          file_path: "/tmp/switch_refresh_regression/discovery_fabric_devices"
+          file_format: "json"
+          file_mode: "w"
+          timestamp: true

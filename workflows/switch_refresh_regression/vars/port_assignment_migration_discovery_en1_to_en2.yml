@@ -1,0 +1,13 @@
+---
+state: merged
+generated_config_dir: "/tmp/switch_refresh_regression/discovery_port_assignment_migration"
+cleanup_generated_files: true
+fail_on_no_port_assignments: false
+
+port_assignment_migration:
+  - fabric_site: "Global/USA/San Jose/BLDG23"
+    source_device_ip: "204.1.2.5"
+    destination_device_ip: "204.1.2.6"
+    interface_mappings:
+      - source_interface_name: "GigabitEthernet1/0/3"
+        destination_interface_name: "GigabitEthernet1/0/3"

@@ -1,0 +1,38 @@
+---
+catalyst_center_version: 2.3.7.9
+
+discovery_details:
+  single:
+    - ip_address_list:
+        - "{{ lookup('env', 'SWITCH_REFRESH_DISCOVERY_IP') | default('204.1.2.5', true) }}"
+      devices_list: []
+      discovery_type: SINGLE
+      protocol_order: ssh
+      discovery_name: "Switch Refresh EN1 Discovery {{ lookup('env', 'SWITCH_REFRESH_DISCOVERY_IP') | default('204.1.2.5', true) }}"
+      use_global_credentials: false
+      discovery_specific_credentials:
+        cli_credentials_list:
+          - username: "{{ lookup('env', 'SWITCH_USERNAME') }}"
+            password: "{{ lookup('env', 'SWITCH_PASSWORD') }}"
+            enable_password: "{{ lookup('env', 'SWITCH_ENABLE_PASSWORD') }}"
+        http_read_credential:
+          username: "{{ lookup('env', 'SWITCH_USERNAME') }}"
+          password: "{{ lookup('env', 'SWITCH_PASSWORD') }}"
+          port: 443
+          secure: true
+        http_write_credential:
+          username: "{{ lookup('env', 'SWITCH_USERNAME') }}"
+          password: "{{ lookup('env', 'SWITCH_PASSWORD') }}"
+          port: 443
+          secure: true
+        snmp_v3_credential:
+          description: "switch-refresh-snmpv3"
+          username: "{{ lookup('env', 'SWITCH_USERNAME') }}"
+          snmp_mode: AUTHPRIV
+          auth_password: "{{ lookup('env', 'SWITCH_SNMP_PASSWORD') | default(lookup('env', 'SWITCH_PASSWORD'), true) }}"
+          auth_type: SHA
+          privacy_type: AES128
+          privacy_password: "{{ lookup('env', 'SWITCH_SNMP_PASSWORD') | default(lookup('env', 'SWITCH_PASSWORD'), true) }}"
+        net_conf_port: "830"
+      timeout: 30
+      retry: 2

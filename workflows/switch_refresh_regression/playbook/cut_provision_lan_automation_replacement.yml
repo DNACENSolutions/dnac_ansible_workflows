@@ -1,0 +1,4 @@
+---
+- import_playbook: ../../provision/playbook/provision_workflow_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/provision_lan_automation_enl2.yml"

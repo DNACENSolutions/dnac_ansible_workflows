@@ -1,0 +1,4 @@
+---
+- import_playbook: ../../sda_port_assignment_migration/playbook/sda_port_assignment_migration_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/port_assignment_migration_lan_automation_enl2_to_enl1.yml"

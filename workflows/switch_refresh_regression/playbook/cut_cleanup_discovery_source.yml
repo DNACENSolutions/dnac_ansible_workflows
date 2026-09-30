@@ -1,0 +1,4 @@
+---
+- import_playbook: ../../sda_device_removal_and_unprovision/playbook/sda_device_removal_and_unprovision_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/cleanup_discovery_en1.yml"

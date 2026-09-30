@@ -104,29 +104,25 @@
       vars:
         moved_lines: >-
           {{
-            (item.interfaces_moved | default([]) | sort |
-             map('regex_replace', '^(.*)$', '      - \\1') | list | join('\n'))
+            ('      - ' ~ (item.interfaces_moved | default([]) | sort | join('\n      - ')))
             if (item.interfaces_moved | default([]) | length > 0)
             else '      - None'
           }}
         updated_lines: >-
           {{
-            (item.interfaces_updated | default([]) | sort |
-             map('regex_replace', '^(.*)$', '      - \\1') | list | join('\n'))
+            ('      - ' ~ (item.interfaces_updated | default([]) | sort | join('\n      - ')))
             if (item.interfaces_updated | default([]) | length > 0)
             else '      - None'
           }}
         no_change_lines: >-
           {{
-            (item.interfaces_no_change | default([]) | sort |
-             map('regex_replace', '^(.*)$', '      - \\1') | list | join('\n'))
+            ('      - ' ~ (item.interfaces_no_change | default([]) | sort | join('\n      - ')))
             if (item.interfaces_no_change | default([]) | length > 0)
             else '      - None'
           }}
         unreported_lines: >-
           {{
-            (item.interfaces_unreported | default([]) | sort |
-             map('regex_replace', '^(.*)$', '      - \\1') | list | join('\n'))
+            ('      - ' ~ (item.interfaces_unreported | default([]) | sort | join('\n      - ')))
             if (item.interfaces_unreported | default([]) | length > 0)
             else '      - None'
           }}

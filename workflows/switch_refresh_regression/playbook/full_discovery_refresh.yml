@@ -1,0 +1,24 @@
+---
+- import_playbook: ../../device_discovery/playbook/device_discovery_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/device_discovery_en1_en2.yml"
+
+- import_playbook: ../../provision/playbook/provision_workflow_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/provision_discovery_en2.yml"
+
+- import_playbook: cut_set_discovery_en2_access_role.yml
+
+- import_playbook: ../../sda_fabric_device_roles/playbook/sda_fabric_device_roles_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/fabric_onboard_discovery_en2.yml"
+
+- import_playbook: ../../sda_port_assignment_migration/playbook/sda_port_assignment_migration_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/port_assignment_migration_discovery_en1_to_en2.yml"
+
+- import_playbook: ../../sda_device_removal_and_unprovision/playbook/sda_device_removal_and_unprovision_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/cleanup_discovery_en1.yml"
+
+- import_playbook: cut_validate_discovery.yml

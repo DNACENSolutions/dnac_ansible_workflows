@@ -1,0 +1,4 @@
+---
+- import_playbook: ../../device_discovery/playbook/device_discovery_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/device_discovery_en1.yml"

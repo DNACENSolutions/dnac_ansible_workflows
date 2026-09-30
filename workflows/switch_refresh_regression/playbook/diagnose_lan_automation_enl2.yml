@@ -1,0 +1,159 @@
+---
+- name: Diagnose LAN Automation ENL2 readiness
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: false
+
+  vars:
+    switch_refresh_candidate_ips:
+      - "204.1.3.248"
+      - "204.1.3.249"
+      - "204.1.3.251"
+      - "204.1.3.252"
+    switch_refresh_candidate_serials:
+      - "FJC24421T01"
+      - "FCW2404G03G"
+      - "FVH2947LA9K"
+      - "FVH2947LADJ"
+    switch_refresh_lan_session_id: "01a0e837-15ab-7fb2-ac15-be10788e9a67"
+    catalyst_center_login: &catalyst_center_login
+      catalystcenter_host: "{{ catalyst_center_host | default(catalystcenter_host) }}"
+      catalystcenter_username: "{{ catalyst_center_username | default(catalystcenter_username) }}"
+      catalystcenter_password: "{{ catalyst_center_password | default(catalystcenter_password) }}"
+      catalystcenter_version: "{{ catalyst_center_version | default(catalystcenter_version) }}"
+      catalystcenter_port: "{{ catalyst_center_port | default(443) }}"
+      catalystcenter_verify: "{{ catalyst_center_verify | default(catalystcenter_verify) }}"
+      catalystcenter_debug: "{{ catalyst_center_debug | default(false) }}"
+
+  tasks:
+    - name: Query candidate refresh devices by management IP
+      cisco.catalystcenter.network_device_by_ip_info:
+        <<: *catalyst_center_login
+        ipAddress: "{{ item }}"
+      loop: "{{ switch_refresh_candidate_ips }}"
+      register: refresh_device_lookups
+      changed_when: false
+      failed_when: false
+
+    - name: Print candidate refresh device inventory summaries
+      ansible.builtin.debug:
+        msg:
+          queriedIp: "{{ item.item }}"
+          failed: "{{ item.failed | default(false) }}"
+          msg: "{{ item.msg | default('') }}"
+          id: "{{ item.catalystcenter_response.response.id | default(item.dnac_response.response.id | default('')) }}"
+          hostname: "{{ item.catalystcenter_response.response.hostname | default(item.dnac_response.response.hostname | default('')) }}"
+          managementIpAddress: "{{ item.catalystcenter_response.response.managementIpAddress | default(item.dnac_response.response.managementIpAddress | default('')) }}"
+          reachabilityStatus: "{{ item.catalystcenter_response.response.reachabilityStatus | default(item.dnac_response.response.reachabilityStatus | default('')) }}"
+          collectionStatus: "{{ item.catalystcenter_response.response.collectionStatus | default(item.dnac_response.response.collectionStatus | default('')) }}"
+          locationName: "{{ item.catalystcenter_response.response.locationName | default(item.dnac_response.response.locationName | default('')) }}"
+      loop: "{{ refresh_device_lookups.results }}"
+
+    - name: Query candidate SDA fabric membership by network device ID
+      cisco.catalystcenter.sda_fabric_devices_info:
+        <<: *catalyst_center_login
+        networkDeviceId: "{{ item.catalystcenter_response.response.id | default(item.dnac_response.response.id | default('')) }}"
+        limit: 10
+      loop: "{{ refresh_device_lookups.results }}"
+      register: refresh_fabric_lookups
+      changed_when: false
+      failed_when: false
+      when: (item.catalystcenter_response.response.id | default(item.dnac_response.response.id | default(''))) | length > 0
+
+    - name: Print candidate fabric membership summaries
+      ansible.builtin.debug:
+        msg:
+          queriedIp: "{{ item.item.item | default('') }}"
+          failed: "{{ item.failed | default(false) }}"
+          msg: "{{ item.msg | default('') }}"
+          response: "{{ item.catalystcenter_response.response | default(item.dnac_response.response | default([])) }}"
+      loop: "{{ refresh_fabric_lookups.results | default([]) }}"
+      when: not (item.skipped | default(false))
+
+    - name: Query candidate refresh devices by serial number
+      cisco.catalystcenter.network_device_by_serial_number_info:
+        <<: *catalyst_center_login
+        serialNumber: "{{ item }}"
+      loop: "{{ switch_refresh_candidate_serials }}"
+      register: refresh_serial_lookups
+      changed_when: false
+      failed_when: false
+
+    - name: Print candidate refresh device serial summaries
+      ansible.builtin.debug:
+        msg:
+          queriedSerial: "{{ item.item }}"
+          failed: "{{ item.failed | default(false) }}"
+          msg: "{{ item.msg | default('') }}"
+          id: "{{ item.catalystcenter_response.response.id | default(item.dnac_response.response.id | default('')) }}"
+          hostname: "{{ item.catalystcenter_response.response.hostname | default(item.dnac_response.response.hostname | default('')) }}"
+          managementIpAddress: "{{ item.catalystcenter_response.response.managementIpAddress | default(item.dnac_response.response.managementIpAddress | default('')) }}"
+          reachabilityStatus: "{{ item.catalystcenter_response.response.reachabilityStatus | default(item.dnac_response.response.reachabilityStatus | default('')) }}"
+          collectionStatus: "{{ item.catalystcenter_response.response.collectionStatus | default(item.dnac_response.response.collectionStatus | default('')) }}"
+          locationName: "{{ item.catalystcenter_response.response.locationName | default(item.dnac_response.response.locationName | default('')) }}"
+      loop: "{{ refresh_serial_lookups.results }}"
+
+    - name: Query candidate refresh devices with inventory serial filter
+      cisco.catalystcenter.network_device_info:
+        <<: *catalyst_center_login
+        serialNumber:
+          - "{{ item }}"
+      loop: "{{ switch_refresh_candidate_serials }}"
+      register: refresh_inventory_serial_lookups
+      changed_when: false
+      failed_when: false
+
+    - name: Print candidate inventory serial filter summaries
+      ansible.builtin.debug:
+        msg:
+          queriedSerial: "{{ item.item }}"
+          failed: "{{ item.failed | default(false) }}"
+          msg: "{{ item.msg | default('') }}"
+          response: "{{ item.catalystcenter_response.response | default(item.dnac_response.response | default([])) }}"
+      loop: "{{ refresh_inventory_serial_lookups.results }}"
+
+    - name: Query recent LAN Automation status records
+      cisco.catalystcenter.lan_automation_status_info:
+        <<: *catalyst_center_login
+        offset: 1
+        limit: 10
+      register: lan_status_lookup
+      changed_when: false
+      failed_when: false
+
+    - name: Print recent LAN Automation status records
+      ansible.builtin.debug:
+        msg:
+          failed: "{{ lan_status_lookup.failed | default(false) }}"
+          msg: "{{ lan_status_lookup.msg | default('') }}"
+          response: "{{ lan_status_lookup.catalystcenter_response.response | default(lan_status_lookup.dnac_response.response | default([])) }}"
+
+    - name: Query completed LAN Automation session status by ID
+      cisco.catalystcenter.lan_automation_status_info:
+        <<: *catalyst_center_login
+        id: "{{ switch_refresh_lan_session_id }}"
+      register: lan_status_by_id_lookup
+      changed_when: false
+      failed_when: false
+
+    - name: Print completed LAN Automation session status by ID
+      ansible.builtin.debug:
+        msg:
+          failed: "{{ lan_status_by_id_lookup.failed | default(false) }}"
+          msg: "{{ lan_status_by_id_lookup.msg | default('') }}"
+          response: "{{ lan_status_by_id_lookup.catalystcenter_response.response | default(lan_status_by_id_lookup.dnac_response.response | default([])) }}"
+
+    - name: Query completed LAN Automation session log by ID
+      cisco.catalystcenter.lan_automation_log_info:
+        <<: *catalyst_center_login
+        id: "{{ switch_refresh_lan_session_id }}"
+      register: lan_log_by_id_lookup
+      changed_when: false
+      failed_when: false
+
+    - name: Print completed LAN Automation session log by ID
+      ansible.builtin.debug:
+        msg:
+          failed: "{{ lan_log_by_id_lookup.failed | default(false) }}"
+          msg: "{{ lan_log_by_id_lookup.msg | default('') }}"
+          response: "{{ lan_log_by_id_lookup.catalystcenter_response.response | default(lan_log_by_id_lookup.dnac_response.response | default([])) }}"

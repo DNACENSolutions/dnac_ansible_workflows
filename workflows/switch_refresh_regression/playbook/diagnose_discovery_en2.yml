@@ -1,0 +1,215 @@
+---
+- name: Diagnose Discovery EN2 readiness
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: false
+
+  vars:
+    switch_refresh_discovery_name: "Switch Refresh EN2 Discovery"
+    switch_refresh_candidate_ips:
+      - "204.1.1.14"
+      - "204.1.2.5"
+      - "204.1.2.6"
+      - "204.1.3.248"
+      - "204.1.3.249"
+      - "204.1.3.251"
+      - "204.1.3.252"
+    switch_refresh_discovery_record_ids:
+      - "1692"
+      - "1709"
+      - "1706"
+    switch_refresh_candidate_hostnames:
+      - "IAC-TB4-SJ-EN1-9300.cisco.com"
+      - "IAC-TB4-SJ-EN2-9300.cisco.com"
+      - "IAC-TB4-SJ-ENL2-9350.cisco.com"
+    catalyst_center_login: &catalyst_center_login
+      catalystcenter_host: "{{ catalyst_center_host | default(catalystcenter_host) }}"
+      catalystcenter_username: "{{ catalyst_center_username | default(catalystcenter_username) }}"
+      catalystcenter_password: "{{ catalyst_center_password | default(catalystcenter_password) }}"
+      catalystcenter_version: "{{ catalyst_center_version | default(catalystcenter_version) }}"
+      catalystcenter_port: "{{ catalyst_center_port | default(443) }}"
+      catalystcenter_verify: "{{ catalyst_center_verify | default(catalystcenter_verify) }}"
+      catalystcenter_debug: "{{ catalyst_center_debug | default(false) }}"
+
+  tasks:
+    - name: Query Discovery refresh devices by management IP
+      cisco.catalystcenter.network_device_by_ip_info:
+        <<: *catalyst_center_login
+        ipAddress: "{{ item }}"
+      loop: "{{ switch_refresh_candidate_ips }}"
+      register: discovery_device_lookups
+      changed_when: false
+      failed_when: false
+
+    - name: Print Discovery refresh device inventory summaries
+      ansible.builtin.debug:
+        msg:
+          queriedIp: "{{ item.item }}"
+          failed: "{{ item.failed | default(false) }}"
+          msg: "{{ item.msg | default('') }}"
+          id: "{{ item.catalystcenter_response.response.id | default(item.dnac_response.response.id | default('')) }}"
+          hostname: "{{ item.catalystcenter_response.response.hostname | default(item.dnac_response.response.hostname | default('')) }}"
+          managementIpAddress: "{{ item.catalystcenter_response.response.managementIpAddress | default(item.dnac_response.response.managementIpAddress | default('')) }}"
+          role: "{{ item.catalystcenter_response.response.role | default(item.dnac_response.response.role | default('')) }}"
+          reachabilityStatus: "{{ item.catalystcenter_response.response.reachabilityStatus | default(item.dnac_response.response.reachabilityStatus | default('')) }}"
+          collectionStatus: "{{ item.catalystcenter_response.response.collectionStatus | default(item.dnac_response.response.collectionStatus | default('')) }}"
+          locationName: "{{ item.catalystcenter_response.response.locationName | default(item.dnac_response.response.locationName | default('')) }}"
+      loop: "{{ discovery_device_lookups.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Query Discovery refresh devices by hostname
+      cisco.catalystcenter.network_device_info:
+        <<: *catalyst_center_login
+        hostname:
+          - "{{ item }}"
+      loop: "{{ switch_refresh_candidate_hostnames }}"
+      register: discovery_hostname_lookups
+      changed_when: false
+      failed_when: false
+
+    - name: Print Discovery refresh hostname inventory summaries
+      ansible.builtin.debug:
+        msg:
+          queriedHostname: "{{ item.item }}"
+          failed: "{{ item.failed | default(false) }}"
+          msg: "{{ item.msg | default('') }}"
+          matchCount: "{{ item.catalystcenter_response.response | default(item.dnac_response.response | default([])) | length }}"
+          firstMatch:
+            hostname: "{{ (item.catalystcenter_response.response | default(item.dnac_response.response | default([])) | first | default({})).hostname | default('') }}"
+            managementIpAddress: "{{ (item.catalystcenter_response.response | default(item.dnac_response.response | default([])) | first | default({})).managementIpAddress | default('') }}"
+            id: "{{ (item.catalystcenter_response.response | default(item.dnac_response.response | default([])) | first | default({})).id | default('') }}"
+            serialNumber: "{{ (item.catalystcenter_response.response | default(item.dnac_response.response | default([])) | first | default({})).serialNumber | default('') }}"
+            role: "{{ (item.catalystcenter_response.response | default(item.dnac_response.response | default([])) | first | default({})).role | default('') }}"
+            reachabilityStatus: "{{ (item.catalystcenter_response.response | default(item.dnac_response.response | default([])) | first | default({})).reachabilityStatus | default('') }}"
+            collectionStatus: "{{ (item.catalystcenter_response.response | default(item.dnac_response.response | default([])) | first | default({})).collectionStatus | default('') }}"
+            locationName: "{{ (item.catalystcenter_response.response | default(item.dnac_response.response | default([])) | first | default({})).locationName | default('') }}"
+      loop: "{{ discovery_hostname_lookups.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Query Discovery jobs by management IP
+      cisco.catalystcenter.discovery_job_info:
+        <<: *catalyst_center_login
+        ipAddress: "{{ item }}"
+        limit: 10
+      loop: "{{ switch_refresh_candidate_ips }}"
+      register: discovery_job_lookups
+      changed_when: false
+      failed_when: false
+
+    - name: Print Discovery job summaries
+      ansible.builtin.debug:
+        msg:
+          queriedIp: "{{ item.item }}"
+          failed: "{{ item.failed | default(false) }}"
+          msg: "{{ item.msg | default('') }}"
+          response: "{{ item.catalystcenter_response.response | default(item.dnac_response.response | default([])) }}"
+      loop: "{{ discovery_job_lookups.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Query recent Discovery records
+      cisco.catalystcenter.discovery_range_info:
+        <<: *catalyst_center_login
+        startIndex: 1
+        recordsToReturn: 20
+      register: discovery_range_lookup
+      changed_when: false
+      failed_when: false
+
+    - name: Keep matching Discovery records by name
+      ansible.builtin.set_fact:
+        switch_refresh_matching_discoveries: >-
+          {{
+            discovery_range_lookup.catalystcenter_response.response |
+            default(discovery_range_lookup.dnac_response.response | default([])) |
+            selectattr('name', 'match', '^' ~ switch_refresh_discovery_name) |
+            list
+          }}
+
+    - name: Print matching Discovery record summaries by name
+      ansible.builtin.debug:
+        msg:
+          discoveryName: "{{ item.name | default('') }}"
+          id: "{{ item.id | default('') }}"
+          discoveryCondition: "{{ item.discoveryCondition | default('') }}"
+          discoveryStatus: "{{ item.discoveryStatus | default('') }}"
+          discoveryType: "{{ item.discoveryType | default('') }}"
+          ipAddressList: "{{ item.ipAddressList | default('') }}"
+          numDevices: "{{ item.numDevices | default('') }}"
+          deviceIds: "{{ item.deviceIds | default('') }}"
+      loop: "{{ switch_refresh_matching_discoveries }}"
+      loop_control:
+        label: "{{ item.name | default(item.id | default('discovery')) }}"
+
+    - name: Query discovered devices from matching Discovery records
+      cisco.catalystcenter.discovery_device_info:
+        <<: *catalyst_center_login
+        id: "{{ item.id }}"
+      loop: "{{ switch_refresh_matching_discoveries }}"
+      register: matching_discovery_device_lookups
+      changed_when: false
+      failed_when: false
+      when: (item.id | default('')) | length > 0
+      loop_control:
+        label: "{{ item.name | default(item.id | default('discovery')) }}"
+
+    - name: Print discovered devices from matching Discovery records
+      ansible.builtin.debug:
+        msg:
+          discoveryName: "{{ item.item.name | default('') }}"
+          discoveryId: "{{ item.item.id | default('') }}"
+          failed: "{{ item.failed | default(false) }}"
+          msg: "{{ item.msg | default('') }}"
+          response: "{{ item.catalystcenter_response.response | default(item.dnac_response.response | default([])) }}"
+      loop: "{{ matching_discovery_device_lookups.results | default([]) }}"
+      when: not (item.skipped | default(false))
+      loop_control:
+        label: "{{ item.item.name | default(item.item.id | default('discovery')) }}"
+
+    - name: Query discovered devices from known historical Discovery records
+      cisco.catalystcenter.discovery_device_info:
+        <<: *catalyst_center_login
+        id: "{{ item }}"
+      loop: "{{ switch_refresh_discovery_record_ids }}"
+      register: historical_discovery_device_lookups
+      changed_when: false
+      failed_when: false
+
+    - name: Print discovered devices from known historical Discovery records
+      ansible.builtin.debug:
+        msg:
+          discoveryId: "{{ item.item }}"
+          failed: "{{ item.failed | default(false) }}"
+          msg: "{{ item.msg | default('') }}"
+          response: "{{ item.catalystcenter_response.response | default(item.dnac_response.response | default([])) }}"
+      loop: "{{ historical_discovery_device_lookups.results | default([]) }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Query Discovery refresh fabric membership by network device ID
+      cisco.catalystcenter.sda_fabric_devices_info:
+        <<: *catalyst_center_login
+        networkDeviceId: "{{ item.catalystcenter_response.response.id | default(item.dnac_response.response.id | default('')) }}"
+        limit: 10
+      loop: "{{ discovery_device_lookups.results }}"
+      register: discovery_fabric_lookups
+      changed_when: false
+      failed_when: false
+      when:
+        - (item.catalystcenter_response.response.id | default(item.dnac_response.response.id | default(''))) | length > 0
+        - (item.catalystcenter_response.response.locationName | default(item.dnac_response.response.locationName | default(''))) is not none
+        - (item.catalystcenter_response.response.locationName | default(item.dnac_response.response.locationName | default(''))) | length > 0
+
+    - name: Print Discovery refresh fabric membership summaries
+      ansible.builtin.debug:
+        msg:
+          queriedIp: "{{ item.item.item | default('') }}"
+          failed: "{{ item.failed | default(false) }}"
+          msg: "{{ item.msg | default('') }}"
+          response: "{{ item.catalystcenter_response.response | default(item.dnac_response.response | default([])) }}"
+      loop: "{{ discovery_fabric_lookups.results | default([]) }}"
+      when: not (item.skipped | default(false))
+      loop_control:
+        label: "{{ item.item.item | default('fabric-membership') }}"

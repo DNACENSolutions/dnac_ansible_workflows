@@ -1,0 +1,4 @@
+---
+- import_playbook: ../../sda_hostonboarding/playbook/sda_host_onboarding_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/seed_port_assignment_lan_automation_enl2.yml"

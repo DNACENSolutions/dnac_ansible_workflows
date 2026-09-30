@@ -1,0 +1,7 @@
+---
+catalyst_center_version: 2.3.7.9
+
+sda_device_removal_and_unprovision:
+  - device_name: "IAC-TB4-SJ-ENL1-9350"
+    fabric_site_name_hierarchy: "Global/USA/San Jose/BLDG23"
+    device_collection_status_check: false

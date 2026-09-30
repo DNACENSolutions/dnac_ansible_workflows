@@ -1,0 +1,46 @@
+---
+- name: Set LAN Automation ENL1 inventory role to ACCESS
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: false
+
+  vars:
+    switch_refresh_enl1_ip: "204.1.3.248"
+    catalyst_center_login: &catalyst_center_login
+      catalystcenter_host: "{{ catalyst_center_host | default(catalystcenter_host) }}"
+      catalystcenter_username: "{{ catalyst_center_username | default(catalystcenter_username) }}"
+      catalystcenter_password: "{{ catalyst_center_password | default(catalystcenter_password) }}"
+      catalystcenter_version: "{{ catalyst_center_version | default(catalystcenter_version) }}"
+      catalystcenter_port: "{{ catalyst_center_port | default(443) }}"
+      catalystcenter_verify: "{{ catalyst_center_verify | default(catalystcenter_verify) }}"
+      catalystcenter_debug: "{{ catalyst_center_debug | default(false) }}"
+
+  tasks:
+    - name: Query ENL1 by management IP
+      cisco.catalystcenter.network_device_by_ip_info:
+        <<: *catalyst_center_login
+        ipAddress: "{{ switch_refresh_enl1_ip }}"
+      register: enl1_lookup
+      changed_when: false
+
+    - name: Set ENL1 inventory role to ACCESS
+      cisco.catalystcenter.network_device_update_role:
+        <<: *catalyst_center_login
+        id: "{{ enl1_lookup.catalystcenter_response.response.id | default(enl1_lookup.dnac_response.response.id) }}"
+        role: ACCESS
+        roleSource: MANUAL
+      register: role_update_result
+
+    - name: Force ENL1 resync after role update
+      cisco.catalystcenter.network_device_sync:
+        <<: *catalyst_center_login
+        forceSync: true
+        payload:
+          - "{{ enl1_lookup.catalystcenter_response.response.id | default(enl1_lookup.dnac_response.response.id) }}"
+      register: resync_result
+
+    - name: Print role update and resync results
+      ansible.builtin.debug:
+        msg:
+          role_update: "{{ role_update_result.catalystcenter_response | default(role_update_result.dnac_response | default(role_update_result)) }}"
+          resync: "{{ resync_result.catalystcenter_response | default(resync_result.dnac_response | default(resync_result)) }}"

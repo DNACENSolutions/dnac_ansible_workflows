@@ -1,0 +1,4 @@
+---
+- import_playbook: ../../network_devices_info/playbook/network_devices_info_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/validate_lan_automation_enl1_enl2.yml"

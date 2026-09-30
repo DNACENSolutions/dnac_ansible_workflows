@@ -1,0 +1,22 @@
+---
+- import_playbook: ../../lan_automation/playbook/lan_automation_workflow_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/lan_automation_enl1_enl2.yml"
+
+- import_playbook: ../../provision/playbook/provision_workflow_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/provision_lan_automation_enl2.yml"
+
+- import_playbook: ../../sda_fabric_device_roles/playbook/sda_fabric_device_roles_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/fabric_onboard_lan_automation_enl2.yml"
+
+- import_playbook: ../../sda_port_assignment_migration/playbook/sda_port_assignment_migration_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/port_assignment_migration_lan_automation_enl1_to_enl2.yml"
+
+- import_playbook: ../../sda_device_removal_and_unprovision/playbook/sda_device_removal_and_unprovision_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/cleanup_lan_automation_enl1.yml"
+
+- import_playbook: cut_validate_lan_automation.yml

@@ -1,0 +1,27 @@
+---
+catalyst_center_version: 2.3.7.9
+
+lan_automation_details:
+  lan_automation_session:
+    - lan_automation:
+        discovered_device_site_name_hierarchy: "Global/USA/San Jose/BLDG23"
+        primary_device_management_ip_address: "204.1.2.4"
+        primary_device_interface_names:
+          - "GigabitEthernet2/0/7"
+        ip_pools:
+          - ip_pool_name: "TB4_SJ_LAN_AUTO_LB"
+            ip_pool_role: "MAIN_POOL"
+          - ip_pool_name: "TB4_SJ_LAN_AUTO_P2P"
+            ip_pool_role: "PHYSICAL_LINK_POOL"
+        multicast_enabled: true
+        redistribute_isis_to_bgp: false
+        host_name_prefix: "IAC-TB4-SJ-ENL"
+        discovery_level: 1
+        discovery_timeout: 40
+        discovery_devices:
+          - device_serial_number: "FVH2947LA9K"
+            device_host_name: "IAC-TB4-SJ-ENL1-9350"
+            device_site_name_hierarchy: "Global/USA/San Jose/BLDG23"
+            device_management_ip_address: "204.1.3.248"
+        launch_and_wait: true
+        pnp_authorization: false

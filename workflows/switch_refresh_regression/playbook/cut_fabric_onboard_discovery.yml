@@ -1,0 +1,4 @@
+---
+- import_playbook: ../../sda_fabric_device_roles/playbook/sda_fabric_device_roles_playbook.yml
+  vars:
+    VARS_FILE_PATH: "{{ lookup('env', 'PWD') }}/workflows/switch_refresh_regression/vars/fabric_onboard_discovery_en2.yml"

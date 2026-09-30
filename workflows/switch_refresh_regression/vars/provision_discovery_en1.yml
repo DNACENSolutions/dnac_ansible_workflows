@@ -1,0 +1,6 @@
+---
+catalyst_center_version: 2.3.7.9
+
+provision_details:
+  - site_name_hierarchy: "Global/USA/San Jose/BLDG23"
+    management_ip_address: "204.1.2.5"

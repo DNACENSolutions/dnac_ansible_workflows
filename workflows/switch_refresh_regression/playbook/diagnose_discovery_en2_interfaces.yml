@@ -1,0 +1,51 @@
+---
+- name: List Discovery EN2 interfaces from Catalyst Center
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: false
+
+  vars:
+    switch_refresh_en2_ip: "204.1.2.6"
+    catalyst_center_login: &catalyst_center_login
+      catalystcenter_host: "{{ catalyst_center_host | default(catalystcenter_host) }}"
+      catalystcenter_username: "{{ catalyst_center_username | default(catalystcenter_username) }}"
+      catalystcenter_password: "{{ catalyst_center_password | default(catalystcenter_password) }}"
+      catalystcenter_version: "{{ catalyst_center_version | default(catalystcenter_version) }}"
+      catalystcenter_port: "{{ catalyst_center_port | default(443) }}"
+      catalystcenter_verify: "{{ catalyst_center_verify | default(catalystcenter_verify) }}"
+      catalystcenter_debug: "{{ catalyst_center_debug | default(false) }}"
+
+  tasks:
+    - name: Query EN2 by management IP
+      cisco.catalystcenter.network_device_by_ip_info:
+        <<: *catalyst_center_login
+        ipAddress: "{{ switch_refresh_en2_ip }}"
+      register: en2_lookup
+      changed_when: false
+
+    - name: Query EN2 interfaces
+      cisco.catalystcenter.interface_network_device_info:
+        <<: *catalyst_center_login
+        deviceId: "{{ en2_lookup.catalystcenter_response.response.id | default(en2_lookup.dnac_response.response.id) }}"
+      register: en2_interfaces
+      changed_when: false
+
+    - name: Build EN2 interface candidates
+      ansible.builtin.set_fact:
+        en2_interface_candidates: >-
+          {{
+            (en2_interface_candidates | default([])) + [
+              {
+                'portName': item.portName | default(''),
+                'name': item.name | default(''),
+                'interfaceType': item.interfaceType | default(''),
+                'portMode': item.portMode | default(''),
+                'status': item.status | default('')
+              }
+            ]
+          }}
+      loop: "{{ en2_interfaces.catalystcenter_response.response | default(en2_interfaces.dnac_response.response | default([])) }}"
+
+    - name: Print EN2 interface candidates
+      ansible.builtin.debug:
+        var: en2_interface_candidates

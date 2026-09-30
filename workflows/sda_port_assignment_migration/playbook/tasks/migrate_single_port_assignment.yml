@@ -171,6 +171,7 @@
         3. Ensure port assignments exist on the source device before migration
         4. Run: ansible-playbook ... -vvv for detailed API responses
   when:
+    - fail_on_no_port_assignments | default(true) | bool
     - not generated_source_config_file_stat_final.stat.exists
     - source_port_assignment_export.msg is defined
     - source_port_assignment_export.msg is mapping
@@ -548,8 +549,8 @@
       {{
         (
           []
-          + ([destination_port_assignment_apply.msg] if destination_port_assignment_apply.msg is mapping else [])
-          + ([destination_port_assignment_apply.response] if destination_port_assignment_apply.response is mapping else [])
+          + ([destination_port_assignment_apply.get('msg')] if destination_port_assignment_apply.get('msg') is mapping else [])
+          + ([destination_port_assignment_apply.get('response')] if destination_port_assignment_apply.get('response') is mapping else [])
         )
       }}
 

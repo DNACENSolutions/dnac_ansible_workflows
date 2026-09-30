@@ -1,0 +1,128 @@
+---
+- name: Diagnose LAN Automation ENL1 inventory state
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: false
+
+  vars:
+    switch_refresh_enl1_ip: "204.1.3.248"
+    switch_refresh_enl1_serial: "FVH2947LA9K"
+    switch_refresh_enl1_hostnames:
+      - "IAC-TB4-SJ-ENL1-9350"
+      - "IAC-TB4-SJ-ENL1-9350.cisco.com"
+    switch_refresh_lan_session_id: "01a0edbc-4ce6-7941-b731-27d7a780d976"
+    catalyst_center_login: &catalyst_center_login
+      catalystcenter_host: "{{ catalyst_center_host | default(catalystcenter_host) }}"
+      catalystcenter_username: "{{ catalyst_center_username | default(catalystcenter_username) }}"
+      catalystcenter_password: "{{ catalyst_center_password | default(catalystcenter_password) }}"
+      catalystcenter_version: "{{ catalyst_center_version | default(catalystcenter_version) }}"
+      catalystcenter_port: "{{ catalyst_center_port | default(443) }}"
+      catalystcenter_verify: "{{ catalyst_center_verify | default(catalystcenter_verify) }}"
+      catalystcenter_debug: "{{ catalyst_center_debug | default(false) }}"
+
+  tasks:
+    - name: Query ENL1 by management IP
+      cisco.catalystcenter.network_device_by_ip_info:
+        <<: *catalyst_center_login
+        ipAddress: "{{ switch_refresh_enl1_ip }}"
+      register: enl1_ip_lookup
+      changed_when: false
+      failed_when: false
+
+    - name: Print ENL1 IP lookup summary
+      ansible.builtin.debug:
+        msg:
+          queriedIp: "{{ switch_refresh_enl1_ip }}"
+          failed: "{{ enl1_ip_lookup.failed | default(false) }}"
+          status: "{{ enl1_ip_lookup.status | default('') }}"
+          msg: "{{ enl1_ip_lookup.msg | default('') }}"
+          response: "{{ enl1_ip_lookup.catalystcenter_response.response | default(enl1_ip_lookup.dnac_response.response | default({})) }}"
+
+    - name: Query ENL1 by serial number endpoint
+      cisco.catalystcenter.network_device_by_serial_number_info:
+        <<: *catalyst_center_login
+        serialNumber: "{{ switch_refresh_enl1_serial }}"
+      register: enl1_serial_lookup
+      changed_when: false
+      failed_when: false
+
+    - name: Print ENL1 serial lookup summary
+      ansible.builtin.debug:
+        msg:
+          queriedSerial: "{{ switch_refresh_enl1_serial }}"
+          failed: "{{ enl1_serial_lookup.failed | default(false) }}"
+          status: "{{ enl1_serial_lookup.status | default('') }}"
+          msg: "{{ enl1_serial_lookup.msg | default('') }}"
+          response: "{{ enl1_serial_lookup.catalystcenter_response.response | default(enl1_serial_lookup.dnac_response.response | default({})) }}"
+
+    - name: Query ENL1 with inventory serial filter
+      cisco.catalystcenter.network_device_info:
+        <<: *catalyst_center_login
+        serialNumber:
+          - "{{ switch_refresh_enl1_serial }}"
+      register: enl1_inventory_serial_lookup
+      changed_when: false
+      failed_when: false
+
+    - name: Print ENL1 inventory serial filter summary
+      ansible.builtin.debug:
+        msg:
+          queriedSerial: "{{ switch_refresh_enl1_serial }}"
+          failed: "{{ enl1_inventory_serial_lookup.failed | default(false) }}"
+          status: "{{ enl1_inventory_serial_lookup.status | default('') }}"
+          msg: "{{ enl1_inventory_serial_lookup.msg | default('') }}"
+          response: "{{ enl1_inventory_serial_lookup.catalystcenter_response.response | default(enl1_inventory_serial_lookup.dnac_response.response | default([])) }}"
+
+    - name: Query ENL1 with inventory hostname filters
+      cisco.catalystcenter.network_device_info:
+        <<: *catalyst_center_login
+        hostname:
+          - "{{ item }}"
+      loop: "{{ switch_refresh_enl1_hostnames }}"
+      register: enl1_inventory_hostname_lookups
+      changed_when: false
+      failed_when: false
+
+    - name: Print ENL1 inventory hostname filter summaries
+      ansible.builtin.debug:
+        msg:
+          queriedHostname: "{{ item.item }}"
+          failed: "{{ item.failed | default(false) }}"
+          status: "{{ item.status | default('') }}"
+          msg: "{{ item.msg | default('') }}"
+          response: "{{ item.catalystcenter_response.response | default(item.dnac_response.response | default([])) }}"
+      loop: "{{ enl1_inventory_hostname_lookups.results }}"
+
+    - name: Query LAN Automation session status by ID
+      cisco.catalystcenter.lan_automation_status_info:
+        <<: *catalyst_center_login
+        id: "{{ switch_refresh_lan_session_id }}"
+      register: lan_status_by_id_lookup
+      changed_when: false
+      failed_when: false
+
+    - name: Print LAN Automation session status by ID
+      ansible.builtin.debug:
+        msg:
+          sessionId: "{{ switch_refresh_lan_session_id }}"
+          failed: "{{ lan_status_by_id_lookup.failed | default(false) }}"
+          status: "{{ lan_status_by_id_lookup.status | default('') }}"
+          msg: "{{ lan_status_by_id_lookup.msg | default('') }}"
+          response: "{{ lan_status_by_id_lookup.catalystcenter_response.response | default(lan_status_by_id_lookup.dnac_response.response | default({})) }}"
+
+    - name: Query LAN Automation session log by ID
+      cisco.catalystcenter.lan_automation_log_info:
+        <<: *catalyst_center_login
+        id: "{{ switch_refresh_lan_session_id }}"
+      register: lan_log_by_id_lookup
+      changed_when: false
+      failed_when: false
+
+    - name: Print LAN Automation session log by ID
+      ansible.builtin.debug:
+        msg:
+          sessionId: "{{ switch_refresh_lan_session_id }}"
+          failed: "{{ lan_log_by_id_lookup.failed | default(false) }}"
+          status: "{{ lan_log_by_id_lookup.status | default('') }}"
+          msg: "{{ lan_log_by_id_lookup.msg | default('') }}"
+          response: "{{ lan_log_by_id_lookup.catalystcenter_response.response | default(lan_log_by_id_lookup.dnac_response.response | default({})) }}"
