@@ -250,7 +250,7 @@
                     <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Playbook</label>
                     <select id="sel-playbook"
                       class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                      onchange="refreshRunSummary()">
+                      onchange="refreshRunSummary(); renderGuidedVarsForm()">
                       <option value="">Select playbook...</option>
                     </select>
                   </div>
@@ -325,6 +325,22 @@
                   <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current vars selection</p>
                     <p id="run-vars-selection" class="mt-2 text-sm font-medium text-slate-700">Using workflow vars by default.</p>
+                  </div>
+
+                  <div id="guided-vars-card" class="hidden rounded-3xl border border-cyan-200 bg-cyan-50 p-4">
+                    <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-800">Guided Vars Builder</p>
+                        <h3 class="mt-2 text-base font-bold text-slate-900">Switch refresh inputs</h3>
+                        <p id="guided-vars-description" class="mt-1 text-sm text-cyan-950"></p>
+                      </div>
+                      <button id="btn-generate-guided-vars" type="button" onclick="generateGuidedVars()"
+                        class="self-start rounded-2xl bg-cyan-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-cyan-800 lg:self-auto">
+                        Generate and validate YAML
+                      </button>
+                    </div>
+                    <div id="guided-vars-fields" class="mt-4 space-y-4"></div>
+                    <div id="guided-vars-status" class="hidden mt-4 rounded-2xl px-4 py-3 text-sm"></div>
                   </div>
 
                   <div class="flex flex-wrap gap-2">
@@ -999,6 +1015,7 @@
     let schemaValidationState = 'not_validated';
     let lastValidatedKey = '';
     let runEnvironmentReadyState = 'unknown';
+    let loadedSourceHostPortAssignments = [];
     const GIT_SOURCE_STORAGE_KEY = 'validated-playbook-git-source';
     let filePickerState = {
       targetInputId: '',
@@ -2084,6 +2101,355 @@
       if (workflowId === 'sel-workflow') {
         updateSourceHint('run', 'vars');
         refreshRunSummary();
+        renderGuidedVarsForm();
+      }
+    }
+
+    function guidedField(id, label, value, help, attrs) {
+      return ''
+        + '<div>'
+        +   '<label for="' + id + '" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">' + htmlEscape(label) + '</label>'
+        +   '<input id="' + id + '" value="' + htmlEscape(value || '') + '" ' + (attrs || 'type="text"') + ' class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">'
+        +   (help ? '<p class="mt-1.5 text-xs text-slate-500">' + htmlEscape(help) + '</p>' : '')
+        + '</div>';
+    }
+
+    function guidedSelect(id, label, values, selected) {
+      return ''
+        + '<div>'
+        +   '<label for="' + id + '" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">' + htmlEscape(label) + '</label>'
+        +   '<select id="' + id + '" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">'
+        + values.map(function(value) {
+          return '<option value="' + htmlEscape(value) + '"' + (value === selected ? ' selected' : '') + '>' + htmlEscape(value) + '</option>';
+        }).join('')
+        +   '</select>'
+        + '</div>';
+    }
+
+    function selectedGuidedWorkflow() {
+      return $('sel-workflow').value;
+    }
+
+    function selectedGuidedPlaybook() {
+      return $('sel-playbook').value.split('/').pop();
+    }
+
+    function supportsGuidedSwitchRefreshForm() {
+      const playbookName = selectedGuidedPlaybook();
+      return selectedGuidedWorkflow() === 'switch_refresh_sda_fabric_edge'
+        && ['switch_refresh_sda_fabric_edge_prepare.yml', 'switch_refresh_sda_fabric_edge_cleanup_old.yml'].indexOf(playbookName) !== -1;
+    }
+
+    function renderGuidedVarsForm() {
+      const card = $('guided-vars-card');
+      const fields = $('guided-vars-fields');
+      const description = $('guided-vars-description');
+      const status = $('guided-vars-status');
+      if (!card || !fields) return;
+      status.className = 'hidden mt-4 rounded-2xl px-4 py-3 text-sm';
+      status.textContent = '';
+      if (!supportsGuidedSwitchRefreshForm()) {
+        hide('guided-vars-card');
+        fields.innerHTML = '';
+        return;
+      }
+
+      show('guided-vars-card');
+      description.textContent = 'Generate switch-refresh vars from fields, including old-device and new-device port dropdown mappings.';
+      fields.innerHTML = ''
+        + '<div class="grid gap-4 md:grid-cols-2">'
+        +   guidedField('guided-source-ip', 'Old/source device IP', '204.1.2.6', '', 'type="text"')
+        +   guidedField('guided-replacement-ip', 'Replacement/new device IP', '204.1.2.5', '', 'type="text"')
+        + '</div>'
+        + guidedField('guided-site', 'Fabric site', 'Global/USA/San Jose/BLDG23', '', 'type="text"')
+        + '<div class="grid gap-4 md:grid-cols-2">'
+        +   guidedField('guided-batch-name', 'Batch name', 'ui-switch-refresh-sda-fabric-edge', '', 'type="text"')
+        +   guidedField('guided-work-dir', 'Work directory', '/tmp/switch_refresh_sda_fabric_edge_ui', 'Must be an absolute path.', 'type="text"')
+        + '</div>'
+        + '<div class="grid gap-4 md:grid-cols-2">'
+        +   guidedField('guided-discovery-retry', 'Discovery retry', '2', 'Allowed range: 1-10.', 'type="number" min="1" max="10" step="1"')
+        +   guidedSelect('guided-protocol-order', 'Protocol order', ['ssh', 'telnet'], 'ssh')
+        + '</div>'
+        + '<div>'
+        +   '<label for="guided-port-mappings" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Port mappings</label>'
+        +   '<div class="mb-3 rounded-2xl border border-cyan-200 bg-white p-3">'
+        +     '<div class="flex flex-wrap items-end gap-3">'
+        +       '<div class="min-w-[220px] flex-1">'
+        +         '<label for="guided-source-port" class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-800">Old Device port</label>'
+        +         '<select id="guided-source-port" class="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"><option value="">Load ports first</option></select>'
+        +       '</div>'
+        +       '<div class="min-w-[220px] flex-1">'
+        +         '<label for="guided-destination-port" class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-800">New Device port</label>'
+        +         '<select id="guided-destination-port" class="w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"><option value="">Load ports first</option></select>'
+        +       '</div>'
+        +       '<button type="button" class="rounded-xl bg-cyan-700 px-3 py-2 text-xs font-semibold text-white hover:bg-cyan-800" onclick="loadGuidedPortChoices()">Load ports</button>'
+        +       '<button type="button" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800" onclick="addGuidedPortMapping()">Add mapping</button>'
+        +     '</div>'
+        +     '<p id="guided-port-picker-status" class="mt-2 text-xs text-cyan-900">Select one old-device assignment and one new-device target port, then add the mapping.</p>'
+        +   '</div>'
+        +   '<textarea id="guided-port-mappings" rows="5" placeholder="Mappings added from the Old Device and New Device dropdowns appear here." class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"></textarea>'
+        +   '<p class="mt-1.5 text-xs text-slate-500">Use source=destination format for manual corrections.</p>'
+        + '</div>';
+    }
+
+    function guidedValue(id) {
+      const element = $(id);
+      return element ? element.value.trim() : '';
+    }
+
+    function isIpv4(value) {
+      const parts = value.split('.');
+      return parts.length === 4 && parts.every(function(part) {
+        return /^\d+$/.test(part) && Number(part) >= 0 && Number(part) <= 255;
+      });
+    }
+
+    function parseGuidedInteger(id, label, min, max, errors) {
+      const raw = guidedValue(id);
+      const value = Number(raw);
+      if (!/^\d+$/.test(raw) || value < min || value > max) {
+        errors.push(label + ' must be a whole number from ' + min + ' to ' + max + '.');
+      }
+      return value;
+    }
+
+    function parseGuidedPortMappings(errors) {
+      const mappings = [];
+      guidedValue('guided-port-mappings').split(/\n+/).map(function(line) { return line.trim(); }).filter(Boolean).forEach(function(line) {
+        const parts = line.split('=').map(function(part) { return part.trim(); });
+        if (parts.length !== 2 || !parts[0] || !parts[1]) {
+          errors.push('Port mapping must use source=destination format: ' + line + '.');
+          return;
+        }
+        if (/\s/.test(parts[0]) || /\s/.test(parts[1])) {
+          errors.push('Interface names must not contain spaces: ' + line + '.');
+          return;
+        }
+        mappings.push({ source: parts[0], destination: parts[1] });
+      });
+      return mappings;
+    }
+
+    function guidedInterfaceOptionText(item) {
+      const details = [item.operStatus, item.adminStatus, item.vlanId ? 'VLAN ' + item.vlanId : '', item.description].filter(Boolean);
+      return item.name + (details.length ? ' - ' + details.join(' / ') : '');
+    }
+
+    function guidedAssignmentOptionText(item) {
+      const details = [item.connectedDeviceType, item.dataVlanName, item.voiceVlanName, item.authenticationTemplateName, item.description].filter(Boolean);
+      return item.name + (details.length ? ' - ' + details.join(' / ') : '');
+    }
+
+    function setGuidedStatus(message, isError) {
+      const element = $('guided-vars-status');
+      if (!element) return;
+      show('guided-vars-status');
+      element.textContent = message;
+      element.className = 'mt-4 rounded-2xl px-4 py-3 text-sm ' + (isError ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700');
+    }
+
+    function setGuidedPortStatus(message, isError) {
+      const element = $('guided-port-picker-status');
+      if (!element) return;
+      element.textContent = message;
+      element.className = 'mt-2 text-xs ' + (isError ? 'text-rose-700' : 'text-cyan-900');
+    }
+
+    function fallbackNewDeviceInterfaces() {
+      const interfaces = [];
+      for (let index = 1; index <= 48; index += 1) {
+        interfaces.push({ name: 'GigabitEthernet1/0/' + index, fallback: true });
+      }
+      return interfaces;
+    }
+
+    function populateGuidedInterfaceSelect(payload) {
+      const select = $('guided-destination-port');
+      select.innerHTML = '';
+      const interfaces = payload.device && payload.interfaces.length ? payload.interfaces : fallbackNewDeviceInterfaces();
+      select.appendChild(new Option(payload.device ? 'Select a new-device port...' : 'Select expected new-device port...', ''));
+      interfaces.forEach(function(item) {
+        select.appendChild(new Option(guidedInterfaceOptionText(item), item.name));
+      });
+      return interfaces.length;
+    }
+
+    function populateGuidedAssignmentSelect(payload) {
+      const select = $('guided-source-port');
+      select.innerHTML = '';
+      loadedSourceHostPortAssignments = payload.assignments || [];
+      if (!payload.device) {
+        select.appendChild(new Option('Device not in inventory', ''));
+        return 0;
+      }
+      if (!loadedSourceHostPortAssignments.length) {
+        select.appendChild(new Option('No SDA host-port assignments found', ''));
+        return 0;
+      }
+      select.appendChild(new Option('Select an old-device assignment...', ''));
+      loadedSourceHostPortAssignments.forEach(function(item) {
+        select.appendChild(new Option(guidedAssignmentOptionText(item), item.name));
+      });
+      return loadedSourceHostPortAssignments.length;
+    }
+
+    async function postJson(path, payload) {
+      return fetchJson(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    }
+
+    async function loadGuidedPortChoices() {
+      const sourceIp = guidedValue('guided-source-ip');
+      const replacementIp = guidedValue('guided-replacement-ip');
+      if (!isIpv4(sourceIp) || !isIpv4(replacementIp)) {
+        setGuidedPortStatus('Enter valid old/source and replacement IPs before loading ports.', true);
+        return;
+      }
+      if (!validateCatalystConnection('run', true)) return;
+      loadedSourceHostPortAssignments = [];
+      setGuidedPortStatus('Loading old-device assignments and new-device interfaces from Catalyst Center...', false);
+      try {
+        const connection = catalystConnectionPayload();
+        const results = await Promise.all([
+          postJson('/api/host-port-assignments', { ip: sourceIp, catalyst_connection: connection }),
+          postJson('/api/device-interfaces', { ip: replacementIp, catalyst_connection: connection }),
+        ]);
+        const sourceCount = populateGuidedAssignmentSelect(results[0]);
+        const destinationCount = populateGuidedInterfaceSelect(results[1]);
+        const destinationNote = results[1].device ? destinationCount + ' new-device ports' : destinationCount + ' expected new-device ports';
+        setGuidedPortStatus('Loaded ' + sourceCount + ' old-device assignments and ' + destinationNote + '.', false);
+      } catch (error) {
+        setGuidedPortStatus(error.message, true);
+      }
+    }
+
+    function addGuidedPortMapping() {
+      const source = guidedValue('guided-source-port');
+      const destination = guidedValue('guided-destination-port');
+      if (!source || !destination) {
+        setGuidedPortStatus('Select both old-device and new-device ports before adding a mapping.', true);
+        return;
+      }
+      const textarea = $('guided-port-mappings');
+      const lines = textarea.value.split(/\n+/).map(function(line) { return line.trim(); }).filter(Boolean);
+      const mappingLine = source + '=' + destination;
+      if (lines.indexOf(mappingLine) === -1) lines.push(mappingLine);
+      textarea.value = lines.join('\n');
+      setGuidedPortStatus('Added ' + mappingLine + '.', false);
+    }
+
+    function yamlQuote(value) {
+      return '"' + String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+    }
+
+    function ansibleLookupExpression(envName) {
+      return '"' + '{' + '{' + " lookup('ansible.builtin.env', '" + envName + "') " + '}' + '}' + '"';
+    }
+
+    function buildGuidedSwitchRefreshYaml(errors) {
+      const sourceIp = guidedValue('guided-source-ip');
+      const replacementIp = guidedValue('guided-replacement-ip');
+      const site = guidedValue('guided-site');
+      const batchName = guidedValue('guided-batch-name');
+      const workDir = guidedValue('guided-work-dir');
+      const retry = parseGuidedInteger('guided-discovery-retry', 'Discovery retry', 1, 10, errors);
+      const protocolOrder = guidedValue('guided-protocol-order') || 'ssh';
+      const portMappings = parseGuidedPortMappings(errors);
+
+      if (!isIpv4(sourceIp)) errors.push('Old/source device IP must be a valid IPv4 address.');
+      if (!isIpv4(replacementIp)) errors.push('Replacement/new device IP must be a valid IPv4 address.');
+      if (!site) errors.push('Fabric site is required.');
+      if (!batchName) errors.push('Batch name is required.');
+      if (!workDir || !workDir.startsWith('/')) errors.push('Work directory must be an absolute path.');
+      if (!portMappings.length) errors.push('Add at least one old-device to new-device port mapping.');
+      if (errors.length) return '';
+
+      const portAssignmentYaml = portMappings.map(function(mapping) {
+        return ''
+          + '                - source: ' + mapping.source + '\n'
+          + '                  destination: ' + mapping.destination;
+      }).join('\n');
+
+      return ''
+        + '---\n'
+        + 'switch_refresh_sda_fabric_edge_work_dir: ' + workDir + '\n'
+        + 'switch_refresh_sda_fabric_edge_onboarding_method: discovery\n'
+        + 'switch_refresh_sda_fabric_edge_hostname_transfer_enabled: false\n'
+        + 'switch_refresh_sda_fabric_edge_hostname_transfer_resume_from_manifest: false\n'
+        + 'switch_refresh_sda_fabric_edge_inventory_credentials:\n'
+        + '  username: ' + ansibleLookupExpression('SWITCH_CLI_USERNAME') + '\n'
+        + '  password: ' + ansibleLookupExpression('SWITCH_CLI_PASSWORD') + '\n'
+        + '  enable_password: ' + ansibleLookupExpression('SWITCH_ENABLE_PASSWORD') + '\n'
+        + '  cli_transport: ssh\n'
+        + '  type: NETWORK_DEVICE\n'
+        + 'switch_refresh_sda_fabric_edge_device_info_lookup_enabled: true\n'
+        + 'switch_refresh_sda_fabric_edge_fabric_validation_enabled: false\n'
+        + 'switch_refresh_sda_fabric_edge_swim_enabled: false\n'
+        + 'switch_refresh_sda_fabric_edge_inventory_config_verify: false\n'
+        + 'switch_refresh_sda_fabric_edge_provision_config_verify: false\n'
+        + 'switch_refresh_sda_fabric_edge_sda_fabric_devices_config_verify: false\n'
+        + 'switch_refresh_sda_fabric_edge_sda_host_port_onboarding_config_verify: false\n'
+        + 'switch_refresh_sda_fabric_edge_batches:\n'
+        + '  - name: ' + batchName + '\n'
+        + '    fabric_site_name_hierarchy: ' + site + '\n'
+        + '    onboarding_method: discovery\n'
+        + '    new_devices:\n'
+        + '      device_ips:\n'
+        + '        - ' + yamlQuote(replacementIp) + '\n'
+        + '      discovery_config:\n'
+        + '        - discovery_name: ' + batchName + '-discovery\n'
+        + '          discovery_type: "MULTI RANGE"\n'
+        + '          ip_address_list:\n'
+        + '            - ' + yamlQuote(replacementIp) + '\n'
+        + '          protocol_order: ' + protocolOrder + '\n'
+        + '          retry: ' + retry + '\n'
+        + '          use_global_credentials: true\n'
+        + '    device_mapping:\n'
+        + '      - old:\n'
+        + '          management_ip: ' + yamlQuote(sourceIp) + '\n'
+        + '        new:\n'
+        + '          management_ip: ' + yamlQuote(replacementIp) + '\n'
+        + '        interface_migration:\n'
+        + '          only_mapped: true\n'
+        + '          port_assignments:\n'
+        + portAssignmentYaml + '\n'
+        + '          port_channels: []\n';
+    }
+
+    async function generateGuidedVars() {
+      if (!supportsGuidedSwitchRefreshForm()) {
+        setGuidedStatus('Select the switch_refresh_sda_fabric_edge workflow first.', true);
+        return;
+      }
+      const varsPath = getSelectedVarsPath('run');
+      if (!varsPath) {
+        setGuidedStatus('Select a vars file before generating YAML.', true);
+        return;
+      }
+      const errors = [];
+      const yaml = buildGuidedSwitchRefreshYaml(errors);
+      if (errors.length) {
+        setGuidedStatus(errors.join('\n'), true);
+        return;
+      }
+      try {
+        await fetchJson('/api/file', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: varsPath, content: yaml, source: varsSourcePayload() }),
+        });
+        if (!$('editor-section').classList.contains('hidden') && $('editor-path').textContent === varsPath) {
+          editor.setValue(yaml);
+          fileDirty = false;
+          hide('btn-save');
+        }
+        setGuidedStatus('Generated YAML saved to ' + varsPath + '. Running schema validation...', false);
+        await validateSchema();
+      } catch (error) {
+        setGuidedStatus(error.message, true);
       }
     }
 
