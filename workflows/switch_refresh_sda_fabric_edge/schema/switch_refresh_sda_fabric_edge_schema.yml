@@ -1,0 +1,100 @@
+---
+switch_refresh_sda_fabric_edge_work_dir: str(required=False)
+switch_refresh_sda_fabric_edge_onboarding_method: enum('discovery', 'lan_automation', required=False)
+
+switch_refresh_sda_fabric_edge_hostname_transfer_enabled: bool(required=False)
+switch_refresh_sda_fabric_edge_hostname_transfer_resume_from_manifest: bool(required=False)
+switch_refresh_sda_fabric_edge_hostname_transfer_manifest_dir: str(required=False)
+switch_refresh_sda_fabric_edge_hostname_transfer_timeout: int(required=False)
+switch_refresh_sda_fabric_edge_hostname_transfer_poll_interval: int(required=False)
+switch_refresh_sda_fabric_edge_hostname_validation_retries: int(required=False)
+switch_refresh_sda_fabric_edge_hostname_validation_interval: int(required=False)
+
+switch_refresh_sda_fabric_edge_inventory_credentials: include('inventory_credentials_type', required=False)
+switch_refresh_sda_fabric_edge_device_info_lookup_enabled: bool(required=False)
+switch_refresh_sda_fabric_edge_fabric_validation_enabled: bool(required=False)
+switch_refresh_sda_fabric_edge_swim_enabled: bool(required=False)
+switch_refresh_sda_fabric_edge_swim_config_verify: bool(required=False)
+switch_refresh_sda_fabric_edge_lan_automation_completion_timeout: int(required=False)
+switch_refresh_sda_fabric_edge_lan_automation_completion_poll_interval: int(required=False)
+switch_refresh_sda_fabric_edge_inventory_config_verify: bool(required=False)
+switch_refresh_sda_fabric_edge_provision_config_verify: bool(required=False)
+switch_refresh_sda_fabric_edge_sda_fabric_devices_config_verify: bool(required=False)
+switch_refresh_sda_fabric_edge_sda_host_port_onboarding_config_verify: bool(required=False)
+
+switch_refresh_sda_fabric_edge_batches: list(include('batch_type'), min=1, required=True)
+
+---
+inventory_credentials_type:
+  username: str(required=True)
+  password: str(required=True)
+  enable_password: str(required=False)
+  cli_transport: enum('ssh', 'telnet', required=False)
+  type: str(required=False)
+
+batch_type:
+  name: str(required=True)
+  fabric_site_name_hierarchy: str(required=True)
+  onboarding_method: enum('discovery', 'lan_automation', required=False)
+  old_devices: list(include('old_device_type'), required=False)
+  new_devices: include('new_devices_type', required=True)
+  device_mapping: list(include('device_mapping_type'), min=1, required=True)
+
+old_device_type:
+  hostname: str(required=False)
+  management_ip: str(required=False)
+  serial_number: str(required=False)
+  mac_address: str(required=False)
+
+new_devices_type:
+  device_ips: list(str(), min=1, required=True)
+  golden_image: include('golden_image_type', required=False)
+  discovery_config: list(any(), required=False)
+  lan_automation_config: list(include('lan_automation_config_type'), required=False)
+
+golden_image_type:
+  image_name: str(required=True)
+  device_image_family_name: str(required=True)
+
+lan_automation_config_type:
+  lan_automation: include('lan_automation_type', required=True)
+
+lan_automation_type:
+  discovered_device_site_name_hierarchy: str(required=True)
+  primary_device_management_ip_address: str(required=True)
+  primary_device_interface_names: list(str(), min=1, required=True)
+  ip_pools: list(include('ip_pool_type'), min=1, required=True)
+  multicast_enabled: bool(required=False)
+  redistribute_isis_to_bgp: bool(required=False)
+  discovery_level: int(required=False)
+  discovery_timeout: int(required=False)
+  discovery_devices: list(include('discovery_device_type'), required=False)
+  launch_and_wait: bool(required=False)
+  pnp_authorization: bool(required=False)
+
+ip_pool_type:
+  ip_pool_name: str(required=True)
+  ip_pool_role: str(required=True)
+
+discovery_device_type:
+  device_serial_number: str(required=True)
+  device_host_name: str(required=False)
+  device_site_name_hierarchy: str(required=False)
+  device_management_ip_address: str(required=True)
+
+device_mapping_type:
+  old: include('old_device_type', required=True)
+  new: include('new_device_type', required=True)
+  interface_migration: include('interface_migration_type', required=False)
+
+new_device_type:
+  management_ip: str(required=True)
+
+interface_migration_type:
+  only_mapped: bool(required=False)
+  port_assignments: list(include('interface_mapping_type'), required=False)
+  port_channels: list(include('interface_mapping_type'), required=False)
+
+interface_mapping_type:
+  source: str(required=True)
+  destination: str(required=True)
