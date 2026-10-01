@@ -8,9 +8,13 @@ import re
 import shlex
 import shutil
 import signal
+import ssl
 import subprocess
 import threading
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
 import uuid
 from pathlib import Path
 from urllib.parse import urlparse
@@ -554,6 +558,63 @@ def _json_error(message: str, status: int = 400):
     return jsonify(error=message), status
 
 
+def _catc_token(catalyst_connection: dict | None = None) -> str:
+    """Return a Catalyst Center auth token without logging credentials."""
+    connection = catalyst_connection or {}
+    host = str(connection.get("host") or os.environ.get("HOSTIP", "")).strip()
+    username = str(connection.get("username") or os.environ.get("CATALYST_CENTER_USERNAME", "")).strip()
+    password = str(connection.get("password") or os.environ.get("CATALYST_CENTER_PASSWORD", ""))
+    if not host or not username or not password:
+        raise RuntimeError("Catalyst Center credentials are not configured in the runner")
+
+    request = urllib.request.Request(f"https://{host}/dna/system/api/v1/auth/token", method="POST")
+    credentials = f"{username}:{password}".encode("utf-8")
+    import base64
+
+    request.add_header("Authorization", "Basic " + base64.b64encode(credentials).decode("ascii"))
+    request.add_header("Content-Type", "application/json")
+    with urllib.request.urlopen(request, context=ssl._create_unverified_context(), timeout=30) as response:
+        data = json.loads(response.read().decode("utf-8"))
+    token = data.get("Token") or data.get("token")
+    if not token:
+        raise RuntimeError("Catalyst Center did not return an auth token")
+    return token
+
+
+def _catc_get(path: str, params: dict[str, str] | None = None, catalyst_connection: dict | None = None) -> dict:
+    connection = catalyst_connection or {}
+    host = str(connection.get("host") or os.environ.get("HOSTIP", "")).strip()
+    if not host:
+        raise RuntimeError("HOSTIP is not configured in the runner")
+    query = "?" + urllib.parse.urlencode(params) if params else ""
+    request = urllib.request.Request(f"https://{host}{path}{query}")
+    request.add_header("X-Auth-Token", _catc_token(connection))
+    request.add_header("Content-Type", "application/json")
+    with urllib.request.urlopen(request, context=ssl._create_unverified_context(), timeout=30) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def _interface_name(record: dict) -> str:
+    for key in ("portName", "interfaceName", "name", "ifName"):
+        value = record.get(key)
+        if value:
+            return str(value)
+    return ""
+
+
+def _device_by_management_ip(ip_address: str, catalyst_connection: dict | None = None) -> tuple[dict | None, str | None]:
+    device_payload = _catc_get(
+        "/dna/intent/api/v1/network-device",
+        {"managementIpAddress": ip_address},
+        catalyst_connection,
+    )
+    devices = device_payload.get("response") or []
+    if not devices:
+        return None, None
+    device = devices[0]
+    return device, device.get("id")
+
+
 def _venv_python(venv_path: Path) -> Path:
     return venv_path / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
 
@@ -656,6 +717,123 @@ def api_workflows():
 @app.route("/api/inventories")
 def api_inventories():
     return jsonify(_discover_inventories(PROJECT_ROOT))
+
+
+@app.route("/api/device-interfaces", methods=["GET", "POST"])
+def api_device_interfaces():
+    data = request.get_json(silent=True) or {}
+    ip_address = str(data.get("ip") or request.args.get("ip") or "").strip()
+    catalyst_connection = data.get("catalyst_connection") if isinstance(data.get("catalyst_connection"), dict) else None
+    if catalyst_connection and not catalyst_connection.get("enabled", True):
+        catalyst_connection = None
+    if not ip_address:
+        return _json_error("Device IP is required")
+
+    try:
+        device, device_id = _device_by_management_ip(ip_address, catalyst_connection)
+        if not device:
+            return jsonify(ip=ip_address, device=None, interfaces=[])
+        if not device_id:
+            return _json_error("Catalyst Center device record has no id", 502)
+
+        interface_payload = _catc_get(f"/dna/intent/api/v1/interface/network-device/{device_id}", catalyst_connection=catalyst_connection)
+        interfaces = []
+        seen_names = set()
+        for record in interface_payload.get("response") or []:
+            name = _interface_name(record)
+            if not name or name in seen_names:
+                continue
+            seen_names.add(name)
+            interfaces.append(
+                {
+                    "name": name,
+                    "adminStatus": record.get("adminStatus"),
+                    "operStatus": record.get("status") or record.get("operStatus"),
+                    "description": record.get("description"),
+                    "vlanId": record.get("vlanId"),
+                    "portMode": record.get("portMode"),
+                    "interfaceType": record.get("interfaceType") or record.get("type"),
+                }
+            )
+        interfaces.sort(key=lambda item: item["name"])
+        return jsonify(
+            ip=ip_address,
+            device={
+                "id": device_id,
+                "hostname": device.get("hostname"),
+                "managementIpAddress": device.get("managementIpAddress"),
+                "collectionStatus": device.get("collectionStatus"),
+                "reachabilityStatus": device.get("reachabilityStatus"),
+            },
+            interfaces=interfaces,
+        )
+    except urllib.error.HTTPError as exc:
+        return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
+    except urllib.error.URLError as exc:
+        return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
+    except Exception as exc:
+        return _json_error(str(exc), 500)
+
+
+@app.route("/api/host-port-assignments", methods=["GET", "POST"])
+def api_host_port_assignments():
+    data = request.get_json(silent=True) or {}
+    ip_address = str(data.get("ip") or request.args.get("ip") or "").strip()
+    catalyst_connection = data.get("catalyst_connection") if isinstance(data.get("catalyst_connection"), dict) else None
+    if catalyst_connection and not catalyst_connection.get("enabled", True):
+        catalyst_connection = None
+    if not ip_address:
+        return _json_error("Device IP is required")
+
+    try:
+        device, device_id = _device_by_management_ip(ip_address, catalyst_connection)
+        if not device:
+            return jsonify(ip=ip_address, device=None, assignments=[])
+        if not device_id:
+            return _json_error("Catalyst Center device record has no id", 502)
+
+        assignment_payload = _catc_get(
+            "/dna/intent/api/v1/sda/portAssignments",
+            {"networkDeviceId": device_id, "limit": "500"},
+            catalyst_connection,
+        )
+        assignments = []
+        seen_names = set()
+        for record in assignment_payload.get("response") or []:
+            name = _interface_name(record)
+            if not name or name in seen_names:
+                continue
+            seen_names.add(name)
+            assignments.append(
+                {
+                    "name": name,
+                    "id": record.get("id"),
+                    "connectedDeviceType": record.get("connectedDeviceType"),
+                    "dataVlanName": record.get("dataVlanName"),
+                    "voiceVlanName": record.get("voiceVlanName"),
+                    "securityGroupName": record.get("securityGroupName"),
+                    "authenticationTemplateName": record.get("authenticationTemplateName"),
+                    "description": record.get("interfaceDescription") or record.get("description"),
+                }
+            )
+        assignments.sort(key=lambda item: item["name"])
+        return jsonify(
+            ip=ip_address,
+            device={
+                "id": device_id,
+                "hostname": device.get("hostname"),
+                "managementIpAddress": device.get("managementIpAddress"),
+                "collectionStatus": device.get("collectionStatus"),
+                "reachabilityStatus": device.get("reachabilityStatus"),
+            },
+            assignments=assignments,
+        )
+    except urllib.error.HTTPError as exc:
+        return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
+    except urllib.error.URLError as exc:
+        return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
+    except Exception as exc:
+        return _json_error(str(exc), 500)
 
 
 @app.route("/api/git/fetch", methods=["POST"])
