@@ -145,7 +145,7 @@
               <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Run environment</span>
               <span id="run-environment-badge" class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">Checking</span>
             </span>
-            <span id="run-defaults-summary" class="mt-2 block text-sm font-bold text-slate-700">Managed venv · Inventory details</span>
+            <span id="run-defaults-summary" class="mt-2 block text-sm font-bold text-slate-700">Managed venv</span>
           </button>
         </div>
 
@@ -204,14 +204,111 @@
               <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700">Guided Run</p>
               <h2 class="mt-2 text-2xl font-bold text-slate-900">Prepare playbook run</h2>
               <p class="mt-2 max-w-2xl text-sm text-slate-600">
-                Choose the playbook, confirm inputs, validate the setup, and review everything before execution.
+                Add one or more run cards, choose inputs for each run, validate the setup, and review everything before execution.
               </p>
             </div>
-            <div class="rounded-2xl bg-cyan-100 px-3 py-2 text-xs font-semibold text-cyan-900">Single playbook</div>
           </div>
 
-          <div class="mt-5 space-y-3">
-            <details name="run-step" class="rounded-3xl border border-slate-300 bg-slate-50">
+          <div id="single-run-panel" class="mt-5 space-y-3">
+            <div class="rounded-3xl border border-slate-300 bg-white px-5 py-5">
+              <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Run Target</p>
+                  <h3 class="mt-2 text-lg font-bold text-slate-900">Choose Catalyst Center targets</h3>
+                  <p class="mt-1 text-sm text-slate-600">Define the Catalyst Center targets available to the run cards below.</p>
+                </div>
+                <div id="run-target-mode" data-mode="multiple" class="hidden rounded-2xl bg-slate-200 p-1">
+                  <button type="button" data-run-target-mode="single" onclick="setRunTargetMode('single')"
+                    class="rounded-xl border px-4 py-2.5 text-sm font-bold transition">Single CatC</button>
+                  <button type="button" data-run-target-mode="multiple" onclick="setRunTargetMode('multiple')"
+                    class="rounded-xl border px-4 py-2.5 text-sm font-bold transition">Multiple CatCs</button>
+                </div>
+              </div>
+
+              <div id="single-catc-panel" class="hidden mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <label class="flex items-start gap-3 text-sm font-semibold text-slate-800">
+                  <input id="catalyst-connection-enabled" type="checkbox"
+                    class="mt-0.5 h-4 w-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                    onchange="toggleCatalystConnection()">
+                  <span>
+                    Use custom CatC credentials for this run
+                    <span class="mt-1 block text-xs font-medium text-slate-500">Leave unchecked to use inventory or shell environment values.</span>
+                  </span>
+                </label>
+
+                <p id="catalyst-connection-fallback" class="mt-4 rounded-2xl border border-cyan-100 bg-cyan-50 px-4 py-3 text-xs leading-5 text-cyan-900">
+                  Using inventory or shell environment values.
+                </p>
+
+                <div id="catalyst-connection-fields" class="hidden mt-4 grid gap-4 lg:grid-cols-2" autocomplete="off">
+                  <div>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Host</label>
+                    <input id="catalyst-connection-host" type="text" placeholder="Catalyst Center host" autocomplete="off" autocapitalize="none" spellcheck="false" name="cc_run_host_once" oninput="validateCatalystConnection('run', false)"
+                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  </div>
+                  <div>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Username</label>
+                    <input id="catalyst-connection-username" type="text" placeholder="Catalyst Center username" autocomplete="off" autocapitalize="none" spellcheck="false" name="cc_run_user_once" oninput="validateCatalystConnection('run', false)"
+                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  </div>
+                  <div>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Password</label>
+                    <input id="catalyst-connection-password" type="password" placeholder="Catalyst Center password" autocomplete="new-password" autocapitalize="none" spellcheck="false" name="cc_run_secret_once" oninput="validateCatalystConnection('run', false)"
+                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  </div>
+                  <div>
+                    <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Verify TLS</label>
+                    <select id="catalyst-connection-verify"
+                      class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                      <option value="">Use inventory default</option>
+                      <option value="false">false</option>
+                      <option value="true">true</option>
+                    </select>
+                  </div>
+                  <p class="lg:col-span-2 rounded-2xl border border-cyan-100 bg-cyan-50 px-4 py-3 text-xs leading-5 text-cyan-900">Password is passed as a runtime environment variable and is not added to the command preview or job history.</p>
+                  <p id="catalyst-connection-warning" class="hidden lg:col-span-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold leading-5 text-rose-700"></p>
+                </div>
+              </div>
+
+              <div id="multi-catc-panel" class="mt-5 space-y-4">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                  <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Catalyst Center targets</p>
+                    <p class="mt-1 text-xs text-slate-500">Run cards select one of these targets.</p>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-3">
+                    <label class="hidden items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Max parallel
+                      <input id="multi-catc-parallel-limit" type="number" min="1" max="8" value="2"
+                        class="w-20 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                        oninput="refreshRunSummary()">
+                    </label>
+                    <button type="button" onclick="addCatcTargetRow()"
+                      class="rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">Add target</button>
+                  </div>
+                </div>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                  <table class="min-w-[820px] w-full divide-y divide-slate-200 text-left text-xs">
+                    <thead class="bg-slate-100 text-slate-500">
+                      <tr>
+                        <th class="px-3 py-2 font-bold uppercase tracking-[0.18em]">Target</th>
+                        <th class="px-3 py-2 font-bold uppercase tracking-[0.18em]">Host</th>
+                        <th class="px-3 py-2 font-bold uppercase tracking-[0.18em]">Username</th>
+                        <th class="px-3 py-2 font-bold uppercase tracking-[0.18em]">Password</th>
+                        <th class="px-3 py-2 font-bold uppercase tracking-[0.18em]">Verify</th>
+                        <th class="px-3 py-2"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="multi-catc-target-rows" class="divide-y divide-slate-100 bg-white"></tbody>
+                  </table>
+                </div>
+                <p class="rounded-2xl border border-cyan-100 bg-cyan-50 px-4 py-3 text-xs leading-5 text-cyan-900">
+                  Each run card chooses a CatC target from this list. Vars and inventory are selected inside each run card.
+                </p>
+              </div>
+            </div>
+
+            <details name="run-step" class="hidden rounded-3xl border border-slate-300 bg-slate-50">
               <summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4">
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">1</span>
                 <span class="min-w-0 flex-1">
@@ -258,7 +355,7 @@
               </div>
             </details>
 
-            <details name="run-step" class="rounded-3xl border border-slate-300 bg-slate-50">
+            <details name="run-step" class="hidden rounded-3xl border border-slate-300 bg-slate-50">
               <summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4">
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">2</span>
                 <span class="min-w-0 flex-1">
@@ -322,12 +419,18 @@
                     </p>
                   </div>
 
-                  <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current vars selection</p>
-                    <p id="run-vars-selection" class="mt-2 text-sm font-medium text-slate-700">Using workflow vars by default.</p>
-                  </div>
+	                  <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
+	                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current vars selection</p>
+	                    <p id="run-vars-selection" class="mt-2 text-sm font-medium text-slate-700">Using workflow vars by default.</p>
+	                  </div>
 
-                  <div id="guided-vars-card" class="hidden rounded-3xl border border-cyan-200 bg-cyan-50 p-4">
+	                  <div id="multi-catc-vars-panel" class="hidden rounded-2xl border border-slate-200 bg-white p-4">
+	                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Per-target vars overrides</p>
+	                    <p class="mt-1 text-xs text-slate-500">Leave blank to use the shared vars selection above.</p>
+	                    <div id="multi-catc-vars-rows" class="mt-3 space-y-2"></div>
+	                  </div>
+
+	                  <div id="guided-vars-card" class="hidden rounded-3xl border border-cyan-200 bg-cyan-50 p-4">
                     <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-800">Guided Vars Builder</p>
@@ -373,7 +476,7 @@
               </div>
             </details>
 
-            <details id="run-inventory-step" name="run-step" class="rounded-3xl border border-slate-300 bg-slate-50">
+            <details id="run-inventory-step" name="run-step" class="hidden rounded-3xl border border-slate-300 bg-slate-50">
               <summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4">
                 <span id="run-inventory-step-number" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">3</span>
                 <span class="min-w-0 flex-1">
@@ -434,20 +537,26 @@
                     </div>
                   </div>
 
-                  <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current inventory selection</p>
-                    <p id="run-inventory-selection" class="mt-2 text-sm font-medium text-slate-700">Using the repository inventory list by default.</p>
-                  </div>
+	                  <div class="rounded-2xl border border-slate-300 bg-slate-100 px-4 py-3">
+	                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current inventory selection</p>
+	                    <p id="run-inventory-selection" class="mt-2 text-sm font-medium text-slate-700">Using the repository inventory list by default.</p>
+	                  </div>
 
-                  <div class="rounded-2xl border border-cyan-100 bg-cyan-50 px-4 py-3 lg:col-span-2">
+	                  <div id="multi-catc-inventory-panel" class="hidden rounded-2xl border border-slate-200 bg-white p-4">
+	                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Per-target inventory overrides</p>
+	                    <p class="mt-1 text-xs text-slate-500">Leave blank to use the shared inventory selection above.</p>
+	                    <div id="multi-catc-inventory-rows" class="mt-3 space-y-2"></div>
+	                  </div>
+
+	                  <div class="rounded-2xl border border-cyan-100 bg-cyan-50 px-4 py-3 lg:col-span-2">
                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-800">Connection defaults</p>
-                    <p class="mt-2 text-sm text-cyan-950">Catalyst Center connection is configured once on the Dashboard and applied to this run when enabled.</p>
+                    <p class="mt-2 text-sm text-cyan-950">Catalyst Center target is selected in Run Target. Vars and inventory remain selected in steps 2 and 3.</p>
                   </div>
                 </div>
               </div>
             </details>
 
-            <details name="run-step" class="rounded-3xl border border-slate-300 bg-slate-50">
+            <details name="run-step" class="hidden rounded-3xl border border-slate-300 bg-slate-50">
               <summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4">
                 <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">4</span>
                 <span class="min-w-0 flex-1">
@@ -503,6 +612,47 @@
               </div>
             </details>
           </div>
+
+          <div id="run-plan-panel" class="mt-5 space-y-5">
+            <div class="rounded-3xl border border-slate-300 bg-white px-5 py-5">
+              <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Run List</p>
+                  <h3 class="mt-2 text-lg font-bold text-slate-900">Build playbook runs</h3>
+                  <p class="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                    Start with one run card. Add more cards when you need different Catalyst Centers, repos, playbooks, vars, or inventory.
+                  </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                  <label class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    Parallel
+                    <input id="run-plan-parallel-limit" type="number" min="1" max="8" value="2"
+                      class="w-20 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
+                      oninput="refreshRunSummary()">
+                  </label>
+                  <button type="button" onclick="addRunPlanRow()"
+                    class="rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">Add run</button>
+                </div>
+              </div>
+
+              <div id="run-plan-rows" class="mt-5 space-y-4"></div>
+
+              <div class="mt-4 rounded-2xl border border-cyan-100 bg-cyan-50 px-4 py-3 text-xs leading-5 text-cyan-900">
+                Git Repos stores the fetched repos. Each run card chooses the repo it should use.
+              </div>
+
+              <div class="mt-5 flex flex-wrap gap-3">
+                <button type="button" onclick="validateRunPlanRows()"
+                  class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                  Validate all
+                </button>
+                <button type="button" onclick="runSelectedPlanRows()"
+                  class="rounded-2xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500">
+                  Launch run jobs
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="space-y-6 xl:sticky xl:top-24">
@@ -515,7 +665,11 @@
               <span id="run-status" class="hidden rounded-full px-3 py-1 text-xs font-semibold"></span>
             </div>
 
-            <div class="mt-5 space-y-0 divide-y divide-slate-200">
+              <div class="mt-5 space-y-0 divide-y divide-slate-200">
+              <div class="py-3">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Targets</p>
+                <p id="summary-targets" class="mt-2 break-words text-sm font-semibold leading-6 text-slate-900 [overflow-wrap:anywhere]">1 run row</p>
+              </div>
               <div class="py-3">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Workflow</p>
                 <p id="summary-workflow" class="mt-2 text-sm font-semibold text-slate-900">Not selected</p>
@@ -610,40 +764,71 @@
       <section id="tab-git" class="tab-content hidden">
         <div class="space-y-6">
           <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
-            <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+            <div>
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Git Repos</p>
-                <h2 class="mt-2 text-2xl font-bold text-slate-900">Input Git repository</h2>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">Input Git repositories</h2>
                 <p class="mt-2 max-w-3xl text-sm text-slate-600">
-                  Fetch an input repo, then use its vars and inventory files from Run Playbook.
+                  Add one or more input repositories. Each fetched repo stays available for Run Playbook and future run plans.
                 </p>
               </div>
-              <div id="git-fetch-form" class="grid w-full gap-3 xl:w-[720px] xl:grid-cols-[minmax(0,1fr)_160px_auto]">
-                <input id="git-repo-url" type="text" placeholder="Git repository URL" autocomplete="off" spellcheck="false"
-                  class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
-                <input id="git-ref" type="text" value="main" placeholder="Branch, tag, or ref" autocomplete="off" spellcheck="false"
-                  class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
-                <button id="btn-fetch-git" type="button" onclick="fetchGitRepository()"
-                  class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Fetch</button>
+            </div>
+            <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Add input repository</p>
+              <div id="git-fetch-form" class="mt-3 grid w-full gap-3 xl:grid-cols-[minmax(0,1fr)_180px_auto]">
+                <div>
+                  <label for="git-repo-url" class="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-500">Git repository URL</label>
+                  <input id="git-repo-url" type="text" placeholder="https://github.com/org/repo.git" autocomplete="off" spellcheck="false"
+                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                </div>
+                <div>
+                  <label for="git-ref" class="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-500">Branch / ref</label>
+                  <input id="git-ref" type="text" value="main" placeholder="main" autocomplete="off" spellcheck="false"
+                    class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                </div>
+                <div class="flex items-end">
+                  <button id="btn-fetch-git" type="button" onclick="fetchGitRepository()"
+                    class="w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Add repo</button>
+                </div>
               </div>
-              <div id="git-active-source" class="hidden w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 xl:w-[720px]">
-                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                  <div class="min-w-0">
-                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Active repository</p>
-                    <p id="git-active-source-text" class="mt-1 truncate text-sm font-bold text-slate-800"></p>
-                  </div>
-                  <div class="flex shrink-0 flex-wrap gap-2">
-                    <button type="button" onclick="fetchGitRepository(true)"
-                      class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100">Fetch again</button>
-                    <button type="button" onclick="useGitRepositoryForRun()"
-                      class="rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">Use inputs in Run Playbook</button>
-                    <button type="button" onclick="changeGitRepository()"
-                      class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white transition hover:bg-slate-800">Change repo</button>
-                  </div>
+              <p class="mt-3 text-xs font-semibold leading-5 text-slate-500">
+                Add another repo by entering a different URL or ref. Existing repos stay listed below and can be selected for Run Playbook.
+              </p>
+            </div>
+            <div id="git-active-source" class="mt-5 hidden rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Active repository</p>
+                  <p id="git-active-source-text" class="mt-1 truncate text-sm font-bold text-slate-800"></p>
+                </div>
+                <div class="flex shrink-0 flex-wrap gap-2">
+                  <button type="button" onclick="refreshSelectedGitRepository()"
+                    class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100">Refresh selected</button>
+                  <button type="button" onclick="useGitRepositoryForRun()"
+                    class="rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">Use in Run Playbook</button>
                 </div>
               </div>
             </div>
             <div id="git-status" class="mt-5 hidden rounded-2xl px-4 py-3 text-sm"></div>
+            <div class="mt-5">
+              <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Fetched repositories</p>
+              <p class="mt-1 text-xs text-slate-500">Multiple repos can be added here; select one for the current Run Playbook inputs.</p>
+            </div>
+            <div id="git-repo-registry" class="mt-3 overflow-x-auto rounded-2xl border border-slate-200">
+              <table class="min-w-[860px] w-full divide-y divide-slate-200 text-left text-xs">
+                <thead class="bg-slate-100 text-slate-500">
+                  <tr>
+                    <th class="px-3 py-2 font-bold uppercase tracking-[0.18em]">Name</th>
+                    <th class="px-3 py-2 font-bold uppercase tracking-[0.18em]">Repository</th>
+                    <th class="px-3 py-2 font-bold uppercase tracking-[0.18em]">Ref</th>
+                    <th class="px-3 py-2 font-bold uppercase tracking-[0.18em]">Inputs</th>
+                    <th class="px-3 py-2 font-bold uppercase tracking-[0.18em]">Status</th>
+                    <th class="px-3 py-2"></th>
+                  </tr>
+                </thead>
+                <tbody id="git-repo-registry-rows" class="divide-y divide-slate-100 bg-white"></tbody>
+              </table>
+            </div>
           </div>
 
           <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
@@ -830,8 +1015,8 @@
           </div>
 
           <div class="rounded-3xl border border-cyan-100 bg-cyan-50 p-5">
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-800">Dashboard run defaults</p>
-            <p class="mt-2 text-sm leading-6 text-cyan-950">Managed venv, dependencies, and Catalyst Center connection are configured once on the Dashboard and applied to every workflow step.</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-800">Runtime defaults</p>
+            <p class="mt-2 text-sm leading-6 text-cyan-950">Managed venv and dependencies are configured once on the Dashboard and applied to every workflow step.</p>
           </div>
         </div>
       </div>
@@ -847,14 +1032,14 @@
       <div class="flex items-start justify-between gap-4 border-b border-slate-300 bg-slate-100 px-6 py-5">
         <div>
           <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Run Settings</p>
-          <h3 class="mt-2 text-xl font-bold text-slate-900">Runtime and Catalyst Center connection</h3>
+          <h3 class="mt-2 text-xl font-bold text-slate-900">Runtime environment</h3>
           <p class="mt-2 text-sm text-slate-600">These settings apply to Run Playbook and Workflow Builder.</p>
         </div>
         <button type="button" onclick="closeRunDefaults()" class="rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-50">Close</button>
       </div>
 
       <div class="max-h-[78vh] overflow-auto px-6 py-6">
-        <div class="grid gap-5 xl:grid-cols-2">
+        <div class="grid gap-5">
           <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
@@ -883,48 +1068,6 @@
                 oninput="updateRunDefaultsSummary()">
             </div>
             <div id="environment-status" class="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">Managed venv status not checked yet.</div>
-          </div>
-
-          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-            <label class="flex items-start gap-3 text-sm font-semibold text-slate-800">
-              <input id="catalyst-connection-enabled" type="checkbox"
-                class="mt-0.5 h-4 w-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
-                onchange="toggleCatalystConnection()">
-              <span>
-                Add Catalyst Center connection
-                <span class="mt-1 block text-xs font-medium text-slate-500">Optional. Leave unchecked to use inventory or shell environment values.</span>
-              </span>
-            </label>
-
-            <div id="catalyst-connection-fields" class="hidden mt-4 grid gap-4 lg:grid-cols-2" autocomplete="off">
-              <div>
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Host</label>
-                <input id="catalyst-connection-host" type="text" placeholder="Catalyst Center host" autocomplete="off" autocapitalize="none" spellcheck="false" name="cc_global_host_once" oninput="validateCatalystConnection('global', false); updateRunDefaultsSummary()"
-                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
-              </div>
-              <div>
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Username</label>
-                <input id="catalyst-connection-username" type="text" placeholder="Catalyst Center username" autocomplete="off" autocapitalize="none" spellcheck="false" name="cc_global_user_once" oninput="validateCatalystConnection('global', false); updateRunDefaultsSummary()"
-                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
-              </div>
-              <div>
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Password</label>
-                <input id="catalyst-connection-password" type="password" placeholder="Catalyst Center password" autocomplete="new-password" autocapitalize="none" spellcheck="false" name="cc_global_secret_once" oninput="validateCatalystConnection('global', false); updateRunDefaultsSummary()"
-                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
-              </div>
-              <div>
-                <label class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Verify TLS</label>
-                <select id="catalyst-connection-verify"
-                  class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
-                  onchange="updateRunDefaultsSummary()">
-                  <option value="">Use inventory default</option>
-                  <option value="false">false</option>
-                  <option value="true">true</option>
-                </select>
-              </div>
-              <p class="lg:col-span-2 rounded-2xl border border-cyan-100 bg-cyan-50 px-4 py-3 text-xs leading-5 text-cyan-900">Password is passed as a runtime environment variable and is not added to the command preview or job history.</p>
-              <p id="catalyst-connection-warning" class="hidden lg:col-span-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold leading-5 text-rose-700"></p>
-            </div>
           </div>
         </div>
       </div>
@@ -1000,14 +1143,19 @@
     let gitVars = [];
     let gitInventories = [];
     let gitSource = null;
+    let gitRepositories = [];
     let inputSource = { kind: 'local' };
     let editor = null;
     let fileDirty = false;
     let currentJobId = null;
     let currentES = null;
+    let batchEventSources = [];
+    let currentBatchJobIds = [];
     let currentOutputLineCount = 0;
     let restoringRunJob = false;
     let runWorkflowLocked = false;
+    let catcTargetCounter = 0;
+    let runPlanCounter = 0;
     const ACTIVE_TAB_STORAGE_KEY = 'validated-playbook-active-tab';
     let wfSteps = [];
     let wfRunning = false;
@@ -1029,6 +1177,661 @@
     function $(id) { return document.getElementById(id); }
     function show(id) { $(id).classList.remove('hidden'); }
     function hide(id) { $(id).classList.add('hidden'); }
+
+    function getRunMode() {
+      const container = $('run-mode-toggle');
+      return container ? container.dataset.mode : 'plan';
+    }
+
+    function setRunMode(mode) {
+      mode = 'plan';
+      const container = $('run-mode-toggle');
+      if (container) container.dataset.mode = mode;
+      document.querySelectorAll('[data-run-mode]').forEach(function(button) {
+        const active = button.dataset.runMode === mode;
+        button.classList.toggle('source-btn-active', active);
+        button.classList.toggle('source-btn-inactive', !active);
+      });
+      $('single-run-panel').classList.remove('hidden');
+      $('run-plan-panel').classList.toggle('hidden', mode !== 'plan');
+      if (!$('run-plan-rows').children.length) {
+        addRunPlanRow();
+      }
+      refreshRunSummary();
+    }
+
+    function getRunTargetMode() {
+      return 'multiple';
+    }
+
+    function setRunTargetMode(mode) {
+      mode = 'multiple';
+      const container = $('run-target-mode');
+      if (container) container.dataset.mode = mode;
+      document.querySelectorAll('[data-run-target-mode]').forEach(function(button) {
+        const active = button.dataset.runTargetMode === mode;
+        button.classList.toggle('source-btn-active', active);
+        button.classList.toggle('source-btn-inactive', !active);
+      });
+      $('single-catc-panel').classList.toggle('hidden', mode === 'multiple');
+      $('multi-catc-panel').classList.toggle('hidden', mode !== 'multiple');
+      $('multi-catc-vars-panel').classList.toggle('hidden', mode !== 'multiple');
+      $('multi-catc-inventory-panel').classList.toggle('hidden', mode !== 'multiple');
+      if (mode === 'multiple' && !$('multi-catc-target-rows').children.length) {
+        addCatcTargetRow();
+      }
+      renderCatcInputOverrideRows();
+      refreshRunPlanRows();
+      refreshRunSummary();
+    }
+
+    function targetInputClass(extra) {
+      return 'w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 ' + (extra || '');
+    }
+
+    function addCatcTargetRow(values) {
+      values = values || {};
+      catcTargetCounter += 1;
+      const row = document.createElement('tr');
+      row.dataset.targetRow = String(catcTargetCounter);
+      const targetRefresh = 'renderCatcInputOverrideRows(); refreshRunPlanRows(); refreshRunSummary()';
+      row.innerHTML = ''
+        + '<td class="px-3 py-2"><input data-target-field="name" type="text" value="' + htmlEscape(values.name || '') + '" placeholder="CatC name" class="' + targetInputClass('min-w-[120px]') + '" oninput="' + targetRefresh + '"></td>'
+        + '<td class="px-3 py-2"><input data-target-field="host" type="text" value="' + htmlEscape(values.host || '') + '" placeholder="Host/IP" class="' + targetInputClass('min-w-[150px]') + '" oninput="' + targetRefresh + '"></td>'
+        + '<td class="px-3 py-2"><input data-target-field="username" type="text" value="' + htmlEscape(values.username || '') + '" placeholder="Username" class="' + targetInputClass('min-w-[120px]') + '" oninput="' + targetRefresh + '"></td>'
+        + '<td class="px-3 py-2"><input data-target-field="password" type="password" value="' + htmlEscape(values.password || '') + '" placeholder="Password" class="' + targetInputClass('min-w-[120px]') + '" oninput="' + targetRefresh + '"></td>'
+        + '<td class="px-3 py-2"><select data-target-field="verify" class="' + targetInputClass('min-w-[100px]') + '" onchange="' + targetRefresh + '"><option value="">Default</option><option value="false">false</option><option value="true">true</option></select></td>'
+        + '<td class="px-3 py-2 text-right"><button type="button" onclick="removeCatcTargetRow(this)" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Remove</button></td>';
+      $('multi-catc-target-rows').appendChild(row);
+      row.querySelector('[data-target-field="verify"]').value = values.verify || '';
+      renderCatcInputOverrideRows();
+      refreshRunPlanRows();
+      refreshRunSummary();
+    }
+
+    function removeCatcTargetRow(button) {
+      const row = button.closest('tr');
+      if (row) row.remove();
+      renderCatcInputOverrideRows();
+      refreshRunPlanRows();
+      refreshRunSummary();
+    }
+
+    function targetRows() {
+      return Array.from(document.querySelectorAll('#multi-catc-target-rows tr'));
+    }
+
+    function targetRowName(row, index) {
+      const nameInput = row.querySelector('[data-target-field="name"]');
+      const hostInput = row.querySelector('[data-target-field="host"]');
+      return (nameInput && nameInput.value.trim()) || (hostInput && hostInput.value.trim()) || 'CatC ' + (index + 1);
+    }
+
+    function varsOverrideOptions() {
+      const mode = getSourceMode('run-vars');
+      if (mode === 'git') {
+        return gitVars.map(function(file) { return { v: file, t: fileOptionLabel(file) }; });
+      }
+      if (mode === 'workflow') {
+        const workflow = runWorkflows().find(function(item) { return item.name === $('sel-workflow').value; });
+        return workflow ? workflow.vars.map(function(file) {
+          const path = varsOptionValue(workflow, file);
+          return { v: path, t: fileOptionLabel(path) };
+        }) : [];
+      }
+      const customPath = $('run-vars-custom-path').value.trim();
+      return customPath ? [{ v: customPath, t: fileOptionLabel(customPath) }] : [];
+    }
+
+    function inventoryOverrideOptions() {
+      const mode = getSourceMode('run-inventory');
+      if (mode === 'git') {
+        return gitInventories.map(function(file) { return { v: file, t: fileOptionLabel(file) }; });
+      }
+      if (mode === 'default') {
+        return inventories.map(function(file) { return { v: file, t: fileOptionLabel(file) }; });
+      }
+      const customPath = $('run-inventory-custom-path').value.trim();
+      return customPath ? [{ v: customPath, t: fileOptionLabel(customPath) }] : [];
+    }
+
+    function overrideSelectHtml(kind, index, selectedValue) {
+      const sharedLabel = kind === 'vars' ? 'Use shared vars' : 'Use shared inventory';
+      const attr = kind === 'vars' ? 'data-target-vars-index' : 'data-target-inventory-index';
+      const options = kind === 'vars' ? varsOverrideOptions() : inventoryOverrideOptions();
+      let html = '<select ' + attr + '="' + index + '" class="' + targetInputClass('') + '" onchange="refreshRunSummary()">';
+      html += '<option value="">' + sharedLabel + '</option>';
+      options.forEach(function(option) {
+        html += '<option value="' + htmlEscape(option.v) + '"' + (option.v === selectedValue ? ' selected' : '') + '>' + htmlEscape(option.t) + '</option>';
+      });
+      html += '</select>';
+      return html;
+    }
+
+    function renderCatcInputOverrideRows() {
+      const varsContainer = $('multi-catc-vars-rows');
+      const inventoryContainer = $('multi-catc-inventory-rows');
+      if (!varsContainer || !inventoryContainer) return;
+      const previousVars = {};
+      const previousInventory = {};
+      varsContainer.querySelectorAll('[data-target-vars-index]').forEach(function(input) {
+        previousVars[input.dataset.targetVarsIndex] = input.value;
+      });
+      inventoryContainer.querySelectorAll('[data-target-inventory-index]').forEach(function(input) {
+        previousInventory[input.dataset.targetInventoryIndex] = input.value;
+      });
+      varsContainer.innerHTML = '';
+      inventoryContainer.innerHTML = '';
+      targetRows().forEach(function(row, index) {
+        const name = targetRowName(row, index);
+        varsContainer.insertAdjacentHTML('beforeend', ''
+          + '<div class="grid gap-2 lg:grid-cols-[180px_minmax(0,1fr)] lg:items-center">'
+          +   '<p class="truncate text-sm font-semibold text-slate-700">' + htmlEscape(name) + '</p>'
+          +   overrideSelectHtml('vars', index, previousVars[index] || '')
+          + '</div>');
+        inventoryContainer.insertAdjacentHTML('beforeend', ''
+          + '<div class="grid gap-2 lg:grid-cols-[180px_minmax(0,1fr)] lg:items-center">'
+          +   '<p class="truncate text-sm font-semibold text-slate-700">' + htmlEscape(name) + '</p>'
+          +   overrideSelectHtml('inventory', index, previousInventory[index] || '')
+          + '</div>');
+      });
+    }
+
+    function runPlanRows() {
+      return Array.from(document.querySelectorAll('#run-plan-rows [data-plan-row]'));
+    }
+
+    function runPlanTargetOptions() {
+      const options = [{ v: 'default', t: 'Default CatC / inventory env' }];
+      targetRows().forEach(function(row, index) {
+        const hostInput = row.querySelector('[data-target-field="host"]');
+        const name = targetRowName(row, index);
+        const host = hostInput ? hostInput.value.trim() : '';
+        options.push({ v: 'target-' + index, t: host ? name + ' · ' + host : name });
+      });
+      return options;
+    }
+
+    function catcTargetForPlanValue(value) {
+      const match = /^target-(\d+)$/.exec(value || '');
+      if (!match) return null;
+      const row = targetRows()[parseInt(match[1], 10)];
+      if (!row) return null;
+      function field(name) {
+        const input = row.querySelector('[data-target-field="' + name + '"]');
+        return input ? input.value.trim() : '';
+      }
+      return {
+        name: field('name') || field('host') || 'CatC ' + (parseInt(match[1], 10) + 1),
+        host: field('host'),
+        username: field('username'),
+        password: field('password'),
+        verify: field('verify'),
+      };
+    }
+
+    function runPlanRepoOptions() {
+      const options = [{ v: 'local', t: 'Local CVP repo' }];
+      const seen = new Set(['local']);
+      gitRepositories.forEach(function(repo) {
+        seen.add(repo.id);
+        options.push({
+          v: repo.id,
+          t: repoDisplayName(repo.source) + ' · ' + ((repo.source && repo.source.ref) || 'main'),
+        });
+      });
+      if (gitSource && gitSource.id && !seen.has(gitSource.id)) {
+        options.push({
+          v: gitSource.id,
+          t: repoDisplayName(gitSource) + ' · ' + (gitSource.ref || 'main'),
+        });
+      }
+      return options;
+    }
+
+    function runPlanWorkflowOptions() {
+      return runWorkflows().map(function(workflow) {
+        return { v: workflow.name, t: workflow.name };
+      });
+    }
+
+    function runPlanPlaybookOptions(workflowName) {
+      const options = [];
+      runWorkflows().filter(function(workflow) {
+        return !workflowName || workflow.name === workflowName;
+      }).forEach(function(workflow) {
+        workflow.playbooks.forEach(function(playbook) {
+          const value = playbookOptionValue(workflow, playbook);
+          options.push({ v: value, t: workflow.name + ' / ' + basename(playbook) });
+        });
+      });
+      return options;
+    }
+
+    function runPlanVarsOptions(repoId, workflowName) {
+      if (repoId && repoId !== 'local') {
+        const repo = gitRepositories.find(function(item) { return item.id === repoId; });
+        return repo ? (repo.vars || []).map(function(file) { return { v: file, t: fileOptionLabel(file) }; }) : [];
+      }
+      const options = [];
+      runWorkflows().filter(function(workflow) {
+        return !workflowName || workflow.name === workflowName;
+      }).forEach(function(workflow) {
+        workflow.vars.forEach(function(file) {
+          const value = varsOptionValue(workflow, file);
+          options.push({ v: value, t: workflow.name + ' / ' + fileOptionLabel(value) });
+        });
+      });
+      return options;
+    }
+
+    function runPlanInventoryOptions(repoId) {
+      if (repoId && repoId !== 'local') {
+        const repo = gitRepositories.find(function(item) { return item.id === repoId; });
+        return repo ? (repo.inventories || []).map(function(file) { return { v: file, t: fileOptionLabel(file) }; }) : [];
+      }
+      return inventories.map(function(file) { return { v: file, t: fileOptionLabel(file) }; });
+    }
+
+    function runPlanSelectHtml(field, options, placeholder, selectedValue) {
+      const selected = options.find(function(option) { return option.v === selectedValue; });
+      const searchLabel = placeholder.replace(/^select\s+/i, '').toLowerCase();
+      const optionPayload = options.map(function(option) {
+        return {
+          v: option.v,
+          t: option.t,
+          search: (option.t + ' ' + option.v).toLowerCase(),
+        };
+      });
+      let html = '<div class="relative" data-plan-combo="' + field + '" data-plan-options="' + htmlEscape(JSON.stringify(optionPayload)) + '">';
+      html += '<input data-plan-search="' + field + '" type="text" value="' + htmlEscape(selected ? selected.t : '') + '" placeholder="Search or select ' + htmlEscape(searchLabel) + '..." autocomplete="off" spellcheck="false" class="' + targetInputClass('') + '" onfocus="renderRunPlanSelectMenu(this)" onclick="renderRunPlanSelectMenu(this)" oninput="renderRunPlanSelectMenu(this)">';
+      html += '<input type="hidden" data-plan-field="' + field + '" value="' + htmlEscape(selectedValue || '') + '">';
+      html += '<div data-plan-menu="' + field + '" class="hidden absolute left-0 right-0 z-30 mt-2 max-h-60 overflow-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_12px_26px_rgba(15,23,42,0.08)]"></div>';
+      html += '</div>';
+      return html;
+    }
+
+    function runPlanComboOptions(wrapper) {
+      try {
+        return JSON.parse(wrapper.dataset.planOptions || '[]');
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function renderRunPlanSelectMenu(input) {
+      const wrapper = input.closest('[data-plan-combo]');
+      if (!wrapper) return;
+      const menu = wrapper.querySelector('[data-plan-menu]');
+      if (!menu) return;
+      const query = input.value.trim().toLowerCase();
+      const options = runPlanComboOptions(wrapper).filter(function(option) {
+        return !query || option.search.indexOf(query) !== -1;
+      }).slice(0, 80);
+      if (!options.length) {
+        menu.innerHTML = '<div class="px-3 py-2 text-xs font-semibold text-slate-500">No matches</div>';
+      } else {
+        menu.innerHTML = options.map(function(option) {
+          return ''
+            + '<button type="button" data-plan-option-value="' + htmlEscape(option.v) + '" data-plan-option-label="' + htmlEscape(option.t) + '" onclick="chooseRunPlanOption(this)"'
+            + ' class="block w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-slate-700 transition hover:bg-cyan-50 hover:text-cyan-800">'
+            + htmlEscape(option.t)
+            + '</button>';
+        }).join('');
+      }
+      menu.classList.remove('hidden');
+    }
+
+    function chooseRunPlanOption(button) {
+      const wrapper = button.closest('[data-plan-combo]');
+      if (!wrapper) return;
+      const input = wrapper.querySelector('[data-plan-search]');
+      const valueInput = wrapper.querySelector('input[type="hidden"][data-plan-field]');
+      const menu = wrapper.querySelector('[data-plan-menu]');
+      if (!valueInput) return;
+      valueInput.value = button.dataset.planOptionValue || '';
+      if (input) input.value = button.dataset.planOptionLabel || '';
+      if (menu) menu.classList.add('hidden');
+      onRunPlanRowChanged(valueInput);
+    }
+
+    function runPlanFieldHtml(label, html) {
+      return ''
+        + '<div>'
+        +   '<label class="mb-1.5 block text-xs font-bold uppercase tracking-[0.18em] text-slate-500">' + htmlEscape(label) + '</label>'
+        +   html
+        + '</div>';
+    }
+
+    function runPlanStatus(row) {
+      const repo = row.querySelector('[data-plan-field="repo"]');
+      const playbook = row.querySelector('[data-plan-field="playbook"]');
+      const varsFile = row.querySelector('[data-plan-field="vars"]');
+      const inventory = row.querySelector('[data-plan-field="inventory"]');
+      const missing = [];
+      const workflow = row.querySelector('[data-plan-field="workflow"]');
+      if (!workflow || !workflow.value) missing.push('workflow');
+      if (!playbook || !playbook.value) missing.push('playbook');
+      if (!varsFile || !varsFile.value) missing.push('vars');
+      if (!inventory || !inventory.value) missing.push('inventory');
+      const target = row.querySelector('[data-plan-field="target"]');
+      if (target && target.value && target.value !== 'default') {
+        const targetDetails = catcTargetForPlanValue(target.value);
+        if (!targetDetails) {
+          missing.push('catc target');
+        } else if (!targetDetails.host || !targetDetails.username || !targetDetails.password) {
+          missing.push('catc details');
+        }
+      }
+      if (repo && repo.value !== 'local') {
+        const selectedRepo = gitRepositories.find(function(item) { return item.id === repo.value; }) || (gitSource && gitSource.id === repo.value ? { source: gitSource } : null);
+        if (!selectedRepo) missing.push('repo');
+      }
+      if (missing.length) return 'Missing ' + missing.join(', ');
+      if (row.dataset.schemaStatus === 'passed') return 'Ready';
+      if (row.dataset.schemaStatus === 'failed') return 'Schema failed';
+      if (row.dataset.schemaStatus === 'validating') return 'Validating schema';
+      return 'Not validated';
+    }
+
+    function addRunPlanRow(values) {
+      values = values || {};
+      runPlanCounter += 1;
+      const repoId = values.repo || (gitSource && gitSource.id) || 'local';
+      const row = document.createElement('div');
+      row.className = 'rounded-2xl border border-slate-200 bg-slate-50 p-4';
+      row.dataset.planRow = String(runPlanCounter);
+      const workflowName = values.workflow || '';
+      row.innerHTML = ''
+        + '<div class="flex flex-col gap-3 border-b border-slate-200 pb-3 lg:flex-row lg:items-center lg:justify-between">'
+        +   '<div>'
+        +     '<p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Run ' + runPlanCounter + '</p>'
+        +     '<p data-plan-title class="mt-1 text-sm font-bold text-slate-900">' + htmlEscape(values.name || 'Untitled run') + '</p>'
+        +   '</div>'
+        +   '<div class="flex flex-wrap items-center gap-2">'
+        +     '<span data-plan-status class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">Pending</span>'
+        +     '<button type="button" onclick="duplicateRunPlanRow(this)" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100">Duplicate</button>'
+        +     '<button type="button" onclick="removeRunPlanRow(this)" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Remove</button>'
+        +   '</div>'
+        + '</div>'
+        + '<div class="mt-4 grid gap-4 lg:grid-cols-2">'
+        +   runPlanFieldHtml('Run name', '<input data-plan-field="name" type="text" value="' + htmlEscape(values.name || '') + '" placeholder="Example: TB4 edge prepare" class="' + targetInputClass('') + '" oninput="onRunPlanRowChanged(this)">')
+        +   runPlanFieldHtml('CatC target', runPlanSelectHtml('target', runPlanTargetOptions(), 'Default CatC', values.target || 'default'))
+        +   runPlanFieldHtml('Input repo', runPlanSelectHtml('repo', runPlanRepoOptions(), 'Select repo', repoId))
+        +   runPlanFieldHtml('Workflow', runPlanSelectHtml('workflow', runPlanWorkflowOptions(), 'Select workflow', workflowName))
+        +   '<div data-plan-playbook-cell>' + runPlanFieldHtml('Playbook', runPlanSelectHtml('playbook', runPlanPlaybookOptions(workflowName), 'Select playbook', values.playbook || '')) + '</div>'
+        +   '<div data-plan-vars-cell>' + runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(repoId, workflowName), 'Select vars', values.vars || '')) + '</div>'
+        +   '<div data-plan-inventory-cell>' + runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(repoId), 'Select inventory', values.inventory || '')) + '</div>'
+        + '</div>';
+      $('run-plan-rows').appendChild(row);
+      updateRunPlanRow(row);
+      refreshRunSummary();
+    }
+
+    function removeRunPlanRow(button) {
+      const row = button.closest('[data-plan-row]');
+      if (row) row.remove();
+      refreshRunSummary();
+    }
+
+    function runPlanRowValues(row) {
+      function value(name) {
+        const input = row.querySelector('[data-plan-field="' + name + '"]');
+        return input ? input.value : '';
+      }
+      return {
+        name: value('name'),
+        target: value('target'),
+        repo: value('repo'),
+        workflow: value('workflow'),
+        playbook: value('playbook'),
+        vars: value('vars'),
+        inventory: value('inventory'),
+      };
+    }
+
+    function duplicateRunPlanRow(button) {
+      const row = button.closest('[data-plan-row]');
+      if (!row) return;
+      const values = runPlanRowValues(row);
+      values.name = values.name ? values.name + ' copy' : '';
+      addRunPlanRow(values);
+    }
+
+    function onRunPlanRowChanged(element) {
+      const row = element.closest('[data-plan-row]');
+      if (!row) return;
+      if (element.dataset.planField === 'repo') {
+        const varsCell = row.querySelector('[data-plan-vars-cell]');
+        const inventoryCell = row.querySelector('[data-plan-inventory-cell]');
+        const workflow = row.querySelector('[data-plan-field="workflow"]');
+        varsCell.innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(element.value, workflow ? workflow.value : ''), 'Select vars', ''));
+        inventoryCell.innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(element.value), 'Select inventory', ''));
+      }
+      if (element.dataset.planField === 'workflow') {
+        const repo = row.querySelector('[data-plan-field="repo"]');
+        const playbookCell = row.querySelector('[data-plan-playbook-cell]');
+        const varsCell = row.querySelector('[data-plan-vars-cell]');
+        const workflowName = element.value;
+        const repoId = repo ? repo.value : 'local';
+        playbookCell.innerHTML = runPlanFieldHtml('Playbook', runPlanSelectHtml('playbook', runPlanPlaybookOptions(workflowName), 'Select playbook', ''));
+        varsCell.innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(repoId, workflowName), 'Select vars', ''));
+      }
+      row.dataset.schemaStatus = '';
+      row.dataset.schemaMessage = '';
+      updateRunPlanRow(row);
+      refreshRunSummary();
+    }
+
+    function updateRunPlanRow(row) {
+      const status = runPlanStatus(row);
+      const statusEl = row.querySelector('[data-plan-status]');
+      if (!statusEl) return;
+      const ready = status === 'Ready';
+      statusEl.textContent = status;
+      const failed = status === 'Schema failed';
+      const validating = status === 'Validating schema';
+      statusEl.className = ready
+        ? 'rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700'
+        : failed
+          ? 'rounded-full bg-rose-100 px-2.5 py-1 text-xs font-bold text-rose-700'
+          : validating
+            ? 'rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-bold text-cyan-700'
+            : 'rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800';
+      statusEl.title = row.dataset.schemaMessage || '';
+      const title = row.querySelector('[data-plan-title]');
+      const name = row.querySelector('[data-plan-field="name"]');
+      if (title && name) title.textContent = name.value.trim() || 'Untitled run';
+    }
+
+    function refreshRunPlanRows() {
+      runPlanRows().forEach(function(row) {
+        const target = row.querySelector('[data-plan-field="target"]');
+        const repo = row.querySelector('[data-plan-field="repo"]');
+        const workflow = row.querySelector('[data-plan-field="workflow"]');
+        const playbook = row.querySelector('[data-plan-field="playbook"]');
+        const varsFile = row.querySelector('[data-plan-field="vars"]');
+        const inventory = row.querySelector('[data-plan-field="inventory"]');
+        const values = {
+          target: target ? target.value : 'default',
+          repo: repo ? repo.value : 'local',
+          workflow: workflow ? workflow.value : '',
+          playbook: playbook ? playbook.value : '',
+          vars: varsFile ? varsFile.value : '',
+          inventory: inventory ? inventory.value : '',
+        };
+        const targetOptions = runPlanTargetOptions();
+        const repoOptions = runPlanRepoOptions();
+        if (values.target === 'default' && targetOptions.length > 1) values.target = targetOptions[1].v;
+        if (values.repo === 'local' && gitSource && gitSource.id && repoOptions.some(function(option) { return option.v === gitSource.id; })) {
+          values.repo = gitSource.id;
+        }
+        if (target && target.closest('[data-plan-combo]')) {
+          target.closest('[data-plan-combo]').outerHTML = runPlanSelectHtml('target', targetOptions, 'Default CatC', values.target);
+        }
+        if (repo && repo.closest('[data-plan-combo]')) {
+          repo.closest('[data-plan-combo]').outerHTML = runPlanSelectHtml('repo', repoOptions, 'Select repo', values.repo);
+        }
+        if (workflow && workflow.closest('[data-plan-combo]')) {
+          workflow.closest('[data-plan-combo]').outerHTML = runPlanSelectHtml('workflow', runPlanWorkflowOptions(), 'Select workflow', values.workflow);
+        }
+        row.querySelector('[data-plan-playbook-cell]').innerHTML = runPlanFieldHtml('Playbook', runPlanSelectHtml('playbook', runPlanPlaybookOptions(values.workflow), 'Select playbook', values.playbook));
+        row.querySelector('[data-plan-vars-cell]').innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(values.repo, values.workflow), 'Select vars', values.vars));
+        row.querySelector('[data-plan-inventory-cell]').innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(values.repo), 'Select inventory', values.inventory));
+        updateRunPlanRow(row);
+      });
+    }
+
+    function runPlanVarsSourcePayload(repoId) {
+      if (!repoId || repoId === 'local') return { kind: 'local' };
+      const repo = gitRepositories.find(function(item) { return item.id === repoId; });
+      return repo && repo.source ? repo.source : { kind: 'local' };
+    }
+
+    async function validateRunPlanRowSchema(row) {
+      const values = runPlanRowValues(row);
+      if (runPlanStatus(row).indexOf('Missing ') === 0) return false;
+      const workflow = runWorkflows().find(function(item) { return item.name === values.workflow; });
+      if (!workflow || !workflow.schemas || !workflow.schemas.length) {
+        row.dataset.schemaStatus = 'failed';
+        row.dataset.schemaMessage = 'No schema found for workflow ' + values.workflow;
+        updateRunPlanRow(row);
+        return false;
+      }
+      const schemaFileName = matchingSchemaForPlaybook(basename(values.playbook), workflow.schemas);
+      if (!schemaFileName) {
+        row.dataset.schemaStatus = 'failed';
+        row.dataset.schemaMessage = 'No matching schema found for ' + basename(values.playbook);
+        updateRunPlanRow(row);
+        return false;
+      }
+      row.dataset.schemaStatus = 'validating';
+      row.dataset.schemaMessage = '';
+      updateRunPlanRow(row);
+      const result = await fetchJson('/api/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          schema: schemaOptionValue(workflow, schemaFileName),
+          data: values.vars,
+          vars_source: runPlanVarsSourcePayload(values.repo),
+        }),
+      });
+      row.dataset.schemaStatus = result.ok ? 'passed' : 'failed';
+      row.dataset.schemaMessage = result.out || '';
+      updateRunPlanRow(row);
+      return !!result.ok;
+    }
+
+    async function validateRunPlanRows() {
+      if (!runPlanRows().length) {
+        showToast('Add at least one run row.');
+        return false;
+      }
+      refreshRunPlanRows();
+      const rows = runPlanRows();
+      const missingRows = rows.filter(function(row) { return runPlanStatus(row).indexOf('Missing ') === 0; });
+      if (missingRows.length) {
+        showToast(missingRows.length + ' run row(s) need inputs.');
+        refreshRunSummary();
+        return false;
+      }
+      let passed = 0;
+      for (let index = 0; index < rows.length; index += 1) {
+        try {
+          if (await validateRunPlanRowSchema(rows[index])) passed += 1;
+        } catch (error) {
+          rows[index].dataset.schemaStatus = 'failed';
+          rows[index].dataset.schemaMessage = error.message;
+          updateRunPlanRow(rows[index]);
+        }
+      }
+      refreshRunSummary();
+      const failed = rows.length - passed;
+      showToast(failed ? failed + ' run row(s) failed schema validation.' : 'All run rows passed schema validation.');
+      return failed === 0;
+    }
+
+    async function runSelectedPlanRows() {
+      const ok = await validateRunPlanRows();
+      if (!ok) return;
+      const rows = runPlanRows();
+      show('output-section');
+      hide('run-status');
+      $('output').innerHTML = '';
+      closeBatchStreams();
+      currentJobId = null;
+      currentBatchJobIds = [];
+      currentOutputLineCount = 0;
+      const parallelLimit = Math.max(1, Math.min(8, parseInt($('run-plan-parallel-limit').value || '1', 10) || 1));
+      let cursor = 0;
+      let active = 0;
+      let completed = 0;
+      let failed = 0;
+      const jobs = [];
+      function rowPayload(row, index) {
+        const values = runPlanRowValues(row);
+        const target = catcTargetForPlanValue(values.target);
+        return {
+          inventory: values.inventory,
+          playbook: values.playbook,
+          vars_file: values.vars,
+          workflow: values.workflow,
+          vars_source: runPlanVarsSourcePayload(values.repo),
+          inventory_source: runPlanVarsSourcePayload(values.repo),
+          label: values.name || 'Run ' + (index + 1),
+          verbosity: '',
+          extra_args: '',
+          kind: 'run-plan',
+          catalyst_connection: target ? {
+            enabled: true,
+            host: target.host,
+            username: target.username,
+            password: target.password,
+            verify: target.verify,
+          } : { enabled: false },
+          ...runtimePayload(),
+        };
+      }
+      function finishOne(status) {
+        active -= 1;
+        completed += 1;
+        if (status !== 'completed') failed += 1;
+        if (completed === rows.length) {
+          currentBatchJobIds = [];
+          updateRunStatus(failed ? 'failed' : 'completed');
+          refreshDashboardCards(failed ? 'failed' : 'completed');
+          refreshHistory();
+          return;
+        }
+        launchNext();
+      }
+      async function launchNext() {
+        while (active < parallelLimit && cursor < rows.length) {
+          const row = rows[cursor];
+          const index = cursor;
+          cursor += 1;
+          active += 1;
+          try {
+            const data = await fetchJson('/api/run', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(rowPayload(row, index)),
+            });
+            const job = { job_id: data.job_id, label: rowPayload(row, index).label, command: data.command, metadata: { target: { name: rowPayload(row, index).label } } };
+            jobs.push(job);
+            currentBatchJobIds.push(data.job_id);
+            appendLine($('output'), '[' + job.label + '] $ ' + data.command + '\\n', 'text-cyan-300');
+            streamBatchJob(job, $('output'), finishOne);
+          } catch (error) {
+            appendLine($('output'), '[Run ' + (index + 1) + '] ' + error.message + '\\n', 'text-rose-300');
+            finishOne('failed');
+          }
+        }
+      }
+      refreshDashboardCards('running');
+      await launchNext();
+    }
 
     function htmlEscape(value) {
       return (value || '')
@@ -1116,6 +1919,8 @@
           ? (gitInventories.length ? gitInventories.length + ' inventory file' + (gitInventories.length === 1 ? '' : 's') + ' found in input repo.' : 'No inventory files found in input repo. Browse another file if needed.')
           : 'Fetch an input Git repo to select inventory files from it.';
       }
+      renderCatcInputOverrideRows();
+      refreshRunPlanRows();
     }
 
     function applyRunSourceOptions() {
@@ -1125,6 +1930,7 @@
       populateSelect('sel-inventory', inventoryOptions(), 'Select inventory...');
       if (inventories.length === 1) $('sel-inventory').selectedIndex = 1;
       refreshInputRepoOptions();
+      refreshRunPlanRows();
     }
 
     function useGitRepositoryForRun() {
@@ -1308,13 +2114,59 @@
       return bits.join(' · ');
     }
 
+    function repoDisplayName(source) {
+      if (!source) return 'Input repo';
+      const tail = (source.repo_url || '').replace(/\.git$/, '').split('/').filter(Boolean).pop();
+      return tail || 'Input repo';
+    }
+
+    function gitRepositoryRecord(data) {
+      return {
+        id: data.source.id,
+        name: repoDisplayName(data.source),
+        source: data.source,
+        vars: data.vars || [],
+        inventories: data.inventories || [],
+        fetched_at: new Date().toISOString(),
+      };
+    }
+
+    function upsertGitRepository(record) {
+      const index = gitRepositories.findIndex(function(repo) { return repo.id === record.id; });
+      if (index === -1) {
+        gitRepositories.push(record);
+      } else {
+        gitRepositories[index] = Object.assign({}, gitRepositories[index], record);
+      }
+    }
+
+    function setActiveGitRepository(repoId) {
+      const repo = gitRepositories.find(function(item) { return item.id === repoId; });
+      if (!repo) {
+        gitSource = null;
+        gitVars = [];
+        gitInventories = [];
+      } else {
+        gitSource = repo.source;
+        gitVars = repo.vars || [];
+        gitInventories = repo.inventories || [];
+      }
+      persistGitRepository();
+      updateGitRepositoryView();
+      if (inputSource && inputSource.kind === 'git') inputSource = gitSource || { kind: 'local' };
+      refreshInputRepoOptions();
+      refreshRunSummary();
+    }
+
     function persistGitRepository() {
       localStorage.removeItem(GIT_SOURCE_STORAGE_KEY);
-      if (!gitSource) {
+      if (!gitRepositories.length && !gitSource) {
         sessionStorage.removeItem(GIT_SOURCE_STORAGE_KEY);
         return;
       }
       sessionStorage.setItem(GIT_SOURCE_STORAGE_KEY, JSON.stringify({
+        repositories: gitRepositories,
+        active_id: gitSource ? gitSource.id : '',
         source: gitSource,
         vars: gitVars,
         inventories: gitInventories,
@@ -1329,9 +2181,28 @@
         const raw = sessionStorage.getItem(GIT_SOURCE_STORAGE_KEY);
         if (!raw) return;
         const state = JSON.parse(raw);
+        gitRepositories = state.repositories || [];
         gitSource = state.source || null;
         gitVars = state.vars || [];
         gitInventories = state.inventories || [];
+        if (!gitRepositories.length && gitSource) {
+          gitRepositories = [{
+            id: gitSource.id,
+            name: repoDisplayName(gitSource),
+            source: gitSource,
+            vars: gitVars,
+            inventories: gitInventories,
+            fetched_at: '',
+          }];
+        }
+        if (state.active_id) {
+          const active = gitRepositories.find(function(repo) { return repo.id === state.active_id; });
+          if (active) {
+            gitSource = active.source;
+            gitVars = active.vars || [];
+            gitInventories = active.inventories || [];
+          }
+        }
         $('git-repo-url').value = state.repo_url || (gitSource && gitSource.repo_url) || '';
         $('git-ref').value = state.ref || (gitSource && gitSource.ref) || 'main';
         updateGitRepositoryView();
@@ -1343,11 +2214,57 @@
 
     function updateGitRepositoryView() {
       const hasSource = !!gitSource;
-      $('git-fetch-form').classList.toggle('hidden', hasSource);
       $('git-active-source').classList.toggle('hidden', !hasSource);
       $('git-source-label').textContent = hasSource ? gitSourceSummary() : 'No repo loaded';
       $('git-active-source-text').textContent = hasSource ? gitSourceSummary() : '';
+      renderGitRepositoryRegistry();
       refreshInputRepoOptions();
+    }
+
+    function renderGitRepositoryRegistry() {
+      const wrapper = $('git-repo-registry');
+      const body = $('git-repo-registry-rows');
+      if (!wrapper || !body) return;
+      wrapper.classList.remove('hidden');
+      if (!gitRepositories.length) {
+        body.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-sm font-semibold text-slate-500">No input repos added yet. Add the first repo above.</td></tr>';
+        return;
+      }
+      body.innerHTML = gitRepositories.map(function(repo) {
+        const active = gitSource && gitSource.id === repo.id;
+        return ''
+          + '<tr>'
+          +   '<td class="px-3 py-3"><p class="font-bold text-slate-900">' + htmlEscape(repo.name || repoDisplayName(repo.source)) + '</p><p class="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">' + (active ? 'Active' : 'Ready') + '</p></td>'
+          +   '<td class="px-3 py-3"><p class="max-w-[260px] truncate font-semibold text-slate-800">' + htmlEscape(repo.source.repo_url || '') + '</p><p class="mt-1 text-slate-500">' + htmlEscape(repo.source.commit || '') + '</p></td>'
+          +   '<td class="px-3 py-3 font-semibold text-slate-800">' + htmlEscape(repo.source.ref || 'main') + '</td>'
+          +   '<td class="px-3 py-3 font-semibold text-slate-800">' + (repo.vars || []).length + ' vars · ' + (repo.inventories || []).length + ' inventories</td>'
+          +   '<td class="px-3 py-3"><span class="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-700">Ready</span></td>'
+          +   '<td class="px-3 py-3 text-right">'
+          +     '<button type="button" data-git-action="use" data-git-repo="' + htmlEscape(repo.id) + '" class="mr-2 rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">' + (active ? 'Selected' : 'Use') + '</button>'
+          +     '<button type="button" data-git-action="refresh" data-git-repo="' + htmlEscape(repo.id) + '" class="mr-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100">Refresh</button>'
+          +     '<button type="button" data-git-action="remove" data-git-repo="' + htmlEscape(repo.id) + '" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Remove</button>'
+          +   '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    function removeGitRepository(repoId) {
+      gitRepositories = gitRepositories.filter(function(repo) { return repo.id !== repoId; });
+      if (gitSource && gitSource.id === repoId) {
+        const wasUsingGit = inputSource && inputSource.kind === 'git';
+        gitSource = null;
+        gitVars = [];
+        gitInventories = [];
+        if (gitRepositories.length) {
+          const next = gitRepositories[0];
+          gitSource = next.source;
+          gitVars = next.vars || [];
+          gitInventories = next.inventories || [];
+        }
+        if (wasUsingGit) inputSource = gitSource || { kind: 'local' };
+      }
+      persistGitRepository();
+      updateGitRepositoryView();
     }
 
     function changeGitRepository() {
@@ -1355,6 +2272,7 @@
       gitSource = null;
       gitVars = [];
       gitInventories = [];
+      gitRepositories = [];
       localStorage.removeItem(GIT_SOURCE_STORAGE_KEY);
       sessionStorage.removeItem(GIT_SOURCE_STORAGE_KEY);
       updateGitRepositoryView();
@@ -1363,7 +2281,25 @@
       $('git-repo-url').focus();
     }
 
-    async function fetchGitRepository(useActiveSource) {
+    async function refreshSelectedGitRepository() {
+      if (!gitSource) {
+        showToast('Select a Git repository first.');
+        return;
+      }
+      $('git-repo-url').value = gitSource.repo_url || '';
+      $('git-ref').value = gitSource.ref || 'main';
+      await fetchGitRepository(true, true);
+    }
+
+    async function refreshGitRepository(repoId) {
+      const repo = gitRepositories.find(function(item) { return item.id === repoId; });
+      if (!repo) return;
+      $('git-repo-url').value = repo.source.repo_url || '';
+      $('git-ref').value = repo.source.ref || 'main';
+      await fetchGitRepository(false, true);
+    }
+
+    async function fetchGitRepository(useActiveSource, preserveInputs) {
       if (useActiveSource && gitSource) {
         $('git-repo-url').value = gitSource.repo_url || $('git-repo-url').value;
         $('git-ref').value = gitSource.ref || $('git-ref').value || 'main';
@@ -1377,10 +2313,11 @@
 
       const button = $('btn-fetch-git');
       button.disabled = true;
-      button.textContent = 'Fetching...';
+      button.textContent = 'Adding...';
       const previousSource = gitSource;
       const previousVars = gitVars;
       const previousInventories = gitInventories;
+      const previousRepositories = gitRepositories.slice();
       setGitStatus('Fetching repository and discovering input files...', false);
       try {
         const data = await fetchJson('/api/git/fetch', {
@@ -1388,24 +2325,31 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ repo_url: repoUrl, ref: ref }),
         });
-        gitSource = data.source;
-        gitVars = data.vars || [];
-        gitInventories = data.inventories || [];
+        const record = gitRepositoryRecord(data);
+        upsertGitRepository(record);
+        gitSource = record.source;
+        gitVars = record.vars || [];
+        gitInventories = record.inventories || [];
         persistGitRepository();
         updateGitRepositoryView();
         setGitStatus('Repository ready. Found ' + gitVars.length + ' vars file' + (gitVars.length === 1 ? '' : 's') + ' and ' + gitInventories.length + ' inventory file' + (gitInventories.length === 1 ? '' : 's') + '.', false);
         if (inputSource && inputSource.kind === 'git') inputSource = gitSource;
         refreshInputRepoOptions();
+        if (!preserveInputs) {
+          $('git-repo-url').value = '';
+          $('git-ref').value = 'main';
+        }
       } catch (error) {
         gitSource = previousSource;
         gitVars = previousVars;
         gitInventories = previousInventories;
+        gitRepositories = previousRepositories;
         updateGitRepositoryView();
         setGitStatus(error.message, true);
         refreshInputRepoOptions();
       } finally {
         button.disabled = false;
-        button.textContent = 'Fetch';
+        button.textContent = 'Add repo';
       }
     }
 
@@ -1459,12 +2403,14 @@
 
       if (sectionKey === 'run-vars') {
         inputSource = mode === 'git' ? gitSource : { kind: 'local' };
+        renderCatcInputOverrideRows();
         onRunVarsChanged();
         return;
       }
       if (sectionKey === 'run-inventory') {
         inputSource = mode === 'git' ? gitSource : { kind: 'local' };
         updateSourceHint('run', 'inventory');
+        renderCatcInputOverrideRows();
       }
       if (sectionKey.startsWith('run-')) refreshRunSummary();
     }
@@ -1537,13 +2483,42 @@
         const mode = getSourceMode('run-inventory');
         $('run-inventory-selection').textContent = describePath(path, mode === 'git' ? 'Select an input repo inventory file.' : 'Using the local repository inventory list by default.');
       }
+      renderCatcInputOverrideRows();
     }
 
     function refreshRunSummary() {
+      if (getRunMode() === 'plan') {
+        const rows = runPlanRows();
+        const readyRows = rows.filter(function(row) { return runPlanStatus(row) === 'Ready'; }).length;
+        $('summary-targets').textContent = rows.length
+          ? rows.length + ' run row' + (rows.length === 1 ? '' : 's') + ' · parallel limit ' + ($('run-plan-parallel-limit').value || '1')
+          : 'No run rows';
+        $('summary-workflow').textContent = 'Run list';
+        $('summary-playbook').textContent = rows.length ? 'Per row' : 'Not selected';
+        $('summary-vars').textContent = rows.length ? 'Per row' : 'Not selected';
+        $('summary-inventory').textContent = rows.length ? 'Per row' : 'Not selected';
+        const validationLabel = $('summary-validation');
+        if (validationLabel) {
+          const ready = rows.length && readyRows === rows.length;
+          validationLabel.textContent = rows.length ? readyRows + ' / ' + rows.length + ' rows ready' : 'Not validated';
+          validationLabel.className = 'mt-2 inline-flex rounded-full px-3 py-1 text-xs font-bold ' + (ready ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700');
+        }
+        return;
+      }
+      const targets = parseCatcTargets(false);
+      const varsOverrideCount = targets.filter(function(target) { return !!target.vars_file; }).length;
+      const inventoryOverrideCount = targets.filter(function(target) { return !!target.inventory; }).length;
+      if (getRunTargetMode() === 'multiple') {
+        $('summary-targets').textContent = targets.length
+          ? targets.length + ' selected · parallel limit ' + getParallelLimit()
+          : 'No targets selected';
+      } else {
+        $('summary-targets').textContent = 'Single CatC';
+      }
       $('summary-workflow').textContent = $('sel-workflow').value || 'Not selected';
       $('summary-playbook').textContent = basename($('sel-playbook').value) || 'Not selected';
-      $('summary-vars').textContent = describePath(getSelectedVarsPath('run'), 'Not selected');
-      $('summary-inventory').textContent = describePath(getSelectedInventoryPath('run'), 'Not selected');
+      $('summary-vars').textContent = describePath(getSelectedVarsPath('run'), 'Not selected') + (varsOverrideCount ? ' · ' + varsOverrideCount + ' override' + (varsOverrideCount === 1 ? '' : 's') : '');
+      $('summary-inventory').textContent = describePath(getSelectedInventoryPath('run'), 'Not selected') + (inventoryOverrideCount ? ' · ' + inventoryOverrideCount + ' override' + (inventoryOverrideCount === 1 ? '' : 's') : '');
       if (schemaValidationState !== 'not_validated' && lastValidatedKey !== currentValidationKey()) {
         setSchemaValidationStatus('not_validated');
       }
@@ -1603,6 +2578,7 @@
 
     async function onRunVarsChanged() {
       updateSourceHint('run', 'vars');
+      renderCatcInputOverrideRows();
       refreshRunSummary();
 
       if ($('editor-section').classList.contains('hidden')) return;
@@ -1754,9 +2730,10 @@
     }
 
     function toggleCatalystConnection() {
-      $('catalyst-connection-fields').classList.toggle('hidden', !$('catalyst-connection-enabled').checked);
+      const enabled = $('catalyst-connection-enabled').checked;
+      $('catalyst-connection-fields').classList.toggle('hidden', !enabled);
+      $('catalyst-connection-fallback').classList.toggle('hidden', enabled);
       setCatalystConnectionWarning('', 'run');
-      if (!$('catalyst-connection-enabled').checked) setRunInventoryStepError('');
       updateRunDefaultsSummary();
     }
 
@@ -1776,32 +2753,14 @@
       const venv = $('managed-venv-enabled').checked
         ? 'Managed venv'
         : 'Local venv';
-      const catcEnabled = $('catalyst-connection-enabled').checked;
-      const catcComplete = catcEnabled
-        && $('catalyst-connection-host').value.trim()
-        && $('catalyst-connection-username').value.trim()
-        && $('catalyst-connection-password').value;
-      const catc = !catcEnabled
-        ? 'Inventory details'
-        : catcComplete
-          ? 'Inventory details set'
-          : 'Inventory details needed';
       const managedVenvEnabled = $('managed-venv-enabled').checked;
-      const inventoryDetailsSet = catcComplete;
-      const statusText = managedVenvEnabled && inventoryDetailsSet
-        ? 'Ready'
-        : managedVenvEnabled
-          ? 'Venv ready'
-          : inventoryDetailsSet
-            ? 'Inventory ready'
-            : 'Needs setup';
-      summary.textContent = venv + ' · ' + catc;
-      summary.className = 'text-sm font-bold ' + (catcEnabled && !catcComplete ? 'text-rose-700' : 'text-slate-700');
+      const statusText = managedVenvEnabled ? 'Venv ready' : 'Needs setup';
+      summary.textContent = venv;
+      summary.className = 'text-sm font-bold text-slate-700';
       if (!badge) return;
       badge.textContent = statusText;
       badge.className = 'inline-flex rounded-full px-3 py-1 text-xs font-bold ' + (
-        statusText === 'Ready' ? 'bg-emerald-100 text-emerald-700' :
-        statusText === 'Venv ready' || statusText === 'Inventory ready' ? 'bg-cyan-50 text-cyan-700' :
+        statusText === 'Venv ready' ? 'bg-cyan-50 text-cyan-700' :
         statusText === 'Needs setup' ? 'border border-rose-100 bg-rose-50 text-rose-700' :
         'bg-slate-100 text-slate-700'
       );
@@ -1833,7 +2792,6 @@
       const enabled = $('catalyst-connection-enabled').checked;
       if (!enabled) {
         setCatalystConnectionWarning('', scope);
-        if (scope === 'run') setRunInventoryStepError('');
         return true;
       }
       const missing = [];
@@ -1842,15 +2800,12 @@
       if (!$('catalyst-connection-password').value) missing.push('password');
       if (!missing.length) {
         setCatalystConnectionWarning('', scope);
-        if (scope === 'run') setRunInventoryStepError('');
         return true;
       }
       const message = 'Enter Catalyst Center ' + missing.join(', ') + ' or uncheck this option to use inventory or shell environment values.';
       setCatalystConnectionWarning(message, scope);
-      if (scope === 'run') setRunInventoryStepError('Missing Catalyst Center ' + missing.join(', '));
       if (shouldFocus) {
-        switchTab('dashboard');
-        openRunDefaults();
+        switchTab('run');
         showToast(message);
         setTimeout(function() {
           $('catalyst-connection-' + missing[0]).focus();
@@ -1870,6 +2825,47 @@
         password: $('catalyst-connection-password').value,
         verify: $('catalyst-connection-verify').value,
       };
+    }
+
+    function parseCatcTargets(throwOnError) {
+      if (getRunTargetMode() !== 'multiple') return [];
+      return targetRows().map(function(row, index) {
+        function field(name) {
+          const input = row.querySelector('[data-target-field="' + name + '"]');
+          return input ? input.value.trim() : '';
+        }
+        const varsInput = document.querySelector('[data-target-vars-index="' + index + '"]');
+        const inventoryInput = document.querySelector('[data-target-inventory-index="' + index + '"]');
+        return {
+          name: field('name') || field('host') || 'CatC ' + (index + 1),
+          host: field('host'),
+          username: field('username'),
+          password: field('password'),
+          verify: field('verify'),
+          vars_file: varsInput ? varsInput.value.trim() : '',
+          inventory: inventoryInput ? inventoryInput.value.trim() : '',
+        };
+      }).filter(function(target) {
+        return target.host || target.username || target.password || target.vars_file || target.inventory;
+      });
+    }
+
+    function getParallelLimit() {
+      const value = parseInt($('multi-catc-parallel-limit').value, 10);
+      return Number.isFinite(value) && value > 0 ? Math.min(value, 8) : 1;
+    }
+
+    function validateCatcTargets() {
+      const targets = parseCatcTargets(true);
+      if (!targets.length) throw new Error('Add at least one Catalyst Center target.');
+      const missing = [];
+      targets.forEach(function(target) {
+        ['host', 'username', 'password'].forEach(function(field) {
+          if (!target[field]) missing.push(target.name + ' ' + field);
+        });
+      });
+      if (missing.length) throw new Error('Missing target fields: ' + missing.join(', '));
+      return targets;
     }
 
     function openWorkflowOptions() {
@@ -2026,6 +3022,8 @@
       }
       updateSourceHint('run', 'vars');
       updateSourceHint('run', 'inventory');
+      setRunMode('plan');
+      setRunTargetMode('multiple');
       setSourceMode('run-vars', 'workflow');
       setSourceMode('run-inventory', 'default');
       setSourceMode('modal-vars', 'workflow');
@@ -2044,12 +3042,30 @@
     });
 
     document.addEventListener('click', function(event) {
+      const gitActionButton = event.target.closest('[data-git-action]');
+      if (gitActionButton) {
+        const repoId = gitActionButton.dataset.gitRepo;
+        if (gitActionButton.dataset.gitAction === 'use') {
+          setActiveGitRepository(repoId);
+        } else if (gitActionButton.dataset.gitAction === 'refresh') {
+          refreshGitRepository(repoId);
+        } else if (gitActionButton.dataset.gitAction === 'remove') {
+          removeGitRepository(repoId);
+        }
+        return;
+      }
+
       ['workflow-combo', 'modal-workflow-combo', 'dashboard-workflow-search'].forEach(function(inputId) {
         const input = $(inputId);
         const menu = $(inputId + '-menu');
         if (!input || !menu) return;
         if (input.contains(event.target) || menu.contains(event.target)) return;
         menu.classList.add('hidden');
+      });
+      document.querySelectorAll('[data-plan-combo]').forEach(function(combo) {
+        if (combo.contains(event.target)) return;
+        const menu = combo.querySelector('[data-plan-menu]');
+        if (menu) menu.classList.add('hidden');
       });
     });
 
@@ -2688,6 +3704,34 @@
       };
     }
 
+    function closeBatchStreams() {
+      batchEventSources.forEach(function(source) {
+        try { source.close(); } catch (error) {}
+      });
+      batchEventSources = [];
+    }
+
+    function streamBatchJob(job, outputEl, onDone) {
+      const source = new EventSource('/api/run/' + job.job_id + '/stream?start=0');
+      batchEventSources.push(source);
+      const targetName = job.metadata && job.metadata.target && job.metadata.target.name
+        ? job.metadata.target.name
+        : job.label;
+      source.onmessage = function(event) {
+        const msg = JSON.parse(event.data);
+        if (msg.t === 'o') {
+          appendLine(outputEl, '[' + targetName + '] ' + msg.l);
+        } else if (msg.t === 'd') {
+          source.close();
+          if (onDone) onDone(job.job_id, msg.s);
+        }
+      };
+      source.onerror = function() {
+        source.close();
+        if (onDone) onDone(job.job_id, 'error');
+      };
+    }
+
     async function restoreActiveRunJob() {
       if (restoringRunJob) return;
       restoringRunJob = true;
@@ -2744,7 +3788,16 @@
         alert('Save the selected vars file before launching. Unsaved editor changes are not passed to ansible-playbook.\n\n' + selectedVarsPathLabel());
         return;
       }
-      if (!validateCatalystConnection('run', true)) {
+      const multipleTargets = getRunTargetMode() === 'multiple';
+      let targets = [];
+      if (multipleTargets) {
+        try {
+          targets = validateCatcTargets();
+        } catch (error) {
+          alert(error.message);
+          return;
+        }
+      } else if (!validateCatalystConnection('run', true)) {
         return;
       }
       if (!(await ensureManagedVenvReady())) {
@@ -2754,24 +3807,72 @@
       show('output-section');
       hide('run-status');
       $('output').innerHTML = '';
+      closeBatchStreams();
 
       try {
         const runName = $('run-name').value.trim();
+        const payload = {
+          inventory: inventory,
+          playbook: playbook,
+          vars_file: varsFile,
+          workflow: $('sel-workflow').value,
+          vars_source: varsSourcePayload(),
+          inventory_source: inventorySourcePayload(),
+          label: runName || undefined,
+          verbosity: $('sel-verbosity').value,
+          extra_args: $('extra-args').value,
+          ...runtimePayload(),
+        };
+
+        if (multipleTargets) {
+          const data = await fetchJson('/api/run/batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...payload,
+              kind: 'batch',
+              targets: targets,
+              parallel_limit: getParallelLimit(),
+            }),
+          });
+
+          currentJobId = null;
+          currentBatchJobIds = data.jobs.map(function(job) { return job.job_id; });
+          currentOutputLineCount = 0;
+          appendLine($('output'), '# Batch ' + data.batch_id + ' · ' + data.jobs.length + ' target job(s)\\n', 'text-cyan-300');
+          data.jobs.forEach(function(job) {
+            appendLine($('output'), '$ ' + job.command + '\\n', 'text-cyan-300');
+          });
+          show('btn-cancel');
+          hide('btn-run');
+          refreshDashboardCards('running');
+
+          const remaining = new Set(data.jobs.map(function(job) { return job.job_id; }));
+          const statuses = {};
+          data.jobs.forEach(function(job) {
+            streamBatchJob(job, $('output'), function(jobId, status) {
+              remaining.delete(jobId);
+              statuses[jobId] = status;
+              if (!remaining.size) {
+                show('btn-run');
+                hide('btn-cancel');
+                currentBatchJobIds = [];
+                const finalStatus = Object.values(statuses).every(function(item) { return item === 'completed'; }) ? 'completed' : 'failed';
+                updateRunStatus(finalStatus);
+                refreshDashboardCards(finalStatus);
+                refreshHistory();
+              }
+            });
+          });
+          return;
+        }
+
         const data = await fetchJson('/api/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            inventory: inventory,
-            playbook: playbook,
-            vars_file: varsFile,
-            workflow: $('sel-workflow').value,
-            vars_source: varsSourcePayload(),
-            inventory_source: inventorySourcePayload(),
+            ...payload,
             kind: 'single',
-            label: runName || undefined,
-            verbosity: $('sel-verbosity').value,
-            extra_args: $('extra-args').value,
-            ...runtimePayload(),
             catalyst_connection: catalystConnectionPayload(),
           }),
         });
@@ -2796,8 +3897,20 @@
     }
 
     async function cancelJob() {
-      if (!currentJobId) return;
       try {
+        if (currentBatchJobIds.length) {
+          await Promise.all(currentBatchJobIds.map(function(jobId) {
+            return fetchJson('/api/run/' + jobId + '/cancel', { method: 'POST' });
+          }));
+          closeBatchStreams();
+          currentBatchJobIds = [];
+          show('btn-run');
+          hide('btn-cancel');
+          updateRunStatus('cancelled');
+          refreshDashboardCards('cancelled');
+          return;
+        }
+        if (!currentJobId) return;
         await fetchJson('/api/run/' + currentJobId + '/cancel', { method: 'POST' });
       } catch (error) {
         alert(error.message);
