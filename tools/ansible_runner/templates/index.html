@@ -753,6 +753,44 @@
             </div>
           </div>
 
+          <div id="automation-suite-bulk-bar" class="hidden rounded-[24px] border border-cyan-200 bg-cyan-50 px-5 py-4 shadow-soft">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div class="flex flex-wrap items-center gap-4">
+                <p id="automation-suite-selected-count" class="text-sm font-bold text-slate-900">0 selected</p>
+                <div class="flex overflow-hidden rounded-xl border border-slate-200 bg-white p-1">
+                  <button id="automation-suite-mode-sequential" type="button" onclick="setAutomationSuiteMode('sequential')" class="rounded-lg bg-cyan-600 px-3 py-2 text-xs font-bold text-white">
+                    Sequential
+                  </button>
+                  <button id="automation-suite-mode-parallel" type="button" onclick="setAutomationSuiteMode('parallel')" class="rounded-lg px-3 py-2 text-xs font-bold text-slate-600 transition hover:bg-slate-100">
+                    Parallel
+                  </button>
+                </div>
+                <label id="automation-suite-parallel-control" class="hidden flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  Parallel suites
+                  <input id="automation-suite-parallel-limit" type="number" min="2" max="10"
+                    class="h-11 w-20 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                </label>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="runSelectedAutomationSuites()" class="rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-cyan-500">
+                  Run selected
+                </button>
+                <button type="button" onclick="clearAutomationSuiteSelection()" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50">
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="automation-suite-launch-message" class="hidden rounded-[24px] border border-emerald-200 bg-emerald-50 px-5 py-4 shadow-soft">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <p id="automation-suite-launch-text" class="text-sm font-bold text-emerald-800">Suites launched.</p>
+              <button type="button" onclick="switchTab('history')" class="rounded-xl border border-emerald-300 bg-white px-4 py-2.5 text-sm font-bold text-emerald-800 transition hover:bg-emerald-100">
+                View in Automation Assurance
+              </button>
+            </div>
+          </div>
+
           <div id="automation-suites-list" class="grid gap-4"></div>
 
           <div id="automation-suites-empty" class="hidden rounded-[28px] border border-dashed border-slate-300 bg-white px-6 py-12 text-center shadow-soft">
@@ -1161,6 +1199,9 @@
     let catcTargetCounter = 0;
     let runPlanCounter = 0;
     let activeRunPlanRowId = '';
+    let selectedAutomationSuiteIds = [];
+    let automationSuiteLaunchMode = 'sequential';
+    let automationSuiteLaunchInFlight = false;
     const ACTIVE_TAB_STORAGE_KEY = 'validated-playbook-active-tab';
     const AUTOMATION_SUITES_STORAGE_KEY = 'validated-playbook-automation-suites';
     let wfSteps = [];
@@ -1389,6 +1430,34 @@
       };
     }
 
+    function normalizeCatcTargetDetails(target) {
+      if (!target) return null;
+      const normalized = {
+        name: (target.name || '').trim(),
+        host: (target.host || '').trim(),
+        username: (target.username || '').trim(),
+        password: target.password || '',
+        verify: (target.verify || '').trim(),
+      };
+      return normalized.name && normalized.host && normalized.username ? normalized : null;
+    }
+
+    function catcTargetFingerprint(target) {
+      const normalized = normalizeCatcTargetDetails(target);
+      return normalized
+        ? [normalized.name, normalized.host, normalized.username, normalized.verify].join('|')
+        : '';
+    }
+
+    function selectedCatcTargetSnapshot(value) {
+      return normalizeCatcTargetDetails(catcTargetForPlanValue(value));
+    }
+
+    function suiteRunTarget(run) {
+      return normalizeCatcTargetDetails(run.target_details || run.targetDetails)
+        || selectedCatcTargetSnapshot(run.target);
+    }
+
     function runPlanRepoOptions() {
       const options = [{ v: 'local', t: 'Built-in repo' }];
       const seen = new Set(['local']);
@@ -1407,6 +1476,42 @@
       }
       options.push({ v: 'local-folder', t: 'Local folder' });
       return options;
+    }
+
+    function repoSnapshotForPlanValue(value) {
+      if (!value || value === 'local' || value === 'local-folder') return null;
+      const repo = gitRepositories.find(function(item) { return item.id === value; })
+        || (gitSource && gitSource.id === value ? {
+          id: gitSource.id,
+          name: repoDisplayName(gitSource),
+          source: gitSource,
+          vars: gitVars,
+          inventories: gitInventories,
+        } : null);
+      if (!repo || !repo.source) return null;
+      return {
+        id: repo.id || repo.source.id || value,
+        name: repo.name || repoDisplayName(repo.source),
+        source: repo.source,
+        vars: repo.vars || [],
+        inventories: repo.inventories || [],
+        fetched_at: repo.fetched_at || '',
+      };
+    }
+
+    function suiteRunRepoDetails(run) {
+      return run.repo_details || run.repoDetails || null;
+    }
+
+    function suiteRunRepoSource(run) {
+      const details = suiteRunRepoDetails(run);
+      return details && details.source ? details.source : runPlanVarsSourcePayload(run.repo);
+    }
+
+    function suiteRunRepoReady(run) {
+      if (!run.repo || run.repo === 'local' || run.repo === 'local-folder') return true;
+      if (suiteRunRepoDetails(run) && suiteRunRepoDetails(run).source) return true;
+      return gitRepositories.some(function(repo) { return repo.id === run.repo; });
     }
 
     function runPlanWorkflowOptions() {
@@ -1659,26 +1764,28 @@
       showToast('Ready for a new suite.');
     }
 
-    function showLaunchAssurancePrompt(failed) {
+    function showLaunchAssurancePrompt(failedCount, completedCount, totalCount) {
       const prompt = $('launch-assurance-prompt');
       const message = $('launch-assurance-message');
       if (!prompt || !message) return;
-      prompt.className = failed
+      const hasFailures = failedCount > 0;
+      prompt.className = hasFailures
         ? 'mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3'
         : 'mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3';
-      message.className = failed
+      message.className = hasFailures
         ? 'text-sm font-semibold text-rose-800'
         : 'text-sm font-semibold text-emerald-800';
-      message.textContent = failed
-        ? 'Run completed with failures. View results in Automation Assurance.'
-        : 'Suite launched. View results in Automation Assurance.';
+      const failedText = typeof failedCount === 'number' ? failedCount : 0;
+      const completedText = typeof totalCount === 'number' ? totalCount : (typeof completedCount === 'number' ? completedCount + failedText : failedText);
+      message.textContent = 'Suite launch finished: ' + failedText + ' failed / ' + completedText + ' completed.'
+        + ' View results in Automation Assurance.';
       show('launch-assurance-prompt');
     }
 
     function renumberRunPlanRows() {
       runPlanRows().forEach(function(row, index) {
         const label = row.querySelector('[data-plan-index]');
-        if (label) label.textContent = 'Run ' + (index + 1);
+        if (label) label.textContent = 'Play ' + (index + 1);
       });
     }
 
@@ -1693,7 +1800,7 @@
       row.innerHTML = ''
         + '<div class="flex flex-col gap-3 border-b border-slate-200 pb-3 lg:flex-row lg:items-center lg:justify-between">'
         +   '<div>'
-        +     '<p data-plan-index class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Run ' + runPlanCounter + '</p>'
+        +     '<p data-plan-index class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Play ' + runPlanCounter + '</p>'
         +     '<p data-plan-title class="mt-1 text-sm font-bold text-slate-900">' + htmlEscape(values.name || 'Untitled run') + '</p>'
         +   '</div>'
         +   '<div class="flex flex-wrap items-center gap-2">'
@@ -1741,10 +1848,13 @@
         const input = row.querySelector('[data-plan-field="' + name + '"]');
         return input ? input.value : '';
       }
+      const target = value('target');
       return {
         name: value('name'),
-        target: value('target'),
+        target: target,
+        target_details: selectedCatcTargetSnapshot(target),
         repo: value('repo'),
+        repo_details: repoSnapshotForPlanValue(value('repo')),
         workflow: value('workflow'),
         playbook: value('playbook'),
         vars: value('vars'),
@@ -1836,7 +1946,7 @@
       return runs.map(function(run, index) {
         return ''
           + '<tr class="border-t border-slate-100">'
-          +   '<td class="whitespace-nowrap px-3 py-3 text-xs font-bold text-slate-500">Run ' + (index + 1) + '</td>'
+          +   '<td class="whitespace-nowrap px-3 py-3 text-xs font-bold text-slate-500">Play ' + (index + 1) + '</td>'
           +   '<td class="px-3 py-3 text-xs font-semibold text-slate-800">' + htmlEscape(run.workflow || 'Not selected') + '</td>'
           +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.playbook) || 'Not selected') + '</td>'
           +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.vars) || 'Not selected') + '</td>'
@@ -1848,8 +1958,51 @@
     function suiteCanRun(suite) {
       const runs = suite.runs || [];
       return runs.length && runs.every(function(run) {
-        return !!(run.workflow && run.playbook && run.vars && run.inventory);
+        return !!(run.workflow && run.playbook && run.vars && run.inventory && suiteRunTarget(run) && suiteRunRepoReady(run));
       });
+    }
+
+    function syncAutomationSuiteSelection(suites) {
+      const validIds = suites.map(function(suite) { return suite.id; });
+      selectedAutomationSuiteIds = selectedAutomationSuiteIds.filter(function(id) {
+        return validIds.indexOf(id) !== -1;
+      });
+      const bar = $('automation-suite-bulk-bar');
+      const count = $('automation-suite-selected-count');
+      if (bar) bar.classList.toggle('hidden', selectedAutomationSuiteIds.length === 0);
+      if (count) count.textContent = selectedAutomationSuiteIds.length + ' selected';
+    }
+
+    function clearAutomationSuiteSelection() {
+      selectedAutomationSuiteIds = [];
+      renderAutomationSuites();
+    }
+
+    function setAutomationSuiteMode(mode) {
+      automationSuiteLaunchMode = mode === 'parallel' ? 'parallel' : 'sequential';
+      const sequentialButton = $('automation-suite-mode-sequential');
+      const parallelButton = $('automation-suite-mode-parallel');
+      const parallelControl = $('automation-suite-parallel-control');
+      if (sequentialButton) {
+        sequentialButton.className = automationSuiteLaunchMode === 'sequential'
+          ? 'rounded-lg bg-cyan-600 px-3 py-2 text-xs font-bold text-white'
+          : 'rounded-lg px-3 py-2 text-xs font-bold text-slate-600 transition hover:bg-slate-100';
+      }
+      if (parallelButton) {
+        parallelButton.className = automationSuiteLaunchMode === 'parallel'
+          ? 'rounded-lg bg-cyan-600 px-3 py-2 text-xs font-bold text-white'
+          : 'rounded-lg px-3 py-2 text-xs font-bold text-slate-600 transition hover:bg-slate-100';
+      }
+      if (parallelControl) parallelControl.classList.toggle('hidden', automationSuiteLaunchMode !== 'parallel');
+    }
+
+    function setAutomationSuiteSelected(id, selected) {
+      if (selected && selectedAutomationSuiteIds.indexOf(id) === -1) {
+        selectedAutomationSuiteIds.push(id);
+      } else if (!selected) {
+        selectedAutomationSuiteIds = selectedAutomationSuiteIds.filter(function(item) { return item !== id; });
+      }
+      renderAutomationSuites();
     }
 
     function renderAutomationSuites() {
@@ -1857,35 +2010,45 @@
       const empty = $('automation-suites-empty');
       if (!list || !empty) return;
       const suites = loadAutomationSuites();
+      syncAutomationSuiteSelection(suites);
       empty.classList.toggle('hidden', suites.length > 0);
-      list.innerHTML = suites.map(function(suite) {
+      list.innerHTML = suites.map(function(suite, suiteIndex) {
         const runCount = (suite.runs || []).length;
         const canRun = suiteCanRun(suite);
+        const selected = selectedAutomationSuiteIds.indexOf(suite.id) !== -1;
         const runButtonClass = canRun
           ? 'rounded-xl bg-cyan-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-cyan-500'
           : 'cursor-not-allowed rounded-xl bg-slate-200 px-3 py-2 text-xs font-bold text-slate-500';
+        const moveButtonClass = 'inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-300';
         return ''
           + '<article class="rounded-[24px] border border-slate-300 bg-white p-5 shadow-soft">'
           +   '<div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">'
-          +     '<div class="min-w-0">'
-          +       '<p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">' + runCount + ' run' + (runCount === 1 ? '' : 's') + '</p>'
-          +       '<h3 class="mt-2 truncate text-lg font-bold text-slate-900">' + htmlEscape(suite.name || 'Untitled suite') + '</h3>'
-          +       '<p class="mt-2 text-sm text-slate-600">' + htmlEscape(suiteWorkflowSummary(suite)) + '</p>'
-          +       '<p class="mt-3 text-xs font-semibold text-slate-500">Updated ' + htmlEscape(suiteUpdatedLabel(suite.updatedAt)) + '</p>'
+          +     '<div class="flex min-w-0 gap-4">'
+          +       '<input type="checkbox" data-suite-select="' + htmlEscape(suite.id) + '"' + (selected ? ' checked' : '') + ' class="mt-1 h-5 w-5 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500">'
+          +       '<div class="min-w-0">'
+          +         '<p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">' + runCount + ' run' + (runCount === 1 ? '' : 's') + '</p>'
+          +         '<h3 class="mt-2 truncate text-lg font-bold text-slate-900">' + htmlEscape(suite.name || 'Untitled suite') + '</h3>'
+          +         '<p class="mt-2 text-sm text-slate-600">' + htmlEscape(suiteWorkflowSummary(suite)) + '</p>'
+          +         '<p class="mt-3 text-xs font-semibold text-slate-500">Updated ' + htmlEscape(suiteUpdatedLabel(suite.updatedAt)) + '</p>'
+          +       '</div>'
           +     '</div>'
           +     '<div class="flex shrink-0 flex-wrap gap-2">'
+          +       '<div class="mr-2 flex gap-1">'
+          +         '<button type="button" aria-label="Move suite up" title="Move up" data-suite-action="move-up" data-suite-id="' + htmlEscape(suite.id) + '"' + (suiteIndex === 0 ? ' disabled' : '') + ' class="' + moveButtonClass + '">↑</button>'
+          +         '<button type="button" aria-label="Move suite down" title="Move down" data-suite-action="move-down" data-suite-id="' + htmlEscape(suite.id) + '"' + (suiteIndex === suites.length - 1 ? ' disabled' : '') + ' class="' + moveButtonClass + '">↓</button>'
+          +       '</div>'
           +       '<button type="button" data-suite-action="load" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">Edit</button>'
-          +       '<button type="button" data-suite-action="run" data-suite-id="' + htmlEscape(suite.id) + '"' + (canRun ? '' : ' disabled title="Add workflow, playbook, vars, and inventory before running."') + ' class="' + runButtonClass + '">Run</button>'
+          +       '<button type="button" data-suite-action="run" data-suite-id="' + htmlEscape(suite.id) + '"' + (canRun ? '' : ' disabled title="Add CatC target, repo, workflow, playbook, vars, and inventory before running."') + ' class="' + runButtonClass + '">Run</button>'
           +       '<button type="button" data-suite-action="delete" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Delete</button>'
           +     '</div>'
           +   '</div>'
           +   '<details class="mt-5 rounded-2xl border border-slate-200 bg-slate-50">'
-          +     '<summary class="cursor-pointer list-none px-4 py-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">View run details</summary>'
+          +     '<summary class="cursor-pointer list-none px-4 py-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">View play details</summary>'
           +     '<div class="overflow-x-auto border-t border-slate-200">'
           +       '<table class="min-w-[760px] w-full text-left">'
           +         '<thead class="bg-slate-100 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">'
           +           '<tr>'
-          +             '<th class="px-3 py-2">Run</th>'
+          +             '<th class="px-3 py-2">Play</th>'
           +             '<th class="px-3 py-2">Workflow</th>'
           +             '<th class="px-3 py-2">Playbook</th>'
           +             '<th class="px-3 py-2">Vars</th>'
@@ -1902,15 +2065,67 @@
       }).join('');
     }
 
+    function restoreSuiteCatcTargets(suite) {
+      const targets = [];
+      (suite.runs || []).forEach(function(run) {
+        const target = normalizeCatcTargetDetails(run.target_details || run.targetDetails);
+        if (!target) return;
+        const key = catcTargetFingerprint(target);
+        if (!targets.some(function(item) { return catcTargetFingerprint(item) === key; })) {
+          targets.push(target);
+        }
+      });
+      if (!targets.length) return;
+      const tbody = $('multi-catc-target-rows');
+      if (tbody) tbody.innerHTML = '';
+      targets.forEach(function(target) {
+        addCatcTargetRow(target);
+      });
+      (suite.runs || []).forEach(function(run) {
+        const target = normalizeCatcTargetDetails(run.target_details || run.targetDetails);
+        if (!target) return;
+        const key = catcTargetFingerprint(target);
+        const index = targets.findIndex(function(item) {
+          return catcTargetFingerprint(item) === key;
+        });
+        if (index >= 0) run.target = 'target-' + index;
+      });
+    }
+
+    function restoreSuiteGitRepositories(suite) {
+      (suite.runs || []).forEach(function(run) {
+        const details = suiteRunRepoDetails(run);
+        if (!details || !details.source || !details.source.id) return;
+        upsertGitRepository({
+          id: details.id || details.source.id,
+          name: details.name || repoDisplayName(details.source),
+          source: details.source,
+          vars: details.vars || [],
+          inventories: details.inventories || [],
+          fetched_at: details.fetched_at || new Date().toISOString(),
+        });
+        run.repo = details.source.id;
+      });
+    }
+
     function populateRunPlanFromSuite(suite) {
+      const runs = (suite.runs || []).map(function(run) {
+        return Object.assign({}, run);
+      });
+      const suiteForLoad = Object.assign({}, suite, { runs: runs });
+      restoreSuiteGitRepositories(suiteForLoad);
+      restoreSuiteCatcTargets(suiteForLoad);
+      runs.forEach(function(run) {
+        if (run.target && !suiteRunTarget(run)) run.target = '';
+      });
       $('run-plan-rows').innerHTML = '';
       activeRunPlanRowId = '';
       clearRunOutputPanel();
       hide('launch-assurance-prompt');
-      (suite.runs || []).forEach(function(run) {
+      runs.forEach(function(run) {
         addRunPlanRow(run);
       });
-      if (!(suite.runs || []).length) addRunPlanRow();
+      if (!runs.length) addRunPlanRow();
       $('suite-name').value = suite.name || '';
       clearRunPlanEditor();
       refreshRunSummary();
@@ -1928,7 +2143,122 @@
       showToast('Automation suite loaded for editing.');
     }
 
+    function moveAutomationSuite(id, direction) {
+      const suites = loadAutomationSuites();
+      const index = suites.findIndex(function(item) { return item.id === id; });
+      if (index === -1) return;
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= suites.length) return;
+      const moving = suites[index];
+      suites[index] = suites[targetIndex];
+      suites[targetIndex] = moving;
+      persistAutomationSuites(suites);
+      renderAutomationSuites();
+    }
+
+    function automationSuiteRowPayload(suite, run, index, suiteLaunchId) {
+      const target = suiteRunTarget(run);
+      const repoSource = suiteRunRepoSource(run);
+      const suitePlan = (suite.runs || []).map(function(item, itemIndex) {
+        return {
+          index: itemIndex + 1,
+          workflow: item.workflow || '',
+          playbook: item.playbook || '',
+          vars_file: item.vars || '',
+          inventory: item.inventory || '',
+        };
+      });
+      return {
+        inventory: run.inventory,
+        playbook: run.playbook,
+        vars_file: run.vars,
+        workflow: run.workflow,
+        vars_source: repoSource,
+        inventory_source: repoSource,
+        label: run.name || 'Play ' + (index + 1),
+        suite_launch_id: suiteLaunchId,
+        suite_name: suite.name || 'Automation suite',
+        suite_run_index: index + 1,
+        suite_run_total: (suite.runs || []).length,
+        suite_plan: suitePlan,
+        verbosity: '',
+        extra_args: '',
+        kind: 'automation-suite',
+        catalyst_connection: target ? {
+          enabled: true,
+          host: target.host,
+          username: target.username,
+          password: target.password,
+          verify: target.verify,
+        } : { enabled: false },
+        ...runtimePayload(),
+      };
+    }
+
+    async function waitForAutomationSuiteJob(jobId) {
+      while (true) {
+        const job = await fetchJson('/api/jobs/' + encodeURIComponent(jobId));
+        if (['queued', 'running'].indexOf(job.status) === -1) return job.status;
+        await new Promise(function(resolve) { setTimeout(resolve, 1200); });
+      }
+    }
+
+    async function launchAutomationSuiteJobs(suite) {
+      const runs = suite.runs || [];
+      const suiteLaunchId = suiteId();
+      let submitted = 0;
+      let failedToStart = 0;
+      let failed = 0;
+      for (let index = 0; index < runs.length; index += 1) {
+        try {
+          const data = await fetchJson('/api/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(automationSuiteRowPayload(suite, runs[index], index, suiteLaunchId)),
+          });
+          submitted += 1;
+          refreshHistory();
+          const status = await waitForAutomationSuiteJob(data.job_id);
+          refreshHistory();
+          if (status !== 'completed') {
+            failed += 1;
+            break;
+          }
+        } catch (error) {
+          failedToStart += 1;
+          failed += 1;
+          break;
+        }
+      }
+      return { suite: suite, submitted: submitted, failedToStart: failedToStart, failed: failed };
+    }
+
+    function showAutomationSuiteLaunchMessage(results) {
+      const message = $('automation-suite-launch-message');
+      const text = $('automation-suite-launch-text');
+      if (!message || !text) return;
+      const suiteCount = results.length;
+      const failedStarts = results.reduce(function(total, result) { return total + result.failedToStart; }, 0);
+      const submitted = results.reduce(function(total, result) { return total + result.submitted; }, 0);
+      const failed = results.reduce(function(total, result) { return total + (result.failed || 0); }, 0);
+      message.className = failedStarts || failed
+        ? 'rounded-[24px] border border-amber-200 bg-amber-50 px-5 py-4 shadow-soft'
+        : 'rounded-[24px] border border-emerald-200 bg-emerald-50 px-5 py-4 shadow-soft';
+      text.className = failedStarts || failed
+        ? 'text-sm font-bold text-amber-800'
+        : 'text-sm font-bold text-emerald-800';
+      text.textContent = suiteCount + ' suite' + (suiteCount === 1 ? '' : 's') + ' finished. '
+        + failed + ' failed / ' + submitted + ' completed.'
+        + (failedStarts ? ' ' + failedStarts + ' failed to start.' : '')
+        + ' View results in Automation Assurance.';
+      show('automation-suite-launch-message');
+    }
+
     async function runAutomationSuite(id) {
+      if (automationSuiteLaunchInFlight) {
+        showToast('Automation suite launch already in progress.');
+        return;
+      }
       const suite = loadAutomationSuites().find(function(item) { return item.id === id; });
       if (!suite) {
         showToast('Automation suite not found.');
@@ -1936,13 +2266,84 @@
         return;
       }
       if (!suiteCanRun(suite)) {
-        showToast('Complete workflow, playbook, vars, and inventory before running this suite.');
+        showToast('Complete CatC target, repo, workflow, playbook, vars, and inventory before running this suite.');
         return;
       }
-      populateRunPlanFromSuite(suite);
-      showToast('Starting automation suite.');
-      switchTab('run');
-      await runSelectedPlanRows();
+      hide('automation-suite-launch-message');
+      showToast('Launching automation suite.');
+      automationSuiteLaunchInFlight = true;
+      try {
+        const result = await launchAutomationSuiteJobs(suite);
+        showAutomationSuiteLaunchMessage([result]);
+        refreshDashboardCards('running');
+        refreshHistory();
+      } finally {
+        automationSuiteLaunchInFlight = false;
+      }
+    }
+
+    async function runSelectedAutomationSuites() {
+      if (automationSuiteLaunchInFlight) {
+        showToast('Automation suite launch already in progress.');
+        return;
+      }
+      const suites = loadAutomationSuites().filter(function(suite) {
+        return selectedAutomationSuiteIds.indexOf(suite.id) !== -1;
+      });
+      if (!suites.length) {
+        showToast('Select at least one suite.');
+        return;
+      }
+      const notReady = suites.filter(function(suite) { return !suiteCanRun(suite); });
+      if (notReady.length) {
+        showToast(notReady.length + ' selected suite(s) need CatC target, repo, workflow, playbook, vars, and inventory.');
+        return;
+      }
+
+      hide('automation-suite-launch-message');
+      const suiteParallelLimit = automationSuiteLaunchMode === 'parallel'
+        ? Math.max(2, Math.min(10, parseInt($('automation-suite-parallel-limit').value || '0', 10) || 2))
+        : 1;
+      let cursor = 0;
+      let active = 0;
+      const results = [];
+      showToast((automationSuiteLaunchMode === 'parallel' ? 'Launching ' : 'Launching sequentially: ') + suites.length + ' automation suite(s).');
+
+      automationSuiteLaunchInFlight = true;
+      try {
+        await new Promise(function(resolve) {
+          async function launchNextSuite() {
+            while (active < suiteParallelLimit && cursor < suites.length) {
+              const suite = suites[cursor];
+              cursor += 1;
+              active += 1;
+              launchAutomationSuiteJobs(suite)
+                .then(function(result) {
+                  results.push(result);
+                })
+                .catch(function(error) {
+                  results.push({ suite: suite, submitted: 0, failedToStart: (suite.runs || []).length, error: error.message });
+                })
+                .finally(function() {
+                  active -= 1;
+                  if (results.length === suites.length) {
+                    resolve();
+                  } else {
+                    launchNextSuite();
+                  }
+                });
+            }
+          }
+          launchNextSuite();
+        });
+
+        clearAutomationSuiteSelection();
+        showAutomationSuiteLaunchMessage(results);
+        refreshDashboardCards('running');
+        refreshHistory();
+      } finally {
+        automationSuiteLaunchInFlight = false;
+      }
     }
 
     function deleteAutomationSuite(id) {
@@ -2183,6 +2584,8 @@
       currentBatchJobIds = [];
       currentOutputLineCount = 0;
       const parallelLimit = Math.max(1, Math.min(8, parseInt($('run-plan-parallel-limit').value || '1', 10) || 1));
+      const suiteLaunchId = 'suite-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+      const suiteName = ($('suite-name').value || '').trim() || 'Ad hoc suite';
       let cursor = 0;
       let active = 0;
       let completed = 0;
@@ -2198,7 +2601,11 @@
           workflow: values.workflow,
           vars_source: runPlanVarsSourcePayload(values.repo),
           inventory_source: runPlanVarsSourcePayload(values.repo),
-          label: values.name || 'Run ' + (index + 1),
+          label: values.name || 'Play ' + (index + 1),
+          suite_launch_id: suiteLaunchId,
+          suite_name: suiteName,
+          suite_run_index: index + 1,
+          suite_run_total: rows.length,
           verbosity: '',
           extra_args: '',
           kind: 'run-plan',
@@ -2222,7 +2629,7 @@
           refreshDashboardCards(failed ? 'failed' : 'completed');
           refreshHistory();
           clearRunOutputPanel();
-          showLaunchAssurancePrompt(failed);
+          showLaunchAssurancePrompt(failed, rows.length - failed, rows.length);
           return;
         }
         launchNext();
@@ -2245,7 +2652,7 @@
             appendLine($('output'), '[' + job.label + '] $ ' + data.command + '\\n', 'text-cyan-300');
             streamBatchJob(job, $('output'), finishOne);
           } catch (error) {
-            appendLine($('output'), '[Run ' + (index + 1) + '] ' + error.message + '\\n', 'text-rose-300');
+            appendLine($('output'), '[Play ' + (index + 1) + '] ' + error.message + '\\n', 'text-rose-300');
             finishOne('failed');
           }
         }
@@ -2412,7 +2819,7 @@
       const active = (jobs || []).filter(function(job) {
         return ['queued', 'running'].indexOf(job.status) !== -1;
       });
-      const visibleJobs = active.length ? active : (jobs || []);
+      const visibleJobs = (active.length ? active : (jobs || [])).slice(0, 10);
       section.classList.toggle('hidden', visibleJobs.length === 0);
       if (!visibleJobs.length) {
         container.innerHTML = '';
@@ -2879,6 +3286,13 @@
       return sourceForMode(getSourceMode('run-vars'));
     }
 
+    function editorVarsSourcePayload() {
+      const sourceId = $('editor-section').dataset.varsSource || '';
+      if (!sourceId || sourceId === 'local') return { kind: 'local' };
+      const repo = gitRepositories.find(function(item) { return item.id === sourceId; });
+      return repo && repo.source ? repo.source : { kind: 'local' };
+    }
+
     function inventorySourcePayload() {
       return sourceForMode(getSourceMode('run-inventory'));
     }
@@ -2911,7 +3325,7 @@
         const input = row.querySelector(selector);
         const value = input ? input.value : '';
         const label = formatter ? formatter(value) : value;
-        return 'Run ' + (index + 1) + ': ' + (label || 'Not selected');
+        return 'Play ' + (index + 1) + ': ' + (label || 'Not selected');
       }).join('\n');
     }
 
@@ -3475,6 +3889,7 @@
       setSourceMode('modal-vars', 'workflow');
       setSourceMode('modal-inventory', 'default');
       renderAutomationSuites();
+      setAutomationSuiteMode('sequential');
       refreshDashboardCards();
       refreshRunSummary();
       renderDashboardWorkflows();
@@ -3510,7 +3925,17 @@
           runAutomationSuite(suiteId);
         } else if (suiteActionButton.dataset.suiteAction === 'delete') {
           deleteAutomationSuite(suiteId);
+        } else if (suiteActionButton.dataset.suiteAction === 'move-up') {
+          moveAutomationSuite(suiteId, 'up');
+        } else if (suiteActionButton.dataset.suiteAction === 'move-down') {
+          moveAutomationSuite(suiteId, 'down');
         }
+        return;
+      }
+
+      const suiteSelect = event.target.closest('[data-suite-select]');
+      if (suiteSelect) {
+        setAutomationSuiteSelected(suiteSelect.dataset.suiteSelect, suiteSelect.checked);
         return;
       }
 
@@ -4031,7 +4456,7 @@
         await fetchJson('/api/file', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ path: path, content: editor.getValue(), source: varsSourcePayload() }),
+          body: JSON.stringify({ path: path, content: editor.getValue(), source: editorVarsSourcePayload() }),
         });
         hide('btn-save');
         fileDirty = false;
@@ -4594,9 +5019,18 @@
         running: 'bg-cyan-100 text-cyan-700',
         cancelled: 'bg-slate-200 text-slate-700',
         queued: 'bg-amber-100 text-amber-700',
+        'not-run': 'bg-slate-200 text-slate-700',
       };
 
-      $('history-body').innerHTML = jobs.map(function(job) {
+      function durationText(job) {
+        return job.t0 && job.t1 ? (job.t1 - job.t0).toFixed(1) + 's' : (job.t0 ? 'running...' : '-');
+      }
+
+      function timeText(job) {
+        return job.t0 ? new Date(job.t0 * 1000).toLocaleTimeString() : '-';
+      }
+
+      function renderJobRow(job) {
         const duration = job.t0 && job.t1 ? (job.t1 - job.t0).toFixed(1) + 's' : (job.t0 ? 'running...' : '-');
         const time = job.t0 ? new Date(job.t0 * 1000).toLocaleTimeString() : '-';
         const detailHref = jobDetailHref(job.id);
@@ -4611,6 +5045,153 @@
           +   '<td class="px-6 py-4 text-slate-500">' + htmlEscape(duration) + '</td>'
           +   '<td class="px-6 py-4 text-slate-500">' + htmlEscape(time) + '</td>'
           + '</tr>';
+      }
+
+      function suiteGroups(items) {
+        const grouped = [];
+        const seen = {};
+        items.forEach(function(job) {
+          const metadata = job.metadata || {};
+          const suiteId = metadata.suite_launch_id || '';
+          if (!suiteId) {
+            grouped.push({ type: 'job', job: job });
+            return;
+          }
+          if (!seen[suiteId]) {
+            seen[suiteId] = {
+              type: 'suite',
+              id: suiteId,
+              name: metadata.suite_name || 'Automation suite',
+              expectedTotal: 0,
+              plan: [],
+              jobs: [],
+            };
+            grouped.push(seen[suiteId]);
+          }
+          if (!seen[suiteId].plan.length && Array.isArray(metadata.suite_plan)) {
+            seen[suiteId].plan = metadata.suite_plan;
+          }
+          seen[suiteId].expectedTotal = Math.max(
+            seen[suiteId].expectedTotal || 0,
+            parseInt(metadata.suite_run_total || '0', 10) || 0
+          );
+          seen[suiteId].jobs.push(job);
+        });
+        return grouped;
+      }
+
+      function suiteStatus(group) {
+        const total = Math.max(group.expectedTotal || 0, group.jobs.length);
+        const missingPlays = Math.max(0, total - group.jobs.length);
+        if (group.jobs.some(function(job) { return job.status === 'failed' || job.status === 'cancelled'; })) return 'failed';
+        if (group.jobs.some(function(job) { return job.status === 'running'; })) return 'running';
+        if (group.jobs.some(function(job) { return job.status === 'queued'; })) return 'queued';
+        if (missingPlays > 0) return 'running';
+        if (group.jobs.every(function(job) { return job.status === 'completed'; })) return 'completed';
+        return group.jobs[0] ? group.jobs[0].status : 'queued';
+      }
+
+      function suiteSummary(group) {
+        const total = Math.max(group.expectedTotal || 0, group.jobs.length);
+        const succeeded = group.jobs.filter(function(job) { return job.status === 'completed'; }).length;
+        const failed = group.jobs.filter(function(job) { return job.status === 'failed' || job.status === 'cancelled'; }).length;
+        const active = group.jobs.filter(function(job) {
+          return job.status === 'running' || job.status === 'queued';
+        }).length;
+        const missing = Math.max(0, total - succeeded - failed - active);
+        const waiting = failed ? 0 : missing;
+        const notRun = failed ? missing : 0;
+        return 'Succeeded ' + succeeded + ' · Failed ' + failed + ' · Waiting ' + waiting + ' · Not run ' + notRun + ' · Total ' + total;
+      }
+
+      function renderSuiteGroup(group) {
+        const orderedJobs = group.jobs.slice().sort(function(a, b) {
+          const aIndex = parseInt(((a.metadata || {}).suite_run_index || '0'), 10) || 0;
+          const bIndex = parseInt(((b.metadata || {}).suite_run_index || '0'), 10) || 0;
+          return aIndex - bIndex;
+        });
+        const jobsByIndex = {};
+        orderedJobs.forEach(function(job) {
+          const index = parseInt(((job.metadata || {}).suite_run_index || '0'), 10) || 0;
+          if (index) jobsByIndex[index] = job;
+        });
+        const plannedRows = group.plan && group.plan.length
+          ? group.plan
+          : orderedJobs.map(function(job, index) {
+            const metadata = job.metadata || {};
+            return {
+              index: parseInt(metadata.suite_run_index || '0', 10) || (index + 1),
+              workflow: metadata.workflow || '',
+              playbook: metadata.playbook || '',
+              vars_file: metadata.vars_file || '',
+              inventory: metadata.inventory || '',
+            };
+          });
+        const newest = group.jobs.reduce(function(best, job) {
+          if (!best) return job;
+          return (job.t0 || 0) > (best.t0 || 0) ? job : best;
+        }, null);
+        const status = suiteStatus(group);
+        const statusClass = statusClasses[status] || 'bg-slate-200 text-slate-700';
+        const hasTerminalFailure = group.jobs.some(function(job) {
+          return job.status === 'failed' || job.status === 'cancelled';
+        });
+        const childRows = plannedRows.map(function(plan, index) {
+          const planIndex = parseInt(plan.index || '0', 10) || (index + 1);
+          const job = jobsByIndex[planIndex] || null;
+          const metadata = job ? (job.metadata || {}) : plan;
+          const detailHref = job ? jobDetailHref(job.id) : '';
+          const rowStatus = job ? job.status : (hasTerminalFailure ? 'not-run' : 'waiting');
+          const rowStatusLabel = rowStatus === 'not-run' ? 'not run' : rowStatus;
+          return ''
+            + '<tr class="border-b border-slate-100 last:border-b-0">'
+            +   '<td class="px-4 py-3 font-semibold text-slate-800">Play ' + planIndex + '</td>'
+            +   '<td class="px-4 py-3 text-slate-600">' + htmlEscape(metadata.workflow || '-') + '</td>'
+            +   '<td class="px-4 py-3 text-slate-600">' + htmlEscape(basename(metadata.playbook) || '-') + '</td>'
+            +   '<td class="px-4 py-3 text-slate-600">' + htmlEscape(basename(metadata.vars_file) || '-') + '</td>'
+            +   '<td class="px-4 py-3 text-slate-600">' + htmlEscape(basename(metadata.inventory) || '-') + '</td>'
+            +   '<td class="px-4 py-3"><span class="rounded-full px-2.5 py-1 text-xs font-semibold ' + (statusClasses[rowStatus] || 'bg-slate-200 text-slate-700') + '">' + htmlEscape(rowStatusLabel) + '</span></td>'
+            +   '<td class="px-4 py-3">' + (job ? '<a href="' + detailHref + '" class="text-xs font-semibold text-cyan-700 underline decoration-cyan-200 underline-offset-4 transition hover:text-cyan-800">Open log</a>' : '<span class="text-xs font-semibold text-slate-400">' + (hasTerminalFailure ? 'Not started' : 'Pending') + '</span>') + '</td>'
+            + '</tr>';
+        }).join('');
+        return ''
+          + '<tr class="border-b border-slate-100 text-sm text-slate-700 last:border-b-0">'
+          +   '<td colspan="5" class="px-6 py-4">'
+          +     '<details class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50" open>'
+          +       '<summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 transition hover:bg-slate-100">'
+          +         '<div>'
+          +           '<p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">Suite launch</p>'
+          +           '<p class="mt-1 text-base font-bold text-slate-900">' + htmlEscape(group.name) + '</p>'
+          +           '<p class="mt-1 text-xs font-semibold text-slate-500">' + htmlEscape(suiteSummary(group)) + '</p>'
+          +         '</div>'
+          +         '<div class="flex shrink-0 items-center gap-4">'
+          +           '<span class="rounded-full px-2.5 py-1 text-xs font-semibold ' + statusClass + '">' + htmlEscape(status) + '</span>'
+          +           '<span class="text-xs font-semibold text-slate-500">' + htmlEscape(newest ? timeText(newest) : '-') + '</span>'
+          +         '</div>'
+          +       '</summary>'
+          +       '<div class="overflow-x-auto border-t border-slate-200 bg-white">'
+          +         '<table class="min-w-[980px] w-full text-left text-xs">'
+          +           '<thead class="bg-slate-100 text-slate-500">'
+          +             '<tr>'
+          +               '<th class="px-4 py-3 font-bold uppercase tracking-[0.16em]">Play</th>'
+          +               '<th class="px-4 py-3 font-bold uppercase tracking-[0.16em]">Workflow</th>'
+          +               '<th class="px-4 py-3 font-bold uppercase tracking-[0.16em]">Playbook</th>'
+          +               '<th class="px-4 py-3 font-bold uppercase tracking-[0.16em]">Vars</th>'
+          +               '<th class="px-4 py-3 font-bold uppercase tracking-[0.16em]">Inventory</th>'
+          +               '<th class="px-4 py-3 font-bold uppercase tracking-[0.16em]">Status</th>'
+          +               '<th class="px-4 py-3"></th>'
+          +             '</tr>'
+          +           '</thead>'
+          +           '<tbody>' + childRows + '</tbody>'
+          +         '</table>'
+          +       '</div>'
+          +     '</details>'
+          +   '</td>'
+          + '</tr>';
+      }
+
+      $('history-body').innerHTML = suiteGroups(jobs).map(function(item) {
+        return item.type === 'suite' ? renderSuiteGroup(item) : renderJobRow(item.job);
       }).join('');
     }
 

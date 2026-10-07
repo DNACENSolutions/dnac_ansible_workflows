@@ -2,7 +2,6 @@
 """Ansible Workflow Runner backend."""
 
 import json
-import hashlib
 import os
 import re
 import shlex
@@ -203,11 +202,8 @@ def _resolve_user_file(raw_path: str | None, *, must_exist: bool = True) -> Path
     )
 
 
-def _git_source_id(repo_url: str, ref: str) -> str:
-    name = repo_url.rstrip("/").removesuffix(".git").split("/")[-1] or "repo"
-    name = re.sub(r"[^A-Za-z0-9_.-]+", "_", name).strip("._") or "repo"
-    digest = hashlib.sha256(f"{repo_url}|{ref}".encode("utf-8")).hexdigest()[:12]
-    return f"{name}_{digest}"
+def _git_source_id() -> str:
+    return f"repo_{uuid.uuid4().hex[:12]}"
 
 
 def _normalize_git_input(repo_url: str, ref: str) -> tuple[str, str]:
@@ -234,16 +230,32 @@ def _validate_git_input(repo_url: str, ref: str) -> str | None:
     return None
 
 
+def _git_repo_cache_target() -> tuple[str, Path]:
+    source_id = _git_source_id()
+    target = (GIT_REPOS_DIR / source_id).resolve()
+    return source_id, target
+
+
+def _resolve_existing_git_repo_cache_dir(source_id: str) -> Path | None:
+    if not re.fullmatch(r"repo_[0-9a-f]{12}", source_id):
+        return None
+    cache_root = GIT_REPOS_DIR.resolve()
+    if not cache_root.exists():
+        return None
+    for child in cache_root.iterdir():
+        if child.name != source_id:
+            continue
+        source_root = child.resolve()
+        if _is_within(source_root, cache_root) and source_root.exists():
+            return source_root
+    return None
+
+
 def _resolve_git_source(source: dict | None) -> Path | None:
     if not source or source.get("kind") != "git":
         return PROJECT_ROOT.resolve()
     source_id = str(source.get("id") or "")
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+", source_id):
-        return None
-    source_root = (GIT_REPOS_DIR / source_id).resolve()
-    if not _is_within(source_root, GIT_REPOS_DIR.resolve()) or not source_root.exists():
-        return None
-    return source_root
+    return _resolve_existing_git_repo_cache_dir(source_id)
 
 
 def _safe_relative_parts(raw_path: str) -> tuple[str, ...] | None:
@@ -854,8 +866,7 @@ def api_git_fetch():
     if validation_error:
         return _json_error(validation_error)
 
-    source_id = _git_source_id(repo_url, ref)
-    target = (GIT_REPOS_DIR / source_id).resolve()
+    source_id, target = _git_repo_cache_target()
     if not _is_within(target, GIT_REPOS_DIR.resolve()):
         return _json_error("Invalid repository target")
 
@@ -1173,6 +1184,11 @@ def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", targ
     metadata = {
         "kind": kind,
         "batch_id": batch_id,
+        "suite_launch_id": data.get("suite_launch_id") or "",
+        "suite_name": data.get("suite_name") or "",
+        "suite_run_index": data.get("suite_run_index") or "",
+        "suite_run_total": data.get("suite_run_total") or "",
+        "suite_plan": data.get("suite_plan") if isinstance(data.get("suite_plan"), list) else [],
         "label": label,
         "target": {
             "name": target_name,
