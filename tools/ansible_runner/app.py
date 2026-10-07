@@ -2,7 +2,6 @@
 """Ansible Workflow Runner backend."""
 
 import json
-import hashlib
 import os
 import re
 import shlex
@@ -44,6 +43,7 @@ BROWSE_ROOTS = {
 # In-memory job store (lost on restart — acceptable for a local tool)
 _jobs: dict[str, "Job"] = {}
 _jobs_lock = threading.Lock()
+_cancelled_suites: set[str] = set()
 
 
 # ---------------------------------------------------------------------------
@@ -104,6 +104,9 @@ class Job:
 
 def _exec(job: Job):
     """Execute ansible-playbook in a background thread."""
+    if job.status == "cancelled":
+        job.t1 = time.time()
+        return
     job.status = "running"
     job.t0 = time.time()
     env = os.environ.copy()
@@ -128,7 +131,8 @@ def _exec(job: Job):
                 job.put(line)
         job.proc.wait()
         job.rc = job.proc.returncode
-        job.status = "completed" if job.rc == 0 else "failed"
+        if job.status != "cancelled":
+            job.status = "completed" if job.rc == 0 else "failed"
     except Exception as exc:
         job.put(f"\n*** Error: {exc}\n")
         job.status = "failed"
@@ -138,7 +142,71 @@ def _exec(job: Job):
 
 def _exec_with_semaphore(job: Job, semaphore: threading.Semaphore):
     with semaphore:
+        if job.status == "cancelled":
+            job.t1 = time.time()
+            return
         _exec(job)
+
+
+def _suite_failed_start_job(data: dict, message: str, *, kind: str = "automation-suite") -> Job:
+    jid = uuid.uuid4().hex[:8]
+    label = data.get("label") or f"Play {data.get('suite_run_index') or ''}".strip() or "Automation suite play"
+    metadata = {
+        "kind": kind,
+        "batch_id": "",
+        "suite_launch_id": data.get("suite_launch_id") or "",
+        "suite_name": data.get("suite_name") or "",
+        "suite_run_index": data.get("suite_run_index") or "",
+        "suite_run_total": data.get("suite_run_total") or "",
+        "suite_failure_policy": data.get("suite_failure_policy") or "",
+        "suite_launch_mode": data.get("suite_launch_mode") or "",
+        "suite_plan": data.get("suite_plan") if isinstance(data.get("suite_plan"), list) else [],
+        "label": label,
+        "workflow": data.get("workflow") or "",
+        "playbook": data.get("playbook") or "",
+        "inventory": data.get("inventory") or "",
+        "vars_file": data.get("vars_file") or "",
+        "vars_source": data.get("vars_source") or {},
+        "inventory_source": data.get("inventory_source") or {},
+        "extra_args": data.get("extra_args", ""),
+        "managed_venv": data.get("managed_venv", ""),
+        "venv_path": data.get("venv_path") or "",
+        "catalyst_connection_enabled": bool((data.get("catalyst_connection") or {}).get("enabled")),
+        "catalyst_connection_host": str((data.get("catalyst_connection") or {}).get("host") or ""),
+        "catalyst_connection_username": str((data.get("catalyst_connection") or {}).get("username") or ""),
+        "catalyst_connection_verify": str((data.get("catalyst_connection") or {}).get("verify") or ""),
+        "catalyst_connection_password_set": bool((data.get("catalyst_connection") or {}).get("password")),
+    }
+    job = Job(jid, ["suite-start-failed"], str(PROJECT_ROOT), label, {}, metadata)
+    job.status = "failed"
+    job.rc = 1
+    job.t0 = time.time()
+    job.t1 = job.t0
+    job.put(f"*** Failed to start suite play: {message}\n")
+    return job
+
+
+def _exec_suite_sequence(runs: list[dict], failure_policy: str):
+    continue_on_failure = failure_policy == "continue"
+    for data in runs:
+        suite_id = data.get("suite_launch_id") or ""
+        if suite_id in _cancelled_suites:
+            break
+        job, result = _build_run_job(data, kind=data.get("kind") or "automation-suite")
+        if job is None:
+            failed_job = _suite_failed_start_job(data, str(result))
+            with _jobs_lock:
+                _jobs[failed_job.id] = failed_job
+            if not continue_on_failure:
+                break
+            continue
+        with _jobs_lock:
+            _jobs[job.id] = job
+        _exec(job)
+        if suite_id in _cancelled_suites:
+            break
+        if job.status != "completed" and not continue_on_failure:
+            break
 
 
 # ---------------------------------------------------------------------------
@@ -203,11 +271,8 @@ def _resolve_user_file(raw_path: str | None, *, must_exist: bool = True) -> Path
     )
 
 
-def _git_source_id(repo_url: str, ref: str) -> str:
-    name = repo_url.rstrip("/").removesuffix(".git").split("/")[-1] or "repo"
-    name = re.sub(r"[^A-Za-z0-9_.-]+", "_", name).strip("._") or "repo"
-    digest = hashlib.sha256(f"{repo_url}|{ref}".encode("utf-8")).hexdigest()[:12]
-    return f"{name}_{digest}"
+def _git_source_id() -> str:
+    return f"repo_{uuid.uuid4().hex[:12]}"
 
 
 def _normalize_git_input(repo_url: str, ref: str) -> tuple[str, str]:
@@ -234,16 +299,32 @@ def _validate_git_input(repo_url: str, ref: str) -> str | None:
     return None
 
 
+def _git_repo_cache_target() -> tuple[str, Path]:
+    source_id = _git_source_id()
+    target = (GIT_REPOS_DIR / source_id).resolve()
+    return source_id, target
+
+
+def _resolve_existing_git_repo_cache_dir(source_id: str) -> Path | None:
+    if not re.fullmatch(r"repo_[0-9a-f]{12}", source_id):
+        return None
+    cache_root = GIT_REPOS_DIR.resolve()
+    if not cache_root.exists():
+        return None
+    for child in cache_root.iterdir():
+        if child.name != source_id:
+            continue
+        source_root = child.resolve()
+        if _is_within(source_root, cache_root) and source_root.exists():
+            return source_root
+    return None
+
+
 def _resolve_git_source(source: dict | None) -> Path | None:
     if not source or source.get("kind") != "git":
         return PROJECT_ROOT.resolve()
     source_id = str(source.get("id") or "")
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+", source_id):
-        return None
-    source_root = (GIT_REPOS_DIR / source_id).resolve()
-    if not _is_within(source_root, GIT_REPOS_DIR.resolve()) or not source_root.exists():
-        return None
-    return source_root
+    return _resolve_existing_git_repo_cache_dir(source_id)
 
 
 def _safe_relative_parts(raw_path: str) -> tuple[str, ...] | None:
@@ -335,11 +416,16 @@ def _discover_repo_vars(root: Path) -> list[str]:
             continue
         lower_parts = [part.lower() for part in parts]
         lower_name = path.name.lower()
-        if "inventory" in lower_parts or lower_name.startswith("hosts."):
+        if lower_name.startswith("hosts.") or (lower_parts and lower_parts[0] == "inventory"):
             continue
         if "schema" in lower_parts or "playbook" in lower_parts:
             continue
-        if not ("vars" in lower_parts or "var" in lower_name or "input" in lower_name):
+        if not (
+            "vars" in lower_parts
+            or "var" in lower_name
+            or "input" in lower_name
+            or (len(lower_parts) >= 3 and lower_parts[0] == "data" and lower_name == "data.yml")
+        ):
             continue
         if _looks_like_playbook(path):
             continue
@@ -854,8 +940,7 @@ def api_git_fetch():
     if validation_error:
         return _json_error(validation_error)
 
-    source_id = _git_source_id(repo_url, ref)
-    target = (GIT_REPOS_DIR / source_id).resolve()
+    source_id, target = _git_repo_cache_target()
     if not _is_within(target, GIT_REPOS_DIR.resolve()):
         return _json_error("Invalid repository target")
 
@@ -1173,6 +1258,13 @@ def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", targ
     metadata = {
         "kind": kind,
         "batch_id": batch_id,
+        "suite_launch_id": data.get("suite_launch_id") or "",
+        "suite_name": data.get("suite_name") or "",
+        "suite_run_index": data.get("suite_run_index") or "",
+        "suite_run_total": data.get("suite_run_total") or "",
+        "suite_failure_policy": data.get("suite_failure_policy") or "",
+        "suite_launch_mode": data.get("suite_launch_mode") or "",
+        "suite_plan": data.get("suite_plan") if isinstance(data.get("suite_plan"), list) else [],
         "label": label,
         "target": {
             "name": target_name,
@@ -1209,6 +1301,21 @@ def api_run():
         _jobs[job.id] = job
     threading.Thread(target=_exec, args=(job,), daemon=True).start()
     return jsonify(job_id=job.id, command=job.cmd)
+
+
+@app.route("/api/run/suite", methods=["POST"])
+def api_run_suite():
+    data = request.json or {}
+    runs = data.get("runs") or []
+    if not isinstance(runs, list) or not runs:
+        return _json_error("Automation suite has no plays to launch")
+    failure_policy = "continue" if data.get("failure_policy") == "continue" else "stop"
+    threading.Thread(target=_exec_suite_sequence, args=(runs, failure_policy), daemon=True).start()
+    return jsonify(
+        suite_launch_id=data.get("suite_launch_id") or "",
+        submitted=len(runs),
+        failure_policy=failure_policy,
+    )
 
 
 @app.route("/api/run/batch", methods=["POST"])
@@ -1296,13 +1403,39 @@ def api_cancel(jid):
     job = _jobs.get(jid)
     if not job:
         return _json_error("Not found", 404)
-    if job.proc and job.status == "running":
-        try:
-            os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM)
-        except ProcessLookupError:
-            pass
+    if job.status in ("queued", "running"):
+        if job.proc and job.status == "running":
+            try:
+                os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM)
+            except ProcessLookupError:
+                pass
         job.status = "cancelled"
+        job.t1 = time.time()
     return jsonify(status=job.status)
+
+
+@app.route("/api/run/suite/<suite_id>/cancel", methods=["POST"])
+def api_cancel_suite(suite_id):
+    if not suite_id:
+        return _json_error("Missing suite id")
+    _cancelled_suites.add(suite_id)
+    cancelled: list[str] = []
+    with _jobs_lock:
+        suite_jobs = [
+            job for job in _jobs.values()
+            if (job.metadata or {}).get("suite_launch_id") == suite_id
+        ]
+    for job in suite_jobs:
+        if job.status in ("queued", "running"):
+            if job.proc and job.status == "running":
+                try:
+                    os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+            job.status = "cancelled"
+            job.t1 = time.time()
+            cancelled.append(job.id)
+    return jsonify(status="cancelled", suite_launch_id=suite_id, cancelled_jobs=cancelled)
 
 
 @app.route("/api/jobs")
