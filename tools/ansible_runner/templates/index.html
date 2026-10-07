@@ -99,7 +99,7 @@
               <path d="M5 4h14v16H5z"></path>
               <path d="M8 8h8M8 12h8M8 16h5"></path>
             </svg>
-            <span>Run Playbook</span>
+            <span>Run</span>
           </button>
           <button class="tab-btn flex w-full items-center gap-4 rounded-xl px-4 py-4 text-left text-base font-bold text-slate-700 transition hover:bg-slate-100" data-tab="workflow" onclick="switchTab('workflow')">
             <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
@@ -109,7 +109,7 @@
               <path d="M13 17h5"></path>
               <path d="M11 7c2.5 0 2.5 10 5 10"></path>
             </svg>
-            <span>Workflow Builder</span>
+            <span>Automation Suites</span>
           </button>
           <button class="tab-btn flex w-full items-center gap-4 rounded-xl px-4 py-4 text-left text-base font-bold text-slate-700 transition hover:bg-slate-100" data-tab="git" onclick="switchTab('git')">
             <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
@@ -125,7 +125,7 @@
               <path d="M4 5h16v14H4z"></path>
               <path d="M8 9h8M8 13h8M8 17h5"></path>
             </svg>
-            <span>Job History</span>
+            <span>Automation Assurance</span>
           </button>
         </div>
       </nav>
@@ -182,7 +182,7 @@
 
         <section class="mt-8">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <h2 class="text-xl font-bold text-slate-900">Workflows</h2>
+            <h2 class="text-xl font-bold text-slate-900">Cisco Validated Playbooks</h2>
             <div class="relative w-full lg:w-80">
               <input id="dashboard-workflow-search" type="text" placeholder="Search or select a workflow..." autocomplete="off"
                 class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
@@ -202,7 +202,7 @@
           <div class="flex flex-col gap-3 border-b border-slate-200 pb-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700">Guided Run</p>
-              <h2 class="mt-2 text-2xl font-bold text-slate-900">Prepare playbook run</h2>
+              <h2 class="mt-2 text-2xl font-bold text-slate-900">Prepare</h2>
               <p class="mt-2 max-w-2xl text-sm text-slate-600">
                 Add one or more run cards, choose inputs for each run, validate the setup, and review everything before execution.
               </p>
@@ -459,6 +459,7 @@
 
                   <div id="validate-result" class="hidden rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap"></div>
 
+                  <div id="run-vars-editor-anchor"></div>
                   <div id="editor-section" class="hidden overflow-hidden rounded-[24px] border border-slate-300 bg-white shadow-soft">
                     <div class="flex items-center justify-between gap-3 border-b border-slate-300 bg-slate-100 px-5 py-4">
                       <div class="min-w-0">
@@ -624,9 +625,9 @@
                   </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
-                  <label class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  <label id="run-plan-parallel-control" class="hidden items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Parallel
-                    <input id="run-plan-parallel-limit" type="number" min="1" max="8" value="2"
+                    <input id="run-plan-parallel-limit" type="number" min="1" max="8" value="1"
                       class="w-20 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100"
                       oninput="refreshRunSummary()">
                   </label>
@@ -641,16 +642,48 @@
                 Git Repos stores the fetched repos. Each run card chooses the repo it should use.
               </div>
 
+              <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <label for="suite-name" class="mb-1.5 block text-xs font-bold uppercase tracking-[0.18em] text-slate-500">Suite name</label>
+                <div class="flex flex-col gap-3 lg:flex-row">
+                  <input id="suite-name" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Example: SWIM production refresh"
+                    class="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100">
+                  <button type="button" onclick="saveAutomationSuite()"
+                    class="rounded-2xl border border-cyan-600 bg-white px-5 py-3 text-sm font-semibold text-cyan-700 transition hover:bg-cyan-50">
+                    Save suite
+                  </button>
+                  <button type="button" onclick="newAutomationSuite()"
+                    class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                    New suite
+                  </button>
+                </div>
+              </div>
+
               <div class="mt-5 flex flex-wrap gap-3">
+                <button type="button" onclick="loadRunPlanVarsFile()"
+                  class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                  Customize inputs
+                </button>
                 <button type="button" onclick="validateRunPlanRows()"
                   class="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
-                  Validate all
+                  Validate
                 </button>
                 <button type="button" onclick="runSelectedPlanRows()"
                   class="rounded-2xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500">
-                  Launch run jobs
+                  Launch
                 </button>
               </div>
+
+              <div id="launch-assurance-prompt" class="hidden mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <p id="launch-assurance-message" class="text-sm font-semibold text-emerald-800">Suite launched. View results in Automation Assurance.</p>
+                  <button type="button" onclick="switchTab('history')"
+                    class="rounded-xl border border-emerald-300 bg-white px-4 py-2 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100">
+                    View in Automation Assurance
+                  </button>
+                </div>
+              </div>
+
+              <div id="run-plan-editor-anchor"></div>
             </div>
           </div>
         </div>
@@ -659,7 +692,7 @@
           <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
             <div class="flex items-start justify-between gap-4">
               <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Review Before Running</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Run Review</p>
                 <h2 class="mt-2 text-xl font-bold text-slate-900">Current selection</h2>
               </div>
               <span id="run-status" class="hidden rounded-full px-3 py-1 text-xs font-semibold"></span>
@@ -709,56 +742,27 @@
     </section>
 
       <section id="tab-workflow" class="tab-content hidden">
-      <div class="space-y-6">
-        <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div class="space-y-6">
+          <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
             <div>
-              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Workflow Builder</p>
-              <h2 class="mt-2 text-2xl font-bold text-slate-900">Chain multiple playbook runs</h2>
+              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Automation Suites</p>
+              <h2 class="mt-2 text-2xl font-bold text-slate-900">Saved automation suites</h2>
               <p class="mt-2 max-w-3xl text-sm text-slate-600">
-                Each step can use the workflow defaults or a custom vars or inventory file. The sequence stops on the first failed step.
+                Save a group of run cards from Run, then load the suite here whenever you need to run the same automation again.
               </p>
             </div>
-            <div class="flex flex-wrap gap-3">
-              <button onclick="addStep()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
-                Add step
-              </button>
-              <button onclick="openWorkflowOptions()" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
-                Run options
-              </button>
-              <button id="btn-run-wf" onclick="runWorkflow()" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500">
-                Run workflow
-              </button>
-              <button id="btn-cancel-wf" onclick="cancelWorkflow()" class="hidden rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-500">
-                Cancel workflow
-              </button>
-            </div>
           </div>
-        </div>
 
-        <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
-          <div class="flex items-center justify-between gap-4">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Workflow Steps</p>
-              <h3 class="mt-2 text-lg font-bold text-slate-900">Execution order</h3>
-            </div>
-            <span class="rounded-2xl bg-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">Drag-free reorder with arrows</span>
-          </div>
-          <div id="wf-steps" class="mt-5 space-y-3">
-            <p class="rounded-2xl border border-dashed border-slate-300 bg-slate-100 px-4 py-8 text-center text-sm text-slate-600">
-              No steps added yet. Start with <span class="font-semibold text-slate-700">Add step</span>.
-            </p>
-          </div>
-        </div>
+          <div id="automation-suites-list" class="grid gap-4"></div>
 
-        <div id="wf-output-section" class="hidden overflow-hidden rounded-[28px] border border-slate-900 bg-slate-950 shadow-soft">
-          <div class="border-b border-slate-800 bg-slate-900/70 px-5 py-4">
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Workflow Output</p>
-            <p class="mt-1 text-sm text-slate-300">Sequential run log for all workflow steps.</p>
+          <div id="automation-suites-empty" class="hidden rounded-[28px] border border-dashed border-slate-300 bg-white px-6 py-12 text-center shadow-soft">
+            <p class="text-sm font-semibold text-slate-700">No automation suites saved yet.</p>
+            <p class="mt-2 text-sm text-slate-500">Build run cards in Run, enter a suite name, then save the suite.</p>
+            <button type="button" onclick="switchTab('run')" class="mt-5 rounded-2xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500">
+              Go to Run
+            </button>
           </div>
-          <pre id="wf-output" class="terminal h-[500px] overflow-auto px-5 py-5 text-slate-100 whitespace-pre-wrap leading-6"></pre>
         </div>
-      </div>
       </section>
 
       <section id="tab-git" class="tab-content hidden">
@@ -1033,7 +1037,7 @@
         <div>
           <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Run Settings</p>
           <h3 class="mt-2 text-xl font-bold text-slate-900">Runtime environment</h3>
-          <p class="mt-2 text-sm text-slate-600">These settings apply to Run Playbook and Workflow Builder.</p>
+          <p class="mt-2 text-sm text-slate-600">These settings apply to Run and Automation Suites.</p>
         </div>
         <button type="button" onclick="closeRunDefaults()" class="rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-50">Close</button>
       </div>
@@ -1156,7 +1160,9 @@
     let runWorkflowLocked = false;
     let catcTargetCounter = 0;
     let runPlanCounter = 0;
+    let activeRunPlanRowId = '';
     const ACTIVE_TAB_STORAGE_KEY = 'validated-playbook-active-tab';
+    const AUTOMATION_SUITES_STORAGE_KEY = 'validated-playbook-automation-suites';
     let wfSteps = [];
     let wfRunning = false;
     let stepId = 0;
@@ -1267,6 +1273,19 @@
       return (nameInput && nameInput.value.trim()) || (hostInput && hostInput.value.trim()) || 'CatC ' + (index + 1);
     }
 
+    function targetRowField(row, name) {
+      const input = row.querySelector('[data-target-field="' + name + '"]');
+      return input ? input.value.trim() : '';
+    }
+
+    function isCompleteCatcTargetRow(row) {
+      return !!(targetRowField(row, 'name') && targetRowField(row, 'host') && targetRowField(row, 'username'));
+    }
+
+    function completeCatcTargetRows() {
+      return targetRows().filter(isCompleteCatcTargetRow);
+    }
+
     function varsOverrideOptions() {
       const mode = getSourceMode('run-vars');
       if (mode === 'git') {
@@ -1342,12 +1361,12 @@
     }
 
     function runPlanTargetOptions() {
-      const options = [{ v: 'default', t: 'Default CatC / inventory env' }];
-      targetRows().forEach(function(row, index) {
-        const hostInput = row.querySelector('[data-target-field="host"]');
+      const options = [{ v: '', t: 'Select CatC target' }];
+      completeCatcTargetRows().forEach(function(row) {
+        const index = targetRows().indexOf(row);
         const name = targetRowName(row, index);
-        const host = hostInput ? hostInput.value.trim() : '';
-        options.push({ v: 'target-' + index, t: host ? name + ' · ' + host : name });
+        const host = targetRowField(row, 'host');
+        options.push({ v: 'target-' + index, t: name + ' · ' + host });
       });
       return options;
     }
@@ -1358,11 +1377,11 @@
       const row = targetRows()[parseInt(match[1], 10)];
       if (!row) return null;
       function field(name) {
-        const input = row.querySelector('[data-target-field="' + name + '"]');
-        return input ? input.value.trim() : '';
+        return targetRowField(row, name);
       }
+      if (!isCompleteCatcTargetRow(row)) return null;
       return {
-        name: field('name') || field('host') || 'CatC ' + (parseInt(match[1], 10) + 1),
+        name: field('name'),
         host: field('host'),
         username: field('username'),
         password: field('password'),
@@ -1371,21 +1390,22 @@
     }
 
     function runPlanRepoOptions() {
-      const options = [{ v: 'local', t: 'Local CVP repo' }];
+      const options = [{ v: 'local', t: 'Built-in repo' }];
       const seen = new Set(['local']);
       gitRepositories.forEach(function(repo) {
         seen.add(repo.id);
         options.push({
           v: repo.id,
-          t: repoDisplayName(repo.source) + ' · ' + ((repo.source && repo.source.ref) || 'main'),
+          t: 'Git repo: ' + repoDisplayName(repo.source) + ' · ' + ((repo.source && repo.source.ref) || 'main'),
         });
       });
       if (gitSource && gitSource.id && !seen.has(gitSource.id)) {
         options.push({
           v: gitSource.id,
-          t: repoDisplayName(gitSource) + ' · ' + (gitSource.ref || 'main'),
+          t: 'Git repo: ' + repoDisplayName(gitSource) + ' · ' + (gitSource.ref || 'main'),
         });
       }
+      options.push({ v: 'local-folder', t: 'Local folder' });
       return options;
     }
 
@@ -1409,9 +1429,12 @@
     }
 
     function runPlanVarsOptions(repoId, workflowName) {
-      if (repoId && repoId !== 'local') {
+      if (repoId && repoId !== 'local' && repoId !== 'local-folder') {
         const repo = gitRepositories.find(function(item) { return item.id === repoId; });
         return repo ? (repo.vars || []).map(function(file) { return { v: file, t: fileOptionLabel(file) }; }) : [];
+      }
+      if (repoId === 'local-folder') {
+        return [{ v: '__browse_local_vars__', t: 'Browse local vars file...' }];
       }
       const options = [];
       runWorkflows().filter(function(workflow) {
@@ -1426,15 +1449,19 @@
     }
 
     function runPlanInventoryOptions(repoId) {
-      if (repoId && repoId !== 'local') {
+      if (repoId && repoId !== 'local' && repoId !== 'local-folder') {
         const repo = gitRepositories.find(function(item) { return item.id === repoId; });
         return repo ? (repo.inventories || []).map(function(file) { return { v: file, t: fileOptionLabel(file) }; }) : [];
+      }
+      if (repoId === 'local-folder') {
+        return [{ v: '__browse_local_inventory__', t: 'Browse local inventory file...' }];
       }
       return inventories.map(function(file) { return { v: file, t: fileOptionLabel(file) }; });
     }
 
     function runPlanSelectHtml(field, options, placeholder, selectedValue) {
       const selected = options.find(function(option) { return option.v === selectedValue; });
+      const hasRealSelection = !!((selected && selected.v) || selectedValue);
       const searchLabel = placeholder.replace(/^select\s+/i, '').toLowerCase();
       const optionPayload = options.map(function(option) {
         return {
@@ -1444,7 +1471,9 @@
         };
       });
       let html = '<div class="relative" data-plan-combo="' + field + '" data-plan-options="' + htmlEscape(JSON.stringify(optionPayload)) + '">';
-      html += '<input data-plan-search="' + field + '" type="text" value="' + htmlEscape(selected ? selected.t : '') + '" placeholder="Search or select ' + htmlEscape(searchLabel) + '..." autocomplete="off" spellcheck="false" class="' + targetInputClass('') + '" onfocus="renderRunPlanSelectMenu(this)" onclick="renderRunPlanSelectMenu(this)" oninput="renderRunPlanSelectMenu(this)">';
+      const inputValue = hasRealSelection ? (selected ? selected.t : fileOptionLabel(selectedValue)) : '';
+      const inputPlaceholder = selected && !selected.v ? selected.t : 'Search or select ' + searchLabel + '...';
+      html += '<input data-plan-search="' + field + '" type="text" value="' + htmlEscape(inputValue) + '" placeholder="' + htmlEscape(inputPlaceholder) + '" autocomplete="off" spellcheck="false" class="' + targetInputClass('') + '" onfocus="renderRunPlanSelectMenu(this, true)" onclick="renderRunPlanSelectMenu(this, true)" oninput="renderRunPlanSelectMenu(this, false)">';
       html += '<input type="hidden" data-plan-field="' + field + '" value="' + htmlEscape(selectedValue || '') + '">';
       html += '<div data-plan-menu="' + field + '" class="hidden absolute left-0 right-0 z-30 mt-2 max-h-60 overflow-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_12px_26px_rgba(15,23,42,0.08)]"></div>';
       html += '</div>';
@@ -1459,16 +1488,21 @@
       }
     }
 
-    function renderRunPlanSelectMenu(input) {
+    function renderRunPlanSelectMenu(input, showAll) {
       const wrapper = input.closest('[data-plan-combo]');
       if (!wrapper) return;
       const menu = wrapper.querySelector('[data-plan-menu]');
       if (!menu) return;
-      const query = input.value.trim().toLowerCase();
-      const options = runPlanComboOptions(wrapper).filter(function(option) {
+      const query = showAll ? '' : input.value.trim().toLowerCase();
+      const selectableOptions = runPlanComboOptions(wrapper).filter(function(option) {
+        return !!option.v;
+      });
+      const options = selectableOptions.filter(function(option) {
         return !query || option.search.indexOf(query) !== -1;
       }).slice(0, 80);
-      if (!options.length) {
+      if (!selectableOptions.length) {
+        menu.innerHTML = '<div class="px-3 py-2 text-xs font-semibold text-slate-500">Add a valid CatC target above</div>';
+      } else if (!options.length) {
         menu.innerHTML = '<div class="px-3 py-2 text-xs font-semibold text-slate-500">No matches</div>';
       } else {
         menu.innerHTML = options.map(function(option) {
@@ -1489,41 +1523,73 @@
       const valueInput = wrapper.querySelector('input[type="hidden"][data-plan-field]');
       const menu = wrapper.querySelector('[data-plan-menu]');
       if (!valueInput) return;
+      const optionValue = button.dataset.planOptionValue || '';
+      if (optionValue.indexOf('__browse_local_') === 0) {
+        if (menu) menu.classList.add('hidden');
+        browseForRunPlanLocalFile(wrapper.closest('[data-plan-row]'), valueInput.dataset.planField);
+        return;
+      }
       valueInput.value = button.dataset.planOptionValue || '';
-      if (input) input.value = button.dataset.planOptionLabel || '';
+      if (input) input.value = valueInput.value ? (button.dataset.planOptionLabel || '') : '';
       if (menu) menu.classList.add('hidden');
       onRunPlanRowChanged(valueInput);
     }
 
-    function runPlanFieldHtml(label, html) {
+    function browseForRunPlanLocalFile(row, field) {
+      if (!row || ['vars', 'inventory'].indexOf(field) === -1) return;
+      setActiveRunPlanRow(row);
+      let tempInput = $('run-plan-local-picker-value');
+      if (!tempInput) {
+        tempInput = document.createElement('input');
+        tempInput.type = 'hidden';
+        tempInput.id = 'run-plan-local-picker-value';
+        document.body.appendChild(tempInput);
+      }
+      const valueInput = row.querySelector('[data-plan-field="' + field + '"]');
+      tempInput.value = valueInput ? valueInput.value : '';
+      openFilePicker(tempInput.id, {
+        title: field === 'vars' ? 'Choose local vars file' : 'Choose local inventory file',
+        root: detectPickerRoot(tempInput.value),
+        currentPath: tempInput.value,
+        afterSelect: function(path) {
+          const combo = row.querySelector('[data-plan-combo="' + field + '"]');
+          const fieldInput = combo ? combo.querySelector('[data-plan-field="' + field + '"]') : null;
+          const searchInput = combo ? combo.querySelector('[data-plan-search="' + field + '"]') : null;
+          if (fieldInput) {
+            fieldInput.value = path;
+            if (searchInput) searchInput.value = fileOptionLabel(path);
+            onRunPlanRowChanged(fieldInput);
+          }
+        },
+      });
+    }
+
+    function requiredLabelHtml(label, required) {
+      return htmlEscape(label) + (required ? ' <span class="text-rose-600">*</span>' : '');
+    }
+
+    function runPlanFieldHtml(label, html, required) {
       return ''
         + '<div>'
-        +   '<label class="mb-1.5 block text-xs font-bold uppercase tracking-[0.18em] text-slate-500">' + htmlEscape(label) + '</label>'
+        +   '<label class="mb-1.5 block text-xs font-bold uppercase tracking-[0.18em] text-slate-500">' + requiredLabelHtml(label, required) + '</label>'
         +   html
         + '</div>';
+    }
+
+    function runPlanBareCellHtml(html) {
+      return '<div>' + html + '</div>';
     }
 
     function runPlanStatus(row) {
       const repo = row.querySelector('[data-plan-field="repo"]');
       const playbook = row.querySelector('[data-plan-field="playbook"]');
       const varsFile = row.querySelector('[data-plan-field="vars"]');
-      const inventory = row.querySelector('[data-plan-field="inventory"]');
       const missing = [];
       const workflow = row.querySelector('[data-plan-field="workflow"]');
       if (!workflow || !workflow.value) missing.push('workflow');
       if (!playbook || !playbook.value) missing.push('playbook');
       if (!varsFile || !varsFile.value) missing.push('vars');
-      if (!inventory || !inventory.value) missing.push('inventory');
-      const target = row.querySelector('[data-plan-field="target"]');
-      if (target && target.value && target.value !== 'default') {
-        const targetDetails = catcTargetForPlanValue(target.value);
-        if (!targetDetails) {
-          missing.push('catc target');
-        } else if (!targetDetails.host || !targetDetails.username || !targetDetails.password) {
-          missing.push('catc details');
-        }
-      }
-      if (repo && repo.value !== 'local') {
+      if (repo && repo.value !== 'local' && repo.value !== 'local-folder') {
         const selectedRepo = gitRepositories.find(function(item) { return item.id === repo.value; }) || (gitSource && gitSource.id === repo.value ? { source: gitSource } : null);
         if (!selectedRepo) missing.push('repo');
       }
@@ -1534,10 +1600,92 @@
       return 'Not validated';
     }
 
+    function runPlanSchemaStatus(row) {
+      const repo = row.querySelector('[data-plan-field="repo"]');
+      const workflow = row.querySelector('[data-plan-field="workflow"]');
+      const playbook = row.querySelector('[data-plan-field="playbook"]');
+      const varsFile = row.querySelector('[data-plan-field="vars"]');
+      const missing = [];
+      if (!workflow || !workflow.value) missing.push('workflow');
+      if (!playbook || !playbook.value) missing.push('playbook');
+      if (!varsFile || !varsFile.value) missing.push('vars');
+      if (repo && repo.value !== 'local' && repo.value !== 'local-folder') {
+        const selectedRepo = gitRepositories.find(function(item) { return item.id === repo.value; }) || (gitSource && gitSource.id === repo.value ? { source: gitSource } : null);
+        if (!selectedRepo) missing.push('repo');
+      }
+      return missing.length ? 'Missing ' + missing.join(', ') : 'Ready for schema';
+    }
+
+    function setActiveRunPlanRow(row) {
+      if (row) activeRunPlanRowId = row.dataset.planRow || '';
+    }
+
+    function activeRunPlanRow() {
+      if (activeRunPlanRowId) {
+        const row = document.querySelector('#run-plan-rows [data-plan-row="' + activeRunPlanRowId + '"]');
+        if (row) return row;
+      }
+      return null;
+    }
+
+    function clearRunPlanEditor() {
+      const section = $('editor-section');
+      if (!section) return;
+      hide('editor-section');
+      $('editor-path').textContent = '';
+      section.dataset.planRow = '';
+      section.dataset.varsPath = '';
+      section.dataset.varsSource = '';
+      if (editor) editor.setValue('');
+      fileDirty = false;
+    }
+
+    function clearRunOutputPanel() {
+      hide('output-section');
+      const output = $('output');
+      if (output) output.innerHTML = '';
+    }
+
+    function newAutomationSuite() {
+      $('run-plan-rows').innerHTML = '';
+      activeRunPlanRowId = '';
+      $('suite-name').value = '';
+      hide('launch-assurance-prompt');
+      hide('run-status');
+      clearRunPlanEditor();
+      clearRunOutputPanel();
+      addRunPlanRow();
+      refreshRunSummary();
+      showToast('Ready for a new suite.');
+    }
+
+    function showLaunchAssurancePrompt(failed) {
+      const prompt = $('launch-assurance-prompt');
+      const message = $('launch-assurance-message');
+      if (!prompt || !message) return;
+      prompt.className = failed
+        ? 'mt-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3'
+        : 'mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3';
+      message.className = failed
+        ? 'text-sm font-semibold text-rose-800'
+        : 'text-sm font-semibold text-emerald-800';
+      message.textContent = failed
+        ? 'Run completed with failures. View results in Automation Assurance.'
+        : 'Suite launched. View results in Automation Assurance.';
+      show('launch-assurance-prompt');
+    }
+
+    function renumberRunPlanRows() {
+      runPlanRows().forEach(function(row, index) {
+        const label = row.querySelector('[data-plan-index]');
+        if (label) label.textContent = 'Run ' + (index + 1);
+      });
+    }
+
     function addRunPlanRow(values) {
       values = values || {};
       runPlanCounter += 1;
-      const repoId = values.repo || (gitSource && gitSource.id) || 'local';
+      const repoId = values.repo || 'local';
       const row = document.createElement('div');
       row.className = 'rounded-2xl border border-slate-200 bg-slate-50 p-4';
       row.dataset.planRow = String(runPlanCounter);
@@ -1545,32 +1693,46 @@
       row.innerHTML = ''
         + '<div class="flex flex-col gap-3 border-b border-slate-200 pb-3 lg:flex-row lg:items-center lg:justify-between">'
         +   '<div>'
-        +     '<p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Run ' + runPlanCounter + '</p>'
+        +     '<p data-plan-index class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Run ' + runPlanCounter + '</p>'
         +     '<p data-plan-title class="mt-1 text-sm font-bold text-slate-900">' + htmlEscape(values.name || 'Untitled run') + '</p>'
         +   '</div>'
         +   '<div class="flex flex-wrap items-center gap-2">'
-        +     '<span data-plan-status class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">Pending</span>'
+        +     '<span data-plan-status class="hidden rounded-full px-2.5 py-1 text-xs font-bold"></span>'
         +     '<button type="button" onclick="duplicateRunPlanRow(this)" class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100">Duplicate</button>'
         +     '<button type="button" onclick="removeRunPlanRow(this)" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Remove</button>'
         +   '</div>'
         + '</div>'
         + '<div class="mt-4 grid gap-4 lg:grid-cols-2">'
         +   runPlanFieldHtml('Run name', '<input data-plan-field="name" type="text" value="' + htmlEscape(values.name || '') + '" placeholder="Example: TB4 edge prepare" class="' + targetInputClass('') + '" oninput="onRunPlanRowChanged(this)">')
-        +   runPlanFieldHtml('CatC target', runPlanSelectHtml('target', runPlanTargetOptions(), 'Default CatC', values.target || 'default'))
+        +   runPlanFieldHtml('CatC target', runPlanSelectHtml('target', runPlanTargetOptions(), 'Select CatC target', values.target || ''))
+        +   '<div>'
+        +     '<label class="mb-1.5 block text-xs font-bold uppercase tracking-[0.18em] text-slate-500">' + requiredLabelHtml('Workflow / Playbook', true) + '</label>'
+        +     '<div class="space-y-2">'
+        +       runPlanSelectHtml('workflow', runPlanWorkflowOptions(), 'Select workflow', workflowName)
+        +       '<div data-plan-playbook-cell>' + runPlanBareCellHtml(runPlanSelectHtml('playbook', runPlanPlaybookOptions(workflowName), 'Select playbook', values.playbook || '')) + '</div>'
+        +     '</div>'
+        +   '</div>'
         +   runPlanFieldHtml('Input repo', runPlanSelectHtml('repo', runPlanRepoOptions(), 'Select repo', repoId))
-        +   runPlanFieldHtml('Workflow', runPlanSelectHtml('workflow', runPlanWorkflowOptions(), 'Select workflow', workflowName))
-        +   '<div data-plan-playbook-cell>' + runPlanFieldHtml('Playbook', runPlanSelectHtml('playbook', runPlanPlaybookOptions(workflowName), 'Select playbook', values.playbook || '')) + '</div>'
-        +   '<div data-plan-vars-cell>' + runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(repoId, workflowName), 'Select vars', values.vars || '')) + '</div>'
-        +   '<div data-plan-inventory-cell>' + runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(repoId), 'Select inventory', values.inventory || '')) + '</div>'
+        +   '<div data-plan-vars-cell>' + runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(repoId, workflowName), 'Select vars', values.vars || ''), true) + '</div>'
+        +   '<div data-plan-inventory-cell>' + runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(repoId), 'Select inventory', values.inventory || ''), true) + '</div>'
         + '</div>';
       $('run-plan-rows').appendChild(row);
+      row.addEventListener('focusin', function() { setActiveRunPlanRow(row); });
+      row.addEventListener('click', function() { setActiveRunPlanRow(row); });
+      setActiveRunPlanRow(row);
+      clearRunPlanEditor();
+      renumberRunPlanRows();
       updateRunPlanRow(row);
       refreshRunSummary();
     }
 
     function removeRunPlanRow(button) {
       const row = button.closest('[data-plan-row]');
-      if (row) row.remove();
+      if (row) {
+        if ($('editor-section').dataset.planRow === row.dataset.planRow) clearRunPlanEditor();
+        row.remove();
+      }
+      renumberRunPlanRows();
       refreshRunSummary();
     }
 
@@ -1598,15 +1760,215 @@
       addRunPlanRow(values);
     }
 
+    function loadAutomationSuites() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(AUTOMATION_SUITES_STORAGE_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function persistAutomationSuites(suites) {
+      localStorage.setItem(AUTOMATION_SUITES_STORAGE_KEY, JSON.stringify(suites));
+    }
+
+    function suiteId() {
+      return 'suite-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+    }
+
+    function saveAutomationSuite() {
+      const name = $('suite-name').value.trim();
+      const rows = runPlanRows();
+      if (!name) {
+        showToast('Enter a suite name.');
+        $('suite-name').focus();
+        return;
+      }
+      if (!rows.length) {
+        showToast('Add at least one run before saving a suite.');
+        return;
+      }
+
+      const runs = rows.map(runPlanRowValues);
+      const suites = loadAutomationSuites();
+      const existingIndex = suites.findIndex(function(suite) {
+        return suite.name.toLowerCase() === name.toLowerCase();
+      });
+      const record = {
+        id: existingIndex >= 0 ? suites[existingIndex].id : suiteId(),
+        name: name,
+        runs: runs,
+        updatedAt: new Date().toISOString(),
+      };
+      if (existingIndex >= 0) {
+        suites[existingIndex] = record;
+      } else {
+        suites.push(record);
+      }
+      persistAutomationSuites(suites);
+      $('suite-name').value = '';
+      renderAutomationSuites();
+      showToast(existingIndex >= 0 ? 'Suite updated.' : 'Suite saved.');
+    }
+
+    function suiteWorkflowSummary(suite) {
+      const names = [];
+      (suite.runs || []).forEach(function(run) {
+        if (run.workflow && names.indexOf(run.workflow) === -1) names.push(run.workflow);
+      });
+      if (!names.length) return 'No workflows selected';
+      return names.slice(0, 3).join(', ') + (names.length > 3 ? ' +' + (names.length - 3) : '');
+    }
+
+    function suiteUpdatedLabel(value) {
+      if (!value) return 'Not saved';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return 'Not saved';
+      return date.toLocaleString();
+    }
+
+    function suiteRunDetailRows(suite) {
+      const runs = suite.runs || [];
+      if (!runs.length) {
+        return '<tr><td colspan="5" class="px-3 py-6 text-center text-xs font-semibold text-slate-500">No runs saved in this suite.</td></tr>';
+      }
+      return runs.map(function(run, index) {
+        return ''
+          + '<tr class="border-t border-slate-100">'
+          +   '<td class="whitespace-nowrap px-3 py-3 text-xs font-bold text-slate-500">Run ' + (index + 1) + '</td>'
+          +   '<td class="px-3 py-3 text-xs font-semibold text-slate-800">' + htmlEscape(run.workflow || 'Not selected') + '</td>'
+          +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.playbook) || 'Not selected') + '</td>'
+          +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.vars) || 'Not selected') + '</td>'
+          +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.inventory) || 'Not selected') + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    function suiteCanRun(suite) {
+      const runs = suite.runs || [];
+      return runs.length && runs.every(function(run) {
+        return !!(run.workflow && run.playbook && run.vars && run.inventory);
+      });
+    }
+
+    function renderAutomationSuites() {
+      const list = $('automation-suites-list');
+      const empty = $('automation-suites-empty');
+      if (!list || !empty) return;
+      const suites = loadAutomationSuites();
+      empty.classList.toggle('hidden', suites.length > 0);
+      list.innerHTML = suites.map(function(suite) {
+        const runCount = (suite.runs || []).length;
+        const canRun = suiteCanRun(suite);
+        const runButtonClass = canRun
+          ? 'rounded-xl bg-cyan-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-cyan-500'
+          : 'cursor-not-allowed rounded-xl bg-slate-200 px-3 py-2 text-xs font-bold text-slate-500';
+        return ''
+          + '<article class="rounded-[24px] border border-slate-300 bg-white p-5 shadow-soft">'
+          +   '<div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">'
+          +     '<div class="min-w-0">'
+          +       '<p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">' + runCount + ' run' + (runCount === 1 ? '' : 's') + '</p>'
+          +       '<h3 class="mt-2 truncate text-lg font-bold text-slate-900">' + htmlEscape(suite.name || 'Untitled suite') + '</h3>'
+          +       '<p class="mt-2 text-sm text-slate-600">' + htmlEscape(suiteWorkflowSummary(suite)) + '</p>'
+          +       '<p class="mt-3 text-xs font-semibold text-slate-500">Updated ' + htmlEscape(suiteUpdatedLabel(suite.updatedAt)) + '</p>'
+          +     '</div>'
+          +     '<div class="flex shrink-0 flex-wrap gap-2">'
+          +       '<button type="button" data-suite-action="load" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">Edit</button>'
+          +       '<button type="button" data-suite-action="run" data-suite-id="' + htmlEscape(suite.id) + '"' + (canRun ? '' : ' disabled title="Add workflow, playbook, vars, and inventory before running."') + ' class="' + runButtonClass + '">Run</button>'
+          +       '<button type="button" data-suite-action="delete" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Delete</button>'
+          +     '</div>'
+          +   '</div>'
+          +   '<details class="mt-5 rounded-2xl border border-slate-200 bg-slate-50">'
+          +     '<summary class="cursor-pointer list-none px-4 py-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">View run details</summary>'
+          +     '<div class="overflow-x-auto border-t border-slate-200">'
+          +       '<table class="min-w-[760px] w-full text-left">'
+          +         '<thead class="bg-slate-100 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">'
+          +           '<tr>'
+          +             '<th class="px-3 py-2">Run</th>'
+          +             '<th class="px-3 py-2">Workflow</th>'
+          +             '<th class="px-3 py-2">Playbook</th>'
+          +             '<th class="px-3 py-2">Vars</th>'
+          +             '<th class="px-3 py-2">Inventory</th>'
+          +           '</tr>'
+          +         '</thead>'
+          +         '<tbody class="bg-white">'
+          +           suiteRunDetailRows(suite)
+          +         '</tbody>'
+          +       '</table>'
+          +     '</div>'
+          +   '</details>'
+          + '</article>';
+      }).join('');
+    }
+
+    function populateRunPlanFromSuite(suite) {
+      $('run-plan-rows').innerHTML = '';
+      activeRunPlanRowId = '';
+      clearRunOutputPanel();
+      hide('launch-assurance-prompt');
+      (suite.runs || []).forEach(function(run) {
+        addRunPlanRow(run);
+      });
+      if (!(suite.runs || []).length) addRunPlanRow();
+      $('suite-name').value = suite.name || '';
+      clearRunPlanEditor();
+      refreshRunSummary();
+    }
+
+    function loadAutomationSuite(id) {
+      const suite = loadAutomationSuites().find(function(item) { return item.id === id; });
+      if (!suite) {
+        showToast('Automation suite not found.');
+        renderAutomationSuites();
+        return;
+      }
+      populateRunPlanFromSuite(suite);
+      switchTab('run');
+      showToast('Automation suite loaded for editing.');
+    }
+
+    async function runAutomationSuite(id) {
+      const suite = loadAutomationSuites().find(function(item) { return item.id === id; });
+      if (!suite) {
+        showToast('Automation suite not found.');
+        renderAutomationSuites();
+        return;
+      }
+      if (!suiteCanRun(suite)) {
+        showToast('Complete workflow, playbook, vars, and inventory before running this suite.');
+        return;
+      }
+      populateRunPlanFromSuite(suite);
+      showToast('Starting automation suite.');
+      switchTab('run');
+      await runSelectedPlanRows();
+    }
+
+    function deleteAutomationSuite(id) {
+      const suites = loadAutomationSuites();
+      const suite = suites.find(function(item) { return item.id === id; });
+      if (!suite) return;
+      if (!confirm('Delete automation suite "' + suite.name + '"?')) return;
+      persistAutomationSuites(suites.filter(function(item) { return item.id !== id; }));
+      renderAutomationSuites();
+      showToast('Automation suite deleted.');
+    }
+
     function onRunPlanRowChanged(element) {
       const row = element.closest('[data-plan-row]');
       if (!row) return;
+      setActiveRunPlanRow(row);
+      if (['repo', 'workflow', 'vars'].indexOf(element.dataset.planField) !== -1
+        && $('editor-section').dataset.planRow === row.dataset.planRow) {
+        clearRunPlanEditor();
+      }
       if (element.dataset.planField === 'repo') {
         const varsCell = row.querySelector('[data-plan-vars-cell]');
         const inventoryCell = row.querySelector('[data-plan-inventory-cell]');
         const workflow = row.querySelector('[data-plan-field="workflow"]');
-        varsCell.innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(element.value, workflow ? workflow.value : ''), 'Select vars', ''));
-        inventoryCell.innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(element.value), 'Select inventory', ''));
+        varsCell.innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(element.value, workflow ? workflow.value : ''), 'Select vars', ''), true);
+        inventoryCell.innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(element.value), 'Select inventory', ''), true);
       }
       if (element.dataset.planField === 'workflow') {
         const repo = row.querySelector('[data-plan-field="repo"]');
@@ -1614,8 +1976,8 @@
         const varsCell = row.querySelector('[data-plan-vars-cell]');
         const workflowName = element.value;
         const repoId = repo ? repo.value : 'local';
-        playbookCell.innerHTML = runPlanFieldHtml('Playbook', runPlanSelectHtml('playbook', runPlanPlaybookOptions(workflowName), 'Select playbook', ''));
-        varsCell.innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(repoId, workflowName), 'Select vars', ''));
+        playbookCell.innerHTML = runPlanBareCellHtml(runPlanSelectHtml('playbook', runPlanPlaybookOptions(workflowName), 'Select playbook', ''));
+        varsCell.innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(repoId, workflowName), 'Select vars', ''), true);
       }
       row.dataset.schemaStatus = '';
       row.dataset.schemaMessage = '';
@@ -1628,16 +1990,21 @@
       const statusEl = row.querySelector('[data-plan-status]');
       if (!statusEl) return;
       const ready = status === 'Ready';
+      const hidden = status.indexOf('Missing ') === 0 || status === 'Not validated';
+      statusEl.classList.toggle('hidden', hidden);
       statusEl.textContent = status;
       const failed = status === 'Schema failed';
       const validating = status === 'Validating schema';
-      statusEl.className = ready
+      const schemaPassed = status === 'Schema passed';
+      statusEl.className = (hidden ? 'hidden ' : '') + (ready
         ? 'rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700'
         : failed
           ? 'rounded-full bg-rose-100 px-2.5 py-1 text-xs font-bold text-rose-700'
           : validating
             ? 'rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-bold text-cyan-700'
-            : 'rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800';
+            : schemaPassed
+              ? 'rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700'
+              : 'rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800');
       statusEl.title = row.dataset.schemaMessage || '';
       const title = row.querySelector('[data-plan-title]');
       const name = row.querySelector('[data-plan-field="name"]');
@@ -1653,7 +2020,7 @@
         const varsFile = row.querySelector('[data-plan-field="vars"]');
         const inventory = row.querySelector('[data-plan-field="inventory"]');
         const values = {
-          target: target ? target.value : 'default',
+          target: target ? target.value : '',
           repo: repo ? repo.value : 'local',
           workflow: workflow ? workflow.value : '',
           playbook: playbook ? playbook.value : '',
@@ -1662,12 +2029,10 @@
         };
         const targetOptions = runPlanTargetOptions();
         const repoOptions = runPlanRepoOptions();
-        if (values.target === 'default' && targetOptions.length > 1) values.target = targetOptions[1].v;
-        if (values.repo === 'local' && gitSource && gitSource.id && repoOptions.some(function(option) { return option.v === gitSource.id; })) {
-          values.repo = gitSource.id;
-        }
+        if (values.target && !targetOptions.some(function(option) { return option.v === values.target; })) values.target = '';
+        if (values.repo && !repoOptions.some(function(option) { return option.v === values.repo; })) values.repo = 'local';
         if (target && target.closest('[data-plan-combo]')) {
-          target.closest('[data-plan-combo]').outerHTML = runPlanSelectHtml('target', targetOptions, 'Default CatC', values.target);
+          target.closest('[data-plan-combo]').outerHTML = runPlanSelectHtml('target', targetOptions, 'Select CatC target', values.target);
         }
         if (repo && repo.closest('[data-plan-combo]')) {
           repo.closest('[data-plan-combo]').outerHTML = runPlanSelectHtml('repo', repoOptions, 'Select repo', values.repo);
@@ -1675,22 +2040,66 @@
         if (workflow && workflow.closest('[data-plan-combo]')) {
           workflow.closest('[data-plan-combo]').outerHTML = runPlanSelectHtml('workflow', runPlanWorkflowOptions(), 'Select workflow', values.workflow);
         }
-        row.querySelector('[data-plan-playbook-cell]').innerHTML = runPlanFieldHtml('Playbook', runPlanSelectHtml('playbook', runPlanPlaybookOptions(values.workflow), 'Select playbook', values.playbook));
-        row.querySelector('[data-plan-vars-cell]').innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(values.repo, values.workflow), 'Select vars', values.vars));
-        row.querySelector('[data-plan-inventory-cell]').innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(values.repo), 'Select inventory', values.inventory));
+        row.querySelector('[data-plan-playbook-cell]').innerHTML = runPlanBareCellHtml(runPlanSelectHtml('playbook', runPlanPlaybookOptions(values.workflow), 'Select playbook', values.playbook));
+        row.querySelector('[data-plan-vars-cell]').innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(values.repo, values.workflow), 'Select vars', values.vars), true);
+        row.querySelector('[data-plan-inventory-cell]').innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(values.repo), 'Select inventory', values.inventory), true);
         updateRunPlanRow(row);
       });
     }
 
     function runPlanVarsSourcePayload(repoId) {
-      if (!repoId || repoId === 'local') return { kind: 'local' };
+      if (!repoId || repoId === 'local' || repoId === 'local-folder') return { kind: 'local' };
       const repo = gitRepositories.find(function(item) { return item.id === repoId; });
       return repo && repo.source ? repo.source : { kind: 'local' };
     }
 
+    function sourceQueryParamsForSource(source) {
+      const params = new URLSearchParams();
+      if (source && source.kind === 'git') {
+        params.set('source_kind', 'git');
+        params.set('source_id', source.id || '');
+      }
+      return params;
+    }
+
+    async function loadRunPlanVarsFile() {
+      const focusedRow = document.activeElement ? document.activeElement.closest('[data-plan-row]') : null;
+      const row = focusedRow || activeRunPlanRow() || runPlanRows()[0];
+      if (!row) {
+        alert('Add a run first');
+        return;
+      }
+      setActiveRunPlanRow(row);
+      const values = runPlanRowValues(row);
+      if (!values.vars) {
+        alert('Select a vars file first');
+        return;
+      }
+
+      try {
+        const source = runPlanVarsSourcePayload(values.repo);
+        const query = sourceQueryParamsForSource(source);
+        query.set('path', values.vars);
+        const data = await fetchJson('/api/file?' + query.toString());
+        moveEditorToAnchor('run-plan-editor-anchor');
+        editor.setValue(data.content);
+        $('editor-path').textContent = data.path;
+        $('editor-section').dataset.planRow = row.dataset.planRow || '';
+        $('editor-section').dataset.varsPath = values.vars;
+        $('editor-section').dataset.varsSource = source && source.kind === 'git' ? (source.id || '') : 'local';
+        show('editor-section');
+        hide('btn-save');
+        fileDirty = false;
+        setTimeout(function() { editor.refresh(); }, 20);
+        $('editor-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
     async function validateRunPlanRowSchema(row) {
       const values = runPlanRowValues(row);
-      if (runPlanStatus(row).indexOf('Missing ') === 0) return false;
+      if (runPlanSchemaStatus(row).indexOf('Missing ') === 0) return false;
       const workflow = runWorkflows().find(function(item) { return item.name === values.workflow; });
       if (!workflow || !workflow.schemas || !workflow.schemas.length) {
         row.dataset.schemaStatus = 'failed';
@@ -1730,7 +2139,7 @@
       }
       refreshRunPlanRows();
       const rows = runPlanRows();
-      const missingRows = rows.filter(function(row) { return runPlanStatus(row).indexOf('Missing ') === 0; });
+      const missingRows = rows.filter(function(row) { return runPlanSchemaStatus(row).indexOf('Missing ') === 0; });
       if (missingRows.length) {
         showToast(missingRows.length + ' run row(s) need inputs.');
         refreshRunSummary();
@@ -1756,6 +2165,16 @@
       const ok = await validateRunPlanRows();
       if (!ok) return;
       const rows = runPlanRows();
+      const missingLaunchRows = rows.filter(function(row) {
+        const values = runPlanRowValues(row);
+        return runPlanStatus(row).indexOf('Missing ') === 0 || !values.inventory;
+      });
+      if (missingLaunchRows.length) {
+        showToast(missingLaunchRows.length + ' run row(s) need inventory before launch.');
+        refreshRunSummary();
+        return;
+      }
+      hide('launch-assurance-prompt');
       show('output-section');
       hide('run-status');
       $('output').innerHTML = '';
@@ -1802,6 +2221,8 @@
           updateRunStatus(failed ? 'failed' : 'completed');
           refreshDashboardCards(failed ? 'failed' : 'completed');
           refreshHistory();
+          clearRunOutputPanel();
+          showLaunchAssurancePrompt(failed);
           return;
         }
         launchNext();
@@ -1991,7 +2412,7 @@
       const active = (jobs || []).filter(function(job) {
         return ['queued', 'running'].indexOf(job.status) !== -1;
       });
-      const visibleJobs = active.length ? active : (jobs || []).slice(0, 3);
+      const visibleJobs = active.length ? active : (jobs || []);
       section.classList.toggle('hidden', visibleJobs.length === 0);
       if (!visibleJobs.length) {
         container.innerHTML = '';
@@ -2170,7 +2591,7 @@
         source: gitSource,
         vars: gitVars,
         inventories: gitInventories,
-        repo_url: $('git-repo-url').value.trim(),
+        repo_url: '',
         ref: $('git-ref').value.trim() || 'main',
       }));
     }
@@ -2203,7 +2624,7 @@
             gitInventories = active.inventories || [];
           }
         }
-        $('git-repo-url').value = state.repo_url || (gitSource && gitSource.repo_url) || '';
+        $('git-repo-url').value = state.repo_url || '';
         $('git-ref').value = state.ref || (gitSource && gitSource.ref) || 'main';
         updateGitRepositoryView();
         refreshInputRepoOptions();
@@ -2335,10 +2756,6 @@
         setGitStatus('Repository ready. Found ' + gitVars.length + ' vars file' + (gitVars.length === 1 ? '' : 's') + ' and ' + gitInventories.length + ' inventory file' + (gitInventories.length === 1 ? '' : 's') + '.', false);
         if (inputSource && inputSource.kind === 'git') inputSource = gitSource;
         refreshInputRepoOptions();
-        if (!preserveInputs) {
-          $('git-repo-url').value = '';
-          $('git-ref').value = 'main';
-        }
       } catch (error) {
         gitSource = previousSource;
         gitVars = previousVars;
@@ -2348,6 +2765,11 @@
         setGitStatus(error.message, true);
         refreshInputRepoOptions();
       } finally {
+        if (!preserveInputs) {
+          $('git-repo-url').value = '';
+          $('git-ref').value = 'main';
+          persistGitRepository();
+        }
         button.disabled = false;
         button.textContent = 'Add repo';
       }
@@ -2362,6 +2784,10 @@
       runWorkflowLocked = true;
       resetRunPreparationState();
       onWorkflowChange('sel-workflow', 'sel-playbook', 'sel-vars');
+      $('run-plan-rows').innerHTML = '';
+      addRunPlanRow({
+        workflow: workflowName,
+      });
       updateRunWorkflowLock();
       document.querySelectorAll('#tab-run details[name="run-step"]').forEach(function(step, index) {
         step.open = index === 0;
@@ -2467,8 +2893,26 @@
       return params;
     }
 
+    function moveEditorToAnchor(anchorId) {
+      const anchor = $(anchorId);
+      const section = $('editor-section');
+      if (anchor && section && section.parentElement !== anchor.parentElement) {
+        anchor.insertAdjacentElement('afterend', section);
+      }
+    }
+
     function jobDetailHref(jobId) {
       return '/jobs/' + encodeURIComponent(jobId);
+    }
+
+    function runPlanSummaryList(rows, selector, formatter) {
+      if (!rows.length) return 'Not selected';
+      return rows.map(function(row, index) {
+        const input = row.querySelector(selector);
+        const value = input ? input.value : '';
+        const label = formatter ? formatter(value) : value;
+        return 'Run ' + (index + 1) + ': ' + (label || 'Not selected');
+      }).join('\n');
     }
 
     function updateSourceHint(scope, kind) {
@@ -2490,13 +2934,15 @@
       if (getRunMode() === 'plan') {
         const rows = runPlanRows();
         const readyRows = rows.filter(function(row) { return runPlanStatus(row) === 'Ready'; }).length;
+        const parallelControl = $('run-plan-parallel-control');
+        if (parallelControl) parallelControl.classList.toggle('hidden', rows.length < 2);
         $('summary-targets').textContent = rows.length
-          ? rows.length + ' run row' + (rows.length === 1 ? '' : 's') + ' · parallel limit ' + ($('run-plan-parallel-limit').value || '1')
+          ? rows.length + ' run row' + (rows.length === 1 ? '' : 's') + (rows.length > 1 ? ' · parallel limit ' + ($('run-plan-parallel-limit').value || '1') : '')
           : 'No run rows';
-        $('summary-workflow').textContent = 'Run list';
-        $('summary-playbook').textContent = rows.length ? 'Per row' : 'Not selected';
-        $('summary-vars').textContent = rows.length ? 'Per row' : 'Not selected';
-        $('summary-inventory').textContent = rows.length ? 'Per row' : 'Not selected';
+        $('summary-workflow').textContent = runPlanSummaryList(rows, '[data-plan-field="workflow"]');
+        $('summary-playbook').textContent = runPlanSummaryList(rows, '[data-plan-field="playbook"]', basename);
+        $('summary-vars').textContent = runPlanSummaryList(rows, '[data-plan-field="vars"]', basename);
+        $('summary-inventory').textContent = runPlanSummaryList(rows, '[data-plan-field="inventory"]', basename);
         const validationLabel = $('summary-validation');
         if (validationLabel) {
           const ready = rows.length && readyRows === rows.length;
@@ -3028,7 +3474,7 @@
       setSourceMode('run-inventory', 'default');
       setSourceMode('modal-vars', 'workflow');
       setSourceMode('modal-inventory', 'default');
-      localStorage.removeItem('validated-playbook-saved-workflows');
+      renderAutomationSuites();
       refreshDashboardCards();
       refreshRunSummary();
       renderDashboardWorkflows();
@@ -3051,6 +3497,19 @@
           refreshGitRepository(repoId);
         } else if (gitActionButton.dataset.gitAction === 'remove') {
           removeGitRepository(repoId);
+        }
+        return;
+      }
+
+      const suiteActionButton = event.target.closest('[data-suite-action]');
+      if (suiteActionButton) {
+        const suiteId = suiteActionButton.dataset.suiteId;
+        if (suiteActionButton.dataset.suiteAction === 'load') {
+          loadAutomationSuite(suiteId);
+        } else if (suiteActionButton.dataset.suiteAction === 'run') {
+          runAutomationSuite(suiteId);
+        } else if (suiteActionButton.dataset.suiteAction === 'delete') {
+          deleteAutomationSuite(suiteId);
         }
         return;
       }
@@ -3089,6 +3548,7 @@
         }, 20);
       }
       if (tab === 'history') refreshHistory();
+      if (tab === 'workflow') renderAutomationSuites();
     }
 
     function onWorkflowChange(workflowId, playbookId, varsId) {
@@ -3552,6 +4012,7 @@
         const query = sourceQueryParams();
         query.set('path', path);
         const data = await fetchJson('/api/file?' + query.toString());
+        moveEditorToAnchor('run-vars-editor-anchor');
         editor.setValue(data.content);
         $('editor-path').textContent = data.path;
         show('editor-section');
