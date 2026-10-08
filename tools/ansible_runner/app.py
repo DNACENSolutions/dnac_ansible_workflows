@@ -2,7 +2,6 @@
 """Ansible Workflow Runner backend."""
 
 import json
-import hashlib
 import os
 import re
 import shlex
@@ -28,7 +27,6 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 WORKFLOWS_DIR = PROJECT_ROOT / "workflows"
 INVENTORY_DIR = PROJECT_ROOT / "inventory"
 GIT_REPOS_DIR = PROJECT_ROOT / ".runner_repos"
-GIT_ACTIVE_REPO_DIR = GIT_REPOS_DIR / "active"
 HOME_DIR = Path.home().resolve()
 YAML_SUFFIXES = {".yml", ".yaml"}
 VERBOSITY_FLAGS = {"", "-v", "-vv", "-vvv", "-vvvv"}
@@ -110,6 +108,8 @@ def _exec(job: Job):
     env = os.environ.copy()
     env["ANSIBLE_FORCE_COLOR"] = "true"
     env["PYTHONUNBUFFERED"] = "1"
+    env.setdefault("OBJC_DISABLE_INITIALIZE_FORK_SAFETY", "YES")
+    env.setdefault("ANSIBLE_FORKS", "1")
     env.update(job.env_overrides)
     try:
         job.proc = subprocess.Popen(
@@ -133,6 +133,11 @@ def _exec(job: Job):
         job.status = "failed"
     finally:
         job.t1 = time.time()
+
+
+def _exec_with_semaphore(job: Job, semaphore: threading.Semaphore):
+    with semaphore:
+        _exec(job)
 
 
 # ---------------------------------------------------------------------------
@@ -197,11 +202,8 @@ def _resolve_user_file(raw_path: str | None, *, must_exist: bool = True) -> Path
     )
 
 
-def _git_source_id(repo_url: str, ref: str) -> str:
-    name = repo_url.rstrip("/").removesuffix(".git").split("/")[-1] or "repo"
-    name = re.sub(r"[^A-Za-z0-9_.-]+", "_", name).strip("._") or "repo"
-    digest = hashlib.sha256(f"{repo_url}|{ref}".encode("utf-8")).hexdigest()[:12]
-    return f"{name}_{digest}"
+def _git_source_id() -> str:
+    return f"repo_{uuid.uuid4().hex[:12]}"
 
 
 def _normalize_git_input(repo_url: str, ref: str) -> tuple[str, str]:
@@ -228,16 +230,32 @@ def _validate_git_input(repo_url: str, ref: str) -> str | None:
     return None
 
 
+def _git_repo_cache_target() -> tuple[str, Path]:
+    source_id = _git_source_id()
+    target = (GIT_REPOS_DIR / source_id).resolve()
+    return source_id, target
+
+
+def _resolve_existing_git_repo_cache_dir(source_id: str) -> Path | None:
+    if not re.fullmatch(r"repo_[0-9a-f]{12}", source_id):
+        return None
+    cache_root = GIT_REPOS_DIR.resolve()
+    if not cache_root.exists():
+        return None
+    for child in cache_root.iterdir():
+        if child.name != source_id:
+            continue
+        source_root = child.resolve()
+        if _is_within(source_root, cache_root) and source_root.exists():
+            return source_root
+    return None
+
+
 def _resolve_git_source(source: dict | None) -> Path | None:
     if not source or source.get("kind") != "git":
         return PROJECT_ROOT.resolve()
     source_id = str(source.get("id") or "")
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+", source_id):
-        return None
-    source_root = GIT_ACTIVE_REPO_DIR.resolve()
-    if not _is_within(source_root, GIT_REPOS_DIR.resolve()) or not source_root.exists():
-        return None
-    return source_root
+    return _resolve_existing_git_repo_cache_dir(source_id)
 
 
 def _safe_relative_parts(raw_path: str) -> tuple[str, ...] | None:
@@ -848,8 +866,7 @@ def api_git_fetch():
     if validation_error:
         return _json_error(validation_error)
 
-    source_id = _git_source_id(repo_url, ref)
-    target = GIT_ACTIVE_REPO_DIR.resolve()
+    source_id, target = _git_repo_cache_target()
     if not _is_within(target, GIT_REPOS_DIR.resolve()):
         return _json_error("Invalid repository target")
 
@@ -1081,16 +1098,13 @@ def api_environment_setup():
     )
 
 
-@app.route("/api/run", methods=["POST"])
-def api_run():
-    data = request.json or {}
-
+def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", target: dict | None = None) -> tuple[Job | None, dict | str]:
     vars_source = data.get("vars_source") or data.get("input_source") or data.get("source") or {"kind": "local"}
     inventory_source = data.get("inventory_source") or data.get("input_source") or data.get("source") or {"kind": "local"}
     vars_source_root = _resolve_git_source(vars_source)
     inventory_source_root = _resolve_git_source(inventory_source)
     if vars_source_root is None or inventory_source_root is None:
-        return _json_error("Git source not found")
+        return None, "Git source not found"
 
     playbook_path = _resolve_source_file(data.get("playbook"), PROJECT_ROOT, must_exist=True, allow_user_file=False)
     inventory_path = _resolve_source_file(
@@ -1113,18 +1127,18 @@ def api_run():
     verbosity = data.get("verbosity", "")
 
     if playbook_path is None:
-        return _json_error("Playbook not found")
+        return None, "Playbook not found"
     if inventory_path is None:
-        return _json_error("Inventory file not found")
+        return None, "Inventory file not found"
     if vars_path is None and data.get("vars_file"):
-        return _json_error("Vars file not found")
+        return None, "Vars file not found"
     if verbosity not in VERBOSITY_FLAGS:
-        return _json_error("Unsupported verbosity flag")
+        return None, "Unsupported verbosity flag"
 
     try:
         extra_args = shlex.split(data.get("extra_args", ""))
     except ValueError as exc:
-        return _json_error(f"Invalid extra arguments: {exc}")
+        return None, f"Invalid extra arguments: {exc}"
 
     use_managed_venv = data.get("managed_venv", True)
     venv_path = _resolve_venv(data.get("venv_path"), must_exist=False)
@@ -1133,11 +1147,11 @@ def api_run():
 
     if use_managed_venv:
         if venv_path is None:
-            return _json_error("Venv path must be inside the repository or your home directory")
+            return None, "Venv path must be inside the repository or your home directory"
         if not python_path or not python_path.exists():
-            return _json_error(f"Managed venv Python not found: {python_path}")
+            return None, f"Managed venv Python not found: {python_path}"
         if not ansible_playbook or not ansible_playbook.exists():
-            return _json_error(f"Managed venv ansible-playbook not found: {ansible_playbook}. Install dependencies first.")
+            return None, f"Managed venv ansible-playbook not found: {ansible_playbook}. Install dependencies first."
 
     executable = str(ansible_playbook) if use_managed_venv and ansible_playbook and ansible_playbook.exists() else "ansible-playbook"
     argv = [executable, "-i", str(inventory_path), str(playbook_path)]
@@ -1162,11 +1176,24 @@ def api_run():
         if connection.get("verify"):
             env_overrides["CATALYST_CENTER_VERIFY"] = str(connection["verify"])
 
+    target_name = str((target or {}).get("name") or "").strip()
     jid = uuid.uuid4().hex[:8]
     label = data.get("label") or playbook_path.stem
+    if target_name:
+        label = f"{label} · {target_name}"
     metadata = {
-        "kind": data.get("kind") or "single",
+        "kind": kind,
+        "batch_id": batch_id,
+        "suite_launch_id": data.get("suite_launch_id") or "",
+        "suite_name": data.get("suite_name") or "",
+        "suite_run_index": data.get("suite_run_index") or "",
+        "suite_run_total": data.get("suite_run_total") or "",
+        "suite_plan": data.get("suite_plan") if isinstance(data.get("suite_plan"), list) else [],
         "label": label,
+        "target": {
+            "name": target_name,
+            "host": str(connection.get("host") or ""),
+        } if target_name else {},
         "workflow": data.get("workflow") or "",
         "playbook": _display_source_path(playbook_path, PROJECT_ROOT),
         "inventory": _display_source_path(inventory_path, inventory_source_root),
@@ -1185,10 +1212,68 @@ def api_run():
         "catalyst_connection_password_set": bool(connection.get("password")),
     }
     job = Job(jid, argv, str(PROJECT_ROOT), label, env_overrides, metadata)
+    return job, {"command": job.cmd}
+
+
+@app.route("/api/run", methods=["POST"])
+def api_run():
+    data = request.json or {}
+    job, result = _build_run_job(data, kind=data.get("kind") or "single")
+    if job is None:
+        return _json_error(str(result))
     with _jobs_lock:
-        _jobs[jid] = job
+        _jobs[job.id] = job
     threading.Thread(target=_exec, args=(job,), daemon=True).start()
-    return jsonify(job_id=jid, command=job.cmd)
+    return jsonify(job_id=job.id, command=job.cmd)
+
+
+@app.route("/api/run/batch", methods=["POST"])
+def api_run_batch():
+    data = request.json or {}
+    targets = data.get("targets") or []
+    if not isinstance(targets, list) or not targets:
+        return _json_error("Select at least one Catalyst Center target")
+    try:
+        parallel_limit = max(1, min(8, int(data.get("parallel_limit") or 1)))
+    except (TypeError, ValueError):
+        return _json_error("Parallel limit must be a number from 1 to 8")
+
+    batch_id = uuid.uuid4().hex[:8]
+    jobs: list[Job] = []
+    for index, target in enumerate(targets, start=1):
+        if not isinstance(target, dict):
+            return _json_error("Invalid Catalyst Center target")
+        connection = target.get("connection") or {}
+        run_data = dict(data)
+        run_data["catalyst_connection"] = {
+            "enabled": True,
+            "host": connection.get("host") or target.get("host") or "",
+            "username": connection.get("username") or target.get("username") or "",
+            "password": connection.get("password") or target.get("password") or "",
+            "verify": connection.get("verify") if connection.get("verify") is not None else target.get("verify", ""),
+        }
+        if target.get("vars_file"):
+            run_data["vars_file"] = target.get("vars_file")
+        if target.get("inventory"):
+            run_data["inventory"] = target.get("inventory")
+        run_data["label"] = data.get("label") or f"Batch {batch_id}"
+
+        job, result = _build_run_job(run_data, kind="batch", batch_id=batch_id, target=target)
+        if job is None:
+            return _json_error(f"Target {index} ({target.get('name') or target.get('host') or 'unnamed'}): {result}")
+        jobs.append(job)
+
+    with _jobs_lock:
+        for job in jobs:
+            _jobs[job.id] = job
+    semaphore = threading.Semaphore(parallel_limit)
+    for job in jobs:
+        threading.Thread(target=_exec_with_semaphore, args=(job, semaphore), daemon=True).start()
+
+    return jsonify(
+        batch_id=batch_id,
+        jobs=[{"job_id": job.id, "label": job.label, "command": job.cmd, "metadata": job.metadata} for job in jobs],
+    )
 
 
 @app.route("/api/run/<jid>/stream")
