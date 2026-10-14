@@ -1303,6 +1303,33 @@ def api_run():
     return jsonify(job_id=job.id, command=job.cmd)
 
 
+def _exec_selected_suite_sequence(suites: list[dict], failure_policy: str):
+    # Complete every play in a suite before advancing to the next suite.
+    for suite in suites:
+        _exec_suite_sequence(suite["runs"], failure_policy)
+
+
+@app.route("/api/run/suites", methods=["POST"])
+def api_run_suites():
+    data = request.json or {}
+    suites = data.get("suites")
+    if not isinstance(suites, list) or not suites or any(
+        not isinstance(suite, dict)
+        or not isinstance(suite.get("runs"), list)
+        or not suite["runs"]
+        or any(not isinstance(run, dict) for run in suite["runs"])
+        for suite in suites
+    ):
+        return _json_error("Select suites with at least one valid play each")
+    failure_policy = "continue" if data.get("failure_policy") == "continue" else "stop"
+    threading.Thread(
+        target=_exec_selected_suite_sequence,
+        args=(suites, failure_policy),
+        daemon=True,
+    ).start()
+    return jsonify(accepted=len(suites), submitted=sum(len(suite["runs"]) for suite in suites))
+
+
 @app.route("/api/run/suite", methods=["POST"])
 def api_run_suite():
     data = request.json or {}
