@@ -1580,6 +1580,7 @@
     }
 
     function runPlanSelectHtml(field, options, placeholder, selectedValue) {
+      if (field === 'inventory') options = [{ v: '', t: 'From vars file' }].concat(options);
       const selected = options.find(function(option) { return option.v === selectedValue; });
       const hasRealSelection = !!((selected && selected.v) || selectedValue);
       const searchLabel = placeholder.replace(/^select\s+/i, '').toLowerCase();
@@ -1615,7 +1616,7 @@
       if (!menu) return;
       const query = showAll ? '' : input.value.trim().toLowerCase();
       const selectableOptions = runPlanComboOptions(wrapper).filter(function(option) {
-        return !!option.v;
+        return !!option.v || wrapper.dataset.planCombo === 'inventory';
       });
       const options = selectableOptions.filter(function(option) {
         return !query || option.search.indexOf(query) !== -1;
@@ -1836,7 +1837,7 @@
         +   '</div>'
         +   runPlanFieldHtml('Input repo', runPlanSelectHtml('repo', runPlanRepoOptions(), 'Select repo', repoId))
         +   '<div data-plan-vars-cell>' + runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(repoId, workflowName), 'Select vars', values.vars || ''), true) + '</div>'
-        +   '<div data-plan-inventory-cell>' + runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(repoId), 'Select inventory', values.inventory || ''), true) + '</div>'
+        +   '<div data-plan-inventory-cell>' + runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(repoId), 'Select inventory', values.inventory || ''), false) + '</div>'
         + '</div>';
       $('run-plan-rows').appendChild(row);
       row.addEventListener('focusin', function() { setActiveRunPlanRow(row); });
@@ -1965,7 +1966,7 @@
           +   '<td class="px-3 py-3 text-xs font-semibold text-slate-800">' + htmlEscape(run.workflow || 'Not selected') + '</td>'
           +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.playbook) || 'Not selected') + '</td>'
           +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.vars) || 'Not selected') + '</td>'
-          +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.inventory) || 'Not selected') + '</td>'
+          +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.inventory) || 'From vars file') + '</td>'
           + '</tr>';
       }).join('');
     }
@@ -1973,7 +1974,7 @@
     function suiteCanRun(suite) {
       const runs = suite.runs || [];
       return runs.length && runs.every(function(run) {
-        return !!(run.workflow && run.playbook && run.vars && run.inventory && suiteRunTarget(run) && suiteRunRepoReady(run));
+        return !!(run.workflow && run.playbook && run.vars && suiteRunTarget(run) && suiteRunRepoReady(run));
       });
     }
 
@@ -2069,7 +2070,7 @@
           +         '<button type="button" aria-label="Move suite down" title="Move down" data-suite-action="move-down" data-suite-id="' + htmlEscape(suite.id) + '"' + (suiteIndex === suites.length - 1 ? ' disabled' : '') + ' class="' + moveButtonClass + '">↓</button>'
           +       '</div>'
           +       '<button type="button" data-suite-action="load" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">Edit</button>'
-          +       '<button type="button" data-suite-action="run" data-suite-id="' + htmlEscape(suite.id) + '"' + (canRun ? '' : ' disabled title="Add CatC target, repo, workflow, playbook, vars, and inventory before running."') + ' class="' + runButtonClass + '">Run</button>'
+          +       '<button type="button" data-suite-action="run" data-suite-id="' + htmlEscape(suite.id) + '"' + (canRun ? '' : ' disabled title="Add CatC target, repo, workflow, playbook, and vars before running."') + ' class="' + runButtonClass + '">Run</button>'
           +       '<button type="button" data-suite-action="delete" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Delete</button>'
           +     '</div>'
           +   '</div>'
@@ -2357,7 +2358,7 @@
         return;
       }
       if (!suiteCanRun(suite)) {
-        showToast('Complete CatC target, repo, workflow, playbook, vars, and inventory before running this suite.');
+        showToast('Complete CatC target, repo, workflow, playbook, and vars before running this suite.');
         return;
       }
       showAutomationSuiteLaunchProgress(1, 1);
@@ -2390,7 +2391,7 @@
       }
       const notReady = suites.filter(function(suite) { return !suiteCanRun(suite); });
       if (notReady.length) {
-        showToast(notReady.length + ' selected suite(s) need CatC target, repo, workflow, playbook, vars, and inventory.');
+        showToast(notReady.length + ' selected suite(s) need CatC target, repo, workflow, playbook, and vars.');
         return;
       }
 
@@ -2493,7 +2494,7 @@
         const inventoryCell = row.querySelector('[data-plan-inventory-cell]');
         const workflow = row.querySelector('[data-plan-field="workflow"]');
         varsCell.innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(element.value, workflow ? workflow.value : ''), 'Select vars', ''), true);
-        inventoryCell.innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(element.value), 'Select inventory', ''), true);
+        inventoryCell.innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(element.value), 'Select inventory', ''), false);
       }
       if (element.dataset.planField === 'workflow') {
         const repo = row.querySelector('[data-plan-field="repo"]');
@@ -2567,7 +2568,7 @@
         }
         row.querySelector('[data-plan-playbook-cell]').innerHTML = runPlanBareCellHtml(runPlanSelectHtml('playbook', runPlanPlaybookOptions(values.workflow), 'Select playbook', values.playbook));
         row.querySelector('[data-plan-vars-cell]').innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(values.repo, values.workflow), 'Select vars', values.vars), true);
-        row.querySelector('[data-plan-inventory-cell]').innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(values.repo), 'Select inventory', values.inventory), true);
+        row.querySelector('[data-plan-inventory-cell]').innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(values.repo), 'Select inventory', values.inventory), false);
         updateRunPlanRow(row);
       });
     }
@@ -2649,6 +2650,7 @@
           schema: schemaOptionValue(workflow, schemaFileName),
           data: values.vars,
           vars_source: runPlanVarsSourcePayload(values.repo),
+          require_embedded_inventory: !values.inventory,
         }),
       });
       row.dataset.schemaStatus = result.ok ? 'passed' : 'failed';
@@ -2691,11 +2693,10 @@
       if (!ok) return;
       const rows = runPlanRows();
       const missingLaunchRows = rows.filter(function(row) {
-        const values = runPlanRowValues(row);
-        return runPlanStatus(row).indexOf('Missing ') === 0 || !values.inventory;
+        return runPlanStatus(row).indexOf('Missing ') === 0;
       });
       if (missingLaunchRows.length) {
-        showToast(missingLaunchRows.length + ' run row(s) need inventory before launch.');
+        showToast(missingLaunchRows.length + ' run row(s) need inputs before launch.');
         refreshRunSummary();
         return;
       }
@@ -3554,6 +3555,9 @@
           $('run-inventory-custom-path').value = metadata.inventory;
           setSourceMode('run-inventory', 'custom');
         }
+      } else if (metadata.inventory_embedded) {
+        $('sel-inventory').value = '';
+        setSourceMode('run-inventory', 'default');
       }
       $('sel-verbosity').value = metadata.verbosity || '';
       $('extra-args').value = metadata.extra_args || '';
@@ -3595,7 +3599,8 @@
         inputSource.id || '',
         $('sel-workflow').value,
         $('sel-playbook').value,
-        getSelectedVarsPath('run')
+        getSelectedVarsPath('run'),
+        getSelectedInventoryPath('run')
       ].join('|');
     }
 
@@ -4627,7 +4632,8 @@
         const result = await fetchJson('/api/validate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ schema: schema, data: varsPath, vars_source: varsSourcePayload() }),
+          body: JSON.stringify({ schema: schema, data: varsPath, vars_source: varsSourcePayload(),
+            require_embedded_inventory: !getSelectedInventoryPath('run') }),
         });
         show('validate-result');
         resultEl.className = 'rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap ' + (result.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700');
@@ -4801,8 +4807,8 @@
         alert('Select a playbook');
         return;
       }
-      if (!inventory) {
-        alert('Select an inventory file');
+      if (!inventory && !varsFile) {
+        alert('Select an inventory file or a vars file containing inventory');
         return;
       }
       if (selectedVarsHaveUnsavedEditorChanges(varsFile)) {
@@ -4961,8 +4967,8 @@
       const playbook = $('modal-playbook').value;
       const varsFile = getSelectedVarsPath('modal');
       const inventory = getSelectedInventoryPath('modal');
-      if (!playbook || !inventory) {
-        alert('Playbook and inventory are required');
+      if (!playbook || (!inventory && !varsFile)) {
+        alert('Select a playbook and inventory, or vars containing inventory');
         return;
       }
 
@@ -5333,7 +5339,7 @@
             +   '<td class="px-4 py-3 text-slate-600">' + htmlEscape(metadata.workflow || '-') + '</td>'
             +   '<td class="px-4 py-3 text-slate-600">' + htmlEscape(basename(metadata.playbook) || '-') + '</td>'
             +   '<td class="px-4 py-3 text-slate-600">' + htmlEscape(basename(metadata.vars_file) || '-') + '</td>'
-            +   '<td class="px-4 py-3 text-slate-600">' + htmlEscape(basename(metadata.inventory) || '-') + '</td>'
+            +   '<td class="px-4 py-3 text-slate-600">' + htmlEscape(basename(metadata.inventory) || (metadata.inventory_embedded ? 'From vars file' : '-')) + '</td>'
             +   '<td class="px-4 py-3"><span class="rounded-full px-2.5 py-1 text-xs font-semibold ' + (statusClasses[rowStatus] || 'bg-slate-200 text-slate-700') + '">' + htmlEscape(rowStatusLabel) + '</span></td>'
             +   '<td class="px-4 py-3">' + (job
               ? '<div class="flex flex-wrap items-center gap-3"><a href="' + detailHref + '" class="text-xs font-semibold text-cyan-700 underline decoration-cyan-200 underline-offset-4 transition hover:text-cyan-800">Open log</a>' + (canStopJob ? '<button type="button" onclick="cancelHistoryJob(&quot;' + htmlEscape(job.id) + '&quot;)" class="text-xs font-bold text-rose-700 underline decoration-rose-200 underline-offset-4 transition hover:text-rose-800">Stop play</button>' : '') + '</div>'
