@@ -9,6 +9,7 @@ import shutil
 import signal
 import ssl
 import subprocess
+import tempfile
 import threading
 import time
 import urllib.error
@@ -68,6 +69,7 @@ class Job:
         self.label = label
         self.env_overrides = env_overrides or {}
         self.metadata = metadata or {}
+        self.embedded_inventory: dict | None = None
         self.status = "queued"
         self.lines: list[str] = []
         self.proc: subprocess.Popen | None = None
@@ -115,7 +117,17 @@ def _exec(job: Job):
     env.setdefault("OBJC_DISABLE_INITIALIZE_FORK_SAFETY", "YES")
     env.setdefault("ANSIBLE_FORKS", "1")
     env.update(job.env_overrides)
+    inventory_workspace = None
     try:
+        if job.embedded_inventory is not None:
+            import yaml
+
+            inventory_workspace = tempfile.TemporaryDirectory(prefix="runner-inventory-")
+            inventory_file = Path(inventory_workspace.name) / "hosts.yml"
+            with open(inventory_file, "x", opener=lambda path, flags: os.open(path, flags, 0o600)) as stream:
+                yaml.safe_dump(job.embedded_inventory, stream)
+            job.argv[job.argv.index("-i") + 1] = str(inventory_file)
+            job.cmd = shlex.join(job.argv)
         job.proc = subprocess.Popen(
             job.argv,
             cwd=job.cwd,
@@ -137,6 +149,8 @@ def _exec(job: Job):
         job.put(f"\n*** Error: {exc}\n")
         job.status = "failed"
     finally:
+        if inventory_workspace is not None:
+            inventory_workspace.cleanup()
         job.t1 = time.time()
 
 
@@ -1073,6 +1087,57 @@ def api_write_file():
     return jsonify(status="saved", path=_display_source_path(path, source_root))
 
 
+def _read_workflow_inputs(path: Path) -> dict:
+    import yaml
+
+    try:
+        values = yaml.safe_load(path.read_text())
+    except (yaml.YAMLError, UnicodeError) as exc:
+        raise ValueError("Vars file must contain valid YAML") from exc
+    if not isinstance(values, dict):
+        raise ValueError("Vars file must contain a YAML mapping")
+    return values
+
+
+def _embedded_inventory(values: dict) -> dict:
+    inventory = values.get("inventory")
+    if not isinstance(inventory, dict) or not inventory:
+        raise ValueError("Select an inventory file or add an inventory mapping to the vars file")
+    seen = set()
+
+    def check_group(group):
+        if not isinstance(group, dict) or id(group) in seen:
+            raise ValueError("Embedded inventory groups must be mappings without recursive aliases")
+        seen.add(id(group))
+        try:
+            if set(group) - {"hosts", "children", "vars"}:
+                raise ValueError("Embedded inventory groups support hosts, children, and vars")
+            for field in ("hosts", "children", "vars"):
+                if field in group and not isinstance(group[field], dict):
+                    raise ValueError("Embedded inventory hosts, children, and vars must be mappings")
+            hosts = group.get("hosts", {})
+            for name, host_vars in hosts.items():
+                if not isinstance(name, str) or not name.strip() or (host_vars is not None and not isinstance(host_vars, dict)):
+                    raise ValueError("Embedded inventory hosts require names and variable mappings")
+            count = len(hosts)
+            for name, child in group.get("children", {}).items():
+                if not isinstance(name, str) or not name.strip():
+                    raise ValueError("Embedded inventory groups require names")
+                count += check_group(child)
+            return count
+        finally:
+            seen.remove(id(group))
+
+    count = 0
+    for name, group in inventory.items():
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("Embedded inventory groups require names")
+        count += check_group(group)
+    if not count:
+        raise ValueError("Embedded inventory must contain at least one host")
+    return inventory
+
+
 @app.route("/api/validate", methods=["POST"])
 def api_validate():
     data = request.json or {}
@@ -1100,7 +1165,13 @@ def api_validate():
 
     try:
         schema = yamale.make_schema(str(schema_path))
-        payload = yamale.make_data(str(vars_path))
+        values = _read_workflow_inputs(vars_path)
+        if "inventory" in values:
+            _embedded_inventory(values)
+            values = {key: value for key, value in values.items() if key != "inventory"}
+        elif data.get("require_embedded_inventory"):
+            return jsonify(ok=False, out="Select an inventory file or add an inventory mapping to the vars file")
+        payload = [(values, str(vars_path))]
         yamale.validate(schema, payload)
         return jsonify(ok=True, out="Validation completed")
     except YamaleError as exc:
@@ -1109,6 +1180,8 @@ def api_validate():
             details.append(_display_path(Path(result.data)))
             details.extend(f"  - {error}" for error in result.errors)
         return jsonify(ok=False, out="\n".join(details))
+    except ValueError as exc:
+        return jsonify(ok=False, out=str(exc))
     except Exception as exc:
         return _json_error(str(exc), 500)
 
@@ -1202,7 +1275,7 @@ def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", targ
 
     if playbook_path is None:
         return None, "Playbook not found"
-    if inventory_path is None:
+    if inventory_path is None and data.get("inventory"):
         return None, "Inventory file not found"
     if vars_path is None and data.get("vars_file"):
         return None, "Vars file not found"
@@ -1227,8 +1300,17 @@ def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", targ
         if not ansible_playbook or not ansible_playbook.exists():
             return None, f"Managed venv ansible-playbook not found: {ansible_playbook}. Install dependencies first."
 
+    embedded_inventory = None
+    if inventory_path is None:
+        if vars_path is None:
+            return None, "Select an inventory file or a vars file containing inventory"
+        try:
+            embedded_inventory = _embedded_inventory(_read_workflow_inputs(vars_path))
+        except (ValueError, OSError) as exc:
+            return None, str(exc)
+
     executable = str(ansible_playbook) if use_managed_venv and ansible_playbook and ansible_playbook.exists() else "ansible-playbook"
-    argv = [executable, "-i", str(inventory_path), str(playbook_path)]
+    argv = [executable, "-i", str(inventory_path) if inventory_path else "<inventory from vars>", str(playbook_path)]
     if vars_path is not None:
         argv += ["--extra-vars", f"VARS_FILE_PATH={vars_path}"]
     if use_managed_venv and python_path and "ansible_python_interpreter" not in " ".join(extra_args):
@@ -1272,7 +1354,8 @@ def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", targ
         } if target_name else {},
         "workflow": data.get("workflow") or "",
         "playbook": _display_source_path(playbook_path, PROJECT_ROOT),
-        "inventory": _display_source_path(inventory_path, inventory_source_root),
+        "inventory": _display_source_path(inventory_path, inventory_source_root) if inventory_path else "",
+        "inventory_embedded": embedded_inventory is not None,
         "vars_file": _display_source_path(vars_path, vars_source_root) if vars_path is not None else "",
         "source": {"kind": "local"},
         "vars_source": vars_source,
@@ -1288,6 +1371,7 @@ def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", targ
         "catalyst_connection_password_set": bool(connection.get("password")),
     }
     job = Job(jid, argv, str(PROJECT_ROOT), label, env_overrides, metadata)
+    job.embedded_inventory = embedded_inventory
     return job, {"command": job.cmd}
 
 

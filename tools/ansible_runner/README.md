@@ -32,6 +32,36 @@ A lightweight web UI for browsing, editing, and executing Ansible playbooks from
 
 ---
 
+## Input Files
+
+The runner accepts a separate inventory plus workflow vars, or a single vars
+file with a top-level `inventory` mapping. For a combined file, leave the
+Inventory selection empty ("From vars file"). For example:
+
+```yaml
+inventory:
+  all:
+    children:
+      catalyst_center_hosts:
+        hosts:
+          catalyst_center:
+            ansible_connection: local
+            catalyst_center_host: "<catalyst-center-host>"
+            catalyst_center_username: "<username>"
+            catalyst_center_password: "<password>"
+
+provision_details:
+  - management_ip_address: "192.0.2.10"
+    site_name_hierarchy: "Global/Lab"
+    provisioning: true
+```
+
+Validate checks workflow inputs against the selected schema and checks the
+embedded inventory structure separately. Customize inputs edits the same vars
+file. A selected separate inventory takes precedence over embedded inventory.
+Combined runs create a protected temporary inventory only during execution and
+remove it afterward. The original vars file is passed through `VARS_FILE_PATH`.
+
 ## Prerequisites
 
 Before running the Ansible Workflow Runner, ensure you have:
