@@ -1580,7 +1580,6 @@
     }
 
     function runPlanSelectHtml(field, options, placeholder, selectedValue) {
-      if (field === 'vars') options = [{ v: '', t: 'Use inventory variables' }].concat(options);
       const selected = options.find(function(option) { return option.v === selectedValue; });
       const hasRealSelection = !!((selected && selected.v) || selectedValue);
       const searchLabel = placeholder.replace(/^select\s+/i, '').toLowerCase();
@@ -1616,7 +1615,7 @@
       if (!menu) return;
       const query = showAll ? '' : input.value.trim().toLowerCase();
       const selectableOptions = runPlanComboOptions(wrapper).filter(function(option) {
-        return !!option.v || wrapper.dataset.planCombo === 'vars';
+        return !!option.v;
       });
       const options = selectableOptions.filter(function(option) {
         return !query || option.search.indexOf(query) !== -1;
@@ -1704,12 +1703,12 @@
     function runPlanStatus(row) {
       const repo = row.querySelector('[data-plan-field="repo"]');
       const playbook = row.querySelector('[data-plan-field="playbook"]');
+      const varsFile = row.querySelector('[data-plan-field="vars"]');
       const missing = [];
       const workflow = row.querySelector('[data-plan-field="workflow"]');
       if (!workflow || !workflow.value) missing.push('workflow');
       if (!playbook || !playbook.value) missing.push('playbook');
-      const inventory = row.querySelector('[data-plan-field="inventory"]');
-      if (!inventory || !inventory.value) missing.push('inventory');
+      if (!varsFile || !varsFile.value) missing.push('vars');
       if (repo && repo.value !== 'local' && repo.value !== 'local-folder') {
         const selectedRepo = gitRepositories.find(function(item) { return item.id === repo.value; }) || (gitSource && gitSource.id === repo.value ? { source: gitSource } : null);
         if (!selectedRepo) missing.push('repo');
@@ -1725,11 +1724,11 @@
       const repo = row.querySelector('[data-plan-field="repo"]');
       const workflow = row.querySelector('[data-plan-field="workflow"]');
       const playbook = row.querySelector('[data-plan-field="playbook"]');
+      const varsFile = row.querySelector('[data-plan-field="vars"]');
       const missing = [];
       if (!workflow || !workflow.value) missing.push('workflow');
       if (!playbook || !playbook.value) missing.push('playbook');
-      const inventory = row.querySelector('[data-plan-field="inventory"]');
-      if (!inventory || !inventory.value) missing.push('inventory');
+      if (!varsFile || !varsFile.value) missing.push('vars');
       if (repo && repo.value !== 'local' && repo.value !== 'local-folder') {
         const selectedRepo = gitRepositories.find(function(item) { return item.id === repo.value; }) || (gitSource && gitSource.id === repo.value ? { source: gitSource } : null);
         if (!selectedRepo) missing.push('repo');
@@ -1836,7 +1835,7 @@
         +     '</div>'
         +   '</div>'
         +   runPlanFieldHtml('Input repo', runPlanSelectHtml('repo', runPlanRepoOptions(), 'Select repo', repoId))
-        +   '<div data-plan-vars-cell>' + runPlanFieldHtml('Vars file (optional)', runPlanSelectHtml('vars', runPlanVarsOptions(repoId, workflowName), 'Select vars', values.vars || ''), false) + '</div>'
+        +   '<div data-plan-vars-cell>' + runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(repoId, workflowName), 'Select vars', values.vars || ''), true) + '</div>'
         +   '<div data-plan-inventory-cell>' + runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(repoId), 'Select inventory', values.inventory || ''), true) + '</div>'
         + '</div>';
       $('run-plan-rows').appendChild(row);
@@ -1965,7 +1964,7 @@
           +   '<td class="whitespace-nowrap px-3 py-3 text-xs font-bold text-slate-500">Play ' + (index + 1) + '</td>'
           +   '<td class="px-3 py-3 text-xs font-semibold text-slate-800">' + htmlEscape(run.workflow || 'Not selected') + '</td>'
           +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.playbook) || 'Not selected') + '</td>'
-          +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.vars) || 'Inventory variables') + '</td>'
+          +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.vars) || 'Not selected') + '</td>'
           +   '<td class="px-3 py-3 text-xs text-slate-700">' + htmlEscape(basename(run.inventory) || 'Not selected') + '</td>'
           + '</tr>';
       }).join('');
@@ -1974,7 +1973,7 @@
     function suiteCanRun(suite) {
       const runs = suite.runs || [];
       return runs.length && runs.every(function(run) {
-        return !!(run.workflow && run.playbook && run.inventory && suiteRunTarget(run) && suiteRunRepoReady(run));
+        return !!(run.workflow && run.playbook && run.vars && run.inventory && suiteRunTarget(run) && suiteRunRepoReady(run));
       });
     }
 
@@ -2070,7 +2069,7 @@
           +         '<button type="button" aria-label="Move suite down" title="Move down" data-suite-action="move-down" data-suite-id="' + htmlEscape(suite.id) + '"' + (suiteIndex === suites.length - 1 ? ' disabled' : '') + ' class="' + moveButtonClass + '">↓</button>'
           +       '</div>'
           +       '<button type="button" data-suite-action="load" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">Edit</button>'
-          +       '<button type="button" data-suite-action="run" data-suite-id="' + htmlEscape(suite.id) + '"' + (canRun ? '' : ' disabled title="Add CatC target, repo, workflow, playbook, and inventory before running."') + ' class="' + runButtonClass + '">Run</button>'
+          +       '<button type="button" data-suite-action="run" data-suite-id="' + htmlEscape(suite.id) + '"' + (canRun ? '' : ' disabled title="Add CatC target, repo, workflow, playbook, vars, and inventory before running."') + ' class="' + runButtonClass + '">Run</button>'
           +       '<button type="button" data-suite-action="delete" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Delete</button>'
           +     '</div>'
           +   '</div>'
@@ -2358,7 +2357,7 @@
         return;
       }
       if (!suiteCanRun(suite)) {
-        showToast('Complete CatC target, repo, workflow, playbook, and inventory before running this suite.');
+        showToast('Complete CatC target, repo, workflow, playbook, vars, and inventory before running this suite.');
         return;
       }
       showAutomationSuiteLaunchProgress(1, 1);
@@ -2391,7 +2390,7 @@
       }
       const notReady = suites.filter(function(suite) { return !suiteCanRun(suite); });
       if (notReady.length) {
-        showToast(notReady.length + ' selected suite(s) need CatC target, repo, workflow, playbook, and inventory.');
+        showToast(notReady.length + ' selected suite(s) need CatC target, repo, workflow, playbook, vars, and inventory.');
         return;
       }
 
@@ -2493,7 +2492,7 @@
         const varsCell = row.querySelector('[data-plan-vars-cell]');
         const inventoryCell = row.querySelector('[data-plan-inventory-cell]');
         const workflow = row.querySelector('[data-plan-field="workflow"]');
-        varsCell.innerHTML = runPlanFieldHtml('Vars file (optional)', runPlanSelectHtml('vars', runPlanVarsOptions(element.value, workflow ? workflow.value : ''), 'Select vars', ''), false);
+        varsCell.innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(element.value, workflow ? workflow.value : ''), 'Select vars', ''), true);
         inventoryCell.innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(element.value), 'Select inventory', ''), true);
       }
       if (element.dataset.planField === 'workflow') {
@@ -2503,7 +2502,7 @@
         const workflowName = element.value;
         const repoId = repo ? repo.value : 'local';
         playbookCell.innerHTML = runPlanBareCellHtml(runPlanSelectHtml('playbook', runPlanPlaybookOptions(workflowName), 'Select playbook', ''));
-        varsCell.innerHTML = runPlanFieldHtml('Vars file (optional)', runPlanSelectHtml('vars', runPlanVarsOptions(repoId, workflowName), 'Select vars', ''), false);
+        varsCell.innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(repoId, workflowName), 'Select vars', ''), true);
       }
       row.dataset.schemaStatus = '';
       row.dataset.schemaMessage = '';
@@ -2567,7 +2566,7 @@
           workflow.closest('[data-plan-combo]').outerHTML = runPlanSelectHtml('workflow', runPlanWorkflowOptions(), 'Select workflow', values.workflow);
         }
         row.querySelector('[data-plan-playbook-cell]').innerHTML = runPlanBareCellHtml(runPlanSelectHtml('playbook', runPlanPlaybookOptions(values.workflow), 'Select playbook', values.playbook));
-        row.querySelector('[data-plan-vars-cell]').innerHTML = runPlanFieldHtml('Vars file (optional)', runPlanSelectHtml('vars', runPlanVarsOptions(values.repo, values.workflow), 'Select vars', values.vars), false);
+        row.querySelector('[data-plan-vars-cell]').innerHTML = runPlanFieldHtml('Vars file', runPlanSelectHtml('vars', runPlanVarsOptions(values.repo, values.workflow), 'Select vars', values.vars), true);
         row.querySelector('[data-plan-inventory-cell]').innerHTML = runPlanFieldHtml('Inventory', runPlanSelectHtml('inventory', runPlanInventoryOptions(values.repo), 'Select inventory', values.inventory), true);
         updateRunPlanRow(row);
       });
@@ -2650,10 +2649,6 @@
           schema: schemaOptionValue(workflow, schemaFileName),
           data: values.vars,
           vars_source: runPlanVarsSourcePayload(values.repo),
-          inventory: values.inventory,
-          inventory_source: runPlanVarsSourcePayload(values.repo),
-          playbook: values.playbook,
-          ...runtimePayload(),
         }),
       });
       row.dataset.schemaStatus = result.ok ? 'passed' : 'failed';
@@ -3600,9 +3595,7 @@
         inputSource.id || '',
         $('sel-workflow').value,
         $('sel-playbook').value,
-        getSelectedVarsPath('run'),
-        getSelectedInventoryPath('run'),
-        JSON.stringify(inventorySourcePayload())
+        getSelectedVarsPath('run')
       ].join('|');
     }
 
@@ -4612,8 +4605,8 @@
       const workflowName = $('sel-workflow').value;
       const playbookName = $('sel-playbook').value.split('/').pop();
       const varsPath = getSelectedVarsPath('run');
-      if (!workflowName || !playbookName || !getSelectedInventoryPath('run')) {
-        alert('Select a workflow, playbook, and inventory first');
+      if (!workflowName || !playbookName || !varsPath) {
+        alert('Select a workflow, playbook, and vars file first');
         return;
       }
 
@@ -4634,9 +4627,7 @@
         const result = await fetchJson('/api/validate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ schema: schema, data: varsPath, vars_source: varsSourcePayload(),
-            inventory: getSelectedInventoryPath('run'), inventory_source: inventorySourcePayload(),
-            playbook: $('sel-playbook').value, ...runtimePayload() }),
+          body: JSON.stringify({ schema: schema, data: varsPath, vars_source: varsSourcePayload() }),
         });
         show('validate-result');
         resultEl.className = 'rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap ' + (result.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700');
