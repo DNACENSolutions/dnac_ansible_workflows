@@ -1089,7 +1089,7 @@ def api_validate():
     )
     if schema_path is None:
         return _json_error("Schema file not found")
-    if vars_path is None:
+    if vars_path is None and data.get("data"):
         return _json_error("Vars file not found")
 
     try:
@@ -1100,8 +1100,48 @@ def api_validate():
 
     try:
         schema = yamale.make_schema(str(schema_path))
-        payload = yamale.make_data(str(vars_path))
-        yamale.validate(schema, payload)
+        if data.get("data"):
+            payload = yamale.make_data(str(vars_path))
+            yamale.validate(schema, payload)
+        else:
+            inventory_root = _resolve_git_source(data.get("inventory_source") or data.get("vars_source"))
+            if inventory_root is None:
+                return _json_error("Git source not found")
+            inventory_path = _resolve_source_file(data.get("inventory"), inventory_root, must_exist=True, allow_user_file=True)
+            playbook_path = _resolve_source_file(data.get("playbook"), PROJECT_ROOT, must_exist=True, allow_user_file=False)
+            if inventory_path is None or playbook_path is None:
+                return _json_error("Inventory and playbook are required for inventory-only validation")
+            venv_path = _resolve_venv(data.get("venv_path"), must_exist=False)
+            python = str(_venv_python(venv_path)) if data.get("managed_venv", True) and venv_path else "python3"
+            # Use Ansible's variable manager to include inherited group/host vars.
+            script = """
+import json, sys, yaml
+from ansible.parsing.dataloader import DataLoader
+from ansible.inventory.manager import InventoryManager
+from ansible.vars.manager import VariableManager
+loader = DataLoader()
+inventory = InventoryManager(loader=loader, sources=[sys.argv[1]])
+variables = VariableManager(loader=loader, inventory=inventory)
+with open(sys.argv[2]) as stream:
+    plays = yaml.safe_load(stream)
+hosts = {}
+for play in plays:
+    for host in inventory.get_hosts(pattern=play.get('hosts', 'all')):
+        hosts[host.name] = variables.get_vars(host=host)
+print(json.dumps(hosts, default=str))
+"""
+            result = subprocess.run(
+                [python, "-c", script, str(inventory_path), str(playbook_path)],
+                cwd=str(PROJECT_ROOT), capture_output=True, text=True, timeout=60,
+            )
+            if result.returncode:
+                return jsonify(ok=False, out="Could not load inventory variables. Check inventory and the selected Python environment.")
+            host_variables = json.loads(result.stdout)
+            if not host_variables:
+                return jsonify(ok=False, out="Inventory contains no hosts matching the playbook.")
+            for hostname, values in host_variables.items():
+                # Inventory also contains connection and Ansible internal variables.
+                yamale.validate(schema, [(values, hostname)], strict=False)
         return jsonify(ok=True, out="Validation completed")
     except YamaleError as exc:
         details = []
