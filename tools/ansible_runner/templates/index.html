@@ -2405,6 +2405,31 @@
 
       automationSuiteLaunchInFlight = true;
       try {
+        if (automationSuiteLaunchMode === 'sequential') {
+          const queuedSuites = suites.map(function(suite) {
+            const launchId = suiteId();
+            return {
+              runs: (suite.runs || []).map(function(run, index) {
+                return automationSuiteRowPayload(suite, run, index, launchId, {
+                  failurePolicy: automationSuiteFailurePolicy,
+                  launchMode: 'sequential',
+                });
+              }),
+            };
+          });
+          await fetchJson('/api/run/suites', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ suites: queuedSuites, failure_policy: automationSuiteFailurePolicy }),
+          });
+          clearAutomationSuiteSelection();
+          $('automation-suite-launch-text').textContent = 'Suite mode: Sequential · Play fails: '
+            + (automationSuiteFailurePolicy === 'continue' ? 'Continue' : 'Stop')
+            + '. ' + suites.length + ' suites accepted. View live progress in Automation Assurance.';
+          refreshDashboardCards('running');
+          refreshHistory();
+          return;
+        }
         await new Promise(function(resolve) {
           async function launchNextSuite() {
             while (active < suiteParallelLimit && cursor < suites.length) {
