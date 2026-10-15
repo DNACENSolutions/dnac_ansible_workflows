@@ -2,7 +2,6 @@
 """Ansible Workflow Runner backend."""
 
 import json
-import hashlib
 import os
 import re
 import shlex
@@ -10,6 +9,7 @@ import shutil
 import signal
 import ssl
 import subprocess
+import tempfile
 import threading
 import time
 import urllib.error
@@ -28,7 +28,6 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 WORKFLOWS_DIR = PROJECT_ROOT / "workflows"
 INVENTORY_DIR = PROJECT_ROOT / "inventory"
 GIT_REPOS_DIR = PROJECT_ROOT / ".runner_repos"
-GIT_ACTIVE_REPO_DIR = GIT_REPOS_DIR / "active"
 HOME_DIR = Path.home().resolve()
 YAML_SUFFIXES = {".yml", ".yaml"}
 VERBOSITY_FLAGS = {"", "-v", "-vv", "-vvv", "-vvvv"}
@@ -45,6 +44,7 @@ BROWSE_ROOTS = {
 # In-memory job store (lost on restart — acceptable for a local tool)
 _jobs: dict[str, "Job"] = {}
 _jobs_lock = threading.Lock()
+_cancelled_suites: set[str] = set()
 
 
 # ---------------------------------------------------------------------------
@@ -69,6 +69,7 @@ class Job:
         self.label = label
         self.env_overrides = env_overrides or {}
         self.metadata = metadata or {}
+        self.embedded_inventory: dict | None = None
         self.status = "queued"
         self.lines: list[str] = []
         self.proc: subprocess.Popen | None = None
@@ -105,34 +106,134 @@ class Job:
 
 def _exec(job: Job):
     """Execute ansible-playbook in a background thread."""
-    job.status = "running"
-    job.t0 = time.time()
+    with job._lock:
+        if job.status == "cancelled" or job.metadata.get("suite_launch_id") in _cancelled_suites:
+            job.status = "cancelled"
+            job.t1 = time.time()
+            return
     env = os.environ.copy()
     env["ANSIBLE_FORCE_COLOR"] = "true"
     env["PYTHONUNBUFFERED"] = "1"
+    env.setdefault("OBJC_DISABLE_INITIALIZE_FORK_SAFETY", "YES")
+    env.setdefault("ANSIBLE_FORKS", "1")
     env.update(job.env_overrides)
+    inventory_workspace = None
     try:
-        job.proc = subprocess.Popen(
-            job.argv,
-            cwd=job.cwd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            preexec_fn=os.setsid,
-            env=env,
-        )
+        if job.embedded_inventory is not None:
+            import yaml
+
+            inventory_workspace = tempfile.TemporaryDirectory(prefix="runner-inventory-")
+            inventory_file = Path(inventory_workspace.name) / "hosts.yml"
+            with open(inventory_file, "x", opener=lambda path, flags: os.open(path, flags, 0o600)) as stream:
+                yaml.safe_dump(job.embedded_inventory, stream)
+            job.argv[job.argv.index("-i") + 1] = str(inventory_file)
+            job.cmd = shlex.join(job.argv)
+        # Serialize cancellation with process creation, including the queued state.
+        with job._lock:
+            if job.status == "cancelled" or job.metadata.get("suite_launch_id") in _cancelled_suites:
+                job.status = "cancelled"
+                return
+            job.proc = subprocess.Popen(
+                job.argv,
+                cwd=job.cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                start_new_session=True,
+                env=env,
+            )
+            job.status = "running"
+            job.t0 = time.time()
         if job.proc.stdout is not None:
             for line in iter(job.proc.stdout.readline, ""):
                 job.put(line)
         job.proc.wait()
         job.rc = job.proc.returncode
-        job.status = "completed" if job.rc == 0 else "failed"
-    except Exception as exc:
-        job.put(f"\n*** Error: {exc}\n")
-        job.status = "failed"
+        with job._lock:
+            if job.status != "cancelled":
+                job.status = "completed" if job.rc == 0 else "failed"
+    except Exception:
+        app.logger.exception("Job execution failed")
+        job.put("\n*** Unable to execute playbook. Check the runner server log.\n")
+        with job._lock:
+            if job.status != "cancelled":
+                job.status = "failed"
     finally:
+        if job.proc is not None and job.proc.stdout is not None:
+            job.proc.stdout.close()
+        if inventory_workspace is not None:
+            inventory_workspace.cleanup()
         job.t1 = time.time()
+
+
+def _exec_with_semaphore(job: Job, semaphore: threading.Semaphore):
+    with semaphore:
+        if job.status == "cancelled":
+            job.t1 = time.time()
+            return
+        _exec(job)
+
+
+def _suite_failed_start_job(data: dict, message: str, *, kind: str = "automation-suite") -> Job:
+    jid = uuid.uuid4().hex[:8]
+    label = data.get("label") or f"Play {data.get('suite_run_index') or ''}".strip() or "Automation suite play"
+    metadata = {
+        "kind": kind,
+        "batch_id": "",
+        "suite_launch_id": data.get("suite_launch_id") or "",
+        "suite_name": data.get("suite_name") or "",
+        "suite_run_index": data.get("suite_run_index") or "",
+        "suite_run_total": data.get("suite_run_total") or "",
+        "suite_failure_policy": data.get("suite_failure_policy") or "",
+        "suite_launch_mode": data.get("suite_launch_mode") or "",
+        "suite_plan": data.get("suite_plan") if isinstance(data.get("suite_plan"), list) else [],
+        "label": label,
+        "workflow": data.get("workflow") or "",
+        "playbook": data.get("playbook") or "",
+        "inventory": data.get("inventory") or "",
+        "vars_file": data.get("vars_file") or "",
+        "vars_source": data.get("vars_source") or {},
+        "inventory_source": data.get("inventory_source") or {},
+        "extra_args": data.get("extra_args", ""),
+        "managed_venv": data.get("managed_venv", ""),
+        "venv_path": data.get("venv_path") or "",
+        "catalyst_connection_enabled": bool((data.get("catalyst_connection") or {}).get("enabled")),
+        "catalyst_connection_host": str((data.get("catalyst_connection") or {}).get("host") or ""),
+        "catalyst_connection_username": str((data.get("catalyst_connection") or {}).get("username") or ""),
+        "catalyst_connection_verify": str((data.get("catalyst_connection") or {}).get("verify") or ""),
+        "catalyst_connection_password_set": bool((data.get("catalyst_connection") or {}).get("password")),
+    }
+    job = Job(jid, ["suite-start-failed"], str(PROJECT_ROOT), label, {}, metadata)
+    job.status = "failed"
+    job.rc = 1
+    job.t0 = time.time()
+    job.t1 = job.t0
+    job.put(f"*** Failed to start suite play: {message}\n")
+    return job
+
+
+def _exec_suite_sequence(runs: list[dict], failure_policy: str):
+    continue_on_failure = failure_policy == "continue"
+    for data in runs:
+        suite_id = data.get("suite_launch_id") or ""
+        if suite_id in _cancelled_suites:
+            break
+        job, result = _build_run_job(data, kind=data.get("kind") or "automation-suite")
+        if job is None:
+            failed_job = _suite_failed_start_job(data, str(result))
+            with _jobs_lock:
+                _jobs[failed_job.id] = failed_job
+            if not continue_on_failure:
+                break
+            continue
+        with _jobs_lock:
+            _jobs[job.id] = job
+        _exec(job)
+        if suite_id in _cancelled_suites:
+            break
+        if job.status != "completed" and not continue_on_failure:
+            break
 
 
 # ---------------------------------------------------------------------------
@@ -197,11 +298,8 @@ def _resolve_user_file(raw_path: str | None, *, must_exist: bool = True) -> Path
     )
 
 
-def _git_source_id(repo_url: str, ref: str) -> str:
-    name = repo_url.rstrip("/").removesuffix(".git").split("/")[-1] or "repo"
-    name = re.sub(r"[^A-Za-z0-9_.-]+", "_", name).strip("._") or "repo"
-    digest = hashlib.sha256(f"{repo_url}|{ref}".encode("utf-8")).hexdigest()[:12]
-    return f"{name}_{digest}"
+def _git_source_id() -> str:
+    return f"repo_{uuid.uuid4().hex[:12]}"
 
 
 def _normalize_git_input(repo_url: str, ref: str) -> tuple[str, str]:
@@ -228,16 +326,32 @@ def _validate_git_input(repo_url: str, ref: str) -> str | None:
     return None
 
 
+def _git_repo_cache_target() -> tuple[str, Path]:
+    source_id = _git_source_id()
+    target = (GIT_REPOS_DIR / source_id).resolve()
+    return source_id, target
+
+
+def _resolve_existing_git_repo_cache_dir(source_id: str) -> Path | None:
+    if not re.fullmatch(r"repo_[0-9a-f]{12}", source_id):
+        return None
+    cache_root = GIT_REPOS_DIR.resolve()
+    if not cache_root.exists():
+        return None
+    for child in cache_root.iterdir():
+        if child.name != source_id:
+            continue
+        source_root = child.resolve()
+        if _is_within(source_root, cache_root) and source_root.exists():
+            return source_root
+    return None
+
+
 def _resolve_git_source(source: dict | None) -> Path | None:
     if not source or source.get("kind") != "git":
         return PROJECT_ROOT.resolve()
     source_id = str(source.get("id") or "")
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+", source_id):
-        return None
-    source_root = GIT_ACTIVE_REPO_DIR.resolve()
-    if not _is_within(source_root, GIT_REPOS_DIR.resolve()) or not source_root.exists():
-        return None
-    return source_root
+    return _resolve_existing_git_repo_cache_dir(source_id)
 
 
 def _safe_relative_parts(raw_path: str) -> tuple[str, ...] | None:
@@ -279,8 +393,12 @@ def _resolve_source_file(
 
     raw_path = raw_path.strip()
     if os.path.isabs(raw_path):
+        if source_root != PROJECT_ROOT.resolve():
+            candidate = _resolve_local_path(raw_path, roots=(source_root,), must_exist=must_exist)
+            return candidate if candidate and candidate.suffix.lower() in YAML_SUFFIXES else None
         if allow_user_file:
-            return _resolve_user_file(raw_path, must_exist=must_exist)
+            candidate = _resolve_user_file(raw_path, must_exist=must_exist)
+            return candidate if candidate and candidate.suffix.lower() in YAML_SUFFIXES else None
         return None
 
     source_candidate = _find_existing_relative_yaml(source_root, raw_path)
@@ -288,11 +406,6 @@ def _resolve_source_file(
         return source_candidate
     if not must_exist:
         return None
-
-    if allow_project_fallback and source_root != PROJECT_ROOT.resolve():
-        project_candidate = _find_existing_relative_yaml(PROJECT_ROOT, raw_path)
-        if project_candidate and _is_within(project_candidate, PROJECT_ROOT.resolve()):
-            return project_candidate
 
     return None
 
@@ -329,11 +442,16 @@ def _discover_repo_vars(root: Path) -> list[str]:
             continue
         lower_parts = [part.lower() for part in parts]
         lower_name = path.name.lower()
-        if "inventory" in lower_parts or lower_name.startswith("hosts."):
+        if lower_name.startswith("hosts.") or (lower_parts and lower_parts[0] == "inventory"):
             continue
         if "schema" in lower_parts or "playbook" in lower_parts:
             continue
-        if not ("vars" in lower_parts or "var" in lower_name or "input" in lower_name):
+        if not (
+            "vars" in lower_parts
+            or "var" in lower_name
+            or "input" in lower_name
+            or (len(lower_parts) >= 3 and lower_parts[0] == "data" and lower_name == "data.yml")
+        ):
             continue
         if _looks_like_playbook(path):
             continue
@@ -771,8 +889,9 @@ def api_device_interfaces():
         return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
     except urllib.error.URLError as exc:
         return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
-    except Exception as exc:
-        return _json_error(str(exc), 500)
+    except Exception:
+        app.logger.exception("Device interface lookup failed")
+        return _json_error("Unable to retrieve device interfaces. Check the runner server log.", 500)
 
 
 @app.route("/api/host-port-assignments", methods=["GET", "POST"])
@@ -832,8 +951,9 @@ def api_host_port_assignments():
         return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
     except urllib.error.URLError as exc:
         return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
-    except Exception as exc:
-        return _json_error(str(exc), 500)
+    except Exception:
+        app.logger.exception("Host port assignment lookup failed")
+        return _json_error("Unable to retrieve port assignments. Check the runner server log.", 500)
 
 
 @app.route("/api/git/fetch", methods=["POST"])
@@ -848,8 +968,7 @@ def api_git_fetch():
     if validation_error:
         return _json_error(validation_error)
 
-    source_id = _git_source_id(repo_url, ref)
-    target = GIT_ACTIVE_REPO_DIR.resolve()
+    source_id, target = _git_repo_cache_target()
     if not _is_within(target, GIT_REPOS_DIR.resolve()):
         return _json_error("Invalid repository target")
 
@@ -963,23 +1082,85 @@ def api_read_file():
         return _json_error("Access denied or file not found", 403)
     if not path.is_file():
         return _json_error("Not found", 404)
-    # codeql[py/path-injection] path is resolved through _resolve_source_file and must remain inside an allowed root.
-    return jsonify(path=_display_source_path(path, source_root), content=path.read_text(errors="replace"))
+    try:
+        # codeql[py/path-injection] The resolver confines YAML files to their selected source.
+        content = path.read_text(errors="replace")
+    except OSError:
+        app.logger.exception("Unable to read input file")
+        return _json_error("Unable to read input file. Check the runner server log.", 500)
+    return jsonify(path=_display_source_path(path, source_root), content=content)
 
 
 @app.route("/api/file", methods=["PUT"])
 def api_write_file():
     data = request.json or {}
+    if not isinstance(data.get("content", ""), str):
+        return _json_error("File content must be text")
     source_root = _resolve_git_source(data.get("source"))
     if source_root is None:
         return _json_error("Git source not found")
     path = _resolve_source_file(data.get("path"), source_root, must_exist=False, allow_user_file=True)
     if path is None:
         return _json_error("Access denied")
-    # codeql[py/path-injection] path is resolved through _resolve_source_file and must remain inside an allowed root.
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(data.get("content", ""))
+    try:
+        # codeql[py/path-injection] The resolver confines YAML files to their selected source.
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(data.get("content", ""))
+    except OSError:
+        app.logger.exception("Unable to save input file")
+        return _json_error("Unable to save input file. Check the runner server log.", 500)
     return jsonify(status="saved", path=_display_source_path(path, source_root))
+
+
+def _read_workflow_inputs(path: Path) -> dict:
+    import yaml
+
+    try:
+        values = yaml.safe_load(path.read_text())
+    except (yaml.YAMLError, UnicodeError) as exc:
+        raise ValueError("Vars file must contain valid YAML") from exc
+    if not isinstance(values, dict):
+        raise ValueError("Vars file must contain a YAML mapping")
+    return values
+
+
+def _embedded_inventory(values: dict) -> dict:
+    inventory = values.get("inventory")
+    if not isinstance(inventory, dict) or not inventory:
+        raise ValueError("Select an inventory file or add an inventory mapping to the vars file")
+    seen = set()
+
+    def check_group(group):
+        if not isinstance(group, dict) or id(group) in seen:
+            raise ValueError("Embedded inventory groups must be mappings without recursive aliases")
+        seen.add(id(group))
+        try:
+            if set(group) - {"hosts", "children", "vars"}:
+                raise ValueError("Embedded inventory groups support hosts, children, and vars")
+            for field in ("hosts", "children", "vars"):
+                if field in group and not isinstance(group[field], dict):
+                    raise ValueError("Embedded inventory hosts, children, and vars must be mappings")
+            hosts = group.get("hosts", {})
+            for name, host_vars in hosts.items():
+                if not isinstance(name, str) or not name.strip() or (host_vars is not None and not isinstance(host_vars, dict)):
+                    raise ValueError("Embedded inventory hosts require names and variable mappings")
+            count = len(hosts)
+            for name, child in group.get("children", {}).items():
+                if not isinstance(name, str) or not name.strip():
+                    raise ValueError("Embedded inventory groups require names")
+                count += check_group(child)
+            return count
+        finally:
+            seen.remove(id(group))
+
+    count = 0
+    for name, group in inventory.items():
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("Embedded inventory groups require names")
+        count += check_group(group)
+    if not count:
+        raise ValueError("Embedded inventory must contain at least one host")
+    return inventory
 
 
 @app.route("/api/validate", methods=["POST"])
@@ -1009,7 +1190,13 @@ def api_validate():
 
     try:
         schema = yamale.make_schema(str(schema_path))
-        payload = yamale.make_data(str(vars_path))
+        values = _read_workflow_inputs(vars_path)
+        if "inventory" in values:
+            _embedded_inventory(values)
+            values = {key: value for key, value in values.items() if key != "inventory"}
+        elif data.get("require_embedded_inventory"):
+            return jsonify(ok=False, out="Select an inventory file or add an inventory mapping to the vars file")
+        payload = [(values, str(vars_path))]
         yamale.validate(schema, payload)
         return jsonify(ok=True, out="Validation completed")
     except YamaleError as exc:
@@ -1018,8 +1205,17 @@ def api_validate():
             details.append(_display_path(Path(result.data)))
             details.extend(f"  - {error}" for error in result.errors)
         return jsonify(ok=False, out="\n".join(details))
-    except Exception as exc:
-        return _json_error(str(exc), 500)
+    except ValueError:
+        app.logger.exception("Invalid schema or workflow inputs")
+        return jsonify(
+            ok=False,
+            out="Invalid schema or workflow inputs. Ensure the vars file contains a valid YAML mapping "
+                "and select an inventory file or include a valid inventory mapping. "
+                "Check the runner server log for details.",
+        )
+    except Exception:
+        app.logger.exception("Schema validation failed unexpectedly")
+        return _json_error("Unable to validate inputs. Check the runner server log.", 500)
 
 
 @app.route("/api/environment")
@@ -1081,16 +1277,13 @@ def api_environment_setup():
     )
 
 
-@app.route("/api/run", methods=["POST"])
-def api_run():
-    data = request.json or {}
-
+def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", target: dict | None = None) -> tuple[Job | None, dict | str]:
     vars_source = data.get("vars_source") or data.get("input_source") or data.get("source") or {"kind": "local"}
     inventory_source = data.get("inventory_source") or data.get("input_source") or data.get("source") or {"kind": "local"}
     vars_source_root = _resolve_git_source(vars_source)
     inventory_source_root = _resolve_git_source(inventory_source)
     if vars_source_root is None or inventory_source_root is None:
-        return _json_error("Git source not found")
+        return None, "Git source not found"
 
     playbook_path = _resolve_source_file(data.get("playbook"), PROJECT_ROOT, must_exist=True, allow_user_file=False)
     inventory_path = _resolve_source_file(
@@ -1113,18 +1306,18 @@ def api_run():
     verbosity = data.get("verbosity", "")
 
     if playbook_path is None:
-        return _json_error("Playbook not found")
-    if inventory_path is None:
-        return _json_error("Inventory file not found")
+        return None, "Playbook not found"
+    if inventory_path is None and data.get("inventory"):
+        return None, "Inventory file not found"
     if vars_path is None and data.get("vars_file"):
-        return _json_error("Vars file not found")
+        return None, "Vars file not found"
     if verbosity not in VERBOSITY_FLAGS:
-        return _json_error("Unsupported verbosity flag")
+        return None, "Unsupported verbosity flag"
 
     try:
         extra_args = shlex.split(data.get("extra_args", ""))
     except ValueError as exc:
-        return _json_error(f"Invalid extra arguments: {exc}")
+        return None, f"Invalid extra arguments: {exc}"
 
     use_managed_venv = data.get("managed_venv", True)
     venv_path = _resolve_venv(data.get("venv_path"), must_exist=False)
@@ -1133,14 +1326,23 @@ def api_run():
 
     if use_managed_venv:
         if venv_path is None:
-            return _json_error("Venv path must be inside the repository or your home directory")
+            return None, "Venv path must be inside the repository or your home directory"
         if not python_path or not python_path.exists():
-            return _json_error(f"Managed venv Python not found: {python_path}")
+            return None, f"Managed venv Python not found: {python_path}"
         if not ansible_playbook or not ansible_playbook.exists():
-            return _json_error(f"Managed venv ansible-playbook not found: {ansible_playbook}. Install dependencies first.")
+            return None, f"Managed venv ansible-playbook not found: {ansible_playbook}. Install dependencies first."
+
+    embedded_inventory = None
+    if inventory_path is None:
+        if vars_path is None:
+            return None, "Select an inventory file or a vars file containing inventory"
+        try:
+            embedded_inventory = _embedded_inventory(_read_workflow_inputs(vars_path))
+        except (ValueError, OSError) as exc:
+            return None, str(exc)
 
     executable = str(ansible_playbook) if use_managed_venv and ansible_playbook and ansible_playbook.exists() else "ansible-playbook"
-    argv = [executable, "-i", str(inventory_path), str(playbook_path)]
+    argv = [executable, "-i", str(inventory_path) if inventory_path else "<inventory from vars>", str(playbook_path)]
     if vars_path is not None:
         argv += ["--extra-vars", f"VARS_FILE_PATH={vars_path}"]
     if use_managed_venv and python_path and "ansible_python_interpreter" not in " ".join(extra_args):
@@ -1162,14 +1364,30 @@ def api_run():
         if connection.get("verify"):
             env_overrides["CATALYST_CENTER_VERIFY"] = str(connection["verify"])
 
+    target_name = str((target or {}).get("name") or "").strip()
     jid = uuid.uuid4().hex[:8]
     label = data.get("label") or playbook_path.stem
+    if target_name:
+        label = f"{label} · {target_name}"
     metadata = {
-        "kind": data.get("kind") or "single",
+        "kind": kind,
+        "batch_id": batch_id,
+        "suite_launch_id": data.get("suite_launch_id") or "",
+        "suite_name": data.get("suite_name") or "",
+        "suite_run_index": data.get("suite_run_index") or "",
+        "suite_run_total": data.get("suite_run_total") or "",
+        "suite_failure_policy": data.get("suite_failure_policy") or "",
+        "suite_launch_mode": data.get("suite_launch_mode") or "",
+        "suite_plan": data.get("suite_plan") if isinstance(data.get("suite_plan"), list) else [],
         "label": label,
+        "target": {
+            "name": target_name,
+            "host": str(connection.get("host") or ""),
+        } if target_name else {},
         "workflow": data.get("workflow") or "",
         "playbook": _display_source_path(playbook_path, PROJECT_ROOT),
-        "inventory": _display_source_path(inventory_path, inventory_source_root),
+        "inventory": _display_source_path(inventory_path, inventory_source_root) if inventory_path else "",
+        "inventory_embedded": embedded_inventory is not None,
         "vars_file": _display_source_path(vars_path, vars_source_root) if vars_path is not None else "",
         "source": {"kind": "local"},
         "vars_source": vars_source,
@@ -1185,10 +1403,111 @@ def api_run():
         "catalyst_connection_password_set": bool(connection.get("password")),
     }
     job = Job(jid, argv, str(PROJECT_ROOT), label, env_overrides, metadata)
+    job.embedded_inventory = embedded_inventory
+    return job, {"command": job.cmd}
+
+
+@app.route("/api/run", methods=["POST"])
+def api_run():
+    data = request.json or {}
+    job, result = _build_run_job(data, kind=data.get("kind") or "single")
+    if job is None:
+        return _json_error(str(result))
     with _jobs_lock:
-        _jobs[jid] = job
+        _jobs[job.id] = job
     threading.Thread(target=_exec, args=(job,), daemon=True).start()
-    return jsonify(job_id=jid, command=job.cmd)
+    return jsonify(job_id=job.id, command=job.cmd)
+
+
+def _exec_selected_suite_sequence(suites: list[dict], failure_policy: str):
+    # Complete every play in a suite before advancing to the next suite.
+    for suite in suites:
+        _exec_suite_sequence(suite["runs"], failure_policy)
+
+
+@app.route("/api/run/suites", methods=["POST"])
+def api_run_suites():
+    data = request.json or {}
+    suites = data.get("suites")
+    if not isinstance(suites, list) or not suites or any(
+        not isinstance(suite, dict)
+        or not isinstance(suite.get("runs"), list)
+        or not suite["runs"]
+        or any(not isinstance(run, dict) for run in suite["runs"])
+        for suite in suites
+    ):
+        return _json_error("Select suites with at least one valid play each")
+    failure_policy = "continue" if data.get("failure_policy") == "continue" else "stop"
+    threading.Thread(
+        target=_exec_selected_suite_sequence,
+        args=(suites, failure_policy),
+        daemon=True,
+    ).start()
+    return jsonify(accepted=len(suites), submitted=sum(len(suite["runs"]) for suite in suites))
+
+
+@app.route("/api/run/suite", methods=["POST"])
+def api_run_suite():
+    data = request.json or {}
+    runs = data.get("runs") or []
+    if not isinstance(runs, list) or not runs:
+        return _json_error("Automation suite has no plays to launch")
+    failure_policy = "continue" if data.get("failure_policy") == "continue" else "stop"
+    threading.Thread(target=_exec_suite_sequence, args=(runs, failure_policy), daemon=True).start()
+    return jsonify(
+        suite_launch_id=data.get("suite_launch_id") or "",
+        submitted=len(runs),
+        failure_policy=failure_policy,
+    )
+
+
+@app.route("/api/run/batch", methods=["POST"])
+def api_run_batch():
+    data = request.json or {}
+    targets = data.get("targets") or []
+    if not isinstance(targets, list) or not targets:
+        return _json_error("Select at least one Catalyst Center target")
+    try:
+        parallel_limit = max(1, min(8, int(data.get("parallel_limit") or 1)))
+    except (TypeError, ValueError):
+        return _json_error("Parallel limit must be a number from 1 to 8")
+
+    batch_id = uuid.uuid4().hex[:8]
+    jobs: list[Job] = []
+    for index, target in enumerate(targets, start=1):
+        if not isinstance(target, dict):
+            return _json_error("Invalid Catalyst Center target")
+        connection = target.get("connection") or {}
+        run_data = dict(data)
+        run_data["catalyst_connection"] = {
+            "enabled": True,
+            "host": connection.get("host") or target.get("host") or "",
+            "username": connection.get("username") or target.get("username") or "",
+            "password": connection.get("password") or target.get("password") or "",
+            "verify": connection.get("verify") if connection.get("verify") is not None else target.get("verify", ""),
+        }
+        if target.get("vars_file"):
+            run_data["vars_file"] = target.get("vars_file")
+        if target.get("inventory"):
+            run_data["inventory"] = target.get("inventory")
+        run_data["label"] = data.get("label") or f"Batch {batch_id}"
+
+        job, result = _build_run_job(run_data, kind="batch", batch_id=batch_id, target=target)
+        if job is None:
+            return _json_error(f"Target {index} ({target.get('name') or target.get('host') or 'unnamed'}): {result}")
+        jobs.append(job)
+
+    with _jobs_lock:
+        for job in jobs:
+            _jobs[job.id] = job
+    semaphore = threading.Semaphore(parallel_limit)
+    for job in jobs:
+        threading.Thread(target=_exec_with_semaphore, args=(job, semaphore), daemon=True).start()
+
+    return jsonify(
+        batch_id=batch_id,
+        jobs=[{"job_id": job.id, "label": job.label, "command": job.cmd, "metadata": job.metadata} for job in jobs],
+    )
 
 
 @app.route("/api/run/<jid>/stream")
@@ -1222,18 +1541,44 @@ def api_stream(jid):
     )
 
 
+def _cancel_job(job: Job) -> bool:
+    with job._lock:
+        if job.status not in ("queued", "running"):
+            return False
+        job.status = "cancelled"
+        job.t1 = time.time()
+        if job.proc:
+            try:
+                os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+        return True
+
+
 @app.route("/api/run/<jid>/cancel", methods=["POST"])
 def api_cancel(jid):
     job = _jobs.get(jid)
     if not job:
         return _json_error("Not found", 404)
-    if job.proc and job.status == "running":
-        try:
-            os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM)
-        except ProcessLookupError:
-            pass
-        job.status = "cancelled"
+    _cancel_job(job)
     return jsonify(status=job.status)
+
+
+@app.route("/api/run/suite/<suite_id>/cancel", methods=["POST"])
+def api_cancel_suite(suite_id):
+    if not suite_id:
+        return _json_error("Missing suite id")
+    _cancelled_suites.add(suite_id)
+    cancelled: list[str] = []
+    with _jobs_lock:
+        suite_jobs = [
+            job for job in _jobs.values()
+            if (job.metadata or {}).get("suite_launch_id") == suite_id
+        ]
+    for job in suite_jobs:
+        if _cancel_job(job):
+            cancelled.append(job.id)
+    return jsonify(status="cancelled", suite_launch_id=suite_id, cancelled_jobs=cancelled)
 
 
 @app.route("/api/jobs")
@@ -1279,4 +1624,4 @@ if __name__ == "__main__":
     print(f"  Workflows    : {WORKFLOWS_DIR}")
     print(f"  Inventory    : {INVENTORY_DIR}")
     print(f"  URL          : http://{host}:{port}\n")
-    app.run(host=host, port=port, debug=True, threaded=True)
+    app.run(host=host, port=port, debug=False, threaded=True)
