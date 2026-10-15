@@ -81,6 +81,26 @@ class ReviewRegressions(unittest.TestCase):
                 self.assertNotIn("PRIVATE", response.get_data(as_text=True))
                 logged.assert_called_once()
 
+    def test_validation_value_errors_are_not_exposed(self):
+        import yamale
+
+        for operation in ("schema", "inputs", "validation"):
+            with self.subTest(operation=operation), \
+                    patch.object(runner, "_resolve_source_file", return_value=self.project / "input.yml"), \
+                    patch.object(yamale, "make_schema", return_value=object()) as make_schema, \
+                    patch.object(runner, "_read_workflow_inputs", return_value={"details": []}) as read_inputs, \
+                    patch.object(yamale, "validate") as validate, \
+                    patch.object(runner.app.logger, "exception") as logged:
+                source = {"schema": make_schema, "inputs": read_inputs, "validation": validate}[operation]
+                source.side_effect = ValueError("PRIVATE /server/path with credential-token")
+                response = self.client.post("/api/validate", json={"schema": "schema.yml", "data": "vars.yml"})
+                self.assertEqual(response.status_code, 200)
+                self.assertFalse(response.json["ok"])
+                self.assertIn("valid YAML mapping", response.json["out"])
+                self.assertNotIn("PRIVATE", response.get_data(as_text=True))
+                self.assertNotIn("credential-token", response.get_data(as_text=True))
+                logged.assert_called_once()
+
     def test_queued_cancel_never_starts_after_semaphore_release(self):
         job = runner.Job("queued", ["unused"], str(self.root))
         runner._jobs[job.id] = job
