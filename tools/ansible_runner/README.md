@@ -62,6 +62,25 @@ file. A selected separate inventory takes precedence over embedded inventory.
 Combined runs create a protected temporary inventory only during execution and
 remove it afterward. The original vars file is passed through `VARS_FILE_PATH`.
 
+## Review Regression Checks
+
+Run from the repository root, using the runner's Python environment:
+
+```bash
+python -m unittest discover -s tools/ansible_runner/tests -v
+node tools/ansible_runner/tests/test_embedded_inventory_ui.cjs
+node tools/ansible_runner/tests/test_review_regressions_ui.cjs
+```
+
+These cover both inventory formats, repository-specific editing, unsaved input
+guards, completion callback status, queued/running cancellation, suite stopping,
+and path confinement. Run plans expose Stop suite while launching; Automation
+Assurance also provides Stop play and Stop suite. Cancellation stops local
+execution but does not roll back changes already submitted to Catalyst Center.
+
+Git inputs never fall back to another repository's same-named file. Unexpected
+server exceptions are logged locally rather than returned to browser clients.
+
 ## Prerequisites
 
 Before running the Ansible Workflow Runner, ensure you have:
