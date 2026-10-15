@@ -106,11 +106,11 @@ class Job:
 
 def _exec(job: Job):
     """Execute ansible-playbook in a background thread."""
-    if job.status == "cancelled":
-        job.t1 = time.time()
-        return
-    job.status = "running"
-    job.t0 = time.time()
+    with job._lock:
+        if job.status == "cancelled" or job.metadata.get("suite_launch_id") in _cancelled_suites:
+            job.status = "cancelled"
+            job.t1 = time.time()
+            return
     env = os.environ.copy()
     env["ANSIBLE_FORCE_COLOR"] = "true"
     env["PYTHONUNBUFFERED"] = "1"
@@ -128,27 +128,40 @@ def _exec(job: Job):
                 yaml.safe_dump(job.embedded_inventory, stream)
             job.argv[job.argv.index("-i") + 1] = str(inventory_file)
             job.cmd = shlex.join(job.argv)
-        job.proc = subprocess.Popen(
-            job.argv,
-            cwd=job.cwd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            preexec_fn=os.setsid,
-            env=env,
-        )
+        # Serialize cancellation with process creation, including the queued state.
+        with job._lock:
+            if job.status == "cancelled" or job.metadata.get("suite_launch_id") in _cancelled_suites:
+                job.status = "cancelled"
+                return
+            job.proc = subprocess.Popen(
+                job.argv,
+                cwd=job.cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                start_new_session=True,
+                env=env,
+            )
+            job.status = "running"
+            job.t0 = time.time()
         if job.proc.stdout is not None:
             for line in iter(job.proc.stdout.readline, ""):
                 job.put(line)
         job.proc.wait()
         job.rc = job.proc.returncode
-        if job.status != "cancelled":
-            job.status = "completed" if job.rc == 0 else "failed"
-    except Exception as exc:
-        job.put(f"\n*** Error: {exc}\n")
-        job.status = "failed"
+        with job._lock:
+            if job.status != "cancelled":
+                job.status = "completed" if job.rc == 0 else "failed"
+    except Exception:
+        app.logger.exception("Job execution failed")
+        job.put("\n*** Unable to execute playbook. Check the runner server log.\n")
+        with job._lock:
+            if job.status != "cancelled":
+                job.status = "failed"
     finally:
+        if job.proc is not None and job.proc.stdout is not None:
+            job.proc.stdout.close()
         if inventory_workspace is not None:
             inventory_workspace.cleanup()
         job.t1 = time.time()
@@ -380,8 +393,12 @@ def _resolve_source_file(
 
     raw_path = raw_path.strip()
     if os.path.isabs(raw_path):
+        if source_root != PROJECT_ROOT.resolve():
+            candidate = _resolve_local_path(raw_path, roots=(source_root,), must_exist=must_exist)
+            return candidate if candidate and candidate.suffix.lower() in YAML_SUFFIXES else None
         if allow_user_file:
-            return _resolve_user_file(raw_path, must_exist=must_exist)
+            candidate = _resolve_user_file(raw_path, must_exist=must_exist)
+            return candidate if candidate and candidate.suffix.lower() in YAML_SUFFIXES else None
         return None
 
     source_candidate = _find_existing_relative_yaml(source_root, raw_path)
@@ -389,11 +406,6 @@ def _resolve_source_file(
         return source_candidate
     if not must_exist:
         return None
-
-    if allow_project_fallback and source_root != PROJECT_ROOT.resolve():
-        project_candidate = _find_existing_relative_yaml(PROJECT_ROOT, raw_path)
-        if project_candidate and _is_within(project_candidate, PROJECT_ROOT.resolve()):
-            return project_candidate
 
     return None
 
@@ -877,8 +889,9 @@ def api_device_interfaces():
         return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
     except urllib.error.URLError as exc:
         return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
-    except Exception as exc:
-        return _json_error(str(exc), 500)
+    except Exception:
+        app.logger.exception("Device interface lookup failed")
+        return _json_error("Unable to retrieve device interfaces. Check the runner server log.", 500)
 
 
 @app.route("/api/host-port-assignments", methods=["GET", "POST"])
@@ -938,8 +951,9 @@ def api_host_port_assignments():
         return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
     except urllib.error.URLError as exc:
         return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
-    except Exception as exc:
-        return _json_error(str(exc), 500)
+    except Exception:
+        app.logger.exception("Host port assignment lookup failed")
+        return _json_error("Unable to retrieve port assignments. Check the runner server log.", 500)
 
 
 @app.route("/api/git/fetch", methods=["POST"])
@@ -1068,22 +1082,33 @@ def api_read_file():
         return _json_error("Access denied or file not found", 403)
     if not path.is_file():
         return _json_error("Not found", 404)
-    # codeql[py/path-injection] path is resolved through _resolve_source_file and must remain inside an allowed root.
-    return jsonify(path=_display_source_path(path, source_root), content=path.read_text(errors="replace"))
+    try:
+        # codeql[py/path-injection] The resolver confines YAML files to their selected source.
+        content = path.read_text(errors="replace")
+    except OSError:
+        app.logger.exception("Unable to read input file")
+        return _json_error("Unable to read input file. Check the runner server log.", 500)
+    return jsonify(path=_display_source_path(path, source_root), content=content)
 
 
 @app.route("/api/file", methods=["PUT"])
 def api_write_file():
     data = request.json or {}
+    if not isinstance(data.get("content", ""), str):
+        return _json_error("File content must be text")
     source_root = _resolve_git_source(data.get("source"))
     if source_root is None:
         return _json_error("Git source not found")
     path = _resolve_source_file(data.get("path"), source_root, must_exist=False, allow_user_file=True)
     if path is None:
         return _json_error("Access denied")
-    # codeql[py/path-injection] path is resolved through _resolve_source_file and must remain inside an allowed root.
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(data.get("content", ""))
+    try:
+        # codeql[py/path-injection] The resolver confines YAML files to their selected source.
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(data.get("content", ""))
+    except OSError:
+        app.logger.exception("Unable to save input file")
+        return _json_error("Unable to save input file. Check the runner server log.", 500)
     return jsonify(status="saved", path=_display_source_path(path, source_root))
 
 
@@ -1182,8 +1207,9 @@ def api_validate():
         return jsonify(ok=False, out="\n".join(details))
     except ValueError as exc:
         return jsonify(ok=False, out=str(exc))
-    except Exception as exc:
-        return _json_error(str(exc), 500)
+    except Exception:
+        app.logger.exception("Schema validation failed unexpectedly")
+        return _json_error("Unable to validate inputs. Check the runner server log.", 500)
 
 
 @app.route("/api/environment")
@@ -1509,19 +1535,26 @@ def api_stream(jid):
     )
 
 
+def _cancel_job(job: Job) -> bool:
+    with job._lock:
+        if job.status not in ("queued", "running"):
+            return False
+        job.status = "cancelled"
+        job.t1 = time.time()
+        if job.proc:
+            try:
+                os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+        return True
+
+
 @app.route("/api/run/<jid>/cancel", methods=["POST"])
 def api_cancel(jid):
     job = _jobs.get(jid)
     if not job:
         return _json_error("Not found", 404)
-    if job.status in ("queued", "running"):
-        if job.proc and job.status == "running":
-            try:
-                os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM)
-            except ProcessLookupError:
-                pass
-        job.status = "cancelled"
-        job.t1 = time.time()
+    _cancel_job(job)
     return jsonify(status=job.status)
 
 
@@ -1537,14 +1570,7 @@ def api_cancel_suite(suite_id):
             if (job.metadata or {}).get("suite_launch_id") == suite_id
         ]
     for job in suite_jobs:
-        if job.status in ("queued", "running"):
-            if job.proc and job.status == "running":
-                try:
-                    os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM)
-                except ProcessLookupError:
-                    pass
-            job.status = "cancelled"
-            job.t1 = time.time()
+        if _cancel_job(job):
             cancelled.append(job.id)
     return jsonify(status="cancelled", suite_launch_id=suite_id, cancelled_jobs=cancelled)
 
@@ -1592,4 +1618,4 @@ if __name__ == "__main__":
     print(f"  Workflows    : {WORKFLOWS_DIR}")
     print(f"  Inventory    : {INVENTORY_DIR}")
     print(f"  URL          : http://{host}:{port}\n")
-    app.run(host=host, port=port, debug=True, threaded=True)
+    app.run(host=host, port=port, debug=False, threaded=True)

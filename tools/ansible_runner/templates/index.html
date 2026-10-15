@@ -674,6 +674,10 @@
                   class="rounded-2xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-cyan-500">
                   Launch
                 </button>
+                <button id="btn-stop-plan" type="button" onclick="stopRunPlan()"
+                  class="hidden rounded-2xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700">
+                  Stop suite
+                </button>
               </div>
 
               <div id="launch-assurance-prompt" class="hidden mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
@@ -1792,7 +1796,7 @@
         ? 'text-sm font-semibold text-rose-800'
         : 'text-sm font-semibold text-emerald-800';
       const failedText = typeof failedCount === 'number' ? failedCount : 0;
-      const completedText = typeof totalCount === 'number' ? totalCount : (typeof completedCount === 'number' ? completedCount + failedText : failedText);
+      const completedText = typeof completedCount === 'number' ? completedCount : 0;
       message.textContent = 'Suite launch finished: ' + failedText + ' failed / ' + completedText + ' completed.'
         + ' View results in Automation Assurance.';
       show('launch-assurance-prompt');
@@ -2623,6 +2627,18 @@
       }
     }
 
+    function runPlanHasUnsavedInputs() {
+      if (!fileDirty) return false;
+      const section = $('editor-section');
+      const source = section.dataset.varsSource || 'local';
+      return runPlanRows().some(function(row) {
+        const values = runPlanRowValues(row);
+        const rowSource = runPlanVarsSourcePayload(values.repo);
+        return values.vars === section.dataset.varsPath
+          && source === (rowSource.kind === 'git' ? rowSource.id : 'local');
+      });
+    }
+
     async function validateRunPlanRowSchema(row) {
       const values = runPlanRowValues(row);
       if (runPlanSchemaStatus(row).indexOf('Missing ') === 0) return false;
@@ -2660,6 +2676,10 @@
     }
 
     async function validateRunPlanRows() {
+      if (runPlanHasUnsavedInputs()) {
+        showToast('Save the edited vars file before validating or launching.');
+        return false;
+      }
       if (!runPlanRows().length) {
         showToast('Add at least one run row.');
         return false;
@@ -2688,9 +2708,23 @@
       return failed === 0;
     }
 
+    let activeRunPlan = null;
+
+    async function stopRunPlan() {
+      if (activeRunPlan) await cancelHistorySuite(activeRunPlan.id);
+    }
+
     async function runSelectedPlanRows() {
+      if (activeRunPlan) {
+        showToast('A run plan is already launching. View it in Automation Assurance.');
+        return;
+      }
       const ok = await validateRunPlanRows();
-      if (!ok) return;
+      if (!ok || activeRunPlan) return;
+      if (runPlanHasUnsavedInputs()) {
+        showToast('Save the edited vars file before launching.');
+        return;
+      }
       const rows = runPlanRows();
       const missingLaunchRows = rows.filter(function(row) {
         return runPlanStatus(row).indexOf('Missing ') === 0;
@@ -2711,6 +2745,9 @@
       const parallelLimit = Math.max(1, Math.min(8, parseInt($('run-plan-parallel-limit').value || '1', 10) || 1));
       const suiteLaunchId = 'suite-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
       const suiteName = ($('suite-name').value || '').trim() || 'Ad hoc suite';
+      const plan = { id: suiteLaunchId, stopped: false };
+      activeRunPlan = plan;
+      show('btn-stop-plan');
       let cursor = 0;
       let active = 0;
       let completed = 0;
@@ -2748,19 +2785,24 @@
         active -= 1;
         completed += 1;
         if (status !== 'completed') failed += 1;
-        if (completed === rows.length) {
+        if (completed === rows.length || (plan.stopped && active === 0)) {
+          activeRunPlan = null;
+          hide('btn-stop-plan');
           currentBatchJobIds = [];
-          updateRunStatus(failed ? 'failed' : 'completed');
-          refreshDashboardCards(failed ? 'failed' : 'completed');
+          updateRunStatus(plan.stopped ? 'cancelled' : failed ? 'failed' : 'completed');
+          refreshDashboardCards(plan.stopped ? 'cancelled' : failed ? 'failed' : 'completed');
           refreshHistory();
           clearRunOutputPanel();
           showLaunchAssurancePrompt(failed, rows.length - failed, rows.length);
+          if (plan.stopped) {
+            $('launch-assurance-message').textContent = 'Suite stopped. Remaining plays were not launched. View results in Automation Assurance.';
+          }
           return;
         }
         launchNext();
       }
       async function launchNext() {
-        while (active < parallelLimit && cursor < rows.length) {
+        while (!plan.stopped && active < parallelLimit && cursor < rows.length) {
           const row = rows[cursor];
           const index = cursor;
           cursor += 1;
@@ -2775,7 +2817,7 @@
             jobs.push(job);
             currentBatchJobIds.push(data.job_id);
             appendLine($('output'), '[' + job.label + '] $ ' + data.command + '\\n', 'text-cyan-300');
-            streamBatchJob(job, $('output'), finishOne);
+            streamBatchJob(job, $('output'), function(jobId, status) { finishOne(status); });
           } catch (error) {
             appendLine($('output'), '[Play ' + (index + 1) + '] ' + error.message + '\\n', 'text-rose-300');
             finishOne('failed');
@@ -3425,8 +3467,7 @@
     function editorVarsSourcePayload() {
       const sourceId = $('editor-section').dataset.varsSource || '';
       if (!sourceId || sourceId === 'local') return { kind: 'local' };
-      const repo = gitRepositories.find(function(item) { return item.id === sourceId; });
-      return repo && repo.source ? repo.source : { kind: 'local' };
+      return { kind: 'git', id: sourceId };
     }
 
     function inventorySourcePayload() {
@@ -4580,6 +4621,10 @@
         moveEditorToAnchor('run-vars-editor-anchor');
         editor.setValue(data.content);
         $('editor-path').textContent = data.path;
+        const source = varsSourcePayload();
+        $('editor-section').dataset.planRow = '';
+        $('editor-section').dataset.varsPath = path;
+        $('editor-section').dataset.varsSource = source.kind === 'git' ? source.id : 'local';
         show('editor-section');
         hide('btn-save');
         fileDirty = false;
@@ -4739,6 +4784,7 @@
     }
 
     function streamBatchJob(job, outputEl, onDone) {
+      let finished = false;
       const source = new EventSource('/api/run/' + job.job_id + '/stream?start=0');
       batchEventSources.push(source);
       const targetName = job.metadata && job.metadata.target && job.metadata.target.name
@@ -4749,11 +4795,15 @@
         if (msg.t === 'o') {
           appendLine(outputEl, '[' + targetName + '] ' + msg.l);
         } else if (msg.t === 'd') {
+          if (finished) return;
+          finished = true;
           source.close();
           if (onDone) onDone(job.job_id, msg.s);
         }
       };
       source.onerror = function() {
+        if (finished) return;
+        finished = true;
         source.close();
         if (onDone) onDone(job.job_id, 'error');
       };
@@ -5154,6 +5204,7 @@
 
     async function cancelHistorySuite(suiteId) {
       if (!suiteId) return;
+      if (activeRunPlan && activeRunPlan.id === suiteId) activeRunPlan.stopped = true;
       try {
         await fetchJson('/api/run/suite/' + encodeURIComponent(suiteId) + '/cancel', { method: 'POST' });
         showToast('Suite stop requested.');
