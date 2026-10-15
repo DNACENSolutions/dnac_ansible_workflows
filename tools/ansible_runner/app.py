@@ -1205,8 +1205,14 @@ def api_validate():
             details.append(_display_path(Path(result.data)))
             details.extend(f"  - {error}" for error in result.errors)
         return jsonify(ok=False, out="\n".join(details))
-    except ValueError as exc:
-        return jsonify(ok=False, out=str(exc))
+    except ValueError:
+        app.logger.exception("Invalid schema or workflow inputs")
+        return jsonify(
+            ok=False,
+            out="Invalid schema or workflow inputs. Ensure the vars file contains a valid YAML mapping "
+                "and select an inventory file or include a valid inventory mapping. "
+                "Check the runner server log for details.",
+        )
     except Exception:
         app.logger.exception("Schema validation failed unexpectedly")
         return _json_error("Unable to validate inputs. Check the runner server log.", 500)
