@@ -16,12 +16,155 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
+import secrets
+import hashlib
+import sqlite3
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from urllib.parse import urlparse
 
-from flask import Flask, Response, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request, session, redirect, url_for, g
+from werkzeug.security import check_password_hash, generate_password_hash
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=str(Path(__file__).parent / "templates"),
+            static_folder=str(Path(__file__).parent / "static"))
+
+# Credentials live outside the checkout; missing configuration fails closed.
+AUTH_DIR = Path(os.environ.get("RUNNER_AUTH_DIR", Path.home() / ".config/catalystcenter-runner"))
+app.config.update(
+    RUNNER_USERS_FILE=os.environ.get("RUNNER_USERS_FILE", str(AUTH_DIR / "users.json")),
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.environ.get("RUNNER_COOKIE_SECURE", "true").lower() != "false",
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+    SESSION_REFRESH_EACH_REQUEST=False,
+)
+try:
+    app.secret_key = os.environ.get("RUNNER_SECRET_KEY") or (AUTH_DIR / "secret.key").read_text().strip()
+except OSError:
+    app.secret_key = None
+if app.secret_key and len(app.secret_key) < 32:
+    app.secret_key = None
+_auth_sessions = {}
+_auth_attempts = {}
+_auth_lock = threading.Lock()
+_dummy_password_hash = generate_password_hash(secrets.token_urlsafe(32))
+_roles = {"viewer": 0, "operator": 1, "admin": 2}
+_read_endpoints = {"index", "job_detail", "api_workflows", "api_inventories", "api_environment",
+                   "api_jobs", "api_job", "api_job_log", "api_stream", "saved_suites_list"}
+_operator_endpoints = {"api_device_interfaces", "api_host_port_assignments", "api_fs",
+                       "api_read_file", "api_validate", "api_run", "api_run_suites",
+                       "api_run_suite", "api_run_batch", "api_cancel", "api_cancel_suite",
+                       "api_delete_job", "api_delete_suite", "saved_suite_create", "saved_suite_update", "saved_suite_delete", "saved_suite_repo_catalog"}
+_admin_endpoints = {"api_git_fetch", "api_write_file", "api_environment_create", "api_environment_setup", "saved_suite_reorder"}
+
+
+def _accounts():
+    users = json.loads(Path(app.config["RUNNER_USERS_FILE"]).read_text())
+    if not isinstance(users, dict) or not users:
+        raise ValueError("Invalid account configuration")
+    for name, user in users.items():
+        if (not isinstance(user, dict) or user.get("role") not in _roles
+                or not isinstance(user.get("password_hash"), str)
+                or not user["password_hash"].startswith("scrypt:")
+                or not isinstance(user.get("enabled", True), bool)):
+            raise ValueError("Invalid account configuration")
+    return users
+
+
+@app.before_request
+def require_access():
+    if app.testing and app.config.get("RUNNER_TEST_AUTH_BYPASS", False):
+        return None
+    if request.endpoint == "static":
+        return None
+    try:
+        if not app.secret_key:
+            raise ValueError("Missing secret")
+        users = _accounts()
+    except (OSError, ValueError, TypeError):
+        if request.path.startswith("/api/"):
+            return jsonify(error="Login is not configured. Ask the administrator to initialize accounts."), 503
+        return render_template("login.html", setup=True), 503
+    if request.endpoint == "login" and request.method == "GET" and session.get("sid"):
+        with _auth_lock:
+            known_session = _auth_sessions.get(session["sid"])
+        if not known_session or known_session[2] < time.time():
+            session.clear()
+    session.setdefault("csrf", secrets.token_urlsafe(32))
+    if request.method not in {"GET", "HEAD", "OPTIONS"}:
+        token = request.headers.get("X-CSRF-Token", "") or request.form.get("csrf", "")
+        if not secrets.compare_digest(token, session["csrf"]):
+            return jsonify(error="Invalid or expired security token. Reload the page."), 403
+    if request.endpoint == "login":
+        return None
+    user = users.get(session.get("username"), {})
+    version = hashlib.sha256(user.get("password_hash", "").encode()).hexdigest()
+    with _auth_lock:
+        valid = _auth_sessions.get(session.get("sid"))
+    if not valid or valid[:2] != (session.get("username"), version) or valid[2] < time.time() or not user.get("enabled", True):
+        if session.get("username") or session.get("sid"):
+            session.clear()
+        if request.path.startswith("/api/"):
+            return jsonify(error="Sign in required."), 401
+        return redirect(url_for("login"))
+    g.runner_user = {"username": session["username"], "role": user["role"]}
+    if request.endpoint == "logout":
+        return None
+    required = (0 if request.endpoint in _read_endpoints else
+                1 if request.endpoint in _operator_endpoints else
+                2 if request.endpoint in _admin_endpoints else 99)
+    if _roles[user["role"]] < required:
+        return jsonify(error="Your account does not have permission for this action."), 403
+
+
+@app.after_request
+def security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    if request.endpoint != "static":
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        key = request.remote_addr or "unknown"
+        now = time.monotonic()
+        with _auth_lock:
+            attempts = [stamp for stamp in _auth_attempts.get(key, []) if now - stamp < 300]
+            if len(attempts) >= 10:
+                return render_template("login.html", error="Too many attempts. Try again in five minutes."), 429
+            if len(_auth_attempts) > 10000:
+                _auth_attempts.clear()
+            _auth_attempts[key] = attempts + [now]
+        username = request.form.get("username", "").strip()
+        user = _accounts().get(username, {})
+        # Use the same expensive hash operation for unknown accounts.
+        password_hash = user.get("password_hash") or _dummy_password_hash
+        if check_password_hash(password_hash, request.form.get("password", "")) and user.get("enabled", True):
+            session.clear()
+            session.permanent = True
+            session.update(username=username, sid=secrets.token_urlsafe(32), csrf=secrets.token_urlsafe(32))
+            with _auth_lock:
+                expired = [sid for sid, value in _auth_sessions.items() if value[2] < time.time()]
+                for sid in expired:
+                    _auth_sessions.pop(sid, None)
+                _auth_sessions[session["sid"]] = (username, hashlib.sha256(password_hash.encode()).hexdigest(), time.time() + 28800)
+                _auth_attempts.pop(key, None)
+            return redirect(url_for("index"))
+        error = "Invalid username or password."
+    return render_template("login.html", error=error), (401 if error else 200)
+
+
+@app.post("/logout")
+def logout():
+    with _auth_lock:
+        _auth_sessions.pop(session.get("sid"), None)
+    session.clear()
+    return redirect(url_for("login"))
 
 # Project root is two levels up: tools/ansible_runner/app.py -> repo root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -41,10 +184,163 @@ BROWSE_ROOTS = {
     "home": ("Home", HOME_DIR),
 }
 
-# In-memory job store (lost on restart — acceptable for a local tool)
+# Live process handles stay in memory; history and logs are durable.
 _jobs: dict[str, "Job"] = {}
 _jobs_lock = threading.Lock()
 _cancelled_suites: set[str] = set()
+_active_suites: set[str] = set()
+_history_lock = threading.RLock()
+_history_ready = None
+app.config["RUNNER_HISTORY_DIR"] = os.environ.get(
+    "RUNNER_HISTORY_DIR", str(Path.home() / ".local/share/catalystcenter-runner"))
+
+
+def _history_dir():
+    if app.testing and not app.config.get("RUNNER_TEST_HISTORY", False):
+        return None
+    return Path(app.config["RUNNER_HISTORY_DIR"]).expanduser().resolve()
+
+
+def _history_connection(root):
+    connection = sqlite3.connect(root / "history.sqlite3", timeout=30)
+    connection.execute("PRAGMA synchronous=FULL")
+    connection.execute("PRAGMA secure_delete=ON")
+    return connection
+
+
+_SECRET_KEY = re.compile(r"password|passwd|secret|token|community|private[_-]?key", re.I)
+_SECRET_ASSIGNMENT = re.compile(
+    r'''(["']?[\w.-]*(?:password|passwd|secret|token|community|private[_-]?key)[\w.-]*["']?\s*[:=]\s*)(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[^\r\n]*)''', re.I)
+
+
+def _credential_values(value):
+    found = set()
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if _SECRET_KEY.search(str(key)) and isinstance(item, str) and item:
+                found.add(item)
+            found.update(_credential_values(item))
+    elif isinstance(value, list):
+        for item in value:
+            found.update(_credential_values(item))
+    return found
+
+
+def _history_metadata(metadata):
+    # Never store execution credentials or arbitrary extra arguments in SQLite.
+    allowed = {"kind", "batch_id", "suite_launch_id", "suite_name", "suite_run_index",
+               "suite_run_total", "suite_failure_policy", "suite_launch_mode", "suite_plan",
+               "suite_finished", "label", "workflow", "playbook", "inventory", "vars_file",
+               "inventory_embedded", "submitted_by"}
+    result = {key: value for key, value in metadata.items() if key in allowed}
+    if isinstance(result.get("suite_plan"), list):
+        result["suite_plan"] = [{key: value for key, value in item.items()
+                                 if key in {"index", "workflow", "playbook", "vars_file", "inventory", "inventory_embedded"}}
+                                for item in result["suite_plan"] if isinstance(item, dict)]
+    return result
+
+
+@app.before_request
+def load_history():
+    global _history_ready
+    root = _history_dir()
+    if root is None or _history_ready == root:
+        return None
+    try:
+        with _history_lock:
+            if _history_ready == root:
+                return None
+            if root in {Path(root.anchor), Path.home().resolve(), PROJECT_ROOT.resolve()}:
+                raise ValueError("History requires a dedicated directory")
+            root.mkdir(parents=True, exist_ok=True, mode=0o700)
+            root.chmod(0o700)
+            (root / "logs").mkdir(exist_ok=True, mode=0o700)
+            (root / "logs").chmod(0o700)
+            database = root / "history.sqlite3"
+            fd = os.open(database, os.O_CREAT | os.O_WRONLY, 0o600)
+            os.close(fd)
+            database.chmod(0o600)
+            with _history_connection(root) as connection:
+                connection.execute("CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, data TEXT NOT NULL)")
+                connection.execute("CREATE TABLE IF NOT EXISTS saved_suites (id TEXT PRIMARY KEY, owner TEXT NOT NULL, revision INTEGER NOT NULL, position INTEGER NOT NULL, data TEXT NOT NULL)")
+                connection.execute("CREATE TABLE IF NOT EXISTS history_deletions (id TEXT PRIMARY KEY, jobs TEXT NOT NULL)")
+            with _history_connection(root) as connection:
+                pending = connection.execute("SELECT id,jobs FROM history_deletions").fetchall()
+            for request_id, ids in pending:
+                _finish_history_deletion(root, request_id, json.loads(ids))
+            with _history_connection(root) as connection:
+                for jid, raw in connection.execute("SELECT id, data FROM jobs").fetchall():
+                    if not re.fullmatch(r"[a-f0-9]{8}", jid):
+                        raise ValueError("Invalid stored job identifier")
+                    data = json.loads(raw)
+                    metadata = data.get("metadata") or {}
+                    unfinished = data["status"] in {"queued", "running", "waiting"}
+                    suite_unfinished = metadata.get("suite_launch_id") and not metadata.get("suite_finished")
+                    if unfinished or suite_unfinished:
+                        if unfinished:
+                            data.update(status="interrupted", t1=time.time())
+                        metadata["suite_finished"] = True
+                        connection.execute("UPDATE jobs SET data=? WHERE id=?", (json.dumps(data), jid))
+                    job = Job(jid, [], data.get("cwd", ""), data.get("label", ""), metadata=metadata)
+                    job.status, job.rc = data["status"], data.get("rc")
+                    job.t0, job.t1 = data.get("t0"), data.get("t1")
+                    if job.status == "interrupted":
+                        job.recovered_pid = data.get("process_pid")
+                    log = root / "logs" / (jid + ".jsonl")
+                    if log.exists():
+                        needs_redaction = False
+                        with log.open() as stream:
+                            for line in stream:
+                                try:
+                                    original = json.loads(line)
+                                    sanitized = job.redact_output(original)
+                                    needs_redaction |= sanitized != original
+                                    job.lines.append(sanitized)
+                                except ValueError:
+                                    job.lines.append("*** Incomplete log record after interruption.\n")
+                                    needs_redaction = True
+                        if needs_redaction:
+                            _rewrite_redacted_log(log, job.lines)
+                    if unfinished:
+                        job.lines.append("*** Runner restarted; monitoring was interrupted. The playbook may still be running. Verify before retrying; it was not automatically resumed.\n")
+                    _jobs[jid] = job
+                # Unreferenced log files may remain after a crash during deletion.
+                for log in (root / "logs").glob("*.jsonl"):
+                    if log.stem not in _jobs:
+                        log.unlink()
+            _history_ready = root
+    except (OSError, ValueError, KeyError, TypeError, sqlite3.Error):
+        app.logger.exception("Unable to initialize persistent history")
+        return jsonify(error="Persistent history is unavailable. Check storage permissions and server logs."), 503
+
+
+def _persist_job(job):
+    root = _history_dir()
+    if root is None or job._deleted:
+        return
+    data = job.info()
+    data["cmd"] = ""  # Commands may embed secrets; history is not a replay queue.
+    data["metadata"] = _history_metadata(job.metadata)
+    pid = job.proc.pid if job.proc is not None else job.recovered_pid
+    data["process_pid"] = pid if isinstance(pid, int) else None
+    with _history_lock:
+        if job._deleted:
+            return
+        with _history_connection(root) as connection:
+            connection.execute("INSERT INTO jobs(id,data) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                               (job.id, json.dumps(data)))
+
+
+def _rewrite_redacted_log(path, lines):
+    descriptor, temporary = tempfile.mkstemp(prefix=".redact-", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "w") as stream:
+            for line in lines:
+                stream.write(json.dumps(line) + "\n")
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 # ---------------------------------------------------------------------------
@@ -77,15 +373,67 @@ class Job:
         self.t1: float | None = None
         self.rc: int | None = None
         self._lock = threading.Lock()
+        self._deleted = False
+        self.recovered_pid = None
+        self.secret_values = _credential_values(self.env_overrides) | _credential_values(dict(os.environ))
+        self._private_key_output = False
+
+    def public_command(self):
+        # Extra arguments, interpreter overrides and inventory vars can contain secrets.
+        executable = Path(self.argv[0]).name if self.argv else "ansible-playbook"
+        return shlex.join([executable, str(self.metadata.get("playbook") or "<playbook>")])
+
+    def capture_input_secrets(self, paths=()):
+        import yaml
+        self.secret_values.update(_credential_values(dict(os.environ)))
+        for path in paths:
+            if path:
+                try:
+                    self.secret_values.update(_credential_values(yaml.safe_load(Path(path).read_text())))
+                except (OSError, ValueError, yaml.YAMLError):
+                    pass
+        for argument in self.argv:
+            try:
+                self.secret_values.update(_credential_values(yaml.safe_load(argument)))
+                for part in shlex.split(argument):
+                    key, separator, value = part.partition("=")
+                    if separator and value and _SECRET_KEY.search(key):
+                        self.secret_values.add(value)
+            except (ValueError, yaml.YAMLError):
+                pass
+
+    def redact_output(self, line):
+        if not isinstance(line, str):
+            return "[REDACTED invalid log record]\n"
+        if re.search(r"-----BEGIN (?:[A-Z ]*PRIVATE KEY)-----", line):
+            self._private_key_output = True
+        if self._private_key_output:
+            if re.search(r"-----END (?:[A-Z ]*PRIVATE KEY)-----", line):
+                self._private_key_output = False
+            return "[REDACTED private key]\n"
+        for secret in sorted(self.secret_values, key=len, reverse=True):
+            line = line.replace(secret, "[REDACTED]")
+        line = _SECRET_ASSIGNMENT.sub(lambda match: match.group(1) + '"[REDACTED]"', line)
+        line = re.sub(r"(?i)(Authorization\s*[:=]\s*)([^\r\n]+)", r"\1[REDACTED]", line)
+        return re.sub(r"([A-Za-z][A-Za-z0-9+.-]*://)[^/\s@]+@", r"\1[REDACTED]@", line)
 
     def put(self, line: str):
         with self._lock:
+            if self._deleted:
+                return
+            line = self.redact_output(line)
+            root = _history_dir()
+            if root is not None:
+                with _history_lock:
+                    with open(root / "logs" / (self.id + ".jsonl"), "a",
+                              opener=lambda p, f: os.open(p, f, 0o600)) as stream:
+                        stream.write(json.dumps(line) + "\n")
             self.lines.append(line)
 
     def info(self):
         return dict(
             id=self.id,
-            cmd=self.cmd,
+            cmd=self.public_command(),
             label=self.label,
             cwd=self.cwd,
             status=self.status,
@@ -93,7 +441,7 @@ class Job:
             t0=self.t0,
             t1=self.t1,
             n=len(self.lines),
-            metadata=self.metadata,
+            metadata={key: value for key, value in self.metadata.items() if key != "extra_args"},
         )
 
     def details(self):
@@ -110,6 +458,7 @@ def _exec(job: Job):
         if job.status == "cancelled" or job.metadata.get("suite_launch_id") in _cancelled_suites:
             job.status = "cancelled"
             job.t1 = time.time()
+            _persist_job(job)
             return
     env = os.environ.copy()
     env["ANSIBLE_FORCE_COLOR"] = "true"
@@ -145,6 +494,7 @@ def _exec(job: Job):
             )
             job.status = "running"
             job.t0 = time.time()
+            _persist_job(job)
         if job.proc.stdout is not None:
             for line in iter(job.proc.stdout.readline, ""):
                 job.put(line)
@@ -165,21 +515,24 @@ def _exec(job: Job):
         if inventory_workspace is not None:
             inventory_workspace.cleanup()
         job.t1 = time.time()
+        _persist_job(job)
 
 
 def _exec_with_semaphore(job: Job, semaphore: threading.Semaphore):
     with semaphore:
         if job.status == "cancelled":
             job.t1 = time.time()
+            _persist_job(job)
             return
         _exec(job)
 
 
 def _suite_failed_start_job(data: dict, message: str, *, kind: str = "automation-suite") -> Job:
-    jid = uuid.uuid4().hex[:8]
+    jid = data.get("_reserved_job_id") or uuid.uuid4().hex[:8]
     label = data.get("label") or f"Play {data.get('suite_run_index') or ''}".strip() or "Automation suite play"
     metadata = {
         "kind": kind,
+        "submitted_by": data.get("_submitted_by", ""),
         "batch_id": "",
         "suite_launch_id": data.get("suite_launch_id") or "",
         "suite_name": data.get("suite_name") or "",
@@ -214,26 +567,66 @@ def _suite_failed_start_job(data: dict, message: str, *, kind: str = "automation
 
 
 def _exec_suite_sequence(runs: list[dict], failure_policy: str):
+    try:
+        _exec_suite_sequence_inner(runs, failure_policy)
+    finally:
+        suite_ids = {run.get("suite_launch_id") for run in runs if run.get("suite_launch_id")}
+        with _jobs_lock:
+            for job in _jobs.values():
+                if job.metadata.get("suite_launch_id") in suite_ids:
+                    job.metadata["suite_finished"] = True
+                    if job.status == "queued":
+                        job.status = "cancelled" if job.metadata.get("suite_launch_id") in _cancelled_suites else "not-run"
+                        job.t1 = time.time()
+                    _persist_job(job)
+            _active_suites.difference_update(suite_ids)
+
+
+def _exec_suite_sequence_inner(runs: list[dict], failure_policy: str):
     continue_on_failure = failure_policy == "continue"
     for data in runs:
         suite_id = data.get("suite_launch_id") or ""
         if suite_id in _cancelled_suites:
             break
-        job, result = _build_run_job(data, kind=data.get("kind") or "automation-suite")
-        if job is None:
-            failed_job = _suite_failed_start_job(data, str(result))
-            with _jobs_lock:
-                _jobs[failed_job.id] = failed_job
+        reserved = _jobs.get(data.get("_reserved_job_id"))
+        if reserved is not None and reserved.status == "cancelled":
             if not continue_on_failure:
                 break
             continue
-        with _jobs_lock:
-            _jobs[job.id] = job
+        job, result = _build_run_job(data, kind=data.get("kind") or "automation-suite")
+        if job is None:
+            failed_job = _suite_failed_start_job(data, str(result))
+            _install_suite_job(failed_job)
+            if not continue_on_failure:
+                break
+            continue
+        job = _install_suite_job(job)
+        if job is None:
+            if not continue_on_failure:
+                break
+            continue
         _exec(job)
         if suite_id in _cancelled_suites:
             break
         if job.status != "completed" and not continue_on_failure:
             break
+
+
+def _install_suite_job(prepared):
+    # Keep the registered object stable so in-flight cancellation keeps its lock/state.
+    with _jobs_lock:
+        reserved = _jobs.get(prepared.id)
+        if reserved is not None:
+            with reserved._lock:
+                if reserved.status == "cancelled" or reserved._deleted:
+                    return None
+                for name in ("argv", "cmd", "cwd", "label", "env_overrides", "metadata", "embedded_inventory",
+                             "status", "rc", "t0", "t1", "lines", "secret_values"):
+                    setattr(reserved, name, getattr(prepared, name))
+                prepared = reserved
+        _jobs[prepared.id] = prepared
+        _persist_job(prepared)
+        return prepared
 
 
 # ---------------------------------------------------------------------------
@@ -1365,13 +1758,14 @@ def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", targ
             env_overrides["CATALYST_CENTER_VERIFY"] = str(connection["verify"])
 
     target_name = str((target or {}).get("name") or "").strip()
-    jid = uuid.uuid4().hex[:8]
+    jid = data.get("_reserved_job_id") or uuid.uuid4().hex[:8]
     label = data.get("label") or playbook_path.stem
     if target_name:
         label = f"{label} · {target_name}"
     metadata = {
         "kind": kind,
         "batch_id": batch_id,
+        "submitted_by": data.get("_submitted_by", ""),
         "suite_launch_id": data.get("suite_launch_id") or "",
         "suite_name": data.get("suite_name") or "",
         "suite_run_index": data.get("suite_run_index") or "",
@@ -1404,19 +1798,23 @@ def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", targ
     }
     job = Job(jid, argv, str(PROJECT_ROOT), label, env_overrides, metadata)
     job.embedded_inventory = embedded_inventory
-    return job, {"command": job.cmd}
+    job.capture_input_secrets((vars_path, inventory_path))
+    return job, {"command": job.public_command()}
 
 
 @app.route("/api/run", methods=["POST"])
 def api_run():
     data = request.json or {}
+    data.pop("_reserved_job_id", None)
+    data["_submitted_by"] = _request_actor()
     job, result = _build_run_job(data, kind=data.get("kind") or "single")
     if job is None:
         return _json_error(str(result))
     with _jobs_lock:
         _jobs[job.id] = job
+        _persist_job(job)
     threading.Thread(target=_exec, args=(job,), daemon=True).start()
-    return jsonify(job_id=job.id, command=job.cmd)
+    return jsonify(job_id=job.id, command=job.public_command())
 
 
 def _exec_selected_suite_sequence(suites: list[dict], failure_policy: str):
@@ -1438,6 +1836,8 @@ def api_run_suites():
     ):
         return _json_error("Select suites with at least one valid play each")
     failure_policy = "continue" if data.get("failure_policy") == "continue" else "stop"
+    for suite in suites:
+        _stamp_runs(suite["runs"])
     threading.Thread(
         target=_exec_selected_suite_sequence,
         args=(suites, failure_policy),
@@ -1450,12 +1850,13 @@ def api_run_suites():
 def api_run_suite():
     data = request.json or {}
     runs = data.get("runs") or []
-    if not isinstance(runs, list) or not runs:
+    if not isinstance(runs, list) or not runs or any(not isinstance(run, dict) for run in runs):
         return _json_error("Automation suite has no plays to launch")
     failure_policy = "continue" if data.get("failure_policy") == "continue" else "stop"
+    _stamp_runs(runs)
     threading.Thread(target=_exec_suite_sequence, args=(runs, failure_policy), daemon=True).start()
     return jsonify(
-        suite_launch_id=data.get("suite_launch_id") or "",
+        suite_launch_id=runs[0]["suite_launch_id"],
         submitted=len(runs),
         failure_policy=failure_policy,
     )
@@ -1464,6 +1865,8 @@ def api_run_suite():
 @app.route("/api/run/batch", methods=["POST"])
 def api_run_batch():
     data = request.json or {}
+    data.pop("_reserved_job_id", None)
+    data["_submitted_by"] = _request_actor()
     targets = data.get("targets") or []
     if not isinstance(targets, list) or not targets:
         return _json_error("Select at least one Catalyst Center target")
@@ -1500,13 +1903,14 @@ def api_run_batch():
     with _jobs_lock:
         for job in jobs:
             _jobs[job.id] = job
+            _persist_job(job)
     semaphore = threading.Semaphore(parallel_limit)
     for job in jobs:
         threading.Thread(target=_exec_with_semaphore, args=(job, semaphore), daemon=True).start()
 
     return jsonify(
         batch_id=batch_id,
-        jobs=[{"job_id": job.id, "label": job.label, "command": job.cmd, "metadata": job.metadata} for job in jobs],
+        jobs=[{"job_id": job.id, "label": job.label, "command": job.public_command(), "metadata": job.info()["metadata"]} for job in jobs],
     )
 
 
@@ -1529,7 +1933,7 @@ def api_stream(jid):
             for line in chunk:
                 yield f"data: {json.dumps(dict(t='o', l=line))}\n\n"
                 index += 1
-            if status in ("completed", "failed", "cancelled"):
+            if status in ("completed", "failed", "cancelled", "interrupted", "not-run"):
                 yield f"data: {json.dumps(dict(t='d', s=status, rc=job.rc))}\n\n"
                 break
             time.sleep(0.1)
@@ -1552,6 +1956,7 @@ def _cancel_job(job: Job) -> bool:
                 os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM)
             except ProcessLookupError:
                 pass
+        _persist_job(job)
         return True
 
 
@@ -1584,7 +1989,7 @@ def api_cancel_suite(suite_id):
 @app.route("/api/jobs")
 def api_jobs():
     with _jobs_lock:
-        out = [job.info() for job in _jobs.values()]
+        out = [_history_info(job) for job in _jobs.values()]
     out.sort(key=lambda item: item.get("t0") or 0, reverse=True)
     return jsonify(out)
 
@@ -1594,7 +1999,163 @@ def api_job(jid):
     job = _jobs.get(jid)
     if not job:
         return _json_error("Not found", 404)
-    return jsonify(job.details())
+    data = job.details()
+    data["can_delete"] = _can_delete(job)
+    return jsonify(data)
+
+
+def _request_actor():
+    return (getattr(g, "runner_user", None) or {}).get("username", "")
+
+
+def _stamp_runs(runs):
+    suite_id = uuid.uuid4().hex
+    plan = [{"index": index, **{key: run.get(key, "") for key in
+             ("workflow", "playbook", "vars_file", "inventory")}}
+            for index, run in enumerate(runs, start=1)]
+    with _jobs_lock:
+        for index, run in enumerate(runs, start=1):
+            run["_submitted_by"] = _request_actor()
+            run["suite_launch_id"] = run.get("suite_launch_id") or suite_id
+            run["_reserved_job_id"] = uuid.uuid4().hex[:8]
+            run["suite_run_index"] = run.get("suite_run_index") or index
+            run["suite_run_total"] = len(runs)
+            run["suite_plan"] = run.get("suite_plan") or plan
+            metadata = _history_metadata(dict(run, submitted_by=_request_actor()))
+            placeholder = Job(run["_reserved_job_id"], [], str(PROJECT_ROOT), run.get("label") or f"Play {index}", metadata=metadata)
+            _jobs[placeholder.id] = placeholder
+            _persist_job(placeholder)
+            _active_suites.add(run["suite_launch_id"])
+
+
+def _can_delete(job):
+    user = getattr(g, "runner_user", None) or {}
+    allowed = user.get("role") == "admin" or (
+        user.get("role") == "operator" and bool(user.get("username"))
+        and job.metadata.get("submitted_by") == user["username"])
+    suite_id = job.metadata.get("suite_launch_id")
+    suite_has_orphan = bool(suite_id and any(
+        other.metadata.get("suite_launch_id") == suite_id and _process_exists(other.recovered_pid)
+        for other in tuple(_jobs.values())))
+    return bool(allowed and job.status in {"completed", "failed", "cancelled", "interrupted", "not-run"}
+                and job.t1 is not None
+                and job.metadata.get("suite_launch_id") not in _active_suites
+                and not suite_has_orphan
+                and not _process_exists(job.recovered_pid)
+                and (job.proc is None or job.proc.poll() is not None))
+
+
+def _process_exists(pid):
+    if not isinstance(pid, int) or pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+
+
+def _history_info(job):
+    data = job.info()
+    data["can_delete"] = _can_delete(job)
+    return data
+
+
+def _remaining_suite_metadata(metadata, removed):
+    indices = {str(item.get("suite_run_index")) for item in removed}
+    updated = dict(metadata)
+    updated["suite_plan"] = [item for item in metadata.get("suite_plan", []) if str(item.get("index")) not in indices]
+    updated["suite_run_total"] = max(0, int(metadata.get("suite_run_total") or 0) - len(removed))
+    return updated
+
+
+def _finish_history_deletion(root, request_id, ids):
+    # The durable intent remains if file deletion or the final DB transaction fails.
+    # Recompute from current records so overlapping/retried requests never double-count.
+    if any(not isinstance(jid, str) or not re.fullmatch(r"[a-f0-9]{8}", jid) for jid in ids):
+        raise ValueError("Invalid pending deletion identifier")
+    with _history_connection(root) as connection:
+        rows = {jid: json.loads(raw) for jid, raw in connection.execute("SELECT id,data FROM jobs")}
+        removed = [data.get("metadata", {}) for jid, data in rows.items() if jid in ids]
+        updates = {}
+        for jid, data in rows.items():
+            if jid in ids:
+                continue
+            metadata = data.get("metadata", {})
+            matched = [item for item in removed if item.get("suite_launch_id")
+                       and item["suite_launch_id"] == metadata.get("suite_launch_id")]
+            if matched:
+                data["metadata"] = _remaining_suite_metadata(metadata, matched)
+                updates[jid] = data
+        for jid in ids:
+            (root / "logs" / (jid + ".jsonl")).unlink(missing_ok=True)
+        for jid, data in updates.items():
+            connection.execute("UPDATE jobs SET data=? WHERE id=?", (json.dumps(data), jid))
+        for jid in ids:
+            connection.execute("DELETE FROM jobs WHERE id=?", (jid,))
+        connection.execute("DELETE FROM history_deletions WHERE id=?", (request_id,))
+    return {jid: data["metadata"] for jid, data in updates.items()}
+
+
+def _delete_history(jobs):
+    # Caller holds _jobs_lock, excluding concurrent suite registration/deletion.
+    user = getattr(g, "runner_user", None) or {}
+    if any(user.get("role") != "admin" and job.metadata.get("submitted_by") != user.get("username")
+           for job in jobs):
+        return _json_error("You can only delete your own runs.", 403)
+    if any(not _can_delete(job) for job in jobs):
+        return _json_error("Stop the play and wait for its entire suite to finish before deleting history.", 409)
+    root = _history_dir()
+    deleted = {job.id for job in jobs}
+    with _history_lock:
+        if root is not None:
+            encoded = json.dumps(sorted(deleted))
+            request_id = hashlib.sha256(encoded.encode()).hexdigest()
+            with _history_connection(root) as connection:
+                connection.execute("INSERT OR IGNORE INTO history_deletions VALUES(?,?)", (request_id, encoded))
+            updates = _finish_history_deletion(root, request_id, sorted(deleted))
+        else:
+            updates = {}
+            for other in _jobs.values():
+                removed = [job.metadata for job in jobs if job.metadata.get("suite_launch_id")
+                           and job.metadata.get("suite_launch_id") == other.metadata.get("suite_launch_id")]
+                if other.id not in deleted and removed:
+                    updates[other.id] = _remaining_suite_metadata(other.metadata, removed)
+        for jid, metadata in updates.items():
+            if jid in _jobs:
+                _jobs[jid].metadata = metadata
+        for job in jobs:
+            job._deleted = True
+            _jobs.pop(job.id, None)
+    return jsonify(deleted=sorted(deleted))
+
+
+@app.delete("/api/jobs/<jid>")
+def api_delete_job(jid):
+    try:
+        with _jobs_lock:
+            job = _jobs.get(jid)
+            if job is None:
+                return _json_error("Not found", 404)
+            return _delete_history([job])
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to delete job history")
+        return _json_error("History deletion is pending. Fix storage permissions and retry, or restart to resume cleanup.", 503)
+
+
+@app.delete("/api/suites/<suite_id>")
+def api_delete_suite(suite_id):
+    try:
+        with _jobs_lock:
+            jobs = [job for job in _jobs.values() if job.metadata.get("suite_launch_id") == suite_id]
+            if not jobs:
+                return _json_error("Not found", 404)
+            return _delete_history(jobs)
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to delete suite history")
+        return _json_error("History deletion is pending. Fix storage permissions and retry, or restart to resume cleanup.", 503)
 
 
 @app.route("/api/jobs/<jid>/log")
@@ -1616,6 +2177,166 @@ def api_job_log(jid):
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+def _clean_saved_suite(payload):
+    if not isinstance(payload, dict):
+        raise ValueError("Suite must be an object")
+    name = payload.get("name")
+    runs = payload.get("runs")
+    if not isinstance(name, str) or not name.strip() or len(name) > 160:
+        raise ValueError("Suite name must contain 1-160 characters")
+    if not isinstance(runs, list) or not 1 <= len(runs) <= 100:
+        raise ValueError("A suite must contain 1-100 plays")
+
+    def strings(source, fields):
+        result = {}
+        for key in fields:
+            value = source.get(key, "")
+            if not isinstance(value, str) or len(value) > 2048:
+                raise ValueError("Invalid suite field: " + key)
+            result[key] = value
+        return result
+
+    cleaned = []
+    for run in runs:
+        if not isinstance(run, dict):
+            raise ValueError("Each play must be an object")
+        value = strings(run, ("name", "target", "repo", "workflow", "playbook", "vars", "inventory"))
+        target = run.get("target_details") or run.get("targetDetails")
+        if target:
+            if not isinstance(target, dict):
+                raise ValueError("Invalid controller reference")
+            value["target_details"] = strings(target, ("name", "host", "username", "verify"))
+        repo = run.get("repo_details") or run.get("repoDetails")
+        if repo:
+            if not isinstance(repo, dict) or not isinstance(repo.get("source"), dict):
+                raise ValueError("Invalid repository reference")
+            source = strings(repo["source"], ("kind", "id", "repo_url", "ref"))
+            url = urlparse(source["repo_url"])
+            if url.username or url.password or url.query or url.fragment:
+                raise ValueError("Repository URLs must not contain credentials, queries or fragments")
+            value["repo_details"] = {**strings(repo, ("id", "name")), "source": source}
+        cleaned.append(value)
+    return {"name": name.strip(), "runs": cleaned, "updatedAt": datetime.now(timezone.utc).isoformat()}
+
+
+def _suite_response(row):
+    sid, owner, revision, _, raw = row
+    user = getattr(g, "runner_user", None) or {}
+    editable = user.get("role") == "admin" or (user.get("role") == "operator" and owner == user.get("username"))
+    return dict(json.loads(raw), id=sid, owner=owner, revision=revision, can_edit=editable, can_delete=editable)
+
+
+def _suite_database():
+    root = _history_dir()
+    if root is None:
+        raise sqlite3.OperationalError("Persistent storage required")
+    return _history_connection(root)
+
+
+@app.get("/api/git/catalog")
+def saved_suite_repo_catalog():
+    root = _resolve_git_source({"kind": "git", "id": request.args.get("source_id", "")})
+    if root is None:
+        return _json_error("Input repository is unavailable. Ask an administrator to fetch it on this server.", 404)
+    return jsonify(vars=_discover_repo_vars(root), inventories=_discover_inventories(root))
+
+
+@app.get("/api/saved-suites")
+def saved_suites_list():
+    try:
+        with _history_lock, _suite_database() as connection:
+            return jsonify([_suite_response(row) for row in connection.execute(
+                "SELECT id,owner,revision,position,data FROM saved_suites ORDER BY position,id")])
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to read saved suites")
+        return _json_error("Shared suites are unavailable. Check server storage.", 503)
+
+
+@app.post("/api/saved-suites")
+def saved_suite_create():
+    try:
+        payload = request.get_json(silent=True)
+        suite = _clean_saved_suite(payload)
+        owner = _request_actor()
+        if not owner:
+            return _json_error("Sign in required", 401)
+        legacy = payload.get("legacy_id")
+        if legacy is not None and (not isinstance(legacy, str) or not 1 <= len(legacy) <= 160):
+            raise ValueError("Invalid browser import identifier")
+        sid = uuid.uuid5(uuid.NAMESPACE_URL, owner + ":browser-suite:" + legacy).hex if legacy else uuid.uuid4().hex
+        with _history_lock, _suite_database() as connection:
+            existing = connection.execute("SELECT id,owner,revision,position,data FROM saved_suites WHERE id=?", (sid,)).fetchone()
+            if existing:
+                return jsonify(_suite_response(existing))
+            position = connection.execute("SELECT COALESCE(MAX(position),-1)+1 FROM saved_suites").fetchone()[0]
+            raw = json.dumps(suite)
+            connection.execute("INSERT INTO saved_suites VALUES(?,?,1,?,?)", (sid, owner, position, raw))
+        return jsonify(_suite_response((sid, owner, 1, position, raw))), 201
+    except ValueError as error:
+        return _json_error(str(error))
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to save suite")
+        return _json_error("Unable to save shared suite. Check server storage.", 503)
+
+
+def _change_saved_suite(sid, delete=False):
+    try:
+        payload = request.get_json(silent=True) or {}
+        if not isinstance(payload, dict) or type(payload.get("revision")) is not int:
+            raise ValueError("A suite revision is required")
+        suite = None if delete else _clean_saved_suite(payload)
+        with _history_lock, _suite_database() as connection:
+            row = connection.execute("SELECT id,owner,revision,position,data FROM saved_suites WHERE id=?", (sid,)).fetchone()
+            if not row:
+                return _json_error("Saved suite not found", 404)
+            if not _suite_response(row)["can_edit"]:
+                return _json_error("Only the owner or an administrator can change this suite", 403)
+            if row[2] != payload["revision"]:
+                return _json_error("Suite changed in another session. Refresh before trying again.", 409)
+            if delete:
+                connection.execute("DELETE FROM saved_suites WHERE id=?", (sid,))
+                return jsonify(deleted=sid)
+            raw = json.dumps(suite)
+            connection.execute("UPDATE saved_suites SET data=?,revision=revision+1 WHERE id=?", (raw, sid))
+            return jsonify(_suite_response((sid, row[1], row[2] + 1, row[3], raw)))
+    except ValueError as error:
+        return _json_error(str(error))
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to change suite")
+        return _json_error("Unable to change shared suite. Check server storage.", 503)
+
+
+@app.put("/api/saved-suites/<sid>")
+def saved_suite_update(sid):
+    return _change_saved_suite(sid)
+
+
+@app.delete("/api/saved-suites/<sid>")
+def saved_suite_delete(sid):
+    return _change_saved_suite(sid, delete=True)
+
+
+@app.post("/api/saved-suites/order")
+def saved_suite_reorder():
+    payload = request.get_json(silent=True) or {}
+    items = payload.get("items") if isinstance(payload, dict) else None
+    if not isinstance(items, list) or any(not isinstance(item, dict) or not isinstance(item.get("id"), str) for item in items):
+        return _json_error("Invalid suite order")
+    try:
+        with _history_lock, _suite_database() as connection:
+            current = dict(connection.execute("SELECT id,revision FROM saved_suites"))
+            ids = [item.get("id") for item in items]
+            if len(ids) != len(set(ids)) or set(ids) != set(current) or any(
+                    type(item.get("revision")) is not int or current.get(item["id"]) != item["revision"] for item in items):
+                return _json_error("Suite list changed. Refresh before reordering.", 409)
+            for position, sid in enumerate(ids):
+                connection.execute("UPDATE saved_suites SET position=?,revision=revision+1 WHERE id=?", (position, sid))
+        return jsonify(ok=True)
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to reorder suites")
+        return _json_error("Unable to reorder shared suites.", 503)
+
+
 if __name__ == "__main__":
     host = os.environ.get("RUNNER_HOST", "127.0.0.1")
     port = int(os.environ.get("RUNNER_PORT", "5005"))

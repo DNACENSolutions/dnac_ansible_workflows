@@ -16,6 +16,7 @@ spec.loader.exec_module(runner)
 
 class EmbeddedInventoryTests(unittest.TestCase):
     def setUp(self):
+        self.enterContext(patch.dict(runner.app.config, TESTING=True, RUNNER_TEST_AUTH_BYPASS=True))
         self.workspace = tempfile.TemporaryDirectory()
         self.addCleanup(self.workspace.cleanup)
         self.root = Path(self.workspace.name)
