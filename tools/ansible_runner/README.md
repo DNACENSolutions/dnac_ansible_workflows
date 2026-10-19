@@ -2,6 +2,19 @@
 
 A lightweight web UI for browsing, editing, and executing Ansible playbooks from the `dnac_ansible_workflows` repository.
 
+Linux startup templates and preflight checks are in [Linux Preparation](deploy/README.md).
+They configure a private backend only; HTTPS and team-access port configuration
+are a separate deployment step.
+
+Login is required. Initialize an administrator before starting the runner;
+see [Login and Permissions](AUTHENTICATION.md) for setup, roles, and deployment
+limitations. Shared server access requires HTTPS and a single runner process.
+
+Use the sun/moon icon at the top of the page to switch between light and dark themes.
+Light is the default; the choice is remembered in this browser and shared across
+the dashboard, login screen and job detail pages. Execution and permissions are
+unaffected by theme selection.
+
 ## Table of Contents
 
 - [Features](#features)
@@ -31,6 +44,85 @@ A lightweight web UI for browsing, editing, and executing Ansible playbooks from
 - **🛑 Cancel Support** — Stop running playbooks or entire workflows mid-execution
 
 ---
+
+## Shared Saved Suites
+
+Saved suite definitions now use the same protected SQLite database as history,
+not browser localStorage. All signed-in users can view them. Operators can create
+suites and update/delete their own; Admins can manage any suite and change the
+shared ordering. Other Operators can load a copy without changing the original.
+Edits and deletes use revisions to reject stale changes from another session.
+Use Refresh or reopen Automation Suites to fetch the current shared list.
+
+Suite definitions store file/repository references and non-secret controller
+details only. Passwords are never saved in definitions. Load the suite and enter
+current credentials in Catalyst Center targets before running. Existing matching
+credentials entered in the current page are reused. Input repositories must
+already be fetched on the runner server; loading retrieves their file catalog
+without a new clone or fetch. Missing repos require an administrator to fetch them.
+
+To migrate old browser suites, choose **Import browser suites** while signed in
+as Operator or Admin. Confirm sharing with the team. Successfully imported entries
+are removed from that browser's old list; failed entries remain for retry.
+Import retries are idempotent per account and browser suite ID and never overwrite
+an already imported shared definition. Browser storage is not a fallback if the
+server database is unavailable. Export/backup old suites before clearing browser
+data or switching to a different server origin; a new origin cannot read the old
+browser storage. Shared definitions do not migrate Mac-specific file paths or Git
+checkouts onto Linux automatically.
+
+Deleting a saved definition removes the shared template, not its past run history
+or a running launch. History/log deletion remains a separate Assurance action.
+Restart the runner after this upgrade to create the saved-suites table.
+
+## Persistent History
+
+Job metadata is stored in SQLite and output in protected JSON-lines log files.
+The default directory is `~/.local/share/catalystcenter-runner`, outside the Git
+checkout. Set `RUNNER_HISTORY_DIR` to a dedicated writable directory owned by the
+runner service account on Linux (for example `/var/lib/catalystcenter-runner`).
+Directories use mode 0700; the database and logs use mode 0600. Logs may contain
+sensitive workflow output: protect this directory and its backups accordingly.
+Execution credentials and arbitrary command arguments are not saved as job
+metadata. History is not a replay queue.
+
+Public job responses show only a command summary, not raw extra arguments.
+Known input/environment credentials and common secret patterns are redacted
+before output is stored. Older logs are pattern-redacted when loaded. This is
+best-effort protection, not a guarantee that arbitrary workflow output is safe
+to share; all runner accounts must still be trusted.
+
+History and logs survive a runner restart. Running and queued plays become
+`interrupted`; nothing is automatically rerun. A child Ansible process can outlive
+the web process: verify Catalyst Center before retrying. If the previous process
+still exists, deletion stays blocked until it exits. This conservative check can
+also block a reused process ID; an administrator must verify the situation.
+Previously completed/failed/cancelled jobs keep their results. All selected suite
+plays are recorded before execution starts; plays skipped by a stop policy are
+marked `not-run`.
+
+Automation Assurance offers **Delete play** and **Delete suite**, with permanent
+deletion confirmation. Viewers cannot delete; Operators can delete their own
+finished runs; Admins can delete any finished run. Active plays and active suites
+cannot be deleted. Removing a suite removes all its saved plays and logs. Removing
+one play updates the remaining suite's plan and counts. Deletion does not undo
+network changes or remove copies in external backups. There is no automatic
+retention purge in this version; monitor disk space and delete unwanted history.
+Deletion intent is saved before removing files. If storage permissions prevent
+cleanup, fix them and retry, or restart to resume the pending deletion. Job
+metadata is retained until file cleanup succeeds.
+
+The network devices information playbook preserves normal hostname, serial and
+site queries by default. For explicit IP queries that must wait for inventory
+readiness, add `-e '{"network_devices_info_wait_for_readiness":true}'` to the
+run's extra arguments. Keep this playbook control outside the schema-validated
+workflow vars file.
+
+Keep **one runner process** per history directory. Multiple workers/processes and
+automatic job resumption are not supported. Back up the SQLite database and logs
+together while the runner is stopped. Old runs held only in memory by a previous
+version cannot be recovered after that version exits. Restarting to upgrade will
+not migrate those in-memory runs automatically.
 
 ## Input Files
 
@@ -110,8 +202,11 @@ tools\ansible_runner\.venv\Scripts\activate     # On Windows
 # Install dependencies
 pip install -r tools/ansible_runner/requirements.txt
 
-# Start the server
-python tools/ansible_runner/app.py
+# Initialize a local administrator (prompts for a password)
+python tools/ansible_runner/manage_users.py init admin
+
+# Start for localhost HTTP development only; shared servers must use HTTPS
+RUNNER_COOKIE_SECURE=false python tools/ansible_runner/app.py
 
 # Open in browser
 open http://127.0.0.1:5005
@@ -121,7 +216,8 @@ open http://127.0.0.1:5005
 ```bash
 cd /path/to/dnac_ansible_workflows
 pip install flask yamale
-python tools/ansible_runner/app.py
+python tools/ansible_runner/manage_users.py init admin
+RUNNER_COOKIE_SECURE=false python tools/ansible_runner/app.py
 ```
 
 ---

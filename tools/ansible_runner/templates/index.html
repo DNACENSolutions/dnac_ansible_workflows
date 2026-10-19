@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='account.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+  <meta name="csrf-token" content="{{ session.get('csrf', '') }}">
+  <meta name="runner-role" content="{{ g.runner_user.role if g.runner_user else 'admin' }}">
+  <script src="{{ url_for('static', filename='auth.js') }}"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cisco Validated Playbook Dashboard</title>
@@ -69,14 +75,21 @@
   </style>
 </head>
 <body class="min-h-full text-slate-900">
+  {% if g.runner_user and g.runner_user.role != 'admin' %}
+  <style>#btn-save,#btn-fetch-git,button[onclick*="refreshSelectedGitRepository"],button[onclick*="createManagedVenv"],button[onclick*="installEnvironmentDependencies"],[data-git-action="refresh"]{display:none!important}</style>
+  {% endif %}
+  {% if g.runner_user and g.runner_user.role == 'viewer' %}
+  <style>[data-tab="run"],[data-tab="git"],button[onclick*="cancel"],button[onclick*="stop"],button[onclick*="runSelected"],button[onclick*="Run"],button[onclick*="launch"],[data-suite-action="run"],[data-suite-select]{display:none!important}</style>
+  {% endif %}
   <div id="toast" class="hidden fixed bottom-6 right-6 z-50 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-medium text-white shadow-soft transition-opacity duration-300"></div>
 
-  <header class="h-[70px] border-b border-slate-200 bg-[#123456] text-white">
+  <header class="runner-main-header h-[70px] border-b border-slate-200 bg-[#123456] text-white">
     <div class="flex h-full items-center px-8">
       <div class="flex items-center gap-5">
         <img src="{{ url_for('static', filename='cisco-logo-white.svg') }}" alt="Cisco" class="h-8 w-auto object-contain">
         <h1 class="text-xl font-medium tracking-tight text-white">Cisco Validated Playbook Dashboard</h1>
       </div>
+      {% include 'account.html' %}
     </div>
   </header>
 
@@ -153,7 +166,7 @@
           <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
             <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Total Runs</p>
             <p id="card-total-runs" class="mt-3 text-3xl font-extrabold text-slate-900">0</p>
-            <p class="mt-2 text-sm text-slate-700">Playbook executions started in this session.</p>
+            <p class="mt-2 text-sm text-slate-700">Saved playbook runs.</p>
           </div>
           <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
             <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Succeeded</p>
@@ -754,6 +767,11 @@
             <div>
               <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Automation Suites</p>
               <h2 class="mt-2 text-2xl font-bold text-slate-900">Saved automation suites</h2>
+              <div class="mt-3 flex flex-wrap gap-3">
+                <button type="button" onclick="refreshSharedAutomationSuites().catch(function(error) { showToast(error.message); })" class="text-sm font-bold text-cyan-700 underline">Refresh</button>
+                {% if g.runner_user and g.runner_user.role != 'viewer' %}<button type="button" onclick="importBrowserAutomationSuites()" class="text-sm font-bold text-cyan-700 underline">Import browser suites</button>{% endif %}
+              </div>
+              <p id="shared-suites-status" role="status" class="mt-2 text-sm text-slate-600"></p>
               <p class="mt-2 max-w-3xl text-sm text-slate-600">
                 Save a group of run cards from Run, then load the suite here whenever you need to run the same automation again.
               </p>
@@ -1223,6 +1241,8 @@
     let automationSuiteLaunchInFlight = false;
     const ACTIVE_TAB_STORAGE_KEY = 'validated-playbook-active-tab';
     const AUTOMATION_SUITES_STORAGE_KEY = 'validated-playbook-automation-suites';
+    let sharedAutomationSuites = [];
+    let activeSavedSuiteEdit = null;
     let wfSteps = [];
     let wfRunning = false;
     let stepId = 0;
@@ -1473,8 +1493,11 @@
     }
 
     function suiteRunTarget(run) {
-      return normalizeCatcTargetDetails(run.target_details || run.targetDetails)
-        || selectedCatcTargetSnapshot(run.target);
+      const saved = normalizeCatcTargetDetails(run.target_details || run.targetDetails);
+      if (!saved) return selectedCatcTargetSnapshot(run.target);
+      const match = targetRows().map(function(row, index) { return selectedCatcTargetSnapshot('target-' + index); })
+        .find(function(target) { return catcTargetFingerprint(target) === catcTargetFingerprint(saved); });
+      return match || saved;
     }
 
     function runPlanRepoOptions() {
@@ -1772,6 +1795,7 @@
     }
 
     function newAutomationSuite() {
+      activeSavedSuiteEdit = null;
       $('run-plan-rows').innerHTML = '';
       activeRunPlanRowId = '';
       $('suite-name').value = '';
@@ -1891,23 +1915,72 @@
     }
 
     function loadAutomationSuites() {
+      return sharedAutomationSuites;
+    }
+
+    async function refreshSharedAutomationSuites() {
       try {
-        const parsed = JSON.parse(localStorage.getItem(AUTOMATION_SUITES_STORAGE_KEY) || '[]');
-        return Array.isArray(parsed) ? parsed : [];
+        sharedAutomationSuites = await fetchJson('/api/saved-suites');
+        $('shared-suites-status').textContent = '';
+        renderAutomationSuites();
       } catch (error) {
-        return [];
+        sharedAutomationSuites = [];
+        renderAutomationSuites();
+        $('shared-suites-status').textContent = error.message;
+        throw error;
       }
     }
 
-    function persistAutomationSuites(suites) {
-      localStorage.setItem(AUTOMATION_SUITES_STORAGE_KEY, JSON.stringify(suites));
+    function safeSuiteRuns(runs) {
+      return runs.map(function(run) {
+        const clean = {};
+        ['name', 'target', 'repo', 'workflow', 'playbook', 'vars', 'inventory'].forEach(function(key) { clean[key] = run[key] || ''; });
+        const target = run.target_details || run.targetDetails;
+        delete clean.targetDetails;
+        if (target) clean.target_details = {name: target.name || '', host: target.host || '', username: target.username || '', verify: target.verify || ''};
+        const repo = run.repo_details || run.repoDetails;
+        if (repo && repo.source) {
+          const source = {};
+          ['kind', 'id', 'repo_url', 'ref'].forEach(function(key) { source[key] = repo.source[key] || ''; });
+          clean.repo_details = {id: repo.id || '', name: repo.name || '', source: source};
+        }
+        return clean;
+      });
+    }
+
+    async function persistAutomationSuites(suites) {
+      await fetchJson('/api/saved-suites/order', {method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({items: suites.map(function(suite) { return {id: suite.id, revision: suite.revision}; })})});
+      await refreshSharedAutomationSuites();
+    }
+
+    async function importBrowserAutomationSuites() {
+      if (!confirm('Share suites saved in this browser with the team? Passwords will not be imported.')) return;
+      let remaining = [];
+      try {
+        const old = JSON.parse(localStorage.getItem(AUTOMATION_SUITES_STORAGE_KEY) || '[]');
+        if (!Array.isArray(old)) throw new Error('Invalid browser suites.');
+        remaining = old.slice();
+        for (const suite of old) {
+          if (!suite.id) throw new Error('Browser suite has no import identifier.');
+          await fetchJson('/api/saved-suites', {method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: suite.name, runs: safeSuiteRuns(suite.runs || []), legacy_id: suite.id})});
+          remaining.shift();
+          localStorage.setItem(AUTOMATION_SUITES_STORAGE_KEY, JSON.stringify(remaining));
+        }
+        await refreshSharedAutomationSuites();
+        showToast(old.length ? 'Browser suites imported without passwords.' : 'No browser suites to import.');
+      } catch (error) {
+        showToast(error.message);
+        await refreshSharedAutomationSuites().catch(function() {});
+      }
     }
 
     function suiteId() {
       return 'suite-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
     }
 
-    function saveAutomationSuite() {
+    async function saveAutomationSuite() {
       const name = $('suite-name').value.trim();
       const rows = runPlanRows();
       if (!name) {
@@ -1923,23 +1996,24 @@
       const runs = rows.map(runPlanRowValues);
       const suites = loadAutomationSuites();
       const existingIndex = suites.findIndex(function(suite) {
-        return suite.name.toLowerCase() === name.toLowerCase();
+        return activeSavedSuiteEdit ? suite.id === activeSavedSuiteEdit.id : (suite.can_edit && suite.name.toLowerCase() === name.toLowerCase());
       });
       const record = {
         id: existingIndex >= 0 ? suites[existingIndex].id : suiteId(),
         name: name,
-        runs: runs,
+        runs: safeSuiteRuns(runs),
         updatedAt: new Date().toISOString(),
       };
-      if (existingIndex >= 0) {
-        suites[existingIndex] = record;
-      } else {
-        suites.push(record);
-      }
-      persistAutomationSuites(suites);
-      $('suite-name').value = '';
-      renderAutomationSuites();
-      showToast(existingIndex >= 0 ? 'Suite updated.' : 'Suite saved.');
+      try {
+        const previous = activeSavedSuiteEdit || suites[existingIndex];
+        if (previous) record.revision = previous.revision;
+        await fetchJson(previous ? '/api/saved-suites/' + encodeURIComponent(previous.id) : '/api/saved-suites', {
+          method: previous ? 'PUT' : 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(record)});
+        activeSavedSuiteEdit = null;
+        $('suite-name').value = '';
+        await refreshSharedAutomationSuites();
+        showToast(previous ? 'Shared suite updated.' : 'Shared suite saved.');
+      } catch (error) { showToast(error.message); }
     }
 
     function suiteWorkflowSummary(suite) {
@@ -1978,7 +2052,8 @@
     function suiteCanRun(suite) {
       const runs = suite.runs || [];
       return runs.length && runs.every(function(run) {
-        return !!(run.workflow && run.playbook && run.vars && suiteRunTarget(run) && suiteRunRepoReady(run));
+        const target = suiteRunTarget(run);
+        return !!(run.workflow && run.playbook && run.vars && target && target.password && suiteRunRepoReady(run));
       });
     }
 
@@ -2065,17 +2140,17 @@
           +         '<p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">' + runCount + ' run' + (runCount === 1 ? '' : 's') + '</p>'
           +         '<h3 class="mt-2 truncate text-lg font-bold text-slate-900">' + htmlEscape(suite.name || 'Untitled suite') + '</h3>'
           +         '<p class="mt-2 text-sm text-slate-600">' + htmlEscape(suiteWorkflowSummary(suite)) + '</p>'
-          +         '<p class="mt-3 text-xs font-semibold text-slate-500">Updated ' + htmlEscape(suiteUpdatedLabel(suite.updatedAt)) + '</p>'
+          +         '<p class="mt-3 text-xs font-semibold text-slate-500">Owner: ' + htmlEscape(suite.owner || '-') + ' · Updated ' + htmlEscape(suiteUpdatedLabel(suite.updatedAt)) + '</p>'
           +       '</div>'
           +     '</div>'
           +     '<div class="flex shrink-0 flex-wrap gap-2">'
-          +       '<div class="mr-2 flex gap-1">'
+          +       '<div class="mr-2 flex gap-1' + (window.runnerRole === 'admin' ? '' : ' hidden') + '">'
           +         '<button type="button" aria-label="Move suite up" title="Move up" data-suite-action="move-up" data-suite-id="' + htmlEscape(suite.id) + '"' + (suiteIndex === 0 ? ' disabled' : '') + ' class="' + moveButtonClass + '">↑</button>'
           +         '<button type="button" aria-label="Move suite down" title="Move down" data-suite-action="move-down" data-suite-id="' + htmlEscape(suite.id) + '"' + (suiteIndex === suites.length - 1 ? ' disabled' : '') + ' class="' + moveButtonClass + '">↓</button>'
           +       '</div>'
-          +       '<button type="button" data-suite-action="load" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">Edit</button>'
-          +       '<button type="button" data-suite-action="run" data-suite-id="' + htmlEscape(suite.id) + '"' + (canRun ? '' : ' disabled title="Add CatC target, repo, workflow, playbook, and vars before running."') + ' class="' + runButtonClass + '">Run</button>'
-          +       '<button type="button" data-suite-action="delete" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Delete</button>'
+          +       (window.runnerRole !== 'viewer' ? '<button type="button" data-suite-action="load" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">' + (suite.can_edit ? 'Edit' : 'Load copy') + '</button>' : '')
+          +       '<button type="button" data-suite-action="run" data-suite-id="' + htmlEscape(suite.id) + '"' + (canRun ? '' : ' disabled title="Load the suite and supply current controller credentials, repo and input files before running."') + ' class="' + runButtonClass + '">Run</button>'
+          +       (suite.can_delete ? '<button type="button" data-suite-action="delete" data-suite-id="' + htmlEscape(suite.id) + '" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Delete</button>' : '')
           +     '</div>'
           +   '</div>'
           +   '<details class="mt-5 rounded-2xl border border-slate-200 bg-slate-50">'
@@ -2104,7 +2179,7 @@
     function restoreSuiteCatcTargets(suite) {
       const targets = [];
       (suite.runs || []).forEach(function(run) {
-        const target = normalizeCatcTargetDetails(run.target_details || run.targetDetails);
+        const target = suiteRunTarget(run);
         if (!target) return;
         const key = catcTargetFingerprint(target);
         if (!targets.some(function(item) { return catcTargetFingerprint(item) === key; })) {
@@ -2167,19 +2242,39 @@
       refreshRunSummary();
     }
 
-    function loadAutomationSuite(id) {
-      const suite = loadAutomationSuites().find(function(item) { return item.id === id; });
+    async function loadAutomationSuite(id) {
+      const found = loadAutomationSuites().find(function(item) { return item.id === id; });
+      const suite = found ? JSON.parse(JSON.stringify(found)) : null;
       if (!suite) {
         showToast('Automation suite not found.');
         renderAutomationSuites();
         return;
       }
+      try {
+        const catalogs = {};
+        for (const run of suite.runs || []) {
+          const details = suiteRunRepoDetails(run);
+          if (!details || !details.source || details.source.kind !== 'git') continue;
+          const sourceId = details.source.id;
+          if (!catalogs[sourceId]) catalogs[sourceId] = await fetchJson('/api/git/catalog?source_id=' + encodeURIComponent(sourceId));
+          details.vars = catalogs[sourceId].vars;
+          details.inventories = catalogs[sourceId].inventories;
+        }
+      } catch (error) { showToast(error.message); return; }
       populateRunPlanFromSuite(suite);
+      activeSavedSuiteEdit = suite.can_edit ? {id: suite.id, revision: suite.revision} : null;
+      if (!suite.can_edit) $('suite-name').value = suite.name + ' copy';
       switchTab('run');
-      showToast('Automation suite loaded for editing.');
+      const credentialsMissing = (suite.runs || []).some(function(run) { const target = suiteRunTarget(run); return target && !target.password; });
+      if (credentialsMissing) {
+        $('multi-catc-panel').scrollIntoView({behavior: 'smooth', block: 'start'});
+        const passwordInput = $('multi-catc-target-rows').querySelector('[data-target-field="password"]');
+        if (passwordInput) passwordInput.focus({preventScroll: true});
+      }
+      showToast(credentialsMissing ? 'Suite loaded. Enter credentials in Catalyst Center targets.' : 'Automation suite loaded for editing.');
     }
 
-    function moveAutomationSuite(id, direction) {
+    async function moveAutomationSuite(id, direction) {
       const suites = loadAutomationSuites();
       const index = suites.findIndex(function(item) { return item.id === id; });
       if (index === -1) return;
@@ -2188,8 +2283,8 @@
       const moving = suites[index];
       suites[index] = suites[targetIndex];
       suites[targetIndex] = moving;
-      persistAutomationSuites(suites);
-      renderAutomationSuites();
+      try { await persistAutomationSuites(suites); }
+      catch (error) { showToast(error.message); await refreshSharedAutomationSuites().catch(function() {}); }
     }
 
     function automationSuiteRowPayload(suite, run, index, suiteLaunchId, options) {
@@ -2262,6 +2357,9 @@
       const missing = Math.max(0, total - suiteJobs.length);
       const stopOnFailure = (metadata.suite_failure_policy || 'stop') !== 'continue';
       if (active) return { status: 'running', jobs: suiteJobs, total: total };
+      if (suiteJobs.some(function(job) { return job.status === 'interrupted'; })) {
+        return { status: 'interrupted', jobs: suiteJobs, total: total };
+      }
       if (failed && stopOnFailure) return { status: 'failed', jobs: suiteJobs, total: total };
       if (!missing && failed) return { status: 'failed', jobs: suiteJobs, total: total };
       if (!missing) return { status: 'completed', jobs: suiteJobs, total: total };
@@ -2273,7 +2371,7 @@
         const jobs = await fetchJson('/api/jobs');
         const state = automationSuiteStateFromJobs(jobs, suiteLaunchId);
         refreshHistory();
-        if (['completed', 'failed', 'cancelled'].indexOf(state.status) !== -1) return state;
+        if (['completed', 'failed', 'cancelled', 'interrupted', 'not-run'].indexOf(state.status) !== -1) return state;
         await new Promise(function(resolve) { setTimeout(resolve, 1500); });
       }
     }
@@ -2475,14 +2573,17 @@
       }
     }
 
-    function deleteAutomationSuite(id) {
+    async function deleteAutomationSuite(id) {
       const suites = loadAutomationSuites();
       const suite = suites.find(function(item) { return item.id === id; });
       if (!suite) return;
-      if (!confirm('Delete automation suite "' + suite.name + '"?')) return;
-      persistAutomationSuites(suites.filter(function(item) { return item.id !== id; }));
-      renderAutomationSuites();
-      showToast('Automation suite deleted.');
+      if (!confirm('Delete shared suite "' + suite.name + '" for everyone? Run history and logs will be kept.')) return;
+      try {
+        await fetchJson('/api/saved-suites/' + encodeURIComponent(id), {method: 'DELETE',
+          headers: {'Content-Type': 'application/json'}, body: JSON.stringify({revision: suite.revision})});
+        await refreshSharedAutomationSuites();
+        showToast('Shared suite deleted. Run history was not changed.');
+      } catch (error) { showToast(error.message); }
     }
 
     function onRunPlanRowChanged(element) {
@@ -3727,7 +3828,7 @@
       jobs = jobs || [];
       const successful = jobs.filter(function(job) { return job.status === 'completed'; }).length;
       const failed = jobs.filter(function(job) {
-        return ['failed', 'cancelled', 'error'].indexOf(job.status) !== -1;
+        return ['failed', 'cancelled', 'interrupted', 'error'].indexOf(job.status) !== -1;
       }).length;
       const active = jobs.find(function(job) {
         return ['queued', 'running'].indexOf(job.status) !== -1;
@@ -3742,7 +3843,7 @@
       $('card-current-status').textContent = displayStatus;
       $('card-current-status').className = 'mt-3 text-2xl font-bold ' + (
         status === 'completed' ? 'text-emerald-700' :
-        status === 'failed' || status === 'cancelled' || status === 'error' ? 'text-rose-700' :
+        status === 'failed' || status === 'cancelled' || status === 'interrupted' || status === 'error' ? 'text-rose-700' :
         status === 'running' || status === 'queued' ? 'text-cyan-700' :
         'text-slate-900'
       );
@@ -3997,6 +4098,10 @@
           return true;
         }
 
+        if (window.runnerRole !== 'admin') {
+          showToast('Ask an administrator to prepare the run environment.');
+          return false;
+        }
         renderEnvironmentStatus(null, 'Preparing managed venv and installing dependencies. This can take a minute...', false);
         const setup = await fetchJson('/api/environment/setup', {
           method: 'POST',
@@ -4021,7 +4126,7 @@
     }
 
     async function fetchJson(url, options) {
-      const response = await fetch(url, options);
+      const response = await window.runnerFetch(url, options);
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'Request failed');
@@ -4070,6 +4175,7 @@
       setSourceMode('modal-vars', 'workflow');
       setSourceMode('modal-inventory', 'default');
       renderAutomationSuites();
+      await refreshSharedAutomationSuites().catch(function(error) { showToast(error.message); });
       setAutomationSuiteMode('sequential');
       refreshDashboardCards();
       refreshRunSummary();
@@ -4135,6 +4241,7 @@
     });
 
     function switchTab(tab) {
+      if (window.runnerRole === 'viewer' && !['dashboard', 'history', 'workflow'].includes(tab)) tab = 'history';
       sessionStorage.setItem(ACTIVE_TAB_STORAGE_KEY, tab);
       document.querySelectorAll('.tab-content').forEach(function(element) {
         element.classList.add('hidden');
@@ -4154,7 +4261,7 @@
         }, 20);
       }
       if (tab === 'history') refreshHistory();
-      if (tab === 'workflow') renderAutomationSuites();
+      if (tab === 'workflow') refreshSharedAutomationSuites().catch(function(error) { showToast(error.message); });
     }
 
     function onWorkflowChange(workflowId, playbookId, varsId) {
@@ -5215,6 +5322,23 @@
       }
     }
 
+    async function deleteHistory(kind, id) {
+      if (!window.confirm('Permanently delete this ' + kind + ' and its saved logs? This cannot be undone.')) return;
+      try {
+        const path = kind === 'suite' ? '/api/suites/' : '/api/jobs/';
+        await fetchJson(path + encodeURIComponent(id), {method: 'DELETE'});
+        await refreshHistory();
+        await refreshDashboardCards();
+        showToast('History and logs deleted.');
+      } catch (error) {
+        showToast(error.message);
+      }
+    }
+
+    function deleteHistoryButton(job) {
+      return job.can_delete ? '<button type="button" onclick="deleteHistory(\'play\', &quot;' + htmlEscape(job.id) + '&quot;)" class="text-xs font-bold text-rose-700 underline">Delete play</button>' : '';
+    }
+
     async function refreshHistory() {
       let jobs = [];
       try {
@@ -5232,6 +5356,7 @@
       const statusClasses = {
         completed: 'bg-emerald-100 text-emerald-700',
         failed: 'bg-rose-100 text-rose-700',
+        interrupted: 'bg-amber-100 text-amber-700',
         running: 'bg-cyan-100 text-cyan-700',
         cancelled: 'bg-slate-200 text-slate-700',
         queued: 'bg-amber-100 text-amber-700',
@@ -5260,6 +5385,7 @@
           +     '<div class="mt-1 flex flex-wrap items-center gap-3">'
           +       '<a href="' + detailHref + '" class="text-xs font-semibold text-cyan-700 underline decoration-cyan-200 underline-offset-4 transition hover:text-cyan-800">Open detailed Ansible log</a>'
           +       (canStop ? '<button type="button" onclick="cancelHistoryJob(&quot;' + htmlEscape(job.id) + '&quot;)" class="text-xs font-bold text-rose-700 underline decoration-rose-200 underline-offset-4 transition hover:text-rose-800">Stop play</button>' : '')
+          +       deleteHistoryButton(job)
           +     '</div>'
           +   '</td>'
           +   '<td class="px-6 py-4"><span class="rounded-full px-2.5 py-1 text-xs font-semibold ' + (statusClasses[job.status] || 'bg-slate-200 text-slate-700') + '">' + htmlEscape(job.status) + '</span></td>'
@@ -5317,6 +5443,8 @@
         const stopOnFailure = group.failurePolicy !== 'continue';
         if (group.jobs.some(function(job) { return job.status === 'running'; })) return 'running';
         if (group.jobs.some(function(job) { return job.status === 'queued'; })) return 'queued';
+        if (group.jobs.some(function(job) { return job.status === 'interrupted'; })) return 'interrupted';
+        if (group.jobs.every(function(job) { return (job.metadata || {}).suite_finished; }) && missingPlays > 0) return 'interrupted';
         if (missingPlays > 0 && !((hasFailed || hasCancelled) && stopOnFailure)) return 'running';
         if (hasFailed) return 'failed';
         if (hasCancelled) return 'cancelled';
@@ -5329,15 +5457,17 @@
         const succeeded = group.jobs.filter(function(job) { return job.status === 'completed'; }).length;
         const failed = group.jobs.filter(function(job) { return job.status === 'failed'; }).length;
         const cancelled = group.jobs.filter(function(job) { return job.status === 'cancelled'; }).length;
+        const interrupted = group.jobs.filter(function(job) { return job.status === 'interrupted'; }).length;
+        const notStarted = group.jobs.filter(function(job) { return job.status === 'not-run'; }).length;
         const active = group.jobs.filter(function(job) {
           return job.status === 'running' || job.status === 'queued';
         }).length;
-        const missing = Math.max(0, total - succeeded - failed - cancelled - active);
+        const missing = Math.max(0, total - succeeded - failed - cancelled - interrupted - notStarted - active);
         const stopOnFailure = group.failurePolicy !== 'continue';
-        const stoppedEarly = (failed || cancelled) && stopOnFailure;
+        const stoppedEarly = interrupted || ((failed || cancelled) && stopOnFailure);
         const waiting = stoppedEarly ? 0 : missing;
-        const notRun = stoppedEarly ? missing : 0;
-        return 'Succeeded ' + succeeded + ' · Failed ' + failed + ' · Cancelled ' + cancelled + ' · Waiting ' + waiting + ' · Not run ' + notRun + ' · Total ' + total;
+        const notRun = notStarted + (stoppedEarly ? missing : 0);
+        return 'Succeeded ' + succeeded + ' · Failed ' + failed + ' · Cancelled ' + cancelled + ' · Interrupted ' + interrupted + ' · Waiting ' + waiting + ' · Not run ' + notRun + ' · Total ' + total;
       }
 
       function renderSuiteGroup(group) {
@@ -5393,7 +5523,7 @@
             +   '<td class="px-4 py-3 text-slate-600">' + htmlEscape(basename(metadata.inventory) || (metadata.inventory_embedded ? 'From vars file' : '-')) + '</td>'
             +   '<td class="px-4 py-3"><span class="rounded-full px-2.5 py-1 text-xs font-semibold ' + (statusClasses[rowStatus] || 'bg-slate-200 text-slate-700') + '">' + htmlEscape(rowStatusLabel) + '</span></td>'
             +   '<td class="px-4 py-3">' + (job
-              ? '<div class="flex flex-wrap items-center gap-3"><a href="' + detailHref + '" class="text-xs font-semibold text-cyan-700 underline decoration-cyan-200 underline-offset-4 transition hover:text-cyan-800">Open log</a>' + (canStopJob ? '<button type="button" onclick="cancelHistoryJob(&quot;' + htmlEscape(job.id) + '&quot;)" class="text-xs font-bold text-rose-700 underline decoration-rose-200 underline-offset-4 transition hover:text-rose-800">Stop play</button>' : '') + '</div>'
+              ? '<div class="flex flex-wrap items-center gap-3"><a href="' + detailHref + '" class="text-xs font-semibold text-cyan-700 underline decoration-cyan-200 underline-offset-4 transition hover:text-cyan-800">Open log</a>' + (canStopJob ? '<button type="button" onclick="cancelHistoryJob(&quot;' + htmlEscape(job.id) + '&quot;)" class="text-xs font-bold text-rose-700 underline decoration-rose-200 underline-offset-4 transition hover:text-rose-800">Stop play</button>' : '') + deleteHistoryButton(job) + '</div>'
               : '<span class="text-xs font-semibold text-slate-400">' + (hasTerminalStop && stopOnFailure ? 'Not started' : 'Pending') + '</span>') + '</td>'
             + '</tr>';
         }).join('');
@@ -5409,6 +5539,7 @@
           +           '<p class="mt-1 text-xs font-semibold text-slate-400">Suite mode: ' + htmlEscape(modeLabel) + ' · Play fails: ' + htmlEscape(failureLabel) + '</p>'
           +         '</div>'
           +         '<div class="flex shrink-0 items-center gap-4">'
+          +           (group.jobs.length && group.jobs.every(function(job) { return job.can_delete; }) ? '<button type="button" onclick="event.preventDefault(); event.stopPropagation(); deleteHistory(\'suite\', &quot;' + htmlEscape(group.id) + '&quot;)" class="text-xs font-bold text-rose-700 underline">Delete suite</button>' : '')
           +           (canStopSuite ? '<button type="button" onclick="event.preventDefault(); event.stopPropagation(); cancelHistorySuite(&quot;' + htmlEscape(group.id) + '&quot;)" class="rounded-xl border border-rose-200 bg-white px-3 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Stop suite</button>' : '')
           +           '<span class="rounded-full px-2.5 py-1 text-xs font-semibold ' + statusClass + '">' + htmlEscape(status) + '</span>'
           +           '<span class="text-xs font-semibold text-slate-500">' + htmlEscape(newest ? timeText(newest) : '-') + '</span>'

@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='account.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+  <meta name="csrf-token" content="{{ session.get('csrf', '') }}">
+  <script src="{{ url_for('static', filename='auth.js') }}"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Job {{ job_id }} Logs</title>
@@ -39,6 +44,7 @@
   </style>
 </head>
 <body class="min-h-screen text-slate-900">
+  {% include 'account.html' %}
   <main class="mx-auto max-w-7xl px-6 py-8">
     <div class="flex flex-col gap-6">
       <header class="rounded-[28px] border border-white/70 bg-white/90 p-6 shadow-soft backdrop-blur">
@@ -119,7 +125,7 @@
     }
 
     async function fetchJson(url, options) {
-      const response = await fetch(url, options);
+      const response = await window.runnerFetch(url, options);
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'Request failed');
@@ -181,6 +187,8 @@
       const styles = {
         completed: 'bg-emerald-100 text-emerald-700',
         failed: 'bg-rose-100 text-rose-700',
+        interrupted: 'bg-amber-100 text-amber-700',
+        'not-run': 'bg-slate-200 text-slate-700',
         running: 'bg-cyan-100 text-cyan-700',
         cancelled: 'bg-slate-200 text-slate-700',
         queued: 'bg-amber-100 text-amber-700',
