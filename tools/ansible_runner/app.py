@@ -52,12 +52,164 @@ _auth_lock = threading.Lock()
 _dummy_password_hash = generate_password_hash(secrets.token_urlsafe(32))
 _roles = {"viewer": 0, "operator": 1, "admin": 2}
 _read_endpoints = {"index", "job_detail", "api_workflows", "api_inventories", "api_environment",
-                   "api_jobs", "api_job", "api_job_log", "api_stream", "saved_suites_list"}
+                   "api_jobs", "api_job", "api_job_log", "api_stream", "saved_suites_list", "controller_profiles_list"}
 _operator_endpoints = {"api_device_interfaces", "api_host_port_assignments", "api_fs",
                        "api_read_file", "api_validate", "api_run", "api_run_suites",
                        "api_run_suite", "api_run_batch", "api_cancel", "api_cancel_suite",
                        "api_delete_job", "api_delete_suite", "saved_suite_create", "saved_suite_update", "saved_suite_delete", "saved_suite_repo_catalog"}
-_admin_endpoints = {"api_git_fetch", "api_write_file", "api_environment_create", "api_environment_setup", "saved_suite_reorder"}
+_admin_endpoints = {"api_git_fetch", "api_write_file", "api_environment_create", "api_environment_setup", "saved_suite_reorder",
+                    "controller_profile_save", "controller_profile_delete"}
+
+_profile_lock = threading.RLock()
+
+
+def _profile_store():
+    from cryptography.fernet import Fernet
+
+    root = Path(app.config["RUNNER_USERS_FILE"]).parent
+    root.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if root.stat().st_uid != os.geteuid() or root.stat().st_mode & 0o077:
+        raise ValueError("Credential storage must be private and owned by the service account")
+    database = root / "controllers.sqlite3"
+    key = root / "controllers.key"
+    if not key.exists():
+        if database.exists():
+            raise ValueError("Credential encryption key is missing; restore it from backup")
+        fd = os.open(key, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(Fernet.generate_key())
+    if key.is_symlink() or key.stat().st_uid != os.geteuid() or key.stat().st_mode & 0o077:
+        raise ValueError("Credential encryption key permissions are unsafe")
+    cipher = Fernet(key.read_bytes())
+    if database.is_symlink():
+        raise ValueError("Credential database must not be a symbolic link")
+    fd = os.open(database, os.O_WRONLY | os.O_CREAT, 0o600)
+    os.close(fd)
+    if database.stat().st_uid != os.geteuid() or database.stat().st_mode & 0o077:
+        raise ValueError("Credential database permissions are unsafe")
+    connection = sqlite3.connect(database)
+    connection.execute("CREATE TABLE IF NOT EXISTS controllers (id TEXT PRIMARY KEY, data TEXT NOT NULL, secret BLOB NOT NULL)")
+    connection.commit()
+    return connection, cipher
+
+
+def _controller_public(row):
+    return dict(json.loads(row[1]), profile_id=row[0], credential_saved=True)
+
+
+@app.get("/api/controller-profiles")
+def controller_profiles_list():
+    try:
+        with _profile_lock:
+            connection, _ = _profile_store()
+            with connection:
+                rows = connection.execute("SELECT id, data FROM controllers ORDER BY id").fetchall()
+            connection.close()
+        return jsonify([_controller_public(row) for row in rows])
+    except Exception:
+        app.logger.error("Unable to access controller profile storage")
+        return jsonify(error="Controller profiles unavailable. Check protected credential storage."), 503
+
+
+@app.post("/api/controller-profiles")
+def controller_profile_save():
+    data = request.get_json(silent=True) or {}
+    try:
+        value = {}
+        for field in ("name", "host", "username", "verify"):
+            item = data.get(field, "")
+            if not isinstance(item, str) or len(item) > 256:
+                raise ValueError("Invalid controller field")
+            value[field] = item.strip()
+        if not all(value[field] for field in ("name", "host", "username")):
+            raise ValueError("Controller name, host and username are required")
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.-]*(?::[0-9]{1,5})?", value["host"]):
+            raise ValueError("Enter a hostname or IPv4 address with optional port, not a URL")
+        if value["verify"] not in ("", "true", "false"):
+            raise ValueError("Invalid TLS verification setting")
+        password = data.get("password", "")
+        if not isinstance(password, str) or len(password) > 4096:
+            raise ValueError("Invalid controller password")
+        pid = data.get("profile_id") or uuid.uuid4().hex
+        if not isinstance(pid, str) or not re.fullmatch(r"[a-f0-9]{32}", pid):
+            raise ValueError("Invalid controller profile ID")
+        with _profile_lock:
+            connection, cipher = _profile_store()
+            try:
+                previous = connection.execute("SELECT data, secret FROM controllers WHERE id=?", (pid,)).fetchone()
+                if data.get("profile_id") and previous is None:
+                    raise ValueError("Controller profile no longer exists")
+                if not password and (previous is None or any(
+                        json.loads(previous[0])[field] != value[field] for field in ("host", "username"))):
+                    raise ValueError("Enter a password for a new controller or changed host/username")
+                encrypted = cipher.encrypt(password.encode()) if password else previous[1]
+                with connection:
+                    connection.execute("INSERT OR REPLACE INTO controllers VALUES (?, ?, ?)",
+                                       (pid, json.dumps(value), encrypted))
+            finally:
+                connection.close()
+        return jsonify(dict(value, profile_id=pid, credential_saved=True))
+    except ValueError:
+        return jsonify(error="Unable to save connection. Check name, host, username and TLS setting; enter a password for a new or changed controller. Existing profile IDs must still exist. Storage and key permissions must be private."), 400
+    except Exception:
+        app.logger.error("Unable to save controller credentials")
+        return jsonify(error="Unable to save controller. Check protected credential storage."), 503
+
+
+@app.delete("/api/controller-profiles/<pid>")
+def controller_profile_delete(pid):
+    try:
+        with _profile_lock:
+            connection, _ = _profile_store()
+            with connection:
+                connection.execute("DELETE FROM controllers WHERE id=?", (pid,))
+            connection.close()
+        return jsonify(deleted=True)
+    except Exception:
+        app.logger.error("Unable to delete controller profile")
+        return jsonify(error="Unable to delete controller profile."), 503
+
+
+def _resolve_controller_reference(value):
+    if not isinstance(value, dict) or not value.get("profile_id"):
+        return value
+    if value.get("password"):
+        raise ValueError("Save changed credentials before using this connection")
+    with _profile_lock:
+        connection, cipher = _profile_store()
+        try:
+            row = connection.execute("SELECT id, data, secret FROM controllers WHERE id=?", (value["profile_id"],)).fetchone()
+        finally:
+            connection.close()
+    if row is None:
+        raise ValueError("Saved controller no longer exists. Select another controller.")
+    saved = _controller_public(row)
+    if any(value.get(field) is not None and value[field] != saved[field]
+           for field in ("host", "username", "verify")):
+        raise ValueError("Controller settings changed. Reload the saved connection before running.")
+    return dict(saved, enabled=True, password=cipher.decrypt(row[2]).decode())
+
+
+def resolve_controller_profiles():
+    # Authorize and resolve before dispatching work to threads without request context.
+    if not getattr(g, "runner_user", None) or request.endpoint not in {
+            "api_run", "api_run_suite", "api_run_suites", "api_run_batch",
+            "api_device_interfaces", "api_host_port_assignments"}:
+        return None
+    try:
+        def hydrate(data):
+            if not isinstance(data, dict):
+                return
+            if "catalyst_connection" in data:
+                data["catalyst_connection"] = _resolve_controller_reference(data["catalyst_connection"])
+            for run in data.get("runs", []) + data.get("suites", []):
+                hydrate(run)
+            for target in data.get("targets", []):
+                if isinstance(target, dict):
+                    target["connection"] = _resolve_controller_reference(target.get("connection") or target)
+        hydrate(request.get_json(silent=True) or {})
+    except Exception:
+        return jsonify(error="Saved controller unavailable or changed. Reload connections, or ask an administrator to check credentials."), 400
 
 
 def _accounts():
@@ -117,6 +269,9 @@ def require_access():
                 2 if request.endpoint in _admin_endpoints else 99)
     if _roles[user["role"]] < required:
         return jsonify(error="Your account does not have permission for this action."), 403
+
+
+app.before_request(resolve_controller_profiles)
 
 
 @app.after_request
@@ -1081,6 +1236,14 @@ def _catc_base_url(connection: dict) -> str:
     requested = str(connection.get("host") or os.environ.get("HOSTIP", "")).strip()
     configured = os.environ.get("RUNNER_CATC_ALLOWED_HOSTS", "").split(",")
     configured.append(os.environ.get("HOSTIP", ""))
+    # Only administrators can add profiles; stored hosts are approved destinations.
+    if (Path(app.config["RUNNER_USERS_FILE"]).parent / "controllers.sqlite3").exists():
+        with _profile_lock:
+            database, _ = _profile_store()
+            try:
+                configured.extend(json.loads(row[0])["host"] for row in database.execute("SELECT data FROM controllers"))
+            finally:
+                database.close()
     for host in configured:
         host = host.strip()
         if not host or host.lower() != requested.lower():
@@ -2243,7 +2406,7 @@ def _clean_saved_suite(payload):
         if target:
             if not isinstance(target, dict):
                 raise ValueError("Invalid controller reference")
-            value["target_details"] = strings(target, ("name", "host", "username", "verify"))
+            value["target_details"] = strings(target, ("name", "host", "username", "verify", "profile_id"))
         repo = run.get("repo_details") or run.get("repoDetails")
         if repo:
             if not isinstance(repo, dict) or not isinstance(repo.get("source"), dict):

@@ -72,3 +72,10 @@ OS permissions and network exposure. Basic credential/log redaction is
 implemented, but cannot guarantee removal of every secret from arbitrary output.
 Complete audit trails and SSO remain separate server-readiness work. Do not
 publish the runner to the Internet on the strength of login alone.
+
+Saved controller connections are shared team resources. Admins alone may save,
+rotate or delete them; Operators may execute using any saved connection, while
+Viewers may only view metadata. Profile endpoints never return passwords. The
+Fernet-encrypted credential database and its separate encryption key live in the
+protected account directory. Keep the key out of Git and protect its backups
+separately. There are no per-profile user grants in this version.
