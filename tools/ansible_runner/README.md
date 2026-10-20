@@ -77,6 +77,16 @@ Restart the runner after this upgrade to create the saved-suites table.
 
 ## Persistent History
 
+### Catalyst Center Lookup Destinations
+
+Set `RUNNER_CATC_ALLOWED_HOSTS` on the server to a comma-separated list of
+approved Catalyst Center hostnames/IPs (optional explicit ports). `HOSTIP`, if
+configured by the administrator, is also approved. UI interface/port lookups
+cannot contact other hosts, follow redirects, or use environment HTTP proxies.
+These lookups verify TLS certificates: install the lab CA in the service's
+trust store, or set `SSL_CERT_FILE` to its PEM CA bundle. This restriction applies
+to backend lookups, not arbitrary Ansible workflows run by trusted Operators.
+
 Job metadata is stored in SQLite and output in protected JSON-lines log files.
 The default directory is `~/.local/share/catalystcenter-runner`, outside the Git
 checkout. Set `RUNNER_HISTORY_DIR` to a dedicated writable directory owned by the

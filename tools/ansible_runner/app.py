@@ -25,6 +25,7 @@ from urllib.parse import urlparse
 
 from flask import Flask, Response, jsonify, render_template, request, session, redirect, url_for, g
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import safe_join
 
 app = Flask(__name__, template_folder=str(Path(__file__).parent / "templates"),
             static_folder=str(Path(__file__).parent / "static"))
@@ -666,17 +667,29 @@ def _resolve_local_path(
     if not raw_path:
         return None
 
-    candidate = Path(raw_path).expanduser()
-    if not candidate.is_absolute():
-        candidate = (PROJECT_ROOT / candidate).resolve()
-    else:
-        candidate = candidate.resolve()
-
-    if not any(_is_within(candidate, root) for root in roots):
+    candidate = _confined_path(raw_path, roots, PROJECT_ROOT)
+    if candidate is None:
         return None
     if must_exist and not candidate.exists():
         return None
     return candidate
+
+
+def _confined_path(raw_path: str, roots: tuple[Path, ...], relative_root: Path) -> Path | None:
+    """Reject traversal before filesystem access, then check resolved symlinks."""
+    if not isinstance(raw_path, str) or "\x00" in raw_path:
+        return None
+    expanded = os.path.expanduser(raw_path)
+    absolute = os.path.abspath(os.path.join(str(relative_root), expanded))
+    for root in roots:
+        relative = os.path.relpath(absolute, root)
+        joined = safe_join(str(root), relative)
+        if joined is None:
+            continue
+        candidate = Path(joined).resolve()
+        if candidate.is_relative_to(root.resolve()):
+            return candidate
+    return None
 
 
 def _resolve_repo_path(raw_path: str | None, *, must_exist: bool = True) -> Path | None:
@@ -1015,13 +1028,8 @@ def _resolve_browse_target(root: Path, raw_path: str | None) -> tuple[Path | Non
     if not raw_path:
         return root, None
 
-    candidate = Path(raw_path).expanduser()
-    if not candidate.is_absolute():
-        candidate = (root / candidate).resolve()
-    else:
-        candidate = candidate.resolve()
-
-    if not _is_within(candidate, root):
+    candidate = _confined_path(raw_path, (root,), root)
+    if candidate is None:
         return None, None
 
     selected_file = candidate if candidate.is_file() else None
@@ -1069,6 +1077,34 @@ def _json_error(message: str, status: int = 400):
     return jsonify(error=message), status
 
 
+def _catc_base_url(connection: dict) -> str:
+    requested = str(connection.get("host") or os.environ.get("HOSTIP", "")).strip()
+    configured = os.environ.get("RUNNER_CATC_ALLOWED_HOSTS", "").split(",")
+    configured.append(os.environ.get("HOSTIP", ""))
+    for host in configured:
+        host = host.strip()
+        if not host or host.lower() != requested.lower():
+            continue
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.-]*(?::[0-9]{1,5})?", host):
+            raise ValueError("Invalid server-configured Catalyst Center host")
+        return "https://" + host
+    raise ValueError("Catalyst Center host is not approved by the server administrator")
+
+
+class _NoCatcRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise urllib.error.URLError("Catalyst Center redirects are disabled")
+
+
+def _catc_open(request):
+    opener = urllib.request.build_opener(
+        urllib.request.ProxyHandler({}),
+        urllib.request.HTTPSHandler(context=ssl.create_default_context()),
+        _NoCatcRedirect(),
+    )
+    return opener.open(request, timeout=30)
+
+
 def _catc_token(catalyst_connection: dict | None = None) -> str:
     """Return a Catalyst Center auth token without logging credentials."""
     connection = catalyst_connection or {}
@@ -1078,13 +1114,13 @@ def _catc_token(catalyst_connection: dict | None = None) -> str:
     if not host or not username or not password:
         raise RuntimeError("Catalyst Center credentials are not configured in the runner")
 
-    request = urllib.request.Request(f"https://{host}/dna/system/api/v1/auth/token", method="POST")
+    request = urllib.request.Request(_catc_base_url(connection) + "/dna/system/api/v1/auth/token", method="POST")
     credentials = f"{username}:{password}".encode("utf-8")
     import base64
 
     request.add_header("Authorization", "Basic " + base64.b64encode(credentials).decode("ascii"))
     request.add_header("Content-Type", "application/json")
-    with urllib.request.urlopen(request, context=ssl._create_unverified_context(), timeout=30) as response:
+    with _catc_open(request) as response:
         data = json.loads(response.read().decode("utf-8"))
     token = data.get("Token") or data.get("token")
     if not token:
@@ -1098,10 +1134,12 @@ def _catc_get(path: str, params: dict[str, str] | None = None, catalyst_connecti
     if not host:
         raise RuntimeError("HOSTIP is not configured in the runner")
     query = "?" + urllib.parse.urlencode(params) if params else ""
-    request = urllib.request.Request(f"https://{host}{path}{query}")
+    if not re.fullmatch(r"/dna/(?:intent|system)/api/v1/[A-Za-z0-9/_-]+", path):
+        raise ValueError("Invalid Catalyst Center API path")
+    request = urllib.request.Request(_catc_base_url(connection) + path + query)
     request.add_header("X-Auth-Token", _catc_token(connection))
     request.add_header("Content-Type", "application/json")
-    with urllib.request.urlopen(request, context=ssl._create_unverified_context(), timeout=30) as response:
+    with _catc_open(request) as response:
         return json.loads(response.read().decode("utf-8"))
 
 
@@ -1280,8 +1318,8 @@ def api_device_interfaces():
         )
     except urllib.error.HTTPError as exc:
         return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
-    except urllib.error.URLError as exc:
-        return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
+    except urllib.error.URLError:
+        return _json_error("Could not reach Catalyst Center. Check server connectivity and TLS trust.", 502)
     except Exception:
         app.logger.exception("Device interface lookup failed")
         return _json_error("Unable to retrieve device interfaces. Check the runner server log.", 500)
@@ -1342,8 +1380,8 @@ def api_host_port_assignments():
         )
     except urllib.error.HTTPError as exc:
         return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
-    except urllib.error.URLError as exc:
-        return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
+    except urllib.error.URLError:
+        return _json_error("Could not reach Catalyst Center. Check server connectivity and TLS trust.", 502)
     except Exception:
         app.logger.exception("Host port assignment lookup failed")
         return _json_error("Unable to retrieve port assignments. Check the runner server log.", 500)
