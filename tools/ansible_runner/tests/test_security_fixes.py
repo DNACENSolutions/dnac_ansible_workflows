@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 import unittest
 from unittest.mock import patch
@@ -11,6 +12,35 @@ runner = test_history.runner
 
 
 class SecurityFixTests(unittest.TestCase):
+    def test_catc_destination_must_come_from_server_allowlist(self):
+        with patch.dict(os.environ, {'RUNNER_CATC_ALLOWED_HOSTS': 'catc.example.test,10.195.243.100', 'HOSTIP': ''}):
+            self.assertEqual(runner._catc_base_url({'host': 'catc.example.test'}), 'https://catc.example.test')
+            for host in ('127.0.0.1', '169.254.169.254', 'catc.example.test@evil.test',
+                         'catc.example.test/other', 'evil.test', 'catc.example.test:443'):
+                with self.subTest(host=host), self.assertRaises(ValueError):
+                    runner._catc_base_url({'host': host})
+        with patch.dict(os.environ, {'RUNNER_CATC_ALLOWED_HOSTS': '', 'HOSTIP': ''}):
+            with self.assertRaises(ValueError):
+                runner._catc_base_url({'host': 'catc.example.test'})
+
+    def test_catc_redirects_and_invalid_paths_are_blocked(self):
+        with self.assertRaises(runner.urllib.error.URLError):
+            runner._NoCatcRedirect().redirect_request(None, None, 302, '', {}, 'https://evil.test')
+        with self.assertRaises(ValueError), patch.object(runner, '_catc_open') as opened:
+            runner._catc_get('//evil.test/path', catalyst_connection={'host': 'catc.example.test'})
+        opened.assert_not_called()
+
+    def test_confined_paths_block_escape_and_symlinks(self):
+        root = self.fixture.root / 'allowed'
+        root.mkdir()
+        outside = self.fixture.root / 'outside'
+        outside.mkdir()
+        (root / 'escape').symlink_to(outside, target_is_directory=True)
+        for value in ('../outside', str(outside), 'escape', '\x00bad'):
+            with self.subTest(value=value):
+                self.assertIsNone(runner._confined_path(value, (root,), root))
+        self.assertEqual(runner._confined_path('valid.yml', (root,), root), root.resolve() / 'valid.yml')
+
     def setUp(self):
         self.fixture = test_history.PersistentHistoryTests()
         self.fixture.setUp()
