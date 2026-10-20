@@ -80,12 +80,42 @@ Restart the runner after this upgrade to create the saved-suites table.
 ### Catalyst Center Lookup Destinations
 
 Set `RUNNER_CATC_ALLOWED_HOSTS` on the server to a comma-separated list of
-approved Catalyst Center hostnames/IPs (optional explicit ports). `HOSTIP`, if
-configured by the administrator, is also approved. UI interface/port lookups
+approved Catalyst Center hostnames/IPs (optional explicit ports). Admin-saved
+controller profiles and `HOSTIP`, if configured by the administrator, are also
+approved. UI interface/port lookups
 cannot contact other hosts, follow redirects, or use environment HTTP proxies.
 These lookups verify TLS certificates: install the lab CA in the service's
 trust store, or set `SSL_CERT_FILE` to its PEM CA bundle. This restriction applies
 to backend lookups, not arbitrary Ansible workflows run by trusted Operators.
+
+### Saved Controller Connections
+
+Admins can enter each target once under Run and click **Save connection**.
+Passwords are encrypted with Fernet in `controllers.sqlite3`, next to the runner
+account file. The encryption key is a separate `controllers.key` file; both files
+are mode 0600 within the protected authentication directory. Passwords are never
+returned by the profile API or saved in suite JSON/browser storage. The UI shows
+**Credential saved** and loads available connections again on login/reload.
+
+Connections are shared with this trusted team: Operators may execute against all
+saved connections, Viewers can see connection metadata but cannot execute, and
+only Admins may create/update/delete connections. Per-profile user grants are
+not implemented. Saving a profile approves its host for backend lookups; only
+approve known Catalyst Center destinations, not arbitrary user-supplied URLs.
+Certificate verification for backend lookups still requires trusted certificates.
+
+Each suite stores its selected profile ID. Save changed credentials before
+launching. Existing suites with matching name/host/username/TLS settings can use
+a saved connection without retyping its password; save the suite again to retain
+the ID explicitly. Deleted or changed connections fail before dispatch rather
+than falling back to another controller. Jobs already accepted retain the
+credentials resolved at submission, so deletion does not cancel running work.
+
+Protect and back up the key separately from the credential database. Losing it
+makes stored credentials unreadable; the runner will not silently regenerate a
+missing key while its credential database exists. Encryption does not protect
+against a compromised service account able to read both files. No server setup
+command is needed for key creation: the store is initialized on first use.
 
 Job metadata is stored in SQLite and output in protected JSON-lines log files.
 The default directory is `~/.local/share/catalystcenter-runner`, outside the Git

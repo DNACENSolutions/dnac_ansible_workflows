@@ -1315,11 +1315,60 @@
       return 'w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 ' + (extra || '');
     }
 
+    let savedControllerProfiles = [];
+
+    async function loadControllerProfiles() {
+      savedControllerProfiles = await fetchJson('/api/controller-profiles');
+      const body = $('multi-catc-target-rows');
+      if (savedControllerProfiles.length && !targetRows().some(isCompleteCatcTargetRow)) body.innerHTML = '';
+      savedControllerProfiles.forEach(function(profile) {
+        if (!targetRows().some(function(row) { return row.dataset.profileId === profile.profile_id; })) addCatcTargetRow(profile);
+      });
+    }
+
+    async function saveControllerProfile(button) {
+      const row = button.closest('tr');
+      const value = {};
+      ['name', 'host', 'username', 'password', 'verify'].forEach(function(field) {
+        const input = row.querySelector('[data-target-field="' + field + '"]');
+        value[field] = input ? input.value : '';
+      });
+      if (row.dataset.profileId) value.profile_id = row.dataset.profileId;
+      button.disabled = true;
+      try {
+        const profile = await fetchJson('/api/controller-profiles', {method: 'POST',
+          headers: {'Content-Type': 'application/json'}, body: JSON.stringify(value)});
+        savedControllerProfiles = savedControllerProfiles.filter(function(item) { return item.profile_id !== profile.profile_id; });
+        savedControllerProfiles.push(profile);
+        row.dataset.profileId = profile.profile_id;
+        row.querySelector('[data-target-field="password"]').value = '';
+        row.querySelector('[data-target-field="password"]').placeholder = 'Credential saved';
+        refreshRunPlanRows(); refreshRunSummary(); renderAutomationSuites();
+        showToast('Shared controller connection saved.');
+      } catch (error) { showToast(error.message); }
+      finally { button.disabled = false; }
+    }
+
+    async function deleteControllerProfile(button) {
+      const row = button.closest('tr');
+      const id = row.dataset.profileId;
+      if (!id || !confirm('Delete this shared controller connection? Suites using it will need another connection.')) return;
+      try {
+        await fetchJson('/api/controller-profiles/' + encodeURIComponent(id), {method: 'DELETE'});
+        savedControllerProfiles = savedControllerProfiles.filter(function(item) { return item.profile_id !== id; });
+        delete row.dataset.profileId;
+        row.querySelector('[data-target-field="password"]').placeholder = 'Password';
+        refreshRunPlanRows(); renderAutomationSuites();
+        showToast('Saved controller connection deleted.');
+      } catch (error) { showToast(error.message); }
+    }
+
     function addCatcTargetRow(values) {
       values = values || {};
       catcTargetCounter += 1;
       const row = document.createElement('tr');
       row.dataset.targetRow = String(catcTargetCounter);
+      if (values.profile_id) row.dataset.profileId = values.profile_id;
       const targetRefresh = 'renderCatcInputOverrideRows(); refreshRunPlanRows(); refreshRunSummary()';
       row.innerHTML = ''
         + '<td class="px-3 py-2"><input data-target-field="name" type="text" value="' + htmlEscape(values.name || '') + '" placeholder="CatC name" class="' + targetInputClass('min-w-[120px]') + '" oninput="' + targetRefresh + '"></td>'
@@ -1327,9 +1376,12 @@
         + '<td class="px-3 py-2"><input data-target-field="username" type="text" value="' + htmlEscape(values.username || '') + '" placeholder="Username" class="' + targetInputClass('min-w-[120px]') + '" oninput="' + targetRefresh + '"></td>'
         + '<td class="px-3 py-2"><input data-target-field="password" type="password" value="' + htmlEscape(values.password || '') + '" placeholder="Password" class="' + targetInputClass('min-w-[120px]') + '" oninput="' + targetRefresh + '"></td>'
         + '<td class="px-3 py-2"><select data-target-field="verify" class="' + targetInputClass('min-w-[100px]') + '" onchange="' + targetRefresh + '"><option value="">Default</option><option value="false">false</option><option value="true">true</option></select></td>'
-        + '<td class="px-3 py-2 text-right"><button type="button" onclick="removeCatcTargetRow(this)" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Remove</button></td>';
+        + '<td class="whitespace-nowrap px-3 py-2 text-right">'
+        + (window.runnerRole === 'admin' ? '<button type="button" onclick="saveControllerProfile(this)" class="whitespace-nowrap rounded border px-3 py-2 text-xs">Save connection</button><button type="button" onclick="deleteControllerProfile(this)" class="whitespace-nowrap rounded border px-3 py-2 text-xs">Delete saved</button>' : '')
+        + '<button type="button" onclick="removeCatcTargetRow(this)" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Remove</button></td>';
       $('multi-catc-target-rows').appendChild(row);
       row.querySelector('[data-target-field="verify"]').value = values.verify || '';
+      if (values.profile_id) row.querySelector('[data-target-field="password"]').placeholder = 'Credential saved';
       renderCatcInputOverrideRows();
       refreshRunPlanRows();
       refreshRunSummary();
@@ -1465,6 +1517,7 @@
         host: field('host'),
         username: field('username'),
         password: field('password'),
+        profile_id: row.dataset.profileId || '',
         verify: field('verify'),
       };
     }
@@ -1476,8 +1529,17 @@
         host: (target.host || '').trim(),
         username: (target.username || '').trim(),
         password: target.password || '',
+        profile_id: target.profile_id || '',
         verify: (target.verify || '').trim(),
       };
+      const saved = savedControllerProfiles.find(function(item) {
+        return normalized.profile_id ? item.profile_id === normalized.profile_id
+          : item.name === normalized.name && item.host === normalized.host && item.username === normalized.username && item.verify === normalized.verify;
+      });
+      if (saved && saved.host === normalized.host && saved.username === normalized.username && saved.verify === normalized.verify) {
+        normalized.profile_id = saved.profile_id;
+        normalized.credential_saved = true;
+      }
       return normalized.name && normalized.host && normalized.username ? normalized : null;
     }
 
@@ -1937,7 +1999,10 @@
         ['name', 'target', 'repo', 'workflow', 'playbook', 'vars', 'inventory'].forEach(function(key) { clean[key] = run[key] || ''; });
         const target = run.target_details || run.targetDetails;
         delete clean.targetDetails;
-        if (target) clean.target_details = {name: target.name || '', host: target.host || '', username: target.username || '', verify: target.verify || ''};
+        if (target) {
+          clean.target_details = {name: target.name || '', host: target.host || '', username: target.username || '', verify: target.verify || ''};
+          if (target.profile_id) clean.target_details.profile_id = target.profile_id;
+        }
         const repo = run.repo_details || run.repoDetails;
         if (repo && repo.source) {
           const source = {};
@@ -1994,6 +2059,10 @@
       }
 
       const runs = rows.map(runPlanRowValues);
+      if (runs.some(function(run) { return run.target_details && (!run.target_details.credential_saved || run.target_details.password); })) {
+        showToast('Save the controller connection before saving this suite. Ask an administrator if needed.');
+        return;
+      }
       const suites = loadAutomationSuites();
       const existingIndex = suites.findIndex(function(suite) {
         return activeSavedSuiteEdit ? suite.id === activeSavedSuiteEdit.id : (suite.can_edit && suite.name.toLowerCase() === name.toLowerCase());
@@ -2053,7 +2122,7 @@
       const runs = suite.runs || [];
       return runs.length && runs.every(function(run) {
         const target = suiteRunTarget(run);
-        return !!(run.workflow && run.playbook && run.vars && target && target.password && suiteRunRepoReady(run));
+        return !!(run.workflow && run.playbook && run.vars && target && (target.password || target.credential_saved) && suiteRunRepoReady(run));
       });
     }
 
@@ -2265,7 +2334,7 @@
       activeSavedSuiteEdit = suite.can_edit ? {id: suite.id, revision: suite.revision} : null;
       if (!suite.can_edit) $('suite-name').value = suite.name + ' copy';
       switchTab('run');
-      const credentialsMissing = (suite.runs || []).some(function(run) { const target = suiteRunTarget(run); return target && !target.password; });
+      const credentialsMissing = (suite.runs || []).some(function(run) { const target = suiteRunTarget(run); return target && !target.password && !target.credential_saved; });
       if (credentialsMissing) {
         $('multi-catc-panel').scrollIntoView({behavior: 'smooth', block: 'start'});
         const passwordInput = $('multi-catc-target-rows').querySelector('[data-target-field="password"]');
@@ -2323,6 +2392,7 @@
           host: target.host,
           username: target.username,
           password: target.password,
+          profile_id: target.profile_id || '',
           verify: target.verify,
         } : { enabled: false },
         ...runtimePayload(),
@@ -2877,6 +2947,7 @@
             host: target.host,
             username: target.username,
             password: target.password,
+            profile_id: target.profile_id || '',
             verify: target.verify,
           } : { enabled: false },
           ...runtimePayload(),
@@ -3983,6 +4054,7 @@
           host: field('host'),
           username: field('username'),
           password: field('password'),
+          profile_id: row.dataset.profileId || '',
           verify: field('verify'),
           vars_file: varsInput ? varsInput.value.trim() : '',
           inventory: inventoryInput ? inventoryInput.value.trim() : '',
@@ -4003,7 +4075,8 @@
       const missing = [];
       targets.forEach(function(target) {
         ['host', 'username', 'password'].forEach(function(field) {
-          if (!target[field]) missing.push(target.name + ' ' + field);
+          const normalized = normalizeCatcTargetDetails(target);
+          if (!target[field] && !(field === 'password' && normalized && normalized.credential_saved)) missing.push(target.name + ' ' + field);
         });
       });
       if (missing.length) throw new Error('Missing target fields: ' + missing.join(', '));
@@ -4170,6 +4243,7 @@
       updateSourceHint('run', 'inventory');
       setRunMode('plan');
       setRunTargetMode('multiple');
+      await loadControllerProfiles().catch(function(error) { showToast(error.message); });
       setSourceMode('run-vars', 'workflow');
       setSourceMode('run-inventory', 'default');
       setSourceMode('modal-vars', 'workflow');

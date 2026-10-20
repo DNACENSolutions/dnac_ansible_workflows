@@ -55,7 +55,7 @@ def main(argv=None):
     check('Checkout writable for input edits and Git cache', os.access(ROOT, os.W_OK | os.X_OK))
     check('Git executable', shutil.which('git') is not None)
     check('Ansible executable in the current Python environment', (Path(sys.executable).parent / 'ansible-playbook').is_file())
-    for module in ('flask', 'gunicorn', 'yamale', 'ansible', 'catalystcentersdk', 'sqlite3'):
+    for module in ('flask', 'gunicorn', 'yamale', 'ansible', 'catalystcentersdk', 'sqlite3', 'cryptography.fernet'):
         try:
             result = subprocess.run([sys.executable, '-c',
                                      'import importlib,sys; importlib.import_module(sys.argv[1])', module],
