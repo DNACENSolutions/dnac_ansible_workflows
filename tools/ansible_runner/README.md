@@ -166,6 +166,31 @@ not migrate those in-memory runs automatically.
 
 ## Input Files
 
+### Shared Git Repository Catalog
+
+Successful Add repo requests persist the URL, branch/ref, commit, cache ID and
+input file catalog in SQLite alongside job history. Every signed-in user loads
+the shared catalog from the server after login/reload. Only the selected repo ID
+is browser-session-specific; one person's selection does not switch another's.
+Admins fetch, refresh and remove shared entries; other users can select them.
+Repository URLs containing credentials, query strings or fragments are rejected.
+Private Git authentication remains a service-account configuration, not saved
+browser credentials.
+
+Adding an already registered repository/ref reuses the saved snapshot. Explicit
+Refresh creates a new snapshot and updates the catalog; old snapshots remain for
+existing suite/job references. Simultaneous requests for the same repository/ref
+return a conflict rather than launching duplicate clones. Failed refreshes leave
+the previous successful entry intact. Different branches/repos stay independent.
+These locks require the documented single-worker deployment.
+
+Remove unregisters a shared catalog entry after confirmation, but does not delete
+its cache directory or alter saved suites. Missing cache directories are shown as
+unavailable; an administrator can fetch them again. Cache cleanup/retention is
+not automatic. Back up both the SQLite database and `.runner_repos` directory.
+Repos fetched before this catalog feature must be added once after upgrading;
+the old cache alone did not record enough catalog metadata for automatic import.
+
 The runner accepts a separate inventory plus workflow vars, or a single vars
 file with a top-level `inventory` mapping. For a combined file, leave the
 Inventory selection empty ("From vars file"). For example:

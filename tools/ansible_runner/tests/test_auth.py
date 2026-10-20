@@ -43,6 +43,15 @@ class AuthenticationTests(unittest.TestCase):
         self.assertEqual(self.client.get('/').status_code, 503)
         self.assertEqual(self.client.get('/api/jobs').status_code, 503)
 
+    def test_login_and_setup_use_dashboard_branding(self):
+        for setup in (False, True):
+            if setup:
+                self.path.unlink()
+            response = self.client.get('/login')
+            self.assertIn('<header>Cisco Validated Playbook Dashboard</header>', response.text)
+            self.assertIn('<title>Sign In | Cisco Validated Playbook Dashboard</title>', response.text)
+            self.assertNotIn('Cisco Catalyst Center Workflow Runner', response.text)
+
     def test_unauthenticated_gets_no_jobs_or_logs(self):
         for path in ('/api/jobs', '/api/file?path=a.yml', '/api/run/a/stream', '/api/jobs/a/log'):
             self.assertEqual(self.client.get(path).status_code, 401)

@@ -3320,6 +3320,10 @@
 
     function setActiveGitRepository(repoId) {
       const repo = gitRepositories.find(function(item) { return item.id === repoId; });
+      if (repo && repo.available === false) {
+        showToast('Repository cache is missing. Ask an administrator to refresh it.');
+        return;
+      }
       if (!repo) {
         gitSource = null;
         gitVars = [];
@@ -3343,50 +3347,35 @@
         return;
       }
       sessionStorage.setItem(GIT_SOURCE_STORAGE_KEY, JSON.stringify({
-        repositories: gitRepositories,
         active_id: gitSource ? gitSource.id : '',
-        source: gitSource,
-        vars: gitVars,
-        inventories: gitInventories,
-        repo_url: '',
-        ref: $('git-ref').value.trim() || 'main',
       }));
     }
 
-    function restoreGitRepository() {
+    async function restoreGitRepository() {
+      let activeId = gitSource ? gitSource.id : '';
       try {
         localStorage.removeItem(GIT_SOURCE_STORAGE_KEY);
         const raw = sessionStorage.getItem(GIT_SOURCE_STORAGE_KEY);
-        if (!raw) return;
-        const state = JSON.parse(raw);
-        gitRepositories = state.repositories || [];
-        gitSource = state.source || null;
-        gitVars = state.vars || [];
-        gitInventories = state.inventories || [];
-        if (!gitRepositories.length && gitSource) {
-          gitRepositories = [{
-            id: gitSource.id,
-            name: repoDisplayName(gitSource),
-            source: gitSource,
-            vars: gitVars,
-            inventories: gitInventories,
-            fetched_at: '',
-          }];
-        }
-        if (state.active_id) {
-          const active = gitRepositories.find(function(repo) { return repo.id === state.active_id; });
-          if (active) {
-            gitSource = active.source;
-            gitVars = active.vars || [];
-            gitInventories = active.inventories || [];
-          }
-        }
-        $('git-repo-url').value = state.repo_url || '';
-        $('git-ref').value = state.ref || (gitSource && gitSource.ref) || 'main';
-        updateGitRepositoryView();
-        refreshInputRepoOptions();
+        if (raw) activeId = JSON.parse(raw).active_id || activeId;
       } catch (error) {
         sessionStorage.removeItem(GIT_SOURCE_STORAGE_KEY);
+      }
+      try {
+        gitRepositories = await fetchJson('/api/git/repositories');
+        const active = gitRepositories.find(function(repo) { return repo.id === activeId && repo.available !== false; });
+        gitSource = active ? active.source : null;
+        gitVars = active ? active.vars || [] : [];
+        gitInventories = active ? active.inventories || [] : [];
+        persistGitRepository();
+        updateGitRepositoryView();
+        refreshInputRepoOptions();
+        renderAutomationSuites();
+      } catch (error) {
+        gitRepositories = [];
+        gitSource = null; gitVars = []; gitInventories = [];
+        updateGitRepositoryView();
+        setGitStatus(error.message, true);
+        throw error;
       }
     }
 
@@ -3416,17 +3405,21 @@
           +   '<td class="px-3 py-3"><p class="max-w-[260px] truncate font-semibold text-slate-800">' + htmlEscape(repo.source.repo_url || '') + '</p><p class="mt-1 text-slate-500">' + htmlEscape(repo.source.commit || '') + '</p></td>'
           +   '<td class="px-3 py-3 font-semibold text-slate-800">' + htmlEscape(repo.source.ref || 'main') + '</td>'
           +   '<td class="px-3 py-3 font-semibold text-slate-800">' + (repo.vars || []).length + ' vars · ' + (repo.inventories || []).length + ' inventories</td>'
-          +   '<td class="px-3 py-3"><span class="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-700">Ready</span></td>'
+          +   '<td class="px-3 py-3"><span class="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-700">' + (repo.available === false ? 'Cache missing' : 'Ready') + '</span></td>'
           +   '<td class="px-3 py-3 text-right">'
           +     '<button type="button" data-git-action="use" data-git-repo="' + htmlEscape(repo.id) + '" class="mr-2 rounded-xl border border-cyan-600 bg-white px-3 py-2 text-xs font-bold text-cyan-700 transition hover:bg-cyan-50">' + (active ? 'Selected' : 'Use') + '</button>'
-          +     '<button type="button" data-git-action="refresh" data-git-repo="' + htmlEscape(repo.id) + '" class="mr-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100">Refresh</button>'
-          +     '<button type="button" data-git-action="remove" data-git-repo="' + htmlEscape(repo.id) + '" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Remove</button>'
+          +     (window.runnerRole === 'admin' ? '<button type="button" data-git-action="refresh" data-git-repo="' + htmlEscape(repo.id) + '" class="mr-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100">Refresh</button>'
+          +     '<button type="button" data-git-action="remove" data-git-repo="' + htmlEscape(repo.id) + '" class="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50">Remove</button>' : '')
           +   '</td>'
           + '</tr>';
       }).join('');
     }
 
-    function removeGitRepository(repoId) {
+    async function removeGitRepository(repoId) {
+      if (!confirm('Remove this repository from the shared catalog for everyone? Existing suite snapshots remain on disk.')) return;
+      try {
+        await fetchJson('/api/git/repositories/' + encodeURIComponent(repoId), {method: 'DELETE'});
+      } catch (error) { showToast(error.message); return; }
       gitRepositories = gitRepositories.filter(function(repo) { return repo.id !== repoId; });
       if (gitSource && gitSource.id === repoId) {
         const wasUsingGit = inputSource && inputSource.kind === 'git';
@@ -3450,7 +3443,6 @@
       gitSource = null;
       gitVars = [];
       gitInventories = [];
-      gitRepositories = [];
       localStorage.removeItem(GIT_SOURCE_STORAGE_KEY);
       sessionStorage.removeItem(GIT_SOURCE_STORAGE_KEY);
       updateGitRepositoryView();
@@ -3501,7 +3493,7 @@
         const data = await fetchJson('/api/git/fetch', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repo_url: repoUrl, ref: ref }),
+          body: JSON.stringify({ repo_url: repoUrl, ref: ref, refresh: !!preserveInputs }),
         });
         const record = gitRepositoryRecord(data);
         upsertGitRepository(record);
@@ -4254,7 +4246,7 @@
       refreshDashboardCards();
       refreshRunSummary();
       renderDashboardWorkflows();
-      restoreGitRepository();
+      await restoreGitRepository().catch(function(error) { showToast(error.message); });
       updateRunDefaultsSummary();
       checkEnvironment();
       const navigationEntry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];

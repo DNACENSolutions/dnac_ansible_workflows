@@ -52,13 +52,13 @@ _auth_lock = threading.Lock()
 _dummy_password_hash = generate_password_hash(secrets.token_urlsafe(32))
 _roles = {"viewer": 0, "operator": 1, "admin": 2}
 _read_endpoints = {"index", "job_detail", "api_workflows", "api_inventories", "api_environment",
-                   "api_jobs", "api_job", "api_job_log", "api_stream", "saved_suites_list", "controller_profiles_list"}
+                   "api_jobs", "api_job", "api_job_log", "api_stream", "saved_suites_list", "controller_profiles_list", "git_repositories_list"}
 _operator_endpoints = {"api_device_interfaces", "api_host_port_assignments", "api_fs",
                        "api_read_file", "api_validate", "api_run", "api_run_suites",
                        "api_run_suite", "api_run_batch", "api_cancel", "api_cancel_suite",
                        "api_delete_job", "api_delete_suite", "saved_suite_create", "saved_suite_update", "saved_suite_delete", "saved_suite_repo_catalog"}
 _admin_endpoints = {"api_git_fetch", "api_write_file", "api_environment_create", "api_environment_setup", "saved_suite_reorder",
-                    "controller_profile_save", "controller_profile_delete"}
+                    "controller_profile_save", "controller_profile_delete", "git_repository_remove"}
 
 _profile_lock = threading.RLock()
 
@@ -863,6 +863,73 @@ def _git_source_id() -> str:
     return f"repo_{uuid.uuid4().hex[:12]}"
 
 
+_repo_fetch_locks = {}
+
+
+def _repo_catalog_database():
+    connection = _suite_database()
+    connection.execute("CREATE TABLE IF NOT EXISTS git_repositories (id TEXT PRIMARY KEY, repo_url TEXT NOT NULL, ref TEXT NOT NULL, data TEXT NOT NULL, UNIQUE(repo_url, ref))")
+    connection.commit()
+    return connection
+
+
+def _registered_repo(repo_url, ref):
+    with _history_lock:
+        connection = _repo_catalog_database()
+        try:
+            row = connection.execute("SELECT data FROM git_repositories WHERE repo_url=? AND ref=?", (repo_url, ref)).fetchone()
+        finally:
+            connection.close()
+    return json.loads(row[0]) if row else None
+
+
+@app.get("/api/git/repositories")
+def git_repositories_list():
+    try:
+        with _history_lock:
+            connection = _repo_catalog_database()
+            try:
+                records = [json.loads(row[0]) for row in connection.execute("SELECT data FROM git_repositories ORDER BY repo_url, ref")]
+            finally:
+                connection.close()
+        for record in records:
+            root = _resolve_git_source(record["source"])
+            record["available"] = root is not None
+            if root is not None:
+                record["vars"] = _discover_repo_vars(root)
+                record["inventories"] = _discover_inventories(root)
+        return jsonify(records)
+    except (OSError, ValueError, sqlite3.Error):
+        app.logger.error("Unable to load shared repository catalog")
+        return _json_error("Shared repository catalog unavailable. Check server storage.", 503)
+
+
+@app.delete("/api/git/repositories/<source_id>")
+def git_repository_remove(source_id):
+    try:
+        with _history_lock:
+            connection = _repo_catalog_database()
+            try:
+                row = connection.execute("SELECT repo_url, ref FROM git_repositories WHERE id=?", (source_id,)).fetchone()
+                if row is None:
+                    return _json_error("Repository not found. Refresh the catalog.", 404)
+                lock = _repo_fetch_locks.setdefault(tuple(row), threading.Lock())
+                if not lock.acquire(blocking=False):
+                    return _json_error("Repository fetch is in progress. Retry after it finishes.", 409)
+                try:
+                    with connection:
+                        connection.execute("DELETE FROM git_repositories WHERE id=?", (source_id,))
+                finally:
+                    lock.release()
+            finally:
+                connection.close()
+        # Keep snapshots: existing suites/jobs may still reference these inputs.
+        return jsonify(removed=source_id)
+    except (OSError, sqlite3.Error):
+        app.logger.error("Unable to remove shared repository record")
+        return _json_error("Unable to remove repository. Check server storage.", 503)
+
+
 def _normalize_git_input(repo_url: str, ref: str) -> tuple[str, str]:
     """Accept common GitHub browser URLs and convert them to clone URLs."""
     cleaned_url = repo_url.strip()
@@ -1562,6 +1629,24 @@ def api_git_fetch():
     if validation_error:
         return _json_error(validation_error)
 
+    with _history_lock:
+        lock = _repo_fetch_locks.setdefault((repo_url, ref), threading.Lock())
+    if not lock.acquire(blocking=False):
+        return _json_error("This repository is already being fetched. Refresh the catalog after it finishes.", 409)
+    try:
+        saved = _registered_repo(repo_url, ref)
+        if saved and not data.get("refresh") and _resolve_git_source(saved["source"]) is not None:
+            return jsonify(ok=True, source=saved["source"], vars=saved["vars"], inventories=saved["inventories"])
+        return _fetch_git_snapshot(repo_url, ref)
+    except (OSError, ValueError, sqlite3.Error):
+        app.logger.error("Unable to fetch or register shared repository")
+        return _json_error("Unable to fetch or save repository. Check server storage and Git access.", 503)
+    finally:
+        lock.release()
+
+
+def _fetch_git_snapshot(repo_url, ref):
+
     source_id, target = _git_repo_cache_target()
     if not _is_within(target, GIT_REPOS_DIR.resolve()):
         return _json_error("Invalid repository target")
@@ -1613,12 +1698,18 @@ def api_git_fetch():
             "ref": ref,
             "commit": commit.stdout.strip() if commit.returncode == 0 else "",
         }
-        return jsonify(
-            ok=True,
-            source=source,
-            vars=_discover_repo_vars(target),
-            inventories=_discover_inventories(target),
-        )
+        record = dict(id=source_id, name=repo_url.rsplit("/", 1)[-1].removesuffix(".git"), source=source,
+                      vars=_discover_repo_vars(target), inventories=_discover_inventories(target),
+                      fetched_at=datetime.now(timezone.utc).isoformat())
+        with _history_lock:
+            connection = _repo_catalog_database()
+            try:
+                with connection:
+                    connection.execute("INSERT OR REPLACE INTO git_repositories VALUES (?, ?, ?, ?)",
+                                       (source_id, repo_url, ref, json.dumps(record)))
+            finally:
+                connection.close()
+        return jsonify(ok=True, source=source, vars=record["vars"], inventories=record["inventories"])
     except subprocess.TimeoutExpired:
         return _json_error("Git operation timed out", 500)
 
