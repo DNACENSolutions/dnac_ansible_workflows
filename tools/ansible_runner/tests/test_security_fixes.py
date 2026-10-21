@@ -163,9 +163,16 @@ class SecurityFixTests(unittest.TestCase):
         environment.filters['bool'] = bool
         for selector in ({'hostname': ['switch']}, {'serial_number': ['serial']}, {'site_hierarchy': 'Global/Lab'}):
             for task in readiness:
-                expression = environment.compile_expression(task['when'])
-                self.assertFalse(expression(network_devices_info_details=[selector]))
-                self.assertTrue(expression(network_devices_info_wait_for_readiness=True))
+                if task['name'] == 'Collect device IPs for inventory readiness checks':
+                    self.assertNotIn('when', task)
+                elif task['name'] == 'Require explicit device IPs for inventory readiness checks':
+                    expression = environment.compile_expression(task['when'])
+                    self.assertFalse(expression())
+                    self.assertTrue(expression(network_devices_info_wait_for_readiness=True))
+                else:
+                    expressions = [environment.compile_expression(value) for value in task['when']]
+                    self.assertFalse(all(expression(readiness_ips=[]) for expression in expressions))
+                    self.assertTrue(all(expression(readiness_ips=['192.0.2.1']) for expression in expressions))
 
 
 if __name__ == '__main__':

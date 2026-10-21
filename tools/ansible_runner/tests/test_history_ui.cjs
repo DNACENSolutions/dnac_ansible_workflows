@@ -23,6 +23,8 @@ const factory = new Function('window', 'fetchJson', 'refreshHistory', 'refreshDa
   await failing('play', 'abcdef01');
   assert.equal(toast, 'Forbidden');
   assert.ok(html.includes('job.can_delete'));
+  assert.ok(html.includes('Awaiting cleanup or permission'));
+  assert.ok(html.includes('Deletion requires the run owner or an administrator, and all suite processes must have stopped.'));
   assert.ok(html.includes("job.status === 'interrupted'"));
   console.log('PASS: confirmation, play/suite DELETE, refreshed counts and permission errors');
 })().catch(error => {console.error(error); process.exitCode = 1;});

@@ -1,0 +1,17 @@
+---
+- name: Validate inventory readiness polling controls
+  ansible.builtin.assert:
+    that:
+      - readiness_query.timeout | default(120) | int > 0
+      - readiness_query.retries | default(3) | int > 0
+      - readiness_query.interval | default(10) | int > 0
+    fail_msg: Inventory timeout, retries and interval must be positive.
+
+- name: Check each requested inventory device
+  ansible.builtin.include_tasks: wait_for_inventory_device.yml
+  loop: >-
+    {{ readiness_query.device_identifier | default([])
+       | map(attribute='ip_address', default=[]) | flatten | unique | list }}
+  loop_control:
+    loop_var: readiness_ip
+    label: "{{ readiness_ip }}"
