@@ -54,7 +54,6 @@
         long_op_start: "{{ now() }}"
 
     - name: Collect device IPs for inventory readiness checks
-      when: network_devices_info_wait_for_readiness | default(false) | bool
       ansible.builtin.set_fact:
         readiness_ips: >-
           {{
@@ -73,7 +72,9 @@
         fail_msg: "Readiness waiting is enabled. Provide device_identifier.ip_address, or disable network_devices_info_wait_for_readiness for hostname, serial or site queries."
 
     - name: Authenticate for inventory readiness checks
-      when: network_devices_info_wait_for_readiness | default(false) | bool
+      when:
+        - readiness_ips | length > 0
+        - network_devices_info_wait_for_readiness | default(true) | bool
       ansible.builtin.uri:
         url: >-
           https://{{ catalyst_center_login.catalystcenter_host }}:{{ catalyst_center_login.catalystcenter_port }}/dna/system/api/v1/auth/token
@@ -89,49 +90,18 @@
       no_log: true
 
     - name: Check inventory readiness before gathering device information
-      when: network_devices_info_wait_for_readiness | default(false) | bool
+      when:
+        - readiness_ips | length > 0
+        - network_devices_info_wait_for_readiness | default(true) | bool
       block:
-        - name: Wait for complete inventory collection
-          ansible.builtin.uri:
-            url: >-
-              https://{{ catalyst_center_login.catalystcenter_host }}:{{ catalyst_center_login.catalystcenter_port }}/dna/intent/api/v1/network-device?managementIpAddress={{ readiness_ip | urlencode }}
-            method: GET
-            headers:
-              X-Auth-Token: "{{ readiness_auth.json.Token }}"
-            validate_certs: "{{ catalyst_center_login.catalystcenter_verify | bool }}"
-            return_content: true
-            status_code: 200
-            timeout: 30
-          register: readiness_lookup
-          vars:
-            readiness_device: >-
-              {{
-                (readiness_lookup.json | default({})).response
-                | default([]) | first | default({})
-              }}
-          until:
-            - readiness_lookup.status | default(0) == 200
-            - >-
-              (readiness_lookup.json | default({})).response
-              | default([]) | length == 1
-            - readiness_device.managementIpAddress | default('') == readiness_ip
-            - readiness_device.collectionStatus | default('') == 'Managed'
-            - readiness_device.managementState | default('') == 'Managed'
-            - readiness_device.reachabilityStatus | default('') == 'Reachable'
-            - readiness_device.managedAtleastOnce | default(false) | bool
-            - readiness_device.deviceSupportLevel | default('') == 'Supported'
-            - readiness_device.serialNumber | default('', true) | length > 0
-            - readiness_device.platformId | default('', true) | length > 0
-            - >-
-              'code="SUCCESS"' in
-              (readiness_device.inventoryStatusDetail | default('', true))
-          retries: 60
-          delay: 15
-          loop: "{{ readiness_ips }}"
+        - name: Wait for each explicit IP query to be ready
+          ansible.builtin.include_tasks: tasks/wait_for_inventory.yml
+          loop: "{{ network_devices_info_details | map(attribute='network_devices') | flatten }}"
+          when: >-
+            readiness_query.device_identifier | default([])
+            | map(attribute='ip_address', default=[]) | flatten | length > 0
           loop_control:
-            loop_var: readiness_ip
-            label: "{{ readiness_ip }}"
-          no_log: true
+            loop_var: readiness_query
       rescue:
         - name: Stop when inventory readiness cannot be confirmed
           ansible.builtin.fail:

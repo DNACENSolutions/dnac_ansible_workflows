@@ -152,11 +152,14 @@ Deletion intent is saved before removing files. If storage permissions prevent
 cleanup, fix them and retry, or restart to resume the pending deletion. Job
 metadata is retained until file cleanup succeeds.
 
-The network devices information playbook preserves normal hostname, serial and
-site queries by default. For explicit IP queries that must wait for inventory
-readiness, add `-e '{"network_devices_info_wait_for_readiness":true}'` to the
-run's extra arguments. Keep this playbook control outside the schema-validated
-workflow vars file.
+The network devices information playbook automatically waits for inventory
+readiness for explicit IP queries, using each query's timeout, retries and
+interval (defaults: 120 seconds, 3 retries, 10 seconds). All requested IPs must
+be ready before information gathering starts. Timeout is checked after each
+response, so an in-flight request and polling delay can extend elapsed time.
+Hostname, serial and site queries retain their existing behavior. An explicit
+`network_devices_info_wait_for_readiness=false` remains available for diagnostic
+information-only IP lookups; onboarding suites should not disable readiness.
 
 Keep **one runner process** per history directory. Multiple workers/processes and
 automatic job resumption are not supported. Back up the SQLite database and logs

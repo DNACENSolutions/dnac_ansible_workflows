@@ -1,0 +1,53 @@
+---
+- name: Start inventory readiness timeout for this device
+  ansible.builtin.set_fact:
+    readiness_started: "{{ now(utc=true).timestamp() | float }}"
+
+- name: Wait for complete inventory collection
+  ansible.builtin.uri:
+    url: >-
+      https://{{ catalyst_center_login.catalystcenter_host }}:{{ catalyst_center_login.catalystcenter_port }}/dna/intent/api/v1/network-device?managementIpAddress={{ readiness_ip | urlencode }}
+    method: GET
+    headers:
+      X-Auth-Token: "{{ readiness_auth.json.Token }}"
+    validate_certs: "{{ catalyst_center_login.catalystcenter_verify | bool }}"
+    return_content: true
+    status_code: 200
+    timeout: "{{ [30, readiness_query.timeout | default(120) | int] | min }}"
+  register: readiness_lookup
+  vars:
+    readiness_device: "{{ ((readiness_lookup.json | default({})).response | default([], true) | first) | default({}) }}"
+    readiness_complete: >-
+      {{ readiness_lookup.status | default(0) == 200
+         and (readiness_lookup.json | default({})).response | default([], true) | length == 1
+         and readiness_device.managementIpAddress | default('') == readiness_ip
+         and readiness_device.collectionStatus | default('') == 'Managed'
+         and readiness_device.managementState | default('') == 'Managed'
+         and readiness_device.reachabilityStatus | default('') == 'Reachable'
+         and readiness_device.managedAtleastOnce | default(false) | bool
+         and readiness_device.deviceSupportLevel | default('') == 'Supported'
+         and readiness_device.serialNumber | default('', true) | length > 0
+         and readiness_device.platformId | default('', true) | length > 0
+         and 'code="SUCCESS"' in (readiness_device.inventoryStatusDetail | default('', true)) }}
+  until: >-
+    readiness_complete | bool or
+    now(utc=true).timestamp() | float - readiness_started | float >= readiness_query.timeout | default(120) | int
+  retries: "{{ readiness_query.retries | default(3) | int }}"
+  delay: "{{ readiness_query.interval | default(10) | int }}"
+  no_log: true
+
+- name: Require ready inventory before proceeding
+  ansible.builtin.assert:
+    that:
+      - readiness_lookup.status | default(0) == 200
+      - (readiness_lookup.json | default({})).response | default([], true) | length == 1
+      - readiness_lookup.json.response[0].managementIpAddress == readiness_ip
+      - readiness_lookup.json.response[0].collectionStatus | default('') == 'Managed'
+      - readiness_lookup.json.response[0].managementState | default('') == 'Managed'
+      - readiness_lookup.json.response[0].reachabilityStatus | default('') == 'Reachable'
+      - readiness_lookup.json.response[0].managedAtleastOnce | default(false) | bool
+      - readiness_lookup.json.response[0].deviceSupportLevel | default('') == 'Supported'
+      - readiness_lookup.json.response[0].serialNumber | default('', true) | length > 0
+      - readiness_lookup.json.response[0].platformId | default('', true) | length > 0
+      - "'code=\"SUCCESS\"' in (readiness_lookup.json.response[0].inventoryStatusDetail | default('', true))"
+    fail_msg: "Inventory readiness timed out for {{ readiness_ip }}. Subsequent workflow tasks have not started."
