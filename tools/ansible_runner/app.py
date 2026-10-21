@@ -387,8 +387,14 @@ def _history_metadata(metadata):
     allowed = {"kind", "batch_id", "suite_launch_id", "suite_name", "suite_run_index",
                "suite_run_total", "suite_failure_policy", "suite_launch_mode", "suite_plan",
                "suite_finished", "label", "workflow", "playbook", "inventory", "vars_file",
-               "inventory_embedded", "submitted_by"}
+               "inventory_embedded", "submitted_by", "vars_source", "inventory_source",
+               "catalyst_connection_host", "catalyst_connection_username",
+               "catalyst_connection_verify", "catalyst_connection_profile_id"}
     result = {key: value for key, value in metadata.items() if key in allowed}
+    for field in ("vars_source", "inventory_source"):
+        if field in result:
+            source = result[field] if isinstance(result[field], dict) else {}
+            result[field] = {key: source[key] for key in ("kind", "id") if key in source}
     if isinstance(result.get("suite_plan"), list):
         result["suite_plan"] = [{key: value for key, value in item.items()
                                  if key in {"index", "workflow", "playbook", "vars_file", "inventory", "inventory_embedded"}}
@@ -2083,6 +2089,7 @@ def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", targ
         "managed_venv": use_managed_venv,
         "venv_path": data.get("venv_path") or "",
         "catalyst_connection_enabled": bool(connection.get("enabled")),
+        "catalyst_connection_profile_id": str(connection.get("profile_id") or ""),
         "catalyst_connection_host": str(connection.get("host") or ""),
         "catalyst_connection_username": str(connection.get("username") or ""),
         "catalyst_connection_verify": str(connection.get("verify") or ""),

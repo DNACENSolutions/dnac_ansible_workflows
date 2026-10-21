@@ -174,6 +174,25 @@ class SecurityFixTests(unittest.TestCase):
                     self.assertFalse(all(expression(readiness_ips=[]) for expression in expressions))
                     self.assertTrue(all(expression(readiness_ips=['192.0.2.1']) for expression in expressions))
 
+    def test_retry_references_survive_restart_without_source_secrets(self):
+        job = self.fixture.add_job(status='failed')
+        job.metadata.update(workflow='provision', playbook='play.yml', vars_file='vars.yml',
+                            vars_source={'kind': 'git', 'id': 'repo_123', 'password': 'DO_NOT_STORE'},
+                            inventory_source={'kind': 'git', 'id': 'repo_123'},
+                            catalyst_connection_profile_id='profile-1',
+                            catalyst_connection_host='controller.test',
+                            catalyst_connection_username='operator',
+                            catalyst_connection_verify='true',
+                            catalyst_connection_password='DO_NOT_STORE')
+        runner._persist_job(job)
+        self.fixture.restart()
+        data = self.client.get('/api/jobs/abcdef01').get_json()
+        self.assertEqual(data['metadata']['vars_source'], {'kind': 'git', 'id': 'repo_123'})
+        self.assertEqual(data['metadata']['catalyst_connection_profile_id'], 'profile-1')
+        self.assertTrue(data['can_delete'])
+        self.assertNotIn('DO_NOT_STORE', json.dumps(data))
+        self.assertNotIn(b'DO_NOT_STORE', (self.fixture.root / 'history/history.sqlite3').read_bytes())
+
 
 if __name__ == '__main__':
     unittest.main()
