@@ -5402,7 +5402,57 @@
     }
 
     function deleteHistoryButton(job) {
-      return job.can_delete ? '<button type="button" onclick="deleteHistory(\'play\', &quot;' + htmlEscape(job.id) + '&quot;)" class="text-xs font-bold text-rose-700 underline">Delete play</button>' : '';
+      return job.can_delete ? (job.status === 'failed' ? '<button type="button" onclick="rerunHistoryPlay(&quot;' + htmlEscape(job.id) + '&quot;)" title="Load only this play for review; does not launch automatically" class="text-xs font-bold text-cyan-700 underline">Rerun play</button>' : '') + '<button type="button" onclick="deleteHistory(\'play\', &quot;' + htmlEscape(job.id) + '&quot;)" class="text-xs font-bold text-rose-700 underline">Delete play</button>' : '';
+    }
+
+    function historyRerunSuite(job, suites) {
+      if (job.status !== 'failed' || !job.can_delete) throw new Error('Only stopped failed plays owned by you, or accessible to an administrator, can be reloaded.');
+      const metadata = job.metadata || {};
+      let run;
+      if (metadata.vars_source) {
+        const source = metadata.vars_source;
+        const inventorySource = metadata.inventory_source || source;
+        if (metadata.inventory && (source.kind !== inventorySource.kind || source.id !== inventorySource.id)) {
+          throw new Error('This play uses separate input repositories. Select its vars and inventory manually in Run.');
+        }
+        run = {name: metadata.label || job.label, workflow: metadata.workflow,
+          playbook: metadata.playbook, vars: metadata.vars_file, inventory: metadata.inventory || '',
+          repo: source.kind === 'git' ? source.id : 'local-folder'};
+        if (source.kind === 'git') run.repo_details = {id: source.id, source: source};
+        if (metadata.catalyst_connection_host && metadata.catalyst_connection_username) {
+          run.target_details = {name: metadata.catalyst_connection_host,
+            host: metadata.catalyst_connection_host, username: metadata.catalyst_connection_username,
+            verify: metadata.catalyst_connection_verify || '', profile_id: metadata.catalyst_connection_profile_id || ''};
+        }
+      } else {
+        const matches = (suites || []).filter(function(suite) { return suite.name === metadata.suite_name; })
+          .flatMap(function(suite) { return suite.runs || []; }).filter(function(item) {
+            return item.workflow === metadata.workflow && item.playbook === metadata.playbook
+              && item.vars === metadata.vars_file && (item.inventory || '') === (metadata.inventory || '');
+          });
+        if (matches.length !== 1) throw new Error('This older run has no saved input source. Select the failed play manually in Run.');
+        run = JSON.parse(JSON.stringify(matches[0]));
+      }
+      if (!run.workflow || !run.playbook || !run.vars) throw new Error('Run settings are incomplete. Select the failed play manually in Run.');
+      return {name: (metadata.suite_name || job.label || 'Failed play') + ' retry', runs: [run]};
+    }
+
+    async function rerunHistoryPlay(id) {
+      if (!window.confirm('Load only this failed play into Run? Current run cards and unsaved editor changes will be replaced. Nothing starts until you validate and launch.')) return;
+      try {
+        const job = await fetchJson('/api/jobs/' + encodeURIComponent(id));
+        const suite = historyRerunSuite(job, loadAutomationSuites());
+        const run = suite.runs[0];
+        if (run.repo_details) {
+          const catalog = await fetchJson('/api/git/catalog?source_id=' + encodeURIComponent(run.repo_details.source.id));
+          run.repo_details.vars = catalog.vars;
+          run.repo_details.inventories = catalog.inventories;
+        }
+        populateRunPlanFromSuite(suite);
+        activeSavedSuiteEdit = null;
+        switchTab('run');
+        showToast('Failed play loaded. Review target, current input files and run options, then validate and launch. Extra arguments are not restored. The whole playbook will rerun.');
+      } catch (error) { showToast(error.message); }
     }
 
     async function refreshHistory() {

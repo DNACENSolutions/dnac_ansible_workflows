@@ -161,6 +161,14 @@ Hostname, serial and site queries retain their existing behavior. An explicit
 `network_devices_info_wait_for_readiness=false` remains available for diagnostic
 information-only IP lookups; onboarding suites should not disable readiness.
 
+Automation Assurance offers **Rerun play** for failed plays once their suite and
+processes have stopped, for the run owner or an administrator. It loads only
+that play into Run for review, validation and manual launch; it does not resume
+at the failed task. Original history remains unchanged. Review current input
+files and credentials, and re-enter any extra arguments, which are never saved.
+Older history uses a uniquely matching saved-suite entry when available;
+missing or ambiguous source information requires manual selection.
+
 Keep **one runner process** per history directory. Multiple workers/processes and
 automatic job resumption are not supported. Back up the SQLite database and logs
 together while the runner is stopped. Old runs held only in memory by a previous
