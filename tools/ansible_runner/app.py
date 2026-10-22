@@ -56,7 +56,7 @@ _read_endpoints = {"index", "job_detail", "api_workflows", "api_inventories", "a
 _operator_endpoints = {"api_device_interfaces", "api_host_port_assignments", "api_fs",
                        "api_read_file", "api_validate", "api_run", "api_run_suites",
                        "api_run_suite", "api_run_batch", "api_cancel", "api_cancel_suite",
-                       "api_delete_job", "api_delete_suite", "saved_suite_create", "saved_suite_update", "saved_suite_delete", "saved_suite_repo_catalog"}
+                       "api_delete_job", "api_delete_suite", "api_rerun_job", "saved_suite_create", "saved_suite_update", "saved_suite_delete", "saved_suite_repo_catalog"}
 _admin_endpoints = {"api_git_fetch", "api_write_file", "api_environment_create", "api_environment_setup", "saved_suite_reorder",
                     "controller_profile_save", "controller_profile_delete", "git_repository_remove"}
 
@@ -389,8 +389,11 @@ def _history_metadata(metadata):
                "suite_finished", "label", "workflow", "playbook", "inventory", "vars_file",
                "inventory_embedded", "submitted_by", "vars_source", "inventory_source",
                "catalyst_connection_host", "catalyst_connection_username",
-               "catalyst_connection_verify", "catalyst_connection_profile_id"}
+               "catalyst_connection_verify", "catalyst_connection_profile_id",
+               "catalyst_connection_enabled", "managed_venv", "venv_path", "verbosity",
+               "rerun_of", "rerun_job_id", "rerun_requires_options"}
     result = {key: value for key, value in metadata.items() if key in allowed}
+    result["rerun_requires_options"] = bool(metadata.get("extra_args") or metadata.get("rerun_requires_options"))
     for field in ("vars_source", "inventory_source"):
         if field in result:
             source = result[field] if isinstance(result[field], dict) else {}
@@ -2301,6 +2304,87 @@ def api_job(jid):
     data = job.details()
     data["can_delete"] = _can_delete(job)
     return jsonify(data)
+
+
+def _rerun_data(original):
+    metadata = original.metadata
+    if metadata.get("extra_args") or metadata.get("rerun_requires_options"):
+        raise ValueError("This play used extra arguments that are not retained. Launch it manually with the required options.")
+    data = {key: metadata.get(key, "") for key in ("workflow", "playbook", "vars_file", "inventory")}
+    connection = {"enabled": bool(metadata.get("catalyst_connection_enabled") or metadata.get("catalyst_connection_host")),
+                  "profile_id": metadata.get("catalyst_connection_profile_id", ""),
+                  **{field: metadata.get("catalyst_connection_" + field, "") for field in ("host", "username", "verify")}}
+    if metadata.get("vars_source"):
+        data["vars_source"] = metadata["vars_source"]
+        data["inventory_source"] = metadata.get("inventory_source") or metadata["vars_source"]
+    else:
+        # Older histories did not retain sources. Never guess a repository or target.
+        with _suite_database() as database:
+            suites = [json.loads(row[0]) for row in database.execute("SELECT data FROM saved_suites")]
+        matches = [run for suite in suites if suite.get("name") == metadata.get("suite_name")
+                   for run in suite.get("runs", [])
+                   if all(run.get(field, "") == metadata.get(key, "") for field, key in
+                          (("workflow", "workflow"), ("playbook", "playbook"), ("vars", "vars_file"), ("inventory", "inventory")))]
+        if len(matches) != 1:
+            raise ValueError("This older run has no unambiguous saved settings. Launch the play manually.")
+        run = matches[0]
+        repo = run.get("repo_details") or run.get("repoDetails") or {}
+        source = repo.get("source")
+        if not source and run.get("repo") not in ("local", "local-folder"):
+            raise ValueError("The original input repository is unavailable. Launch the play manually.")
+        data["vars_source"] = data["inventory_source"] = source or {"kind": "local"}
+        target = run.get("target_details") or run.get("targetDetails")
+        if run.get("target") and not target:
+            raise ValueError("The original controller reference is unavailable. Launch the play manually.")
+        connection = dict(target, enabled=True) if target else {"enabled": False}
+    if not data["playbook"] or not data["vars_file"]:
+        raise ValueError("The original play settings are incomplete. Launch the play manually.")
+    if connection.get("enabled"):
+        if not connection.get("profile_id"):
+            raise ValueError("Save the original Catalyst Center connection before rerunning this play.")
+        connection = _resolve_controller_reference(connection)
+    data.update(catalyst_connection=connection, label=original.label + " retry",
+                managed_venv=metadata.get("managed_venv", True),
+                venv_path=metadata.get("venv_path", ""), verbosity=metadata.get("verbosity", ""),
+                extra_args="", _submitted_by=_request_actor())
+    return data
+
+
+@app.post("/api/jobs/<jid>/rerun")
+def api_rerun_job(jid):
+    try:
+        with _jobs_lock:
+            original = _jobs.get(jid)
+            if original is None:
+                return _json_error("Not found", 404)
+            if not _can_delete(original):
+                return _json_error("Only the owner or an administrator can rerun a fully stopped play.", 403)
+            if original.status != "failed":
+                return _json_error("Only failed plays can be rerun.", 409)
+            existing = _jobs.get(original.metadata.get("rerun_job_id"))
+            if existing and existing.status in {"queued", "running"}:
+                return jsonify(job_id=existing.id, rerun_of=jid, existing=True)
+            data = _rerun_data(original)
+            job, result = _build_run_job(data, kind="rerun")
+            if job is None:
+                return _json_error(str(result), 409)
+            job.metadata["rerun_of"] = jid
+            _jobs[job.id] = job
+            _persist_job(job)
+            original.metadata["rerun_job_id"] = job.id
+            _persist_job(original)
+            try:
+                threading.Thread(target=_exec, args=(job,), daemon=True).start()
+            except Exception:
+                job.status, job.t1 = "failed", time.time()
+                _persist_job(job)
+                raise
+        return jsonify(job_id=job.id, rerun_of=jid), 202
+    except ValueError as error:
+        return _json_error(str(error), 409)
+    except Exception:
+        app.logger.error("Unable to rerun failed play")
+        return _json_error("Unable to rerun this play. Check saved settings and server storage.", 503)
 
 
 def _request_actor():

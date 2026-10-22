@@ -163,11 +163,16 @@ information-only IP lookups; onboarding suites should not disable readiness.
 
 Automation Assurance offers **Rerun play** for failed plays once their suite and
 processes have stopped, for the run owner or an administrator. It loads only
-that play into Run for review, validation and manual launch; it does not resume
-at the failed task. Original history remains unchanged. Review current input
-files and credentials, and re-enter any extra arguments, which are never saved.
+that play directly as a new standalone job with one click; it does not open Run,
+save a suite, or resume at the failed task. Original logs remain unchanged and
+the retry records its original job ID. Current input files at the recorded source
+paths and current credentials from the same saved controller profile are used.
+This also restarts destructive playbooks: clicking Rerun is an execution action.
+Missing files/profiles or changed controller identity block execution. Runs with
+extra arguments must be launched manually because those arguments are not stored.
 Older history uses a uniquely matching saved-suite entry when available;
-missing or ambiguous source information requires manual selection.
+missing or ambiguous source information blocks rerun. An active retry is reused
+on duplicate requests rather than launching another process.
 
 Keep **one runner process** per history directory. Multiple workers/processes and
 automatic job resumption are not supported. Back up the SQLite database and logs
