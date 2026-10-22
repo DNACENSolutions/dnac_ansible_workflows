@@ -13,7 +13,8 @@ service account that will run the application:
 python tools/ansible_runner/manage_users.py init admin
 ```
 
-Enter a unique password at the prompts (at least 12 characters). This creates
+Enter a unique password at the prompts (at least 5 characters). Use a long,
+unique password for shared deployments; the minimum is not a security recommendation. This creates
 `~/.config/catalystcenter-runner/users.json` with scrypt password hashes and a
 `secret.key`, both mode 0600. Keep these outside Git and protect backups.
 
