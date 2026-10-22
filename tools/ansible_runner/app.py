@@ -2,7 +2,6 @@
 """Ansible Workflow Runner backend."""
 
 import json
-import hashlib
 import os
 import re
 import shlex
@@ -10,25 +9,324 @@ import shutil
 import signal
 import ssl
 import subprocess
+import tempfile
 import threading
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
+import secrets
+import hashlib
+import sqlite3
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from urllib.parse import urlparse
 
-from flask import Flask, Response, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request, session, redirect, url_for, g
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import safe_join
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=str(Path(__file__).parent / "templates"),
+            static_folder=str(Path(__file__).parent / "static"))
+
+# Credentials live outside the checkout; missing configuration fails closed.
+AUTH_DIR = Path(os.environ.get("RUNNER_AUTH_DIR", Path.home() / ".config/catalystcenter-runner"))
+app.config.update(
+    RUNNER_USERS_FILE=os.environ.get("RUNNER_USERS_FILE", str(AUTH_DIR / "users.json")),
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.environ.get("RUNNER_COOKIE_SECURE", "true").lower() != "false",
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+    SESSION_REFRESH_EACH_REQUEST=False,
+)
+try:
+    app.secret_key = os.environ.get("RUNNER_SECRET_KEY") or (AUTH_DIR / "secret.key").read_text().strip()
+except OSError:
+    app.secret_key = None
+if app.secret_key and len(app.secret_key) < 32:
+    app.secret_key = None
+_auth_sessions = {}
+_auth_attempts = {}
+_auth_lock = threading.Lock()
+_dummy_password_hash = generate_password_hash(secrets.token_urlsafe(32))
+_roles = {"viewer": 0, "operator": 1, "admin": 2}
+_read_endpoints = {"index", "job_detail", "api_workflows", "api_inventories", "api_environment",
+                   "api_jobs", "api_job", "api_job_log", "api_stream", "saved_suites_list", "controller_profiles_list", "git_repositories_list"}
+_operator_endpoints = {"api_device_interfaces", "api_host_port_assignments", "api_fs",
+                       "api_read_file", "api_validate", "api_run", "api_run_suites",
+                       "api_run_suite", "api_run_batch", "api_cancel", "api_cancel_suite",
+                       "api_delete_job", "api_delete_suite", "api_rerun_job", "saved_suite_create", "saved_suite_update", "saved_suite_delete", "saved_suite_repo_catalog"}
+_admin_endpoints = {"api_git_fetch", "api_write_file", "api_environment_create", "api_environment_setup", "saved_suite_reorder",
+                    "controller_profile_save", "controller_profile_delete", "git_repository_remove"}
+
+_profile_lock = threading.RLock()
+
+
+def _profile_store():
+    from cryptography.fernet import Fernet
+
+    root = Path(app.config["RUNNER_USERS_FILE"]).parent
+    root.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if root.stat().st_uid != os.geteuid() or root.stat().st_mode & 0o077:
+        raise ValueError("Credential storage must be private and owned by the service account")
+    database = root / "controllers.sqlite3"
+    key = root / "controllers.key"
+    if not key.exists():
+        if database.exists():
+            raise ValueError("Credential encryption key is missing; restore it from backup")
+        fd = os.open(key, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(Fernet.generate_key())
+    if key.is_symlink() or key.stat().st_uid != os.geteuid() or key.stat().st_mode & 0o077:
+        raise ValueError("Credential encryption key permissions are unsafe")
+    cipher = Fernet(key.read_bytes())
+    if database.is_symlink():
+        raise ValueError("Credential database must not be a symbolic link")
+    fd = os.open(database, os.O_WRONLY | os.O_CREAT, 0o600)
+    os.close(fd)
+    if database.stat().st_uid != os.geteuid() or database.stat().st_mode & 0o077:
+        raise ValueError("Credential database permissions are unsafe")
+    connection = sqlite3.connect(database)
+    connection.execute("CREATE TABLE IF NOT EXISTS controllers (id TEXT PRIMARY KEY, data TEXT NOT NULL, secret BLOB NOT NULL)")
+    connection.commit()
+    return connection, cipher
+
+
+def _controller_public(row):
+    return dict(json.loads(row[1]), profile_id=row[0], credential_saved=True)
+
+
+@app.get("/api/controller-profiles")
+def controller_profiles_list():
+    try:
+        with _profile_lock:
+            connection, _ = _profile_store()
+            with connection:
+                rows = connection.execute("SELECT id, data FROM controllers ORDER BY id").fetchall()
+            connection.close()
+        return jsonify([_controller_public(row) for row in rows])
+    except Exception:
+        app.logger.error("Unable to access controller profile storage")
+        return jsonify(error="Controller profiles unavailable. Check protected credential storage."), 503
+
+
+@app.post("/api/controller-profiles")
+def controller_profile_save():
+    data = request.get_json(silent=True) or {}
+    try:
+        value = {}
+        for field in ("name", "host", "username", "verify"):
+            item = data.get(field, "")
+            if not isinstance(item, str) or len(item) > 256:
+                raise ValueError("Invalid controller field")
+            value[field] = item.strip()
+        if not all(value[field] for field in ("name", "host", "username")):
+            raise ValueError("Controller name, host and username are required")
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.-]*(?::[0-9]{1,5})?", value["host"]):
+            raise ValueError("Enter a hostname or IPv4 address with optional port, not a URL")
+        if value["verify"] not in ("", "true", "false"):
+            raise ValueError("Invalid TLS verification setting")
+        password = data.get("password", "")
+        if not isinstance(password, str) or len(password) > 4096:
+            raise ValueError("Invalid controller password")
+        pid = data.get("profile_id") or uuid.uuid4().hex
+        if not isinstance(pid, str) or not re.fullmatch(r"[a-f0-9]{32}", pid):
+            raise ValueError("Invalid controller profile ID")
+        with _profile_lock:
+            connection, cipher = _profile_store()
+            try:
+                previous = connection.execute("SELECT data, secret FROM controllers WHERE id=?", (pid,)).fetchone()
+                if data.get("profile_id") and previous is None:
+                    raise ValueError("Controller profile no longer exists")
+                if not password and (previous is None or any(
+                        json.loads(previous[0])[field] != value[field] for field in ("host", "username"))):
+                    raise ValueError("Enter a password for a new controller or changed host/username")
+                encrypted = cipher.encrypt(password.encode()) if password else previous[1]
+                with connection:
+                    connection.execute("INSERT OR REPLACE INTO controllers VALUES (?, ?, ?)",
+                                       (pid, json.dumps(value), encrypted))
+            finally:
+                connection.close()
+        return jsonify(dict(value, profile_id=pid, credential_saved=True))
+    except ValueError:
+        return jsonify(error="Unable to save connection. Check name, host, username and TLS setting; enter a password for a new or changed controller. Existing profile IDs must still exist. Storage and key permissions must be private."), 400
+    except Exception:
+        app.logger.error("Unable to save controller credentials")
+        return jsonify(error="Unable to save controller. Check protected credential storage."), 503
+
+
+@app.delete("/api/controller-profiles/<pid>")
+def controller_profile_delete(pid):
+    try:
+        with _profile_lock:
+            connection, _ = _profile_store()
+            with connection:
+                connection.execute("DELETE FROM controllers WHERE id=?", (pid,))
+            connection.close()
+        return jsonify(deleted=True)
+    except Exception:
+        app.logger.error("Unable to delete controller profile")
+        return jsonify(error="Unable to delete controller profile."), 503
+
+
+def _resolve_controller_reference(value):
+    if not isinstance(value, dict) or not value.get("profile_id"):
+        return value
+    if value.get("password"):
+        raise ValueError("Save changed credentials before using this connection")
+    with _profile_lock:
+        connection, cipher = _profile_store()
+        try:
+            row = connection.execute("SELECT id, data, secret FROM controllers WHERE id=?", (value["profile_id"],)).fetchone()
+        finally:
+            connection.close()
+    if row is None:
+        raise ValueError("Saved controller no longer exists. Select another controller.")
+    saved = _controller_public(row)
+    if any(value.get(field) is not None and value[field] != saved[field]
+           for field in ("host", "username", "verify")):
+        raise ValueError("Controller settings changed. Reload the saved connection before running.")
+    return dict(saved, enabled=True, password=cipher.decrypt(row[2]).decode())
+
+
+def resolve_controller_profiles():
+    # Authorize and resolve before dispatching work to threads without request context.
+    if not getattr(g, "runner_user", None) or request.endpoint not in {
+            "api_run", "api_run_suite", "api_run_suites", "api_run_batch",
+            "api_device_interfaces", "api_host_port_assignments"}:
+        return None
+    try:
+        def hydrate(data):
+            if not isinstance(data, dict):
+                return
+            if "catalyst_connection" in data:
+                data["catalyst_connection"] = _resolve_controller_reference(data["catalyst_connection"])
+            for run in data.get("runs", []) + data.get("suites", []):
+                hydrate(run)
+            for target in data.get("targets", []):
+                if isinstance(target, dict):
+                    target["connection"] = _resolve_controller_reference(target.get("connection") or target)
+        hydrate(request.get_json(silent=True) or {})
+    except Exception:
+        return jsonify(error="Saved controller unavailable or changed. Reload connections, or ask an administrator to check credentials."), 400
+
+
+def _accounts():
+    users = json.loads(Path(app.config["RUNNER_USERS_FILE"]).read_text())
+    if not isinstance(users, dict) or not users:
+        raise ValueError("Invalid account configuration")
+    for name, user in users.items():
+        if (not isinstance(user, dict) or user.get("role") not in _roles
+                or not isinstance(user.get("password_hash"), str)
+                or not user["password_hash"].startswith("scrypt:")
+                or not isinstance(user.get("enabled", True), bool)):
+            raise ValueError("Invalid account configuration")
+    return users
+
+
+@app.before_request
+def require_access():
+    if app.testing and app.config.get("RUNNER_TEST_AUTH_BYPASS", False):
+        return None
+    if request.endpoint == "static":
+        return None
+    try:
+        if not app.secret_key:
+            raise ValueError("Missing secret")
+        users = _accounts()
+    except (OSError, ValueError, TypeError):
+        if request.path.startswith("/api/"):
+            return jsonify(error="Login is not configured. Ask the administrator to initialize accounts."), 503
+        return render_template("login.html", setup=True), 503
+    if request.endpoint == "login" and request.method == "GET" and session.get("sid"):
+        with _auth_lock:
+            known_session = _auth_sessions.get(session["sid"])
+        if not known_session or known_session[2] < time.time():
+            session.clear()
+    session.setdefault("csrf", secrets.token_urlsafe(32))
+    if request.method not in {"GET", "HEAD", "OPTIONS"}:
+        token = request.headers.get("X-CSRF-Token", "") or request.form.get("csrf", "")
+        if not secrets.compare_digest(token, session["csrf"]):
+            return jsonify(error="Invalid or expired security token. Reload the page."), 403
+    if request.endpoint == "login":
+        return None
+    user = users.get(session.get("username"), {})
+    version = hashlib.sha256(user.get("password_hash", "").encode()).hexdigest()
+    with _auth_lock:
+        valid = _auth_sessions.get(session.get("sid"))
+    if not valid or valid[:2] != (session.get("username"), version) or valid[2] < time.time() or not user.get("enabled", True):
+        if session.get("username") or session.get("sid"):
+            session.clear()
+        if request.path.startswith("/api/"):
+            return jsonify(error="Sign in required."), 401
+        return redirect(url_for("login"))
+    g.runner_user = {"username": session["username"], "role": user["role"]}
+    if request.endpoint == "logout":
+        return None
+    required = (0 if request.endpoint in _read_endpoints else
+                1 if request.endpoint in _operator_endpoints else
+                2 if request.endpoint in _admin_endpoints else 99)
+    if _roles[user["role"]] < required:
+        return jsonify(error="Your account does not have permission for this action."), 403
+
+
+app.before_request(resolve_controller_profiles)
+
+
+@app.after_request
+def security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    if request.endpoint != "static":
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        key = request.remote_addr or "unknown"
+        now = time.monotonic()
+        with _auth_lock:
+            attempts = [stamp for stamp in _auth_attempts.get(key, []) if now - stamp < 300]
+            if len(attempts) >= 10:
+                return render_template("login.html", error="Too many attempts. Try again in five minutes."), 429
+            if len(_auth_attempts) > 10000:
+                _auth_attempts.clear()
+            _auth_attempts[key] = attempts + [now]
+        username = request.form.get("username", "").strip()
+        user = _accounts().get(username, {})
+        # Use the same expensive hash operation for unknown accounts.
+        password_hash = user.get("password_hash") or _dummy_password_hash
+        if check_password_hash(password_hash, request.form.get("password", "")) and user.get("enabled", True):
+            session.clear()
+            session.permanent = True
+            session.update(username=username, sid=secrets.token_urlsafe(32), csrf=secrets.token_urlsafe(32))
+            with _auth_lock:
+                expired = [sid for sid, value in _auth_sessions.items() if value[2] < time.time()]
+                for sid in expired:
+                    _auth_sessions.pop(sid, None)
+                _auth_sessions[session["sid"]] = (username, hashlib.sha256(password_hash.encode()).hexdigest(), time.time() + 28800)
+                _auth_attempts.pop(key, None)
+            return redirect(url_for("index"))
+        error = "Invalid username or password."
+    return render_template("login.html", error=error), (401 if error else 200)
+
+
+@app.post("/logout")
+def logout():
+    with _auth_lock:
+        _auth_sessions.pop(session.get("sid"), None)
+    session.clear()
+    return redirect(url_for("login"))
 
 # Project root is two levels up: tools/ansible_runner/app.py -> repo root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 WORKFLOWS_DIR = PROJECT_ROOT / "workflows"
 INVENTORY_DIR = PROJECT_ROOT / "inventory"
 GIT_REPOS_DIR = PROJECT_ROOT / ".runner_repos"
-GIT_ACTIVE_REPO_DIR = GIT_REPOS_DIR / "active"
 HOME_DIR = Path.home().resolve()
 YAML_SUFFIXES = {".yml", ".yaml"}
 VERBOSITY_FLAGS = {"", "-v", "-vv", "-vvv", "-vvvv"}
@@ -42,9 +340,172 @@ BROWSE_ROOTS = {
     "home": ("Home", HOME_DIR),
 }
 
-# In-memory job store (lost on restart — acceptable for a local tool)
+# Live process handles stay in memory; history and logs are durable.
 _jobs: dict[str, "Job"] = {}
 _jobs_lock = threading.Lock()
+_cancelled_suites: set[str] = set()
+_active_suites: set[str] = set()
+_history_lock = threading.RLock()
+_history_ready = None
+app.config["RUNNER_HISTORY_DIR"] = os.environ.get(
+    "RUNNER_HISTORY_DIR", str(Path.home() / ".local/share/catalystcenter-runner"))
+
+
+def _history_dir():
+    if app.testing and not app.config.get("RUNNER_TEST_HISTORY", False):
+        return None
+    return Path(app.config["RUNNER_HISTORY_DIR"]).expanduser().resolve()
+
+
+def _history_connection(root):
+    connection = sqlite3.connect(root / "history.sqlite3", timeout=30)
+    connection.execute("PRAGMA synchronous=FULL")
+    connection.execute("PRAGMA secure_delete=ON")
+    return connection
+
+
+_SECRET_KEY = re.compile(r"password|passwd|secret|token|community|private[_-]?key", re.I)
+_SECRET_ASSIGNMENT = re.compile(
+    r'''(["']?[\w.-]*(?:password|passwd|secret|token|community|private[_-]?key)[\w.-]*["']?\s*[:=]\s*)(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[^\r\n]*)''', re.I)
+
+
+def _credential_values(value):
+    found = set()
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if _SECRET_KEY.search(str(key)) and isinstance(item, str) and item:
+                found.add(item)
+            found.update(_credential_values(item))
+    elif isinstance(value, list):
+        for item in value:
+            found.update(_credential_values(item))
+    return found
+
+
+def _history_metadata(metadata):
+    # Never store execution credentials or arbitrary extra arguments in SQLite.
+    allowed = {"kind", "batch_id", "suite_launch_id", "suite_name", "suite_run_index",
+               "suite_run_total", "suite_failure_policy", "suite_launch_mode", "suite_plan",
+               "suite_finished", "label", "workflow", "playbook", "inventory", "vars_file",
+               "inventory_embedded", "submitted_by", "vars_source", "inventory_source",
+               "catalyst_connection_host", "catalyst_connection_username",
+               "catalyst_connection_verify", "catalyst_connection_profile_id",
+               "catalyst_connection_enabled", "managed_venv", "venv_path", "verbosity",
+               "rerun_of", "rerun_job_id", "rerun_requires_options"}
+    result = {key: value for key, value in metadata.items() if key in allowed}
+    result["rerun_requires_options"] = bool(metadata.get("extra_args") or metadata.get("rerun_requires_options"))
+    for field in ("vars_source", "inventory_source"):
+        if field in result:
+            source = result[field] if isinstance(result[field], dict) else {}
+            result[field] = {key: source[key] for key in ("kind", "id") if key in source}
+    if isinstance(result.get("suite_plan"), list):
+        result["suite_plan"] = [{key: value for key, value in item.items()
+                                 if key in {"index", "workflow", "playbook", "vars_file", "inventory", "inventory_embedded"}}
+                                for item in result["suite_plan"] if isinstance(item, dict)]
+    return result
+
+
+@app.before_request
+def load_history():
+    global _history_ready
+    root = _history_dir()
+    if root is None or _history_ready == root:
+        return None
+    try:
+        with _history_lock:
+            if _history_ready == root:
+                return None
+            if root in {Path(root.anchor), Path.home().resolve(), PROJECT_ROOT.resolve()}:
+                raise ValueError("History requires a dedicated directory")
+            root.mkdir(parents=True, exist_ok=True, mode=0o700)
+            root.chmod(0o700)
+            (root / "logs").mkdir(exist_ok=True, mode=0o700)
+            (root / "logs").chmod(0o700)
+            database = root / "history.sqlite3"
+            fd = os.open(database, os.O_CREAT | os.O_WRONLY, 0o600)
+            os.close(fd)
+            database.chmod(0o600)
+            with _history_connection(root) as connection:
+                connection.execute("CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, data TEXT NOT NULL)")
+                connection.execute("CREATE TABLE IF NOT EXISTS saved_suites (id TEXT PRIMARY KEY, owner TEXT NOT NULL, revision INTEGER NOT NULL, position INTEGER NOT NULL, data TEXT NOT NULL)")
+                connection.execute("CREATE TABLE IF NOT EXISTS history_deletions (id TEXT PRIMARY KEY, jobs TEXT NOT NULL)")
+            with _history_connection(root) as connection:
+                pending = connection.execute("SELECT id,jobs FROM history_deletions").fetchall()
+            for request_id, ids in pending:
+                _finish_history_deletion(root, request_id, json.loads(ids))
+            with _history_connection(root) as connection:
+                for jid, raw in connection.execute("SELECT id, data FROM jobs").fetchall():
+                    if not re.fullmatch(r"[a-f0-9]{8}", jid):
+                        raise ValueError("Invalid stored job identifier")
+                    data = json.loads(raw)
+                    metadata = data.get("metadata") or {}
+                    unfinished = data["status"] in {"queued", "running", "waiting"}
+                    suite_unfinished = metadata.get("suite_launch_id") and not metadata.get("suite_finished")
+                    if unfinished or suite_unfinished:
+                        if unfinished:
+                            data.update(status="interrupted", t1=time.time())
+                        metadata["suite_finished"] = True
+                        connection.execute("UPDATE jobs SET data=? WHERE id=?", (json.dumps(data), jid))
+                    job = Job(jid, [], data.get("cwd", ""), data.get("label", ""), metadata=metadata)
+                    job.status, job.rc = data["status"], data.get("rc")
+                    job.t0, job.t1 = data.get("t0"), data.get("t1")
+                    if job.status == "interrupted":
+                        job.recovered_pid = data.get("process_pid")
+                    log = root / "logs" / (jid + ".jsonl")
+                    if log.exists():
+                        needs_redaction = False
+                        with log.open() as stream:
+                            for line in stream:
+                                try:
+                                    original = json.loads(line)
+                                    sanitized = job.redact_output(original)
+                                    needs_redaction |= sanitized != original
+                                    job.lines.append(sanitized)
+                                except ValueError:
+                                    job.lines.append("*** Incomplete log record after interruption.\n")
+                                    needs_redaction = True
+                        if needs_redaction:
+                            _rewrite_redacted_log(log, job.lines)
+                    if unfinished:
+                        job.lines.append("*** Runner restarted; monitoring was interrupted. The playbook may still be running. Verify before retrying; it was not automatically resumed.\n")
+                    _jobs[jid] = job
+                # Unreferenced log files may remain after a crash during deletion.
+                for log in (root / "logs").glob("*.jsonl"):
+                    if log.stem not in _jobs:
+                        log.unlink()
+            _history_ready = root
+    except (OSError, ValueError, KeyError, TypeError, sqlite3.Error):
+        app.logger.exception("Unable to initialize persistent history")
+        return jsonify(error="Persistent history is unavailable. Check storage permissions and server logs."), 503
+
+
+def _persist_job(job):
+    root = _history_dir()
+    if root is None or job._deleted:
+        return
+    data = job.info()
+    data["cmd"] = ""  # Commands may embed secrets; history is not a replay queue.
+    data["metadata"] = _history_metadata(job.metadata)
+    pid = job.proc.pid if job.proc is not None else job.recovered_pid
+    data["process_pid"] = pid if isinstance(pid, int) else None
+    with _history_lock:
+        if job._deleted:
+            return
+        with _history_connection(root) as connection:
+            connection.execute("INSERT INTO jobs(id,data) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                               (job.id, json.dumps(data)))
+
+
+def _rewrite_redacted_log(path, lines):
+    descriptor, temporary = tempfile.mkstemp(prefix=".redact-", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "w") as stream:
+            for line in lines:
+                stream.write(json.dumps(line) + "\n")
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 # ---------------------------------------------------------------------------
@@ -69,6 +530,7 @@ class Job:
         self.label = label
         self.env_overrides = env_overrides or {}
         self.metadata = metadata or {}
+        self.embedded_inventory: dict | None = None
         self.status = "queued"
         self.lines: list[str] = []
         self.proc: subprocess.Popen | None = None
@@ -76,15 +538,67 @@ class Job:
         self.t1: float | None = None
         self.rc: int | None = None
         self._lock = threading.Lock()
+        self._deleted = False
+        self.recovered_pid = None
+        self.secret_values = _credential_values(self.env_overrides) | _credential_values(dict(os.environ))
+        self._private_key_output = False
+
+    def public_command(self):
+        # Extra arguments, interpreter overrides and inventory vars can contain secrets.
+        executable = Path(self.argv[0]).name if self.argv else "ansible-playbook"
+        return shlex.join([executable, str(self.metadata.get("playbook") or "<playbook>")])
+
+    def capture_input_secrets(self, paths=()):
+        import yaml
+        self.secret_values.update(_credential_values(dict(os.environ)))
+        for path in paths:
+            if path:
+                try:
+                    self.secret_values.update(_credential_values(yaml.safe_load(Path(path).read_text())))
+                except (OSError, ValueError, yaml.YAMLError):
+                    pass
+        for argument in self.argv:
+            try:
+                self.secret_values.update(_credential_values(yaml.safe_load(argument)))
+                for part in shlex.split(argument):
+                    key, separator, value = part.partition("=")
+                    if separator and value and _SECRET_KEY.search(key):
+                        self.secret_values.add(value)
+            except (ValueError, yaml.YAMLError):
+                pass
+
+    def redact_output(self, line):
+        if not isinstance(line, str):
+            return "[REDACTED invalid log record]\n"
+        if re.search(r"-----BEGIN (?:[A-Z ]*PRIVATE KEY)-----", line):
+            self._private_key_output = True
+        if self._private_key_output:
+            if re.search(r"-----END (?:[A-Z ]*PRIVATE KEY)-----", line):
+                self._private_key_output = False
+            return "[REDACTED private key]\n"
+        for secret in sorted(self.secret_values, key=len, reverse=True):
+            line = line.replace(secret, "[REDACTED]")
+        line = _SECRET_ASSIGNMENT.sub(lambda match: match.group(1) + '"[REDACTED]"', line)
+        line = re.sub(r"(?i)(Authorization\s*[:=]\s*)([^\r\n]+)", r"\1[REDACTED]", line)
+        return re.sub(r"([A-Za-z][A-Za-z0-9+.-]*://)[^/\s@]+@", r"\1[REDACTED]@", line)
 
     def put(self, line: str):
         with self._lock:
+            if self._deleted:
+                return
+            line = self.redact_output(line)
+            root = _history_dir()
+            if root is not None:
+                with _history_lock:
+                    with open(root / "logs" / (self.id + ".jsonl"), "a",
+                              opener=lambda p, f: os.open(p, f, 0o600)) as stream:
+                        stream.write(json.dumps(line) + "\n")
             self.lines.append(line)
 
     def info(self):
         return dict(
             id=self.id,
-            cmd=self.cmd,
+            cmd=self.public_command(),
             label=self.label,
             cwd=self.cwd,
             status=self.status,
@@ -92,7 +606,7 @@ class Job:
             t0=self.t0,
             t1=self.t1,
             n=len(self.lines),
-            metadata=self.metadata,
+            metadata={key: value for key, value in self.metadata.items() if key != "extra_args"},
         )
 
     def details(self):
@@ -105,34 +619,179 @@ class Job:
 
 def _exec(job: Job):
     """Execute ansible-playbook in a background thread."""
-    job.status = "running"
-    job.t0 = time.time()
+    with job._lock:
+        if job.status == "cancelled" or job.metadata.get("suite_launch_id") in _cancelled_suites:
+            job.status = "cancelled"
+            job.t1 = time.time()
+            _persist_job(job)
+            return
     env = os.environ.copy()
     env["ANSIBLE_FORCE_COLOR"] = "true"
     env["PYTHONUNBUFFERED"] = "1"
+    env.setdefault("OBJC_DISABLE_INITIALIZE_FORK_SAFETY", "YES")
+    env.setdefault("ANSIBLE_FORKS", "1")
     env.update(job.env_overrides)
+    inventory_workspace = None
     try:
-        job.proc = subprocess.Popen(
-            job.argv,
-            cwd=job.cwd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            preexec_fn=os.setsid,
-            env=env,
-        )
+        if job.embedded_inventory is not None:
+            import yaml
+
+            inventory_workspace = tempfile.TemporaryDirectory(prefix="runner-inventory-")
+            inventory_file = Path(inventory_workspace.name) / "hosts.yml"
+            with open(inventory_file, "x", opener=lambda path, flags: os.open(path, flags, 0o600)) as stream:
+                yaml.safe_dump(job.embedded_inventory, stream)
+            job.argv[job.argv.index("-i") + 1] = str(inventory_file)
+            job.cmd = shlex.join(job.argv)
+        # Serialize cancellation with process creation, including the queued state.
+        with job._lock:
+            if job.status == "cancelled" or job.metadata.get("suite_launch_id") in _cancelled_suites:
+                job.status = "cancelled"
+                return
+            job.proc = subprocess.Popen(
+                job.argv,
+                cwd=job.cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                start_new_session=True,
+                env=env,
+            )
+            job.status = "running"
+            job.t0 = time.time()
+            _persist_job(job)
         if job.proc.stdout is not None:
             for line in iter(job.proc.stdout.readline, ""):
                 job.put(line)
         job.proc.wait()
         job.rc = job.proc.returncode
-        job.status = "completed" if job.rc == 0 else "failed"
-    except Exception as exc:
-        job.put(f"\n*** Error: {exc}\n")
-        job.status = "failed"
+        with job._lock:
+            if job.status != "cancelled":
+                job.status = "completed" if job.rc == 0 else "failed"
+    except Exception:
+        app.logger.exception("Job execution failed")
+        job.put("\n*** Unable to execute playbook. Check the runner server log.\n")
+        with job._lock:
+            if job.status != "cancelled":
+                job.status = "failed"
     finally:
+        if job.proc is not None and job.proc.stdout is not None:
+            job.proc.stdout.close()
+        if inventory_workspace is not None:
+            inventory_workspace.cleanup()
         job.t1 = time.time()
+        _persist_job(job)
+
+
+def _exec_with_semaphore(job: Job, semaphore: threading.Semaphore):
+    with semaphore:
+        if job.status == "cancelled":
+            job.t1 = time.time()
+            _persist_job(job)
+            return
+        _exec(job)
+
+
+def _suite_failed_start_job(data: dict, message: str, *, kind: str = "automation-suite") -> Job:
+    jid = data.get("_reserved_job_id") or uuid.uuid4().hex[:8]
+    label = data.get("label") or f"Play {data.get('suite_run_index') or ''}".strip() or "Automation suite play"
+    metadata = {
+        "kind": kind,
+        "submitted_by": data.get("_submitted_by", ""),
+        "batch_id": "",
+        "suite_launch_id": data.get("suite_launch_id") or "",
+        "suite_name": data.get("suite_name") or "",
+        "suite_run_index": data.get("suite_run_index") or "",
+        "suite_run_total": data.get("suite_run_total") or "",
+        "suite_failure_policy": data.get("suite_failure_policy") or "",
+        "suite_launch_mode": data.get("suite_launch_mode") or "",
+        "suite_plan": data.get("suite_plan") if isinstance(data.get("suite_plan"), list) else [],
+        "label": label,
+        "workflow": data.get("workflow") or "",
+        "playbook": data.get("playbook") or "",
+        "inventory": data.get("inventory") or "",
+        "vars_file": data.get("vars_file") or "",
+        "vars_source": data.get("vars_source") or {},
+        "inventory_source": data.get("inventory_source") or {},
+        "extra_args": data.get("extra_args", ""),
+        "managed_venv": data.get("managed_venv", ""),
+        "venv_path": data.get("venv_path") or "",
+        "catalyst_connection_enabled": bool((data.get("catalyst_connection") or {}).get("enabled")),
+        "catalyst_connection_host": str((data.get("catalyst_connection") or {}).get("host") or ""),
+        "catalyst_connection_username": str((data.get("catalyst_connection") or {}).get("username") or ""),
+        "catalyst_connection_verify": str((data.get("catalyst_connection") or {}).get("verify") or ""),
+        "catalyst_connection_password_set": bool((data.get("catalyst_connection") or {}).get("password")),
+    }
+    job = Job(jid, ["suite-start-failed"], str(PROJECT_ROOT), label, {}, metadata)
+    job.status = "failed"
+    job.rc = 1
+    job.t0 = time.time()
+    job.t1 = job.t0
+    job.put(f"*** Failed to start suite play: {message}\n")
+    return job
+
+
+def _exec_suite_sequence(runs: list[dict], failure_policy: str):
+    try:
+        _exec_suite_sequence_inner(runs, failure_policy)
+    finally:
+        suite_ids = {run.get("suite_launch_id") for run in runs if run.get("suite_launch_id")}
+        with _jobs_lock:
+            for job in _jobs.values():
+                if job.metadata.get("suite_launch_id") in suite_ids:
+                    job.metadata["suite_finished"] = True
+                    if job.status == "queued":
+                        job.status = "cancelled" if job.metadata.get("suite_launch_id") in _cancelled_suites else "not-run"
+                        job.t1 = time.time()
+                    _persist_job(job)
+            _active_suites.difference_update(suite_ids)
+
+
+def _exec_suite_sequence_inner(runs: list[dict], failure_policy: str):
+    continue_on_failure = failure_policy == "continue"
+    for data in runs:
+        suite_id = data.get("suite_launch_id") or ""
+        if suite_id in _cancelled_suites:
+            break
+        reserved = _jobs.get(data.get("_reserved_job_id"))
+        if reserved is not None and reserved.status == "cancelled":
+            if not continue_on_failure:
+                break
+            continue
+        job, result = _build_run_job(data, kind=data.get("kind") or "automation-suite")
+        if job is None:
+            failed_job = _suite_failed_start_job(data, str(result))
+            _install_suite_job(failed_job)
+            if not continue_on_failure:
+                break
+            continue
+        job = _install_suite_job(job)
+        if job is None:
+            if not continue_on_failure:
+                break
+            continue
+        _exec(job)
+        if suite_id in _cancelled_suites:
+            break
+        if job.status != "completed" and not continue_on_failure:
+            break
+
+
+def _install_suite_job(prepared):
+    # Keep the registered object stable so in-flight cancellation keeps its lock/state.
+    with _jobs_lock:
+        reserved = _jobs.get(prepared.id)
+        if reserved is not None:
+            with reserved._lock:
+                if reserved.status == "cancelled" or reserved._deleted:
+                    return None
+                for name in ("argv", "cmd", "cwd", "label", "env_overrides", "metadata", "embedded_inventory",
+                             "status", "rc", "t0", "t1", "lines", "secret_values"):
+                    setattr(reserved, name, getattr(prepared, name))
+                prepared = reserved
+        _jobs[prepared.id] = prepared
+        _persist_job(prepared)
+        return prepared
 
 
 # ---------------------------------------------------------------------------
@@ -172,17 +831,29 @@ def _resolve_local_path(
     if not raw_path:
         return None
 
-    candidate = Path(raw_path).expanduser()
-    if not candidate.is_absolute():
-        candidate = (PROJECT_ROOT / candidate).resolve()
-    else:
-        candidate = candidate.resolve()
-
-    if not any(_is_within(candidate, root) for root in roots):
+    candidate = _confined_path(raw_path, roots, PROJECT_ROOT)
+    if candidate is None:
         return None
     if must_exist and not candidate.exists():
         return None
     return candidate
+
+
+def _confined_path(raw_path: str, roots: tuple[Path, ...], relative_root: Path) -> Path | None:
+    """Reject traversal before filesystem access, then check resolved symlinks."""
+    if not isinstance(raw_path, str) or "\x00" in raw_path:
+        return None
+    expanded = os.path.expanduser(raw_path)
+    absolute = os.path.abspath(os.path.join(str(relative_root), expanded))
+    for root in roots:
+        relative = os.path.relpath(absolute, root)
+        joined = safe_join(str(root), relative)
+        if joined is None:
+            continue
+        candidate = Path(joined).resolve()
+        if candidate.is_relative_to(root.resolve()):
+            return candidate
+    return None
 
 
 def _resolve_repo_path(raw_path: str | None, *, must_exist: bool = True) -> Path | None:
@@ -197,11 +868,75 @@ def _resolve_user_file(raw_path: str | None, *, must_exist: bool = True) -> Path
     )
 
 
-def _git_source_id(repo_url: str, ref: str) -> str:
-    name = repo_url.rstrip("/").removesuffix(".git").split("/")[-1] or "repo"
-    name = re.sub(r"[^A-Za-z0-9_.-]+", "_", name).strip("._") or "repo"
-    digest = hashlib.sha256(f"{repo_url}|{ref}".encode("utf-8")).hexdigest()[:12]
-    return f"{name}_{digest}"
+def _git_source_id() -> str:
+    return f"repo_{uuid.uuid4().hex[:12]}"
+
+
+_repo_fetch_locks = {}
+
+
+def _repo_catalog_database():
+    connection = _suite_database()
+    connection.execute("CREATE TABLE IF NOT EXISTS git_repositories (id TEXT PRIMARY KEY, repo_url TEXT NOT NULL, ref TEXT NOT NULL, data TEXT NOT NULL, UNIQUE(repo_url, ref))")
+    connection.commit()
+    return connection
+
+
+def _registered_repo(repo_url, ref):
+    with _history_lock:
+        connection = _repo_catalog_database()
+        try:
+            row = connection.execute("SELECT data FROM git_repositories WHERE repo_url=? AND ref=?", (repo_url, ref)).fetchone()
+        finally:
+            connection.close()
+    return json.loads(row[0]) if row else None
+
+
+@app.get("/api/git/repositories")
+def git_repositories_list():
+    try:
+        with _history_lock:
+            connection = _repo_catalog_database()
+            try:
+                records = [json.loads(row[0]) for row in connection.execute("SELECT data FROM git_repositories ORDER BY repo_url, ref")]
+            finally:
+                connection.close()
+        for record in records:
+            root = _resolve_git_source(record["source"])
+            record["available"] = root is not None
+            if root is not None:
+                record["vars"] = _discover_repo_vars(root)
+                record["inventories"] = _discover_inventories(root)
+        return jsonify(records)
+    except (OSError, ValueError, sqlite3.Error):
+        app.logger.error("Unable to load shared repository catalog")
+        return _json_error("Shared repository catalog unavailable. Check server storage.", 503)
+
+
+@app.delete("/api/git/repositories/<source_id>")
+def git_repository_remove(source_id):
+    try:
+        with _history_lock:
+            connection = _repo_catalog_database()
+            try:
+                row = connection.execute("SELECT repo_url, ref FROM git_repositories WHERE id=?", (source_id,)).fetchone()
+                if row is None:
+                    return _json_error("Repository not found. Refresh the catalog.", 404)
+                lock = _repo_fetch_locks.setdefault(tuple(row), threading.Lock())
+                if not lock.acquire(blocking=False):
+                    return _json_error("Repository fetch is in progress. Retry after it finishes.", 409)
+                try:
+                    with connection:
+                        connection.execute("DELETE FROM git_repositories WHERE id=?", (source_id,))
+                finally:
+                    lock.release()
+            finally:
+                connection.close()
+        # Keep snapshots: existing suites/jobs may still reference these inputs.
+        return jsonify(removed=source_id)
+    except (OSError, sqlite3.Error):
+        app.logger.error("Unable to remove shared repository record")
+        return _json_error("Unable to remove repository. Check server storage.", 503)
 
 
 def _normalize_git_input(repo_url: str, ref: str) -> tuple[str, str]:
@@ -228,16 +963,32 @@ def _validate_git_input(repo_url: str, ref: str) -> str | None:
     return None
 
 
+def _git_repo_cache_target() -> tuple[str, Path]:
+    source_id = _git_source_id()
+    target = (GIT_REPOS_DIR / source_id).resolve()
+    return source_id, target
+
+
+def _resolve_existing_git_repo_cache_dir(source_id: str) -> Path | None:
+    if not re.fullmatch(r"repo_[0-9a-f]{12}", source_id):
+        return None
+    cache_root = GIT_REPOS_DIR.resolve()
+    if not cache_root.exists():
+        return None
+    for child in cache_root.iterdir():
+        if child.name != source_id:
+            continue
+        source_root = child.resolve()
+        if _is_within(source_root, cache_root) and source_root.exists():
+            return source_root
+    return None
+
+
 def _resolve_git_source(source: dict | None) -> Path | None:
     if not source or source.get("kind") != "git":
         return PROJECT_ROOT.resolve()
     source_id = str(source.get("id") or "")
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+", source_id):
-        return None
-    source_root = GIT_ACTIVE_REPO_DIR.resolve()
-    if not _is_within(source_root, GIT_REPOS_DIR.resolve()) or not source_root.exists():
-        return None
-    return source_root
+    return _resolve_existing_git_repo_cache_dir(source_id)
 
 
 def _safe_relative_parts(raw_path: str) -> tuple[str, ...] | None:
@@ -279,8 +1030,12 @@ def _resolve_source_file(
 
     raw_path = raw_path.strip()
     if os.path.isabs(raw_path):
+        if source_root != PROJECT_ROOT.resolve():
+            candidate = _resolve_local_path(raw_path, roots=(source_root,), must_exist=must_exist)
+            return candidate if candidate and candidate.suffix.lower() in YAML_SUFFIXES else None
         if allow_user_file:
-            return _resolve_user_file(raw_path, must_exist=must_exist)
+            candidate = _resolve_user_file(raw_path, must_exist=must_exist)
+            return candidate if candidate and candidate.suffix.lower() in YAML_SUFFIXES else None
         return None
 
     source_candidate = _find_existing_relative_yaml(source_root, raw_path)
@@ -288,11 +1043,6 @@ def _resolve_source_file(
         return source_candidate
     if not must_exist:
         return None
-
-    if allow_project_fallback and source_root != PROJECT_ROOT.resolve():
-        project_candidate = _find_existing_relative_yaml(PROJECT_ROOT, raw_path)
-        if project_candidate and _is_within(project_candidate, PROJECT_ROOT.resolve()):
-            return project_candidate
 
     return None
 
@@ -329,11 +1079,16 @@ def _discover_repo_vars(root: Path) -> list[str]:
             continue
         lower_parts = [part.lower() for part in parts]
         lower_name = path.name.lower()
-        if "inventory" in lower_parts or lower_name.startswith("hosts."):
+        if lower_name.startswith("hosts.") or (lower_parts and lower_parts[0] == "inventory"):
             continue
         if "schema" in lower_parts or "playbook" in lower_parts:
             continue
-        if not ("vars" in lower_parts or "var" in lower_name or "input" in lower_name):
+        if not (
+            "vars" in lower_parts
+            or "var" in lower_name
+            or "input" in lower_name
+            or (len(lower_parts) >= 3 and lower_parts[0] == "data" and lower_name == "data.yml")
+        ):
             continue
         if _looks_like_playbook(path):
             continue
@@ -504,13 +1259,8 @@ def _resolve_browse_target(root: Path, raw_path: str | None) -> tuple[Path | Non
     if not raw_path:
         return root, None
 
-    candidate = Path(raw_path).expanduser()
-    if not candidate.is_absolute():
-        candidate = (root / candidate).resolve()
-    else:
-        candidate = candidate.resolve()
-
-    if not _is_within(candidate, root):
+    candidate = _confined_path(raw_path, (root,), root)
+    if candidate is None:
         return None, None
 
     selected_file = candidate if candidate.is_file() else None
@@ -558,6 +1308,42 @@ def _json_error(message: str, status: int = 400):
     return jsonify(error=message), status
 
 
+def _catc_base_url(connection: dict) -> str:
+    requested = str(connection.get("host") or os.environ.get("HOSTIP", "")).strip()
+    configured = os.environ.get("RUNNER_CATC_ALLOWED_HOSTS", "").split(",")
+    configured.append(os.environ.get("HOSTIP", ""))
+    # Only administrators can add profiles; stored hosts are approved destinations.
+    if (Path(app.config["RUNNER_USERS_FILE"]).parent / "controllers.sqlite3").exists():
+        with _profile_lock:
+            database, _ = _profile_store()
+            try:
+                configured.extend(json.loads(row[0])["host"] for row in database.execute("SELECT data FROM controllers"))
+            finally:
+                database.close()
+    for host in configured:
+        host = host.strip()
+        if not host or host.lower() != requested.lower():
+            continue
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.-]*(?::[0-9]{1,5})?", host):
+            raise ValueError("Invalid server-configured Catalyst Center host")
+        return "https://" + host
+    raise ValueError("Catalyst Center host is not approved by the server administrator")
+
+
+class _NoCatcRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise urllib.error.URLError("Catalyst Center redirects are disabled")
+
+
+def _catc_open(request):
+    opener = urllib.request.build_opener(
+        urllib.request.ProxyHandler({}),
+        urllib.request.HTTPSHandler(context=ssl.create_default_context()),
+        _NoCatcRedirect(),
+    )
+    return opener.open(request, timeout=30)
+
+
 def _catc_token(catalyst_connection: dict | None = None) -> str:
     """Return a Catalyst Center auth token without logging credentials."""
     connection = catalyst_connection or {}
@@ -567,13 +1353,13 @@ def _catc_token(catalyst_connection: dict | None = None) -> str:
     if not host or not username or not password:
         raise RuntimeError("Catalyst Center credentials are not configured in the runner")
 
-    request = urllib.request.Request(f"https://{host}/dna/system/api/v1/auth/token", method="POST")
+    request = urllib.request.Request(_catc_base_url(connection) + "/dna/system/api/v1/auth/token", method="POST")
     credentials = f"{username}:{password}".encode("utf-8")
     import base64
 
     request.add_header("Authorization", "Basic " + base64.b64encode(credentials).decode("ascii"))
     request.add_header("Content-Type", "application/json")
-    with urllib.request.urlopen(request, context=ssl._create_unverified_context(), timeout=30) as response:
+    with _catc_open(request) as response:
         data = json.loads(response.read().decode("utf-8"))
     token = data.get("Token") or data.get("token")
     if not token:
@@ -587,10 +1373,12 @@ def _catc_get(path: str, params: dict[str, str] | None = None, catalyst_connecti
     if not host:
         raise RuntimeError("HOSTIP is not configured in the runner")
     query = "?" + urllib.parse.urlencode(params) if params else ""
-    request = urllib.request.Request(f"https://{host}{path}{query}")
+    if not re.fullmatch(r"/dna/(?:intent|system)/api/v1/[A-Za-z0-9/_-]+", path):
+        raise ValueError("Invalid Catalyst Center API path")
+    request = urllib.request.Request(_catc_base_url(connection) + path + query)
     request.add_header("X-Auth-Token", _catc_token(connection))
     request.add_header("Content-Type", "application/json")
-    with urllib.request.urlopen(request, context=ssl._create_unverified_context(), timeout=30) as response:
+    with _catc_open(request) as response:
         return json.loads(response.read().decode("utf-8"))
 
 
@@ -769,10 +1557,11 @@ def api_device_interfaces():
         )
     except urllib.error.HTTPError as exc:
         return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
-    except urllib.error.URLError as exc:
-        return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
-    except Exception as exc:
-        return _json_error(str(exc), 500)
+    except urllib.error.URLError:
+        return _json_error("Could not reach Catalyst Center. Check server connectivity and TLS trust.", 502)
+    except Exception:
+        app.logger.exception("Device interface lookup failed")
+        return _json_error("Unable to retrieve device interfaces. Check the runner server log.", 500)
 
 
 @app.route("/api/host-port-assignments", methods=["GET", "POST"])
@@ -830,10 +1619,11 @@ def api_host_port_assignments():
         )
     except urllib.error.HTTPError as exc:
         return _json_error(f"Catalyst Center request failed with HTTP {exc.code}", 502)
-    except urllib.error.URLError as exc:
-        return _json_error(f"Could not reach Catalyst Center: {exc.reason}", 502)
-    except Exception as exc:
-        return _json_error(str(exc), 500)
+    except urllib.error.URLError:
+        return _json_error("Could not reach Catalyst Center. Check server connectivity and TLS trust.", 502)
+    except Exception:
+        app.logger.exception("Host port assignment lookup failed")
+        return _json_error("Unable to retrieve port assignments. Check the runner server log.", 500)
 
 
 @app.route("/api/git/fetch", methods=["POST"])
@@ -848,8 +1638,25 @@ def api_git_fetch():
     if validation_error:
         return _json_error(validation_error)
 
-    source_id = _git_source_id(repo_url, ref)
-    target = GIT_ACTIVE_REPO_DIR.resolve()
+    with _history_lock:
+        lock = _repo_fetch_locks.setdefault((repo_url, ref), threading.Lock())
+    if not lock.acquire(blocking=False):
+        return _json_error("This repository is already being fetched. Refresh the catalog after it finishes.", 409)
+    try:
+        saved = _registered_repo(repo_url, ref)
+        if saved and not data.get("refresh") and _resolve_git_source(saved["source"]) is not None:
+            return jsonify(ok=True, source=saved["source"], vars=saved["vars"], inventories=saved["inventories"])
+        return _fetch_git_snapshot(repo_url, ref)
+    except (OSError, ValueError, sqlite3.Error):
+        app.logger.error("Unable to fetch or register shared repository")
+        return _json_error("Unable to fetch or save repository. Check server storage and Git access.", 503)
+    finally:
+        lock.release()
+
+
+def _fetch_git_snapshot(repo_url, ref):
+
+    source_id, target = _git_repo_cache_target()
     if not _is_within(target, GIT_REPOS_DIR.resolve()):
         return _json_error("Invalid repository target")
 
@@ -900,12 +1707,18 @@ def api_git_fetch():
             "ref": ref,
             "commit": commit.stdout.strip() if commit.returncode == 0 else "",
         }
-        return jsonify(
-            ok=True,
-            source=source,
-            vars=_discover_repo_vars(target),
-            inventories=_discover_inventories(target),
-        )
+        record = dict(id=source_id, name=repo_url.rsplit("/", 1)[-1].removesuffix(".git"), source=source,
+                      vars=_discover_repo_vars(target), inventories=_discover_inventories(target),
+                      fetched_at=datetime.now(timezone.utc).isoformat())
+        with _history_lock:
+            connection = _repo_catalog_database()
+            try:
+                with connection:
+                    connection.execute("INSERT OR REPLACE INTO git_repositories VALUES (?, ?, ?, ?)",
+                                       (source_id, repo_url, ref, json.dumps(record)))
+            finally:
+                connection.close()
+        return jsonify(ok=True, source=source, vars=record["vars"], inventories=record["inventories"])
     except subprocess.TimeoutExpired:
         return _json_error("Git operation timed out", 500)
 
@@ -963,23 +1776,85 @@ def api_read_file():
         return _json_error("Access denied or file not found", 403)
     if not path.is_file():
         return _json_error("Not found", 404)
-    # codeql[py/path-injection] path is resolved through _resolve_source_file and must remain inside an allowed root.
-    return jsonify(path=_display_source_path(path, source_root), content=path.read_text(errors="replace"))
+    try:
+        # codeql[py/path-injection] The resolver confines YAML files to their selected source.
+        content = path.read_text(errors="replace")
+    except OSError:
+        app.logger.exception("Unable to read input file")
+        return _json_error("Unable to read input file. Check the runner server log.", 500)
+    return jsonify(path=_display_source_path(path, source_root), content=content)
 
 
 @app.route("/api/file", methods=["PUT"])
 def api_write_file():
     data = request.json or {}
+    if not isinstance(data.get("content", ""), str):
+        return _json_error("File content must be text")
     source_root = _resolve_git_source(data.get("source"))
     if source_root is None:
         return _json_error("Git source not found")
     path = _resolve_source_file(data.get("path"), source_root, must_exist=False, allow_user_file=True)
     if path is None:
         return _json_error("Access denied")
-    # codeql[py/path-injection] path is resolved through _resolve_source_file and must remain inside an allowed root.
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(data.get("content", ""))
+    try:
+        # codeql[py/path-injection] The resolver confines YAML files to their selected source.
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(data.get("content", ""))
+    except OSError:
+        app.logger.exception("Unable to save input file")
+        return _json_error("Unable to save input file. Check the runner server log.", 500)
     return jsonify(status="saved", path=_display_source_path(path, source_root))
+
+
+def _read_workflow_inputs(path: Path) -> dict:
+    import yaml
+
+    try:
+        values = yaml.safe_load(path.read_text())
+    except (yaml.YAMLError, UnicodeError) as exc:
+        raise ValueError("Vars file must contain valid YAML") from exc
+    if not isinstance(values, dict):
+        raise ValueError("Vars file must contain a YAML mapping")
+    return values
+
+
+def _embedded_inventory(values: dict) -> dict:
+    inventory = values.get("inventory")
+    if not isinstance(inventory, dict) or not inventory:
+        raise ValueError("Select an inventory file or add an inventory mapping to the vars file")
+    seen = set()
+
+    def check_group(group):
+        if not isinstance(group, dict) or id(group) in seen:
+            raise ValueError("Embedded inventory groups must be mappings without recursive aliases")
+        seen.add(id(group))
+        try:
+            if set(group) - {"hosts", "children", "vars"}:
+                raise ValueError("Embedded inventory groups support hosts, children, and vars")
+            for field in ("hosts", "children", "vars"):
+                if field in group and not isinstance(group[field], dict):
+                    raise ValueError("Embedded inventory hosts, children, and vars must be mappings")
+            hosts = group.get("hosts", {})
+            for name, host_vars in hosts.items():
+                if not isinstance(name, str) or not name.strip() or (host_vars is not None and not isinstance(host_vars, dict)):
+                    raise ValueError("Embedded inventory hosts require names and variable mappings")
+            count = len(hosts)
+            for name, child in group.get("children", {}).items():
+                if not isinstance(name, str) or not name.strip():
+                    raise ValueError("Embedded inventory groups require names")
+                count += check_group(child)
+            return count
+        finally:
+            seen.remove(id(group))
+
+    count = 0
+    for name, group in inventory.items():
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("Embedded inventory groups require names")
+        count += check_group(group)
+    if not count:
+        raise ValueError("Embedded inventory must contain at least one host")
+    return inventory
 
 
 @app.route("/api/validate", methods=["POST"])
@@ -1009,7 +1884,13 @@ def api_validate():
 
     try:
         schema = yamale.make_schema(str(schema_path))
-        payload = yamale.make_data(str(vars_path))
+        values = _read_workflow_inputs(vars_path)
+        if "inventory" in values:
+            _embedded_inventory(values)
+            values = {key: value for key, value in values.items() if key != "inventory"}
+        elif data.get("require_embedded_inventory"):
+            return jsonify(ok=False, out="Select an inventory file or add an inventory mapping to the vars file")
+        payload = [(values, str(vars_path))]
         yamale.validate(schema, payload)
         return jsonify(ok=True, out="Validation completed")
     except YamaleError as exc:
@@ -1018,8 +1899,17 @@ def api_validate():
             details.append(_display_path(Path(result.data)))
             details.extend(f"  - {error}" for error in result.errors)
         return jsonify(ok=False, out="\n".join(details))
-    except Exception as exc:
-        return _json_error(str(exc), 500)
+    except ValueError:
+        app.logger.exception("Invalid schema or workflow inputs")
+        return jsonify(
+            ok=False,
+            out="Invalid schema or workflow inputs. Ensure the vars file contains a valid YAML mapping "
+                "and select an inventory file or include a valid inventory mapping. "
+                "Check the runner server log for details.",
+        )
+    except Exception:
+        app.logger.exception("Schema validation failed unexpectedly")
+        return _json_error("Unable to validate inputs. Check the runner server log.", 500)
 
 
 @app.route("/api/environment")
@@ -1081,16 +1971,13 @@ def api_environment_setup():
     )
 
 
-@app.route("/api/run", methods=["POST"])
-def api_run():
-    data = request.json or {}
-
+def _build_run_job(data: dict, *, kind: str = "single", batch_id: str = "", target: dict | None = None) -> tuple[Job | None, dict | str]:
     vars_source = data.get("vars_source") or data.get("input_source") or data.get("source") or {"kind": "local"}
     inventory_source = data.get("inventory_source") or data.get("input_source") or data.get("source") or {"kind": "local"}
     vars_source_root = _resolve_git_source(vars_source)
     inventory_source_root = _resolve_git_source(inventory_source)
     if vars_source_root is None or inventory_source_root is None:
-        return _json_error("Git source not found")
+        return None, "Git source not found"
 
     playbook_path = _resolve_source_file(data.get("playbook"), PROJECT_ROOT, must_exist=True, allow_user_file=False)
     inventory_path = _resolve_source_file(
@@ -1113,18 +2000,18 @@ def api_run():
     verbosity = data.get("verbosity", "")
 
     if playbook_path is None:
-        return _json_error("Playbook not found")
-    if inventory_path is None:
-        return _json_error("Inventory file not found")
+        return None, "Playbook not found"
+    if inventory_path is None and data.get("inventory"):
+        return None, "Inventory file not found"
     if vars_path is None and data.get("vars_file"):
-        return _json_error("Vars file not found")
+        return None, "Vars file not found"
     if verbosity not in VERBOSITY_FLAGS:
-        return _json_error("Unsupported verbosity flag")
+        return None, "Unsupported verbosity flag"
 
     try:
         extra_args = shlex.split(data.get("extra_args", ""))
     except ValueError as exc:
-        return _json_error(f"Invalid extra arguments: {exc}")
+        return None, f"Invalid extra arguments: {exc}"
 
     use_managed_venv = data.get("managed_venv", True)
     venv_path = _resolve_venv(data.get("venv_path"), must_exist=False)
@@ -1133,14 +2020,23 @@ def api_run():
 
     if use_managed_venv:
         if venv_path is None:
-            return _json_error("Venv path must be inside the repository or your home directory")
+            return None, "Venv path must be inside the repository or your home directory"
         if not python_path or not python_path.exists():
-            return _json_error(f"Managed venv Python not found: {python_path}")
+            return None, f"Managed venv Python not found: {python_path}"
         if not ansible_playbook or not ansible_playbook.exists():
-            return _json_error(f"Managed venv ansible-playbook not found: {ansible_playbook}. Install dependencies first.")
+            return None, f"Managed venv ansible-playbook not found: {ansible_playbook}. Install dependencies first."
+
+    embedded_inventory = None
+    if inventory_path is None:
+        if vars_path is None:
+            return None, "Select an inventory file or a vars file containing inventory"
+        try:
+            embedded_inventory = _embedded_inventory(_read_workflow_inputs(vars_path))
+        except (ValueError, OSError) as exc:
+            return None, str(exc)
 
     executable = str(ansible_playbook) if use_managed_venv and ansible_playbook and ansible_playbook.exists() else "ansible-playbook"
-    argv = [executable, "-i", str(inventory_path), str(playbook_path)]
+    argv = [executable, "-i", str(inventory_path) if inventory_path else "<inventory from vars>", str(playbook_path)]
     if vars_path is not None:
         argv += ["--extra-vars", f"VARS_FILE_PATH={vars_path}"]
     if use_managed_venv and python_path and "ansible_python_interpreter" not in " ".join(extra_args):
@@ -1162,14 +2058,31 @@ def api_run():
         if connection.get("verify"):
             env_overrides["CATALYST_CENTER_VERIFY"] = str(connection["verify"])
 
-    jid = uuid.uuid4().hex[:8]
+    target_name = str((target or {}).get("name") or "").strip()
+    jid = data.get("_reserved_job_id") or uuid.uuid4().hex[:8]
     label = data.get("label") or playbook_path.stem
+    if target_name:
+        label = f"{label} · {target_name}"
     metadata = {
-        "kind": data.get("kind") or "single",
+        "kind": kind,
+        "batch_id": batch_id,
+        "submitted_by": data.get("_submitted_by", ""),
+        "suite_launch_id": data.get("suite_launch_id") or "",
+        "suite_name": data.get("suite_name") or "",
+        "suite_run_index": data.get("suite_run_index") or "",
+        "suite_run_total": data.get("suite_run_total") or "",
+        "suite_failure_policy": data.get("suite_failure_policy") or "",
+        "suite_launch_mode": data.get("suite_launch_mode") or "",
+        "suite_plan": data.get("suite_plan") if isinstance(data.get("suite_plan"), list) else [],
         "label": label,
+        "target": {
+            "name": target_name,
+            "host": str(connection.get("host") or ""),
+        } if target_name else {},
         "workflow": data.get("workflow") or "",
         "playbook": _display_source_path(playbook_path, PROJECT_ROOT),
-        "inventory": _display_source_path(inventory_path, inventory_source_root),
+        "inventory": _display_source_path(inventory_path, inventory_source_root) if inventory_path else "",
+        "inventory_embedded": embedded_inventory is not None,
         "vars_file": _display_source_path(vars_path, vars_source_root) if vars_path is not None else "",
         "source": {"kind": "local"},
         "vars_source": vars_source,
@@ -1179,16 +2092,128 @@ def api_run():
         "managed_venv": use_managed_venv,
         "venv_path": data.get("venv_path") or "",
         "catalyst_connection_enabled": bool(connection.get("enabled")),
+        "catalyst_connection_profile_id": str(connection.get("profile_id") or ""),
         "catalyst_connection_host": str(connection.get("host") or ""),
         "catalyst_connection_username": str(connection.get("username") or ""),
         "catalyst_connection_verify": str(connection.get("verify") or ""),
         "catalyst_connection_password_set": bool(connection.get("password")),
     }
     job = Job(jid, argv, str(PROJECT_ROOT), label, env_overrides, metadata)
+    job.embedded_inventory = embedded_inventory
+    job.capture_input_secrets((vars_path, inventory_path))
+    return job, {"command": job.public_command()}
+
+
+@app.route("/api/run", methods=["POST"])
+def api_run():
+    data = request.json or {}
+    data.pop("_reserved_job_id", None)
+    data["_submitted_by"] = _request_actor()
+    job, result = _build_run_job(data, kind=data.get("kind") or "single")
+    if job is None:
+        return _json_error(str(result))
     with _jobs_lock:
-        _jobs[jid] = job
+        _jobs[job.id] = job
+        _persist_job(job)
     threading.Thread(target=_exec, args=(job,), daemon=True).start()
-    return jsonify(job_id=jid, command=job.cmd)
+    return jsonify(job_id=job.id, command=job.public_command())
+
+
+def _exec_selected_suite_sequence(suites: list[dict], failure_policy: str):
+    # Complete every play in a suite before advancing to the next suite.
+    for suite in suites:
+        _exec_suite_sequence(suite["runs"], failure_policy)
+
+
+@app.route("/api/run/suites", methods=["POST"])
+def api_run_suites():
+    data = request.json or {}
+    suites = data.get("suites")
+    if not isinstance(suites, list) or not suites or any(
+        not isinstance(suite, dict)
+        or not isinstance(suite.get("runs"), list)
+        or not suite["runs"]
+        or any(not isinstance(run, dict) for run in suite["runs"])
+        for suite in suites
+    ):
+        return _json_error("Select suites with at least one valid play each")
+    failure_policy = "continue" if data.get("failure_policy") == "continue" else "stop"
+    for suite in suites:
+        _stamp_runs(suite["runs"])
+    threading.Thread(
+        target=_exec_selected_suite_sequence,
+        args=(suites, failure_policy),
+        daemon=True,
+    ).start()
+    return jsonify(accepted=len(suites), submitted=sum(len(suite["runs"]) for suite in suites))
+
+
+@app.route("/api/run/suite", methods=["POST"])
+def api_run_suite():
+    data = request.json or {}
+    runs = data.get("runs") or []
+    if not isinstance(runs, list) or not runs or any(not isinstance(run, dict) for run in runs):
+        return _json_error("Automation suite has no plays to launch")
+    failure_policy = "continue" if data.get("failure_policy") == "continue" else "stop"
+    _stamp_runs(runs)
+    threading.Thread(target=_exec_suite_sequence, args=(runs, failure_policy), daemon=True).start()
+    return jsonify(
+        suite_launch_id=runs[0]["suite_launch_id"],
+        submitted=len(runs),
+        failure_policy=failure_policy,
+    )
+
+
+@app.route("/api/run/batch", methods=["POST"])
+def api_run_batch():
+    data = request.json or {}
+    data.pop("_reserved_job_id", None)
+    data["_submitted_by"] = _request_actor()
+    targets = data.get("targets") or []
+    if not isinstance(targets, list) or not targets:
+        return _json_error("Select at least one Catalyst Center target")
+    try:
+        parallel_limit = max(1, min(8, int(data.get("parallel_limit") or 1)))
+    except (TypeError, ValueError):
+        return _json_error("Parallel limit must be a number from 1 to 8")
+
+    batch_id = uuid.uuid4().hex[:8]
+    jobs: list[Job] = []
+    for index, target in enumerate(targets, start=1):
+        if not isinstance(target, dict):
+            return _json_error("Invalid Catalyst Center target")
+        connection = target.get("connection") or {}
+        run_data = dict(data)
+        run_data["catalyst_connection"] = {
+            "enabled": True,
+            "host": connection.get("host") or target.get("host") or "",
+            "username": connection.get("username") or target.get("username") or "",
+            "password": connection.get("password") or target.get("password") or "",
+            "verify": connection.get("verify") if connection.get("verify") is not None else target.get("verify", ""),
+        }
+        if target.get("vars_file"):
+            run_data["vars_file"] = target.get("vars_file")
+        if target.get("inventory"):
+            run_data["inventory"] = target.get("inventory")
+        run_data["label"] = data.get("label") or f"Batch {batch_id}"
+
+        job, result = _build_run_job(run_data, kind="batch", batch_id=batch_id, target=target)
+        if job is None:
+            return _json_error(f"Target {index} ({target.get('name') or target.get('host') or 'unnamed'}): {result}")
+        jobs.append(job)
+
+    with _jobs_lock:
+        for job in jobs:
+            _jobs[job.id] = job
+            _persist_job(job)
+    semaphore = threading.Semaphore(parallel_limit)
+    for job in jobs:
+        threading.Thread(target=_exec_with_semaphore, args=(job, semaphore), daemon=True).start()
+
+    return jsonify(
+        batch_id=batch_id,
+        jobs=[{"job_id": job.id, "label": job.label, "command": job.public_command(), "metadata": job.info()["metadata"]} for job in jobs],
+    )
 
 
 @app.route("/api/run/<jid>/stream")
@@ -1210,7 +2235,7 @@ def api_stream(jid):
             for line in chunk:
                 yield f"data: {json.dumps(dict(t='o', l=line))}\n\n"
                 index += 1
-            if status in ("completed", "failed", "cancelled"):
+            if status in ("completed", "failed", "cancelled", "interrupted", "not-run"):
                 yield f"data: {json.dumps(dict(t='d', s=status, rc=job.rc))}\n\n"
                 break
             time.sleep(0.1)
@@ -1222,24 +2247,51 @@ def api_stream(jid):
     )
 
 
+def _cancel_job(job: Job) -> bool:
+    with job._lock:
+        if job.status not in ("queued", "running"):
+            return False
+        job.status = "cancelled"
+        job.t1 = time.time()
+        if job.proc:
+            try:
+                os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+        _persist_job(job)
+        return True
+
+
 @app.route("/api/run/<jid>/cancel", methods=["POST"])
 def api_cancel(jid):
     job = _jobs.get(jid)
     if not job:
         return _json_error("Not found", 404)
-    if job.proc and job.status == "running":
-        try:
-            os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM)
-        except ProcessLookupError:
-            pass
-        job.status = "cancelled"
+    _cancel_job(job)
     return jsonify(status=job.status)
+
+
+@app.route("/api/run/suite/<suite_id>/cancel", methods=["POST"])
+def api_cancel_suite(suite_id):
+    if not suite_id:
+        return _json_error("Missing suite id")
+    _cancelled_suites.add(suite_id)
+    cancelled: list[str] = []
+    with _jobs_lock:
+        suite_jobs = [
+            job for job in _jobs.values()
+            if (job.metadata or {}).get("suite_launch_id") == suite_id
+        ]
+    for job in suite_jobs:
+        if _cancel_job(job):
+            cancelled.append(job.id)
+    return jsonify(status="cancelled", suite_launch_id=suite_id, cancelled_jobs=cancelled)
 
 
 @app.route("/api/jobs")
 def api_jobs():
     with _jobs_lock:
-        out = [job.info() for job in _jobs.values()]
+        out = [_history_info(job) for job in _jobs.values()]
     out.sort(key=lambda item: item.get("t0") or 0, reverse=True)
     return jsonify(out)
 
@@ -1249,7 +2301,244 @@ def api_job(jid):
     job = _jobs.get(jid)
     if not job:
         return _json_error("Not found", 404)
-    return jsonify(job.details())
+    data = job.details()
+    data["can_delete"] = _can_delete(job)
+    return jsonify(data)
+
+
+def _rerun_data(original):
+    metadata = original.metadata
+    if metadata.get("extra_args") or metadata.get("rerun_requires_options"):
+        raise ValueError("This play used extra arguments that are not retained. Launch it manually with the required options.")
+    data = {key: metadata.get(key, "") for key in ("workflow", "playbook", "vars_file", "inventory")}
+    connection = {"enabled": bool(metadata.get("catalyst_connection_enabled") or metadata.get("catalyst_connection_host")),
+                  "profile_id": metadata.get("catalyst_connection_profile_id", ""),
+                  **{field: metadata.get("catalyst_connection_" + field, "") for field in ("host", "username", "verify")}}
+    if metadata.get("vars_source"):
+        data["vars_source"] = metadata["vars_source"]
+        data["inventory_source"] = metadata.get("inventory_source") or metadata["vars_source"]
+    else:
+        # Older histories did not retain sources. Never guess a repository or target.
+        with _suite_database() as database:
+            suites = [json.loads(row[0]) for row in database.execute("SELECT data FROM saved_suites")]
+        matches = [run for suite in suites if suite.get("name") == metadata.get("suite_name")
+                   for run in suite.get("runs", [])
+                   if all(run.get(field, "") == metadata.get(key, "") for field, key in
+                          (("workflow", "workflow"), ("playbook", "playbook"), ("vars", "vars_file"), ("inventory", "inventory")))]
+        if len(matches) != 1:
+            raise ValueError("This older run has no unambiguous saved settings. Launch the play manually.")
+        run = matches[0]
+        repo = run.get("repo_details") or run.get("repoDetails") or {}
+        source = repo.get("source")
+        if not source and run.get("repo") not in ("local", "local-folder"):
+            raise ValueError("The original input repository is unavailable. Launch the play manually.")
+        data["vars_source"] = data["inventory_source"] = source or {"kind": "local"}
+        target = run.get("target_details") or run.get("targetDetails")
+        if run.get("target") and not target:
+            raise ValueError("The original controller reference is unavailable. Launch the play manually.")
+        connection = dict(target, enabled=True) if target else {"enabled": False}
+    if not data["playbook"] or not data["vars_file"]:
+        raise ValueError("The original play settings are incomplete. Launch the play manually.")
+    if connection.get("enabled"):
+        if not connection.get("profile_id"):
+            raise ValueError("Save the original Catalyst Center connection before rerunning this play.")
+        connection = _resolve_controller_reference(connection)
+    data.update(catalyst_connection=connection, label=original.label + " retry",
+                managed_venv=metadata.get("managed_venv", True),
+                venv_path=metadata.get("venv_path", ""), verbosity=metadata.get("verbosity", ""),
+                extra_args="", _submitted_by=_request_actor())
+    return data
+
+
+@app.post("/api/jobs/<jid>/rerun")
+def api_rerun_job(jid):
+    try:
+        with _jobs_lock:
+            original = _jobs.get(jid)
+            if original is None:
+                return _json_error("Not found", 404)
+            if not _can_delete(original):
+                return _json_error("Only the owner or an administrator can rerun a fully stopped play.", 403)
+            if original.status != "failed":
+                return _json_error("Only failed plays can be rerun.", 409)
+            existing = _jobs.get(original.metadata.get("rerun_job_id"))
+            if existing and existing.status in {"queued", "running"}:
+                return jsonify(job_id=existing.id, rerun_of=jid, existing=True)
+            data = _rerun_data(original)
+            job, result = _build_run_job(data, kind="rerun")
+            if job is None:
+                return _json_error(str(result), 409)
+            job.metadata["rerun_of"] = jid
+            _jobs[job.id] = job
+            _persist_job(job)
+            original.metadata["rerun_job_id"] = job.id
+            _persist_job(original)
+            try:
+                threading.Thread(target=_exec, args=(job,), daemon=True).start()
+            except Exception:
+                job.status, job.t1 = "failed", time.time()
+                _persist_job(job)
+                raise
+        return jsonify(job_id=job.id, rerun_of=jid), 202
+    except ValueError as error:
+        return _json_error(str(error), 409)
+    except Exception:
+        app.logger.error("Unable to rerun failed play")
+        return _json_error("Unable to rerun this play. Check saved settings and server storage.", 503)
+
+
+def _request_actor():
+    return (getattr(g, "runner_user", None) or {}).get("username", "")
+
+
+def _stamp_runs(runs):
+    suite_id = uuid.uuid4().hex
+    plan = [{"index": index, **{key: run.get(key, "") for key in
+             ("workflow", "playbook", "vars_file", "inventory")}}
+            for index, run in enumerate(runs, start=1)]
+    with _jobs_lock:
+        for index, run in enumerate(runs, start=1):
+            run["_submitted_by"] = _request_actor()
+            run["suite_launch_id"] = run.get("suite_launch_id") or suite_id
+            run["_reserved_job_id"] = uuid.uuid4().hex[:8]
+            run["suite_run_index"] = run.get("suite_run_index") or index
+            run["suite_run_total"] = len(runs)
+            run["suite_plan"] = run.get("suite_plan") or plan
+            metadata = _history_metadata(dict(run, submitted_by=_request_actor()))
+            placeholder = Job(run["_reserved_job_id"], [], str(PROJECT_ROOT), run.get("label") or f"Play {index}", metadata=metadata)
+            _jobs[placeholder.id] = placeholder
+            _persist_job(placeholder)
+            _active_suites.add(run["suite_launch_id"])
+
+
+def _can_delete(job):
+    user = getattr(g, "runner_user", None) or {}
+    allowed = user.get("role") == "admin" or (
+        user.get("role") == "operator" and bool(user.get("username"))
+        and job.metadata.get("submitted_by") == user["username"])
+    suite_id = job.metadata.get("suite_launch_id")
+    suite_has_orphan = bool(suite_id and any(
+        other.metadata.get("suite_launch_id") == suite_id and _process_exists(other.recovered_pid)
+        for other in tuple(_jobs.values())))
+    return bool(allowed and job.status in {"completed", "failed", "cancelled", "interrupted", "not-run"}
+                and job.t1 is not None
+                and job.metadata.get("suite_launch_id") not in _active_suites
+                and not suite_has_orphan
+                and not _process_exists(job.recovered_pid)
+                and (job.proc is None or job.proc.poll() is not None))
+
+
+def _process_exists(pid):
+    if not isinstance(pid, int) or pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+
+
+def _history_info(job):
+    data = job.info()
+    data["can_delete"] = _can_delete(job)
+    return data
+
+
+def _remaining_suite_metadata(metadata, removed):
+    indices = {str(item.get("suite_run_index")) for item in removed}
+    updated = dict(metadata)
+    updated["suite_plan"] = [item for item in metadata.get("suite_plan", []) if str(item.get("index")) not in indices]
+    updated["suite_run_total"] = max(0, int(metadata.get("suite_run_total") or 0) - len(removed))
+    return updated
+
+
+def _finish_history_deletion(root, request_id, ids):
+    # The durable intent remains if file deletion or the final DB transaction fails.
+    # Recompute from current records so overlapping/retried requests never double-count.
+    if any(not isinstance(jid, str) or not re.fullmatch(r"[a-f0-9]{8}", jid) for jid in ids):
+        raise ValueError("Invalid pending deletion identifier")
+    with _history_connection(root) as connection:
+        rows = {jid: json.loads(raw) for jid, raw in connection.execute("SELECT id,data FROM jobs")}
+        removed = [data.get("metadata", {}) for jid, data in rows.items() if jid in ids]
+        updates = {}
+        for jid, data in rows.items():
+            if jid in ids:
+                continue
+            metadata = data.get("metadata", {})
+            matched = [item for item in removed if item.get("suite_launch_id")
+                       and item["suite_launch_id"] == metadata.get("suite_launch_id")]
+            if matched:
+                data["metadata"] = _remaining_suite_metadata(metadata, matched)
+                updates[jid] = data
+        for jid in ids:
+            (root / "logs" / (jid + ".jsonl")).unlink(missing_ok=True)
+        for jid, data in updates.items():
+            connection.execute("UPDATE jobs SET data=? WHERE id=?", (json.dumps(data), jid))
+        for jid in ids:
+            connection.execute("DELETE FROM jobs WHERE id=?", (jid,))
+        connection.execute("DELETE FROM history_deletions WHERE id=?", (request_id,))
+    return {jid: data["metadata"] for jid, data in updates.items()}
+
+
+def _delete_history(jobs):
+    # Caller holds _jobs_lock, excluding concurrent suite registration/deletion.
+    user = getattr(g, "runner_user", None) or {}
+    if any(user.get("role") != "admin" and job.metadata.get("submitted_by") != user.get("username")
+           for job in jobs):
+        return _json_error("You can only delete your own runs.", 403)
+    if any(not _can_delete(job) for job in jobs):
+        return _json_error("Stop the play and wait for its entire suite to finish before deleting history.", 409)
+    root = _history_dir()
+    deleted = {job.id for job in jobs}
+    with _history_lock:
+        if root is not None:
+            encoded = json.dumps(sorted(deleted))
+            request_id = hashlib.sha256(encoded.encode()).hexdigest()
+            with _history_connection(root) as connection:
+                connection.execute("INSERT OR IGNORE INTO history_deletions VALUES(?,?)", (request_id, encoded))
+            updates = _finish_history_deletion(root, request_id, sorted(deleted))
+        else:
+            updates = {}
+            for other in _jobs.values():
+                removed = [job.metadata for job in jobs if job.metadata.get("suite_launch_id")
+                           and job.metadata.get("suite_launch_id") == other.metadata.get("suite_launch_id")]
+                if other.id not in deleted and removed:
+                    updates[other.id] = _remaining_suite_metadata(other.metadata, removed)
+        for jid, metadata in updates.items():
+            if jid in _jobs:
+                _jobs[jid].metadata = metadata
+        for job in jobs:
+            job._deleted = True
+            _jobs.pop(job.id, None)
+    return jsonify(deleted=sorted(deleted))
+
+
+@app.delete("/api/jobs/<jid>")
+def api_delete_job(jid):
+    try:
+        with _jobs_lock:
+            job = _jobs.get(jid)
+            if job is None:
+                return _json_error("Not found", 404)
+            return _delete_history([job])
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to delete job history")
+        return _json_error("History deletion is pending. Fix storage permissions and retry, or restart to resume cleanup.", 503)
+
+
+@app.delete("/api/suites/<suite_id>")
+def api_delete_suite(suite_id):
+    try:
+        with _jobs_lock:
+            jobs = [job for job in _jobs.values() if job.metadata.get("suite_launch_id") == suite_id]
+            if not jobs:
+                return _json_error("Not found", 404)
+            return _delete_history(jobs)
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to delete suite history")
+        return _json_error("History deletion is pending. Fix storage permissions and retry, or restart to resume cleanup.", 503)
 
 
 @app.route("/api/jobs/<jid>/log")
@@ -1271,6 +2560,166 @@ def api_job_log(jid):
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+def _clean_saved_suite(payload):
+    if not isinstance(payload, dict):
+        raise ValueError("Suite must be an object")
+    name = payload.get("name")
+    runs = payload.get("runs")
+    if not isinstance(name, str) or not name.strip() or len(name) > 160:
+        raise ValueError("Suite name must contain 1-160 characters")
+    if not isinstance(runs, list) or not 1 <= len(runs) <= 100:
+        raise ValueError("A suite must contain 1-100 plays")
+
+    def strings(source, fields):
+        result = {}
+        for key in fields:
+            value = source.get(key, "")
+            if not isinstance(value, str) or len(value) > 2048:
+                raise ValueError("Invalid suite field: " + key)
+            result[key] = value
+        return result
+
+    cleaned = []
+    for run in runs:
+        if not isinstance(run, dict):
+            raise ValueError("Each play must be an object")
+        value = strings(run, ("name", "target", "repo", "workflow", "playbook", "vars", "inventory"))
+        target = run.get("target_details") or run.get("targetDetails")
+        if target:
+            if not isinstance(target, dict):
+                raise ValueError("Invalid controller reference")
+            value["target_details"] = strings(target, ("name", "host", "username", "verify", "profile_id"))
+        repo = run.get("repo_details") or run.get("repoDetails")
+        if repo:
+            if not isinstance(repo, dict) or not isinstance(repo.get("source"), dict):
+                raise ValueError("Invalid repository reference")
+            source = strings(repo["source"], ("kind", "id", "repo_url", "ref"))
+            url = urlparse(source["repo_url"])
+            if url.username or url.password or url.query or url.fragment:
+                raise ValueError("Repository URLs must not contain credentials, queries or fragments")
+            value["repo_details"] = {**strings(repo, ("id", "name")), "source": source}
+        cleaned.append(value)
+    return {"name": name.strip(), "runs": cleaned, "updatedAt": datetime.now(timezone.utc).isoformat()}
+
+
+def _suite_response(row):
+    sid, owner, revision, _, raw = row
+    user = getattr(g, "runner_user", None) or {}
+    editable = user.get("role") == "admin" or (user.get("role") == "operator" and owner == user.get("username"))
+    return dict(json.loads(raw), id=sid, owner=owner, revision=revision, can_edit=editable, can_delete=editable)
+
+
+def _suite_database():
+    root = _history_dir()
+    if root is None:
+        raise sqlite3.OperationalError("Persistent storage required")
+    return _history_connection(root)
+
+
+@app.get("/api/git/catalog")
+def saved_suite_repo_catalog():
+    root = _resolve_git_source({"kind": "git", "id": request.args.get("source_id", "")})
+    if root is None:
+        return _json_error("Input repository is unavailable. Ask an administrator to fetch it on this server.", 404)
+    return jsonify(vars=_discover_repo_vars(root), inventories=_discover_inventories(root))
+
+
+@app.get("/api/saved-suites")
+def saved_suites_list():
+    try:
+        with _history_lock, _suite_database() as connection:
+            return jsonify([_suite_response(row) for row in connection.execute(
+                "SELECT id,owner,revision,position,data FROM saved_suites ORDER BY position,id")])
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to read saved suites")
+        return _json_error("Shared suites are unavailable. Check server storage.", 503)
+
+
+@app.post("/api/saved-suites")
+def saved_suite_create():
+    try:
+        payload = request.get_json(silent=True)
+        suite = _clean_saved_suite(payload)
+        owner = _request_actor()
+        if not owner:
+            return _json_error("Sign in required", 401)
+        legacy = payload.get("legacy_id")
+        if legacy is not None and (not isinstance(legacy, str) or not 1 <= len(legacy) <= 160):
+            raise ValueError("Invalid browser import identifier")
+        sid = uuid.uuid5(uuid.NAMESPACE_URL, owner + ":browser-suite:" + legacy).hex if legacy else uuid.uuid4().hex
+        with _history_lock, _suite_database() as connection:
+            existing = connection.execute("SELECT id,owner,revision,position,data FROM saved_suites WHERE id=?", (sid,)).fetchone()
+            if existing:
+                return jsonify(_suite_response(existing))
+            position = connection.execute("SELECT COALESCE(MAX(position),-1)+1 FROM saved_suites").fetchone()[0]
+            raw = json.dumps(suite)
+            connection.execute("INSERT INTO saved_suites VALUES(?,?,1,?,?)", (sid, owner, position, raw))
+        return jsonify(_suite_response((sid, owner, 1, position, raw))), 201
+    except ValueError as error:
+        return _json_error(str(error))
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to save suite")
+        return _json_error("Unable to save shared suite. Check server storage.", 503)
+
+
+def _change_saved_suite(sid, delete=False):
+    try:
+        payload = request.get_json(silent=True) or {}
+        if not isinstance(payload, dict) or type(payload.get("revision")) is not int:
+            raise ValueError("A suite revision is required")
+        suite = None if delete else _clean_saved_suite(payload)
+        with _history_lock, _suite_database() as connection:
+            row = connection.execute("SELECT id,owner,revision,position,data FROM saved_suites WHERE id=?", (sid,)).fetchone()
+            if not row:
+                return _json_error("Saved suite not found", 404)
+            if not _suite_response(row)["can_edit"]:
+                return _json_error("Only the owner or an administrator can change this suite", 403)
+            if row[2] != payload["revision"]:
+                return _json_error("Suite changed in another session. Refresh before trying again.", 409)
+            if delete:
+                connection.execute("DELETE FROM saved_suites WHERE id=?", (sid,))
+                return jsonify(deleted=sid)
+            raw = json.dumps(suite)
+            connection.execute("UPDATE saved_suites SET data=?,revision=revision+1 WHERE id=?", (raw, sid))
+            return jsonify(_suite_response((sid, row[1], row[2] + 1, row[3], raw)))
+    except ValueError as error:
+        return _json_error(str(error))
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to change suite")
+        return _json_error("Unable to change shared suite. Check server storage.", 503)
+
+
+@app.put("/api/saved-suites/<sid>")
+def saved_suite_update(sid):
+    return _change_saved_suite(sid)
+
+
+@app.delete("/api/saved-suites/<sid>")
+def saved_suite_delete(sid):
+    return _change_saved_suite(sid, delete=True)
+
+
+@app.post("/api/saved-suites/order")
+def saved_suite_reorder():
+    payload = request.get_json(silent=True) or {}
+    items = payload.get("items") if isinstance(payload, dict) else None
+    if not isinstance(items, list) or any(not isinstance(item, dict) or not isinstance(item.get("id"), str) for item in items):
+        return _json_error("Invalid suite order")
+    try:
+        with _history_lock, _suite_database() as connection:
+            current = dict(connection.execute("SELECT id,revision FROM saved_suites"))
+            ids = [item.get("id") for item in items]
+            if len(ids) != len(set(ids)) or set(ids) != set(current) or any(
+                    type(item.get("revision")) is not int or current.get(item["id"]) != item["revision"] for item in items):
+                return _json_error("Suite list changed. Refresh before reordering.", 409)
+            for position, sid in enumerate(ids):
+                connection.execute("UPDATE saved_suites SET position=?,revision=revision+1 WHERE id=?", (position, sid))
+        return jsonify(ok=True)
+    except (OSError, sqlite3.Error):
+        app.logger.exception("Unable to reorder suites")
+        return _json_error("Unable to reorder shared suites.", 503)
+
+
 if __name__ == "__main__":
     host = os.environ.get("RUNNER_HOST", "127.0.0.1")
     port = int(os.environ.get("RUNNER_PORT", "5005"))
@@ -1279,4 +2728,4 @@ if __name__ == "__main__":
     print(f"  Workflows    : {WORKFLOWS_DIR}")
     print(f"  Inventory    : {INVENTORY_DIR}")
     print(f"  URL          : http://{host}:{port}\n")
-    app.run(host=host, port=port, debug=True, threaded=True)
+    app.run(host=host, port=port, debug=False, threaded=True)

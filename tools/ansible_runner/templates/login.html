@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="{{ url_for('static', filename='theme.js') }}"></script>
+<script defer src="{{ url_for('static', filename='account.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+<title>Sign In | Cisco Validated Playbook Dashboard</title>
+<style>
+body{margin:0;font:16px Arial,sans-serif;background:#f5f7fa;color:#17212b}header{background:#123456;color:white;padding:24px}main{max-width:360px;margin:64px auto;padding:24px}h1{font-size:24px}label{display:block;margin:20px 0 8px}input{box-sizing:border-box;width:100%;padding:12px;border:1px solid #8695a5;border-radius:4px;font:inherit}button{margin-top:24px;padding:12px;width:100%;background:#087e99;border:0;border-radius:4px;color:white;font:inherit;cursor:pointer}.error{color:#b42318} @media(max-width:440px){main{margin:24px 12px}}
+</style></head><body>{% include 'account.html' %}<header>Cisco Validated Playbook Dashboard</header><main>
+{% if setup %}<h1>Administrator Setup Required</h1><p>Login has not been configured. Ask the server administrator to initialize runner accounts.</p>
+{% else %}<h1>Sign In</h1>{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+<form method="post"><input type="hidden" name="csrf" value="{{ session.get('csrf', '') }}">
+<label for="username">Username</label><input id="username" name="username" autocomplete="username" required maxlength="64">
+<label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required>
+<button type="submit">Sign In</button></form>{% endif %}</main></body></html>
