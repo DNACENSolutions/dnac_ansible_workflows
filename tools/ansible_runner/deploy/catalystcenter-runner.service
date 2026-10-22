@@ -1,0 +1,36 @@
+[Unit]
+Description=Catalyst Center Ansible Workflow Runner
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=catalyst-runner
+Group=catalyst-runner
+WorkingDirectory=/srv/catalystcenter-runner/app
+EnvironmentFile=/etc/catalystcenter-runner/runner.env
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=HOME=/var/lib/catalystcenter-runner
+Environment=PATH=/srv/catalystcenter-runner/app/.venv312/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+StateDirectory=catalystcenter-runner
+StateDirectoryMode=0700
+RuntimeDirectory=catalystcenter-runner
+RuntimeDirectoryMode=0700
+ExecStartPre=/srv/catalystcenter-runner/app/.venv312/bin/python tools/ansible_runner/deploy/preflight.py
+ExecStart=/srv/catalystcenter-runner/app/.venv312/bin/gunicorn --config tools/ansible_runner/deploy/gunicorn.conf.py tools.ansible_runner.app:app
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=45
+KillMode=control-group
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/catalystcenter-runner/app /var/lib/catalystcenter-runner
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

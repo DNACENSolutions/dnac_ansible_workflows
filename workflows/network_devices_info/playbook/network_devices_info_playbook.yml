@@ -53,6 +53,65 @@
       set_fact:
         long_op_start: "{{ now() }}"
 
+    - name: Collect device IPs for inventory readiness checks
+      ansible.builtin.set_fact:
+        readiness_ips: >-
+          {{
+            network_devices_info_details
+            | map(attribute='network_devices') | flatten
+            | map(attribute='device_identifier', default=[]) | flatten
+            | map(attribute='ip_address', default=[]) | flatten
+            | unique | list
+          }}
+
+    - name: Require explicit device IPs for inventory readiness checks
+      when: network_devices_info_wait_for_readiness | default(false) | bool
+      ansible.builtin.assert:
+        that:
+          - readiness_ips | length > 0
+        fail_msg: "Readiness waiting is enabled. Provide device_identifier.ip_address, or disable network_devices_info_wait_for_readiness for hostname, serial or site queries."
+
+    - name: Authenticate for inventory readiness checks
+      when:
+        - readiness_ips | length > 0
+        - network_devices_info_wait_for_readiness | default(true) | bool
+      ansible.builtin.uri:
+        url: >-
+          https://{{ catalyst_center_login.catalystcenter_host }}:{{ catalyst_center_login.catalystcenter_port }}/dna/system/api/v1/auth/token
+        method: POST
+        url_username: "{{ catalyst_center_login.catalystcenter_username }}"
+        url_password: "{{ catalyst_center_login.catalystcenter_password }}"
+        force_basic_auth: true
+        validate_certs: "{{ catalyst_center_login.catalystcenter_verify | bool }}"
+        return_content: true
+        status_code: 200
+        timeout: 30
+      register: readiness_auth
+      no_log: true
+
+    - name: Check inventory readiness before gathering device information
+      when:
+        - readiness_ips | length > 0
+        - network_devices_info_wait_for_readiness | default(true) | bool
+      block:
+        - name: Wait for each explicit IP query to be ready
+          ansible.builtin.include_tasks: tasks/wait_for_inventory.yml
+          loop: "{{ network_devices_info_details | map(attribute='network_devices') | flatten }}"
+          when: >-
+            readiness_query.device_identifier | default([])
+            | map(attribute='ip_address', default=[]) | flatten | length > 0
+          loop_control:
+            loop_var: readiness_query
+      rescue:
+        - name: Stop when inventory readiness cannot be confirmed
+          ansible.builtin.fail:
+            msg: >-
+              Inventory readiness could not be confirmed for all requested IPs:
+              {{ readiness_ips | join(', ') }}. The readiness API failed or a
+              device did not become Managed, Reachable, Supported, fully
+              collected (SUCCESS), with serial and platform information.
+              Device information gathering has not started.
+
     - name: Gather network devices information from Cisco Catalyst Center
       cisco.catalystcenter.network_devices_info_workflow_manager:
         <<: *catalyst_center_login
