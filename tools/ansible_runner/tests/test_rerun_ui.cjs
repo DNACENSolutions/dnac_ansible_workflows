@@ -2,54 +2,38 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const html = fs.readFileSync(path.join(__dirname, '../templates/index.html'), 'utf8');
-function source(name) {
-  const start = html.indexOf('    ' + name);
-  assert.ok(start >= 0);
-  return html.slice(start, html.indexOf('\n    }', start) + 6);
-}
-const build = new Function(source('function historyRerunSuite(') + '; return historyRerunSuite;')();
-const job = {id: 'abcdef01', status: 'failed', can_delete: true, metadata: {
-  suite_name: 'Refresh', workflow: 'edge', playbook: 'cleanup.yml', vars_file: 'vars.yml',
-  inventory: 'hosts.yml', vars_source: {kind: 'git', id: 'repo_1'},
-  inventory_source: {id: 'repo_1', kind: 'git'}, catalyst_connection_profile_id: 'profile-1',
-  catalyst_connection_host: 'controller.test', catalyst_connection_username: 'admin',
-  catalyst_connection_verify: 'true'}};
-const suite = build(job, []);
-assert.equal(suite.runs.length, 1);
-assert.equal(suite.runs[0].playbook, 'cleanup.yml');
-assert.equal(suite.runs[0].repo_details.source.id, 'repo_1');
-assert.equal(suite.runs[0].target_details.profile_id, 'profile-1');
-assert.equal(suite.runs[0].target_details.password, undefined);
-for (const change of [{status: 'running'}, {status: 'completed'}, {can_delete: false}]) {
-  assert.throws(() => build({...job, ...change}, []), /Only stopped failed/);
-}
-assert.throws(() => build({...job, metadata: {...job.metadata,
-  inventory_source: {kind: 'git', id: 'different'}}}, []), /separate input repositories/);
-const legacy = {...job, metadata: {...job.metadata}};
-delete legacy.metadata.vars_source;
-const saved = {name: 'Refresh', runs: [{workflow: 'edge', playbook: 'cleanup.yml',
-  vars: 'vars.yml', inventory: 'hosts.yml', repo: 'repo_1'}]};
-assert.equal(build(legacy, [saved]).runs.length, 1);
-assert.throws(() => build(legacy, []), /older run/);
-assert.throws(() => build(legacy, [saved, saved]), /older run/);
+const start = html.indexOf('    async function rerunHistoryPlay(');
+const body = html.slice(start, html.indexOf('\n    }', start) + 6);
+assert.ok(!body.includes('confirm('));
+assert.ok(!body.includes('switchTab('));
+assert.ok(!body.includes('populateRunPlanFromSuite'));
+assert.ok(!body.includes('saved-suites'));
+const factory = new Function('fetchJson', 'refreshHistory', 'refreshDashboardCards', 'showToast', 'document',
+  'const pendingHistoryReruns = new Set(); ' + body + '; return rerunHistoryPlay;');
 (async () => {
-  let loaded, calls = [], toast, confirmed = true, active = 'original';
-  const factory = new Function('window', 'fetchJson', 'loadAutomationSuites', 'historyRerunSuite',
-    'populateRunPlanFromSuite', 'switchTab', 'showToast',
-    'let activeSavedSuiteEdit = "original"; ' + source('async function rerunHistoryPlay(') +
-    '; return {run: rerunHistoryPlay, edit: () => activeSavedSuiteEdit};');
-  const instance = factory({confirm: () => confirmed}, async url => {
-    calls.push(url);
-    return url.startsWith('/api/jobs/') ? job : {vars: ['vars.yml'], inventories: ['hosts.yml']};
-  }, () => [], build, value => loaded = value, tab => assert.equal(tab, 'run'), value => toast = value);
-  await instance.run(job.id);
-  assert.equal(loaded.runs.length, 1);
-  assert.equal(instance.edit(), null);
-  assert.deepEqual(calls, ['/api/jobs/abcdef01', '/api/git/catalog?source_id=repo_1']);
-  assert.match(toast, /whole playbook/);
-  confirmed = false;
-  calls = [];
-  await instance.run(job.id);
-  assert.deepEqual(calls, []);
-  console.log('PASS: failed-play review, single row, source/profile references, legacy ambiguity, permissions and no automatic launch');
+  let calls = [], refreshed = 0, toast, release;
+  const button = {dataset: {rerunJob: 'abcdef01'}, disabled: false};
+  const rerun = factory(async (url, options) => {
+    calls.push([url, options.method]);
+    await new Promise(resolve => release = resolve);
+    return {job_id: 'abcdef02'};
+  }, async () => refreshed++, status => assert.equal(status, 'running'),
+  message => toast = message, {querySelectorAll: () => [button]});
+  const first = rerun('abcdef01');
+  assert.equal(button.disabled, true);
+  await rerun('abcdef01');
+  assert.equal(calls.length, 1);
+  release();
+  await first;
+  assert.deepEqual(calls, [['/api/jobs/abcdef01/rerun', 'POST']]);
+  assert.equal(refreshed, 1);
+  assert.match(toast, /Retry started/);
+  assert.equal(button.disabled, false);
+  const fail = factory(async () => {throw Error('Saved controller no longer exists');},
+    async () => assert.fail('Do not report successful launch'), () => {}, message => toast = message,
+    {querySelectorAll: () => [button]});
+  await fail('abcdef01');
+  assert.equal(toast, 'Saved controller no longer exists');
+  assert.equal(button.disabled, false);
+  console.log('PASS: one-click POST, no navigation/save/confirmation, double-click prevention, error recovery');
 })().catch(error => {console.error(error); process.exitCode = 1;});
