@@ -30,9 +30,9 @@ def main():
             parser.error("Unknown account.")
         users[args.username]["enabled"] = False
     else:
-        password = getpass.getpass("Password (minimum 12 characters): ")
-        if len(password) < 12 or password != getpass.getpass("Confirm password: "):
-            parser.error("Passwords must match and contain at least 12 characters.")
+        password = getpass.getpass("Password (minimum 5 characters): ")
+        if len(password) < 5 or password != getpass.getpass("Confirm password: "):
+            parser.error("Passwords must match and contain at least 5 characters.")
         users[args.username] = {"password_hash": generate_password_hash(password),
                                 "role": "admin" if args.action == "init" else args.role, "enabled": True}
     if not any(user.get("enabled", True) and user["role"] == "admin" for user in users.values()):

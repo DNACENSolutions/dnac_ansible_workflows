@@ -15,6 +15,30 @@ spec.loader.exec_module(manager)
 
 
 class AccountSetupTests(unittest.TestCase):
+    def test_five_character_password_is_accepted_and_can_be_reset(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with patch.dict(os.environ, RUNNER_AUTH_DIR=str(root), RUNNER_USERS_FILE=str(root / 'users.json')):
+                for command in (['init', 'admin'], ['set', 'admin', '--role', 'admin']):
+                    with patch('sys.argv', ['manage_users.py'] + command), \
+                         patch.object(manager.getpass, 'getpass', return_value='admin'), \
+                         patch('builtins.print'):
+                        manager.main()
+                    user = json.loads((root / 'users.json').read_text())['admin']
+                    self.assertTrue(check_password_hash(user['password_hash'], 'admin'))
+                    self.assertEqual(user['role'], 'admin')
+
+    def test_short_or_mismatched_password_is_rejected(self):
+        for answers in (['abcd'], ['admin', 'other']):
+            with self.subTest(answers=answers), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                with patch.dict(os.environ, RUNNER_AUTH_DIR=str(root), RUNNER_USERS_FILE=str(root / 'users.json')), \
+                     patch('sys.argv', ['manage_users.py', 'init', 'admin']), \
+                     patch.object(manager.getpass, 'getpass', side_effect=answers), \
+                     patch('sys.stderr'), self.assertRaises(SystemExit):
+                    manager.main()
+                self.assertFalse((root / 'users.json').exists())
+
     def test_init_creates_protected_secret_and_hashed_admin(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / 'auth'
