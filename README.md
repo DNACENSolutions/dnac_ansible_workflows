@@ -29,7 +29,7 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 - Simplified deployments: Automate updates and rollbacks with confidence.
 
 # Enterprise Usecases
-![Enterprise Usecases](./images/enterpriseUsecases.png)
+![Enterprise Usecases](https://raw.githubusercontent.com/cisco-en-programmability/catalyst-center-ansible-iac/main/images/enterpriseUsecases.png)
 
 # Table of Contents
 - [Enterprise Usecases](#enterprise-usecases)
@@ -51,103 +51,104 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
   - [Best Practices](#best-practices)
 - [Attention macOS users](#attention-macos-users)
 - [Update](#update)
+- [Support](#support)
 - [Raising an issue or enhancement request](#raising-an-issue-or-enhancement-request)
 - [Contributing](#contributing)
+- [Release Notes](#release-notes)
 
 # Cisco Validated Playbooks
 
 ## Day 0 Configurations (Access and Integrations)
-- [Catalyst Center Role Based Access Control and Users Management](./workflows/users_and_roles/README.md)
-- [Catalyst Center ISE and AAA Servers Integration](./workflows/ise_radius_integration/README.md)
+- [Catalyst Center Role Based Access Control and Users Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/users_and_roles/README.md)
+- [Catalyst Center ISE and AAA Servers Integration](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/ise_radius_integration/README.md)
 
 ## Day 1 Configurations (Design and Discovery)
-- [Catalyst Center Site Hierarchy and Floor Maps design](./workflows/site_hierarchy/README.md)
-- [Catalyst Center Device Credentials configurations and assignment](./workflows/device_credentials/README.md)
-- [Catalyst Center Network Settings (Servers, Banners, TZ, SNMP, Logging, Telemetry Management](./workflows/network_settings/README.md)
-- [Catalyst Center Network Settings Global IP Address Pools and Site IP Address Pools reservation Management](./workflows/network_settings/README.md)
-- [Catalyst Center Network Settings Wireless Design Management](./workflows/wireless_design/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Wireless Network Profile Management](./workflows/network_profile_wireless/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Network Profile Switching Management](./workflows/network_profile_switching/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Devices Discovery](./workflows/device_discovery/README.md)
-- [Catalyst Center Device Inventory and device management](./workflows/inventory/README.md)
-- [Catalyst Center Plug and Play Device Onboarding](./workflows/plug_and_play/README.md)
-- [Catalyst Center Device Provisioning and Re-Provisioning Management](./workflows/provision/README.md)
-- [Catalyst Center Design and Deploy Device Templates](./workflows/device_templates/README.md)
-- [Catalyst Center Tags Management](./workflows/tags_manager/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Site Hierarchy and Floor Maps design](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/site_hierarchy/README.md)
+- [Catalyst Center Device Credentials configurations and assignment](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/device_credentials/README.md)
+- [Catalyst Center Network Settings (Servers, Banners, TZ, SNMP, Logging, Telemetry Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/network_settings/README.md)
+- [Catalyst Center Network Settings Global IP Address Pools and Site IP Address Pools reservation Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/network_settings/README.md)
+- [Catalyst Center Network Settings Wireless Design Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/wireless_design/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Wireless Network Profile Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/network_profile_wireless/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Network Profile Switching Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/network_profile_switching/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Devices Discovery](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/device_discovery/README.md)
+- [Catalyst Center Device Inventory and device management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/inventory/README.md)
+- [Catalyst Center Plug and Play Device Onboarding](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/plug_and_play/README.md)
+- [Catalyst Center Device Provisioning and Re-Provisioning Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/provision/README.md)
+- [Catalyst Center Design and Deploy Device Templates](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/device_templates/README.md)
+- [Catalyst Center Tags Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/tags_manager/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 
 ## Day 2 Configurations (Underlay automation and SD Access fabric)
-- [Catalyst Center Underlay Automation (LAN Automation) Management](./workflows/lan_automation/README.md)
-- [Catalyst Center SDA Fabric Site and Fabric Zones](./workflows/sda_fabric_sites_zones/README.md)
-- [Catalyst Center SDA Fabric Transits (IP transit and SDA Transit) Management](./workflows/sda_fabric_transits/README.md)
-- [Catalyst Center Virtual Networks and L3 Anycast Gateways and L2 VLANs Management](./workflows/sda_virtual_networks_l2l3_gateways/README.md)
-- [Catalyst Center SDA Fabric Device assignment to fabric sites and zones](./workflows/sda_fabric_device_roles/README.md)
-- [Catalyst Center SDA Fabric Devices and Host Onboarding](./workflows/sda_hostonboarding/README.md)
-- [Catalyst Center SDA Extranet Policies Management](./workflows/sda_fabric_extranet_policy/README.md)
-- [Catalyst Center SDA Fabric Multicast Management](./workflows/sda_fabric_multicast/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Application Policy Management](./workflows/application_policy/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.6**</span></mark>
+- [Catalyst Center Underlay Automation (LAN Automation) Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/lan_automation/README.md)
+- [Catalyst Center SDA Fabric Site and Fabric Zones](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_fabric_sites_zones/README.md)
+- [Catalyst Center SDA Fabric Transits (IP transit and SDA Transit) Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_fabric_transits/README.md)
+- [Catalyst Center Virtual Networks and L3 Anycast Gateways and L2 VLANs Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_virtual_networks_l2l3_gateways/README.md)
+- [Catalyst Center SDA Fabric Device assignment to fabric sites and zones](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_fabric_device_roles/README.md)
+- [Catalyst Center SDA Fabric Devices and Host Onboarding](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_hostonboarding/README.md)
+- [Catalyst Center SDA Extranet Policies Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_fabric_extranet_policy/README.md)
+- [Catalyst Center SDA Fabric Multicast Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_fabric_multicast/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Application Policy Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/application_policy/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.6**</span></mark>
 
 ## Day N Operation (Software Upgrade, Compliance, Events, Provisioning, backups and Assurance)
-- [Catalyst Center Devices Software image management (SWIM)](./workflows/swim/README.md)
-- [Catalyst Center Device compliance and remediation management](./workflows/network_compliance/README.md)
-- [Catalyst Center Notification Destination and Events Subscription](./workflows/events_and_notifications/README.md)
-- [Catalyst Center Devices Replacement Management](./workflows/device_replacement_rma/README.md)
-- [Catalyst Center Access Point Provisioning and Access Point Configuration Management](./workflows/accesspoints_configuration_provisioning/README.md)
-- [Device Configuration Customization using Catalyst Center Templates](./workflows/device_templates/README.md)
-- [Catalyst Center managed network devices configurations backup management](./workflows/device_config_backup/README.md)
-- [Catalyst Center Assurance Health Score KPIs settings and thresholds management](./workflows/assurance_health_score_settings/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Assurance Path Trace Management](./workflows/assurance_pathtrace/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Assurance issues and events management](./workflows/assurance_issues_management/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Assurance ICAP Management](./workflows/assurance_intelligent_capture/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center SDA Fabric Devices Information and Inventory Management](./workflows/fabric_devices_info/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Network Devices Information and Inventory Management](./workflows/network_devices_info/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [Catalyst Center Configuration Backup and Restore Management](./workflows/backup_and_restore/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=3.1.6**</span></mark>
-- [Catalyst Center Reports Management and Scheduling](./workflows/reports/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Devices Software image management (SWIM)](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/swim/README.md)
+- [Catalyst Center Device compliance and remediation management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/network_compliance/README.md)
+- [Catalyst Center Notification Destination and Events Subscription](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/events_and_notifications/README.md)
+- [Catalyst Center Devices Replacement Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/device_replacement_rma/README.md)
+- [Catalyst Center Access Point Provisioning and Access Point Configuration Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/accesspoints_configuration_provisioning/README.md)
+- [Device Configuration Customization using Catalyst Center Templates](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/device_templates/README.md)
+- [Catalyst Center managed network devices configurations backup management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/device_config_backup/README.md)
+- [Catalyst Center Assurance Health Score KPIs settings and thresholds management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/assurance_health_score_settings/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Assurance Path Trace Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/assurance_pathtrace/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Assurance issues and events management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/assurance_issues_management/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Assurance ICAP Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/assurance_intelligent_capture/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center SDA Fabric Devices Information and Inventory Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/fabric_devices_info/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Network Devices Information and Inventory Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/network_devices_info/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [Catalyst Center Configuration Backup and Restore Management](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/backup_and_restore/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=3.1.6**</span></mark>
+- [Catalyst Center Reports Management and Scheduling](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/reports/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
 
 ## Migration Usecases
-- [SDA Port Assignment Migration](./workflows/sda_port_assignment_migration/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
-- [SDA Device Removal and Unprovision](./workflows/sda_device_removal_and_unprovision/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.6**</span></mark>
+- [SDA Fabric Edge Device Refresh](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/switch_refresh_sda_fabric_edge/README.md)  <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [SDA Fabric Device Onboarding](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_fabric_discover_and_onboard_fabric_devices/README.md)  <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [SDA Port Assignment Migration](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_port_assignment_migration/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.9**</span></mark>
+- [SDA Device Removal and Unprovision](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_device_removal_and_unprovision/README.md) <mark><span style="background-color: lightblue; color: white; padding: 0.2em 0.5em; border-radius: 3px;">**New, Supported>=2.3.7.6**</span></mark>
 
 
 
 ## Configuration Generation Workflows
 
-- [Access Point Config Generator](./workflows/accesspoint_config_generator/README.md)
-- [Access Point Location Config Generator](./workflows/accesspoint_location_config_generator/README.md)
-- [Application Policy Config Generator](./workflows/application_policy_config_generator/README.md)
-- [Assurance Device Health Score Settings Config Generator](./workflows/assurance_device_health_score_settings_config_generator/README.md)
-- [Assurance Issue Config Generator](./workflows/assurance_issue_config_generator/README.md)
-- [Backup and Restore Config Generator](./workflows/backup_and_restore_config_generator/README.md)
-- [Device Credential Config Generator](./workflows/device_credential_config_generator/README.md)
-- [Discovery Config Generator](./workflows/discovery_config_generator/README.md)
-- [Events and Notifications Config Generator](./workflows/events_and_notifications_config_generator/README.md)
-- [Inventory Config Generator](./workflows/inventory_config_generator/README.md)
-- [ISE Radius Integration Config Generator](./workflows/ise_radius_integration_config_generator/README.md)
-- [Network Profile Switching Config Generator](./workflows/network_profile_switching_config_generator/README.md)
-- [Network Profile Wireless Config Generator](./workflows/network_profile_wireless_config_generator/README.md)
-- [Network Settings Config Generator](./workflows/network_settings_config_generator/README.md)
-- [PnP Config Generator](./workflows/pnp_config_generator/README.md)
-- [Provision Config Generator](./workflows/provision_config_generator/README.md)
-- [SDA Extranet Policies Config Generator](./workflows/sda_extranet_policies_config_generator/README.md)
-- [SDA Fabric Devices Config Generator](./workflows/sda_fabric_devices_config_generator/README.md)
-- [SDA Fabric Multicast Config Generator](./workflows/sda_fabric_multicast_config_generator/README.md)
-- [SDA Fabric Sites Zones Config Generator](./workflows/sda_fabric_sites_zones_config_generator/README.md)
-- [SDA Fabric Transits Config Generator](./workflows/sda_fabric_transits_config_generator/README.md)
-- [SDA Fabric Virtual Networks Config Generator](./workflows/sda_fabric_virtual_networks_config_generator/README.md)
-- [SDA Host Port Onboarding Config Generator](./workflows/sda_host_port_onboarding_config_generator/README.md)
-- [Site Config Generator](./workflows/site_config_generator/README.md)
-- [Tags Playbook Config Generator](./workflows/tags_playbook_config_generator/README.md)
-- [Template Config Generator](./workflows/template_config_generator/README.md)
-- [User Role Config Generator](./workflows/user_role_config_generator/README.md)
-- [Wireless Design Config Generator](./workflows/wireless_design_config_generator/README.md)
+- [Access Point Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/accesspoint_config_generator/README.md)
+- [Access Point Location Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/accesspoint_location_config_generator/README.md)
+- [Application Policy Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/application_policy_config_generator/README.md)
+- [Assurance Device Health Score Settings Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/assurance_device_health_score_settings_config_generator/README.md)
+- [Assurance Issue Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/assurance_issue_config_generator/README.md)
+- [Backup and Restore Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/backup_and_restore_config_generator/README.md)
+- [Device Credential Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/device_credential_config_generator/README.md)
+- [Discovery Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/discovery_config_generator/README.md)
+- [Events and Notifications Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/events_and_notifications_config_generator/README.md)
+- [Inventory Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/inventory_config_generator/README.md)
+- [ISE Radius Integration Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/ise_radius_integration_config_generator/README.md)
+- [Network Profile Switching Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/network_profile_switching_config_generator/README.md)
+- [Network Profile Wireless Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/network_profile_wireless_config_generator/README.md)
+- [Network Settings Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/network_settings_config_generator/README.md)
+- [PnP Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/pnp_config_generator/README.md)
+- [Provision Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/provision_config_generator/README.md)
+- [SDA Extranet Policies Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_extranet_policies_config_generator/README.md)
+- [SDA Fabric Devices Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_fabric_devices_config_generator/README.md)
+- [SDA Fabric Multicast Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_fabric_multicast_config_generator/README.md)
+- [SDA Fabric Sites Zones Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_fabric_sites_zones_config_generator/README.md)
+- [SDA Fabric Transits Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_fabric_transits_config_generator/README.md)
+- [SDA Fabric Virtual Networks Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_fabric_virtual_networks_config_generator/README.md)
+- [SDA Host Port Onboarding Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/sda_host_port_onboarding_config_generator/README.md)
+- [Site Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/site_config_generator/README.md)
+- [Tags Playbook Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/tags_playbook_config_generator/README.md)
+- [Template Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/template_config_generator/README.md)
+- [User Role Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/user_role_config_generator/README.md)
+- [Wireless Design Config Generator](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/workflows/wireless_design_config_generator/README.md)
 
 
 
 # Compatibility Matrix
 | Deployed Catalyst Center Version   | Catalyst Center Version in Input   | Ansible Galaxy collection (cisco.catalystcenter)Version    | Python SDK (catalystcentersdk) Version    |
 | :--------------------------------: | :--------------------------------: | :-----------------------: | :-------------------: |
-| 2.3.5.3 | 2.3.5.3   | latest   | latest |
-| 2.3.5.5 | 2.3.5.3   | latest   | latest |
-| 2.3.5.6 | 2.3.5.3   | latest   | latest |
 | 2.3.7.6 | 2.3.7.6   | latest   | latest |
 | 2.3.7.7 | 2.3.7.6   | latest   | latest |
 | 2.3.7.9 | 2.3.7.9   | latest   | latest |
@@ -157,19 +158,20 @@ Enhance scalability and flexibility with Jinja-based templates support. These te
 # Prerequisites
 Before using these Ansible workflows, ensure that you have the following prerequisites:
 
-- Ansible installed on your machine
+- ansible-core 2.16 or later installed on your machine, or a compatible
+  Execution Environment
 - Access to a Cisco Catalyst Center instance
 - Proper network connectivity to interact with the Catalyst Center APIs
 
 # Installation
 Follow these steps to install the Cisco Validated Playbooks, Schema, and Sample Input Variables:
 
-- Install Python 3.9 or later
+- Install Python 3.12 or later
 - Install  cisco.catalystcenter collection including Python requirements.
 - Modify ansible.cfg file to support additional jinja2 extensions
 
 ## Python
-    Python 3.9+ is required to install iac-validate. Don't have Python 3.9 or later? 
+    Python 3.12+ is required to install iac-validate. Don't have Python 3.12 or later?
     See Python 3 Installation & Setup Guide https://realpython.com/installing-python/
     Create your python virtual environment using command below:
 ```bash
@@ -190,6 +192,14 @@ cd catalyst-center-ansible-iac
 ```
 
 ## Install the required dependencies:
+
+> **Red Hat Ansible Automation Platform users:** Red Hat recommends using
+> [Execution Environments (EEs)](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.5/html/using_execution_environments_in_automation_controller/index)
+> rather than pip-installing ansible directly. Build an EE that includes
+> `cisco.catalystcenter` and the required Python dependencies, then run
+> your playbooks via `ansible-navigator` or Automation Controller.
+>
+> **Development / local use only:**
 ```bash
 pip install -r requirements.txt
 ```
@@ -365,6 +375,17 @@ Pull the latest master from the repo
 git pull origin master
 ```
 
+# Support
+
+This collection is a Red Hat Certified Content (RHCC) partner collection supported
+by Cisco. Customers with an active Red Hat Ansible Automation Platform subscription
+can open a support case through
+[Red Hat Automation Hub](https://console.redhat.com/ansible/automation-hub) by
+clicking the **"Create issue"** link on the collection page.
+
+Community users and contributors may raise bugs or enhancement requests in the
+[GitHub issue tracker](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/issues).
+
 # Raising an issue or enhancement request
 - Visit the Catalyst Center Ansible repository: https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/issues
 - Click the "New Issue" button.
@@ -386,5 +407,12 @@ Contributions are welcome! To contribute to this project, follow these steps:
 # Code of Conduct
 This collection follows the Ansible project's Code of Conduct. Please read and familiarize yourself with this document.
 
-# Releasing, Versioning and Deprecation:
- Version (Beta) : More enhancement might follow based on usage feedback
+# Release Notes
+
+See [CHANGELOG.rst](https://github.com/cisco-en-programmability/catalyst-center-ansible-iac/blob/main/CHANGELOG.rst) for a full history of changes between versions.
+
+# Releasing, Versioning and Deprecation
+
+This collection follows [Semantic Versioning](https://semver.org/). Breaking changes
+will increment the major version, new backwards-compatible features will increment
+the minor version, and bug fixes will increment the patch version.
