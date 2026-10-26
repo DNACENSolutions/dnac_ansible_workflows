@@ -1,6 +1,6 @@
 # SDA Port Assignment Migration
 
-This workflow migrates SDA host port assignments from a source device IP to a destination device IP.
+This workflow migrates SDA host port assignments from a source device to a destination device.
 
 It uses:
 - `cisco.catalystcenter.sda_host_port_onboarding_playbook_config_generator` to export source port assignments.
@@ -20,8 +20,12 @@ The following diagram represents the end-to-end functionality performed by this 
 |---|---|---|---|
 | `port_assignment_migration` | `list[object]` | Yes | One or more migration entries. |
 | `port_assignment_migration[].fabric_site` | `string` | Yes | Fabric site hierarchy (for example: `Global/California/23`). |
-| `port_assignment_migration[].source_device_ip` | `string` | Yes | Source device management IP to export assignments from. |
-| `port_assignment_migration[].destination_device_ip` | `string` | Yes | Destination device management IP to apply assignments to. |
+| `port_assignment_migration[].source_device_ip` | `string` | Conditionally | Source device management IP. Provide exactly one of `source_device_ip`, `source_device_hostname`, or `source_device_serial_number`. |
+| `port_assignment_migration[].source_device_hostname` | `string` | Conditionally | Source device hostname. Provide exactly one source identifier. |
+| `port_assignment_migration[].source_device_serial_number` | `string` | Conditionally | Source device serial number. Provide exactly one source identifier. |
+| `port_assignment_migration[].destination_device_ip` | `string` | Conditionally | Destination device management IP. Provide exactly one of `destination_device_ip`, `destination_device_hostname`, or `destination_device_serial_number`. |
+| `port_assignment_migration[].destination_device_hostname` | `string` | Conditionally | Destination device hostname. Provide exactly one destination identifier. |
+| `port_assignment_migration[].destination_device_serial_number` | `string` | Conditionally | Destination device serial number. Provide exactly one destination identifier. |
 | `port_assignment_migration[].interface_mappings` | `list[object]` | No | Optional source-to-destination interface remap list. If omitted, migration is 1:1 by interface name. |
 | `port_assignment_migration[].interface_mappings[].source_interface_name` | `string` | Yes (when `interface_mappings` used) | Interface name from the source device payload. |
 | `port_assignment_migration[].interface_mappings[].destination_interface_name` | `string` | Yes (when `interface_mappings` used) | Interface name to use on destination device payload. |
@@ -31,8 +35,8 @@ The following diagram represents the end-to-end functionality performed by this 
 ```yaml
 port_assignment_migration:
   - fabric_site: "Global/California/23"
-    source_device_ip: "10.0.0.1"
-    destination_device_ip: "10.0.0.2"
+    source_device_serial_number: "FJC27172JDX"
+    destination_device_hostname: "SR-LAN-9300-IM2"
 ```
 
 ### Example 2: Partial Interface Remap
@@ -41,7 +45,7 @@ port_assignment_migration:
 port_assignment_migration:
   - fabric_site: "Global/California/23"
     source_device_ip: "10.0.0.1"
-    destination_device_ip: "10.0.0.2"
+    destination_device_serial_number: "FJC2721261G"
     interface_mappings:
       - source_interface_name: "GigabitEthernet1/0/1"
         destination_interface_name: "GigabitEthernet1/0/25"
@@ -52,6 +56,8 @@ port_assignment_migration:
 Behavior for Example 2:
 - Interfaces listed in `interface_mappings` are remapped.
 - Interfaces not listed in `interface_mappings` keep the same interface name (1:1).
+- The workflow resolves hostname or serial number inputs in inventory before export/apply.
+- When `destination_device_serial_number` is used, the workflow resolves that device in inventory first and then applies onboarding with a supported device identifier (`hostname` or management `ip_address`).
 
 ## Files
 
@@ -115,8 +121,8 @@ catalyst_center_hosts:
       generated_config_dir: "/tmp/sda_port_assignment_migration"
       port_assignment_migration:
         - fabric_site: "Global/California/23"
-          source_device_ip: "10.0.0.1"
-          destination_device_ip: "10.0.0.2"
+          source_device_hostname: "SR-LAN-9300-IM1"
+          destination_device_serial_number: "FJC2721261G"
 ```
 
 Optional interface remap:
@@ -125,7 +131,7 @@ Optional interface remap:
 port_assignment_migration:
   - fabric_site: "Global/California/23"
     source_device_ip: "10.0.0.1"
-    destination_device_ip: "10.0.0.2"
+    destination_device_hostname: "SR-LAN-9300-IM2"
     interface_mappings:
       - source_interface_name: "GigabitEthernet1/0/1"
         destination_interface_name: "GigabitEthernet1/0/25"
@@ -235,7 +241,7 @@ Apply stage result (`sda_host_port_onboarding_workflow_manager`):
 Workflow summary from logs:
 - `port_assignment_migration_results` showed `generator_status: success` and `migration_status: success`
 - `port_assignment_migration_results` also reports `interface_mapping_count` per migration entry
-- `port_assignment_migration_results` reports `source_export_filter_mode` (`device_ip` when advanced filter schema is supported, otherwise `fabric_site_only`)
+- `port_assignment_migration_results` reports `source_export_filter_mode` as `device_ip`, `hostname`, `serial_number`, or `no_data`
 - Post-migration summary now reports interface outcomes:
   - `interfaces_moved`
   - `interfaces_moved_count`
@@ -261,9 +267,10 @@ Workflow summary from logs:
 - Each migration entry is processed independently.
 - The workflow fails fast only for real export/generator errors (for example, no generated source file after all export attempts).
 - The workflow removes any existing generated export file before each run to avoid false-failure behavior from config generator idempotency checks.
-- Export behavior supports both filter schemas for compatibility:
-  - Preferred: per-site list with `device_ips` (source-device-aware export).
-  - Fallback: legacy `fabric_site_name_hierarchy` only.
+- Export behavior uses source-device-aware filters directly:
+  - `device_ips` when `source_device_ip` is provided
+  - `hostnames` when `source_device_hostname` is provided
+  - `serial_numbers` when `source_device_serial_number` is provided
 - If a source device has no port assignment onboarding in the exported data, that migration entry is skipped as a successful no-op with a clear message and zero Catalyst Center changes.
 - The workflow validates interface remap integrity:
   - Duplicate `source_interface_name` values are rejected.
@@ -553,4 +560,3 @@ Use either of these forms:
 
 - Relative to the playbook: `../vars/sda_port_assignment_migration_input.yml`
 - Fully resolved from the repo root: `${PWD}/workflows/sda_port_assignment_migration/vars/sda_port_assignment_migration_input.yml`
-

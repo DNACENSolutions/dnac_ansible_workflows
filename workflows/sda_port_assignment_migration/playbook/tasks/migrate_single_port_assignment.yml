@@ -1,14 +1,202 @@
 ---
-- name: Validate source and destination are not the same
+- name: Normalize requested source and destination device identifiers
+  set_fact:
+    source_device_identifier_count: >-
+      {{
+        [
+          migration_item.source_device_ip | default(''),
+          migration_item.source_device_hostname | default(''),
+          migration_item.source_device_serial_number | default('')
+        ]
+        | reject('equalto', '')
+        | list
+        | length
+      }}
+    destination_device_identifier_count: >-
+      {{
+        [
+          migration_item.destination_device_ip | default(''),
+          migration_item.destination_device_hostname | default(''),
+          migration_item.destination_device_serial_number | default('')
+        ]
+        | reject('equalto', '')
+        | list
+        | length
+      }}
+    source_device_identifier_type: >-
+      {{
+        'device_ip'
+        if (migration_item.source_device_ip | default('') | length) > 0
+        else (
+          'hostname'
+          if (migration_item.source_device_hostname | default('') | length) > 0
+          else (
+            'serial_number'
+            if (migration_item.source_device_serial_number | default('') | length) > 0
+            else ''
+          )
+        )
+      }}
+    destination_device_identifier_type: >-
+      {{
+        'device_ip'
+        if (migration_item.destination_device_ip | default('') | length) > 0
+        else (
+          'hostname'
+          if (migration_item.destination_device_hostname | default('') | length) > 0
+          else (
+            'serial_number'
+            if (migration_item.destination_device_serial_number | default('') | length) > 0
+            else ''
+          )
+        )
+      }}
+    source_device_identifier_value: >-
+      {{
+        migration_item.source_device_ip
+        | default(migration_item.source_device_hostname | default(migration_item.source_device_serial_number | default('')))
+      }}
+    destination_device_identifier_value: >-
+      {{
+        migration_item.destination_device_ip
+        | default(migration_item.destination_device_hostname | default(migration_item.destination_device_serial_number | default('')))
+      }}
+    source_device_display: >-
+      {{
+        'source['
+        ~ (
+          'ip_address=' ~ migration_item.source_device_ip
+          if (migration_item.source_device_ip | default('') | length) > 0
+          else (
+            'hostname=' ~ migration_item.source_device_hostname
+            if (migration_item.source_device_hostname | default('') | length) > 0
+            else (
+              'serial_number=' ~ migration_item.source_device_serial_number
+              if (migration_item.source_device_serial_number | default('') | length) > 0
+              else 'undefined'
+            )
+          )
+        )
+        ~ ']'
+      }}
+    destination_device_display: >-
+      {{
+        'destination['
+        ~ (
+          'ip_address=' ~ migration_item.destination_device_ip
+          if (migration_item.destination_device_ip | default('') | length) > 0
+          else (
+            'hostname=' ~ migration_item.destination_device_hostname
+            if (migration_item.destination_device_hostname | default('') | length) > 0
+            else (
+              'serial_number=' ~ migration_item.destination_device_serial_number
+              if (migration_item.destination_device_serial_number | default('') | length) > 0
+              else 'undefined'
+            )
+          )
+        )
+        ~ ']'
+      }}
+
+- name: Validate source identifier input
   fail:
-    msg: "source_device_ip and destination_device_ip must be different for migration."
-  when: migration_item.source_device_ip == migration_item.destination_device_ip
+    msg: >-
+      Each migration entry must define exactly one source identifier:
+      source_device_ip, source_device_hostname, or source_device_serial_number.
+      Found {{ source_device_identifier_count }} value(s) for {{ source_device_display }}.
+  when: (source_device_identifier_count | int) != 1
+
+- name: Validate destination identifier input
+  fail:
+    msg: >-
+      Each migration entry must define exactly one destination identifier:
+      destination_device_ip, destination_device_hostname, or destination_device_serial_number.
+      Found {{ destination_device_identifier_count }} value(s) for {{ destination_device_display }}.
+  when: (destination_device_identifier_count | int) != 1
+
+- name: Resolve source device in inventory
+  cisco.catalystcenter.network_device_info:
+    catalystcenter_host: "{{ catalyst_center_login.catalystcenter_host }}"
+    catalystcenter_username: "{{ catalyst_center_login.catalystcenter_username }}"
+    catalystcenter_password: "{{ catalyst_center_login.catalystcenter_password }}"
+    catalystcenter_version: "{{ catalyst_center_login.catalystcenter_version }}"
+    catalystcenter_port: "{{ catalyst_center_login.catalystcenter_port }}"
+    catalystcenter_verify: "{{ catalyst_center_login.catalystcenter_verify }}"
+    catalystcenter_debug: "{{ catalyst_center_login.catalystcenter_debug }}"
+    catalystcenter_log: "{{ catalyst_center_login.catalystcenter_log }}"
+    catalystcenter_log_level: "{{ catalyst_center_login.catalystcenter_log_level }}"
+    catalystcenter_log_file_path: "{{ catalyst_center_login.catalystcenter_log_file_path }}"
+    catalystcenter_log_append: "{{ catalyst_center_login.catalystcenter_log_append }}"
+    catalystcenter_api_task_timeout: "{{ catalyst_center_login.catalystcenter_api_task_timeout }}"
+    managementIpAddress: "{{ [migration_item.source_device_ip] if source_device_identifier_type == 'device_ip' else omit }}"
+    hostname: "{{ [migration_item.source_device_hostname] if source_device_identifier_type == 'hostname' else omit }}"
+    serialNumber: "{{ [migration_item.source_device_serial_number] if source_device_identifier_type == 'serial_number' else omit }}"
+    limit: 10
+  register: source_device_lookup
+  changed_when: false
+
+- name: Validate source inventory lookup result
+  fail:
+    msg: >-
+      Expected exactly one inventory match for {{ source_device_display }} in fabric site
+      {{ migration_item.fabric_site }}, found
+      {{ source_device_lookup.dnac_response.response | default([]) | length }}.
+  when: (source_device_lookup.dnac_response.response | default([]) | length) != 1
+
+- name: Resolve destination device in inventory
+  cisco.catalystcenter.network_device_info:
+    catalystcenter_host: "{{ catalyst_center_login.catalystcenter_host }}"
+    catalystcenter_username: "{{ catalyst_center_login.catalystcenter_username }}"
+    catalystcenter_password: "{{ catalyst_center_login.catalystcenter_password }}"
+    catalystcenter_version: "{{ catalyst_center_login.catalystcenter_version }}"
+    catalystcenter_port: "{{ catalyst_center_login.catalystcenter_port }}"
+    catalystcenter_verify: "{{ catalyst_center_login.catalystcenter_verify }}"
+    catalystcenter_debug: "{{ catalyst_center_login.catalystcenter_debug }}"
+    catalystcenter_log: "{{ catalyst_center_login.catalystcenter_log }}"
+    catalystcenter_log_level: "{{ catalyst_center_login.catalystcenter_log_level }}"
+    catalystcenter_log_file_path: "{{ catalyst_center_login.catalystcenter_log_file_path }}"
+    catalystcenter_log_append: "{{ catalyst_center_login.catalystcenter_log_append }}"
+    catalystcenter_api_task_timeout: "{{ catalyst_center_login.catalystcenter_api_task_timeout }}"
+    managementIpAddress: "{{ [migration_item.destination_device_ip] if destination_device_identifier_type == 'device_ip' else omit }}"
+    hostname: "{{ [migration_item.destination_device_hostname] if destination_device_identifier_type == 'hostname' else omit }}"
+    serialNumber: "{{ [migration_item.destination_device_serial_number] if destination_device_identifier_type == 'serial_number' else omit }}"
+    limit: 10
+  register: destination_device_lookup
+  changed_when: false
+
+- name: Validate destination inventory lookup result
+  fail:
+    msg: >-
+      Expected exactly one inventory match for {{ destination_device_display }} in fabric site
+      {{ migration_item.fabric_site }}, found
+      {{ destination_device_lookup.dnac_response.response | default([]) | length }}.
+  when: (destination_device_lookup.dnac_response.response | default([]) | length) != 1
+
+- name: Capture resolved source and destination device records
+  set_fact:
+    source_resolved_device: "{{ source_device_lookup.dnac_response.response[0] | default({}) }}"
+    destination_resolved_device: "{{ destination_device_lookup.dnac_response.response[0] | default({}) }}"
+
+- name: Validate source and destination are not the same resolved device
+  fail:
+    msg: >-
+      Source and destination must resolve to different devices.
+      Resolved source={{ source_resolved_device.managementIpAddress | default(source_device_display) }},
+      resolved destination={{ destination_resolved_device.managementIpAddress | default(destination_device_display) }}.
+  when: >-
+    {{
+      (source_resolved_device.managementIpAddress | default('')) != ''
+      and
+      (source_resolved_device.managementIpAddress | default(''))
+      ==
+      (destination_resolved_device.managementIpAddress | default(''))
+    }}
 
 - name: Build generated source config file path for migration
   set_fact:
     generated_source_config_file_path: >-
-      {{ generated_config_dir }}/sda_port_assignment_source_{{ migration_item.source_device_ip |
-      regex_replace('[^A-Za-z0-9]', '_') }}_to_{{ migration_item.destination_device_ip |
+      {{ generated_config_dir }}/sda_port_assignment_source_{{ source_device_identifier_type }}_{{ source_device_identifier_value |
+      regex_replace('[^A-Za-z0-9]', '_') }}_to_{{ destination_device_identifier_type }}_{{ destination_device_identifier_value |
       regex_replace('[^A-Za-z0-9]', '_') }}.yml
 
 - name: Remove stale generated source config file before export
@@ -19,9 +207,9 @@
 
 - name: Initialize source export mode
   set_fact:
-    source_export_filter_mode: "unknown"
+    source_export_filter_mode: "{{ source_device_identifier_type }}"
 
-- name: Export all port assignments (will filter by device in playbook)
+- name: Export source device port assignments with identifier-aware filter
   cisco.catalystcenter.sda_host_port_onboarding_playbook_config_generator:
     catalystcenter_host: "{{ catalyst_center_login.catalystcenter_host }}"
     catalystcenter_username: "{{ catalyst_center_login.catalystcenter_username }}"
@@ -42,9 +230,19 @@
       component_specific_filters:
         components_list:
           - port_assignments
+        port_assignments:
+          - "{{ source_export_port_assignment_filter }}"
   register: source_port_assignment_export
   changed_when: false
   failed_when: false
+  vars:
+    source_export_port_assignment_filter: >-
+      {{
+        {'fabric_site_name_hierarchy': migration_item.fabric_site}
+        | combine({'device_ips': [source_device_identifier_value]} if source_device_identifier_type == 'device_ip' else {})
+        | combine({'hostnames': [source_device_identifier_value]} if source_device_identifier_type == 'hostname' else {})
+        | combine({'serial_numbers': [source_device_identifier_value]} if source_device_identifier_type == 'serial_number' else {})
+      }}
 
 - name: Check for SDK installation error in export attempt
   fail:
@@ -80,10 +278,10 @@
       ❌ ERROR: Module execution failed during source export!
       
       Migration Details:
-        - Source Device: {{ migration_item.source_device_ip }}
-        - Destination Device: {{ migration_item.destination_device_ip }}
+        - Source Device: {{ source_device_display }}
+        - Destination Device: {{ destination_device_display }}
         - Fabric Site: {{ migration_item.fabric_site }}
-        - Export Mode: all_port_assignments
+        - Export Mode: {{ source_export_filter_mode }}
       
       Error Details:
         - Return Code: {{ source_port_assignment_export.rc | default('unknown') }}
@@ -118,7 +316,7 @@
   set_fact:
     source_export_filter_mode: >-
       {{
-        'all_port_assignments'
+        source_device_identifier_type
         if generated_source_config_file_stat_final.stat.exists else
         'no_data'
       }}
@@ -129,8 +327,8 @@
       ❌ ERROR: No port assignments found for source device!
       
       Migration Details:
-        - Source Device: {{ migration_item.source_device_ip }}
-        - Destination Device: {{ migration_item.destination_device_ip }}
+        - Source Device: {{ source_device_display }}
+        - Destination Device: {{ destination_device_display }}
         - Fabric Site: {{ migration_item.fabric_site }}
         - Export Mode: {{ source_export_filter_mode }}
       
@@ -142,16 +340,16 @@
         for the source device in the specified fabric site.
       
       Possible Causes:
-        1. Source device {{ migration_item.source_device_ip }} does not exist in Catalyst Center inventory
+        1. Source device {{ source_device_display }} does not exist in Catalyst Center inventory
         2. Source device is not part of fabric site {{ migration_item.fabric_site }}
         3. No port assignments have been configured on the source device
         4. Fabric site name hierarchy {{ migration_item.fabric_site }} is incorrect
-        5. Source device IP address {{ migration_item.source_device_ip }} is incorrect
+        5. Source device identifier {{ source_device_display }} is incorrect
       
       Verification Steps:
         1. Check if source device exists in Catalyst Center:
            - Navigate to Inventory in Catalyst Center UI
-           - Search for IP: {{ migration_item.source_device_ip }}
+           - Search for: {{ source_device_display }}
         
         2. Verify fabric site assignment:
            - Go to SDA > Fabric Infrastructure
@@ -159,14 +357,14 @@
         
         3. Check port assignments:
            - Go to SDA > Host Onboarding
-           - Look for port assignments on {{ migration_item.source_device_ip }}
+           - Look for port assignments on {{ source_device_display }}
         
         4. Verify fabric site name:
            - Ensure the full hierarchy path is correct
            - Example: Global/USA/California/SanJose/Building1
       
       Next Steps:
-        1. Verify source_device_ip: {{ migration_item.source_device_ip }} is correct
+        1. Verify the source identifier {{ source_device_display }} is correct
         2. Verify fabric_site: {{ migration_item.fabric_site }} is the full hierarchy path
         3. Ensure port assignments exist on the source device before migration
         4. Run: ansible-playbook ... -vvv for detailed API responses
@@ -185,8 +383,8 @@
       ❌ ERROR: Source port assignment export failed!
       
       Migration Details:
-        - Source Device: {{ migration_item.source_device_ip }}
-        - Destination Device: {{ migration_item.destination_device_ip }}
+        - Source Device: {{ source_device_display }}
+        - Destination Device: {{ destination_device_display }}
         - Fabric Site: {{ migration_item.fabric_site }}
         - Export Mode: {{ source_export_filter_mode }}
         - Config File: {{ generated_source_config_file_path }}
@@ -200,14 +398,14 @@
         - Response: {{ source_port_assignment_export.response | default('No response') }}
       
       Possible Causes:
-        1. Source device {{ migration_item.source_device_ip }} does not exist in Catalyst Center
+        1. Source device {{ source_device_display }} does not exist in Catalyst Center
         2. Fabric site {{ migration_item.fabric_site }} is incorrect or does not exist
         3. No port assignments exist for the source device
         4. Network connectivity issues with Catalyst Center
         5. Insufficient permissions for the API user
       
       Next Steps:
-        1. Verify the source device IP is correct and exists in inventory
+        1. Verify the source identifier is correct and exists in inventory
         2. Verify the fabric site name hierarchy is correct
         3. Check Catalyst Center logs for more details
         4. Run the playbook with -vvv for verbose output
@@ -236,9 +434,26 @@
   set_fact:
     source_device_port_assignment_entry: >-
       {{
-        (generated_source_config.config | default([]) |
-         selectattr('ip_address', 'equalto', migration_item.source_device_ip) |
-         list | first) | default({})
+        source_device_port_assignment_entry_by_ip
+        if source_device_port_assignment_entry_by_ip != {}
+        else source_device_port_assignment_entry_by_hostname
+      }}
+  vars:
+    source_device_port_assignment_entry_by_ip: >-
+      {{
+        (generated_source_config.config | default([])
+         | selectattr('ip_address', 'defined')
+         | selectattr('ip_address', 'equalto', source_resolved_device.managementIpAddress | default(''))
+         | list
+         | first) | default({})
+      }}
+    source_device_port_assignment_entry_by_hostname: >-
+      {{
+        (generated_source_config.config | default([])
+         | selectattr('hostname', 'defined')
+         | selectattr('hostname', 'equalto', source_resolved_device.hostname | default(''))
+         | list
+         | first) | default({})
       }}
 
 - name: Capture source device port assignments for migration
@@ -254,7 +469,7 @@
 - name: Notify when no source port assignment onboarding exists
   debug:
     msg: >-
-      No port assignment onboarding exists for source device {{ migration_item.source_device_ip }}
+      No port assignment onboarding exists for source device {{ source_device_display }}
       in fabric site {{ migration_item.fabric_site }}. Nothing to migrate for this entry.
   when: not source_has_port_assignments
 
@@ -264,8 +479,8 @@
       ❌ VALIDATION ERROR: Duplicate source interface names in interface_mappings!
       
       Migration Details:
-        - Source Device: {{ migration_item.source_device_ip }}
-        - Destination Device: {{ migration_item.destination_device_ip }}
+        - Source Device: {{ source_device_display }}
+        - Destination Device: {{ destination_device_display }}
         - Fabric Site: {{ migration_item.fabric_site }}
       
       Problem:
@@ -292,8 +507,8 @@
       ❌ VALIDATION ERROR: Duplicate destination interface names in interface_mappings!
       
       Migration Details:
-        - Source Device: {{ migration_item.source_device_ip }}
-        - Destination Device: {{ migration_item.destination_device_ip }}
+        - Source Device: {{ source_device_display }}
+        - Destination Device: {{ destination_device_display }}
         - Fabric Site: {{ migration_item.fabric_site }}
       
       Problem:
@@ -328,8 +543,8 @@
       ❌ VALIDATION ERROR: Mapped source interfaces not found in source device!
       
       Migration Details:
-        - Source Device: {{ migration_item.source_device_ip }}
-        - Destination Device: {{ migration_item.destination_device_ip }}
+        - Source Device: {{ source_device_display }}
+        - Destination Device: {{ destination_device_display }}
         - Fabric Site: {{ migration_item.fabric_site }}
       
       Problem:
@@ -387,8 +602,8 @@
       ❌ VALIDATION ERROR: Duplicate destination interfaces after mapping!
       
       Migration Details:
-        - Source Device: {{ migration_item.source_device_ip }}
-        - Destination Device: {{ migration_item.destination_device_ip }}
+        - Source Device: {{ source_device_display }}
+        - Destination Device: {{ destination_device_display }}
         - Fabric Site: {{ migration_item.fabric_site }}
       
       Problem:
@@ -419,11 +634,21 @@
 - name: Build destination device onboarding payload from source interfaces
   set_fact:
     destination_device_onboarding_config:
-      - ip_address: "{{ migration_item.destination_device_ip }}"
-        fabric_site_name_hierarchy: >-
-          {{ source_device_port_assignment_entry.fabric_site_name_hierarchy |
-          default(migration_item.fabric_site) }}
-        port_assignments: "{{ destination_port_assignments }}"
+      - "{{ destination_device_apply_identifier | combine({
+            'fabric_site_name_hierarchy': source_device_port_assignment_entry.fabric_site_name_hierarchy | default(migration_item.fabric_site),
+            'port_assignments': destination_port_assignments
+          }) }}"
+  vars:
+    destination_device_apply_identifier: >-
+      {{
+        {
+          'hostname': destination_resolved_device.hostname | default(migration_item.destination_device_hostname | default(''))
+        }
+        if destination_device_identifier_type == 'hostname'
+        else {
+          'ip_address': destination_resolved_device.managementIpAddress | default(migration_item.destination_device_ip | default(''))
+        }
+      }}
 
 - name: Apply source port assignments to destination device
   cisco.catalystcenter.sda_host_port_onboarding_workflow_manager:
@@ -481,8 +706,8 @@
       ❌ ERROR: Failed to apply port assignments to destination device!
       
       Migration Details:
-        - Source Device: {{ migration_item.source_device_ip }}
-        - Destination Device: {{ migration_item.destination_device_ip }}
+        - Source Device: {{ source_device_display }}
+        - Destination Device: {{ destination_device_display }}
         - Fabric Site: {{ migration_item.fabric_site }}
         - Interfaces to Migrate: {{ destination_port_assignments | length }}
       
@@ -496,7 +721,7 @@
         {{ destination_port_assignments | map(attribute='interface_name') | list | to_nice_yaml }}
       
       Possible Causes:
-        1. Destination device {{ migration_item.destination_device_ip }} does not exist in Catalyst Center
+        1. Destination device {{ destination_device_display }} does not exist in Catalyst Center
         2. Destination device is not part of the fabric site {{ migration_item.fabric_site }}
         3. Destination interfaces do not exist on the device
         4. Network connectivity issues with Catalyst Center
@@ -526,7 +751,7 @@
     destination_port_assignment_apply:
       status: "skipped_no_source_port_assignments"
       msg: >-
-        No port assignment onboarding exists for source device {{ migration_item.source_device_ip }}
+        No port assignment onboarding exists for source device {{ source_device_display }}
         in fabric site {{ migration_item.fabric_site }}. Nothing was applied on destination.
   when: destination_port_assignments | length == 0
 
@@ -610,8 +835,16 @@
         (port_assignment_migration_results | default([])) + [
           {
             'fabric_site': migration_item.fabric_site,
-            'source_device_ip': migration_item.source_device_ip,
-            'destination_device_ip': migration_item.destination_device_ip,
+            'source_device_identifier': source_device_display,
+            'destination_device_identifier': destination_device_display,
+            'source_device_identifier_type': source_device_identifier_type,
+            'destination_device_identifier_type': destination_device_identifier_type,
+            'source_device_ip': source_resolved_device.managementIpAddress | default(migration_item.source_device_ip | default('')),
+            'source_device_hostname': source_resolved_device.hostname | default(migration_item.source_device_hostname | default('')),
+            'source_device_serial_number': source_resolved_device.serialNumber | default(migration_item.source_device_serial_number | default('')),
+            'destination_device_ip': destination_resolved_device.managementIpAddress | default(migration_item.destination_device_ip | default('')),
+            'destination_device_hostname': destination_resolved_device.hostname | default(migration_item.destination_device_hostname | default('')),
+            'destination_device_serial_number': destination_resolved_device.serialNumber | default(migration_item.destination_device_serial_number | default('')),
             'source_export_filter_mode': source_export_filter_mode | default('unknown'),
             'interface_mapping_count': requested_interface_mappings | length,
             'interfaces_moved': interfaces_targeted_for_migration | default([]),

@@ -71,7 +71,20 @@
       loop: "{{ port_assignment_migration }}"
       loop_control:
         loop_var: migration_item
-        label: "{{ migration_item.source_device_ip }} -> {{ migration_item.destination_device_ip }} ({{ migration_item.fabric_site }})"
+        label: >-
+          {{
+            (
+              migration_item.source_device_ip
+              | default(migration_item.source_device_hostname | default(migration_item.source_device_serial_number | default('N/A')))
+            )
+            ~ ' -> '
+            ~
+            (
+              migration_item.destination_device_ip
+              | default(migration_item.destination_device_hostname | default(migration_item.destination_device_serial_number | default('N/A')))
+            )
+            ~ ' (' ~ migration_item.fabric_site ~ ')'
+          }}
 
     - name: Print migration workflow output summary
       debug:
@@ -134,7 +147,7 @@
         msg: |
           ------------------------------------------------------------
           Migration Entry {{ migration_index + 1 }}
-          Source -> Destination : {{ item.source_device_ip }} -> {{ item.destination_device_ip }}
+          Source -> Destination : {{ item.source_device_identifier | default(item.source_device_ip | default('N/A')) }} -> {{ item.destination_device_identifier | default(item.destination_device_ip | default('N/A')) }}
           Fabric Site           : {{ item.fabric_site }}
           Export Filter Mode    : {{ item.source_export_filter_mode | default('unknown') }}
           Interface Mappings    : {{ item.interface_mapping_count | default(0) }}
@@ -151,7 +164,7 @@
           {{ unreported_lines }}
       loop: "{{ port_assignment_migration_results | default([]) }}"
       loop_control:
-        label: "entry {{ migration_index + 1 }}: {{ item.source_device_ip }} -> {{ item.destination_device_ip }}"
+        label: "entry {{ migration_index + 1 }}: {{ item.source_device_identifier | default(item.source_device_ip | default('N/A')) }} -> {{ item.destination_device_identifier | default(item.destination_device_ip | default('N/A')) }}"
         index_var: migration_index
 
     - name: Port assignment migration workflow end time

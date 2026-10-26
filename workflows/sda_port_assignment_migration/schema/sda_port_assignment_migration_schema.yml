@@ -27,8 +27,12 @@ catalyst_center_task_poll_interval: int(required=False)
 ---
 port_assignment_migration_type:
   fabric_site: str(required=True)
-  source_device_ip: str(required=True)
-  destination_device_ip: str(required=True)
+  source_device_ip: str(required=False)
+  source_device_hostname: str(required=False)
+  source_device_serial_number: str(required=False)
+  destination_device_ip: str(required=False)
+  destination_device_hostname: str(required=False)
+  destination_device_serial_number: str(required=False)
   interface_mappings: list(include('interface_mapping_type'), required=False, min=1)
 
 interface_mapping_type:
