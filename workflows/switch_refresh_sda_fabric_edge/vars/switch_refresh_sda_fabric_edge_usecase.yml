@@ -2,19 +2,18 @@
 switch_refresh_sda_fabric_edge_work_dir: /tmp/catalystcenter_switch_refresh_sda_fabric_edge
 switch_refresh_sda_fabric_edge_onboarding_method: lan_automation
 
-switch_refresh_sda_fabric_edge_hostname_transfer_enabled: true
+switch_refresh_sda_fabric_edge_hostname_transfer_enabled: false
 switch_refresh_sda_fabric_edge_hostname_transfer_resume_from_manifest: false
-switch_refresh_sda_fabric_edge_hostname_transfer_manifest_dir: >-
-  /tmp/catalystcenter_switch_refresh_sda_fabric_edge/hostname_transfer
+switch_refresh_sda_fabric_edge_hostname_transfer_manifest_dir: "/tmp/catalystcenter_switch_refresh_sda_fabric_edge/hostname_transfer"
 switch_refresh_sda_fabric_edge_hostname_transfer_timeout: 1200
 switch_refresh_sda_fabric_edge_hostname_transfer_poll_interval: 10
 switch_refresh_sda_fabric_edge_hostname_validation_retries: 12
 switch_refresh_sda_fabric_edge_hostname_validation_interval: 10
 
 switch_refresh_sda_fabric_edge_inventory_credentials:
-  username: "<username>"
-  password: "<password>"
-  enable_password: "<enable-password>"
+  username: "{{ lookup('ansible.builtin.env', 'SWITCH_CLI_USERNAME') }}"
+  password: "{{ lookup('ansible.builtin.env', 'SWITCH_CLI_PASSWORD') }}"
+  enable_password: "{{ lookup('ansible.builtin.env', 'SWITCH_ENABLE_PASSWORD') }}"
   cli_transport: ssh
   type: NETWORK_DEVICE
 
@@ -77,26 +76,22 @@ switch_refresh_sda_fabric_edge_batches:
 
     device_mapping:
       - old:
-          hostname: IAC-TB4-SJ-EN1-9300.cisco.com
-        new:
-          management_ip: "204.1.3.248"
-        interface_migration:
-          only_mapped: true
-          port_assignments:
-            - source: GigabitEthernet1/0/5
-              destination: GigabitEthernet1/0/4
-          port_channels: []
+          management_ip: "204.1.2.5"
+        new_device_management_ip: "204.1.3.248"
+        only_mapped_interfaces: true
+        port_assignment_interface_mappings:
+          - source_interface_name: GigabitEthernet1/0/5
+            destination_interface_name: GigabitEthernet1/0/4
+        port_channel_interface_mappings: []
 
       - old:
-          hostname: IAC-TB4-SJ-EN2-9300.cisco.com
-        new:
-          management_ip: "204.1.3.249"
-        interface_migration:
-          only_mapped: true
-          port_assignments:
-            - source: GigabitEthernet2/0/6
-              destination: GigabitEthernet2/0/5
-          port_channels: []
+          management_ip: "204.1.2.6"
+        new_device_management_ip: "204.1.3.249"
+        only_mapped_interfaces: true
+        port_assignment_interface_mappings:
+          - source_interface_name: GigabitEthernet2/0/6
+            destination_interface_name: GigabitEthernet2/0/5
+        port_channel_interface_mappings: []
 # ---
 # switch_refresh_sda_fabric_edge_work_dir: /tmp/catalystcenter_switch_refresh_sda_fabric_edge
 # switch_refresh_sda_fabric_edge_onboarding_method: discovery

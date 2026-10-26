@@ -84,17 +84,11 @@ discovery_device_type:
 
 device_mapping_type:
   old: include('old_device_type', required=True)
-  new: include('new_device_type', required=True)
-  interface_migration: include('interface_migration_type', required=False)
-
-new_device_type:
-  management_ip: str(required=True)
-
-interface_migration_type:
-  only_mapped: bool(required=False)
-  port_assignments: list(include('interface_mapping_type'), required=False)
-  port_channels: list(include('interface_mapping_type'), required=False)
+  new_device_management_ip: str(required=True)
+  only_mapped_interfaces: bool(required=False)
+  port_assignment_interface_mappings: list(include('interface_mapping_type'), required=False)
+  port_channel_interface_mappings: list(include('interface_mapping_type'), required=False)
 
 interface_mapping_type:
-  source: str(required=True)
-  destination: str(required=True)
+  source_interface_name: str(required=True)
+  destination_interface_name: str(required=True)
