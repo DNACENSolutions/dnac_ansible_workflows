@@ -1,0 +1,41 @@
+---
+# Create these directories with runner-account ownership before execution.
+switch_refresh_sda_fabric_border_work_dir: /var/lib/catalystcenter-runner/border-refresh/work
+switch_refresh_sda_fabric_border_manifest_dir: /var/lib/catalystcenter-runner/border-refresh/manifests
+switch_refresh_sda_fabric_border_cutover_approved: false
+switch_refresh_sda_fabric_border_resume_from_manifest: false
+switch_refresh_sda_fabric_border_hostname_transfer_enabled: false
+switch_refresh_sda_fabric_border_inventory_readiness_timeout: 1800
+
+switch_refresh_sda_fabric_border_inventory_credentials:
+  username: "{{ vault_switch_cli_username }}"
+  password: "{{ vault_switch_cli_password }}"
+  enable_password: "{{ vault_switch_enable_password }}"
+  cli_transport: ssh
+  type: NETWORK_DEVICE
+
+switch_refresh_sda_fabric_border_batches:
+  - name: border-refresh-example
+    fabric_site_name_hierarchy: Global/USA/San Jose/BLDG23
+    onboarding_method: discovery
+    new_devices:
+      device_ips:
+        - "192.0.2.20"
+      discovery_config:
+        - discovery_name: border-refresh-example
+          discovery_type: SINGLE
+          ip_address_list:
+            - "192.0.2.20"
+          protocol_order: ssh
+          retry: 2
+          use_global_credentials: true
+    device_mapping:
+      - old:
+          serial_number: OLD-BORDER-01
+        new:
+          management_ip: "192.0.2.20"
+        handoff_interface_mappings:
+          - source_interface_name: GigabitEthernet1/0/10
+            destination_interface_name: GigabitEthernet2/0/10
+          - source_interface_name: GigabitEthernet1/0/11
+            destination_interface_name: GigabitEthernet2/0/11
