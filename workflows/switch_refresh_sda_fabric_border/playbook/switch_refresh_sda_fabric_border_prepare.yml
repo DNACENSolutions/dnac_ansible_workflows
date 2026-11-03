@@ -1,0 +1,67 @@
+---
+- name: Prepare replacement SDA fabric border devices
+  hosts: catalyst_center_hosts
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Load workflow input when a vars file is provided
+      ansible.builtin.include_vars:
+        file: "{{ VARS_FILE_PATH }}"
+      when: VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0
+
+    - name: Print input source
+      ansible.builtin.debug:
+        msg: "{{ 'Input source: vars file ' ~ VARS_FILE_PATH if (VARS_FILE_PATH is defined and VARS_FILE_PATH | length > 0) else 'Input source: inventory / host variables' }}"
+
+    - name: Require border refresh batches
+      ansible.builtin.assert:
+        that:
+          - switch_refresh_sda_fabric_border_batches is defined
+          - switch_refresh_sda_fabric_border_batches | length > 0
+        fail_msg: Supply switch_refresh_sda_fabric_border_batches through VARS_FILE_PATH or inventory.
+
+    - name: Resolve controller connection before entering the role
+      ansible.builtin.set_fact:
+        border_refresh_connection:
+          host: "{{ catalyst_center_host | default(catalystcenter_host | default('')) }}"
+          username: "{{ catalyst_center_username | default(catalystcenter_username | default('')) }}"
+          password: "{{ catalyst_center_password | default(catalystcenter_password | default('')) }}"
+          port: "{{ catalyst_center_port | default(catalystcenter_port | default(443)) }}"
+          version: "{{ catalyst_center_version | default(catalystcenter_version | default('2.3.7.9')) }}"
+          verify: "{{ catalyst_center_verify | default(catalystcenter_verify | default(true)) }}"
+          debug: "{{ catalyst_center_debug | default(catalystcenter_debug | default(false)) }}"
+          log: "{{ catalyst_center_log | default(catalystcenter_log | default(false)) }}"
+          log_level: "{{ catalyst_center_log_level | default(catalystcenter_log_level | default('INFO')) }}"
+          log_append: "{{ catalyst_center_log_append | default(catalystcenter_log_append | default(false)) }}"
+          log_file: "{{ catalyst_center_log_file_path | default(catalystcenter_log_file_path | default('catalystcenter.log')) }}"
+          api_task_timeout: "{{ catalyst_center_api_task_timeout | default(catalystcenter_api_task_timeout | default(1200)) }}"
+      no_log: true
+
+    - name: Require controller credentials
+      ansible.builtin.assert:
+        that:
+          - border_refresh_connection.host | length > 0
+          - border_refresh_connection.username | length > 0
+          - border_refresh_connection.password | length > 0
+        fail_msg: Supply controller credentials through inventory or a secret store.
+      no_log: true
+
+    - name: Run non-destructive border prepare
+      ansible.builtin.include_role:
+        name: cisco.catalystcenter.switch_refresh_sda_fabric_border
+      vars:
+        catalystcenter_host: "{{ border_refresh_connection.host }}"
+        catalystcenter_username: "{{ border_refresh_connection.username }}"
+        catalystcenter_password: "{{ border_refresh_connection.password }}"
+        catalystcenter_port: "{{ border_refresh_connection.port }}"
+        catalystcenter_version: "{{ border_refresh_connection.version }}"
+        catalystcenter_verify: "{{ border_refresh_connection.verify }}"
+        catalystcenter_debug: "{{ border_refresh_connection.debug }}"
+        catalystcenter_log: "{{ border_refresh_connection.log }}"
+        catalystcenter_log_level: "{{ border_refresh_connection.log_level }}"
+        catalystcenter_log_append: "{{ border_refresh_connection.log_append }}"
+        catalystcenter_log_file_path: "{{ border_refresh_connection.log_file }}"
+        catalystcenter_api_task_timeout: "{{ border_refresh_connection.api_task_timeout }}"
+        switch_refresh_sda_fabric_border_phase: prepare
+        switch_refresh_sda_fabric_border_cutover_approved: false
+        switch_refresh_sda_fabric_border_resume_from_manifest: false
