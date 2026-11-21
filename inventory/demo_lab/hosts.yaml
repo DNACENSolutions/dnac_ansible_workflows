@@ -1,5 +1,32 @@
 ---
 catalyst_center_hosts:
+  vars:
+    # Set these in the shell environment before running the SDA onboarding workflow.
+    sda_testuser1_password: "{{ lookup('ansible.builtin.env', 'SDA_TESTUSER1_PASSWORD') }}"
+    sda_ise_secondary_radius_shared_secret: "{{ lookup('ansible.builtin.env', 'SDA_ISE_SECONDARY_RADIUS_SHARED_SECRET') }}"
+    sda_ise_primary_radius_shared_secret: "{{ lookup('ansible.builtin.env', 'SDA_ISE_PRIMARY_RADIUS_SHARED_SECRET') }}"
+    sda_ise_admin_password: "{{ lookup('ansible.builtin.env', 'SDA_ISE_ADMIN_PASSWORD') }}"
+    sda_cli1_password: "{{ lookup('ansible.builtin.env', 'SDA_CLI1_PASSWORD') }}"
+    sda_cli1_enable_password: "{{ lookup('ansible.builtin.env', 'SDA_CLI1_ENABLE_PASSWORD') }}"
+    sda_cli2_password: "{{ lookup('ansible.builtin.env', 'SDA_CLI2_PASSWORD') }}"
+    sda_cli2_enable_password: "{{ lookup('ansible.builtin.env', 'SDA_CLI2_ENABLE_PASSWORD') }}"
+    sda_snmpv3_auth_password: "{{ lookup('ansible.builtin.env', 'SDA_SNMPV3_AUTH_PASSWORD') }}"
+    sda_snmpv3_privacy_password: "{{ lookup('ansible.builtin.env', 'SDA_SNMPV3_PRIVACY_PASSWORD') }}"
+    sda_https_read_password: "{{ lookup('ansible.builtin.env', 'SDA_HTTPS_READ_PASSWORD') }}"
+    sda_https_write_password: "{{ lookup('ansible.builtin.env', 'SDA_HTTPS_WRITE_PASSWORD') }}"
+    sda_network_aaa_shared_secret: "{{ lookup('ansible.builtin.env', 'SDA_NETWORK_AAA_SHARED_SECRET') }}"
+    sda_client_endpoint_aaa_shared_secret: "{{ lookup('ansible.builtin.env', 'SDA_CLIENT_ENDPOINT_AAA_SHARED_SECRET') }}"
+    sda_discovery_network_aaa_shared_secret: "{{ lookup('ansible.builtin.env', 'SDA_DISCOVERY_NETWORK_AAA_SHARED_SECRET') }}"
+    sda_discovery_client_endpoint_aaa_shared_secret: "{{ lookup('ansible.builtin.env', 'SDA_DISCOVERY_CLIENT_ENDPOINT_AAA_SHARED_SECRET') }}"
+    sda_discovery_wlcaccess_password: "{{ lookup('ansible.builtin.env', 'SDA_DISCOVERY_WLCACCESS_PASSWORD') }}"
+    sda_discovery_wlcaccess_enable_password: "{{ lookup('ansible.builtin.env', 'SDA_DISCOVERY_WLCACCESS_ENABLE_PASSWORD') }}"
+    sda_discovery_cisco_password: "{{ lookup('ansible.builtin.env', 'SDA_DISCOVERY_CISCO_PASSWORD') }}"
+    sda_discovery_cisco_enable_password: "{{ lookup('ansible.builtin.env', 'SDA_DISCOVERY_CISCO_ENABLE_PASSWORD') }}"
+    sda_discovery_http_read_password: "{{ lookup('ansible.builtin.env', 'SDA_DISCOVERY_HTTP_READ_PASSWORD') }}"
+    sda_discovery_http_write_password: "{{ lookup('ansible.builtin.env', 'SDA_DISCOVERY_HTTP_WRITE_PASSWORD') }}"
+    sda_discovery_snmpv3_auth_password: "{{ lookup('ansible.builtin.env', 'SDA_DISCOVERY_SNMPV3_AUTH_PASSWORD') }}"
+    sda_discovery_snmpv3_privacy_password: "{{ lookup('ansible.builtin.env', 'SDA_DISCOVERY_SNMPV3_PRIVACY_PASSWORD') }}"
+    sda_discovery_enable_password: "{{ lookup('ansible.builtin.env', 'SDA_DISCOVERY_ENABLE_PASSWORD') }}"
   hosts:
     catalyst_center220:
       #(Mandatory) CatC IP address from environment variable HOSTIP
