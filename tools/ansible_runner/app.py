@@ -56,7 +56,8 @@ _read_endpoints = {"index", "job_detail", "api_workflows", "api_inventories", "a
 _operator_endpoints = {"api_device_interfaces", "api_host_port_assignments", "api_fs",
                        "api_read_file", "api_validate", "api_run", "api_run_suites",
                        "api_run_suite", "api_run_batch", "api_cancel", "api_cancel_suite",
-                       "api_delete_job", "api_delete_suite", "api_rerun_job", "saved_suite_create", "saved_suite_update", "saved_suite_delete", "saved_suite_repo_catalog"}
+                       "api_delete_job", "api_delete_suite", "api_rerun_job", "saved_suite_create", "saved_suite_update", "saved_suite_delete", "saved_suite_repo_catalog",
+                       "api_upgrade_sites", "api_upgrade_platforms", "api_upgrade_images", "api_upgrade_plan"}
 _admin_endpoints = {"api_git_fetch", "api_write_file", "api_environment_create", "api_environment_setup", "saved_suite_reorder",
                     "controller_profile_save", "controller_profile_delete", "git_repository_remove"}
 
@@ -219,7 +220,7 @@ def _accounts():
     for name, user in users.items():
         if (not isinstance(user, dict) or user.get("role") not in _roles
                 or not isinstance(user.get("password_hash"), str)
-                or not user["password_hash"].startswith("scrypt:")
+                or not user["password_hash"].startswith(("scrypt:", "pbkdf2:sha256:"))
                 or not isinstance(user.get("enabled", True), bool)):
             raise ValueError("Invalid account configuration")
     return users
@@ -1401,6 +1402,181 @@ def _device_by_management_ip(ip_address: str, catalyst_connection: dict | None =
         return None, None
     device = devices[0]
     return device, device.get("id")
+
+
+def _upgrade_connection(data: dict) -> dict:
+    profile_id = data.get("profile_id")
+    if not isinstance(profile_id, str) or not re.fullmatch(r"[a-f0-9]{32}", profile_id):
+        raise ValueError("Select a saved Catalyst Center connection")
+    return _resolve_controller_reference({"profile_id": profile_id})
+
+
+@app.post("/api/upgrade/sites")
+def api_upgrade_sites():
+    data = request.get_json(silent=True) or {}
+    try:
+        connection = _upgrade_connection(data)
+        response = _catc_get("/dna/intent/api/v1/site", catalyst_connection=connection)
+        sites = response.get("response") or []
+        result = []
+        for site in sites:
+            site_id = site.get("id") or site.get("siteId")
+            if not site_id:
+                continue
+            hierarchy = site.get("siteNameHierarchy") or site.get("name") or site.get("siteName") or ""
+            result.append({
+                "id": str(site_id),
+                "name": str(hierarchy),
+                "type": str(site.get("type") or ""),
+            })
+        return jsonify(sorted(result, key=lambda item: item["name"].casefold()))
+    except urllib.error.HTTPError as exc:
+        return _json_error(f"Catalyst Center site lookup failed with HTTP {exc.code}", 502)
+    except urllib.error.URLError:
+        return _json_error("Could not reach Catalyst Center. Check server connectivity and TLS trust.", 502)
+    except ValueError as exc:
+        return _json_error(str(exc), 400)
+    except Exception:
+        app.logger.exception("Upgrade site lookup failed")
+        return _json_error("Unable to retrieve Catalyst Center sites. Check the runner server log.", 500)
+
+
+@app.post("/api/upgrade/platforms")
+def api_upgrade_platforms():
+    data = request.get_json(silent=True) or {}
+    site_id = str(data.get("site_id") or "").strip()
+    if not site_id or len(site_id) > 128:
+        return _json_error("Select a valid Catalyst Center site")
+    try:
+        connection = _upgrade_connection(data)
+        response = _catc_get(
+            "/dna/intent/api/v1/siteWiseProductNames",
+            {"siteId": site_id, "limit": "500"},
+            connection,
+        )
+        products = response.get("response") or []
+        result = []
+        for product in products:
+            name = product.get("productName") or ""
+            ordinal = product.get("productNameOrdinal")
+            if not name or ordinal is None:
+                continue
+            result.append({
+                "name": str(name),
+                "ordinal": str(ordinal),
+                "product_ids": [str(value) for value in (product.get("productIds") or []) if value],
+            })
+        return jsonify(sorted(result, key=lambda item: item["name"].casefold()))
+    except urllib.error.HTTPError as exc:
+        return _json_error(f"Catalyst Center platform lookup failed with HTTP {exc.code}", 502)
+    except urllib.error.URLError:
+        return _json_error("Could not reach Catalyst Center. Check server connectivity and TLS trust.", 502)
+    except ValueError as exc:
+        return _json_error(str(exc), 400)
+    except Exception:
+        app.logger.exception("Upgrade platform lookup failed")
+        return _json_error("Unable to retrieve Catalyst Center platforms. Check the runner server log.", 500)
+
+
+@app.post("/api/upgrade/images")
+def api_upgrade_images():
+    data = request.get_json(silent=True) or {}
+    site_id = str(data.get("site_id") or "").strip()
+    ordinal = str(data.get("product_name_ordinal") or "").strip()
+    if not site_id or len(site_id) > 128 or not ordinal.isdigit():
+        return _json_error("Select a valid site and platform")
+    try:
+        connection = _upgrade_connection(data)
+        response = _catc_get(
+            "/dna/intent/api/v1/images",
+            {"siteId": site_id, "productNameOrdinal": ordinal, "imported": "false",
+             "isAddonImages": "false", "offset": "1", "limit": "500"},
+            connection,
+        )
+        images = response.get("response") or []
+        result = []
+        for image in images:
+            if image.get("imported") is True or image.get("imageType", "SYSTEM") != "SYSTEM":
+                continue
+            name = image.get("name")
+            if not name:
+                continue
+            result.append({
+                "id": str(image.get("id") or ""),
+                "name": str(name),
+                "version": str(image.get("version") or ""),
+                "recommended": image.get("recommended") == "CISCO",
+                "latest": bool(image.get("ciscoLatest")),
+            })
+        return jsonify(sorted(result, key=lambda item: (not item["latest"], not item["recommended"], item["name"].casefold())))
+    except urllib.error.HTTPError as exc:
+        return _json_error(f"Catalyst Center CCO image lookup failed with HTTP {exc.code}", 502)
+    except urllib.error.URLError:
+        return _json_error("Could not reach Catalyst Center. Check server connectivity and TLS trust.", 502)
+    except ValueError as exc:
+        return _json_error(str(exc), 400)
+    except Exception:
+        app.logger.exception("Upgrade image lookup failed")
+        return _json_error("Unable to retrieve CCO images. Check the runner server log.", 500)
+
+
+@app.post("/api/upgrade/plan")
+def api_upgrade_plan():
+    data = request.get_json(silent=True) or {}
+    site_name = str(data.get("site_name") or "").strip()
+    selections = data.get("selections")
+    maintenance_window = str(data.get("maintenance_window") or "").strip()
+    if not site_name or len(site_name) > 512:
+        return _json_error("Choose a valid Catalyst Center site")
+    if maintenance_window:
+        try:
+            datetime.fromisoformat(maintenance_window.replace("Z", "+00:00"))
+        except ValueError:
+            return _json_error("Maintenance window must be a valid date and time")
+    if not isinstance(selections, list) or not selections or len(selections) > 100:
+        return _json_error("Select at least one platform and CCO image")
+
+    roles = {"ALL", "ACCESS", "CORE", "DISTRIBUTION", "BORDER ROUTER", "UNKNOWN"}
+    distribute_images = []
+    activate_images = []
+    seen = set()
+    for selection in selections:
+        if not isinstance(selection, dict):
+            return _json_error("Invalid platform selection")
+        product_name = str(selection.get("product_name") or "").strip()
+        image_name = str(selection.get("image_name") or "").strip()
+        series_name = str(selection.get("device_series_name") or "").strip()
+        family_name = str(selection.get("device_family_name") or "").strip()
+        role = str(selection.get("device_role") or "ALL").strip().upper()
+        if not product_name or not image_name or not series_name:
+            return _json_error("Choose an image and confirm the SWIM series filter for every platform")
+        if len(product_name) > 256 or len(image_name) > 512 or len(series_name) > 256 or len(family_name) > 256:
+            return _json_error("Platform, image, and filter values are too long")
+        if role not in roles:
+            return _json_error("Choose a supported Catalyst Center device role")
+        key = (product_name.casefold(), series_name.casefold(), role)
+        if key in seen:
+            return _json_error("Each platform and target filter can appear only once")
+        seen.add(key)
+        filters = {"image_name": image_name, "device_role": role, "site_name": site_name,
+                   "device_series_name": series_name}
+        if family_name:
+            filters["device_family_name"] = family_name
+        distribute_images.append({"image_distribution_details": dict(filters)})
+        activate_images.append({"image_activation_details": dict(
+            filters,
+            activate_lower_image_version=False,
+            distribute_if_needed=True,
+            schedule_validate=False,
+            device_upgrade_mode="currentlyExists",
+        )})
+
+    import yaml
+    model = {"swim_details": {"distribute_images": distribute_images, "activate_images": activate_images}}
+    rendered = yaml.safe_dump(model, sort_keys=False, allow_unicode=True)
+    if maintenance_window:
+        rendered = f"# Planned maintenance window: {maintenance_window}\n" + rendered
+    return jsonify(content=rendered, filename="swim_upgrade_plan.yml")
 
 
 def _venv_python(venv_path: Path) -> Path:

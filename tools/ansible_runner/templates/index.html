@@ -79,7 +79,7 @@
   <style>#btn-save,#btn-fetch-git,button[onclick*="refreshSelectedGitRepository"],button[onclick*="createManagedVenv"],button[onclick*="installEnvironmentDependencies"],[data-git-action="refresh"]{display:none!important}</style>
   {% endif %}
   {% if g.runner_user and g.runner_user.role == 'viewer' %}
-  <style>[data-tab="run"],[data-tab="git"],button[onclick*="cancel"],button[onclick*="stop"],button[onclick*="runSelected"],button[onclick*="Run"],button[onclick*="launch"],[data-suite-action="run"],[data-suite-select]{display:none!important}</style>
+  <style>[data-tab="run"],[data-tab="git"],[data-tab="upgrade"],button[onclick*="cancel"],button[onclick*="stop"],button[onclick*="runSelected"],button[onclick*="Run"],button[onclick*="launch"],[data-suite-action="run"],[data-suite-select]{display:none!important}</style>
   {% endif %}
   <div id="toast" class="hidden fixed bottom-6 right-6 z-50 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-medium text-white shadow-soft transition-opacity duration-300"></div>
 
@@ -139,6 +139,12 @@
               <path d="M8 9h8M8 13h8M8 17h5"></path>
             </svg>
             <span>Automation Assurance</span>
+          </button>
+          <button class="tab-btn flex w-full items-center gap-4 rounded-xl px-4 py-4 text-left text-base font-bold text-slate-700 transition hover:bg-slate-100" data-tab="upgrade" onclick="switchTab('upgrade')">
+            <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <path d="M12 3v12m0-12 4 4m-4-4L8 7"></path><path d="M5 13v6h14v-6"></path>
+            </svg>
+            <span>Upgrade</span>
           </button>
         </div>
       </nav>
@@ -966,6 +972,61 @@
         </div>
       </div>
       </section>
+
+      <section id="tab-upgrade" class="tab-content hidden space-y-6">
+        <div class="rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+          <p class="text-xs font-bold uppercase tracking-[0.28em] text-cyan-700">Software Image Management</p>
+          <h2 class="mt-2 text-2xl font-extrabold text-slate-900">Plan a network upgrade</h2>
+          <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Choose a saved Catalyst Center cluster and site, review Cisco.com (CCO) images by platform, and create a SWIM vars file for the maintenance window.</p>
+          <div class="mt-5 grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+            <div>
+              <label for="upgrade-cluster" class="mb-1.5 block text-xs font-bold uppercase tracking-[0.18em] text-slate-500">1. Cluster</label>
+              <select id="upgrade-cluster" onchange="loadUpgradeSites()" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900">
+                <option value="">Select a saved connection</option>
+              </select>
+            </div>
+            <div>
+              <label for="upgrade-site" class="mb-1.5 block text-xs font-bold uppercase tracking-[0.18em] text-slate-500">2. Site</label>
+              <select id="upgrade-site" onchange="loadUpgradePlatforms()" disabled class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 disabled:bg-slate-100">
+                <option value="">Choose a cluster first</option>
+              </select>
+            </div>
+            <button type="button" onclick="loadUpgradeSites()" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">Refresh sites</button>
+          </div>
+        </div>
+
+        <div id="upgrade-platform-panel" class="hidden rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+          <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">3. CCO images and targets</p>
+              <h3 class="mt-2 text-lg font-bold text-slate-900">Choose an image for each platform</h3>
+              <p class="mt-1 text-sm text-slate-600">Fetch image options from the selected cluster. Confirm the SWIM series filter for each platform included in the plan.</p>
+            </div>
+            <div class="w-full md:max-w-xs">
+              <label for="upgrade-window" class="mb-1.5 block text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Planned maintenance window</label>
+              <input id="upgrade-window" type="datetime-local" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm">
+            </div>
+          </div>
+          <div id="upgrade-platforms" class="mt-5 space-y-4"></div>
+          <div class="mt-6 flex flex-wrap items-center gap-3">
+            <button type="button" onclick="generateUpgradePlan()" class="rounded-2xl bg-cyan-700 px-5 py-3 text-sm font-bold text-white hover:bg-cyan-800">Generate SWIM plan</button>
+            <p class="text-xs text-slate-500">This creates a vars file only. It does not schedule or run an upgrade.</p>
+          </div>
+        </div>
+
+        <div id="upgrade-plan-panel" class="hidden rounded-[28px] border border-slate-300 bg-white p-6 shadow-soft">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">4. Review and export</p>
+              <h3 class="mt-2 text-lg font-bold text-slate-900">SWIM vars file</h3>
+            </div>
+            <button type="button" onclick="downloadUpgradePlan()" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">Download YAML</button>
+          </div>
+          <p class="mt-2 text-sm text-slate-600">Review the site, image names, and filters before running the SWIM playbook during the planned downtime.</p>
+          <pre id="upgrade-plan-yaml" class="terminal mt-4 max-h-[34rem] overflow-auto rounded-2xl bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
+        </div>
+        <p id="upgrade-status" class="hidden rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-800"></p>
+      </section>
     </div>
   </main>
 
@@ -1250,6 +1311,9 @@
     let lastValidatedKey = '';
     let runEnvironmentReadyState = 'unknown';
     let loadedSourceHostPortAssignments = [];
+    let upgradeSites = [];
+    let upgradePlatforms = [];
+    let upgradePlanContent = '';
     const GIT_SOURCE_STORAGE_KEY = 'validated-playbook-git-source';
     let filePickerState = {
       targetInputId: '',
@@ -4199,6 +4263,183 @@
       return data;
     }
 
+    function setUpgradeStatus(message, isError) {
+      const status = $('upgrade-status');
+      status.textContent = message || '';
+      status.classList.toggle('hidden', !message);
+      status.classList.toggle('border-rose-200', !!isError);
+      status.classList.toggle('bg-rose-50', !!isError);
+      status.classList.toggle('text-rose-800', !!isError);
+      status.classList.toggle('border-emerald-200', !!message && !isError);
+      status.classList.toggle('bg-emerald-50', !!message && !isError);
+      status.classList.toggle('text-emerald-800', !!message && !isError);
+    }
+
+    function renderUpgradeClusters() {
+      const select = $('upgrade-cluster');
+      if (!select) return;
+      select.innerHTML = '<option value="">Select a saved connection</option>';
+      (savedControllerProfiles || []).forEach(function(profile) {
+        const option = new Option((profile.name || 'Catalyst Center') + ' · ' + (profile.host || ''), profile.profile_id);
+        select.add(option);
+      });
+    }
+
+    function resetUpgradeSiteState() {
+      upgradeSites = [];
+      upgradePlatforms = [];
+      $('upgrade-site').innerHTML = '<option value="">Choose a cluster first</option>';
+      $('upgrade-site').disabled = true;
+      $('upgrade-platform-panel').classList.add('hidden');
+      $('upgrade-plan-panel').classList.add('hidden');
+      $('upgrade-platforms').innerHTML = '';
+      upgradePlanContent = '';
+      setUpgradeStatus('', false);
+    }
+
+    async function loadUpgradeSites() {
+      const profileId = $('upgrade-cluster').value;
+      resetUpgradeSiteState();
+      if (!profileId) return;
+      $('upgrade-site').innerHTML = '<option value="">Loading sites…</option>';
+      $('upgrade-site').disabled = true;
+      try {
+        upgradeSites = await fetchJson('/api/upgrade/sites', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({profile_id: profileId})
+        });
+        const select = $('upgrade-site');
+        select.innerHTML = '<option value="">Select a site</option>';
+        upgradeSites.forEach(function(site) { select.add(new Option(site.name, site.id)); });
+        select.disabled = false;
+        if (!upgradeSites.length) setUpgradeStatus('No sites were returned by this Catalyst Center cluster.', true);
+      } catch (error) {
+        $('upgrade-site').innerHTML = '<option value="">Unable to load sites</option>';
+        setUpgradeStatus(error.message, true);
+      }
+    }
+
+    async function loadUpgradePlatforms() {
+      const siteId = $('upgrade-site').value;
+      $('upgrade-plan-panel').classList.add('hidden');
+      $('upgrade-platform-panel').classList.add('hidden');
+      $('upgrade-platforms').innerHTML = '';
+      upgradePlatforms = [];
+      upgradePlanContent = '';
+      setUpgradeStatus('', false);
+      if (!siteId) return;
+      $('upgrade-platform-panel').classList.remove('hidden');
+      $('upgrade-platforms').innerHTML = '<p class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">Loading platforms assigned to this site…</p>';
+      try {
+        upgradePlatforms = await fetchJson('/api/upgrade/platforms', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({profile_id: $('upgrade-cluster').value, site_id: siteId})
+        });
+        renderUpgradePlatforms();
+      } catch (error) {
+        $('upgrade-platforms').innerHTML = '';
+        setUpgradeStatus(error.message, true);
+      }
+    }
+
+    function renderUpgradePlatforms() {
+      const host = $('upgrade-platforms');
+      if (!upgradePlatforms.length) {
+        host.innerHTML = '<p class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No supported product platforms were returned for this site.</p>';
+        return;
+      }
+      host.innerHTML = upgradePlatforms.map(function(platform, index) {
+        const ids = platform.product_ids && platform.product_ids.length
+          ? '<p class="mt-1 text-xs text-slate-500">Supported PIDs: ' + htmlEscape(platform.product_ids.join(', ')) + '</p>' : '';
+        return '<article data-upgrade-platform="' + index + '" class="rounded-2xl border border-slate-200 p-4">'
+          + '<div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">'
+          + '<div class="min-w-0"><h4 class="font-bold text-slate-900">' + htmlEscape(platform.name) + '</h4>' + ids + '</div>'
+          + '<button type="button" onclick="loadUpgradeImages(' + index + ')" class="shrink-0 rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-2 text-xs font-bold text-cyan-800 hover:bg-cyan-100">Fetch CCO images</button>'
+          + '</div>'
+          + '<div class="mt-4 grid gap-3 lg:grid-cols-3">'
+          + '<div><label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">CCO image</label><select data-upgrade-image class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm"><option value="">Fetch image options first</option></select></div>'
+          + '<div><label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">SWIM series filter</label><input data-upgrade-series type="text" value="' + htmlEscape(platform.name) + '" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"></div>'
+          + '<div><label class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">SWIM device family filter (optional)</label><input data-upgrade-family type="text" placeholder="e.g. Switches and Hubs" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"></div>'
+          + '</div></article>';
+      }).join('');
+    }
+
+    async function loadUpgradeImages(index) {
+      const platform = upgradePlatforms[index];
+      const card = document.querySelector('[data-upgrade-platform="' + index + '"]');
+      if (!platform || !card) return;
+      const button = card.querySelector('button');
+      const select = card.querySelector('[data-upgrade-image]');
+      button.disabled = true;
+      button.textContent = 'Fetching…';
+      select.innerHTML = '<option value="">Loading CCO images…</option>';
+      try {
+        const images = await fetchJson('/api/upgrade/images', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({profile_id: $('upgrade-cluster').value, site_id: $('upgrade-site').value,
+            product_name_ordinal: platform.ordinal})
+        });
+        select.innerHTML = '<option value="">Select a CCO image</option>';
+        images.forEach(function(image) {
+          const badges = [image.latest ? 'Latest' : '', image.recommended ? 'Cisco recommended' : ''].filter(Boolean).join(' · ');
+          const option = new Option(image.name + (image.version ? ' · ' + image.version : '') + (badges ? ' · ' + badges : ''), image.name);
+          select.add(option);
+        });
+        if (!images.length) select.innerHTML = '<option value="">No CCO images returned</option>';
+      } catch (error) {
+        select.innerHTML = '<option value="">Image lookup failed</option>';
+        setUpgradeStatus(error.message, true);
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Fetch CCO images';
+      }
+    }
+
+    async function generateUpgradePlan() {
+      const selectedSite = upgradeSites.find(function(site) { return site.id === $('upgrade-site').value; });
+      if (!selectedSite) { setUpgradeStatus('Choose a site first.', true); return; }
+      const selections = [];
+      document.querySelectorAll('[data-upgrade-platform]').forEach(function(card) {
+        const imageName = card.querySelector('[data-upgrade-image]').value;
+        if (!imageName) return;
+        const platform = upgradePlatforms[Number(card.dataset.upgradePlatform)];
+        selections.push({
+          product_name: platform.name,
+          image_name: imageName,
+          device_series_name: card.querySelector('[data-upgrade-series]').value.trim(),
+          device_family_name: card.querySelector('[data-upgrade-family]').value.trim(),
+          device_role: 'ALL'
+        });
+      });
+      if (!selections.length) { setUpgradeStatus('Fetch CCO image options and select at least one image.', true); return; }
+      setUpgradeStatus('', false);
+      try {
+        const plan = await fetchJson('/api/upgrade/plan', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({site_name: selectedSite.name, maintenance_window: $('upgrade-window').value,
+            selections: selections})
+        });
+        upgradePlanContent = plan.content;
+        $('upgrade-plan-yaml').textContent = plan.content;
+        $('upgrade-plan-panel').classList.remove('hidden');
+        setUpgradeStatus('SWIM vars file generated. Review the filters and save it for the planned downtime.', false);
+      } catch (error) {
+        setUpgradeStatus(error.message, true);
+      }
+    }
+
+    function downloadUpgradePlan() {
+      if (!upgradePlanContent) return;
+      const blob = new Blob([upgradePlanContent], {type: 'text/yaml;charset=utf-8'});
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'swim_upgrade_plan.yml';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    }
+
     window.addEventListener('DOMContentLoaded', async function() {
       try {
         const data = await Promise.all([
@@ -4236,6 +4477,7 @@
       setRunMode('plan');
       setRunTargetMode('multiple');
       await loadControllerProfiles().catch(function(error) { showToast(error.message); });
+      renderUpgradeClusters();
       setSourceMode('run-vars', 'workflow');
       setSourceMode('run-inventory', 'default');
       setSourceMode('modal-vars', 'workflow');
@@ -4252,7 +4494,7 @@
       const navigationEntry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
       const isReload = navigationEntry ? navigationEntry.type === 'reload' : performance.navigation && performance.navigation.type === 1;
       const savedTab = isReload ? sessionStorage.getItem(ACTIVE_TAB_STORAGE_KEY) : '';
-      switchTab(['dashboard', 'run', 'workflow', 'git', 'history'].indexOf(savedTab) !== -1 ? savedTab : 'dashboard');
+      switchTab(['dashboard', 'run', 'workflow', 'git', 'history', 'upgrade'].indexOf(savedTab) !== -1 ? savedTab : 'dashboard');
     });
 
     document.addEventListener('click', function(event) {
