@@ -214,12 +214,12 @@ wireless_design_details:
       management_settings:
         access_point_authentication: "EAP-PEAP"
         dot1x_username: "admin"
-        dot1x_password: "asdfasdfasdfsdf"
+        dot1x_password: "{{ dot1x_pass1 }}"
     - access_point_profile_name: "Authenticated-EAP-FAST-AP"
       management_settings:
         access_point_authentication: "EAP-FAST"
         dot1x_username: "admin"
-        dot1x_password: "asdfasdfasdfsdf"
+        dot1x_password: "{{ dot1x_pass2 }}"
     - access_point_profile_name: "Authenticated-NO-AUTH-AP"
       remote_teleworker: true
       management_settings:
@@ -227,8 +227,8 @@ wireless_design_details:
         ssh_enabled: true
         telnet_enabled: false
         management_username: "admin"
-        management_password: "securePass"
-        management_enable_password: "adflmlssf"
+        management_password: "{{ mgmt_pass1 }}"
+        management_enable_password: "{{ mgmt_pass1 }}"
   #Define the RF profiles for the wireless network
   - radio_frequency_profiles:
     - radio_frequency_profile_name: "rf_profile_6ghz_basic"

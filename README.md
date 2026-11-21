@@ -301,6 +301,13 @@ vars/
     The vars file contains the variables that are used in the playbook. The vars file can be modified to suit your environment.
     Refer the example vars file in the vars folder. you can create your vars file in the same format.
 
+### Protect workflow credentials
+Committed workflow input files leave password, shared-secret, and community fields empty. Supply
+real values through Ansible Vault or a private local vars file; do not commit plaintext credentials.
+The repository ignores `/local_secrets/` and files ending in `.secret.yml`, `.secrets.yml`, or
+`.private.yml` for local overrides. Existing exposed credentials should be rotated because removing
+them from the current checkout does not remove them from earlier Git history.
+
 ### Create a data older and organize your input var files:
     Create a data folder in your project directory and organize your input var files in the data folder.
     A sample Project is provided here: https://github.com/DNACENSolutions/Network-as-Code

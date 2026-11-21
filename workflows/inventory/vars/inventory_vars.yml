@@ -7,11 +7,11 @@ inventory_details:
   - ip_address_list: ["204.101.16.1","1.1.1.1", "2.2.2.2"]
     cli_transport: ssh
     compute_device: False
-    password: Test@123
-    enable_password: Test@1234
+    password: "{{ dev_pass1 }}"
+    enable_password: "{{ dev_en_pass1 }}"
     extended_discovery_info: test
     http_username: "testuser"
-    http_password: "test"
+    http_password: "{{ dev_http_pass1 }}"
     http_port: "443"
     http_secure: False
     netconf_port: 830

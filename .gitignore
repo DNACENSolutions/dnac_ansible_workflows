@@ -31,3 +31,7 @@ schema_validation_reports
 .playwright-cli/
 inventory/mylab/
 .runner_repos/
+/local_secrets/
+*.secret.yml
+*.secrets.yml
+*.private.yml

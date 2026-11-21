@@ -68,16 +68,16 @@ sda_fabric_discover_and_onboard_fabric_devices:
             discovery_specific_credentials:
               cli_credentials_list:
                 - username: "wlcadmin"
-                  password: "Cisco#123"
-                  enable_password: "Cisco#123"
+                  password: "{{ user_pass1 }}"
+                  enable_password: "{{ user_en_pass1 }}"
               snmp_v3_credential:
                 description: "snmpv3_wlc"
                 username: "wlcadmin"
                 snmp_mode: "AUTHPRIV"
-                auth_password: "Cisco#123"
+                auth_password: "{{ user_pass1 }}"
                 auth_type: "SHA"
                 privacy_type: "AES128"
-                privacy_password: "Cisco#123"
+                privacy_password: "{{ user_pass1 }}"
               net_conf_port: "830"
             retry: 2
 
